@@ -1,0 +1,10 @@
+--- sc_process.h	2020-10-16 04:28:17.408738000 -0700
++++ sc_process.h_last	2020-03-23 10:38:36.000000000 -0700
+@@ -356,6 +356,7 @@
+     inline sc_curr_proc_kind proc_kind() const;
+     sc_event& reset_event();
+     sc_event& terminated_event();
++    const std::vector<const sc_event*>& get_static_events() {return m_static_events;}
+ 
+   public:
+     static inline sc_process_handle last_created_process_handle();
