@@ -9,5 +9,5 @@ ICSC is focused on improving productivity of design and verification engineers a
 
 ICSC includes library of common modules like FIFO, clock gate cells, zero-delay channels and others. ICSC supports SystemC temporal assertions translation into SystemVerilog Assertions (SVA).
 
-See detailed description, build and run instruction and other information at [Intel Compiler for SystemC wiki](https://github.com/intel/systemc-compiler/wiki/Intel-Compiler-for-SystemC).
+See detailed description, build and run instruction and other information at [Intel Compiler for SystemC wiki](https://github.com/intel/systemc-compiler/wiki/Main-page).
 
