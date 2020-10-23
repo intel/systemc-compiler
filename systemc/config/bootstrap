@@ -1,0 +1,13 @@
+#! /bin/sh
+
+LIBTOOLIZE=libtoolize
+if test x"`uname -s`" = "xDarwin" ; then
+LIBTOOLIZE=glibtoolize
+fi
+
+aclocal -I config && \
+   $LIBTOOLIZE --automake --force --copy && \
+   automake --add-missing --copy && \
+   autoconf
+
+# Taf!

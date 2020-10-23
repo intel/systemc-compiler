@@ -1,0 +1,166 @@
+//*****************************************************************************
+// Copyright (c) 2020, Intel Corporation. All rights reserved.
+// 
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+// 
+//*****************************************************************************
+
+// Author: Roman Popov
+
+syntax = "proto2";
+
+package sc_elab;
+
+// Raw pointer or port
+message Pointer {
+    // Normally it is id of pointee
+    // If pointee not exists, for non-constant integer array, it stores
+    // <id of array, element offset>
+    repeated uint32 pointee_id = 1;
+    required bool is_null = 2;
+}
+
+
+message Sensitive {
+    enum EventKind {
+        DEFAULT = 1;
+        NEGEDGE = 2;
+        POSEDGE = 3;
+    }
+    required EventKind kind = 1;
+    required uint32 event_source_id = 2;
+}
+
+message Reset {
+    required uint32 source_id = 1;
+    required bool level = 2;
+    required bool async = 3;
+}
+
+message Process {
+
+    enum ProcessKind {
+        SC_METHOD  = 1;
+        SC_THREAD  = 2;
+        SC_CTHREAD = 3;
+    }
+
+    required ProcessKind kind = 1;
+    // Type of class where the process function declared
+    required string type_name = 2;  
+    repeated Sensitive static_events = 3;
+    repeated Reset resets = 4;
+}
+
+// Presence of signde/unsigned value determines it is signed or usigned
+message InitialValue {
+    optional int64 int64_value = 1;
+    optional uint64 uint64_value = 2;
+    optional double double_val = 3;
+    required uint32 bitwidth = 4;
+    required bool dyn_bitwidth = 5; // sc_*int_base sc_signed/sc_unsigned has bitwidth defined at elab-time
+}
+
+message Primitive {
+    enum Kind {
+        VALUE = 1;        // init_val, integer variable
+        POINTER = 2;      // ptr_val
+        PORT = 3;         // ptr_val pointer to signal or port, sc_in/sc_out
+        REFERENCE = 4;    // ptr_val
+        EXPORT = 5;       // not supported  
+        EVENT = 6;        // not supported
+        PROCESS = 7;      // proc_val
+        STRING = 8;       // std::string and const char*
+        UNSUPPORTED = 9;
+    }
+
+    required Kind kind = 1;
+
+    optional InitialValue init_val = 2;
+    optional Pointer ptr_val = 3;
+    optional Process proc_val = 4;
+    optional string  str_val = 5;
+}
+
+// class, struct, sc_module, sc_signal
+message Record {
+    // Member IDs in predefined order:
+    // 1. Base classes
+    // 2. Data members
+    // 3. Dynamically allocated objects (if Record is Module)
+    // static fields are not included (can be optimized away by compiler)
+    repeated uint32 member_ids = 1;
+}
+
+// Non-constant array of integers contains only one element in @element_ids,
+// which is used to get size from the type (required for sc_unsigned, sc_int_base)
+// Array of pointers always contains @element_ids
+message Array {
+    repeated uint32 dims = 2;
+    repeated uint32 element_ids = 3;    // In array order
+}
+
+// Object in memory, member of design hierarchy
+message Object {
+    required uint32 id = 1;          // Unique ID of object, starts from 0
+    required uint32 type_id = 2;     // Unique ID of object type name, starts from 0
+
+    // IDs of parent objects (not type, where this object is directly instantiated). 
+    // Array element has array object as parent here.
+    // Class object fields have this object as parent.
+    // Usually, there is only a single parent object.
+    // The only exception is virtual base class.
+    repeated uint32 parent_ids = 3;
+
+    repeated uint32 pointer_ids = 4; // IDs of pointers pointing to this object
+    // Constant is applied to record fileds, array elements
+    required bool  is_constant = 5;  // simulation-time constant
+
+    // Relationship to parent
+    enum ParentRelType {
+        ARRAY_ELEMENT = 1; // Element of parent array
+        DATA_MEMBER = 2;   // Data member of parent class
+        BASE_CLASS = 3;    // Base class of parent class
+        DYNAMIC = 4;       // Dynamically allocated in parent module in @parent_ids
+                           // differs from DATA_MEMBER 
+        STATIC = 5;        // Static and global constant
+        NO_PARENT = 6;     // Outside of SystemC design hierarchy, when there are
+                           // signals outside of top module
+    }
+
+    required ParentRelType rel_type = 6;
+
+    optional uint32 array_idx = 7;    // If rel_type == ARRAY_ELEMENT, stores element index
+    optional string field_name = 8;   // If rel_type == DATA_MEMBER or STATIC, stores member variable name
+    optional string sc_name = 9;      // sc_object name  (m_name)
+
+    enum ObjKind {
+        PRIMITIVE = 1; // Object is design "primitive", like integer value, port, etc..
+        RECORD = 2;    // Object is struct or class, a container of data members
+        ARRAY = 3;     // Object is array
+    }
+
+    required ObjKind kind = 10; // object kind
+
+    enum SCAggregateKind {
+        SC_NONE = 0;    // not a systemc-special aggregate
+        SC_MODULE = 1;  // can contain processes and DYNAMICally allocated members
+        SC_SIGNAL = 2;              // struct-like, but has single value field
+        SC_MODULAR_INTERFACE = 3;   // same as SC_MODULE, inlined for synthesisl
+        SC_VECTOR = 4;              // array of sc_objects
+    }
+
+    required SCAggregateKind sckind = 11;
+
+    optional Primitive primitive = 12; // if kind == PRIMITIVE, stores type and value of primitive
+    optional Record record = 13;       // if kind == RECORD stores ids of DATA_MEMBERs ( and DYNAMIC objects)
+    optional Array array = 14;         // if kind == ARRAY, stores arrays size and elements ids
+}
+
+// Elaborated SystemC Design
+message SCDesign {
+    repeated string types = 1;      // list of C++ type names used in design
+    repeated Object objects = 2;    // list of objects in design, objects[0] == Top level module
+    repeated uint32 module_ids = 3; // ids of SC_MODULEs and SC_MODULAR_INTERFACEs
+}
+

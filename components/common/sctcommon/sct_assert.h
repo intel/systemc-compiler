@@ -1,11 +1,15 @@
+/******************************************************************************
+ * Copyright (c) 2020, Intel Corporation. All rights reserved.
+ * 
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+ * 
+ *****************************************************************************/
+
 /**
  * SystemC temporal assertions. 
  * SCT_ASSERT and SCT_ASSERT_LOOP macros definition.
  * 
- * Copyright (c) 2020, Intel Corporation. All rights reserved.
- * 
- * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
- * 
+ * Author: Mikhail Moiseev
  */
 
 #ifndef SCT_ASSERT_H
@@ -169,6 +173,48 @@ void sct_assert_in_proc_func(bool lhs, bool rhs,\
                                       SCT_ASSERT2, SCT_ASSERT1)(__VA_ARGS__)
 #define SCT_ASSERT_LOOP(...) SCT_ASSERT_LOOPN(__VA_ARGS__)
 #endif
+
+//=============================================================================
+// Special assertions of ISCS tool, used for tool testing
+
+/// Latch assertion, assert that given variable, signal or port is latch or not
+/// depends on second parameter
+/// \param var -- variable, signal or port 
+/// \param latch -- assert latch if true, or not latch otherwise
+template <typename T>
+inline void sct_assert_latch(T& var, bool latch = true) {}
+
+/// Check given expression is true in constant propagation analysis
+#ifdef __SC_TOOL__
+inline void sct_assert_const(bool expr) {
+    assert(expr);
+}
+#else
+#define sct_assert_const(X) sc_assert(X)
+#endif
+
+/// Check current block level with given one
+inline void sct_assert_level(unsigned level) {}
+
+/// Check value is unknown 
+template <typename T>
+inline void sct_assert_unknown(T v) {}
+
+/// Check if @v is defined if @b is true or not else
+template <typename T>
+inline void sct_assert_defined(T& v, bool b = true) {}
+
+/// Check if @v is read if @b is true or not else
+template <typename T>
+inline void sct_assert_read(T& v, bool b = true) {}
+
+/// Check if @v is read not defined if @b is true or not else
+template <typename T>
+inline void sct_assert_register(T& v, bool b = true) {}
+
+/// Check if @v is array some element of which defined at least at on path
+template <typename T>
+inline void sct_assert_array_defined(T& v, bool b = true) {}
 
 }
 

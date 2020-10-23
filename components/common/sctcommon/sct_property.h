@@ -1,11 +1,15 @@
+/******************************************************************************
+ * Copyright (c) 2020, Intel Corporation. All rights reserved.
+ * 
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+ * 
+ *****************************************************************************/
+
 /**
  * SystemC temporal assertions.
  * sct_property, sct_property_expr and sct_property_storage classes. 
  * 
- * Copyright (c) 2020, Intel Corporation. All rights reserved.
- * 
- * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
- * 
+ * Author: Mikhail Moiseev
  */
 
 #ifndef SCT_PROPERTY_H

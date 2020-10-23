@@ -1,0 +1,37 @@
+#******************************************************************************
+# Copyright (c) 2020, Intel Corporation. All rights reserved.
+# 
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+# 
+# *****************************************************************************
+
+# - Config file for the SVC package
+# It defines the following variables:
+#  SystemC_TARGET_ARCH - Target architecture according to the Accellera SystemC conventions
+#  SystemC_CXX_STANDARD - Preferred C++ standard
+#  SystemC_CXX_STANDARD_REQUIRED - Determine whether the selected C++ standard is a requirement
+#  CLANG_INT_INC_DIR - Location of Clang internal headers, required to run tool
+@PACKAGE_INIT@
+
+# Checking PThread are installed, required for SystemC 
+include(CMakeFindDependencyMacro)
+
+# if (@CMAKE_USE_PTHREADS_INIT@)
+  set (THREADS_PREFER_PTHREAD_FLAG ON)
+  find_dependency (Threads)
+  if (NOT CMAKE_USE_PTHREADS_INIT)
+    message (SEND_ERROR "Failed to find the Pthreads library required to implement the SystemC coroutines and async_request_update() of primitive channels on Unix.")
+  endif (NOT CMAKE_USE_PTHREADS_INIT)
+# endif (@CMAKE_USE_PTHREADS_INIT@)
+
+# Contains includes and options for each used library (SystemC, ScTool, SysCRTTI)
+include ("${CMAKE_CURRENT_LIST_DIR}/SVCTargets.cmake")
+include ("${CMAKE_CURRENT_LIST_DIR}/svc_target.cmake")
+
+# Are configured at cmake run 
+set (SystemC_TARGET_ARCH @SystemC_TARGET_ARCH@)
+set (SystemC_CXX_STANDARD @CMAKE_CXX_STANDARD@)
+set (SystemC_CXX_STANDARD_REQUIRED @CMAKE_CXX_STANDARD_REQUIRED@)
+
+# CLang internal headers, required as sc_tool located out of CLang folder
+set (CLANG_INT_INC_DIR "$ENV{ICSC_HOME}/lib/clang/7.0.0/include")

@@ -1,0 +1,1042 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b7815aef78749b78bd41d0547e4362aecfeee744..e43a8a2bd1bef54380afb4cb9b272d7ddda98a6c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -273,21 +273,24 @@ if (NOT CMAKE_BUILD_TYPE)
+        FORCE)
+ endif (NOT CMAKE_BUILD_TYPE)
+ 
+-set (CMAKE_CXX_STANDARD 98 CACHE STRING
+-     "C++ standard to build all targets. Supported values are 98, 11, and 14.")
+-set (CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL
+-     "The with CMAKE_CXX_STANDARD selected C++ standard is a requirement.")
+-mark_as_advanced (CMAKE_CXX_STANDARD_REQUIRED)
+-
+-if (NOT (WIN32 OR CYGWIN))
+-  option (BUILD_SHARED_LIBS "Build shared libraries." ON)
+-else (NOT (WIN32 OR CYGWIN))
+-  option (BUILD_SHARED_LIBS "Build shared libraries." OFF)
+-endif (NOT (WIN32 OR CYGWIN))
+-if (BUILD_SHARED_LIBS AND (WIN32 OR CYGWIN))
+-  message (WARNING "The compilation of SystemC as a DLL on Windows is currently not supported!")
+-  set (BUILD_SHARED_LIBS CACHE BOOL "Build shared libraries." OFF FORCE)
+-endif (BUILD_SHARED_LIBS AND (WIN32 OR CYGWIN))
++#set(BUILD_SHARED_LIBS OFF)
++# -- Set by SVC -----------------------
++#set (CMAKE_CXX_STANDARD 98 CACHE STRING
++#     "C++ standard to build all targets. Supported values are 98, 11, and 14.")
++#set (CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL
++#     "The with CMAKE_CXX_STANDARD selected C++ standard is a requirement.")
++#mark_as_advanced (CMAKE_CXX_STANDARD_REQUIRED)
++#
++#if (NOT (WIN32 OR CYGWIN))
++#  option (BUILD_SHARED_LIBS "Build shared libraries." ON)
++#else (NOT (WIN32 OR CYGWIN))
++#  option (BUILD_SHARED_LIBS "Build shared libraries." OFF)
++#endif (NOT (WIN32 OR CYGWIN))
++#if (BUILD_SHARED_LIBS AND (WIN32 OR CYGWIN))
++#  message (WARNING "The compilation of SystemC as a DLL on Windows is currently not supported!")
++#  set (BUILD_SHARED_LIBS CACHE BOOL "Build shared libraries." OFF FORCE)
++#endif (BUILD_SHARED_LIBS AND (WIN32 OR CYGWIN))
++
+ 
+ option (BUILD_SOURCE_DOCUMENTATION "Build source documentation with Doxygen." OFF)
+ 
+@@ -305,7 +308,7 @@ option (ENABLE_EARLY_MAXTIME_CREATION "Allow creation of sc_time objects with a
+ 
+ option (ENABLE_IMMEDIATE_SELF_NOTIFICATIONS "Enable immediate self-notification of processes, which is no longer supported due to changes in IEEE Std 1666-2011 (see sc_event::notify, 5.10.6)." OFF)
+ 
+-option (ENABLE_PHASE_CALLBACKS "Enable the simulation phase callbacks (experimental)." OFF)
++option (ENABLE_PHASE_CALLBACKS "Enable the simulation phase callbacks (experimental)." ON)
+ 
+ option (ENABLE_PHASE_CALLBACKS_TRACING "Enable the use of the (experimental) simulation phase callbacks for the sc_trace() implementation." ON)
+ 
+@@ -538,21 +541,21 @@ endif (ENABLE_PTHREADS OR (QT_ARCH AND NOT DISABLE_ASYNC_UPDATES) OR NOT QT_ARCH
+ # Set the installation paths
+ ###############################################################################
+ 
+-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+-  if (IS_ABSOLUTE $ENV{SYSTEMC_HOME})
+-    set (_CMAKE_INSTALL_PREFIX $ENV{SYSTEMC_HOME})
+-  elseif (UNIX)
+-    set (_CMAKE_INSTALL_PREFIX "/opt/systemc")
+-  elseif (WIN32)
+-    file (TO_CMAKE_PATH $ENV{ProgramFiles} _WIN32_INSTALL_PREFIX)
+-    set (_CMAKE_INSTALL_PREFIX "${_WIN32_INSTALL_PREFIX}/SystemC")
+-    unset (_WIN32_INSTALL_PREFIX)
+-  else (EXISTS $ENV{SYSTEMC_ROOT_DIR})
+-    set (_CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/systemc")
+-  endif (IS_ABSOLUTE $ENV{SYSTEMC_HOME})
+-  set (CMAKE_INSTALL_PREFIX ${_CMAKE_INSTALL_PREFIX} CACHE PATH "Installation root directory" FORCE)
+-  unset (_CMAKE_INSTALL_PREFIX)
+-endif (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
++#if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
++#  if (IS_ABSOLUTE $ENV{SYSTEMC_HOME})
++#    set (_CMAKE_INSTALL_PREFIX $ENV{SYSTEMC_HOME})
++#  elseif (UNIX)
++#    set (_CMAKE_INSTALL_PREFIX "/opt/systemc")
++#  elseif (WIN32)
++#    file (TO_CMAKE_PATH $ENV{ProgramFiles} _WIN32_INSTALL_PREFIX)
++#    set (_CMAKE_INSTALL_PREFIX "${_WIN32_INSTALL_PREFIX}/SystemC")
++#    unset (_WIN32_INSTALL_PREFIX)
++#  else (EXISTS $ENV{SYSTEMC_ROOT_DIR})
++#    set (_CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/systemc")
++#  endif (IS_ABSOLUTE $ENV{SYSTEMC_HOME})
++#  set (CMAKE_INSTALL_PREFIX ${_CMAKE_INSTALL_PREFIX} CACHE PATH "Installation root directory" FORCE)
++#  unset (_CMAKE_INSTALL_PREFIX)
++#endif (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+ 
+ # Set the installation paths for headers, libraries, and documentation.
+ set (CMAKE_INSTALL_DOCDIR "share/doc/systemc" CACHE PATH
+@@ -712,7 +715,7 @@ message (STATUS "===============================================================
+ 
+ add_subdirectory (docs)
+ add_subdirectory (src)
+-add_subdirectory (examples)
++# add_subdirectory (examples)
+ 
+ 
+ ###############################################################################
+@@ -736,47 +739,47 @@ install (FILES AUTHORS
+ # Provide package of the SystemC library to other programs using CMake
+ ###############################################################################
+ 
+-# Export the systemc library target for usage by other programs
+-# ... to local build tree
+-export (TARGETS systemc
+-        NAMESPACE SystemC::
+-        FILE SystemCLanguageTargets.cmake)
+-# ... to installation tree
+-install (EXPORT SystemCLanguageTargets
+-         NAMESPACE SystemC::
+-         DESTINATION ${SystemCLanguage_INSTALL_CMAKEDIR}
+-         COMPONENT dev)
+-
+-# Register the SystemCLanguage and SystemCTLM packages for use from the
+-# build tree. (This registers the build tree with the global CMake-registry.)
+-export (PACKAGE SystemCLanguage)
+-export (PACKAGE SystemCTLM)
+-
+-# Create the <Package>Config.cmake and <Package>ConfigVersion files
+-include(CMakePackageConfigHelpers)
+-configure_package_config_file(cmake/SystemCLanguageConfig.cmake.in
+-  ${CMAKE_CURRENT_BINARY_DIR}/SystemCLanguageConfig.cmake
+-  INSTALL_DESTINATION ${SystemCLanguage_INSTALL_CMAKEDIR})
+-write_basic_package_version_file(
+-  "${CMAKE_CURRENT_BINARY_DIR}/SystemCLanguageConfigVersion.cmake"
+-  VERSION ${SystemCLanguage_VERSION_MAJOR}.${SystemCLanguage_VERSION_MINOR}.${SystemCLanguage_VERSION_PATCH}.${SystemCLanguage_VERSION_RELEASE_DATE}
+-  COMPATIBILITY AnyNewerVersion
+-)
+-configure_package_config_file(cmake/SystemCTLMConfig.cmake.in
+-  ${CMAKE_CURRENT_BINARY_DIR}/SystemCTLMConfig.cmake
+-  INSTALL_DESTINATION ${SystemCTLM_INSTALL_CMAKEDIR})
+-write_basic_package_version_file(
+-  "${CMAKE_CURRENT_BINARY_DIR}/SystemCTLMConfigVersion.cmake"
+-  VERSION ${SystemCTLM_VERSION_MAJOR}.${SystemCTLM_VERSION_MINOR}.${SystemCTLM_VERSION_PATCH}.${SystemCTLM_VERSION_RELEASE_DATE}
+-  COMPATIBILITY AnyNewerVersion
+-)
+-
+-# Install the <Package>Config.cmake and <Package>ConfigVersion.cmake
+-install(FILES "${PROJECT_BINARY_DIR}/SystemCLanguageConfig.cmake"
+-              "${PROJECT_BINARY_DIR}/SystemCLanguageConfigVersion.cmake"
+-        DESTINATION "${SystemCLanguage_INSTALL_CMAKEDIR}"
+-        COMPONENT dev)
+-install(FILES "${PROJECT_BINARY_DIR}/SystemCTLMConfig.cmake"
+-              "${PROJECT_BINARY_DIR}/SystemCTLMConfigVersion.cmake"
+-        DESTINATION "${SystemCTLM_INSTALL_CMAKEDIR}"
+-        COMPONENT dev)
++## Export the systemc library target for usage by other programs
++## ... to local build tree
++#export (TARGETS systemc
++#        NAMESPACE SVC::
++#        FILE SystemCLanguageTargets.cmake)
++## ... to installation tree
++#install (EXPORT SystemCLanguageTargets
++#         NAMESPACE SVC::
++#         DESTINATION ${SystemCLanguage_INSTALL_CMAKEDIR}
++#         COMPONENT dev)
++#
++## Register the SystemCLanguage and SystemCTLM packages for use from the
++## build tree. (This registers the build tree with the global CMake-registry.)
++#export (PACKAGE SystemCLanguage)
++#export (PACKAGE SystemCTLM)
++#
++## Create the <Package>Config.cmake and <Package>ConfigVersion files
++#include(CMakePackageConfigHelpers)
++#configure_package_config_file(cmake/SystemCLanguageConfig.cmake.in
++#  ${CMAKE_CURRENT_BINARY_DIR}/SystemCLanguageConfig.cmake
++#  INSTALL_DESTINATION ${SystemCLanguage_INSTALL_CMAKEDIR})
++#write_basic_package_version_file(
++#  "${CMAKE_CURRENT_BINARY_DIR}/SystemCLanguageConfigVersion.cmake"
++#  VERSION ${SystemCLanguage_VERSION_MAJOR}.${SystemCLanguage_VERSION_MINOR}.${SystemCLanguage_VERSION_PATCH}.${SystemCLanguage_VERSION_RELEASE_DATE}
++#  COMPATIBILITY AnyNewerVersion
++#)
++#configure_package_config_file(cmake/SystemCTLMConfig.cmake.in
++#  ${CMAKE_CURRENT_BINARY_DIR}/SystemCTLMConfig.cmake
++#  INSTALL_DESTINATION ${SystemCTLM_INSTALL_CMAKEDIR})
++#write_basic_package_version_file(
++#  "${CMAKE_CURRENT_BINARY_DIR}/SystemCTLMConfigVersion.cmake"
++#  VERSION ${SystemCTLM_VERSION_MAJOR}.${SystemCTLM_VERSION_MINOR}.${SystemCTLM_VERSION_PATCH}.${SystemCTLM_VERSION_RELEASE_DATE}
++#  COMPATIBILITY AnyNewerVersion
++#)
++#
++## Install the <Package>Config.cmake and <Package>ConfigVersion.cmake
++#install(FILES "${PROJECT_BINARY_DIR}/SystemCLanguageConfig.cmake"
++#              "${PROJECT_BINARY_DIR}/SystemCLanguageConfigVersion.cmake"
++#        DESTINATION "${SystemCLanguage_INSTALL_CMAKEDIR}"
++#        COMPONENT dev)
++#install(FILES "${PROJECT_BINARY_DIR}/SystemCTLMConfig.cmake"
++#              "${PROJECT_BINARY_DIR}/SystemCTLMConfigVersion.cmake"
++#        DESTINATION "${SystemCTLM_INSTALL_CMAKEDIR}"
++#        COMPONENT dev)
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 376f7d7f5a785703f857e7a5abaaba797f4411f8..af537a8bae3d156928a34fea7f4fc84833277640 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -420,6 +420,13 @@ add_library (systemc sysc/communication/sc_clock.cpp
+                      tlm_utils/simple_initiator_socket.h
+                      tlm_utils/simple_target_socket.h
+                      tlm_utils/tlm_quantumkeeper.h
++
++                     # SVC SystemC Elaboration support
++                     sc_elab/elab_alloc.h
++                     sc_elab/elab_alloc.cpp
++                     sc_elab/sc_tool_opts.h
++                     sc_elab/sc_tool_opts.cpp
++
+                      # QuickThreads
+                      $<$<BOOL:${QT_ARCH}>:
+                        sysc/packages/qt/qt.c
+@@ -451,7 +458,7 @@ add_library (systemc sysc/communication/sc_clock.cpp
+                        sysc/packages/qt/qtmd.h
+                      >)
+ 
+-add_library (SystemC::systemc ALIAS systemc)
++add_library (SVC::systemc ALIAS systemc)
+ 
+ target_compile_definitions (
+   systemc
+@@ -512,7 +519,7 @@ set_target_properties (systemc
+ # Install rules for SystemC library
+ ###############################################################################
+ 
+-install (TARGETS systemc EXPORT  SystemCLanguageTargets
++install (TARGETS systemc EXPORT  SVCTargets
+                          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+diff --git a/src/sc_elab/allocated_node.h b/src/sc_elab/allocated_node.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..ffa58d66c013883d2771902d0219234d522d2cf7
+--- /dev/null
++++ b/src/sc_elab/allocated_node.h
+@@ -0,0 +1,41 @@
++//
++// Created by ripopov on 9/25/18.
++//
++
++#ifndef SCTOOL_ALLOCATED_NODE_H
++#define SCTOOL_ALLOCATED_NODE_H
++
++#include <string>
++#include <vector>
++
++namespace sc_core
++{
++    class sc_module;
++}
++
++namespace sc_elab
++{
++
++/// allocated_node - information about memory allocation
++struct allocated_node {
++    void *ptr; /// ptr to allocated block
++    sc_core::sc_module* host_mod_p; /// owning sc_module
++    std::size_t size_bytes; /// size of allocation in bytes
++    bool is_array; /// true for new[] allocations
++    std::string mangled_type_name;
++    std::size_t array_size; // number of elements in array for new [X]
++};
++
++/// get traced dynamic allocations for specified module
++const std::vector<allocated_node>&
++get_module_allocs(const sc_core::sc_module* mod_ptr);
++
++/// Calls before_end_of_elaboration callbacks
++void finalize_elaboration();
++
++/// Generate mangled names for sc_objects, allocated using raw new or new[]
++void finalize_module_allocations();
++
++}
++
++#endif //SCTOOL_ALLOCATED_NODE_H
+diff --git a/src/sc_elab/elab_alloc.cpp b/src/sc_elab/elab_alloc.cpp
+new file mode 100644
+index 0000000000000000000000000000000000000000..299d3fc48c9e6780df03c4f3b050af49e0c25fe1
+--- /dev/null
++++ b/src/sc_elab/elab_alloc.cpp
+@@ -0,0 +1,135 @@
++//
++// Created by ripopov on 12/18/17.
++//
++//
++
++#include <sc_elab/elab_alloc.h>
++#include <sysc/kernel/sc_module.h>
++#include <sysc/kernel/sc_simcontext.h>
++#include <sysc/kernel/sc_module_registry.h>
++#include <sysc/communication/sc_prim_channel.h>
++#include <sysc/communication/sc_port.h>
++#include <sysc/communication/sc_export.h>
++#include <iostream>
++#include <unordered_map>
++#include "elab_alloc.h"
++
++namespace sc_elab
++{
++
++typedef std::unordered_map<const sc_core::sc_module *,
++                           std::vector<allocated_node>> node_map_t;
++
++/// alloc_node_map stores information about dynamic allocations for each module
++node_map_t *get_alloc_node_map()
++{
++    static node_map_t *alloc_node_map = nullptr;
++
++    if (!alloc_node_map) {
++        alloc_node_map = new node_map_t{};
++    }
++
++    return alloc_node_map;
++}
++
++/// get current active module (parent of currently created sc_objects)
++static sc_core::sc_module *curr_module()
++{
++    auto *simctx = sc_core::sc_curr_simcontext;
++    if (!simctx)
++        return nullptr;
++    simctx->get_module_registry();
++    return simctx->hierarchy_curr();
++}
++
++/// get dynamic allocations for given module
++const std::vector<allocated_node> &get_module_allocs(const sc_core::sc_module *mod_ptr)
++{
++    return get_alloc_node_map()->operator[](mod_ptr);
++}
++
++void trace_alloc_impl(void *ptr,
++                      bool is_array,
++                      const char *type_name,
++                      size_t sizeof_alloc,
++                      size_t array_size)
++{
++
++    if (curr_module()) {
++        allocated_node new_node;
++        new_node.ptr = ptr;
++        new_node.host_mod_p = curr_module();
++        new_node.size_bytes = sizeof_alloc;
++        new_node.is_array = is_array;
++        if (type_name)
++            new_node.mangled_type_name = type_name;
++        new_node.array_size = array_size;
++
++        (*get_alloc_node_map())[curr_module()].emplace_back(std::move(new_node));
++    }
++}
++
++void finalize_elaboration()
++{
++    std::cout << "Finalize elaboration\n";
++    auto *context_p = sc_core::sc_get_curr_simcontext();
++    context_p->sc_tool_elaboration();
++}
++
++void finalize_module_allocations()
++{
++    // Iterate over all dynamic allocations and add mangled name where it is absent
++    for (auto &allocIter : *get_alloc_node_map()) {
++
++        const sc_core::sc_module *mod_ptr = allocIter.first;
++        std::vector<allocated_node> &alloc_nodes = allocIter.second;
++
++        for (auto &node : alloc_nodes) {
++
++            // If mangled_type_name is empty, then it is sc_object allocated using raw new or new[]
++            if (node.mangled_type_name.empty()) {
++
++                if (node.is_array) {
++                    // TODO:: optimize by reading Linux/Windows ABI manual
++                    // Current implementation should be safe, it
++                    // finds first child sc_object that is inside allocated node
++                    //
++                    // CXX ABI may store a cookie before actual array, so we
++                    // cant just dereference node.ptr (because it may point to cookie,
++                    // instead of first element of array )
++
++                    size_t array_size = 0;
++                    size_t node_addr = (size_t) node.ptr;
++                    node.ptr = nullptr;
++
++                    // Calculate array size by counting all sc_objects that are
++                    // inside allocated node
++                    for (auto child_obj : mod_ptr->get_child_objects()) {
++
++                        size_t child_addr = (size_t) child_obj;
++
++                        if (child_addr >= node_addr
++                            && child_addr < node_addr + node.size_bytes) {
++
++                            ++array_size;
++
++                            if (!node.ptr) {
++                                node.ptr = dynamic_cast<void *>(child_obj);
++								node.mangled_type_name = MANGLED_TYPENAME(*child_obj);
++                            }
++                        }
++                    }
++
++                    node.array_size = array_size;
++
++                }
++                else {
++                    sc_core::sc_object *obj_ptr = static_cast<sc_core::sc_object *>(node.ptr);
++                    node.mangled_type_name = MANGLED_TYPENAME(*obj_ptr);
++                }
++            }
++        }
++    }
++}
++
++}
+diff --git a/src/sc_elab/elab_alloc.h b/src/sc_elab/elab_alloc.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..ed79d1e28e806b7859dae1c1b7db69044d093afd
+--- /dev/null
++++ b/src/sc_elab/elab_alloc.h
+@@ -0,0 +1,110 @@
++//
++// Created by ripopov on 12/18/17.
++//
++
++#ifndef ELAB_ALLOC_H
++#define ELAB_ALLOC_H
++
++#include <sc_elab/allocated_node.h>
++
++#include <cstdint>
++#include <typeinfo>
++
++#ifndef _MSC_VER
++
++template<typename T> std::string MANGLED_TYPENAME() {
++    return typeid(T).name();
++}
++
++template<typename T> std::string MANGLED_TYPENAME(T &&var) {
++    return typeid(var).name();
++}
++
++#else
++
++inline std::string adjust_msvc_rawname (const char *rawname)
++{
++    std::string name = (rawname + 1);
++    if (name[0] == '?')
++        return name;
++    else
++        return "?A" + name;
++}
++
++template<typename T> std::string MANGLED_TYPENAME() {
++    return adjust_msvc_rawname(typeid(T).raw_name());
++}
++
++template<typename T> std::string MANGLED_TYPENAME(T &&var) {
++    return adjust_msvc_rawname(typeid(var).raw_name());
++}
++
++
++#endif // !_MSC_VER
++
++/**
++ *  Dynamic memory allocation tracking for SystemC elaboration
++ *
++ *  Currently elaborator supports following allocation methods:
++ *
++ *  1.
++ *  template<class T, class... Args>
++ *  T* sc_new(Args&&... args)
++ *
++ *  usage example:  my_module = sc_new<my_module> ("my_module");
++ *
++ *  2.
++ *  template<class T>
++ *  T* sc_new_array(size_t n)
++ *
++ *  usage example:   int * array_ptr = sc_new_array<int> (10);  // create int[10]
++ *
++ *  3.
++ *  All classes derived from sc_objects can use raw new, it is overloaded in
++ *  sc_object
++ *
++ */
++namespace sc_elab {
++
++///
++/// Store information about dynamically allocated object
++/// @param ptr - pointer to newly allocated object
++/// @param is_array - true for new[]
++/// @param type_name - mangled type name
++/// @param sizeof_alloc - size of object
++/// @param array_size - N, number of array elements for new[N]
++///
++void trace_alloc_impl(void *ptr,
++                      bool is_array,
++                      const char *type_name,
++                      size_t sizeof_alloc,
++                      size_t array_size = 0);
++
++
++}
++
++namespace sc_core
++{
++
++/// Allocate singular object dynamically and store information for SVC elaboration
++template<class T, class... Args>
++T* sc_new(Args&&... args)
++{
++    T* rptr = ::new T(std::forward<Args>(args)...);
++    sc_elab::trace_alloc_impl(rptr, false, MANGLED_TYPENAME<T>().c_str() , sizeof(T));
++    return rptr;
++}
++
++/// Allocate array dynamically and store information for SVC elaboration
++template<class T>
++T* sc_new_array(size_t n)
++{
++    T* rptr = ::new T[n];
++    if (n > 0)
++        sc_elab::trace_alloc_impl(rptr, true, MANGLED_TYPENAME<T>().c_str(), sizeof(T)*n, n);
++    return rptr;
++}
++
++}
++
++#endif // ELAB_ALLOC_H
+\ No newline at end of file
+diff --git a/src/sc_elab/process_type_info.h b/src/sc_elab/process_type_info.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..447fa8ec45a8fdb6588f13754b361207c0fb7b39
+--- /dev/null
++++ b/src/sc_elab/process_type_info.h
+@@ -0,0 +1,18 @@
++//
++// Created by ripopov on 10/3/18.
++//
++
++#ifndef SCTOOL_PROCESS_TYPE_INFO_H
++#define SCTOOL_PROCESS_TYPE_INFO_H
++
++namespace sc_elab
++{
++
++struct process_type_info {
++    std::string mangled_host_type; /// Linkage name of host module
++    std::string function_name; /// Name of function
++};
++
++}
++
++#endif //SCTOOL_PROCESS_TYPE_INFO_H
+diff --git a/src/sc_elab/sc_tool_opts.cpp b/src/sc_elab/sc_tool_opts.cpp
+new file mode 100644
+index 0000000000000000000000000000000000000000..4a024f0061822a58e8ffac210b53faa160738253
+--- /dev/null
++++ b/src/sc_elab/sc_tool_opts.cpp
+@@ -0,0 +1,7 @@
++//
++// Created by ripopov on 10/30/18.
++//
++
++#include "sc_tool_opts.h"
++
++std::string *sctool_extra_opts = nullptr;
+diff --git a/src/sc_elab/sc_tool_opts.h b/src/sc_elab/sc_tool_opts.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..db503b6773ebecb98aa223951d04212b3e369a31
+--- /dev/null
++++ b/src/sc_elab/sc_tool_opts.h
+@@ -0,0 +1,12 @@
++//
++// Created by ripopov on 10/30/18.
++//
++
++#ifndef SCTOOL_SC_TOOL_OPTS_H
++#define SCTOOL_SC_TOOL_OPTS_H
++
++#include <string>
++
++extern std::string *sctool_extra_opts;
++
++#endif //SCTOOL_SC_TOOL_OPTS_H
+diff --git a/src/sc_elab/sensitivity.h b/src/sc_elab/sensitivity.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..c41b6b201cd943d0c6096ff49186df3aec18c0b3
+--- /dev/null
++++ b/src/sc_elab/sensitivity.h
+@@ -0,0 +1,21 @@
++//
++// Created by ripopov on 9/28/18.
++//
++
++#ifndef SCTOOL_SENSITIVITY_H
++#define SCTOOL_SENSITIVITY_H
++
++namespace sc_core {
++    class sc_process_b;
++}
++
++namespace sc_elab {
++
++struct port_sens_proc {
++    enum EVENT_KIND {DEFAULT, POSEDGE, NEGEDGE} kind;
++    sc_core::sc_process_b * proc_ptr;
++};
++
++}
++
++#endif //SCTOOL_SENSITIVITY_H
+diff --git a/src/sysc/communication/sc_event_finder.h b/src/sysc/communication/sc_event_finder.h
+index 27f129bbddd3b858172c468c0b62df9b261a93f2..be8ac2e3c377ea63ec8b83bc950c84f03c0d1fbd 100644
+--- a/src/sysc/communication/sc_event_finder.h
++++ b/src/sysc/communication/sc_event_finder.h
+@@ -110,6 +110,12 @@ public:
+ 
+     virtual const sc_event& find_event( sc_interface* if_p = 0 ) const;
+ 
++    typedef const sc_event& (IF::*event_method_t) () const;
++
++    event_method_t get_event_method() {
++        return m_event_method;
++    }
++
+ private:
+ 
+     const sc_event& (IF::*m_event_method) () const;
+diff --git a/src/sysc/communication/sc_port.cpp b/src/sysc/communication/sc_port.cpp
+index 56bed8469630026272b9883030dc1f8eb8a23c2e..33a12f08ebb0a3f42e671dbcb0f9dfde05ab2a6b 100644
+--- a/src/sysc/communication/sc_port.cpp
++++ b/src/sysc/communication/sc_port.cpp
+@@ -771,6 +771,65 @@ void sc_warn_port_constructor()
+     }
+ }
+ 
++// SVC
++
++sc_port_base ** sc_port_base::first_parent_port_ptr()
++{
++    int i = first_parent();
++    if ( i >= 0 ) {
++        return &m_bind_info->vec[i]->parent;
++    }
++
++    return nullptr;
++}
++
++static sc_elab::port_sens_proc create_sens_proc (sc_bind_ef* bind_ef) {
++    sc_elab::port_sens_proc sens;
++    sens.proc_ptr = bind_ef->handle;
++
++    if (bind_ef->event_finder) {
++
++        typedef sc_core::sc_signal_in_if<bool> bool_in_if;
++        typedef sc_event_finder_t<bool_in_if> bool_in_if_finder;
++
++        if (bool_in_if_finder *inif = dynamic_cast<bool_in_if_finder*>(bind_ef->event_finder)) {
++            if ( inif->get_event_method() == &bool_in_if::posedge_event)
++                sens.kind = sc_elab::port_sens_proc::POSEDGE;
++            else if ( inif->get_event_method() == &bool_in_if::negedge_event)
++                sens.kind = sc_elab::port_sens_proc::NEGEDGE;
++            else
++                sens.kind = sc_elab::port_sens_proc::DEFAULT;
++        }
++    } else {
++        sens.kind = sc_elab::port_sens_proc::DEFAULT;
++    }
++
++    return sens;
++
++}
++
++std::vector<sc_elab::port_sens_proc> sc_port_base::get_sensitive_procs() const
++{
++
++    std::vector<sc_elab::port_sens_proc> res;
++
++    if ( m_bind_info ) {
++
++        for (auto met_bind : m_bind_info->method_vec) {
++            res.push_back(create_sens_proc(met_bind));
++        }
++
++        for (auto thread_bind : m_bind_info->thread_vec) {
++            res.push_back(create_sens_proc(thread_bind));
++        }
++
++    }
++
++    return res;
++}
++
++
++
+ } // namespace sc_core
+ 
+ 
+diff --git a/src/sysc/communication/sc_port.h b/src/sysc/communication/sc_port.h
+index b18894ec6034fb35674b55bd7287a26cac9949cf..2bdcd043e5f26f0ff07d94930e2c929d7b488bb9 100644
+--- a/src/sysc/communication/sc_port.h
++++ b/src/sysc/communication/sc_port.h
+@@ -37,6 +37,8 @@
+ #include "sysc/kernel/sc_process.h"
+ #include "sysc/utils/sc_typeindex.h"
+ 
++#include "sc_elab/sensitivity.h"
++
+ #if ! defined( SC_DISABLE_VIRTUAL_BIND )
+ #  define SC_VIRTUAL_ virtual
+ #else
+@@ -103,6 +105,10 @@ public:
+     // return RTTI information of associated interface
+     virtual sc_type_index get_interface_type() const = 0;
+ 
++    this_type ** first_parent_port_ptr();
++
++    std::vector<sc_elab::port_sens_proc>   get_sensitive_procs() const;
++
+ protected:
+ 
+     // constructors
+diff --git a/src/sysc/kernel/sc_main.cpp b/src/sysc/kernel/sc_main.cpp
+index a5f780d70d033f30045080d38870471a74858343..b1f96644b54a3a5f7c04834a688098f1ca2cf450 100644
+--- a/src/sysc/kernel/sc_main.cpp
++++ b/src/sysc/kernel/sc_main.cpp
+@@ -30,9 +30,26 @@
+ #include "sysc/kernel/sc_cmnhdr.h"
+ #include "sysc/kernel/sc_externs.h"
+ 
++#include "sc_elab/sc_tool_opts.h"
++#include <iostream>
++
+ int
+ main( int argc, char* argv[] )
+ {
++    // arguments prefixed with  -sctool  go to SVC, used for debug output options
++    for (int i = 0; i < argc; ++i) {
++        if (std::string(argv[i]) == "-sctool") {
++            if (sctool_extra_opts == nullptr)
++                sctool_extra_opts = new std::string();
++
++            if (i == argc - 1) {
++                std::cerr << "-sctool specified without passing an option\n";
++                std::cerr << "Usage: -sctool -some_option\n";
++            }
++
++            *sctool_extra_opts = *sctool_extra_opts + " " + argv[i+1];
++        }
++    }
+ 	return sc_core::sc_elab_and_sim( argc, argv );
+ }
+ 
+diff --git a/src/sysc/kernel/sc_main_main.cpp b/src/sysc/kernel/sc_main_main.cpp
+index a811680afc12314f6479abc7d0f517e289d81434..08de130b79e1e59ba851d7e7e6b8265fb1ed5314 100644
+--- a/src/sysc/kernel/sc_main_main.cpp
++++ b/src/sysc/kernel/sc_main_main.cpp
+@@ -96,15 +96,16 @@ sc_elab_and_sim( int argc, char* argv[] )
+         sc_report_handler::get_handler()
+             ( x, sc_report_handler::get_catch_actions() );
+     }
+-    catch( ... )
+-    {
+-        // translate other escaping exceptions
+-        sc_report*  err_p = sc_handle_exception();
+-        if( err_p )
+-            sc_report_handler::get_handler()
+-                ( *err_p, sc_report_handler::get_catch_actions() );
+-        delete err_p;
+-    }
++//  In SVC we want to crash regularly on exceptions
++//    catch( ... )
++//    {
++//        // translate other escaping exceptions
++//        sc_report*  err_p = sc_handle_exception();
++//        if( err_p )
++//            sc_report_handler::get_handler()
++//                ( *err_p, sc_report_handler::get_catch_actions() );
++//        delete err_p;
++//    }
+ 
+     for ( int i = 0; i < argc; ++i ) {
+         delete[] argv_copy[i];
+diff --git a/src/sysc/kernel/sc_module.cpp b/src/sysc/kernel/sc_module.cpp
+index e0cb7b32392a375bd429eafdfec415938350a697..dca63629aa0b2d435fbcf2bd1d33e17ac97fbe34 100644
+--- a/src/sysc/kernel/sc_module.cpp
++++ b/src/sysc/kernel/sc_module.cpp
+@@ -54,6 +54,9 @@
+ 
+ namespace sc_core {
+ 
++std::unordered_map<const sc_core::sc_process_b *, sc_elab::process_type_info>
++    proc_info_map;
++
+ // ----------------------------------------------------------------------------
+ //  CLASS : sc_module_dynalloc_list
+ //
+diff --git a/src/sysc/kernel/sc_module.h b/src/sysc/kernel/sc_module.h
+index 72c1fe1fe7c8ff33d0d54544124f2f793531ccae..1415700426407c9bb8e09c0e660d6849f0cdb8b7 100644
+--- a/src/sysc/kernel/sc_module.h
++++ b/src/sysc/kernel/sc_module.h
+@@ -42,6 +42,10 @@
+ #include "sysc/kernel/sc_process_handle.h"
+ #include "sysc/utils/sc_list.h"
+ 
++#include <sc_elab/process_type_info.h>
++#include <unordered_map>
++
++
+ namespace sc_core {
+ 
+ class sc_name_gen;
+@@ -415,12 +419,24 @@ extern SC_API sc_module* sc_module_dynalloc(sc_module*);
+ // template<typename X>
+ // class A : public B<X>
+ 
++extern
++std::unordered_map<const sc_core::sc_process_b *, sc_elab::process_type_info>
++    proc_info_map;
++
++// Save process class and method name so SVC can use it to find in Clang AST
++#define register_process(handle, func_name) \
++        sc_core::sc_process_b *proc = handle; \
++        std::string hostType = MANGLED_TYPENAME<typename std::remove_reference<decltype(*this)>::type>(); \
++        std::string methodName = func_name; \
++        sc_core::proc_info_map[proc] = sc_elab::process_type_info{hostType, methodName};
++
+ #define declare_method_process(handle, name, host_tag, func)        \
+     {		                                                    \
+         ::sc_core::sc_process_handle handle =                      \
+ 	    sc_core::sc_get_curr_simcontext()->create_method_process( \
+ 		name,  false, SC_MAKE_FUNC_PTR( host_tag, func ), \
+ 		this, 0 ); \
++        register_process(handle, #func) \
+         this->sensitive << handle;                                        \
+         this->sensitive_pos << handle;                                    \
+         this->sensitive_neg << handle;                                    \
+@@ -432,6 +448,7 @@ extern SC_API sc_module* sc_module_dynalloc(sc_module*);
+ 	     sc_core::sc_get_curr_simcontext()->create_thread_process( \
+                  name,  false,           \
+                  SC_MAKE_FUNC_PTR( host_tag, func ), this, 0 ); \
++        register_process(handle, #func) \
+         this->sensitive << handle;                                        \
+         this->sensitive_pos << handle;                                    \
+         this->sensitive_neg << handle;                                    \
+@@ -443,6 +460,7 @@ extern SC_API sc_module* sc_module_dynalloc(sc_module*);
+ 	     sc_core::sc_get_curr_simcontext()->create_cthread_process( \
+             name,  false,          \
+                      SC_MAKE_FUNC_PTR( host_tag, func ), this, 0 ); \
++        register_process(handle, #func) \
+         this->sensitive.operator() ( handle, edge );\
+     }
+ 
+@@ -474,6 +492,11 @@ extern SC_API sc_module* sc_module_dynalloc(sc_module*);
+ typedef sc_module sc_channel;
+ typedef sc_module sc_behavior;
+ 
++// Not a modular interface  (Prevent module inherited from sc_interface to become modular interface)
++struct sc_dont_collapse {};
++// Modular interface
++struct sc_modular_interface : sc_module {};
++
+ } // namespace sc_core
+ 
+ /*****************************************************************************
+diff --git a/src/sysc/kernel/sc_object.h b/src/sysc/kernel/sc_object.h
+index fcc2596a9f98bb7ff3bbdc12af044b887b0d8e2f..41b5eae8ee3068e949ed0d15de784b1ae98e884a 100644
+--- a/src/sysc/kernel/sc_object.h
++++ b/src/sysc/kernel/sc_object.h
+@@ -31,6 +31,7 @@
+ #define SC_OBJECT_H
+ 
+ #include "sysc/kernel/sc_attribute.h"
++#include "sc_elab/elab_alloc.h"
+ #include <iostream>
+ 
+ #if defined(_MSC_VER) && !defined(SC_WIN_DLL_WARN)
+@@ -116,6 +117,23 @@ public:
+     sc_object* get_parent() const;
+     sc_object* get_parent_object() const { return m_parent; }
+ 
++    void* operator new(std::size_t sz)
++    {
++        void *rptr = ::operator new(sz);
++        // we don't know type of allocation yet, it will be filled later
++        sc_elab::trace_alloc_impl(rptr, false, nullptr, sz);
++        return rptr;
++    }
++
++    void* operator new[](std::size_t sz)
++    {
++        void *rptr = ::operator new(sz);
++        if (sz >= sizeof(sc_object)) {
++            sc_elab::trace_alloc_impl(rptr, true, nullptr, sz);
++        }
++        return rptr;
++    }
++
+ protected:
+ 
+     sc_object();
+diff --git a/src/sysc/kernel/sc_reset.cpp b/src/sysc/kernel/sc_reset.cpp
+index 8fdc95821b8431c13c10364be31af18050d6ae7e..94357fb7dde0c5bd16e0a847dfcd8572bc444c63 100644
+--- a/src/sysc/kernel/sc_reset.cpp
++++ b/src/sysc/kernel/sc_reset.cpp
+@@ -220,10 +220,12 @@ void sc_reset::reset_signal_is( bool async, const sc_in<bool>& port, bool level)
+       case SC_THREAD_PROC_:
+       case SC_METHOD_PROC_:
+       case SC_CTHREAD_PROC_:
+-        iface_p = dynamic_cast<const sc_signal_in_if<bool>*>(port.get_interface());
+-        if ( iface_p )
+-            reset_signal_is( async, *iface_p, level );
+-        else
++
++// SVC elaborator : Always use finders to keep ports
++//        iface_p = dynamic_cast<const sc_signal_in_if<bool>*>(port.get_interface());
++//        if ( iface_p )
++//            reset_signal_is( async, *iface_p, level );
++//        else
+             new sc_reset_finder( async, &port, level, process_p );
+         break;
+       default:
+@@ -246,10 +248,12 @@ void sc_reset::reset_signal_is(
+       case SC_THREAD_PROC_:
+       case SC_METHOD_PROC_:
+       case SC_CTHREAD_PROC_:
+-        iface_p = dynamic_cast<const sc_signal_in_if<bool>*>(port.get_interface());
+-        if ( iface_p )
+-            reset_signal_is( async, *iface_p, level );
+-        else
++
++// SVC elaborator : Always use finders to keep ports
++//        iface_p = dynamic_cast<const sc_signal_in_if<bool>*>(port.get_interface());
++//        if ( iface_p )
++//            reset_signal_is( async, *iface_p, level );
++//        else
+             new sc_reset_finder( async, &port, level, process_p );
+         break;
+       default:
+diff --git a/src/sysc/kernel/sc_simcontext.cpp b/src/sysc/kernel/sc_simcontext.cpp
+index ed958e97cfe62ec2e442bfdfce44abf2f471b3dd..19b4fc868e402f32f86392cd7e445a4fb9b3133c 100644
+--- a/src/sysc/kernel/sc_simcontext.cpp
++++ b/src/sysc/kernel/sc_simcontext.cpp
+@@ -620,6 +620,23 @@ sc_simcontext::cycle( const sc_time& t)
+     SC_DO_PHASE_CALLBACK_(simulation_paused);
+ }
+ 
++void
++sc_simcontext::sc_tool_elaboration()
++{
++    if( m_elaboration_done || sim_status() != SC_SIM_OK ) {
++        return;
++    }
++
++    // Instantiate the method invocation module
++    // (not added to public object hierarchy)
++
++    m_method_invoker_p =
++        new sc_invoke_method("$$$$kernel_module$$$$_invoke_method" );
++
++    m_simulation_status = SC_BEFORE_END_OF_ELABORATION;
++    m_module_registry->construction_done();
++}
++
+ void
+ sc_simcontext::elaborate()
+ {
+diff --git a/src/sysc/kernel/sc_simcontext.h b/src/sysc/kernel/sc_simcontext.h
+index 9fc12d2b31179a475b7cf02103ff34338ae022bc..10dd3bfff7da20b95a380ec3b3bc2c893d8600e4 100644
+--- a/src/sysc/kernel/sc_simcontext.h
++++ b/src/sysc/kernel/sc_simcontext.h
+@@ -287,6 +287,7 @@ public:
+ 
+     const ::std::vector<sc_object*>& get_child_objects() const;
+ 
++    void sc_tool_elaboration();
+     void elaborate();
+     void prepare_to_simulate();
+     inline void initial_crunch( bool no_crunch );
+diff --git a/src/sysc/tracing/sc_vcd_trace.cpp b/src/sysc/tracing/sc_vcd_trace.cpp
+index 2cd416fdb8164168a0b7d189a88793a15e8c9494..7441f8f8aef708d0c7d42fd8fb1b0322141aeae8 100644
+--- a/src/sysc/tracing/sc_vcd_trace.cpp
++++ b/src/sysc/tracing/sc_vcd_trace.cpp
+@@ -2217,7 +2217,7 @@ remove_vcd_name_problems(vcd_trace const* vcd, std::string& name)
+ SC_API sc_trace_file*
+ sc_create_vcd_trace_file(const char * name)
+ {
+-    sc_trace_file * tf = new vcd_trace_file(name);
++    sc_trace_file * tf = ::new vcd_trace_file(name);
+     return tf;
+ }
+ 
+diff --git a/src/sysc/tracing/sc_wif_trace.cpp b/src/sysc/tracing/sc_wif_trace.cpp
+index 5f0f42fe32b527a91dff633604fe430242963dc8..46ba565827810d430f79da11da1bf1aa69daed54 100644
+--- a/src/sysc/tracing/sc_wif_trace.cpp
++++ b/src/sysc/tracing/sc_wif_trace.cpp
+@@ -1904,7 +1904,7 @@ map_sc_logic_state_to_wif_state(char in_char)
+ SC_API sc_trace_file*
+ sc_create_wif_trace_file(const char * name)
+ {
+-    sc_trace_file *tf = new wif_trace_file(name);
++    sc_trace_file *tf = ::new wif_trace_file(name);
+     return tf;
+ }
+ 
+diff --git a/src/systemc b/src/systemc
+index 0a4fd167a4d581df0f976695c1d923e3de092905..b1ce38e13b11050716b0827891b7a4fc9d9d372a 100644
+--- a/src/systemc
++++ b/src/systemc
+@@ -75,5 +75,8 @@
+ #include "sysc/kernel/sc_simcontext.h"
+ #include "sysc/kernel/sc_process_handle.h"
++#include "sysc/kernel/sc_method_process.h"
++#include "sysc/kernel/sc_thread_process.h"
++#include "sysc/kernel/sc_cthread_process.h"
+ #include "sysc/kernel/sc_ver.h"
+ 
+ #include "sysc/communication/sc_buffer.h"
+@@ -118,6 +121,8 @@
+ #include "sysc/utils/sc_string_view.h"
+ #include "sysc/utils/sc_vector.h"
+ 
++#include "sc_elab/elab_alloc.h"
++
+ #endif // !defined(SYSTEMC_INCLUDED)
+ 
+ #ifdef SC_INCLUDE_DYNAMIC_PROCESSES
+diff --git a/src/sysc/kernel/sc_process.h b/src/sysc/kernel/sc_process.h
+index aef08391f930dd87b9e7f33338365d221baf3d08..e740febd9f90bbdf659ec02307979f5caa191f92 100644
+--- a/src/sysc/kernel/sc_process.h
++++ b/src/sysc/kernel/sc_process.h
+@@ -356,6 +356,7 @@ class SC_API sc_process_b : public sc_object {
+     inline sc_curr_proc_kind proc_kind() const;
+     sc_event& reset_event();
+     sc_event& terminated_event();
++    const std::vector<const sc_event*>& get_static_events() {return m_static_events;}
+ 
+   public:
+     static inline sc_process_handle last_created_process_handle();

@@ -1,0 +1,81 @@
+## ****************************************************************************
+##
+##  Licensed to Accellera Systems Initiative Inc. (Accellera) under one or
+##  more contributor license agreements.  See the NOTICE file distributed
+##  with this work for additional information regarding copyright ownership.
+##  Accellera licenses this file to you under the Apache License, Version 2.0
+##  (the "License"); you may not use this file except in compliance with the
+##  License.  You may obtain a copy of the License at
+##
+##   http://www.apache.org/licenses/LICENSE-2.0
+##
+##  Unless required by applicable law or agreed to in writing, software
+##  distributed under the License is distributed on an "AS IS" BASIS,
+##  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+##  implied.  See the License for the specific language governing
+##  permissions and limitations under the License.
+##
+## ****************************************************************************
+##
+##  src/sysc/utils/files.am --
+##  Included from a Makefile.am to provide directory-specific information
+##
+##  Original Author: Philipp A. Hartmann, Intel, 2015-11-24
+##
+## ****************************************************************************
+##
+##  MODIFICATION LOG - modifiers, enter your name, affiliation, date and
+##  changes you are making here.
+##
+##      Name, Affiliation, Date:
+##  Description of Modification:
+##
+## ****************************************************************************
+
+## Generic directory setup
+## (should be kept in sync among all files.am files)
+##
+## Note: Recent Automake versions (>1.13) support relative placeholders for
+##       included files (%D%,%C%).  To support older versions, use explicit
+##       names for now.
+##
+## Local values:
+##   %D%: utils
+##   %C%: utils
+
+H_FILES += \
+	utils/sc_hash.h \
+	utils/sc_list.h \
+	utils/sc_machine.h \
+	utils/sc_mempool.h \
+	utils/sc_pq.h \
+	utils/sc_pvector.h \
+	utils/sc_report.h \
+	utils/sc_report_handler.h \
+	utils/sc_string.h \
+	utils/sc_string_view.h \
+	utils/sc_temporary.h \
+	utils/sc_typeindex.h \
+	utils/sc_utils_ids.h \
+	utils/sc_vector.h
+
+NO_H_FILES += \
+	utils/sc_stop_here.h
+
+CXX_FILES += \
+	utils/sc_hash.cpp \
+	utils/sc_list.cpp \
+	utils/sc_mempool.cpp \
+	utils/sc_pq.cpp \
+	utils/sc_report.cpp \
+	utils/sc_report_handler.cpp \
+	utils/sc_stop_here.cpp \
+	utils/sc_string.cpp \
+	utils/sc_utils_ids.cpp \
+	utils/sc_vector.cpp
+
+INCDIRS += \
+  utils
+
+## Taf!
+## :vim:ft=automake:

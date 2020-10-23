@@ -1,4 +1,8 @@
-# Temporal assertions in systemC 
+# SctCommon
+
+Common SystemC library for SMEM, ISCS and others
+
+## Temporal assertions in SystemC 
 
 Installation and run tests
 1. Clone this repository into SCT_HOME folder 
@@ -7,7 +11,7 @@ Installation and run tests
 
    If you use another C++ version, set it in $SCT_HOME/components/common/test/sctassert/CMakeLists.txt 
    
-3. Apply sct_assert.patch to /scr/sysc/kernel/sc_process.h:
+3. Apply sct_assert.patch to /scr/sysc/kernel/sc_process.h -- skip that for patched SystemC from this repository:
 
    $ patch $SYSTEMC_HOME/scr/sysc/kernel/sc_process.h $SCT_HOME/components/common/sctcommon/sct_assert.patch
    
