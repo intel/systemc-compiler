@@ -1,10 +1,10 @@
 #!/bin/bash -e
 
-export ICSC_HOME=`realpath .`
+#export ICSC_HOME=`realpath .`
 echo "Setting ICSC_HOME = $ICSC_HOME"
 
 # Clone ISCC
-git clone https://github.com/intel/systemc-compiler $ICSC_HOME/icsc
+#git clone https://github.com/intel/systemc-compiler $ICSC_HOME/icsc
 cd $ICSC_HOME
 
 # Download, unpack, build, install Protobuf 3.13
