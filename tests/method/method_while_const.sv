@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_while_const.cpp:254:5)
+// Module: A (test_while_const.cpp:261:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -46,10 +46,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper1 (test_while_const.cpp:43:5) 
+// Method process: while_with_binary_oper1 (test_while_const.cpp:50:5) 
 
 always_comb 
-begin : while_with_binary_oper1     // test_while_const.cpp:43:5
+begin : while_with_binary_oper1     // test_while_const.cpp:50:5
     logic b1;
     logic b2;
     integer k_1;
@@ -66,10 +66,10 @@ begin : while_with_binary_oper1     // test_while_const.cpp:43:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper1a (test_while_const.cpp:57:5) 
+// Method process: while_with_binary_oper1a (test_while_const.cpp:64:5) 
 
 always_comb 
-begin : while_with_binary_oper1a     // test_while_const.cpp:57:5
+begin : while_with_binary_oper1a     // test_while_const.cpp:64:5
     logic b1;
     logic b2;
     integer k_1;
@@ -86,10 +86,10 @@ begin : while_with_binary_oper1a     // test_while_const.cpp:57:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper1b (test_while_const.cpp:71:5) 
+// Method process: while_with_binary_oper1b (test_while_const.cpp:78:5) 
 
 always_comb 
-begin : while_with_binary_oper1b     // test_while_const.cpp:71:5
+begin : while_with_binary_oper1b     // test_while_const.cpp:78:5
     logic b1;
     logic b2;
     integer k_1;
@@ -100,10 +100,10 @@ begin : while_with_binary_oper1b     // test_while_const.cpp:71:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper1c (test_while_const.cpp:83:5) 
+// Method process: while_with_binary_oper1c (test_while_const.cpp:90:5) 
 
 always_comb 
-begin : while_with_binary_oper1c     // test_while_const.cpp:83:5
+begin : while_with_binary_oper1c     // test_while_const.cpp:90:5
     logic b1;
     logic b2;
     integer k_1;
@@ -120,10 +120,10 @@ begin : while_with_binary_oper1c     // test_while_const.cpp:83:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper1d (test_while_const.cpp:97:5) 
+// Method process: while_with_binary_oper1d (test_while_const.cpp:104:5) 
 
 always_comb 
-begin : while_with_binary_oper1d     // test_while_const.cpp:97:5
+begin : while_with_binary_oper1d     // test_while_const.cpp:104:5
     logic b1;
     logic b2;
     logic b3;
@@ -143,10 +143,10 @@ begin : while_with_binary_oper1d     // test_while_const.cpp:97:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper1e (test_while_const.cpp:112:5) 
+// Method process: while_with_binary_oper1e (test_while_const.cpp:119:5) 
 
 always_comb 
-begin : while_with_binary_oper1e     // test_while_const.cpp:112:5
+begin : while_with_binary_oper1e     // test_while_const.cpp:119:5
     logic b1;
     logic b2;
     logic b3;
@@ -159,10 +159,10 @@ begin : while_with_binary_oper1e     // test_while_const.cpp:112:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper1f (test_while_const.cpp:124:5) 
+// Method process: while_with_binary_oper1f (test_while_const.cpp:131:5) 
 
 always_comb 
-begin : while_with_binary_oper1f     // test_while_const.cpp:124:5
+begin : while_with_binary_oper1f     // test_while_const.cpp:131:5
     logic b1;
     logic b2;
     logic b3;
@@ -179,10 +179,10 @@ begin : while_with_binary_oper1f     // test_while_const.cpp:124:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper2 (test_while_const.cpp:135:5) 
+// Method process: while_with_binary_oper2 (test_while_const.cpp:142:5) 
 
 always_comb 
-begin : while_with_binary_oper2     // test_while_const.cpp:135:5
+begin : while_with_binary_oper2     // test_while_const.cpp:142:5
     logic b1;
     logic b2;
     integer k_1;
@@ -198,10 +198,10 @@ begin : while_with_binary_oper2     // test_while_const.cpp:135:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper2a (test_while_const.cpp:147:5) 
+// Method process: while_with_binary_oper2a (test_while_const.cpp:154:5) 
 
 always_comb 
-begin : while_with_binary_oper2a     // test_while_const.cpp:147:5
+begin : while_with_binary_oper2a     // test_while_const.cpp:154:5
     logic b1;
     logic b2;
     integer k_1;
@@ -212,10 +212,10 @@ begin : while_with_binary_oper2a     // test_while_const.cpp:147:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper2b (test_while_const.cpp:159:5) 
+// Method process: while_with_binary_oper2b (test_while_const.cpp:166:5) 
 
 always_comb 
-begin : while_with_binary_oper2b     // test_while_const.cpp:159:5
+begin : while_with_binary_oper2b     // test_while_const.cpp:166:5
     logic b1;
     logic b2;
     integer k_1;
@@ -226,10 +226,10 @@ begin : while_with_binary_oper2b     // test_while_const.cpp:159:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper2c (test_while_const.cpp:171:5) 
+// Method process: while_with_binary_oper2c (test_while_const.cpp:178:5) 
 
 always_comb 
-begin : while_with_binary_oper2c     // test_while_const.cpp:171:5
+begin : while_with_binary_oper2c     // test_while_const.cpp:178:5
     logic b1;
     logic b2;
     integer k_1;
@@ -245,10 +245,10 @@ begin : while_with_binary_oper2c     // test_while_const.cpp:171:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper2d (test_while_const.cpp:183:5) 
+// Method process: while_with_binary_oper2d (test_while_const.cpp:190:5) 
 
 always_comb 
-begin : while_with_binary_oper2d     // test_while_const.cpp:183:5
+begin : while_with_binary_oper2d     // test_while_const.cpp:190:5
     logic b1;
     logic b2;
     logic b3;
@@ -261,10 +261,10 @@ begin : while_with_binary_oper2d     // test_while_const.cpp:183:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper2e (test_while_const.cpp:194:5) 
+// Method process: while_with_binary_oper2e (test_while_const.cpp:201:5) 
 
 always_comb 
-begin : while_with_binary_oper2e     // test_while_const.cpp:194:5
+begin : while_with_binary_oper2e     // test_while_const.cpp:201:5
     logic b1;
     logic b2;
     logic b3;
@@ -282,10 +282,10 @@ begin : while_with_binary_oper2e     // test_while_const.cpp:194:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper2f (test_while_const.cpp:206:5) 
+// Method process: while_with_binary_oper2f (test_while_const.cpp:213:5) 
 
 always_comb 
-begin : while_with_binary_oper2f     // test_while_const.cpp:206:5
+begin : while_with_binary_oper2f     // test_while_const.cpp:213:5
     logic b1;
     logic b2;
     logic b3;
@@ -302,10 +302,10 @@ begin : while_with_binary_oper2f     // test_while_const.cpp:206:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper3 (test_while_const.cpp:217:5) 
+// Method process: while_with_binary_oper3 (test_while_const.cpp:224:5) 
 
 always_comb 
-begin : while_with_binary_oper3     // test_while_const.cpp:217:5
+begin : while_with_binary_oper3     // test_while_const.cpp:224:5
     logic b1;
     logic b2;
     logic b3;
@@ -323,10 +323,10 @@ begin : while_with_binary_oper3     // test_while_const.cpp:217:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_with_binary_oper4 (test_while_const.cpp:230:5) 
+// Method process: while_with_binary_oper4 (test_while_const.cpp:237:5) 
 
 always_comb 
-begin : while_with_binary_oper4     // test_while_const.cpp:230:5
+begin : while_with_binary_oper4     // test_while_const.cpp:237:5
     logic b1;
     logic b2;
     logic b3;

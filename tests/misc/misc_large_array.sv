@@ -18,10 +18,10 @@ logic [7:0] arr[4096];
 logic [7:0] out;
 
 //------------------------------------------------------------------------------
-// Method process: proc (test_large_array.cpp:17:5) 
+// Method process: proc (test_large_array.cpp:24:5) 
 
 always_comb 
-begin : proc     // test_large_array.cpp:17:5
+begin : proc     // test_large_array.cpp:24:5
     out = arr[0];
 end
 

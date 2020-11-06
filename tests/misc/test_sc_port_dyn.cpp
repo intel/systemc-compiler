@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 //
 // Created by mmoiseev on 06/27/19s.
 //
@@ -5,7 +12,7 @@
 #include <systemc.h>
 
 // Module with @sc_port and pointer to dynamically allocated module
-// Taken from HR2 accelerators
+// Taken from real design accelerators
 
 template<typename T>
 struct port_if : public sc_interface {

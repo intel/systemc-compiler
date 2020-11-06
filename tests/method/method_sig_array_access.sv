@@ -40,7 +40,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut (test_sig_array_access.cpp:76:5)
+// Module: dut (test_sig_array_access.cpp:83:5)
 //
 module dut // "tb_inst.dut_inst"
 (
@@ -58,10 +58,10 @@ logic chr[3];
 logic chp[3][2];
 
 //------------------------------------------------------------------------------
-// Method process: write_method_ff (test_sig_array_access.cpp:33:5) 
+// Method process: write_method_ff (test_sig_array_access.cpp:40:5) 
 
 always_comb 
-begin : write_method_ff     // test_sig_array_access.cpp:33:5
+begin : write_method_ff     // test_sig_array_access.cpp:40:5
     if (en && !r_nw)
     begin
         reg_file[addr] = wdata;
@@ -69,10 +69,10 @@ begin : write_method_ff     // test_sig_array_access.cpp:33:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: read_method_comb (test_sig_array_access.cpp:38:5) 
+// Method process: read_method_comb (test_sig_array_access.cpp:45:5) 
 
 always_comb 
-begin : read_method_comb     // test_sig_array_access.cpp:38:5
+begin : read_method_comb     // test_sig_array_access.cpp:45:5
     rdata = 0;
     if (en && r_nw)
     begin
@@ -81,10 +81,10 @@ begin : read_method_comb     // test_sig_array_access.cpp:38:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: chan_arr_func_param (test_sig_array_access.cpp:52:5) 
+// Method process: chan_arr_func_param (test_sig_array_access.cpp:59:5) 
 
 always_comb 
-begin : chan_arr_func_param     // test_sig_array_access.cpp:52:5
+begin : chan_arr_func_param     // test_sig_array_access.cpp:59:5
     logic par;
     logic c;
     par = chr[1];
@@ -94,10 +94,10 @@ begin : chan_arr_func_param     // test_sig_array_access.cpp:52:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: chan_arr_func_param2 (test_sig_array_access.cpp:60:5) 
+// Method process: chan_arr_func_param2 (test_sig_array_access.cpp:67:5) 
 
 always_comb 
-begin : chan_arr_func_param2     // test_sig_array_access.cpp:60:5
+begin : chan_arr_func_param2     // test_sig_array_access.cpp:67:5
     logic par;
     logic c;
     par = chp[2][1];

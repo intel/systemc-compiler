@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_while_other.cpp:170:5)
+// Module: A (test_while_other.cpp:177:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -46,10 +46,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: while_sc_int_type (test_while_other.cpp:37:5) 
+// Method process: while_sc_int_type (test_while_other.cpp:44:5) 
 
 always_comb 
-begin : while_sc_int_type     // test_while_other.cpp:37:5
+begin : while_sc_int_type     // test_while_other.cpp:44:5
     integer k_1;
     logic signed [2:0] i;
     logic signed [3:0] j;
@@ -65,10 +65,10 @@ begin : while_sc_int_type     // test_while_other.cpp:37:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_sc_uint_type (test_while_other.cpp:51:5) 
+// Method process: while_sc_uint_type (test_while_other.cpp:58:5) 
 
 always_comb 
-begin : while_sc_uint_type     // test_while_other.cpp:51:5
+begin : while_sc_uint_type     // test_while_other.cpp:58:5
     integer k_1;
     logic [4:0] i;
     logic [5:0] j;
@@ -83,10 +83,10 @@ begin : while_sc_uint_type     // test_while_other.cpp:51:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_sc_bigint_type (test_while_other.cpp:63:5) 
+// Method process: while_sc_bigint_type (test_while_other.cpp:70:5) 
 
 always_comb 
-begin : while_sc_bigint_type     // test_while_other.cpp:63:5
+begin : while_sc_bigint_type     // test_while_other.cpp:70:5
     integer k_1;
     logic signed [4:0] i;
     logic signed [5:0] j;
@@ -101,10 +101,10 @@ begin : while_sc_bigint_type     // test_while_other.cpp:63:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_sc_biguint_type (test_while_other.cpp:75:5) 
+// Method process: while_sc_biguint_type (test_while_other.cpp:82:5) 
 
 always_comb 
-begin : while_sc_biguint_type     // test_while_other.cpp:75:5
+begin : while_sc_biguint_type     // test_while_other.cpp:82:5
     integer k_1;
     logic [6:0] i;
     logic [7:0] j;
@@ -119,10 +119,10 @@ begin : while_sc_biguint_type     // test_while_other.cpp:75:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_long_type (test_while_other.cpp:87:5) 
+// Method process: while_long_type (test_while_other.cpp:94:5) 
 
 always_comb 
-begin : while_long_type     // test_while_other.cpp:87:5
+begin : while_long_type     // test_while_other.cpp:94:5
     integer k_1;
     logic signed [63:0] i;
     logic signed [63:0] j;
@@ -137,10 +137,10 @@ begin : while_long_type     // test_while_other.cpp:87:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_ulong_type (test_while_other.cpp:99:5) 
+// Method process: while_ulong_type (test_while_other.cpp:106:5) 
 
 always_comb 
-begin : while_ulong_type     // test_while_other.cpp:99:5
+begin : while_ulong_type     // test_while_other.cpp:106:5
     integer k_1;
     logic [63:0] i;
     logic [63:0] j;
@@ -155,10 +155,10 @@ begin : while_ulong_type     // test_while_other.cpp:99:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_short_type (test_while_other.cpp:111:5) 
+// Method process: while_short_type (test_while_other.cpp:118:5) 
 
 always_comb 
-begin : while_short_type     // test_while_other.cpp:111:5
+begin : while_short_type     // test_while_other.cpp:118:5
     integer k_1;
     logic signed [15:0] i;
     logic signed [15:0] j;
@@ -173,10 +173,10 @@ begin : while_short_type     // test_while_other.cpp:111:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_ushort_type (test_while_other.cpp:123:5) 
+// Method process: while_ushort_type (test_while_other.cpp:130:5) 
 
 always_comb 
-begin : while_ushort_type     // test_while_other.cpp:123:5
+begin : while_ushort_type     // test_while_other.cpp:130:5
     integer k_1;
     logic [15:0] i;
     logic [15:0] j;
@@ -191,10 +191,10 @@ begin : while_ushort_type     // test_while_other.cpp:123:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_mixed_type (test_while_other.cpp:135:5) 
+// Method process: while_mixed_type (test_while_other.cpp:142:5) 
 
 always_comb 
-begin : while_mixed_type     // test_while_other.cpp:135:5
+begin : while_mixed_type     // test_while_other.cpp:142:5
     integer k_1;
     logic [15:0] i;
     logic [15:0] j;

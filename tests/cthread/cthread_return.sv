@@ -21,10 +21,10 @@ logic [7:0] a_mif_s;
 logic t;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: return_func1 (test_return.cpp:53:5) 
+// Clocked THREAD: return_func1 (test_return.cpp:60:5) 
 
 // Next-state combinational logic
-always_comb begin : return_func1_comb     // test_return.cpp:53:5
+always_comb begin : return_func1_comb     // test_return.cpp:60:5
     return_func1_func;
 end
 function void return_func1_func;
@@ -59,10 +59,10 @@ begin : return_func1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: mif_method_call (test_return.cpp:71:5) 
+// Clocked THREAD: mif_method_call (test_return.cpp:78:5) 
 
 // Next-state combinational logic
-always_comb begin : mif_method_call_comb     // test_return.cpp:71:5
+always_comb begin : mif_method_call_comb     // test_return.cpp:78:5
     mif_method_call_func;
 end
 function void mif_method_call_func;
@@ -90,7 +90,7 @@ begin : mif_method_call_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: return_func4 (test_return.cpp:96:5) 
+// Clocked THREAD: return_func4 (test_return.cpp:103:5) 
 
 // Thread-local variables
 logic [3:0] blockIndx;
@@ -101,7 +101,7 @@ logic [1:0] return_func4_PROC_STATE;
 logic [1:0] return_func4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : return_func4_comb     // test_return.cpp:96:5
+always_comb begin : return_func4_comb     // test_return.cpp:103:5
     return_func4_func;
 end
 function void return_func4_func;
@@ -115,7 +115,7 @@ function void return_func4_func;
         0: begin
             blockIndx_next = s;
             // Call ff5() begin
-            return_func4_PROC_STATE_next = 1; return;    // test_return.cpp:91:13;
+            return_func4_PROC_STATE_next = 1; return;    // test_return.cpp:98:13;
             // Call ff5() end
         end
         1: begin
@@ -126,15 +126,15 @@ function void return_func4_func;
             // Call f5() end
             if (!TMP_0)
             begin
-                return_func4_PROC_STATE_next = 1; return;    // test_return.cpp:91:13;
+                return_func4_PROC_STATE_next = 1; return;    // test_return.cpp:98:13;
             end
             // Call ff5() end
-            return_func4_PROC_STATE_next = 2; return;    // test_return.cpp:102:13;
+            return_func4_PROC_STATE_next = 2; return;    // test_return.cpp:109:13;
         end
         2: begin
             blockIndx_next = s;
             // Call ff5() begin
-            return_func4_PROC_STATE_next = 1; return;    // test_return.cpp:91:13;
+            return_func4_PROC_STATE_next = 1; return;    // test_return.cpp:98:13;
             // Call ff5() end
         end
     endcase
@@ -144,7 +144,7 @@ endfunction
 always_ff @(posedge clk or negedge rst) 
 begin : return_func4_ff
     if ( ~rst ) begin
-        return_func4_PROC_STATE <= 0;    // test_return.cpp:98:9;
+        return_func4_PROC_STATE <= 0;    // test_return.cpp:105:9;
     end
     else begin
         blockIndx <= blockIndx_next;

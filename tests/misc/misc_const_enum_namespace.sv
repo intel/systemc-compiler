@@ -20,10 +20,10 @@ logic signed [31:0] sig;
 logic signed [31:0] sig_g;
 
 //------------------------------------------------------------------------------
-// Method process: methodProc (test_const_enum_namespace.cpp:54:5) 
+// Method process: methodProc (test_const_enum_namespace.cpp:57:5) 
 
 always_comb 
-begin : methodProc     // test_const_enum_namespace.cpp:54:5
+begin : methodProc     // test_const_enum_namespace.cpp:57:5
     logic [1:0] cvar1;
     logic [1:0] cvar2;
     logic [1:0] cvar3;

@@ -25,7 +25,7 @@ assign a1_clk = clk;
 assign a2_clk = clk;
 
 //------------------------------------------------------------------------------
-// Method process: a1_methProcA (test_sc_port_ptr2.cpp:31:5) 
+// Method process: a1_methProcA (test_sc_port_ptr2.cpp:38:5) 
 
 // Process-local variables
 logic [3:0] a1_var2;
@@ -33,7 +33,7 @@ logic [3:0] a1_var3;
 logic [3:0] a1_var1;
 
 always_comb 
-begin : a1_methProcA     // test_sc_port_ptr2.cpp:31:5
+begin : a1_methProcA     // test_sc_port_ptr2.cpp:38:5
     logic [3:0] TMP_0;
     logic [3:0] i;
     // Call getvar() begin
@@ -46,14 +46,14 @@ begin : a1_methProcA     // test_sc_port_ptr2.cpp:31:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: a1_threadProcA (test_sc_port_ptr2.cpp:39:5) 
+// Clocked THREAD: a1_threadProcA (test_sc_port_ptr2.cpp:46:5) 
 
 // Thread-local variables
 logic [3:0] a1_var4;
 logic [3:0] a1_var4_next;
 
 // Next-state combinational logic
-always_comb begin : a1_threadProcA_comb     // test_sc_port_ptr2.cpp:39:5
+always_comb begin : a1_threadProcA_comb     // test_sc_port_ptr2.cpp:46:5
     a1_threadProcA_func;
 end
 function void a1_threadProcA_func;
@@ -73,7 +73,7 @@ begin : a1_threadProcA_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: a2_methProcA (test_sc_port_ptr2.cpp:31:5) 
+// Method process: a2_methProcA (test_sc_port_ptr2.cpp:38:5) 
 
 // Process-local variables
 logic [3:0] a2_var2;
@@ -81,7 +81,7 @@ logic [3:0] a2_var3;
 logic [3:0] a2_var1;
 
 always_comb 
-begin : a2_methProcA     // test_sc_port_ptr2.cpp:31:5
+begin : a2_methProcA     // test_sc_port_ptr2.cpp:38:5
     logic [3:0] TMP_0;
     logic [3:0] i;
     // Call getvar() begin
@@ -94,14 +94,14 @@ begin : a2_methProcA     // test_sc_port_ptr2.cpp:31:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: a2_threadProcA (test_sc_port_ptr2.cpp:39:5) 
+// Clocked THREAD: a2_threadProcA (test_sc_port_ptr2.cpp:46:5) 
 
 // Thread-local variables
 logic [3:0] a2_var4;
 logic [3:0] a2_var4_next;
 
 // Next-state combinational logic
-always_comb begin : a2_threadProcA_comb     // test_sc_port_ptr2.cpp:39:5
+always_comb begin : a2_threadProcA_comb     // test_sc_port_ptr2.cpp:46:5
     a2_threadProcA_func;
 end
 function void a2_threadProcA_func;
@@ -121,14 +121,14 @@ begin : a2_threadProcA_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: methProcD (test_sc_port_ptr2.cpp:110:5) 
+// Method process: methProcD (test_sc_port_ptr2.cpp:117:5) 
 
 // Process-local variables
 logic [3:0] a1_var1;
 logic [3:0] a2_var1;
 
 always_comb 
-begin : methProcD     // test_sc_port_ptr2.cpp:110:5
+begin : methProcD     // test_sc_port_ptr2.cpp:117:5
     logic [3:0] TMP_0;
     logic [3:0] i;
     logic [3:0] TMP_2;
@@ -143,10 +143,10 @@ begin : methProcD     // test_sc_port_ptr2.cpp:110:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: threadProcD (test_sc_port_ptr2.cpp:116:5) 
+// Clocked THREAD: threadProcD (test_sc_port_ptr2.cpp:123:5) 
 
 // Next-state combinational logic
-always_comb begin : threadProcD_comb     // test_sc_port_ptr2.cpp:116:5
+always_comb begin : threadProcD_comb     // test_sc_port_ptr2.cpp:123:5
     threadProcD_func;
 end
 function void threadProcD_func;
@@ -185,10 +185,10 @@ module B // "dut.BInst"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: methProcB (test_sc_port_ptr2.cpp:69:5) 
+// Method process: methProcB (test_sc_port_ptr2.cpp:76:5) 
 
 always_comb 
-begin : methProcB     // test_sc_port_ptr2.cpp:69:5
+begin : methProcB     // test_sc_port_ptr2.cpp:76:5
     integer i;
     i = 0;
 end

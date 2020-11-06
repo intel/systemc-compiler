@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_pointers.cpp:157:5)
+// Module: A (test_pointers.cpp:164:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -48,14 +48,14 @@ logic [41:0] parrp[5];
 logic signed [63:0] sl;
 
 //------------------------------------------------------------------------------
-// Method process: this_pointer (test_pointers.cpp:79:5) 
+// Method process: this_pointer (test_pointers.cpp:86:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic [2:0] u;
 
 always_comb 
-begin : this_pointer     // test_pointers.cpp:79:5
+begin : this_pointer     // test_pointers.cpp:86:5
     m = 1;
     s = |(2 + m);
     u = 4 + s;
@@ -67,16 +67,16 @@ begin : this_pointer     // test_pointers.cpp:79:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: this_pointer2 (test_pointers.cpp:92:5) 
+// Method process: this_pointer2 (test_pointers.cpp:99:5) 
 
 always_comb 
-begin : this_pointer2     // test_pointers.cpp:92:5
+begin : this_pointer2     // test_pointers.cpp:99:5
     integer i;
     i = sp + sp;
 end
 
 //------------------------------------------------------------------------------
-// Method process: pointer_decl_init (test_pointers.cpp:97:5) 
+// Method process: pointer_decl_init (test_pointers.cpp:104:5) 
 
 // Process-local variables
 logic [2:0] n;
@@ -85,7 +85,7 @@ logic signed [31:0] k;
 logic [2:0] u1;
 
 always_comb 
-begin : pointer_decl_init     // test_pointers.cpp:97:5
+begin : pointer_decl_init     // test_pointers.cpp:104:5
     integer i;
     i = q + q;
     i = k;
@@ -95,13 +95,13 @@ begin : pointer_decl_init     // test_pointers.cpp:97:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: pointer_if (test_pointers.cpp:113:5) 
+// Method process: pointer_if (test_pointers.cpp:120:5) 
 
 // Process-local variables
 logic [2:0] l;
 
 always_comb 
-begin : pointer_if     // test_pointers.cpp:113:5
+begin : pointer_if     // test_pointers.cpp:120:5
     if (0)
     begin
     end else begin
@@ -110,13 +110,13 @@ begin : pointer_if     // test_pointers.cpp:113:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: array_ptr1 (test_pointers.cpp:125:5) 
+// Method process: array_ptr1 (test_pointers.cpp:132:5) 
 
 // Process-local variables
 logic [11:0] parr1[4];
 
 always_comb 
-begin : array_ptr1     // test_pointers.cpp:125:5
+begin : array_ptr1     // test_pointers.cpp:132:5
     for (integer i = 0; i < 4; i++)
     begin
         parr1[i] = i;
@@ -130,10 +130,10 @@ begin : array_ptr1     // test_pointers.cpp:125:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: array_ptr2 (test_pointers.cpp:139:5) 
+// Method process: array_ptr2 (test_pointers.cpp:146:5) 
 
 always_comb 
-begin : array_ptr2     // test_pointers.cpp:139:5
+begin : array_ptr2     // test_pointers.cpp:146:5
     for (integer i = 0; i < 4; i++)
     begin
         parrp[i] = 42'(parr2[i]);

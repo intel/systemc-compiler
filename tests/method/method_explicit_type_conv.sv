@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_explicit_type_conv.cpp:104:5)
+// Module: A (test_explicit_type_conv.cpp:102:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -43,10 +43,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: type_conv (test_explicit_type_conv.cpp:38:5) 
+// Method process: type_conv (test_explicit_type_conv.cpp:45:5) 
 
 always_comb 
-begin : type_conv     // test_explicit_type_conv.cpp:38:5
+begin : type_conv     // test_explicit_type_conv.cpp:45:5
     logic signed [31:0] par1;
     logic [31:0] par2;
     logic [31:0] par3;

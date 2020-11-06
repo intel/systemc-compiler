@@ -18,14 +18,14 @@ logic clk;
 logic rstn;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: single_state_thread0 (test_single_state_thread.cpp:66:5) 
+// Clocked THREAD: single_state_thread0 (test_single_state_thread.cpp:73:5) 
 
 // Thread-local variables
 logic signed [31:0] x;
 logic signed [31:0] x_next;
 
 // Next-state combinational logic
-always_comb begin : single_state_thread0_comb     // test_single_state_thread.cpp:66:5
+always_comb begin : single_state_thread0_comb     // test_single_state_thread.cpp:73:5
     single_state_thread0_func;
 end
 function void single_state_thread0_func;
@@ -45,14 +45,14 @@ begin : single_state_thread0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: single_state_thread1 (test_single_state_thread.cpp:75:5) 
+// Clocked THREAD: single_state_thread1 (test_single_state_thread.cpp:82:5) 
 
 // Thread-local variables
 logic signed [31:0] x0;
 logic signed [31:0] x_next0;
 
 // Next-state combinational logic
-always_comb begin : single_state_thread1_comb     // test_single_state_thread.cpp:75:5
+always_comb begin : single_state_thread1_comb     // test_single_state_thread.cpp:82:5
     single_state_thread1_func;
 end
 function void single_state_thread1_func;
@@ -72,14 +72,14 @@ begin : single_state_thread1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: single_state_thread2 (test_single_state_thread.cpp:84:5) 
+// Clocked THREAD: single_state_thread2 (test_single_state_thread.cpp:91:5) 
 
 // Thread-local variables
 logic signed [31:0] x1;
 logic signed [31:0] x_next1;
 
 // Next-state combinational logic
-always_comb begin : single_state_thread2_comb     // test_single_state_thread.cpp:84:5
+always_comb begin : single_state_thread2_comb     // test_single_state_thread.cpp:91:5
     single_state_thread2_func;
 end
 function void single_state_thread2_func;
@@ -99,14 +99,14 @@ begin : single_state_thread2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: single_state_thread3 (test_single_state_thread.cpp:93:5) 
+// Clocked THREAD: single_state_thread3 (test_single_state_thread.cpp:100:5) 
 
 // Thread-local variables
 logic signed [31:0] x2;
 logic signed [31:0] x_next2;
 
 // Next-state combinational logic
-always_comb begin : single_state_thread3_comb     // test_single_state_thread.cpp:93:5
+always_comb begin : single_state_thread3_comb     // test_single_state_thread.cpp:100:5
     single_state_thread3_func;
 end
 function void single_state_thread3_func;
@@ -126,14 +126,14 @@ begin : single_state_thread3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: single_state_thread4 (test_single_state_thread.cpp:105:5) 
+// Clocked THREAD: single_state_thread4 (test_single_state_thread.cpp:112:5) 
 
 // Thread-local variables
 logic signed [31:0] x3;
 logic signed [31:0] x_next3;
 
 // Next-state combinational logic
-always_comb begin : single_state_thread4_comb     // test_single_state_thread.cpp:105:5
+always_comb begin : single_state_thread4_comb     // test_single_state_thread.cpp:112:5
     single_state_thread4_func;
 end
 function void single_state_thread4_func;
@@ -153,7 +153,7 @@ begin : single_state_thread4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multistate_thread0 (test_single_state_thread.cpp:114:5) 
+// Clocked THREAD: multistate_thread0 (test_single_state_thread.cpp:121:5) 
 
 // Thread-local variables
 logic signed [31:0] x4;
@@ -162,7 +162,7 @@ logic multistate_thread0_PROC_STATE;
 logic multistate_thread0_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : multistate_thread0_comb     // test_single_state_thread.cpp:114:5
+always_comb begin : multistate_thread0_comb     // test_single_state_thread.cpp:121:5
     multistate_thread0_func;
 end
 function void multistate_thread0_func;
@@ -173,11 +173,11 @@ function void multistate_thread0_func;
         0: begin
             x_next4++;
             x_next4++;
-            multistate_thread0_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:120:13;
+            multistate_thread0_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:127:13;
         end
         1: begin
             x_next4++;
-            multistate_thread0_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:120:13;
+            multistate_thread0_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:127:13;
         end
     endcase
 endfunction
@@ -187,7 +187,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : multistate_thread0_ff
     if ( ~rstn ) begin
         x4 <= 0;
-        multistate_thread0_PROC_STATE <= 0;    // test_single_state_thread.cpp:116:9;
+        multistate_thread0_PROC_STATE <= 0;    // test_single_state_thread.cpp:123:9;
     end
     else begin
         x4 <= x_next4;
@@ -196,7 +196,7 @@ begin : multistate_thread0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multistate_thread1 (test_single_state_thread.cpp:124:5) 
+// Clocked THREAD: multistate_thread1 (test_single_state_thread.cpp:131:5) 
 
 // Thread-local variables
 logic signed [31:0] x5;
@@ -205,7 +205,7 @@ logic multistate_thread1_PROC_STATE;
 logic multistate_thread1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : multistate_thread1_comb     // test_single_state_thread.cpp:124:5
+always_comb begin : multistate_thread1_comb     // test_single_state_thread.cpp:131:5
     multistate_thread1_func;
 end
 function void multistate_thread1_func;
@@ -214,11 +214,11 @@ function void multistate_thread1_func;
     
     case (multistate_thread1_PROC_STATE)
         0: begin
-            multistate_thread1_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:128:13;
+            multistate_thread1_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:135:13;
         end
         1: begin
             x_next5++;
-            multistate_thread1_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:128:13;
+            multistate_thread1_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:135:13;
         end
     endcase
 endfunction
@@ -228,7 +228,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : multistate_thread1_ff
     if ( ~rstn ) begin
         x5 <= 0;
-        multistate_thread1_PROC_STATE <= 0;    // test_single_state_thread.cpp:126:9;
+        multistate_thread1_PROC_STATE <= 0;    // test_single_state_thread.cpp:133:9;
     end
     else begin
         x5 <= x_next5;
@@ -237,7 +237,7 @@ begin : multistate_thread1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multistate_thread2 (test_single_state_thread.cpp:137:5) 
+// Clocked THREAD: multistate_thread2 (test_single_state_thread.cpp:144:5) 
 
 // Thread-local variables
 logic signed [31:0] x6;
@@ -246,7 +246,7 @@ logic multistate_thread2_PROC_STATE;
 logic multistate_thread2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : multistate_thread2_comb     // test_single_state_thread.cpp:137:5
+always_comb begin : multistate_thread2_comb     // test_single_state_thread.cpp:144:5
     multistate_thread2_func;
 end
 function void multistate_thread2_func;
@@ -256,12 +256,12 @@ function void multistate_thread2_func;
     case (multistate_thread2_PROC_STATE)
         0: begin
             // Call wait_method() begin
-            multistate_thread2_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:134:9;
+            multistate_thread2_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:141:9;
             // Call wait_method() end
         end
         1: begin
             x_next6++;
-            multistate_thread2_PROC_STATE_next = 0; return;    // test_single_state_thread.cpp:140:13;
+            multistate_thread2_PROC_STATE_next = 0; return;    // test_single_state_thread.cpp:147:13;
         end
     endcase
 endfunction
@@ -271,7 +271,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : multistate_thread2_ff
     if ( ~rstn ) begin
         x6 <= 0;
-        multistate_thread2_PROC_STATE <= 0;    // test_single_state_thread.cpp:140:13;
+        multistate_thread2_PROC_STATE <= 0;    // test_single_state_thread.cpp:147:13;
     end
     else begin
         x6 <= x_next6;
@@ -280,7 +280,7 @@ begin : multistate_thread2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multistate_thread3 (test_single_state_thread.cpp:146:5) 
+// Clocked THREAD: multistate_thread3 (test_single_state_thread.cpp:153:5) 
 
 // Thread-local variables
 logic signed [31:0] x7;
@@ -289,7 +289,7 @@ logic multistate_thread3_PROC_STATE;
 logic multistate_thread3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : multistate_thread3_comb     // test_single_state_thread.cpp:146:5
+always_comb begin : multistate_thread3_comb     // test_single_state_thread.cpp:153:5
     multistate_thread3_func;
 end
 function void multistate_thread3_func;
@@ -299,12 +299,12 @@ function void multistate_thread3_func;
     case (multistate_thread3_PROC_STATE)
         0: begin
             // Call wait_wrapper() begin
-            multistate_thread3_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:25:5;
+            multistate_thread3_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:32:5;
             // Call wait_wrapper() end
         end
         1: begin
             x_next7++;
-            multistate_thread3_PROC_STATE_next = 0; return;    // test_single_state_thread.cpp:149:13;
+            multistate_thread3_PROC_STATE_next = 0; return;    // test_single_state_thread.cpp:156:13;
         end
     endcase
 endfunction
@@ -314,7 +314,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : multistate_thread3_ff
     if ( ~rstn ) begin
         x7 <= 0;
-        multistate_thread3_PROC_STATE <= 0;    // test_single_state_thread.cpp:149:13;
+        multistate_thread3_PROC_STATE <= 0;    // test_single_state_thread.cpp:156:13;
     end
     else begin
         x7 <= x_next7;
@@ -323,7 +323,7 @@ begin : multistate_thread3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multistate_thread4 (test_single_state_thread.cpp:155:5) 
+// Clocked THREAD: multistate_thread4 (test_single_state_thread.cpp:162:5) 
 
 // Thread-local variables
 logic signed [31:0] x8;
@@ -334,7 +334,7 @@ logic multistate_thread4_PROC_STATE;
 logic multistate_thread4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : multistate_thread4_comb     // test_single_state_thread.cpp:155:5
+always_comb begin : multistate_thread4_comb     // test_single_state_thread.cpp:162:5
     multistate_thread4_func;
 end
 function void multistate_thread4_func;
@@ -346,12 +346,12 @@ function void multistate_thread4_func;
         0: begin
             // Call vwait() begin
             wptr_y_next = wptr_y_next + 2;
-            multistate_thread4_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:19:9;
+            multistate_thread4_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:26:9;
             // Call vwait() end
         end
         1: begin
             x_next8++;
-            multistate_thread4_PROC_STATE_next = 0; return;    // test_single_state_thread.cpp:158:13;
+            multistate_thread4_PROC_STATE_next = 0; return;    // test_single_state_thread.cpp:165:13;
         end
     endcase
 endfunction
@@ -361,7 +361,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : multistate_thread4_ff
     if ( ~rstn ) begin
         x8 <= 0;
-        multistate_thread4_PROC_STATE <= 0;    // test_single_state_thread.cpp:158:13;
+        multistate_thread4_PROC_STATE <= 0;    // test_single_state_thread.cpp:165:13;
     end
     else begin
         x8 <= x_next8;
@@ -371,7 +371,7 @@ begin : multistate_thread4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multistate_thread5 (test_single_state_thread.cpp:170:5) 
+// Clocked THREAD: multistate_thread5 (test_single_state_thread.cpp:177:5) 
 
 // Thread-local variables
 logic signed [31:0] x9;
@@ -382,7 +382,7 @@ logic multistate_thread5_PROC_STATE;
 logic multistate_thread5_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : multistate_thread5_comb     // test_single_state_thread.cpp:170:5
+always_comb begin : multistate_thread5_comb     // test_single_state_thread.cpp:177:5
     multistate_thread5_func;
 end
 function void multistate_thread5_func;
@@ -395,13 +395,13 @@ function void multistate_thread5_func;
             // Call wbase_invoker() begin
             // Call vwait() begin
             wd_y_next = wd_y_next + 2;
-            multistate_thread5_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:19:9;
+            multistate_thread5_PROC_STATE_next = 1; return;    // test_single_state_thread.cpp:26:9;
             // Call vwait() end
             // Call wbase_invoker() end
         end
         1: begin
             x_next9++;
-            multistate_thread5_PROC_STATE_next = 0; return;    // test_single_state_thread.cpp:173:13;
+            multistate_thread5_PROC_STATE_next = 0; return;    // test_single_state_thread.cpp:180:13;
         end
     endcase
 endfunction
@@ -411,7 +411,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : multistate_thread5_ff
     if ( ~rstn ) begin
         x9 <= 0;
-        multistate_thread5_PROC_STATE <= 0;    // test_single_state_thread.cpp:173:13;
+        multistate_thread5_PROC_STATE <= 0;    // test_single_state_thread.cpp:180:13;
     end
     else begin
         x9 <= x_next9;
@@ -421,7 +421,7 @@ begin : multistate_thread5_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multistate_thread6 (test_single_state_thread.cpp:179:5) 
+// Clocked THREAD: multistate_thread6 (test_single_state_thread.cpp:186:5) 
 
 // Thread-local variables
 logic signed [31:0] x10;
@@ -430,7 +430,7 @@ logic multistate_thread6_PROC_STATE;
 logic multistate_thread6_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : multistate_thread6_comb     // test_single_state_thread.cpp:179:5
+always_comb begin : multistate_thread6_comb     // test_single_state_thread.cpp:186:5
     multistate_thread6_func;
 end
 function void multistate_thread6_func;
@@ -441,11 +441,11 @@ function void multistate_thread6_func;
         default : begin
             x_next10 = 0;
             x_next10++;
-            multistate_thread6_PROC_STATE_next = 0; return;    // test_single_state_thread.cpp:183:13;
+            multistate_thread6_PROC_STATE_next = 0; return;    // test_single_state_thread.cpp:190:13;
         end
         0: begin
             x_next10++;
-            multistate_thread6_PROC_STATE_next = 0; return;    // test_single_state_thread.cpp:183:13;
+            multistate_thread6_PROC_STATE_next = 0; return;    // test_single_state_thread.cpp:190:13;
         end
     endcase
 endfunction

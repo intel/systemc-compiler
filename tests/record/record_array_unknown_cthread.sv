@@ -28,7 +28,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_unknown_cthread.cpp:139:5)
+// Module: A (test_array_unknown_cthread.cpp:146:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -40,7 +40,7 @@ logic nrst;
 logic [3:0] sig;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: copy_rec_arr_elem (test_array_unknown_cthread.cpp:44:5) 
+// Clocked THREAD: copy_rec_arr_elem (test_array_unknown_cthread.cpp:51:5) 
 
 // Thread-local variables
 logic signed [1:0] gr_a[2];
@@ -51,7 +51,7 @@ logic signed [31:0] j;
 logic signed [31:0] j_next;
 
 // Next-state combinational logic
-always_comb begin : copy_rec_arr_elem_comb     // test_array_unknown_cthread.cpp:44:5
+always_comb begin : copy_rec_arr_elem_comb     // test_array_unknown_cthread.cpp:51:5
     copy_rec_arr_elem_func;
 end
 function void copy_rec_arr_elem_func;
@@ -78,7 +78,7 @@ begin : copy_rec_arr_elem_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: copy_rec_arr_elem2 (test_array_unknown_cthread.cpp:58:5) 
+// Clocked THREAD: copy_rec_arr_elem2 (test_array_unknown_cthread.cpp:65:5) 
 
 // Thread-local variables
 logic signed [1:0] ap_a[3];
@@ -93,7 +93,7 @@ logic copy_rec_arr_elem2_PROC_STATE;
 logic copy_rec_arr_elem2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : copy_rec_arr_elem2_comb     // test_array_unknown_cthread.cpp:58:5
+always_comb begin : copy_rec_arr_elem2_comb     // test_array_unknown_cthread.cpp:65:5
     copy_rec_arr_elem2_func;
 end
 function void copy_rec_arr_elem2_func;
@@ -104,12 +104,12 @@ function void copy_rec_arr_elem2_func;
     
     case (copy_rec_arr_elem2_PROC_STATE)
         0: begin
-            copy_rec_arr_elem2_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:64:13;
+            copy_rec_arr_elem2_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:71:13;
         end
         1: begin
             gp_a[1] = ap_a_next[2]; gp_b[1] = ap_b_next[2];
             gp_a[j_next0] = 0;
-            copy_rec_arr_elem2_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:64:13;
+            copy_rec_arr_elem2_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:71:13;
         end
     endcase
 endfunction
@@ -119,7 +119,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : copy_rec_arr_elem2_ff
     if ( ~nrst ) begin
         j0 <= sig;
-        copy_rec_arr_elem2_PROC_STATE <= 0;    // test_array_unknown_cthread.cpp:61:9;
+        copy_rec_arr_elem2_PROC_STATE <= 0;    // test_array_unknown_cthread.cpp:68:9;
     end
     else begin
         ap_a <= ap_a_next;
@@ -130,7 +130,7 @@ begin : copy_rec_arr_elem2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: copy_rec_arr_unknw (test_array_unknown_cthread.cpp:73:5) 
+// Clocked THREAD: copy_rec_arr_unknw (test_array_unknown_cthread.cpp:80:5) 
 
 // Thread-local variables
 logic signed [1:0] as_a[3];
@@ -143,7 +143,7 @@ logic copy_rec_arr_unknw_PROC_STATE;
 logic copy_rec_arr_unknw_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : copy_rec_arr_unknw_comb     // test_array_unknown_cthread.cpp:73:5
+always_comb begin : copy_rec_arr_unknw_comb     // test_array_unknown_cthread.cpp:80:5
     copy_rec_arr_unknw_func;
 end
 function void copy_rec_arr_unknw_func;
@@ -154,13 +154,13 @@ function void copy_rec_arr_unknw_func;
     
     case (copy_rec_arr_unknw_PROC_STATE)
         0: begin
-            copy_rec_arr_unknw_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:78:13;
+            copy_rec_arr_unknw_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:85:13;
         end
         1: begin
             j = sig;
             gs_a[j] = as_a_next[j]; gs_b[j] = as_b_next[j];
             j = as_b_next[j];
-            copy_rec_arr_unknw_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:78:13;
+            copy_rec_arr_unknw_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:85:13;
         end
     endcase
 endfunction
@@ -169,7 +169,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : copy_rec_arr_unknw_ff
     if ( ~nrst ) begin
-        copy_rec_arr_unknw_PROC_STATE <= 0;    // test_array_unknown_cthread.cpp:75:9;
+        copy_rec_arr_unknw_PROC_STATE <= 0;    // test_array_unknown_cthread.cpp:82:9;
     end
     else begin
         as_a <= as_a_next;
@@ -179,7 +179,7 @@ begin : copy_rec_arr_unknw_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: copy_rec_arr_unknw2 (test_array_unknown_cthread.cpp:88:5) 
+// Clocked THREAD: copy_rec_arr_unknw2 (test_array_unknown_cthread.cpp:95:5) 
 
 // Thread-local variables
 logic signed [1:0] gt_a[2];
@@ -190,7 +190,7 @@ logic copy_rec_arr_unknw2_PROC_STATE;
 logic copy_rec_arr_unknw2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : copy_rec_arr_unknw2_comb     // test_array_unknown_cthread.cpp:88:5
+always_comb begin : copy_rec_arr_unknw2_comb     // test_array_unknown_cthread.cpp:95:5
     copy_rec_arr_unknw2_func;
 end
 function void copy_rec_arr_unknw2_func;
@@ -203,13 +203,13 @@ function void copy_rec_arr_unknw2_func;
     
     case (copy_rec_arr_unknw2_PROC_STATE)
         0: begin
-            copy_rec_arr_unknw2_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:93:13;
+            copy_rec_arr_unknw2_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:100:13;
         end
         1: begin
             j = sig;
             at_a[j] = gt_a_next[j]; at_b[j] = gt_b_next[j];
             at_b[j] = gt_a_next[j + 1];
-            copy_rec_arr_unknw2_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:93:13;
+            copy_rec_arr_unknw2_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:100:13;
         end
     endcase
 endfunction
@@ -218,7 +218,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : copy_rec_arr_unknw2_ff
     if ( ~nrst ) begin
-        copy_rec_arr_unknw2_PROC_STATE <= 0;    // test_array_unknown_cthread.cpp:90:9;
+        copy_rec_arr_unknw2_PROC_STATE <= 0;    // test_array_unknown_cthread.cpp:97:9;
     end
     else begin
         gt_a <= gt_a_next;
@@ -228,7 +228,7 @@ begin : copy_rec_arr_unknw2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: copy_rec_arr_unknw3 (test_array_unknown_cthread.cpp:103:5) 
+// Clocked THREAD: copy_rec_arr_unknw3 (test_array_unknown_cthread.cpp:110:5) 
 
 // Thread-local variables
 logic signed [1:0] gu_a[2];
@@ -243,7 +243,7 @@ logic copy_rec_arr_unknw3_PROC_STATE;
 logic copy_rec_arr_unknw3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : copy_rec_arr_unknw3_comb     // test_array_unknown_cthread.cpp:103:5
+always_comb begin : copy_rec_arr_unknw3_comb     // test_array_unknown_cthread.cpp:110:5
     copy_rec_arr_unknw3_func;
 end
 function void copy_rec_arr_unknw3_func;
@@ -256,13 +256,13 @@ function void copy_rec_arr_unknw3_func;
     
     case (copy_rec_arr_unknw3_PROC_STATE)
         0: begin
-            copy_rec_arr_unknw3_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:108:13;
+            copy_rec_arr_unknw3_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:115:13;
         end
         1: begin
             j = sig;
             au_a_next[j] = gu_a_next[j]; au_b_next[j] = gu_b_next[j];
             gu_a_next[0] = au_a_next[j]; gu_b_next[0] = au_b_next[j];
-            copy_rec_arr_unknw3_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:108:13;
+            copy_rec_arr_unknw3_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:115:13;
         end
     endcase
 endfunction
@@ -271,7 +271,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : copy_rec_arr_unknw3_ff
     if ( ~nrst ) begin
-        copy_rec_arr_unknw3_PROC_STATE <= 0;    // test_array_unknown_cthread.cpp:105:9;
+        copy_rec_arr_unknw3_PROC_STATE <= 0;    // test_array_unknown_cthread.cpp:112:9;
     end
     else begin
         gu_a <= gu_a_next;
@@ -283,7 +283,7 @@ begin : copy_rec_arr_unknw3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: copy_rec_arr_mult (test_array_unknown_cthread.cpp:118:5) 
+// Clocked THREAD: copy_rec_arr_mult (test_array_unknown_cthread.cpp:125:5) 
 
 // Thread-local variables
 logic signed [1:0] guu_a[2][3];
@@ -294,7 +294,7 @@ logic copy_rec_arr_mult_PROC_STATE;
 logic copy_rec_arr_mult_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : copy_rec_arr_mult_comb     // test_array_unknown_cthread.cpp:118:5
+always_comb begin : copy_rec_arr_mult_comb     // test_array_unknown_cthread.cpp:125:5
     copy_rec_arr_mult_func;
 end
 function void copy_rec_arr_mult_func;
@@ -307,7 +307,7 @@ function void copy_rec_arr_mult_func;
     
     case (copy_rec_arr_mult_PROC_STATE)
         0: begin
-            copy_rec_arr_mult_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:123:13;
+            copy_rec_arr_mult_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:130:13;
         end
         1: begin
             j = sig;
@@ -315,7 +315,7 @@ function void copy_rec_arr_mult_func;
             auu_a[0][j + 1] = guu_a_next[j - 1][2]; auu_b[0][j + 1] = guu_b_next[j - 1][2];
             auu_a[0][j + 1] = j;
             j = guu_b_next[j][j + 1];
-            copy_rec_arr_mult_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:123:13;
+            copy_rec_arr_mult_PROC_STATE_next = 1; return;    // test_array_unknown_cthread.cpp:130:13;
         end
     endcase
 endfunction
@@ -324,7 +324,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : copy_rec_arr_mult_ff
     if ( ~nrst ) begin
-        copy_rec_arr_mult_PROC_STATE <= 0;    // test_array_unknown_cthread.cpp:120:9;
+        copy_rec_arr_mult_PROC_STATE <= 0;    // test_array_unknown_cthread.cpp:127:9;
     end
     else begin
         guu_a <= guu_a_next;

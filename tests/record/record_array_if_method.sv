@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_if_method.cpp:237:5)
+// Module: A (test_array_if_method.cpp:244:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -44,14 +44,14 @@ module A // "b_mod.a_mod"
 logic s;
 
 //------------------------------------------------------------------------------
-// Method process: record_var_if (test_array_if_method.cpp:63:5) 
+// Method process: record_var_if (test_array_if_method.cpp:70:5) 
 
 // Process-local variables
 logic signed [31:0] rec_a[16];
 logic [1:0] rec_b[16];
 
 always_comb 
-begin : record_var_if     // test_array_if_method.cpp:63:5
+begin : record_var_if     // test_array_if_method.cpp:70:5
     integer num1;
     integer num2;
     num1 = 0;
@@ -76,7 +76,7 @@ begin : record_var_if     // test_array_if_method.cpp:63:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_var_if_bitwise (test_array_if_method.cpp:96:5) 
+// Method process: record_var_if_bitwise (test_array_if_method.cpp:103:5) 
 
 // Process-local variables
 logic [15:0] rec2a_a[12];
@@ -97,7 +97,7 @@ logic [31:0] rec2b_g[12];
 logic [31:0] rec2b_h[12];
 
 always_comb 
-begin : record_var_if_bitwise     // test_array_if_method.cpp:96:5
+begin : record_var_if_bitwise     // test_array_if_method.cpp:103:5
     integer num1;
     integer num2;
     integer num3;
@@ -140,7 +140,7 @@ begin : record_var_if_bitwise     // test_array_if_method.cpp:96:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_var_if_arith (test_array_if_method.cpp:164:5) 
+// Method process: record_var_if_arith (test_array_if_method.cpp:171:5) 
 
 // Process-local variables
 logic [15:0] rec3a_a[8];
@@ -161,7 +161,7 @@ logic [31:0] rec3b_g[8];
 logic [31:0] rec3b_h[8];
 
 always_comb 
-begin : record_var_if_arith     // test_array_if_method.cpp:164:5
+begin : record_var_if_arith     // test_array_if_method.cpp:171:5
     integer num1;
     integer num2;
     integer num3;

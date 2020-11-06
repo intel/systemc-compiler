@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include "sc_sel_type.h"
 #include "sct_assert.h"
@@ -64,7 +71,7 @@ public:
     typedef sc_suint<STORED_RESP_WIDTH>::T StoredResp_t;
     sc_signal<StoredResp_t>    sig;
     
-    // BUG in STX SMEM -- fixed
+    // BUG in real design -- fixed
     void syncProc() 
     {
         sig = (StoredResp_t(1) << STORED_RESP_WIDTH-1);
@@ -444,3 +451,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

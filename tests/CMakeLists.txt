@@ -1,4 +1,3 @@
-#add_subdirectory(library)
 add_subdirectory(const_prop)
 add_subdirectory(cthread)
 add_subdirectory(elab_only)

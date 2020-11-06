@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <systemc.h>
 
 // Test for wait(n) where @n is not constant, changed at next loop iteration

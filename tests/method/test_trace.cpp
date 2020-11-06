@@ -1,5 +1,11 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <systemc.h>
-// #include</nfs/pdx/disks/or_ilcoe73_disk0078/w61/kvg_fe/users/huzaifa/svc/svc/systemc/src/sysc/tracing/sc_wif_trace.cpp>
 
 
 // declaration of a variable of type sc_trace_file*,
@@ -92,3 +98,4 @@ int sc_main (int argc, char* argv[]) {
 
   return 0;// Terminate simulation
 }
+

@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <systemc.h>
 
 // Cross-hierarchy bind at the same level, there is conflict at @cons.sig
@@ -58,3 +65,4 @@ int sc_main(int argc, char** argv)
     sc_start();
     return 0;
 }
+

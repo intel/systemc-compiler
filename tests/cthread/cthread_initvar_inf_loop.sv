@@ -19,7 +19,7 @@ logic arstn;
 logic signed [31:0] in;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_cthread1 (test_cthread_initvar_inf_loop.cpp:26:5) 
+// Clocked THREAD: test_cthread1 (test_cthread_initvar_inf_loop.cpp:33:5) 
 
 // Thread-local variables
 logic [30:0] var_a;
@@ -27,7 +27,7 @@ logic [30:0] var_a_next;
 logic signed [31:0] in_next;
 
 // Next-state combinational logic
-always_comb begin : test_cthread1_comb     // test_cthread_initvar_inf_loop.cpp:26:5
+always_comb begin : test_cthread1_comb     // test_cthread_initvar_inf_loop.cpp:33:5
     test_cthread1_func;
 end
 function void test_cthread1_func;
@@ -49,7 +49,7 @@ begin : test_cthread1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_cthread2 (test_cthread_initvar_inf_loop.cpp:37:5) 
+// Clocked THREAD: test_cthread2 (test_cthread_initvar_inf_loop.cpp:44:5) 
 
 // Thread-local variables
 logic [30:0] var_a0;
@@ -59,7 +59,7 @@ logic test_cthread2_PROC_STATE;
 logic test_cthread2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_cthread2_comb     // test_cthread_initvar_inf_loop.cpp:37:5
+always_comb begin : test_cthread2_comb     // test_cthread_initvar_inf_loop.cpp:44:5
     test_cthread2_func;
 end
 function void test_cthread2_func;
@@ -70,12 +70,12 @@ function void test_cthread2_func;
     case (test_cthread2_PROC_STATE)
         0: begin
             var_a_next0 = 1;
-            test_cthread2_PROC_STATE_next = 1; return;    // test_cthread_initvar_inf_loop.cpp:43:13;
+            test_cthread2_PROC_STATE_next = 1; return;    // test_cthread_initvar_inf_loop.cpp:50:13;
         end
         1: begin
             in_next0 = var_a_next0;
             var_a_next0 = 1;
-            test_cthread2_PROC_STATE_next = 1; return;    // test_cthread_initvar_inf_loop.cpp:43:13;
+            test_cthread2_PROC_STATE_next = 1; return;    // test_cthread_initvar_inf_loop.cpp:50:13;
         end
     endcase
 endfunction
@@ -84,7 +84,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : test_cthread2_ff
     if ( ~arstn ) begin
-        test_cthread2_PROC_STATE <= 0;    // test_cthread_initvar_inf_loop.cpp:39:9;
+        test_cthread2_PROC_STATE <= 0;    // test_cthread_initvar_inf_loop.cpp:46:9;
     end
     else begin
         var_a0 <= var_a_next0;

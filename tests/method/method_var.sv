@@ -42,7 +42,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_var.cpp:249:5)
+// Module: A (test_var.cpp:256:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -62,20 +62,20 @@ logic signed [31:0] sip;
 logic signed [31:0] sig;
 
 //------------------------------------------------------------------------------
-// Method process: unknown_ref (test_var.cpp:71:5) 
+// Method process: unknown_ref (test_var.cpp:78:5) 
 
 always_comb 
-begin : unknown_ref     // test_var.cpp:71:5
+begin : unknown_ref     // test_var.cpp:78:5
     integer i;
     i = 1;
     i = sig;
 end
 
 //------------------------------------------------------------------------------
-// Method process: var1 (test_var.cpp:80:5) 
+// Method process: var1 (test_var.cpp:87:5) 
 
 always_comb 
-begin : var1     // test_var.cpp:80:5
+begin : var1     // test_var.cpp:87:5
     integer k_1;
     integer i;
     integer j;
@@ -85,10 +85,10 @@ begin : var1     // test_var.cpp:80:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: var2 (test_var.cpp:88:5) 
+// Method process: var2 (test_var.cpp:95:5) 
 
 always_comb 
-begin : var2     // test_var.cpp:88:5
+begin : var2     // test_var.cpp:95:5
     integer i;
     integer i_1;
     i = a;
@@ -99,13 +99,13 @@ begin : var2     // test_var.cpp:88:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: var3 (test_var.cpp:100:5) 
+// Method process: var3 (test_var.cpp:107:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : var3     // test_var.cpp:100:5
+begin : var3     // test_var.cpp:107:5
     integer i;
     integer i_1;
     integer i_2;
@@ -121,10 +121,10 @@ begin : var3     // test_var.cpp:100:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: var4 (test_var.cpp:112:5) 
+// Method process: var4 (test_var.cpp:119:5) 
 
 always_comb 
-begin : var4     // test_var.cpp:112:5
+begin : var4     // test_var.cpp:119:5
     integer i;
     integer j;
     integer k_1;
@@ -140,10 +140,10 @@ begin : var4     // test_var.cpp:112:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: signal1 (test_var.cpp:124:5) 
+// Method process: signal1 (test_var.cpp:131:5) 
 
 always_comb 
-begin : signal1     // test_var.cpp:124:5
+begin : signal1     // test_var.cpp:131:5
     integer i;
     i = si;
     si = i;
@@ -152,10 +152,10 @@ begin : signal1     // test_var.cpp:124:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: signal2 (test_var.cpp:134:5) 
+// Method process: signal2 (test_var.cpp:141:5) 
 
 always_comb 
-begin : signal2     // test_var.cpp:134:5
+begin : signal2     // test_var.cpp:141:5
     integer i;
     logic f;
     logic f1;
@@ -173,10 +173,10 @@ begin : signal2     // test_var.cpp:134:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: signal3 (test_var.cpp:155:5) 
+// Method process: signal3 (test_var.cpp:162:5) 
 
 always_comb 
-begin : signal3     // test_var.cpp:155:5
+begin : signal3     // test_var.cpp:162:5
     integer i;
     i = sip;
     sip = i;
@@ -193,20 +193,20 @@ begin : signal3     // test_var.cpp:155:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: port1 (test_var.cpp:176:5) 
+// Method process: port1 (test_var.cpp:183:5) 
 
 always_comb 
-begin : port1     // test_var.cpp:176:5
+begin : port1     // test_var.cpp:183:5
     integer i;
     i = a;
     b = |i;
 end
 
 //------------------------------------------------------------------------------
-// Method process: port2 (test_var.cpp:183:5) 
+// Method process: port2 (test_var.cpp:190:5) 
 
 always_comb 
-begin : port2     // test_var.cpp:183:5
+begin : port2     // test_var.cpp:190:5
     integer i;
     logic f;
     i = d;
@@ -220,10 +220,10 @@ begin : port2     // test_var.cpp:183:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: port3 (test_var.cpp:200:5) 
+// Method process: port3 (test_var.cpp:207:5) 
 
 always_comb 
-begin : port3     // test_var.cpp:200:5
+begin : port3     // test_var.cpp:207:5
     integer i;
     i = oip;
     oip = i;
@@ -236,20 +236,20 @@ begin : port3     // test_var.cpp:200:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: pointer_compare (test_var.cpp:215:5) 
+// Method process: pointer_compare (test_var.cpp:222:5) 
 
 always_comb 
-begin : pointer_compare     // test_var.cpp:215:5
+begin : pointer_compare     // test_var.cpp:222:5
     integer i;
     logic b2;
     b2 = 1;
 end
 
 //------------------------------------------------------------------------------
-// Method process: pointer_compare2 (test_var.cpp:226:5) 
+// Method process: pointer_compare2 (test_var.cpp:233:5) 
 
 always_comb 
-begin : pointer_compare2     // test_var.cpp:226:5
+begin : pointer_compare2     // test_var.cpp:233:5
     integer i;
     logic b2;
     b2 = 1;

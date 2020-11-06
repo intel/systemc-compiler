@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_mix_signed_unsigned_types.cpp:88:5)
+// Module: A (test_mix_signed_unsigned_types.cpp:95:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -43,10 +43,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: mix_sign_unsign (test_mix_signed_unsigned_types.cpp:49:5) 
+// Method process: mix_sign_unsign (test_mix_signed_unsigned_types.cpp:56:5) 
 
 always_comb 
-begin : mix_sign_unsign     // test_mix_signed_unsigned_types.cpp:49:5
+begin : mix_sign_unsign     // test_mix_signed_unsigned_types.cpp:56:5
     integer iter;
     integer unsigned par1;
     integer par2;

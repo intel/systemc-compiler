@@ -17,7 +17,7 @@ module Top // "top"
 logic minst_s[2];
 
 //------------------------------------------------------------------------------
-// Method process: minst_memRecMeth (test_array_record_meth.cpp:62:5) 
+// Method process: minst_memRecMeth (test_array_record_meth.cpp:69:5) 
 
 // Process-local variables
 logic minst_r_a[2];
@@ -30,7 +30,7 @@ logic signed [31:0] minst_f_rec_arr_c[2][2];
 logic signed [31:0] minst_f_rec_oth_arr_c[2][2];
 
 always_comb 
-begin : minst_memRecMeth     // test_array_record_meth.cpp:62:5
+begin : minst_memRecMeth     // test_array_record_meth.cpp:69:5
     integer minst_r_b_1[2];
     integer i;
     minst_r_b_1[0] = 0;
@@ -45,7 +45,7 @@ begin : minst_memRecMeth     // test_array_record_meth.cpp:62:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_memRecArrMeth (test_array_record_meth.cpp:81:5) 
+// Method process: minst_memRecArrMeth (test_array_record_meth.cpp:88:5) 
 
 // Process-local variables
 logic minst_w_a[2][2];
@@ -56,7 +56,7 @@ logic signed [31:0] minst_ww_rec_arr_c[2][3][2];
 logic signed [31:0] minst_ww_rec_oth_arr_c[2][3][2];
 
 always_comb 
-begin : minst_memRecArrMeth     // test_array_record_meth.cpp:81:5
+begin : minst_memRecArrMeth     // test_array_record_meth.cpp:88:5
     integer sum;
     logic [3:0] x;
     minst_w_a[0][0] = minst_s[0];
@@ -73,10 +73,10 @@ begin : minst_memRecArrMeth     // test_array_record_meth.cpp:81:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_memRecMeth0 (test_array_record_meth.cpp:62:5) 
+// Method process: minst_memRecMeth0 (test_array_record_meth.cpp:69:5) 
 
 always_comb 
-begin : minst_memRecMeth0     // test_array_record_meth.cpp:62:5
+begin : minst_memRecMeth0     // test_array_record_meth.cpp:69:5
     integer minst_r_b_1[2];
     integer i;
     minst_r_b_1[0] = 0;
@@ -91,10 +91,10 @@ begin : minst_memRecMeth0     // test_array_record_meth.cpp:62:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_memRecArrMeth0 (test_array_record_meth.cpp:81:5) 
+// Method process: minst_memRecArrMeth0 (test_array_record_meth.cpp:88:5) 
 
 always_comb 
-begin : minst_memRecArrMeth0     // test_array_record_meth.cpp:81:5
+begin : minst_memRecArrMeth0     // test_array_record_meth.cpp:88:5
     integer sum;
     logic [3:0] x;
     minst_w_a[1][0] = minst_s[1];

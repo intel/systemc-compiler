@@ -1,18 +1,25 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include "sct_assert.h"
 
 
-// C++ type unary operations
+// Unary operations for C++ and SC types
 class A : public sc_module 
 {
 public:
-    sc_in<bool>         a{"a"};
-    sc_out<bool>        b{"b"};
-    sc_out<bool>        c{"c"};
-    sc_out<bool>*       p;
+    sc_signal<int>        a{"a"};
+    sc_signal<int>        b{"b"};
+    sc_signal<int>        c{"c"};
+    sc_signal<unsigned>   d{"d"};
     
-    int                 m;
-    int                 k;
+    int                   m;
+    int                   k;
 
     sc_signal<bool> dummy{"dummy"};
 
@@ -21,13 +28,16 @@ public:
         SC_METHOD(narrowCastNeg); sensitive << dummy;
         SC_METHOD(negativeLiterals); sensitive << dummy;
         
+        SC_METHOD(minus1); sensitive << dummy;
         SC_METHOD(increment1); sensitive << dummy;
         SC_METHOD(increment2); sensitive << a;
         SC_METHOD(plus1); sensitive << a;
         SC_METHOD(not1); sensitive << a << b;
-        
-        SC_METHOD(not2); sensitive << a << b;
+
+        SC_METHOD(unary_in_subscript); sensitive << a << b;
     }
+    
+    #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
     
     static const int NEG = -2;
     static const long int NEGL = -211;
@@ -37,14 +47,15 @@ public:
         // -29
         sc_int<8> k1 = -541;
         cout << "k1 " << k1 << endl;
-        sct_assert_const(k1 == -29);
-        sct_assert(k1 == -29);
+        CHECK(k1 == -29);
+        
+        int ki = (-1L << 32) - 123;
+        CHECK(ki == -123);
 
         // -48
         sc_bigint<8> k2 = (sc_int<8>)NEGL * 14 + NEGL + (sc_bigint<16>)NEGL;
         cout << "k2 " << k2 << endl;
-        sct_assert_const(k2 == -48);
-        sct_assert(k2 == -48);
+        CHECK(k2 == -48);
     }
     
     void negativeLiterals()
@@ -56,41 +67,93 @@ public:
         i = NEG;
         i = (sc_int<12>)NEG;
         i = (sc_int<4>)NEG - 2*NEG;
-        sct_assert_const(i == 2);
-        sct_assert(i == 2);
+        cout << "i " << i << endl;
+        CHECK(i == 2);
         
         sc_bigint<8> j;
         j = (sc_bigint<8>)NEGL;
-        sct_assert_const(j == 45);
-        sct_assert(j == 45);
+        cout << "j " << j << endl;
+        CHECK(j == 45);
+    }
+    
+    void minus1()
+    {
+        int i = -111;
+        int j = -i;
+        CHECK(j == 111);
+        j = -(-i) + 1;
+        CHECK(j == -110);
+        
+        unsigned u = -i;
+        CHECK(u == 111);
+        u = (-i) * 2;
+        CHECK(u == 222);
+
+        sc_int<9> x = -NEGL;
+        CHECK(x == 211);
+        x = NEGL;
+        CHECK(x == -211);
+        x = 1 + (-NEGL);
+        CHECK(x == 212);
+        x = (-NEGL+1) / 2;
+        CHECK(x ==106);
+
+        sc_bigint<16> z = NEGL;
+        CHECK(z == -211);
+        z = -NEGL;
+        CHECK(z == 211);
+        
+        sc_bigint<44> zz;
+        zz = -z - -x;
+        cout << "zz " << zz << endl;
+        CHECK(zz == -105);
     }
     
     // Increment/decrement variable with known value
     void increment1() {
         int i = 1;
-        int j = 2;
+        unsigned j = 2;
         
         i--;
         j++;
         int k1 = ++i;
-        int k2 = --j;
+        unsigned k2 = --j;
         
-        b.write(k1);
-        b.write(k2);
+        cout << "k1 " << k1 << endl;
+        CHECK(k1 == 1);
+        cout << "k2 " << k2 << endl;
+        CHECK(k2 == 2);
         
-        b.write(i++);
-        b.write(--j);
+        sc_int<9> x = NEGL;
+        x++; CHECK(x == -210);
+        ++x; CHECK(x == -209);
+        x--; CHECK(x == -210);
+        --x; CHECK(x == -211);
+        
+        sc_uint<17> ux = -NEGL;
+        ux++; CHECK(ux == 212);
+        ++ux; CHECK(ux == 213);
+        ux--; CHECK(ux == 212);
+        --ux; CHECK(ux == 211);
+        
+        sc_bigint<18> z = (ux++) - (x--);
+        cout << "z " << z << endl;
+        CHECK(z == 422);
+        
+        z = (--j) * 2 + (++x) / (i--);
+        cout << "z " << z << endl;
+        CHECK(z == -209); 
     }
     
-    // Increment/decrement variable 
+    // Increment/decrement with unknown value
     void increment2() {
         int i = a.read();
-        int j = a.read();
+        unsigned j = a.read();
         
         i--;
         j++;
         int k1 = ++i;
-        int k2 = --j;
+        unsigned k2 = --j;
         
         b.write(k1);
         b.write(k2);
@@ -99,16 +162,31 @@ public:
         b.write(--j);
     }    
     
-    // Plus/minus
+    // Plus
     void plus1() {
         int i = -a.read();
-        int j = +a.read();
+        unsigned j = +a.read();
         
         int k1 = i + (-j);
-        int k2 = (+j) + i;
+        unsigned k2 = (+j) + i;
         
-        b.write(-k1);
-        b.write(+k2);
+        c.write(-k1);
+        c.write(+k2);
+        
+        i = +NEGL;
+        CHECK(i == -211);
+        
+        sc_int<9> x = +21;
+        CHECK(x == 21);
+        sc_bigint<18> z = +x;
+        CHECK(x == 21);
+        
+        z = +x - +i;
+        cout << "z " << z << endl;
+        CHECK(z == 232);
+        z = (+i) * (+x);
+        cout << "z " << z << endl;
+        CHECK(z == -4431);
     }        
     
     // Not and logic not
@@ -122,47 +200,52 @@ public:
   
         sc_uint<1> ll1 = 1;
         sc_uint<1> ll2 = ~ll1;
-        b.write(!l2 + ~ll2);
+        d.write(!l2 + ~ll2);
 
         unsigned x = 43;
         unsigned y = ~x;
         unsigned z = ~y;
-        sct_assert_const(z == 43);
+        CHECK(z == 43);
+        
+        z = (!ll2) ? (~y) - 1 : ~z;
+        z = ~(x++) + -(~y);
+        
+        sc_uint<8> t = a.read();
+        z = (~a) - (~(~t));
     }            
-
-    template<typename T1, typename T2> 
-    void not_test(T1 par1, T2 par2) {
-        T1 a = par1;
-        T2 b = par2;
-    }
     
-    // Not for SC types
-    void not2() {
-        not_test(sc_uint<10>(41), sc_uint<12>(42));
+    // Unary operation for array index
+    void unary_in_subscript() 
+    {
+        sc_uint<4> arr1[4] = {1,2,3,4};
+        bool arr2[16] = {1,0,1};
+        int arr3[4];
+        
+        int i = 0; unsigned j = 1;
+        sc_uint<4> x = arr1[++i];
+        CHECK(x == 2);
+        x = arr1[-i + 4];
+        CHECK(x == 4);
+        x = arr1[i-- + ++j];
+        CHECK(x == 4 && j == 2);
+
+        bool bb = arr2[+j];
+        CHECK(bb == 1);
+        bb = arr2[--j];
+        CHECK(bb == 0);
+        
+        arr3[a.read()] = 1;
+        bb = arr3[0];
     }
+
     
 };
 
-class B_top : public sc_module 
-{
-public:
-    sc_signal<bool>  a{"a"};
-    sc_signal<bool>  b{"b"};
-    sc_signal<bool>  c{"c"};
-    sc_signal<bool>  p{"p"};
-    
-    A a_mod{"a_mod"};
-
-    SC_CTOR(B_top) {
-        a_mod.a(a);
-        a_mod.b(b);
-        a_mod.c(c);
-    }
-};
 
 int sc_main(int argc, char* argv[])
 {
-    B_top b_mod{"b_mod"};
+    A a_mod{"a_mod"};
     sc_start();
     return 0;
 }
+

@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <iostream>
 #include <sct_assert.h>
 #include "systemc.h"
@@ -69,7 +76,7 @@ public:
         }
     }
     
-    // Example from SMEM FlowControl module
+    // Example from real design FlowControl module
     sc_signal<sc_uint<REORDER_TAG_WIDTH + 1> > active_trans[ACTIVE_TRANS_NUM];
     sc_signal<ExtraTag_t> beat_extra_tags[ACTIVE_TRANS_NUM][ACTIVE_BEAT_NUM];
     sc_signal<ExtraTag_t>  master_resp_tag;
@@ -109,3 +116,4 @@ int sc_main(int argc, char *argv[])
     sc_start();
     return 0;
 }
+

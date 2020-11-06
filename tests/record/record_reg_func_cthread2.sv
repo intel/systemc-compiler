@@ -18,7 +18,7 @@ module A // "a"
 logic rstn;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_reg (test_reg_func_cthread2.cpp:31:5) 
+// Clocked THREAD: record_reg (test_reg_func_cthread2.cpp:38:5) 
 
 // Thread-local variables
 logic signed [31:0] val;
@@ -31,7 +31,7 @@ logic [1:0] record_reg_PROC_STATE;
 logic [1:0] record_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_reg_comb     // test_reg_func_cthread2.cpp:31:5
+always_comb begin : record_reg_comb     // test_reg_func_cthread2.cpp:38:5
     record_reg_func;
 end
 function void record_reg_func;
@@ -47,7 +47,7 @@ function void record_reg_func;
             // Call f() begin
             r_sin_next = 1;
             r_cos_next = 2;
-            record_reg_PROC_STATE_next = 1; return;    // test_reg_func_cthread2.cpp:27:9;
+            record_reg_PROC_STATE_next = 1; return;    // test_reg_func_cthread2.cpp:34:9;
             // Call f() end
         end
         1: begin
@@ -58,7 +58,7 @@ function void record_reg_func;
             // Call f() begin
             r_sin_next = 1;
             r_cos_next = 2;
-            record_reg_PROC_STATE_next = 2; return;    // test_reg_func_cthread2.cpp:27:9;
+            record_reg_PROC_STATE_next = 2; return;    // test_reg_func_cthread2.cpp:34:9;
             // Call f() end
         end
         2: begin
@@ -69,7 +69,7 @@ function void record_reg_func;
             // Call f() begin
             r_sin_next = 1;
             r_cos_next = 2;
-            record_reg_PROC_STATE_next = 1; return;    // test_reg_func_cthread2.cpp:27:9;
+            record_reg_PROC_STATE_next = 1; return;    // test_reg_func_cthread2.cpp:34:9;
             // Call f() end
         end
     endcase
@@ -79,7 +79,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : record_reg_ff
     if ( ~rstn ) begin
-        record_reg_PROC_STATE <= 0;    // test_reg_func_cthread2.cpp:33:9;
+        record_reg_PROC_STATE <= 0;    // test_reg_func_cthread2.cpp:40:9;
     end
     else begin
         val <= val_next;

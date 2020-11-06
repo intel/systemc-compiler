@@ -7,62 +7,39 @@
 
 //==============================================================================
 //
-// Module: B_top ()
+// Module: A ()
 //
-module B_top // "b_mod"
+module A // "a_mod"
 (
 );
 
 // SystemC signals
-logic a;
-logic b;
-logic c;
-
-
-//------------------------------------------------------------------------------
-
-A a_mod
-(
-  .a(a),
-  .b(b),
-  .c(c)
-);
-
-endmodule
-
-
-
-//==============================================================================
-//
-// Module: A (test_unary.cpp:154:5)
-//
-module A // "b_mod.a_mod"
-(
-    input logic a,
-    output logic b,
-    output logic c
-);
-
-// SystemC signals
+logic signed [31:0] a;
+logic signed [31:0] b;
+logic signed [31:0] c;
+logic [31:0] d;
 
 //------------------------------------------------------------------------------
-// Method process: narrowCastNeg (test_unary.cpp:35:5) 
+// Method process: narrowCastNeg (test_unary.cpp:45:5) 
 
 always_comb 
-begin : narrowCastNeg     // test_unary.cpp:35:5
+begin : narrowCastNeg     // test_unary.cpp:45:5
     logic signed [7:0] k1;
+    integer ki;
     logic signed [7:0] k2;
     k1 = -11'sd541;
-    assert (k1 == -6'sd29) else $error("Assertion failed at test_unary.cpp:41:9");
+    assert (k1 == -6'sd29) else $error("Assertion failed at test_unary.cpp:40:24>");
+    ki = ((-2'sd1) <<< 32) - 123;
+    assert (ki == -8'sd123) else $error("Assertion failed at test_unary.cpp:40:24>");
     k2 = (-8'sd211) * 14 + (-9'sd211) + (-16'sd211);
-    assert (k2 == -7'sd48) else $error("Assertion failed at test_unary.cpp:47:9");
+    assert (k2 == -7'sd48) else $error("Assertion failed at test_unary.cpp:40:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: negativeLiterals (test_unary.cpp:50:5) 
+// Method process: negativeLiterals (test_unary.cpp:61:5) 
 
 always_comb 
-begin : negativeLiterals     // test_unary.cpp:50:5
+begin : negativeLiterals     // test_unary.cpp:61:5
     integer i;
     logic signed [3:0] x;
     logic signed [7:0] y;
@@ -74,80 +51,152 @@ begin : negativeLiterals     // test_unary.cpp:50:5
     i = -3'sd2;
     i = -12'sd2;
     i = (-4'sd2) - 2 * (-3'sd2);
-    assert (i == 2) else $error("Assertion failed at test_unary.cpp:60:9");
+    assert (i == 2) else $error("Assertion failed at test_unary.cpp:40:24>");
     j = 0;
     j = -8'sd211;
-    assert (j == 45) else $error("Assertion failed at test_unary.cpp:65:9");
+    assert (j == 45) else $error("Assertion failed at test_unary.cpp:40:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: increment1 (test_unary.cpp:69:5) 
+// Method process: minus1 (test_unary.cpp:79:5) 
 
 always_comb 
-begin : increment1     // test_unary.cpp:69:5
+begin : minus1     // test_unary.cpp:79:5
     integer i;
     integer j;
+    integer unsigned u;
+    logic signed [8:0] x;
+    logic signed [15:0] z;
+    logic signed [43:0] zz;
+    i = -8'sd111;
+    j = -i;
+    assert (j == 111) else $error("Assertion failed at test_unary.cpp:40:24>");
+    j = -(-i) + 1;
+    assert (j == -8'sd110) else $error("Assertion failed at test_unary.cpp:40:24>");
+    u = -i;
+    assert (u == 111) else $error("Assertion failed at test_unary.cpp:40:24>");
+    u = (-i) * 2;
+    assert (u == 222) else $error("Assertion failed at test_unary.cpp:40:24>");
+    x = 211;
+    assert (x == 211) else $error("Assertion failed at test_unary.cpp:40:24>");
+    x = -9'sd211;
+    assert (x == -9'sd211) else $error("Assertion failed at test_unary.cpp:40:24>");
+    x = 1 + 211;
+    assert (x == 212) else $error("Assertion failed at test_unary.cpp:40:24>");
+    x = 10'(211 + 1) / 2;
+    assert (x == 106) else $error("Assertion failed at test_unary.cpp:40:24>");
+    z = -9'sd211;
+    assert (z == -9'sd211) else $error("Assertion failed at test_unary.cpp:40:24>");
+    z = 211;
+    assert (z == 211) else $error("Assertion failed at test_unary.cpp:40:24>");
+    zz = 0;
+    zz = -z - -x;
+    assert (zz == -8'sd105) else $error("Assertion failed at test_unary.cpp:40:24>");
+end
+
+//------------------------------------------------------------------------------
+// Method process: increment1 (test_unary.cpp:113:5) 
+
+always_comb 
+begin : increment1     // test_unary.cpp:113:5
+    integer i;
+    integer unsigned j;
     integer k1;
-    integer k2;
+    integer unsigned k2;
+    logic signed [8:0] x;
+    logic [16:0] ux;
+    logic signed [17:0] z;
     i = 1;
     j = 2;
     i--;
     j++;
     k1 = ++i;
     k2 = --j;
-    b = |k1;
-    b = |k2;
-    b = |(i++);
-    b = |(--j);
+    assert (k1 == 1) else $error("Assertion failed at test_unary.cpp:40:24>");
+    assert (k2 == 2) else $error("Assertion failed at test_unary.cpp:40:24>");
+    x = -9'sd211;
+    x++;
+    assert (x == -9'sd210) else $error("Assertion failed at test_unary.cpp:40:24>");
+    ++x;
+    assert (x == -9'sd209) else $error("Assertion failed at test_unary.cpp:40:24>");
+    x--;
+    assert (x == -9'sd210) else $error("Assertion failed at test_unary.cpp:40:24>");
+    --x;
+    assert (x == -9'sd211) else $error("Assertion failed at test_unary.cpp:40:24>");
+    ux = 211;
+    ux++;
+    assert (ux == 212) else $error("Assertion failed at test_unary.cpp:40:24>");
+    ++ux;
+    assert (ux == 213) else $error("Assertion failed at test_unary.cpp:40:24>");
+    ux--;
+    assert (ux == 212) else $error("Assertion failed at test_unary.cpp:40:24>");
+    --ux;
+    assert (ux == 211) else $error("Assertion failed at test_unary.cpp:40:24>");
+    z = signed'({1'b0, (ux++)}) - (x--);
+    assert (z == 422) else $error("Assertion failed at test_unary.cpp:40:24>");
+    z = signed'({1'b0, (--j) * 2}) + 10'(++x) / (i--);
+    assert (z == -9'sd209) else $error("Assertion failed at test_unary.cpp:40:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: increment2 (test_unary.cpp:86:5) 
+// Method process: increment2 (test_unary.cpp:149:5) 
 
 always_comb 
-begin : increment2     // test_unary.cpp:86:5
+begin : increment2     // test_unary.cpp:149:5
     integer i;
-    integer j;
+    integer unsigned j;
     integer k1;
-    integer k2;
+    integer unsigned k2;
     i = a;
     j = a;
     i--;
     j++;
     k1 = ++i;
     k2 = --j;
-    b = |k1;
-    b = |k2;
-    b = |(i++);
-    b = |(--j);
+    b = k1;
+    b = k2;
+    b = i++;
+    b = --j;
 end
 
 //------------------------------------------------------------------------------
-// Method process: plus1 (test_unary.cpp:103:5) 
+// Method process: plus1 (test_unary.cpp:166:5) 
 
 always_comb 
-begin : plus1     // test_unary.cpp:103:5
+begin : plus1     // test_unary.cpp:166:5
     integer i;
-    integer j;
+    integer unsigned j;
     integer k1;
-    integer k2;
+    integer unsigned k2;
+    logic signed [8:0] x;
+    logic signed [17:0] z;
     i = -a;
     j = a;
-    k1 = i + (-j);
-    k2 = j + i;
-    b = |(-k1);
-    b = |k2;
+    k1 = i + signed'({1'b0, (-j)});
+    k2 = signed'({1'b0, j}) + i;
+    c = -k1;
+    c = k2;
+    i = -9'sd211;
+    assert (i == -9'sd211) else $error("Assertion failed at test_unary.cpp:40:24>");
+    x = 21;
+    assert (x == 21) else $error("Assertion failed at test_unary.cpp:40:24>");
+    z = x;
+    assert (x == 21) else $error("Assertion failed at test_unary.cpp:40:24>");
+    z = x - i;
+    assert (z == 232) else $error("Assertion failed at test_unary.cpp:40:24>");
+    z = i * x;
+    assert (z == -14'sd4431) else $error("Assertion failed at test_unary.cpp:40:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: not1 (test_unary.cpp:115:5) 
+// Method process: not1 (test_unary.cpp:193:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : not1     // test_unary.cpp:115:5
+begin : not1     // test_unary.cpp:193:5
     logic l1;
     logic l2;
     logic l3;
@@ -157,6 +206,7 @@ begin : not1     // test_unary.cpp:115:5
     integer unsigned x;
     integer unsigned y;
     integer unsigned z;
+    logic [7:0] t;
     l1 = a == b;
     l2 = !l1;
     l3 = l2 || !(k == m);
@@ -165,26 +215,45 @@ begin : not1     // test_unary.cpp:115:5
     l2 = !l2;
     ll1 = 1;
     ll2 = ~ll1;
-    b = |(!l2 + ~ll2);
+    d = !l2 + ~ll2;
     x = 43;
     y = ~x;
     z = ~y;
+    assert (z == 43) else $error("Assertion failed at test_unary.cpp:40:24>");
+    z = (~y) - 1;
+    z = ~(x++) + -(~y);
+    t = a;
+    z = (~a) - signed'({1'b0, (~(~t))});
 end
 
 //------------------------------------------------------------------------------
-// Method process: not2 (test_unary.cpp:140:5) 
+// Method process: unary_in_subscript (test_unary.cpp:218:5) 
 
 always_comb 
-begin : not2     // test_unary.cpp:140:5
-    logic [9:0] par1;
-    logic [11:0] par2;
-    logic [9:0] a_1;
-    logic [11:0] b_1;
-    par1 = 10'd41; par2 = 12'd42;
-    // Call not_test() begin
-    a_1 = par1;
-    b_1 = par2;
-    // Call not_test() end
+begin : unary_in_subscript     // test_unary.cpp:218:5
+    logic [3:0] arr1[4];
+    logic arr2[16];
+    integer arr3[4];
+    integer i;
+    integer unsigned j;
+    logic [3:0] x;
+    logic bb;
+    arr1[0] = 1; arr1[1] = 2; arr1[2] = 3; arr1[3] = 4;
+    arr2[0] = 1; arr2[1] = 0; arr2[2] = 1;
+    i = 0;
+    j = 1;
+    x = arr1[++i];
+    assert (x == 2) else $error("Assertion failed at test_unary.cpp:40:24>");
+    x = arr1[-i + 4];
+    assert (x == 4) else $error("Assertion failed at test_unary.cpp:40:24>");
+    x = arr1[i-- + ++j];
+    assert (x == 4 && j == 2) else $error("Assertion failed at test_unary.cpp:40:24>");
+    bb = arr2[j];
+    assert (bb == 1) else $error("Assertion failed at test_unary.cpp:40:24>");
+    bb = arr2[--j];
+    assert (bb == 0) else $error("Assertion failed at test_unary.cpp:40:24>");
+    arr3[a] = 1;
+    bb = |arr3[0];
 end
 
 endmodule

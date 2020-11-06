@@ -28,7 +28,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_const_radix.cpp:182:5)
+// Module: A (test_const_radix.cpp:189:5)
 //
 module A // "mod.modA"
 (
@@ -38,10 +38,10 @@ module A // "mod.modA"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: declMeth (test_const_radix.cpp:44:5) 
+// Method process: declMeth (test_const_radix.cpp:51:5) 
 
 always_comb 
-begin : declMeth     // test_const_radix.cpp:44:5
+begin : declMeth     // test_const_radix.cpp:51:5
     integer unsigned d;
     integer unsigned o;
     integer unsigned h1;
@@ -66,10 +66,10 @@ begin : declMeth     // test_const_radix.cpp:44:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: assignMeth (test_const_radix.cpp:63:5) 
+// Method process: assignMeth (test_const_radix.cpp:70:5) 
 
 always_comb 
-begin : assignMeth     // test_const_radix.cpp:63:5
+begin : assignMeth     // test_const_radix.cpp:70:5
     integer unsigned d;
     integer unsigned o;
     integer unsigned h1;
@@ -96,10 +96,10 @@ begin : assignMeth     // test_const_radix.cpp:63:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: constMeth (test_const_radix.cpp:91:5) 
+// Method process: constMeth (test_const_radix.cpp:98:5) 
 
 always_comb 
-begin : constMeth     // test_const_radix.cpp:91:5
+begin : constMeth     // test_const_radix.cpp:98:5
     integer unsigned hh1;
     integer unsigned hh2;
     integer hh3;
@@ -130,10 +130,10 @@ begin : constMeth     // test_const_radix.cpp:91:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: templMeth (test_const_radix.cpp:118:5) 
+// Method process: templMeth (test_const_radix.cpp:125:5) 
 
 always_comb 
-begin : templMeth     // test_const_radix.cpp:118:5
+begin : templMeth     // test_const_radix.cpp:125:5
     integer unsigned a1;
     integer unsigned a2;
     integer unsigned a3;
@@ -145,10 +145,10 @@ begin : templMeth     // test_const_radix.cpp:118:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: binaryMeth (test_const_radix.cpp:134:5) 
+// Method process: binaryMeth (test_const_radix.cpp:141:5) 
 
 always_comb 
-begin : binaryMeth     // test_const_radix.cpp:134:5
+begin : binaryMeth     // test_const_radix.cpp:141:5
     logic [31:0] x;
     x = 'h100 + 1;
     x = 41 / 'h100;
@@ -160,10 +160,10 @@ begin : binaryMeth     // test_const_radix.cpp:134:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: unaryMeth (test_const_radix.cpp:148:5) 
+// Method process: unaryMeth (test_const_radix.cpp:155:5) 
 
 always_comb 
-begin : unaryMeth     // test_const_radix.cpp:148:5
+begin : unaryMeth     // test_const_radix.cpp:155:5
     logic [31:0] x;
     logic b;
     x = ~'h100;
@@ -172,10 +172,10 @@ begin : unaryMeth     // test_const_radix.cpp:148:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: partSelMeth (test_const_radix.cpp:127:5) 
+// Method process: partSelMeth (test_const_radix.cpp:134:5) 
 
 always_comb 
-begin : partSelMeth     // test_const_radix.cpp:127:5
+begin : partSelMeth     // test_const_radix.cpp:134:5
     logic [31:0] x;
     logic b;
     x = 0;
@@ -184,10 +184,10 @@ begin : partSelMeth     // test_const_radix.cpp:127:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: funcCallMeth (test_const_radix.cpp:165:5) 
+// Method process: funcCallMeth (test_const_radix.cpp:172:5) 
 
 always_comb 
-begin : funcCallMeth     // test_const_radix.cpp:165:5
+begin : funcCallMeth     // test_const_radix.cpp:172:5
     integer TMP_0;
     integer par;
     integer j;

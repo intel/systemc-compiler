@@ -1,9 +1,16 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include <sct_assert.h>
 #include <iostream>
 #include <string>
 
-// Remove constants and template parameters optimizations 
+// Replace constants and template parameters by values 
 template<unsigned N>
 struct A : public sc_module 
 {
@@ -46,7 +53,6 @@ struct A : public sc_module
             auto& d = const_cast<unsigned&>(D3);
             d = 43;
         }
-        
         SC_METHOD(const_range1);
         sensitive << s;
         
@@ -105,13 +111,21 @@ struct A : public sc_module
     const sc_uint<3> L = 1;
     const sc_uint<4> marr[3] = {4,5,6};
     
-    void const_range1() 
+    const sc_uint<3> S = 6;
+    
+    void const_range1()  
     {
-        const sc_uint<3> R = 7;
+        const sc_uint<12> R = 7;                 // Declared
+        const sc_uint<12> RR = 7;                // Declared
+        const sc_uint<12> T = 8;                 // Not declared
         const sc_uint<4> larr[3] = {1,2,3};
         int l;
         
-        l = R.bit(s.read());
+        l = S.bit(1); 
+        l = R.bit(1);  
+        l = RR.range(2,1);  
+        l = T;  
+        
         l = L.range(2,1);
         l = larr[2].range(2,1);
         l = marr[0].bit(1);
@@ -166,6 +180,7 @@ struct A : public sc_module
         wait();
         while (true) {
             cref2(-42);
+            cref2(-43);
             wait();
             cref2(NARR[s.read()]);
             wait();
@@ -194,11 +209,13 @@ struct A : public sc_module
     {
         const int c = ff();
         const int cs = ff()-1;
-        
+        static const int sc = 51;
         wait();
         
         while (1) {
+            static const sc_uint<12> scu = 52;
             int k = c % cs;
+            k = sc + scu;
             wait();
         }
     }
@@ -211,7 +228,7 @@ struct A : public sc_module
     
     
     //-------------------------------------------------------------------------
-
+    // Constant initialized from signal
     void sig_init_method() {
         const int LC0 = 42;
         const int LC1 = t.read();
@@ -277,13 +294,14 @@ struct A : public sc_module
     void const_local_array_method() {
         
         const unsigned LARR[3] = {1, 2, 3};
+        const unsigned LLARR[3] = {1, 2, 3};  // Could be removed, but not
         const unsigned LARR1 = LARR[1];
         
         unsigned lsum = 0;
         for (int i = 0; i < 3; ++i) {
             lsum += LARR[i];
         }
-        int f = LARR1;
+        int f = LARR1 + LLARR[1];
     }
 
     void const_local_array_thread() {
@@ -366,3 +384,4 @@ int sc_main(int argc, char *argv[])
     sc_start();
     return 0;
 }
+

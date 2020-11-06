@@ -21,7 +21,7 @@ logic signed [31:0] in;
 logic in_bool;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread1 (test_cthread_inner_loops.cpp:29:5) 
+// Clocked THREAD: test_thread1 (test_cthread_inner_loops.cpp:36:5) 
 
 // Thread-local variables
 logic [63:0] i;
@@ -30,7 +30,7 @@ logic [1:0] test_thread1_PROC_STATE;
 logic [1:0] test_thread1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread1_comb     // test_cthread_inner_loops.cpp:29:5
+always_comb begin : test_thread1_comb     // test_cthread_inner_loops.cpp:36:5
     test_thread1_func;
 end
 function void test_thread1_func;
@@ -42,16 +42,16 @@ function void test_thread1_func;
             i_next = 0;
             if (in > 10)
             begin
-                test_thread1_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:36:21;
+                test_thread1_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:43:21;
             end
-            test_thread1_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:38:17;
+            test_thread1_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:45:17;
         end
         1: begin
             if (in > 10)
             begin
-                test_thread1_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:36:21;
+                test_thread1_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:43:21;
             end
-            test_thread1_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:38:17;
+            test_thread1_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:45:17;
         end
         2: begin
             ++i_next;
@@ -59,16 +59,16 @@ function void test_thread1_func;
             begin
                 if (in > 10)
                 begin
-                    test_thread1_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:36:21;
+                    test_thread1_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:43:21;
                 end
-                test_thread1_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:38:17;
+                test_thread1_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:45:17;
             end
             i_next = 0;
             if (in > 10)
             begin
-                test_thread1_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:36:21;
+                test_thread1_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:43:21;
             end
-            test_thread1_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:38:17;
+            test_thread1_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:45:17;
         end
     endcase
 endfunction
@@ -77,7 +77,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : test_thread1_ff
     if ( ~arstn ) begin
-        test_thread1_PROC_STATE <= 0;    // test_cthread_inner_loops.cpp:31:9;
+        test_thread1_PROC_STATE <= 0;    // test_cthread_inner_loops.cpp:38:9;
     end
     else begin
         i <= i_next;
@@ -86,7 +86,7 @@ begin : test_thread1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread2 (test_cthread_inner_loops.cpp:43:5) 
+// Clocked THREAD: test_thread2 (test_cthread_inner_loops.cpp:50:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
@@ -96,7 +96,7 @@ logic [1:0] test_thread2_PROC_STATE;
 logic [1:0] test_thread2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread2_comb     // test_cthread_inner_loops.cpp:43:5
+always_comb begin : test_thread2_comb     // test_cthread_inner_loops.cpp:50:5
     test_thread2_func;
 end
 function void test_thread2_func;
@@ -112,15 +112,15 @@ function void test_thread2_func;
                 out_next = 1;
                 if (in_bool)
                 begin
-                    test_thread2_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:53:25;
+                    test_thread2_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:60:25;
                 end
-                test_thread2_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:56:21;
+                test_thread2_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:63:21;
             end
-            test_thread2_PROC_STATE_next = 3; return;    // test_cthread_inner_loops.cpp:59:17;
+            test_thread2_PROC_STATE_next = 3; return;    // test_cthread_inner_loops.cpp:66:17;
         end
         1: begin
             out_next = 2;
-            test_thread2_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:56:21;
+            test_thread2_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:63:21;
         end
         2: begin
             out_next = 3;
@@ -129,11 +129,11 @@ function void test_thread2_func;
                 out_next = 1;
                 if (in_bool)
                 begin
-                    test_thread2_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:53:25;
+                    test_thread2_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:60:25;
                 end
-                test_thread2_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:56:21;
+                test_thread2_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:63:21;
             end
-            test_thread2_PROC_STATE_next = 3; return;    // test_cthread_inner_loops.cpp:59:17;
+            test_thread2_PROC_STATE_next = 3; return;    // test_cthread_inner_loops.cpp:66:17;
         end
         3: begin
             out_next = 4;
@@ -145,11 +145,11 @@ function void test_thread2_func;
                     out_next = 1;
                     if (in_bool)
                     begin
-                        test_thread2_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:53:25;
+                        test_thread2_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:60:25;
                     end
-                    test_thread2_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:56:21;
+                    test_thread2_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:63:21;
                 end
-                test_thread2_PROC_STATE_next = 3; return;    // test_cthread_inner_loops.cpp:59:17;
+                test_thread2_PROC_STATE_next = 3; return;    // test_cthread_inner_loops.cpp:66:17;
             end
             i_next0 = 0;
             if (in > 10)
@@ -157,11 +157,11 @@ function void test_thread2_func;
                 out_next = 1;
                 if (in_bool)
                 begin
-                    test_thread2_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:53:25;
+                    test_thread2_PROC_STATE_next = 1; return;    // test_cthread_inner_loops.cpp:60:25;
                 end
-                test_thread2_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:56:21;
+                test_thread2_PROC_STATE_next = 2; return;    // test_cthread_inner_loops.cpp:63:21;
             end
-            test_thread2_PROC_STATE_next = 3; return;    // test_cthread_inner_loops.cpp:59:17;
+            test_thread2_PROC_STATE_next = 3; return;    // test_cthread_inner_loops.cpp:66:17;
         end
     endcase
 endfunction
@@ -171,7 +171,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread2_ff
     if ( ~arstn ) begin
         out <= 0;
-        test_thread2_PROC_STATE <= 0;    // test_cthread_inner_loops.cpp:46:9;
+        test_thread2_PROC_STATE <= 0;    // test_cthread_inner_loops.cpp:53:9;
     end
     else begin
         out <= out_next;

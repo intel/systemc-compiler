@@ -1,8 +1,16 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
+#include "sct_assert.h"
 
 using namespace sc_core;
 
-// Bit and range select test
+// Bit and range select special cases
 class A : public sc_module {
 public:
     // Define variables
@@ -12,20 +20,29 @@ public:
     sc_uint<8> ux;
     sc_biguint<8> uy;
 
-    sc_in<sc_uint<32>> inp;
-    sc_out<sc_uint<32>> outp;
+    sc_signal<sc_uint<32>> inp;
+    sc_signal<sc_uint<32>> outp;
 
     SC_CTOR(A) {
         
         SC_METHOD(sc_uint_wide); 
         sensitive << as;
 
-        SC_METHOD(sc_uint_ctor); 
+        SC_METHOD(sc_uint_ctor_bit); 
+        sensitive << as << inp;
+        
+        SC_METHOD(sc_uint_ctor_range); 
         sensitive << as << inp;
 
         SC_METHOD(signal_array_part_sel); 
-        sensitive << ssig[0] << ssig[1];
+        sensitive << ssig[0] << ssig[1] << inp;
 
+        SC_METHOD(to_int); 
+        sensitive << as << inp;
+
+        SC_METHOD(to_int_bit_range); 
+        sensitive << as << inp;
+        
         SC_METHOD(sc_uint_to_bool); 
         sensitive << as << inp;
         
@@ -50,49 +67,330 @@ public:
         SC_METHOD(bit_range_array); 
         sensitive << inp;
     }
+    
+    #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
 
     // Check no outside of variable width part/bit selection
     void sc_uint_wide() 
     {
         bool b;
         sc_uint<1> k;
-        b = ((sc_uint<2>)k).bit(1);                 // b = k;
-        sc_uint<2> x = ((sc_uint<3>)k).range(2,1);  // x = k;
+        //b = ((sc_uint<2>)k).bit(1);              -- fatal error
+        // sc_uint<2> x = ((sc_uint<3>)k).range(2,1);  -- fatal error
     }
     
-    // Check construct @sc_uint with/without typecast
-    void sc_uint_ctor() 
+    // Check construct @sc_uint with/without typecast with @bit()
+    void sc_uint_ctor_bit() 
     {
         sc_uint<3> i = 1;
+        sc_uint<3> ii = 2;
         sc_uint<2> j = i;
         sc_uint<1> k = i;
+        sc_uint<2> y;
+        sc_uint<1> z;
         
-        bool b = i;
-        b = ((sc_uint<1>)i).bit(0);             // b = i; 
+        bool b;
+        b = i;
+        CHECK(b);
+        b = ((sc_uint<1>)i).bit(0);             
+        CHECK(b);
+        i= 1;  // remove me after #217 fixed
         b = ((sc_uint<2>)i).bit(0); 
-        
+        CHECK(b);
         b = ((sc_uint<1>)k).bit(0); 
+        CHECK(b);
+        k = 1;  // remove me after #217 fixed
         b = ((sc_uint<2>)k).bit(0);
-
-        b = ((sc_uint<1>)inp.read()).bit(0);    // b = inp;
+        CHECK(b);
+        b = ((sc_uint<1>)inp.read()).bit(0);    
         b = (sc_uint<1>)(inp.read().bit(1));
-    }
+        
+        b = ii;
+        CHECK(b);
+        b = ii.bit(0);             
+        CHECK(!b);
+        // TODO: it need to recover @ii value after bit(), see #217
+        ii = 2;  // remove me after #217 fixed
+        //~TODO
+        b = (sc_uint<1>)ii;             
+        CHECK(!b);
+        ii = 2;  // remove me after #217 fixed
+        b = (sc_uint<2>)ii;  
+        CHECK(b);
+        ii = 2;  // remove me after #217 fixed
+        b = ((sc_uint<1>)ii).bit(0);             
+        CHECK(!b);
+        
+        
+        i = 1;  // remove me after #217 fixed
+        y = ((sc_uint<1>)i).bit(0);  
+        CHECK(y == 1);
+        i = 1;  // remove me after #217 fixed
+        y = ((sc_uint<2>)i).bit(0); 
+        CHECK(y == 1);
+        k = 1;  // remove me after #217 fixed
+        y = ((sc_uint<1>)k).bit(0); 
+        CHECK(y == 1);
+        k = 1;  // remove me after #217 fixed
+        y = ((sc_uint<2>)k).bit(0);
+        CHECK(y == 1);
+        //y = ((sc_uint<2>)k).bit(1); -- fatal error reported
+        // y = ((sc_uint<1>)k).bit(1); -- fatal error reported
+        
+        ii = 2;  // remove me after #217 fixed
+        y = ii.bit(0);  
+        CHECK(y == 0);
+        ii = 2;  // remove me after #217 fixed
+        y = ii.bit(1);  
+        CHECK(y == 1);
+        ii = 2;  // remove me after #217 fixed
+        y = (sc_uint<1>)ii;  
+        CHECK(y == 0);
+        y = (sc_uint<2>)ii;  
+        CHECK(y == 2);
+        y = ((sc_uint<1>)ii).bit(0);  
+        CHECK(y == 0);
 
+        i = 1;  // remove me after #217 fixed
+        z = ((sc_uint<1>)i).bit(0);  
+        CHECK(z == 1);
+        i = 1;  // remove me after #217 fixed
+        z = ((sc_uint<2>)i).bit(0); 
+        CHECK(z == 1);
+        k = 1;  // remove me after #217 fixed
+        z = ((sc_uint<1>)k).bit(0); 
+        CHECK(z == 1);
+        k = 1;  // remove me after #217 fixed
+        z = ((sc_uint<2>)k).bit(0);
+        CHECK(z == 1);
+        
+        z = ii;
+        CHECK(z == 0);
+        
+        k = ii;
+        CHECK(k == 0);
+    }
+    
+     // Check construct @sc_uint with/without typecast with @range()
+    void sc_uint_ctor_range() 
+    {
+        sc_uint<3> i = 1;
+        sc_uint<3> ii = 2;
+        sc_uint<1> k = i;
+        sc_uint<2> y;
+        sc_uint<1> z;
+        
+        bool b;
+        b = i;
+        CHECK(b);
+        b = ((sc_uint<1>)i).range(0,0);             
+        CHECK(b);
+        i= 1;  // remove me after #217 fixed
+        b = ((sc_uint<2>)i).range(0,0); 
+        CHECK(b);
+        b = ((sc_uint<1>)k).range(0,0);
+        CHECK(b);
+        k = 1;  // remove me after #217 fixed
+        b = ((sc_uint<2>)k).range(0,0);
+        CHECK(b);
+        b = ((sc_uint<1>)inp.read()).range(0,0);    
+        b = (sc_uint<1>)(inp.read().range(1,1));
+        
+        b = ii;
+        CHECK(b);
+        b = ii.range(0,0);
+        CHECK(!b);
+        ii = 2;  // remove me after #217 fixed
+        b = (sc_uint<1>)ii;             
+        CHECK(!b);
+        ii = 2;  // remove me after #217 fixed
+        b = (sc_uint<2>)ii;  
+        CHECK(b);
+        ii = 2;  // remove me after #217 fixed
+        b = ((sc_uint<2>)ii).range(0,0);  
+        CHECK(!b);
+        ii = 2;  // remove me after #217 fixed
+        b = ((sc_uint<2>)ii).range(1,1);  
+        CHECK(b);
+        ii = 2;  // remove me after #217 fixed
+        b = ((sc_uint<2>)ii).range(1,0);  
+        CHECK(b);
+        ii = 2;  // remove me after #217 fixed
+        b = ((sc_uint<1>)ii).range(0,0);
+        CHECK(!b);
+        
+        
+        i = 1;  // remove me after #217 fixed
+        y = ((sc_uint<1>)i).range(0,0);
+        CHECK(y == 1);
+        i = 1;  // remove me after #217 fixed
+        y = ((sc_uint<2>)i).range(0,0);
+        CHECK(y == 1);
+        k = 1;  // remove me after #217 fixed
+        y = ((sc_uint<1>)k).range(0,0);
+        CHECK(y == 1);
+        k = 1;  // remove me after #217 fixed
+        y = ((sc_uint<2>)k).range(0,0);
+        CHECK(y == 1);
+        //y = ((sc_uint<2>)k).range(1, 0); -- fatal error reported
+        //y = ((sc_uint<2>)k).range(1, 1); -- fatal error reported
+        //y = ((sc_uint<1>)k).range(1, 1); -- fatal error reported
+        //y = ((sc_uint<1>)k).range(1, 0); -- fatal error reported
+        
+        ii = 2;  // remove me after #217 fixed
+        y = ii.range(0,0);
+        CHECK(y == 0);
+        ii = 2;  // remove me after #217 fixed
+        y = ii.range(1,1);
+        CHECK(y == 1);
+        ii = 2;  // remove me after #217 fixed
+        y = ii.range(1,0);
+        CHECK(y == 2);
+        ii = 2;  // remove me after #217 fixed
+        y = (sc_uint<1>)ii;  
+        CHECK(y == 0);
+        y = (sc_uint<2>)ii;  
+        CHECK(y == 2);
+        ii = 2;  // remove me after #217 fixed
+        y = ((sc_uint<2>)ii).range(0,0);  
+        CHECK(y == 0);
+        ii = 2;  // remove me after #217 fixed
+        y = ((sc_uint<2>)ii).range(1,1);  
+        CHECK(y == 1);
+        ii = 2;  // remove me after #217 fixed
+        y = ((sc_uint<2>)ii).range(1,0);  
+        CHECK(y == 2);
+        ii = 2;  // remove me after #217 fixed
+        y = ((sc_uint<1>)ii).range(0,0);
+        CHECK(y == 0);
+
+        i = 1;  // remove me after #217 fixed
+        z = ((sc_uint<1>)i).range(0,0);
+        CHECK(z == 1);
+        i = 1;  // remove me after #217 fixed
+        z = ((sc_uint<2>)i).range(0,0);
+        CHECK(z == 1);
+        k = 1;  // remove me after #217 fixed
+        z = ((sc_uint<1>)k).range(0,0);
+        CHECK(z == 1);
+        k = 1;  // remove me after #217 fixed
+        z = ((sc_uint<2>)k).range(0,0);
+        CHECK(z == 1);
+        
+        z = ii;
+        CHECK(z == 0);
+        
+        k = ii;
+        CHECK(k == 0);
+    }
+    
     sc_signal<sc_uint<8>> ssig[2];
     void signal_array_part_sel() 
     {
         bool b = ssig[1].read().bit(2);
         sc_uint<5> x = ssig[1].read().range(4,3);
+        
+        int i = inp.read();
+        x = ssig[i].read().range(i+1,i);
+    }
+
+    // SC types to_int(), to_uint(), ...
+    void to_int() 
+    {
+        int a = -3;
+        sc_uint<39> u = (0x11UL << 32) + 0x1;
+        sc_int<41> i = (-0x22L << 32) - 0x2;
+        sc_biguint<47> bu = 0x23;
+        sc_bigint<67> bi = 0x104;
+        sc_bigint<90> z;
+        
+        z = u;
+        cout << hex << "z " << z << endl;
+        CHECK(z == (0x11UL << 32) + 0x1);
+        z = u.to_int();
+        cout << "z " << z << endl;
+        CHECK(z == 0x1);
+        z = u.to_int();
+        CHECK(z == 0x1);
+        z = u.to_int64();
+        CHECK(z == (0x11UL << 32) + 0x1);
+
+        z = i;
+        cout << "z " << z << endl;
+        CHECK(z == (-0x22L << 32) - 0x2);
+        z = i.to_int();
+        cout << "z " << z << endl;
+        CHECK(z == -0x2);
+        z = i.to_long();
+        cout << "z " << z << endl;
+        CHECK(z == (-0x22L << 32) - 0x2);
+
+        z = u.to_int() + u.to_int64() + u.to_long();
+        z = u.to_uint() + u.to_uint64() + u.to_ulong();
+        
+        z = i.to_int() + i.to_int64() + i.to_long();
+        z = i.to_uint() + i.to_uint64() + i.to_ulong();
+        
+        z = bu.to_int() + bu.to_int64() + bu.to_long();
+        z = bu.to_uint() + bu.to_uint64() + bu.to_ulong();
+
+        z = bi.to_int() + bi.to_int64() + bi.to_long();
+        z = bi.to_uint() + bi.to_uint64() + bi.to_ulong();
+    }
+    
+    // SC bit/range to_int(), to_uint(), ...
+    void to_int_bit_range() 
+    {
+        sc_uint<45> u = (0x12UL << 32) + 0x1;
+        sc_int<41> i = (-0x22L << 32) - 0x2;
+        sc_biguint<47> bu = 0x23;
+        sc_bigint<67> bi = 0x104;
+        sc_bigint<90> z;
+        
+        z = u.range(37,0);
+        cout << "z " << z << endl;
+        CHECK(z == (0x12UL << 32) + 0x1);
+        u = (0x12UL << 32) + 0x1;  // #217
+        z = u.range(37,0).to_int();
+        cout << "z " << z << endl;
+        CHECK(z == 0x1);
+        u = (0x12UL << 32) + 0x1;  // #217
+        z = u.range(37,1).to_int();
+        cout << "z " << z << endl;
+        CHECK(z == 0);
     }
     
     sc_signal<bool> sig;
     void sc_uint_to_bool() 
     {
         sc_uint<2> i = 1;
+        sc_int<5> j = 1;
+        sc_biguint<17> bi = (unsigned)inp.read();
         bool b = as.read();
+        b = j;
+        b = j.range(3,1);
+        CHECK(!b);
+        j = 2;              // #217
+        b = j.bit(1);
+        CHECK(b);
+        
+        j = 4;              // #217
+        b = j.bit(2).to_bool();
+        CHECK(b);
+        j = 4;              // #217
+        b = j.bit(1).to_bool();
+        CHECK(!b);
+        
         sig = i;
+        sig = bi.to_uint();
         sig.write(as.read());
         sig = as.read();
+        
+        sig = i.range(1,0);
+        sig = j.range(3,1);
+        sig = j.bit(4);
+        sig = bi.bit(16).to_bool();
+        sig = bi.range(3,1).to_int();
     }
     
     sc_signal<bool> bsig;
@@ -209,22 +507,9 @@ public:
     
 };
 
-class B_top : public sc_module {
-public:
-    sc_signal<sc_uint<32>> sig_inp;
-    sc_signal<sc_uint<32>> sig_outp;
-
-    // Instantiate  module class A
-    A a_mod{"a_mod"};
-    // Connect signals to module A
-    SC_CTOR(B_top) {
-        a_mod.inp(sig_inp);
-        a_mod.outp(sig_outp);
-    }
-};
-
 int sc_main(int argc, char *argv[]) {
-    B_top b_mod{"b_mod"};
+    A a_mod{"a_mod"};
     sc_start();
     return 0;
 }
+

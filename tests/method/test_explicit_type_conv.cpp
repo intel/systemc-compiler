@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include "sc_sel_type.h"
 #include "sct_assert.h"
@@ -45,10 +52,6 @@ public:
         type_conv_fn(sc_int<32>(10), unsigned(0), unsigned(10));
         type_conv_fn(sc_int<32>(10), (unsigned long)(0), (unsigned long)(10));
         type_conv_fn(sc_int<32>(10), (unsigned short)(0), (unsigned short)(10));
-        // TODO: ARE THESE SUPPORTED?BIGINT to UNSIGNED:INT/LONG/SHORT?
-        //type_conv_fn(sc_bigint<32>(10), unsigned(0), unsigned(10));
-        //type_conv_fn(sc_bigint<32>(10), (unsigned long)(0), (unsigned long)(10));
-        //type_conv_fn(sc_bigint<32>(10), (unsigned short)(0), (unsigned short)(10));
 
         //    C++ to SC Type
         type_conv_fn(int(10), sc_uint<32>(0), sc_uint<32>(10));
@@ -69,11 +72,6 @@ public:
         type_conv_fn(sc_uint<32>(10), int(0), int(10));
         type_conv_fn(sc_uint<32>(10), long(0), long(10));
         type_conv_fn(sc_uint<32>(10), short(0), short(10));
-
-        // TODO: ARE THESE SUPPORTED? BIGUINT to INT/LONG/SHORT?
-        //type_conv_fn(sc_biguint<32>(10), int(0), int(10));
-        //type_conv_fn(sc_biguint<32>(10), long(0), long(10));
-        //type_conv_fn(sc_biguint<32>(10), short(0), short(10));
 
         //    C++ to SC Type
         type_conv_fn(unsigned(10), sc_uint<32>(0), sc_uint<32>(10));
@@ -115,3 +113,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

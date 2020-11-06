@@ -25,10 +25,10 @@ logic signed [6:0] mval[2];
 logic signed [31:0] val2d[2][3];
 
 //------------------------------------------------------------------------------
-// Method process: simpleMeth (test_sc_vector1.cpp:47:5) 
+// Method process: simpleMeth (test_sc_vector1.cpp:54:5) 
 
 always_comb 
-begin : simpleMeth     // test_sc_vector1.cpp:47:5
+begin : simpleMeth     // test_sc_vector1.cpp:54:5
     logic b;
     integer r;
     b = enb[3];
@@ -48,7 +48,7 @@ begin : simpleMeth     // test_sc_vector1.cpp:47:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: matchThread (test_sc_vector1.cpp:64:5) 
+// Clocked THREAD: matchThread (test_sc_vector1.cpp:71:5) 
 
 // Thread-local variables
 logic res_next[3];
@@ -57,7 +57,7 @@ logic matchThread_PROC_STATE;
 logic matchThread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : matchThread_comb     // test_sc_vector1.cpp:64:5
+always_comb begin : matchThread_comb     // test_sc_vector1.cpp:71:5
     matchThread_func;
 end
 function void matchThread_func;
@@ -74,7 +74,7 @@ function void matchThread_func;
                 res_next[i] = req[i];
                 res__next[i] = req[i];
             end
-            matchThread_PROC_STATE_next = 1; return;    // test_sc_vector1.cpp:75:13;
+            matchThread_PROC_STATE_next = 1; return;    // test_sc_vector1.cpp:82:13;
         end
         1: begin
             b = res[1];
@@ -84,7 +84,7 @@ function void matchThread_func;
                 res_next[i] = req[i];
                 res__next[i] = req[i];
             end
-            matchThread_PROC_STATE_next = 1; return;    // test_sc_vector1.cpp:75:13;
+            matchThread_PROC_STATE_next = 1; return;    // test_sc_vector1.cpp:82:13;
         end
     endcase
 endfunction
@@ -98,7 +98,7 @@ begin : matchThread_ff
             res[i] <= 0;
             res_[i] <= 0;
         end
-        matchThread_PROC_STATE <= 0;    // test_sc_vector1.cpp:69:9;
+        matchThread_PROC_STATE <= 0;    // test_sc_vector1.cpp:76:9;
     end
     else begin
         res <= res_next;
@@ -108,14 +108,14 @@ begin : matchThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: signalThread (test_sc_vector1.cpp:82:5) 
+// Clocked THREAD: signalThread (test_sc_vector1.cpp:89:5) 
 
 // Thread-local variables
 logic [4:0] val_next[4];
 logic enb_next[4];
 
 // Next-state combinational logic
-always_comb begin : signalThread_comb     // test_sc_vector1.cpp:82:5
+always_comb begin : signalThread_comb     // test_sc_vector1.cpp:89:5
     signalThread_func;
 end
 function void signalThread_func;
@@ -149,7 +149,7 @@ begin : signalThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: vector2DThread (test_sc_vector1.cpp:103:5) 
+// Clocked THREAD: vector2DThread (test_sc_vector1.cpp:110:5) 
 
 // Thread-local variables
 logic signed [31:0] val2d_next[2][3];
@@ -157,7 +157,7 @@ logic vector2DThread_PROC_STATE;
 logic vector2DThread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : vector2DThread_comb     // test_sc_vector1.cpp:103:5
+always_comb begin : vector2DThread_comb     // test_sc_vector1.cpp:110:5
     vector2DThread_func;
 end
 function void vector2DThread_func;
@@ -171,7 +171,7 @@ function void vector2DThread_func;
             begin
                 val2d_next[0][j] = val[j] + 1;
             end
-            vector2DThread_PROC_STATE_next = 1; return;    // test_sc_vector1.cpp:115:13;
+            vector2DThread_PROC_STATE_next = 1; return;    // test_sc_vector1.cpp:122:13;
         end
         1: begin
             b = |(val2d[0][1] + val2d[1][2]);
@@ -179,7 +179,7 @@ function void vector2DThread_func;
             begin
                 val2d_next[0][j] = val[j] + 1;
             end
-            vector2DThread_PROC_STATE_next = 1; return;    // test_sc_vector1.cpp:115:13;
+            vector2DThread_PROC_STATE_next = 1; return;    // test_sc_vector1.cpp:122:13;
         end
     endcase
 endfunction
@@ -195,7 +195,7 @@ begin : vector2DThread_ff
                 val2d[i][j] <= 0;
             end
         end
-        vector2DThread_PROC_STATE <= 0;    // test_sc_vector1.cpp:109:9;
+        vector2DThread_PROC_STATE <= 0;    // test_sc_vector1.cpp:116:9;
     end
     else begin
         val2d <= val2d_next;

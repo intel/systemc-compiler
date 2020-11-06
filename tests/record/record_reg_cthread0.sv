@@ -18,14 +18,14 @@ module A // "a"
 logic rstn;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_ro (test_reg_cthread0.cpp:37:5) 
+// Clocked THREAD: record_ro (test_reg_cthread0.cpp:44:5) 
 
 // Thread-local constants
 logic signed [31:0] r_sin;
 logic signed [31:0] r_cos;
 
 // Next-state combinational logic
-always_comb begin : record_ro_comb     // test_reg_cthread0.cpp:37:5
+always_comb begin : record_ro_comb     // test_reg_cthread0.cpp:44:5
     record_ro_func;
 end
 function void record_ro_func;
@@ -46,10 +46,10 @@ begin : record_ro_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_comb (test_reg_cthread0.cpp:50:5) 
+// Clocked THREAD: record_comb (test_reg_cthread0.cpp:57:5) 
 
 // Next-state combinational logic
-always_comb begin : record_comb_comb     // test_reg_cthread0.cpp:50:5
+always_comb begin : record_comb_comb     // test_reg_cthread0.cpp:57:5
     record_comb_func;
 end
 function void record_comb_func;
@@ -72,7 +72,7 @@ begin : record_comb_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_reg (test_reg_cthread0.cpp:62:5) 
+// Clocked THREAD: record_reg (test_reg_cthread0.cpp:69:5) 
 
 // Thread-local variables
 logic signed [31:0] r_sin0;
@@ -83,7 +83,7 @@ logic record_reg_PROC_STATE;
 logic record_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_reg_comb     // test_reg_cthread0.cpp:62:5
+always_comb begin : record_reg_comb     // test_reg_cthread0.cpp:69:5
     record_reg_func;
 end
 function void record_reg_func;
@@ -96,14 +96,14 @@ function void record_reg_func;
         0: begin
             r_sin_next = 1;
             r_cos_next = 2;
-            record_reg_PROC_STATE_next = 1; return;    // test_reg_cthread0.cpp:67:13;
+            record_reg_PROC_STATE_next = 1; return;    // test_reg_cthread0.cpp:74:13;
         end
         1: begin
             b = r_sin_next;
             r_sin_next = 3;
             r_sin_next = 1;
             r_cos_next = 2;
-            record_reg_PROC_STATE_next = 1; return;    // test_reg_cthread0.cpp:67:13;
+            record_reg_PROC_STATE_next = 1; return;    // test_reg_cthread0.cpp:74:13;
         end
     endcase
 endfunction
@@ -112,7 +112,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : record_reg_ff
     if ( ~rstn ) begin
-        record_reg_PROC_STATE <= 0;    // test_reg_cthread0.cpp:63:9;
+        record_reg_PROC_STATE <= 0;    // test_reg_cthread0.cpp:70:9;
     end
     else begin
         r_sin0 <= r_sin_next;
@@ -122,7 +122,7 @@ begin : record_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_reg1 (test_reg_cthread0.cpp:74:5) 
+// Clocked THREAD: record_reg1 (test_reg_cthread0.cpp:81:5) 
 
 // Thread-local variables
 logic signed [31:0] r_sin1;
@@ -131,7 +131,7 @@ logic signed [31:0] r_cos1;
 logic signed [31:0] r_cos_next0;
 
 // Next-state combinational logic
-always_comb begin : record_reg1_comb     // test_reg_cthread0.cpp:74:5
+always_comb begin : record_reg1_comb     // test_reg_cthread0.cpp:81:5
     record_reg1_func;
 end
 function void record_reg1_func;
@@ -155,7 +155,7 @@ begin : record_reg1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_reg2 (test_reg_cthread0.cpp:86:5) 
+// Clocked THREAD: record_reg2 (test_reg_cthread0.cpp:93:5) 
 
 // Thread-local variables
 logic signed [31:0] s_sin;
@@ -168,7 +168,7 @@ logic signed [31:0] r_cos2;
 logic signed [31:0] r_cos_next1;
 
 // Next-state combinational logic
-always_comb begin : record_reg2_comb     // test_reg_cthread0.cpp:86:5
+always_comb begin : record_reg2_comb     // test_reg_cthread0.cpp:93:5
     record_reg2_func;
 end
 function void record_reg2_func;

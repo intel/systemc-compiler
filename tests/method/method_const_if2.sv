@@ -16,10 +16,10 @@ module test_if // "tinst"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: method_true (test_const_if2.cpp:19:5) 
+// Method process: method_true (test_const_if2.cpp:26:5) 
 
 always_comb 
-begin : method_true     // test_const_if2.cpp:19:5
+begin : method_true     // test_const_if2.cpp:26:5
     integer x;
     x = 0;
     if (1)
@@ -29,10 +29,10 @@ begin : method_true     // test_const_if2.cpp:19:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: method_false (test_const_if2.cpp:35:5) 
+// Method process: method_false (test_const_if2.cpp:42:5) 
 
 always_comb 
-begin : method_false     // test_const_if2.cpp:35:5
+begin : method_false     // test_const_if2.cpp:42:5
     integer x;
     x = 1;
     if (0)
@@ -43,10 +43,10 @@ begin : method_false     // test_const_if2.cpp:35:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: method_const_prop (test_const_if2.cpp:51:5) 
+// Method process: method_const_prop (test_const_if2.cpp:58:5) 
 
 always_comb 
-begin : method_const_prop     // test_const_if2.cpp:51:5
+begin : method_const_prop     // test_const_if2.cpp:58:5
 end
 
 endmodule

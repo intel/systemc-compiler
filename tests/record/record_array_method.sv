@@ -28,7 +28,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_method.cpp:296:5)
+// Module: A (test_array_method.cpp:303:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -39,13 +39,13 @@ module A // "b_mod.a_mod"
 logic sig;
 
 //------------------------------------------------------------------------------
-// Method process: rec_loc_arr0 (test_array_method.cpp:86:5) 
+// Method process: rec_loc_arr0 (test_array_method.cpp:93:5) 
 
 // Process-local variables
 logic signed [31:0] ap_b;
 
 always_comb 
-begin : rec_loc_arr0     // test_array_method.cpp:86:5
+begin : rec_loc_arr0     // test_array_method.cpp:93:5
     logic ap_a[2];
     integer ap_b_1[2];
     integer i;
@@ -60,10 +60,10 @@ begin : rec_loc_arr0     // test_array_method.cpp:86:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_loc_arr1 (test_array_method.cpp:102:5) 
+// Method process: rec_loc_arr1 (test_array_method.cpp:109:5) 
 
 always_comb 
-begin : rec_loc_arr1     // test_array_method.cpp:102:5
+begin : rec_loc_arr1     // test_array_method.cpp:109:5
     logic ar_a[2];
     integer ar_b[2];
     integer i;
@@ -73,10 +73,10 @@ begin : rec_loc_arr1     // test_array_method.cpp:102:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_loc_arr2 (test_array_method.cpp:111:5) 
+// Method process: rec_loc_arr2 (test_array_method.cpp:118:5) 
 
 always_comb 
-begin : rec_loc_arr2     // test_array_method.cpp:111:5
+begin : rec_loc_arr2     // test_array_method.cpp:118:5
     logic ar_a[2];
     integer ar_b[2];
     logic arr_a[2][3];
@@ -88,10 +88,10 @@ begin : rec_loc_arr2     // test_array_method.cpp:111:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_loc_arr3 (test_array_method.cpp:130:5) 
+// Method process: rec_loc_arr3 (test_array_method.cpp:137:5) 
 
 always_comb 
-begin : rec_loc_arr3     // test_array_method.cpp:130:5
+begin : rec_loc_arr3     // test_array_method.cpp:137:5
     logic ar_a[2];
     integer ar_b[2];
     integer k;
@@ -108,10 +108,10 @@ begin : rec_loc_arr3     // test_array_method.cpp:130:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_assign (test_array_method.cpp:143:5) 
+// Method process: rec_arr_elem_assign (test_array_method.cpp:150:5) 
 
 always_comb 
-begin : rec_arr_elem_assign     // test_array_method.cpp:143:5
+begin : rec_arr_elem_assign     // test_array_method.cpp:150:5
     logic ar_a[3];
     integer ar_b[3];
     logic br_a[2];
@@ -121,10 +121,10 @@ begin : rec_arr_elem_assign     // test_array_method.cpp:143:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_const_val1 (test_array_method.cpp:159:5) 
+// Method process: rec_arr_elem_const_val1 (test_array_method.cpp:166:5) 
 
 always_comb 
-begin : rec_arr_elem_const_val1     // test_array_method.cpp:159:5
+begin : rec_arr_elem_const_val1     // test_array_method.cpp:166:5
     logic sr_a;
     integer sr_b;
     logic par_a;
@@ -138,10 +138,10 @@ begin : rec_arr_elem_const_val1     // test_array_method.cpp:159:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_const_val2 (test_array_method.cpp:166:5) 
+// Method process: rec_arr_elem_const_val2 (test_array_method.cpp:173:5) 
 
 always_comb 
-begin : rec_arr_elem_const_val2     // test_array_method.cpp:166:5
+begin : rec_arr_elem_const_val2     // test_array_method.cpp:173:5
     logic sr_a;
     integer sr_b;
     logic par_a;
@@ -154,10 +154,10 @@ begin : rec_arr_elem_const_val2     // test_array_method.cpp:166:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_const_val3 (test_array_method.cpp:172:5) 
+// Method process: rec_arr_elem_const_val3 (test_array_method.cpp:179:5) 
 
 always_comb 
-begin : rec_arr_elem_const_val3     // test_array_method.cpp:172:5
+begin : rec_arr_elem_const_val3     // test_array_method.cpp:179:5
     logic crra_a[3];
     integer crra_b[3];
     logic par_a;
@@ -170,10 +170,10 @@ begin : rec_arr_elem_const_val3     // test_array_method.cpp:172:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_const_val4 (test_array_method.cpp:178:5) 
+// Method process: rec_arr_elem_const_val4 (test_array_method.cpp:185:5) 
 
 always_comb 
-begin : rec_arr_elem_const_val4     // test_array_method.cpp:178:5
+begin : rec_arr_elem_const_val4     // test_array_method.cpp:185:5
     logic crrb_a[3];
     integer crrb_b[3];
     integer i;
@@ -188,10 +188,10 @@ begin : rec_arr_elem_const_val4     // test_array_method.cpp:178:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_val (test_array_method.cpp:204:5) 
+// Method process: rec_arr_elem_func_param_val (test_array_method.cpp:211:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_val     // test_array_method.cpp:204:5
+begin : rec_arr_elem_func_param_val     // test_array_method.cpp:211:5
     logic ar_a[3];
     integer ar_b[3];
     logic par_a;
@@ -204,10 +204,10 @@ begin : rec_arr_elem_func_param_val     // test_array_method.cpp:204:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_val2 (test_array_method.cpp:210:5) 
+// Method process: rec_arr_elem_func_param_val2 (test_array_method.cpp:217:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_val2     // test_array_method.cpp:210:5
+begin : rec_arr_elem_func_param_val2     // test_array_method.cpp:217:5
     logic ar_a[3][2];
     integer ar_b[3][2];
     logic par_a;
@@ -220,10 +220,10 @@ begin : rec_arr_elem_func_param_val2     // test_array_method.cpp:210:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_ref (test_array_method.cpp:216:5) 
+// Method process: rec_arr_elem_func_param_ref (test_array_method.cpp:223:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_ref     // test_array_method.cpp:216:5
+begin : rec_arr_elem_func_param_ref     // test_array_method.cpp:223:5
     logic ar_a[3];
     integer ar_b[3];
     integer i;
@@ -233,10 +233,10 @@ begin : rec_arr_elem_func_param_ref     // test_array_method.cpp:216:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_ref2 (test_array_method.cpp:222:5) 
+// Method process: rec_arr_elem_func_param_ref2 (test_array_method.cpp:229:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_ref2     // test_array_method.cpp:222:5
+begin : rec_arr_elem_func_param_ref2     // test_array_method.cpp:229:5
     logic ar_a[3][2];
     integer ar_b[3][2];
     integer i;
@@ -246,10 +246,10 @@ begin : rec_arr_elem_func_param_ref2     // test_array_method.cpp:222:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_field_func_param_val (test_array_method.cpp:228:5) 
+// Method process: rec_arr_elem_field_func_param_val (test_array_method.cpp:235:5) 
 
 always_comb 
-begin : rec_arr_elem_field_func_param_val     // test_array_method.cpp:228:5
+begin : rec_arr_elem_field_func_param_val     // test_array_method.cpp:235:5
     logic ar_a[3];
     integer ar_b[3];
     integer par1;
@@ -262,10 +262,10 @@ begin : rec_arr_elem_field_func_param_val     // test_array_method.cpp:228:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_field_func_param_ref (test_array_method.cpp:234:5) 
+// Method process: rec_arr_elem_field_func_param_ref (test_array_method.cpp:241:5) 
 
 always_comb 
-begin : rec_arr_elem_field_func_param_ref     // test_array_method.cpp:234:5
+begin : rec_arr_elem_field_func_param_ref     // test_array_method.cpp:241:5
     logic ar_a[3];
     integer ar_b[3];
     integer i;
@@ -275,10 +275,10 @@ begin : rec_arr_elem_field_func_param_ref     // test_array_method.cpp:234:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_func_param (test_array_method.cpp:283:5) 
+// Method process: rec_arr_func_param (test_array_method.cpp:290:5) 
 
 always_comb 
-begin : rec_arr_func_param     // test_array_method.cpp:283:5
+begin : rec_arr_func_param     // test_array_method.cpp:290:5
     logic ar_a[2];
     integer ar_b[2];
     integer i;
@@ -291,10 +291,10 @@ begin : rec_arr_func_param     // test_array_method.cpp:283:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_cref1 (test_array_method.cpp:247:5) 
+// Method process: rec_arr_elem_func_param_cref1 (test_array_method.cpp:254:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_cref1     // test_array_method.cpp:247:5
+begin : rec_arr_elem_func_param_cref1     // test_array_method.cpp:254:5
     integer indx;
     logic cvr_a[3];
     integer cvr_b[3];
@@ -312,10 +312,10 @@ begin : rec_arr_elem_func_param_cref1     // test_array_method.cpp:247:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_cref2 (test_array_method.cpp:258:5) 
+// Method process: rec_arr_elem_func_param_cref2 (test_array_method.cpp:265:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_cref2     // test_array_method.cpp:258:5
+begin : rec_arr_elem_func_param_cref2     // test_array_method.cpp:265:5
     integer indx;
     logic cvrr_a[3];
     integer cvrr_b[3];
@@ -330,10 +330,10 @@ begin : rec_arr_elem_func_param_cref2     // test_array_method.cpp:258:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_cref3 (test_array_method.cpp:267:5) 
+// Method process: rec_arr_elem_func_param_cref3 (test_array_method.cpp:274:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_cref3     // test_array_method.cpp:267:5
+begin : rec_arr_elem_func_param_cref3     // test_array_method.cpp:274:5
     integer indx;
     logic cwrr_a[3];
     integer cwrr_b[3];

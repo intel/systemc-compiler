@@ -48,7 +48,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut (test_dac2019_apb.cpp:143:5)
+// Module: dut (test_dac2019_apb.cpp:150:5)
 //
 module dut // "tb_inst.dut_inst"
 (
@@ -72,7 +72,7 @@ assign apb_tar_clk = clk;
 assign apb_tar_rstn = rstn;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: apb_tar_apb_thread (test_dac2019_apb.cpp:80:5) 
+// Clocked THREAD: apb_tar_apb_thread (test_dac2019_apb.cpp:87:5) 
 
 // Thread-local variables
 logic [31:0] apb_tar_paddr_next;
@@ -89,7 +89,7 @@ logic apb_thread_PROC_STATE;
 logic apb_thread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : apb_tar_apb_thread_comb     // test_dac2019_apb.cpp:80:5
+always_comb begin : apb_tar_apb_thread_comb     // test_dac2019_apb.cpp:87:5
     apb_tar_apb_thread_func;
 end
 function void apb_tar_apb_thread_func;
@@ -132,7 +132,7 @@ function void apb_tar_apb_thread_func;
                         TMP_0 = 1;
                     end
                     // Call apb_trans() end
-                    apb_tar_pslverr_next = |TMP_0;
+                    apb_tar_pslverr_next = TMP_0;
                 end else begin
                     addr = apb_tar_paddr; is_read = 1;
                     // Call apb_trans() begin
@@ -147,18 +147,18 @@ function void apb_tar_apb_thread_func;
                         TMP_1 = 1;
                     end
                     // Call apb_trans() end
-                    apb_tar_pslverr_next = |TMP_1;
+                    apb_tar_pslverr_next = TMP_1;
                     apb_tar_prdata_next = data;
                 end
                 apb_tar_pready_next = 1;
-                apb_thread_PROC_STATE_next = 1; return;    // test_dac2019_apb.cpp:98:17;
+                apb_thread_PROC_STATE_next = 1; return;    // test_dac2019_apb.cpp:105:17;
             end
             apb_tar_pready_next = 0;
-            apb_thread_PROC_STATE_next = 0; return;    // test_dac2019_apb.cpp:86:13;
+            apb_thread_PROC_STATE_next = 0; return;    // test_dac2019_apb.cpp:93:13;
         end
         1: begin
             apb_tar_pready_next = 0;
-            apb_thread_PROC_STATE_next = 0; return;    // test_dac2019_apb.cpp:86:13;
+            apb_thread_PROC_STATE_next = 0; return;    // test_dac2019_apb.cpp:93:13;
         end
     endcase
 endfunction
@@ -170,7 +170,7 @@ begin : apb_tar_apb_thread_ff
         apb_tar_pready <= 0;
         apb_tar_prdata <= 0;
         apb_tar_pslverr <= 0;
-        apb_thread_PROC_STATE <= 0;    // test_dac2019_apb.cpp:86:13;
+        apb_thread_PROC_STATE <= 0;    // test_dac2019_apb.cpp:93:13;
     end
     else begin
         apb_tar_paddr <= apb_tar_paddr_next;

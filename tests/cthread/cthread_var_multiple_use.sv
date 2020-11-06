@@ -35,7 +35,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Child (test_cthread_var_multiple_use.cpp:57:5)
+// Module: Child (test_cthread_var_multiple_use.cpp:64:5)
 //
 module Child // "top.child"
 (
@@ -49,7 +49,7 @@ module Child // "top.child"
 logic signed [31:0] s;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thrA (test_cthread_var_multiple_use.cpp:28:5) 
+// Clocked THREAD: thrA (test_cthread_var_multiple_use.cpp:35:5) 
 
 // Thread-local variables
 logic signed [31:0] s_next;
@@ -62,7 +62,7 @@ logic [1:0] thrA_PROC_STATE;
 logic [1:0] thrA_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thrA_comb     // test_cthread_var_multiple_use.cpp:28:5
+always_comb begin : thrA_comb     // test_cthread_var_multiple_use.cpp:35:5
     thrA_func;
 end
 function void thrA_func;
@@ -75,15 +75,15 @@ function void thrA_func;
     case (thrA_PROC_STATE)
         0: begin
             i_next = signed'({1'b0, v_next}) + s;
-            thrA_PROC_STATE_next = 1; return;    // test_cthread_var_multiple_use.cpp:35:13;
+            thrA_PROC_STATE_next = 1; return;    // test_cthread_var_multiple_use.cpp:42:13;
         end
         1: begin
             out_next = i_next + in;
-            thrA_PROC_STATE_next = 2; return;    // test_cthread_var_multiple_use.cpp:37:13;
+            thrA_PROC_STATE_next = 2; return;    // test_cthread_var_multiple_use.cpp:44:13;
         end
         2: begin
             i_next = signed'({1'b0, v_next}) + s;
-            thrA_PROC_STATE_next = 1; return;    // test_cthread_var_multiple_use.cpp:35:13;
+            thrA_PROC_STATE_next = 1; return;    // test_cthread_var_multiple_use.cpp:42:13;
         end
     endcase
 endfunction
@@ -94,7 +94,7 @@ begin : thrA_ff
     if (rst ) begin
         v <= 1;
         s <= 0;
-        thrA_PROC_STATE <= 0;    // test_cthread_var_multiple_use.cpp:31:9;
+        thrA_PROC_STATE <= 0;    // test_cthread_var_multiple_use.cpp:38:9;
     end
     else begin
         s <= s_next;
@@ -106,7 +106,7 @@ begin : thrA_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thrB (test_cthread_var_multiple_use.cpp:41:5) 
+// Clocked THREAD: thrB (test_cthread_var_multiple_use.cpp:48:5) 
 
 // Thread-local variables
 logic [1:0] thrB_WAIT_N_COUNTER;
@@ -117,7 +117,7 @@ logic thrB_PROC_STATE;
 logic thrB_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thrB_comb     // test_cthread_var_multiple_use.cpp:41:5
+always_comb begin : thrB_comb     // test_cthread_var_multiple_use.cpp:48:5
     thrB_func;
 end
 function void thrB_func;
@@ -130,16 +130,16 @@ function void thrB_func;
         0: begin
             i = signed'({1'b0, v_next0}) + in + s;
             thrB_WAIT_N_COUNTER_next = 2;
-            thrB_PROC_STATE_next = 1; return;    // test_cthread_var_multiple_use.cpp:47:13;
+            thrB_PROC_STATE_next = 1; return;    // test_cthread_var_multiple_use.cpp:54:13;
         end
         1: begin
             if (thrB_WAIT_N_COUNTER != 1) begin
                 thrB_WAIT_N_COUNTER_next = thrB_WAIT_N_COUNTER - 1;
-                thrB_PROC_STATE_next = 1; return;    // test_cthread_var_multiple_use.cpp:47:13;
+                thrB_PROC_STATE_next = 1; return;    // test_cthread_var_multiple_use.cpp:54:13;
             end;
             i = signed'({1'b0, v_next0}) + in + s;
             thrB_WAIT_N_COUNTER_next = 2;
-            thrB_PROC_STATE_next = 1; return;    // test_cthread_var_multiple_use.cpp:47:13;
+            thrB_PROC_STATE_next = 1; return;    // test_cthread_var_multiple_use.cpp:54:13;
         end
     endcase
 endfunction
@@ -149,7 +149,7 @@ always_ff @(posedge clk or posedge rst)
 begin : thrB_ff
     if (rst ) begin
         out <= 0;
-        thrB_PROC_STATE <= 0;    // test_cthread_var_multiple_use.cpp:43:9;
+        thrB_PROC_STATE <= 0;    // test_cthread_var_multiple_use.cpp:50:9;
         thrB_WAIT_N_COUNTER <= 0;
     end
     else begin

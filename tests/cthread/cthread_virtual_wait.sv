@@ -30,7 +30,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: derived (test_cthread_virtual_wait.cpp:49:5)
+// Module: derived (test_cthread_virtual_wait.cpp:56:5)
 //
 module derived // "t.d"
 (
@@ -41,7 +41,7 @@ module derived // "t.d"
 logic x;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread (test_cthread_virtual_wait.cpp:20:5) 
+// Clocked THREAD: test_thread (test_cthread_virtual_wait.cpp:27:5) 
 
 // Thread-local variables
 logic x_next;
@@ -49,7 +49,7 @@ logic [1:0] test_thread_PROC_STATE;
 logic [1:0] test_thread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_comb     // test_cthread_virtual_wait.cpp:20:5
+always_comb begin : test_thread_comb     // test_cthread_virtual_wait.cpp:27:5
     test_thread_func;
 end
 function void test_thread_func;
@@ -58,24 +58,24 @@ function void test_thread_func;
     
     case (test_thread_PROC_STATE)
         default : begin
-            test_thread_PROC_STATE_next = 0; return;    // test_cthread_virtual_wait.cpp:21:9;
+            test_thread_PROC_STATE_next = 0; return;    // test_cthread_virtual_wait.cpp:28:9;
         end
         0: begin
             // Call virtual_wait() begin
             x_next = 0;
-            test_thread_PROC_STATE_next = 1; return;    // test_cthread_virtual_wait.cpp:38:9;
+            test_thread_PROC_STATE_next = 1; return;    // test_cthread_virtual_wait.cpp:45:9;
             // Call virtual_wait() end
         end
         1: begin
             // Call virtual_wait() begin
             x_next = 1;
-            test_thread_PROC_STATE_next = 2; return;    // test_cthread_virtual_wait.cpp:40:9;
+            test_thread_PROC_STATE_next = 2; return;    // test_cthread_virtual_wait.cpp:47:9;
             // Call virtual_wait() end
         end
         2: begin
             // Call virtual_wait() begin
             x_next = 0;
-            test_thread_PROC_STATE_next = 1; return;    // test_cthread_virtual_wait.cpp:38:9;
+            test_thread_PROC_STATE_next = 1; return;    // test_cthread_virtual_wait.cpp:45:9;
             // Call virtual_wait() end
         end
     endcase

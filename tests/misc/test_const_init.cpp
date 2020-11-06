@@ -1,8 +1,14 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "sct_assert.h"
 #include <systemc.h>
 
 // Constant initialization in constructor body
-// Error reported as non defined variables @j and @z are used
 struct A : public sc_module 
 {
     sc_in<bool> clk{"clk"};
@@ -84,3 +90,4 @@ int sc_main(int argc, char **argv) {
 
     return 0;
 }
+

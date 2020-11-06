@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_var_indices_method.cpp:105:5)
+// Module: A (test_array_var_indices_method.cpp:112:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -45,14 +45,14 @@ logic [1:0] as;
 logic s;
 
 //------------------------------------------------------------------------------
-// Method process: record_var_indices (test_array_var_indices_method.cpp:49:5) 
+// Method process: record_var_indices (test_array_var_indices_method.cpp:56:5) 
 
 // Process-local variables
 logic signed [31:0] rec_a[16];
 logic [1:0] rec_b[16];
 
 always_comb 
-begin : record_var_indices     // test_array_var_indices_method.cpp:49:5
+begin : record_var_indices     // test_array_var_indices_method.cpp:56:5
     integer num;
     logic flag;
     num = 2;
@@ -66,14 +66,14 @@ begin : record_var_indices     // test_array_var_indices_method.cpp:49:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_var_indices_arith (test_array_var_indices_method.cpp:65:5) 
+// Method process: record_var_indices_arith (test_array_var_indices_method.cpp:72:5) 
 
 // Process-local variables
 logic [31:0] rec3_a[12];
 logic [15:0] rec3_b[12];
 
 always_comb 
-begin : record_var_indices_arith     // test_array_var_indices_method.cpp:65:5
+begin : record_var_indices_arith     // test_array_var_indices_method.cpp:72:5
     integer num;
     num = 2;
     rec3_b[0] = 10;
@@ -84,14 +84,14 @@ begin : record_var_indices_arith     // test_array_var_indices_method.cpp:65:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_var_indices_binary (test_array_var_indices_method.cpp:82:5) 
+// Method process: record_var_indices_binary (test_array_var_indices_method.cpp:89:5) 
 
 // Process-local variables
 logic [31:0] rec2_a[6];
 logic [15:0] rec2_b[6];
 
 always_comb 
-begin : record_var_indices_binary     // test_array_var_indices_method.cpp:82:5
+begin : record_var_indices_binary     // test_array_var_indices_method.cpp:89:5
     integer num;
     num = 2;
     rec2_b[0] = 10;

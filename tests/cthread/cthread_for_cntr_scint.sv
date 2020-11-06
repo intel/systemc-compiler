@@ -19,7 +19,7 @@ logic arstn;
 logic [4:0] wakeup_time;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: for_cntr_scint (test_cthread_for_cntr_scint.cpp:29:5) 
+// Clocked THREAD: for_cntr_scint (test_cthread_for_cntr_scint.cpp:36:5) 
 
 // Thread-local variables
 logic [4:0] i;
@@ -30,7 +30,7 @@ logic [1:0] for_cntr_scint_PROC_STATE;
 logic [1:0] for_cntr_scint_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : for_cntr_scint_comb     // test_cthread_for_cntr_scint.cpp:29:5
+always_comb begin : for_cntr_scint_comb     // test_cthread_for_cntr_scint.cpp:36:5
     for_cntr_scint_func;
 end
 function void for_cntr_scint_func;
@@ -40,24 +40,24 @@ function void for_cntr_scint_func;
     
     case (for_cntr_scint_PROC_STATE)
         0: begin
-            for_cntr_scint_PROC_STATE_next = 1; return;    // test_cthread_for_cntr_scint.cpp:34:13;
+            for_cntr_scint_PROC_STATE_next = 1; return;    // test_cthread_for_cntr_scint.cpp:41:13;
         end
         1: begin
             wakeupTime_next = wakeup_time;
             i_next = 0;
             if (i_next < wakeupTime_next)
             begin
-                for_cntr_scint_PROC_STATE_next = 2; return;    // test_cthread_for_cntr_scint.cpp:38:17;
+                for_cntr_scint_PROC_STATE_next = 2; return;    // test_cthread_for_cntr_scint.cpp:45:17;
             end
-            for_cntr_scint_PROC_STATE_next = 1; return;    // test_cthread_for_cntr_scint.cpp:34:13;
+            for_cntr_scint_PROC_STATE_next = 1; return;    // test_cthread_for_cntr_scint.cpp:41:13;
         end
         2: begin
             i_next++;
             if (i_next < wakeupTime_next)
             begin
-                for_cntr_scint_PROC_STATE_next = 2; return;    // test_cthread_for_cntr_scint.cpp:38:17;
+                for_cntr_scint_PROC_STATE_next = 2; return;    // test_cthread_for_cntr_scint.cpp:45:17;
             end
-            for_cntr_scint_PROC_STATE_next = 1; return;    // test_cthread_for_cntr_scint.cpp:34:13;
+            for_cntr_scint_PROC_STATE_next = 1; return;    // test_cthread_for_cntr_scint.cpp:41:13;
         end
     endcase
 endfunction
@@ -66,7 +66,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : for_cntr_scint_ff
     if ( ~arstn ) begin
-        for_cntr_scint_PROC_STATE <= 0;    // test_cthread_for_cntr_scint.cpp:31:9;
+        for_cntr_scint_PROC_STATE <= 0;    // test_cthread_for_cntr_scint.cpp:38:9;
     end
     else begin
         i <= i_next;
@@ -76,7 +76,7 @@ begin : for_cntr_scint_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: for_cntr_scint2 (test_cthread_for_cntr_scint.cpp:44:5) 
+// Clocked THREAD: for_cntr_scint2 (test_cthread_for_cntr_scint.cpp:51:5) 
 
 // Thread-local variables
 logic [31:0] i0;
@@ -87,7 +87,7 @@ logic [1:0] for_cntr_scint2_PROC_STATE;
 logic [1:0] for_cntr_scint2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : for_cntr_scint2_comb     // test_cthread_for_cntr_scint.cpp:44:5
+always_comb begin : for_cntr_scint2_comb     // test_cthread_for_cntr_scint.cpp:51:5
     for_cntr_scint2_func;
 end
 function void for_cntr_scint2_func;
@@ -97,24 +97,24 @@ function void for_cntr_scint2_func;
     
     case (for_cntr_scint2_PROC_STATE)
         0: begin
-            for_cntr_scint2_PROC_STATE_next = 1; return;    // test_cthread_for_cntr_scint.cpp:49:13;
+            for_cntr_scint2_PROC_STATE_next = 1; return;    // test_cthread_for_cntr_scint.cpp:56:13;
         end
         1: begin
             wakeupTime_next0 = wakeup_time;
             i_next0 = 0;
             if (i_next0 < wakeupTime_next0)
             begin
-                for_cntr_scint2_PROC_STATE_next = 2; return;    // test_cthread_for_cntr_scint.cpp:53:17;
+                for_cntr_scint2_PROC_STATE_next = 2; return;    // test_cthread_for_cntr_scint.cpp:60:17;
             end
-            for_cntr_scint2_PROC_STATE_next = 1; return;    // test_cthread_for_cntr_scint.cpp:49:13;
+            for_cntr_scint2_PROC_STATE_next = 1; return;    // test_cthread_for_cntr_scint.cpp:56:13;
         end
         2: begin
             i_next0++;
             if (i_next0 < wakeupTime_next0)
             begin
-                for_cntr_scint2_PROC_STATE_next = 2; return;    // test_cthread_for_cntr_scint.cpp:53:17;
+                for_cntr_scint2_PROC_STATE_next = 2; return;    // test_cthread_for_cntr_scint.cpp:60:17;
             end
-            for_cntr_scint2_PROC_STATE_next = 1; return;    // test_cthread_for_cntr_scint.cpp:49:13;
+            for_cntr_scint2_PROC_STATE_next = 1; return;    // test_cthread_for_cntr_scint.cpp:56:13;
         end
     endcase
 endfunction
@@ -123,7 +123,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : for_cntr_scint2_ff
     if ( ~arstn ) begin
-        for_cntr_scint2_PROC_STATE <= 0;    // test_cthread_for_cntr_scint.cpp:46:9;
+        for_cntr_scint2_PROC_STATE <= 0;    // test_cthread_for_cntr_scint.cpp:53:9;
     end
     else begin
         i0 <= i_next0;

@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 
 using namespace sc_core;
@@ -74,7 +81,7 @@ public:
         pa[sig][sig].x = 0;
     }
     
-    // Channel array range -- BUG in HS SMEM in cache module fixed
+    // Channel array range -- BUG in real design in cache module fixed
     void chan_array_range()
     {
         int i; bool b;
@@ -83,7 +90,7 @@ public:
     }
     
     // The same channel array double used in the expression --
-    // BUG in HS SMEM in Flow control module
+    // BUG in real design in Flow control module
     void chan_array_double_used() 
     {
         bool b = (sig1b[0].read()) ? false : sig1b[0].read();
@@ -322,3 +329,4 @@ int sc_main(int argc, char *argv[]) {
     sc_start();
     return 0;
 }
+

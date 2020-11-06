@@ -18,10 +18,10 @@ logic [2:0] s;
 logic t;
 
 //------------------------------------------------------------------------------
-// Method process: return_method1 (test_return.cpp:44:5) 
+// Method process: return_method1 (test_return.cpp:51:5) 
 
 always_comb 
-begin : return_method1     // test_return.cpp:44:5
+begin : return_method1     // test_return.cpp:51:5
     integer x;
     x = 0;
     if (|s)
@@ -32,10 +32,10 @@ begin : return_method1     // test_return.cpp:44:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_func1 (test_return.cpp:66:5) 
+// Method process: return_func1 (test_return.cpp:73:5) 
 
 always_comb 
-begin : return_func1     // test_return.cpp:66:5
+begin : return_func1     // test_return.cpp:73:5
     logic [3:0] TMP_0;
     logic [3:0] res;
     logic [3:0] a;
@@ -58,10 +58,10 @@ begin : return_func1     // test_return.cpp:66:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_func2 (test_return.cpp:93:5) 
+// Method process: return_func2 (test_return.cpp:100:5) 
 
 always_comb 
-begin : return_func2     // test_return.cpp:93:5
+begin : return_func2     // test_return.cpp:100:5
     logic signed [7:0] val1;
     logic signed [7:0] val2;
     logic signed [7:0] TMP_0;
@@ -97,10 +97,10 @@ begin : return_func2     // test_return.cpp:93:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_func3 (test_return.cpp:117:5) 
+// Method process: return_func3 (test_return.cpp:124:5) 
 
 always_comb 
-begin : return_func3     // test_return.cpp:117:5
+begin : return_func3     // test_return.cpp:124:5
     logic [7:0] val3;
     logic [7:0] val4;
     logic [7:0] TMP_0;
@@ -135,10 +135,10 @@ begin : return_func3     // test_return.cpp:117:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_func4 (test_return.cpp:136:5) 
+// Method process: return_func4 (test_return.cpp:143:5) 
 
 always_comb 
-begin : return_func4     // test_return.cpp:136:5
+begin : return_func4     // test_return.cpp:143:5
     logic TMP_0;
     logic i;
     // Call f5() begin
@@ -158,10 +158,10 @@ begin : return_func4     // test_return.cpp:136:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_empty (test_return.cpp:160:5) 
+// Method process: return_empty (test_return.cpp:167:5) 
 
 always_comb 
-begin : return_empty     // test_return.cpp:160:5
+begin : return_empty     // test_return.cpp:167:5
     logic par;
     integer k;
     par = t;
@@ -185,10 +185,10 @@ begin : return_empty     // test_return.cpp:160:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_switch1 (test_return.cpp:178:5) 
+// Method process: return_switch1 (test_return.cpp:185:5) 
 
 always_comb 
-begin : return_switch1     // test_return.cpp:178:5
+begin : return_switch1     // test_return.cpp:185:5
     integer unsigned TMP_0;
     integer unsigned i;
     // Call sw1() begin
@@ -208,10 +208,10 @@ begin : return_switch1     // test_return.cpp:178:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_switch2 (test_return.cpp:193:5) 
+// Method process: return_switch2 (test_return.cpp:200:5) 
 
 always_comb 
-begin : return_switch2     // test_return.cpp:193:5
+begin : return_switch2     // test_return.cpp:200:5
     logic [7:0] val1;
     logic [7:0] val2;
     integer unsigned TMP_0;

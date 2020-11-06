@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 
 using namespace sc_core;
@@ -106,7 +113,7 @@ public:
     }
     
     // Access channel array in base module in IF condition
-    // BUG in SMEM KVG -- fixed
+    // BUG in real design -- fixed
     void chan_array_in_if2() 
     {
        for (int i = 0; i < BLOCK_NUM; i++) {
@@ -132,3 +139,4 @@ int sc_main(int argc, char *argv[]) {
     sc_start();
     return 0;
 }
+

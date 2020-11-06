@@ -1,8 +1,15 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 
 using namespace sc_core;
 
-// Temporary expression in left/right part of assignment and in bit/range select
+// RValue expression in left/right part of assignment and in bit/range select
 class A : public sc_module {
 public:
     // Define variables
@@ -20,6 +27,7 @@ public:
         sensitive << dummy;
     }
 
+    // RValue  used in left part of assignment, that is incorrect
     void bit_range_sel() {
         (y+y) = 0;
         (y+y)[3] = 0;
@@ -28,7 +36,7 @@ public:
         (uy+uy)(5,3) = 0;
     }
     
-    
+    // RValue used for range/nit that is incorrect
     void bit_range_sel2() {
         sc_uint<8> a;
         sc_uint<8> b, c;
@@ -68,3 +76,4 @@ int sc_main(int argc, char *argv[]) {
     sc_start();
     return 0;
 }
+

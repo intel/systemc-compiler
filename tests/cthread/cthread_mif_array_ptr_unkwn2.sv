@@ -29,7 +29,7 @@ assign minst_rst[0][0] = rst;
 assign minst_rst[0][1] = rst;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thread_member_sig (test_cthread_mif_array_ptr_unkwn2.cpp:37:5) 
+// Clocked THREAD: minst_thread_member_sig (test_cthread_mif_array_ptr_unkwn2.cpp:44:5) 
 
 // Thread-local variables
 logic [3:0] minst_y[1][2];
@@ -38,7 +38,7 @@ logic signed [31:0] minst_ay[1][2][3];
 logic signed [31:0] minst_ay_next[1][2][3];
 
 // Next-state combinational logic
-always_comb begin : minst_thread_member_sig_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:37:5
+always_comb begin : minst_thread_member_sig_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:44:5
     minst_thread_member_sig_func;
 end
 function void minst_thread_member_sig_func;
@@ -69,7 +69,7 @@ begin : minst_thread_member_sig_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thread_member_comb (test_cthread_mif_array_ptr_unkwn2.cpp:56:5) 
+// Clocked THREAD: minst_thread_member_comb (test_cthread_mif_array_ptr_unkwn2.cpp:63:5) 
 
 // Thread-local variables
 logic [3:0] minst_v[1][2];
@@ -77,7 +77,7 @@ logic signed [31:0] minst_av[1][2][2];
 logic signed [31:0] minst_avv[1][2][2][3];
 
 // Next-state combinational logic
-always_comb begin : minst_thread_member_comb_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:56:5
+always_comb begin : minst_thread_member_comb_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:63:5
     minst_thread_member_comb_func;
 end
 function void minst_thread_member_comb_func;
@@ -106,7 +106,7 @@ begin : minst_thread_member_comb_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thread_member_reg (test_cthread_mif_array_ptr_unkwn2.cpp:76:5) 
+// Clocked THREAD: minst_thread_member_reg (test_cthread_mif_array_ptr_unkwn2.cpp:83:5) 
 
 // Thread-local variables
 logic [3:0] minst_as_next[1][2][3];
@@ -117,7 +117,7 @@ logic [3:0] minst_w[1][2];
 logic [3:0] minst_w_next[1][2];
 
 // Next-state combinational logic
-always_comb begin : minst_thread_member_reg_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:76:5
+always_comb begin : minst_thread_member_reg_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:83:5
     minst_thread_member_reg_func;
 end
 function void minst_thread_member_reg_func;
@@ -147,10 +147,10 @@ begin : minst_thread_member_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thread_member_sig0 (test_cthread_mif_array_ptr_unkwn2.cpp:37:5) 
+// Clocked THREAD: minst_thread_member_sig0 (test_cthread_mif_array_ptr_unkwn2.cpp:44:5) 
 
 // Next-state combinational logic
-always_comb begin : minst_thread_member_sig0_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:37:5
+always_comb begin : minst_thread_member_sig0_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:44:5
     minst_thread_member_sig0_func;
 end
 function void minst_thread_member_sig0_func;
@@ -181,10 +181,10 @@ begin : minst_thread_member_sig0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thread_member_comb0 (test_cthread_mif_array_ptr_unkwn2.cpp:56:5) 
+// Clocked THREAD: minst_thread_member_comb0 (test_cthread_mif_array_ptr_unkwn2.cpp:63:5) 
 
 // Next-state combinational logic
-always_comb begin : minst_thread_member_comb0_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:56:5
+always_comb begin : minst_thread_member_comb0_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:63:5
     minst_thread_member_comb0_func;
 end
 function void minst_thread_member_comb0_func;
@@ -213,10 +213,10 @@ begin : minst_thread_member_comb0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thread_member_reg0 (test_cthread_mif_array_ptr_unkwn2.cpp:76:5) 
+// Clocked THREAD: minst_thread_member_reg0 (test_cthread_mif_array_ptr_unkwn2.cpp:83:5) 
 
 // Next-state combinational logic
-always_comb begin : minst_thread_member_reg0_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:76:5
+always_comb begin : minst_thread_member_reg0_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:83:5
     minst_thread_member_reg0_func;
 end
 function void minst_thread_member_reg0_func;
@@ -246,7 +246,7 @@ begin : minst_thread_member_reg0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread_comb (test_cthread_mif_array_ptr_unkwn2.cpp:114:5) 
+// Clocked THREAD: top_thread_comb (test_cthread_mif_array_ptr_unkwn2.cpp:121:5) 
 
 // Thread-local variables
 logic signed [31:0] j;
@@ -255,7 +255,7 @@ logic [3:0] minst_y[1][2];
 logic signed [31:0] minst_ay[1][2][3];
 
 // Next-state combinational logic
-always_comb begin : top_thread_comb_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:114:5
+always_comb begin : top_thread_comb_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:121:5
     top_thread_comb_func;
 end
 function void top_thread_comb_func;
@@ -289,7 +289,7 @@ begin : top_thread_comb_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread_reg (test_cthread_mif_array_ptr_unkwn2.cpp:137:5) 
+// Clocked THREAD: top_thread_reg (test_cthread_mif_array_ptr_unkwn2.cpp:144:5) 
 
 // Thread-local variables
 logic signed [31:0] j0;
@@ -300,7 +300,7 @@ logic signed [31:0] minst_az[1][2][2];
 logic signed [31:0] minst_az_next[1][2][2];
 
 // Next-state combinational logic
-always_comb begin : top_thread_reg_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:137:5
+always_comb begin : top_thread_reg_comb     // test_cthread_mif_array_ptr_unkwn2.cpp:144:5
     top_thread_reg_func;
 end
 function void top_thread_reg_func;

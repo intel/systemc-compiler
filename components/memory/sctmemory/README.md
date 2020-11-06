@@ -1,3 +1,0 @@
-# SctMemory
-
-TBD

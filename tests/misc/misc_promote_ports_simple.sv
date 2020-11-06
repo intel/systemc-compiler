@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Child (test_promote_ports_simple.cpp:17:5)
+// Module: Child (test_promote_ports_simple.cpp:24:5)
 //
 module Child // "tb_inst.top_mod.child_inst"
 (

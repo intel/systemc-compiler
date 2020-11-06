@@ -21,7 +21,7 @@ logic signed [31:0] a;
 logic signed [31:0] b;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_in_for_wait0 (test_continue.cpp:53:5) 
+// Clocked THREAD: continue_in_for_wait0 (test_continue.cpp:60:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -30,7 +30,7 @@ logic [1:0] continue_in_for_wait0_PROC_STATE;
 logic [1:0] continue_in_for_wait0_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_in_for_wait0_comb     // test_continue.cpp:53:5
+always_comb begin : continue_in_for_wait0_comb     // test_continue.cpp:60:5
     continue_in_for_wait0_func;
 end
 function void continue_in_for_wait0_func;
@@ -44,10 +44,10 @@ function void continue_in_for_wait0_func;
             if (in > 1)
             begin
                 k = 1;
-                continue_in_for_wait0_PROC_STATE_next = 1; return;    // test_continue.cpp:63:21;
+                continue_in_for_wait0_PROC_STATE_next = 1; return;    // test_continue.cpp:70:21;
             end
             k = 2;
-            continue_in_for_wait0_PROC_STATE_next = 2; return;    // test_continue.cpp:70:17;
+            continue_in_for_wait0_PROC_STATE_next = 2; return;    // test_continue.cpp:77:17;
         end
         1: begin
             // continue begin
@@ -57,13 +57,13 @@ function void continue_in_for_wait0_func;
                 if (in > 1)
                 begin
                     k = 1;
-                    continue_in_for_wait0_PROC_STATE_next = 1; return;    // test_continue.cpp:63:21;
+                    continue_in_for_wait0_PROC_STATE_next = 1; return;    // test_continue.cpp:70:21;
                 end
                 k = 2;
-                continue_in_for_wait0_PROC_STATE_next = 2; return;    // test_continue.cpp:70:17;
+                continue_in_for_wait0_PROC_STATE_next = 2; return;    // test_continue.cpp:77:17;
             end
             k = 3;
-            continue_in_for_wait0_PROC_STATE_next = 3; return;    // test_continue.cpp:74:13;
+            continue_in_for_wait0_PROC_STATE_next = 3; return;    // test_continue.cpp:81:13;
             // continue end
         end
         2: begin
@@ -73,23 +73,23 @@ function void continue_in_for_wait0_func;
                 if (in > 1)
                 begin
                     k = 1;
-                    continue_in_for_wait0_PROC_STATE_next = 1; return;    // test_continue.cpp:63:21;
+                    continue_in_for_wait0_PROC_STATE_next = 1; return;    // test_continue.cpp:70:21;
                 end
                 k = 2;
-                continue_in_for_wait0_PROC_STATE_next = 2; return;    // test_continue.cpp:70:17;
+                continue_in_for_wait0_PROC_STATE_next = 2; return;    // test_continue.cpp:77:17;
             end
             k = 3;
-            continue_in_for_wait0_PROC_STATE_next = 3; return;    // test_continue.cpp:74:13;
+            continue_in_for_wait0_PROC_STATE_next = 3; return;    // test_continue.cpp:81:13;
         end
         3: begin
             i_next = 0;
             if (in > 1)
             begin
                 k = 1;
-                continue_in_for_wait0_PROC_STATE_next = 1; return;    // test_continue.cpp:63:21;
+                continue_in_for_wait0_PROC_STATE_next = 1; return;    // test_continue.cpp:70:21;
             end
             k = 2;
-            continue_in_for_wait0_PROC_STATE_next = 2; return;    // test_continue.cpp:70:17;
+            continue_in_for_wait0_PROC_STATE_next = 2; return;    // test_continue.cpp:77:17;
         end
     endcase
 endfunction
@@ -100,7 +100,7 @@ begin : continue_in_for_wait0_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        continue_in_for_wait0_PROC_STATE <= 0;    // test_continue.cpp:56:9;
+        continue_in_for_wait0_PROC_STATE <= 0;    // test_continue.cpp:63:9;
     end
     else begin
         i <= i_next;
@@ -109,7 +109,7 @@ begin : continue_in_for_wait0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_in_for_wait1 (test_continue.cpp:79:5) 
+// Clocked THREAD: continue_in_for_wait1 (test_continue.cpp:86:5) 
 
 // Thread-local variables
 logic signed [31:0] i0;
@@ -118,7 +118,7 @@ logic [1:0] continue_in_for_wait1_PROC_STATE;
 logic [1:0] continue_in_for_wait1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_in_for_wait1_comb     // test_continue.cpp:79:5
+always_comb begin : continue_in_for_wait1_comb     // test_continue.cpp:86:5
     continue_in_for_wait1_func;
 end
 function void continue_in_for_wait1_func;
@@ -130,7 +130,7 @@ function void continue_in_for_wait1_func;
         0: begin
             i_next0 = 0;
             k = 1;
-            continue_in_for_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:88:17;
+            continue_in_for_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:95:17;
         end
         1: begin
             if (in > 1)
@@ -141,9 +141,9 @@ function void continue_in_for_wait1_func;
                 if (i_next0 < 3)
                 begin
                     k = 1;
-                    continue_in_for_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:88:17;
+                    continue_in_for_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:95:17;
                 end
-                continue_in_for_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:97:13;
+                continue_in_for_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:104:13;
                 // continue end
             end
             k = 3;
@@ -151,14 +151,14 @@ function void continue_in_for_wait1_func;
             if (i_next0 < 3)
             begin
                 k = 1;
-                continue_in_for_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:88:17;
+                continue_in_for_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:95:17;
             end
-            continue_in_for_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:97:13;
+            continue_in_for_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:104:13;
         end
         2: begin
             i_next0 = 0;
             k = 1;
-            continue_in_for_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:88:17;
+            continue_in_for_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:95:17;
         end
     endcase
 endfunction
@@ -169,7 +169,7 @@ begin : continue_in_for_wait1_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        continue_in_for_wait1_PROC_STATE <= 0;    // test_continue.cpp:82:9;
+        continue_in_for_wait1_PROC_STATE <= 0;    // test_continue.cpp:89:9;
     end
     else begin
         i0 <= i_next0;
@@ -178,7 +178,7 @@ begin : continue_in_for_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_in_for_wait2 (test_continue.cpp:102:5) 
+// Clocked THREAD: continue_in_for_wait2 (test_continue.cpp:109:5) 
 
 // Thread-local variables
 logic signed [31:0] i1;
@@ -187,7 +187,7 @@ logic [1:0] continue_in_for_wait2_PROC_STATE;
 logic [1:0] continue_in_for_wait2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_in_for_wait2_comb     // test_continue.cpp:102:5
+always_comb begin : continue_in_for_wait2_comb     // test_continue.cpp:109:5
     continue_in_for_wait2_func;
 end
 function void continue_in_for_wait2_func;
@@ -200,9 +200,9 @@ function void continue_in_for_wait2_func;
             i_next1 = 0;
             if (in > 1)
             begin
-                continue_in_for_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:111:21;
+                continue_in_for_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:118:21;
             end else begin
-                continue_in_for_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:114:21;
+                continue_in_for_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:121:21;
             end
         end
         1: begin
@@ -213,13 +213,13 @@ function void continue_in_for_wait2_func;
             begin
                 if (in > 1)
                 begin
-                    continue_in_for_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:111:21;
+                    continue_in_for_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:118:21;
                 end else begin
-                    continue_in_for_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:114:21;
+                    continue_in_for_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:121:21;
                 end
             end
             k = 3;
-            continue_in_for_wait2_PROC_STATE_next = 3; return;    // test_continue.cpp:121:13;
+            continue_in_for_wait2_PROC_STATE_next = 3; return;    // test_continue.cpp:128:13;
         end
         2: begin
             // continue begin
@@ -228,22 +228,22 @@ function void continue_in_for_wait2_func;
             begin
                 if (in > 1)
                 begin
-                    continue_in_for_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:111:21;
+                    continue_in_for_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:118:21;
                 end else begin
-                    continue_in_for_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:114:21;
+                    continue_in_for_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:121:21;
                 end
             end
             k = 3;
-            continue_in_for_wait2_PROC_STATE_next = 3; return;    // test_continue.cpp:121:13;
+            continue_in_for_wait2_PROC_STATE_next = 3; return;    // test_continue.cpp:128:13;
             // continue end
         end
         3: begin
             i_next1 = 0;
             if (in > 1)
             begin
-                continue_in_for_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:111:21;
+                continue_in_for_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:118:21;
             end else begin
-                continue_in_for_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:114:21;
+                continue_in_for_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:121:21;
             end
         end
     endcase
@@ -255,7 +255,7 @@ begin : continue_in_for_wait2_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        continue_in_for_wait2_PROC_STATE <= 0;    // test_continue.cpp:105:9;
+        continue_in_for_wait2_PROC_STATE <= 0;    // test_continue.cpp:112:9;
     end
     else begin
         i1 <= i_next1;
@@ -264,7 +264,7 @@ begin : continue_in_for_wait2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_in_for_wait3 (test_continue.cpp:126:5) 
+// Clocked THREAD: continue_in_for_wait3 (test_continue.cpp:133:5) 
 
 // Thread-local variables
 logic signed [31:0] j;
@@ -275,7 +275,7 @@ logic [1:0] continue_in_for_wait3_PROC_STATE;
 logic [1:0] continue_in_for_wait3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_in_for_wait3_comb     // test_continue.cpp:126:5
+always_comb begin : continue_in_for_wait3_comb     // test_continue.cpp:133:5
     continue_in_for_wait3_func;
 end
 function void continue_in_for_wait3_func;
@@ -289,13 +289,13 @@ function void continue_in_for_wait3_func;
             i_next2 = 0;
             j_next = 0;
             k = 1;
-            continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:136:21;
+            continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:143:21;
         end
         1: begin
             if (in > 1)
             begin
                 k = 2;
-                continue_in_for_wait3_PROC_STATE_next = 2; return;    // test_continue.cpp:141:25;
+                continue_in_for_wait3_PROC_STATE_next = 2; return;    // test_continue.cpp:148:25;
             end
             if (in > 2)
             begin
@@ -305,34 +305,34 @@ function void continue_in_for_wait3_func;
                 if (j_next < 2)
                 begin
                     k = 1;
-                    continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:136:21;
+                    continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:143:21;
                 end
                 i_next2++;
                 if (i_next2 < 3)
                 begin
                     j_next = 0;
                     k = 1;
-                    continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:136:21;
+                    continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:143:21;
                 end
                 k = 4;
-                continue_in_for_wait3_PROC_STATE_next = 3; return;    // test_continue.cpp:153:13;
+                continue_in_for_wait3_PROC_STATE_next = 3; return;    // test_continue.cpp:160:13;
                 // continue end
             end
             j_next++;
             if (j_next < 2)
             begin
                 k = 1;
-                continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:136:21;
+                continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:143:21;
             end
             i_next2++;
             if (i_next2 < 3)
             begin
                 j_next = 0;
                 k = 1;
-                continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:136:21;
+                continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:143:21;
             end
             k = 4;
-            continue_in_for_wait3_PROC_STATE_next = 3; return;    // test_continue.cpp:153:13;
+            continue_in_for_wait3_PROC_STATE_next = 3; return;    // test_continue.cpp:160:13;
         end
         2: begin
             if (in > 2)
@@ -343,40 +343,40 @@ function void continue_in_for_wait3_func;
                 if (j_next < 2)
                 begin
                     k = 1;
-                    continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:136:21;
+                    continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:143:21;
                 end
                 i_next2++;
                 if (i_next2 < 3)
                 begin
                     j_next = 0;
                     k = 1;
-                    continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:136:21;
+                    continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:143:21;
                 end
                 k = 4;
-                continue_in_for_wait3_PROC_STATE_next = 3; return;    // test_continue.cpp:153:13;
+                continue_in_for_wait3_PROC_STATE_next = 3; return;    // test_continue.cpp:160:13;
                 // continue end
             end
             j_next++;
             if (j_next < 2)
             begin
                 k = 1;
-                continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:136:21;
+                continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:143:21;
             end
             i_next2++;
             if (i_next2 < 3)
             begin
                 j_next = 0;
                 k = 1;
-                continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:136:21;
+                continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:143:21;
             end
             k = 4;
-            continue_in_for_wait3_PROC_STATE_next = 3; return;    // test_continue.cpp:153:13;
+            continue_in_for_wait3_PROC_STATE_next = 3; return;    // test_continue.cpp:160:13;
         end
         3: begin
             i_next2 = 0;
             j_next = 0;
             k = 1;
-            continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:136:21;
+            continue_in_for_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:143:21;
         end
     endcase
 endfunction
@@ -387,7 +387,7 @@ begin : continue_in_for_wait3_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        continue_in_for_wait3_PROC_STATE <= 0;    // test_continue.cpp:129:9;
+        continue_in_for_wait3_PROC_STATE <= 0;    // test_continue.cpp:136:9;
     end
     else begin
         j <= j_next;
@@ -397,7 +397,7 @@ begin : continue_in_for_wait3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_break_exit1 (test_continue.cpp:160:5) 
+// Clocked THREAD: continue_break_exit1 (test_continue.cpp:167:5) 
 
 // Thread-local variables
 logic signed [31:0] k;
@@ -406,7 +406,7 @@ logic continue_break_exit1_PROC_STATE;
 logic continue_break_exit1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_break_exit1_comb     // test_continue.cpp:160:5
+always_comb begin : continue_break_exit1_comb     // test_continue.cpp:167:5
     continue_break_exit1_func;
 end
 function void continue_break_exit1_func;
@@ -416,7 +416,7 @@ function void continue_break_exit1_func;
     case (continue_break_exit1_PROC_STATE)
         0: begin
             k_next = 0;
-            continue_break_exit1_PROC_STATE_next = 1; return;    // test_continue.cpp:167:17;
+            continue_break_exit1_PROC_STATE_next = 1; return;    // test_continue.cpp:174:17;
         end
         1: begin
             k_next = k_next + 1;
@@ -425,11 +425,11 @@ function void continue_break_exit1_func;
                 // break begin
                 k_next = 1;
                 k_next = 0;
-                continue_break_exit1_PROC_STATE_next = 1; return;    // test_continue.cpp:167:17;
+                continue_break_exit1_PROC_STATE_next = 1; return;    // test_continue.cpp:174:17;
                 // break end
             end else begin
                 // continue begin
-                continue_break_exit1_PROC_STATE_next = 1; return;    // test_continue.cpp:167:17;
+                continue_break_exit1_PROC_STATE_next = 1; return;    // test_continue.cpp:174:17;
                 // continue end
             end
         end
@@ -441,7 +441,7 @@ always_ff @(posedge clk or negedge arst)
 begin : continue_break_exit1_ff
     if ( ~arst ) begin
         k <= 0;
-        continue_break_exit1_PROC_STATE <= 0;    // test_continue.cpp:162:9;
+        continue_break_exit1_PROC_STATE <= 0;    // test_continue.cpp:169:9;
     end
     else begin
         k <= k_next;
@@ -450,7 +450,7 @@ begin : continue_break_exit1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_break_exit2 (test_continue.cpp:182:5) 
+// Clocked THREAD: continue_break_exit2 (test_continue.cpp:189:5) 
 
 // Thread-local variables
 logic signed [31:0] k0;
@@ -459,7 +459,7 @@ logic [1:0] continue_break_exit2_PROC_STATE;
 logic [1:0] continue_break_exit2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_break_exit2_comb     // test_continue.cpp:182:5
+always_comb begin : continue_break_exit2_comb     // test_continue.cpp:189:5
     continue_break_exit2_func;
 end
 function void continue_break_exit2_func;
@@ -471,10 +471,10 @@ function void continue_break_exit2_func;
             k_next0 = 0;
             if (|a)
             begin
-                continue_break_exit2_PROC_STATE_next = 1; return;    // test_continue.cpp:194:17;
+                continue_break_exit2_PROC_STATE_next = 1; return;    // test_continue.cpp:201:17;
             end else begin
                 // break begin
-                continue_break_exit2_PROC_STATE_next = 2; return;    // test_continue.cpp:200:13;
+                continue_break_exit2_PROC_STATE_next = 2; return;    // test_continue.cpp:207:13;
                 // break end
             end
         end
@@ -485,20 +485,20 @@ function void continue_break_exit2_func;
                 // continue begin
                 if (|a)
                 begin
-                    continue_break_exit2_PROC_STATE_next = 1; return;    // test_continue.cpp:194:17;
+                    continue_break_exit2_PROC_STATE_next = 1; return;    // test_continue.cpp:201:17;
                 end else begin
                     // break begin
-                    continue_break_exit2_PROC_STATE_next = 2; return;    // test_continue.cpp:200:13;
+                    continue_break_exit2_PROC_STATE_next = 2; return;    // test_continue.cpp:207:13;
                     // break end
                 end
                 // continue end
             end
             if (|a)
             begin
-                continue_break_exit2_PROC_STATE_next = 1; return;    // test_continue.cpp:194:17;
+                continue_break_exit2_PROC_STATE_next = 1; return;    // test_continue.cpp:201:17;
             end else begin
                 // break begin
-                continue_break_exit2_PROC_STATE_next = 2; return;    // test_continue.cpp:200:13;
+                continue_break_exit2_PROC_STATE_next = 2; return;    // test_continue.cpp:207:13;
                 // break end
             end
         end
@@ -507,10 +507,10 @@ function void continue_break_exit2_func;
             k_next0 = 0;
             if (|a)
             begin
-                continue_break_exit2_PROC_STATE_next = 1; return;    // test_continue.cpp:194:17;
+                continue_break_exit2_PROC_STATE_next = 1; return;    // test_continue.cpp:201:17;
             end else begin
                 // break begin
-                continue_break_exit2_PROC_STATE_next = 2; return;    // test_continue.cpp:200:13;
+                continue_break_exit2_PROC_STATE_next = 2; return;    // test_continue.cpp:207:13;
                 // break end
             end
         end
@@ -522,7 +522,7 @@ always_ff @(posedge clk or negedge arst)
 begin : continue_break_exit2_ff
     if ( ~arst ) begin
         k0 <= 0;
-        continue_break_exit2_PROC_STATE <= 0;    // test_continue.cpp:184:9;
+        continue_break_exit2_PROC_STATE <= 0;    // test_continue.cpp:191:9;
     end
     else begin
         k0 <= k_next0;
@@ -531,7 +531,7 @@ begin : continue_break_exit2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_in_while_wait1 (test_continue.cpp:207:5) 
+// Clocked THREAD: continue_in_while_wait1 (test_continue.cpp:214:5) 
 
 // Thread-local variables
 logic signed [31:0] i3;
@@ -540,7 +540,7 @@ logic [1:0] continue_in_while_wait1_PROC_STATE;
 logic [1:0] continue_in_while_wait1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_in_while_wait1_comb     // test_continue.cpp:207:5
+always_comb begin : continue_in_while_wait1_comb     // test_continue.cpp:214:5
     continue_in_while_wait1_func;
 end
 function void continue_in_while_wait1_func;
@@ -554,10 +554,10 @@ function void continue_in_while_wait1_func;
             if (in > 1)
             begin
                 k = 1;
-                continue_in_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:218:21;
+                continue_in_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:225:21;
             end
             i_next3++;
-            continue_in_while_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:223:17;
+            continue_in_while_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:230:17;
         end
         1: begin
             // continue begin
@@ -566,13 +566,13 @@ function void continue_in_while_wait1_func;
                 if (in > 1)
                 begin
                     k = 1;
-                    continue_in_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:218:21;
+                    continue_in_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:225:21;
                 end
                 i_next3++;
-                continue_in_while_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:223:17;
+                continue_in_while_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:230:17;
             end
             k = 3;
-            continue_in_while_wait1_PROC_STATE_next = 3; return;    // test_continue.cpp:227:13;
+            continue_in_while_wait1_PROC_STATE_next = 3; return;    // test_continue.cpp:234:13;
             // continue end
         end
         2: begin
@@ -581,23 +581,23 @@ function void continue_in_while_wait1_func;
                 if (in > 1)
                 begin
                     k = 1;
-                    continue_in_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:218:21;
+                    continue_in_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:225:21;
                 end
                 i_next3++;
-                continue_in_while_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:223:17;
+                continue_in_while_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:230:17;
             end
             k = 3;
-            continue_in_while_wait1_PROC_STATE_next = 3; return;    // test_continue.cpp:227:13;
+            continue_in_while_wait1_PROC_STATE_next = 3; return;    // test_continue.cpp:234:13;
         end
         3: begin
             i_next3 = 0;
             if (in > 1)
             begin
                 k = 1;
-                continue_in_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:218:21;
+                continue_in_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:225:21;
             end
             i_next3++;
-            continue_in_while_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:223:17;
+            continue_in_while_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:230:17;
         end
     endcase
 endfunction
@@ -608,7 +608,7 @@ begin : continue_in_while_wait1_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        continue_in_while_wait1_PROC_STATE <= 0;    // test_continue.cpp:210:9;
+        continue_in_while_wait1_PROC_STATE <= 0;    // test_continue.cpp:217:9;
     end
     else begin
         i3 <= i_next3;
@@ -617,7 +617,7 @@ begin : continue_in_while_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_in_while_wait2 (test_continue.cpp:232:5) 
+// Clocked THREAD: continue_in_while_wait2 (test_continue.cpp:239:5) 
 
 // Thread-local variables
 logic signed [31:0] i4;
@@ -626,7 +626,7 @@ logic continue_in_while_wait2_PROC_STATE;
 logic continue_in_while_wait2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_in_while_wait2_comb     // test_continue.cpp:232:5
+always_comb begin : continue_in_while_wait2_comb     // test_continue.cpp:239:5
     continue_in_while_wait2_func;
 end
 function void continue_in_while_wait2_func;
@@ -648,7 +648,7 @@ function void continue_in_while_wait2_func;
                     continue;
                 end
             end
-            continue_in_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:247:17;
+            continue_in_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:254:17;
         end
         1: begin
             if (|a)
@@ -669,7 +669,7 @@ function void continue_in_while_wait2_func;
                                 continue;
                             end
                         end
-                        continue_in_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:247:17;
+                        continue_in_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:254:17;
                     end
                     k = 3;
                     i_next4 = 0;
@@ -683,7 +683,7 @@ function void continue_in_while_wait2_func;
                             continue;
                         end
                     end
-                    continue_in_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:247:17;
+                    continue_in_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:254:17;
                     // continue end
                 end
             end
@@ -700,7 +700,7 @@ function void continue_in_while_wait2_func;
                         continue;
                     end
                 end
-                continue_in_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:247:17;
+                continue_in_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:254:17;
             end
             k = 3;
             i_next4 = 0;
@@ -714,7 +714,7 @@ function void continue_in_while_wait2_func;
                     continue;
                 end
             end
-            continue_in_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:247:17;
+            continue_in_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:254:17;
         end
     endcase
 endfunction
@@ -725,7 +725,7 @@ begin : continue_in_while_wait2_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        continue_in_while_wait2_PROC_STATE <= 0;    // test_continue.cpp:235:9;
+        continue_in_while_wait2_PROC_STATE <= 0;    // test_continue.cpp:242:9;
     end
     else begin
         i4 <= i_next4;
@@ -734,14 +734,14 @@ begin : continue_in_while_wait2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_in_while_wait3 (test_continue.cpp:260:5) 
+// Clocked THREAD: continue_in_while_wait3 (test_continue.cpp:267:5) 
 
 // Thread-local variables
 logic [1:0] continue_in_while_wait3_PROC_STATE;
 logic [1:0] continue_in_while_wait3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_in_while_wait3_comb     // test_continue.cpp:260:5
+always_comb begin : continue_in_while_wait3_comb     // test_continue.cpp:267:5
     continue_in_while_wait3_func;
 end
 function void continue_in_while_wait3_func;
@@ -753,10 +753,10 @@ function void continue_in_while_wait3_func;
             if (|a)
             begin
                 k = 1;
-                continue_in_while_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:269:17;
+                continue_in_while_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:276:17;
             end
             k = 4;
-            continue_in_while_wait3_PROC_STATE_next = 2; return;    // test_continue.cpp:279:13;
+            continue_in_while_wait3_PROC_STATE_next = 2; return;    // test_continue.cpp:286:13;
         end
         1: begin
             if (|a && |b)
@@ -766,29 +766,29 @@ function void continue_in_while_wait3_func;
                 if (|a)
                 begin
                     k = 1;
-                    continue_in_while_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:269:17;
+                    continue_in_while_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:276:17;
                 end
                 k = 4;
-                continue_in_while_wait3_PROC_STATE_next = 2; return;    // test_continue.cpp:279:13;
+                continue_in_while_wait3_PROC_STATE_next = 2; return;    // test_continue.cpp:286:13;
                 // continue end
             end
             k = 3;
             if (|a)
             begin
                 k = 1;
-                continue_in_while_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:269:17;
+                continue_in_while_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:276:17;
             end
             k = 4;
-            continue_in_while_wait3_PROC_STATE_next = 2; return;    // test_continue.cpp:279:13;
+            continue_in_while_wait3_PROC_STATE_next = 2; return;    // test_continue.cpp:286:13;
         end
         2: begin
             if (|a)
             begin
                 k = 1;
-                continue_in_while_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:269:17;
+                continue_in_while_wait3_PROC_STATE_next = 1; return;    // test_continue.cpp:276:17;
             end
             k = 4;
-            continue_in_while_wait3_PROC_STATE_next = 2; return;    // test_continue.cpp:279:13;
+            continue_in_while_wait3_PROC_STATE_next = 2; return;    // test_continue.cpp:286:13;
         end
     endcase
 endfunction
@@ -799,7 +799,7 @@ begin : continue_in_while_wait3_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        continue_in_while_wait3_PROC_STATE <= 0;    // test_continue.cpp:263:9;
+        continue_in_while_wait3_PROC_STATE <= 0;    // test_continue.cpp:270:9;
     end
     else begin
         continue_in_while_wait3_PROC_STATE <= continue_in_while_wait3_PROC_STATE_next;
@@ -807,7 +807,7 @@ begin : continue_in_while_wait3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_in_while_for1 (test_continue.cpp:284:5) 
+// Clocked THREAD: continue_in_while_for1 (test_continue.cpp:291:5) 
 
 // Thread-local variables
 logic signed [31:0] i5;
@@ -816,7 +816,7 @@ logic [1:0] continue_in_while_for1_PROC_STATE;
 logic [1:0] continue_in_while_for1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_in_while_for1_comb     // test_continue.cpp:284:5
+always_comb begin : continue_in_while_for1_comb     // test_continue.cpp:291:5
     continue_in_while_for1_func;
 end
 function void continue_in_while_for1_func;
@@ -832,12 +832,12 @@ function void continue_in_while_for1_func;
                 begin
                     k = 1;
                     i_next5 = 0;
-                    continue_in_while_for1_PROC_STATE_next = 1; return;    // test_continue.cpp:295:25;
+                    continue_in_while_for1_PROC_STATE_next = 1; return;    // test_continue.cpp:302:25;
                 end
-                continue_in_while_for1_PROC_STATE_next = 2; return;    // test_continue.cpp:300:17;
+                continue_in_while_for1_PROC_STATE_next = 2; return;    // test_continue.cpp:307:17;
             end
             k = 4;
-            continue_in_while_for1_PROC_STATE_next = 3; return;    // test_continue.cpp:305:13;
+            continue_in_while_for1_PROC_STATE_next = 3; return;    // test_continue.cpp:312:13;
         end
         1: begin
             if (|a)
@@ -846,19 +846,19 @@ function void continue_in_while_for1_func;
                 i_next5++;
                 if (i_next5 < 3)
                 begin
-                    continue_in_while_for1_PROC_STATE_next = 1; return;    // test_continue.cpp:295:25;
+                    continue_in_while_for1_PROC_STATE_next = 1; return;    // test_continue.cpp:302:25;
                 end
                 k = 2;
-                continue_in_while_for1_PROC_STATE_next = 2; return;    // test_continue.cpp:300:17;
+                continue_in_while_for1_PROC_STATE_next = 2; return;    // test_continue.cpp:307:17;
                 // continue end
             end
             i_next5++;
             if (i_next5 < 3)
             begin
-                continue_in_while_for1_PROC_STATE_next = 1; return;    // test_continue.cpp:295:25;
+                continue_in_while_for1_PROC_STATE_next = 1; return;    // test_continue.cpp:302:25;
             end else begin
                 k = 2;
-                continue_in_while_for1_PROC_STATE_next = 2; return;    // test_continue.cpp:300:17;
+                continue_in_while_for1_PROC_STATE_next = 2; return;    // test_continue.cpp:307:17;
             end
         end
         2: begin
@@ -869,12 +869,12 @@ function void continue_in_while_for1_func;
                 begin
                     k = 1;
                     i_next5 = 0;
-                    continue_in_while_for1_PROC_STATE_next = 1; return;    // test_continue.cpp:295:25;
+                    continue_in_while_for1_PROC_STATE_next = 1; return;    // test_continue.cpp:302:25;
                 end
-                continue_in_while_for1_PROC_STATE_next = 2; return;    // test_continue.cpp:300:17;
+                continue_in_while_for1_PROC_STATE_next = 2; return;    // test_continue.cpp:307:17;
             end
             k = 4;
-            continue_in_while_for1_PROC_STATE_next = 3; return;    // test_continue.cpp:305:13;
+            continue_in_while_for1_PROC_STATE_next = 3; return;    // test_continue.cpp:312:13;
         end
         3: begin
             if (|a || |b)
@@ -883,12 +883,12 @@ function void continue_in_while_for1_func;
                 begin
                     k = 1;
                     i_next5 = 0;
-                    continue_in_while_for1_PROC_STATE_next = 1; return;    // test_continue.cpp:295:25;
+                    continue_in_while_for1_PROC_STATE_next = 1; return;    // test_continue.cpp:302:25;
                 end
-                continue_in_while_for1_PROC_STATE_next = 2; return;    // test_continue.cpp:300:17;
+                continue_in_while_for1_PROC_STATE_next = 2; return;    // test_continue.cpp:307:17;
             end
             k = 4;
-            continue_in_while_for1_PROC_STATE_next = 3; return;    // test_continue.cpp:305:13;
+            continue_in_while_for1_PROC_STATE_next = 3; return;    // test_continue.cpp:312:13;
         end
     endcase
 endfunction
@@ -899,7 +899,7 @@ begin : continue_in_while_for1_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        continue_in_while_for1_PROC_STATE <= 0;    // test_continue.cpp:287:9;
+        continue_in_while_for1_PROC_STATE <= 0;    // test_continue.cpp:294:9;
     end
     else begin
         i5 <= i_next5;
@@ -908,7 +908,7 @@ begin : continue_in_while_for1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_in_while_for2 (test_continue.cpp:311:5) 
+// Clocked THREAD: continue_in_while_for2 (test_continue.cpp:318:5) 
 
 // Thread-local variables
 logic signed [31:0] i6;
@@ -917,7 +917,7 @@ logic [1:0] continue_in_while_for2_PROC_STATE;
 logic [1:0] continue_in_while_for2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_in_while_for2_comb     // test_continue.cpp:311:5
+always_comb begin : continue_in_while_for2_comb     // test_continue.cpp:318:5
     continue_in_while_for2_func;
 end
 function void continue_in_while_for2_func;
@@ -934,13 +934,13 @@ function void continue_in_while_for2_func;
                 if (|a)
                 begin
                     // break begin
-                    continue_in_while_for2_PROC_STATE_next = 2; return;    // test_continue.cpp:324:17;
+                    continue_in_while_for2_PROC_STATE_next = 2; return;    // test_continue.cpp:331:17;
                     // break end
                 end
-                continue_in_while_for2_PROC_STATE_next = 1; return;    // test_continue.cpp:322:21;
+                continue_in_while_for2_PROC_STATE_next = 1; return;    // test_continue.cpp:329:21;
             end
             k = 4;
-            continue_in_while_for2_PROC_STATE_next = 3; return;    // test_continue.cpp:331:13;
+            continue_in_while_for2_PROC_STATE_next = 3; return;    // test_continue.cpp:338:13;
         end
         1: begin
             i_next6++;
@@ -949,12 +949,12 @@ function void continue_in_while_for2_func;
                 if (|a)
                 begin
                     // break begin
-                    continue_in_while_for2_PROC_STATE_next = 2; return;    // test_continue.cpp:324:17;
+                    continue_in_while_for2_PROC_STATE_next = 2; return;    // test_continue.cpp:331:17;
                     // break end
                 end
-                continue_in_while_for2_PROC_STATE_next = 1; return;    // test_continue.cpp:322:21;
+                continue_in_while_for2_PROC_STATE_next = 1; return;    // test_continue.cpp:329:21;
             end
-            continue_in_while_for2_PROC_STATE_next = 2; return;    // test_continue.cpp:324:17;
+            continue_in_while_for2_PROC_STATE_next = 2; return;    // test_continue.cpp:331:17;
         end
         2: begin
             if (|a)
@@ -967,13 +967,13 @@ function void continue_in_while_for2_func;
                     if (|a)
                     begin
                         // break begin
-                        continue_in_while_for2_PROC_STATE_next = 2; return;    // test_continue.cpp:324:17;
+                        continue_in_while_for2_PROC_STATE_next = 2; return;    // test_continue.cpp:331:17;
                         // break end
                     end
-                    continue_in_while_for2_PROC_STATE_next = 1; return;    // test_continue.cpp:322:21;
+                    continue_in_while_for2_PROC_STATE_next = 1; return;    // test_continue.cpp:329:21;
                 end
                 k = 4;
-                continue_in_while_for2_PROC_STATE_next = 3; return;    // test_continue.cpp:331:13;
+                continue_in_while_for2_PROC_STATE_next = 3; return;    // test_continue.cpp:338:13;
                 // continue end
             end
             k = 3;
@@ -984,13 +984,13 @@ function void continue_in_while_for2_func;
                 if (|a)
                 begin
                     // break begin
-                    continue_in_while_for2_PROC_STATE_next = 2; return;    // test_continue.cpp:324:17;
+                    continue_in_while_for2_PROC_STATE_next = 2; return;    // test_continue.cpp:331:17;
                     // break end
                 end
-                continue_in_while_for2_PROC_STATE_next = 1; return;    // test_continue.cpp:322:21;
+                continue_in_while_for2_PROC_STATE_next = 1; return;    // test_continue.cpp:329:21;
             end
             k = 4;
-            continue_in_while_for2_PROC_STATE_next = 3; return;    // test_continue.cpp:331:13;
+            continue_in_while_for2_PROC_STATE_next = 3; return;    // test_continue.cpp:338:13;
         end
         3: begin
             if (|a || |b)
@@ -1000,13 +1000,13 @@ function void continue_in_while_for2_func;
                 if (|a)
                 begin
                     // break begin
-                    continue_in_while_for2_PROC_STATE_next = 2; return;    // test_continue.cpp:324:17;
+                    continue_in_while_for2_PROC_STATE_next = 2; return;    // test_continue.cpp:331:17;
                     // break end
                 end
-                continue_in_while_for2_PROC_STATE_next = 1; return;    // test_continue.cpp:322:21;
+                continue_in_while_for2_PROC_STATE_next = 1; return;    // test_continue.cpp:329:21;
             end
             k = 4;
-            continue_in_while_for2_PROC_STATE_next = 3; return;    // test_continue.cpp:331:13;
+            continue_in_while_for2_PROC_STATE_next = 3; return;    // test_continue.cpp:338:13;
         end
     endcase
 endfunction
@@ -1017,7 +1017,7 @@ begin : continue_in_while_for2_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        continue_in_while_for2_PROC_STATE <= 0;    // test_continue.cpp:314:9;
+        continue_in_while_for2_PROC_STATE <= 0;    // test_continue.cpp:321:9;
     end
     else begin
         i6 <= i_next6;
@@ -1026,7 +1026,7 @@ begin : continue_in_while_for2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_in_do_while_wait1 (test_continue.cpp:338:5) 
+// Clocked THREAD: continue_in_do_while_wait1 (test_continue.cpp:345:5) 
 
 // Thread-local variables
 logic signed [31:0] i7;
@@ -1035,7 +1035,7 @@ logic [1:0] continue_in_do_while_wait1_PROC_STATE;
 logic [1:0] continue_in_do_while_wait1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_in_do_while_wait1_comb     // test_continue.cpp:338:5
+always_comb begin : continue_in_do_while_wait1_comb     // test_continue.cpp:345:5
     continue_in_do_while_wait1_func;
 end
 function void continue_in_do_while_wait1_func;
@@ -1047,7 +1047,7 @@ function void continue_in_do_while_wait1_func;
         0: begin
             i_next7 = 0;
             i_next7++;
-            continue_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:348:17;
+            continue_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:355:17;
         end
         1: begin
             if (|a)
@@ -1056,25 +1056,25 @@ function void continue_in_do_while_wait1_func;
                 if (i_next7 < 3)
                 begin
                     i_next7++;
-                    continue_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:348:17;
+                    continue_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:355:17;
                 end
                 k = 1;
-                continue_in_do_while_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:356:13;
+                continue_in_do_while_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:363:13;
                 // continue end
             end
             k = 2;
             if (i_next7 < 3)
             begin
                 i_next7++;
-                continue_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:348:17;
+                continue_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:355:17;
             end
             k = 1;
-            continue_in_do_while_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:356:13;
+            continue_in_do_while_wait1_PROC_STATE_next = 2; return;    // test_continue.cpp:363:13;
         end
         2: begin
             i_next7 = 0;
             i_next7++;
-            continue_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:348:17;
+            continue_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_continue.cpp:355:17;
         end
     endcase
 endfunction
@@ -1085,7 +1085,7 @@ begin : continue_in_do_while_wait1_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        continue_in_do_while_wait1_PROC_STATE <= 0;    // test_continue.cpp:341:9;
+        continue_in_do_while_wait1_PROC_STATE <= 0;    // test_continue.cpp:348:9;
     end
     else begin
         i7 <= i_next7;
@@ -1094,7 +1094,7 @@ begin : continue_in_do_while_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: continue_in_do_while_wait2 (test_continue.cpp:361:5) 
+// Clocked THREAD: continue_in_do_while_wait2 (test_continue.cpp:368:5) 
 
 // Thread-local variables
 logic signed [31:0] i8;
@@ -1103,7 +1103,7 @@ logic [1:0] continue_in_do_while_wait2_PROC_STATE;
 logic [1:0] continue_in_do_while_wait2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : continue_in_do_while_wait2_comb     // test_continue.cpp:361:5
+always_comb begin : continue_in_do_while_wait2_comb     // test_continue.cpp:368:5
     continue_in_do_while_wait2_func;
 end
 function void continue_in_do_while_wait2_func;
@@ -1117,10 +1117,10 @@ function void continue_in_do_while_wait2_func;
             i_next8++;
             if (|b)
             begin
-                continue_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:372:21;
+                continue_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:379:21;
             end else begin
                 k = 2;
-                continue_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:376:17;
+                continue_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:383:17;
             end
         end
         1: begin
@@ -1130,14 +1130,14 @@ function void continue_in_do_while_wait2_func;
                 i_next8++;
                 if (|b)
                 begin
-                    continue_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:372:21;
+                    continue_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:379:21;
                 end else begin
                     k = 2;
-                    continue_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:376:17;
+                    continue_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:383:17;
                 end
             end
             k = 1;
-            continue_in_do_while_wait2_PROC_STATE_next = 3; return;    // test_continue.cpp:382:13;
+            continue_in_do_while_wait2_PROC_STATE_next = 3; return;    // test_continue.cpp:389:13;
             // continue end
         end
         2: begin
@@ -1146,24 +1146,24 @@ function void continue_in_do_while_wait2_func;
                 i_next8++;
                 if (|b)
                 begin
-                    continue_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:372:21;
+                    continue_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:379:21;
                 end else begin
                     k = 2;
-                    continue_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:376:17;
+                    continue_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:383:17;
                 end
             end
             k = 1;
-            continue_in_do_while_wait2_PROC_STATE_next = 3; return;    // test_continue.cpp:382:13;
+            continue_in_do_while_wait2_PROC_STATE_next = 3; return;    // test_continue.cpp:389:13;
         end
         3: begin
             i_next8 = 0;
             i_next8++;
             if (|b)
             begin
-                continue_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:372:21;
+                continue_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_continue.cpp:379:21;
             end else begin
                 k = 2;
-                continue_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:376:17;
+                continue_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_continue.cpp:383:17;
             end
         end
     endcase
@@ -1175,7 +1175,7 @@ begin : continue_in_do_while_wait2_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        continue_in_do_while_wait2_PROC_STATE <= 0;    // test_continue.cpp:364:9;
+        continue_in_do_while_wait2_PROC_STATE <= 0;    // test_continue.cpp:371:9;
     end
     else begin
         i8 <= i_next8;

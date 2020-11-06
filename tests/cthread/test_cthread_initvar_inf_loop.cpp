@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <systemc.h>
 // JIRA-112: Test for variable read-only after initialization in reset/previous wait()
 // 1) In CTHREAD initialize variable in reset and read in inf loop body.
@@ -54,3 +61,4 @@ int sc_main(int argc, char *argv[])
     sc_start(100, SC_NS);
     return 0;
 }
+

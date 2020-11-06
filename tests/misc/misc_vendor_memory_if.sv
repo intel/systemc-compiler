@@ -19,14 +19,14 @@ module module_with_memory // "mod"
 logic mem_req;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test (test_vendor_memory_if.cpp:53:5) 
+// Clocked THREAD: test (test_vendor_memory_if.cpp:60:5) 
 
 // Thread-local variables
 logic [1:0] test_PROC_STATE;
 logic [1:0] test_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_comb     // test_vendor_memory_if.cpp:53:5
+always_comb begin : test_comb     // test_vendor_memory_if.cpp:60:5
     test_func;
 end
 function void test_func;
@@ -38,19 +38,19 @@ function void test_func;
             // Call read_req() begin
             mem_req = 1;
             // Call read_req() end
-            test_PROC_STATE_next = 1; return;    // test_vendor_memory_if.cpp:59:13;
+            test_PROC_STATE_next = 1; return;    // test_vendor_memory_if.cpp:66:13;
         end
         1: begin
             // Call clear_req() begin
             mem_req = 0;
             // Call clear_req() end
-            test_PROC_STATE_next = 2; return;    // test_vendor_memory_if.cpp:61:13;
+            test_PROC_STATE_next = 2; return;    // test_vendor_memory_if.cpp:68:13;
         end
         2: begin
             // Call read_req() begin
             mem_req = 1;
             // Call read_req() end
-            test_PROC_STATE_next = 1; return;    // test_vendor_memory_if.cpp:59:13;
+            test_PROC_STATE_next = 1; return;    // test_vendor_memory_if.cpp:66:13;
         end
     endcase
 endfunction
@@ -59,7 +59,7 @@ endfunction
 always_ff @(posedge clk or negedge rst) 
 begin : test_ff
     if ( ~rst ) begin
-        test_PROC_STATE <= 0;    // test_vendor_memory_if.cpp:55:9;
+        test_PROC_STATE <= 0;    // test_vendor_memory_if.cpp:62:9;
     end
     else begin
         test_PROC_STATE <= test_PROC_STATE_next;

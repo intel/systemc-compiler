@@ -36,7 +36,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cthread_read_defined_0.cpp:339:5)
+// Module: A (test_cthread_read_defined_0.cpp:346:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -59,23 +59,23 @@ logic ms_bsig;
 logic signed [31:0] sig;
 
 //------------------------------------------------------------------------------
-// Method process: array_of_pointers (test_cthread_read_defined_0.cpp:118:5) 
+// Method process: array_of_pointers (test_cthread_read_defined_0.cpp:125:5) 
 
 // Process-local variables
 logic signed [31:0] pa[3];
 
 always_comb 
-begin : array_of_pointers     // test_cthread_read_defined_0.cpp:118:5
+begin : array_of_pointers     // test_cthread_read_defined_0.cpp:125:5
     integer i;
     pa[0] = 1;
     i = pa[1];
 end
 
 //------------------------------------------------------------------------------
-// Method process: array_of_channels (test_cthread_read_defined_0.cpp:126:5) 
+// Method process: array_of_channels (test_cthread_read_defined_0.cpp:133:5) 
 
 always_comb 
-begin : array_of_channels     // test_cthread_read_defined_0.cpp:126:5
+begin : array_of_channels     // test_cthread_read_defined_0.cpp:133:5
     integer i;
     integer j;
     integer k_1;
@@ -85,7 +85,7 @@ begin : array_of_channels     // test_cthread_read_defined_0.cpp:126:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if1 (test_cthread_read_defined_0.cpp:154:5) 
+// Method process: if1 (test_cthread_read_defined_0.cpp:161:5) 
 
 // Process-local variables
 logic signed [31:0] n4;
@@ -93,7 +93,7 @@ logic signed [31:0] m4;
 logic signed [31:0] k4;
 
 always_comb 
-begin : if1     // test_cthread_read_defined_0.cpp:154:5
+begin : if1     // test_cthread_read_defined_0.cpp:161:5
     if (a)
     begin
         n4 = m4 + k4;
@@ -105,10 +105,10 @@ begin : if1     // test_cthread_read_defined_0.cpp:154:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: latch1 (test_cthread_read_defined_0.cpp:172:5) 
+// Method process: latch1 (test_cthread_read_defined_0.cpp:179:5) 
 
 always_latch 
-begin : latch1     // test_cthread_read_defined_0.cpp:172:5
+begin : latch1     // test_cthread_read_defined_0.cpp:179:5
     if (a)
     begin
         c = 1;
@@ -121,7 +121,7 @@ begin : latch1     // test_cthread_read_defined_0.cpp:172:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multistate (test_cthread_read_defined_0.cpp:195:5) 
+// Clocked THREAD: multistate (test_cthread_read_defined_0.cpp:202:5) 
 
 // Thread-local variables
 logic [3:0] multistate_WAIT_N_COUNTER;
@@ -138,7 +138,7 @@ logic [1:0] multistate_PROC_STATE;
 logic [1:0] multistate_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : multistate_comb     // test_cthread_read_defined_0.cpp:195:5
+always_comb begin : multistate_comb     // test_cthread_read_defined_0.cpp:202:5
     multistate_func;
 end
 function void multistate_func;
@@ -164,16 +164,16 @@ function void multistate_func;
                 ms_loc_comb = 2;
             end
             ms_sig_next = ms_loc_comb + ms_loc_reg_next + global_comb;
-            multistate_PROC_STATE_next = 1; return;    // test_cthread_read_defined_0.cpp:220:13;
+            multistate_PROC_STATE_next = 1; return;    // test_cthread_read_defined_0.cpp:227:13;
         end
         1: begin
             multistate_WAIT_N_COUNTER_next = 10;
-            multistate_PROC_STATE_next = 2; return;    // test_cthread_read_defined_0.cpp:221:13;
+            multistate_PROC_STATE_next = 2; return;    // test_cthread_read_defined_0.cpp:228:13;
         end
         2: begin
             if (multistate_WAIT_N_COUNTER != 1) begin
                 multistate_WAIT_N_COUNTER_next = multistate_WAIT_N_COUNTER - 1;
-                multistate_PROC_STATE_next = 2; return;    // test_cthread_read_defined_0.cpp:221:13;
+                multistate_PROC_STATE_next = 2; return;    // test_cthread_read_defined_0.cpp:228:13;
             end;
             global_register_next = global_register_next + 1;
             global_comb = 1;
@@ -186,7 +186,7 @@ function void multistate_func;
                 ms_loc_comb = 2;
             end
             ms_sig_next = ms_loc_comb + ms_loc_reg_next + global_comb;
-            multistate_PROC_STATE_next = 1; return;    // test_cthread_read_defined_0.cpp:220:13;
+            multistate_PROC_STATE_next = 1; return;    // test_cthread_read_defined_0.cpp:227:13;
         end
     endcase
 endfunction
@@ -201,7 +201,7 @@ begin : multistate_ff
         ms_sig <= 0;
         ms_loc_reg <= 1;
         ms_array[1] <= 10;
-        multistate_PROC_STATE <= 0;    // test_cthread_read_defined_0.cpp:203:9;
+        multistate_PROC_STATE <= 0;    // test_cthread_read_defined_0.cpp:210:9;
         multistate_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -215,14 +215,14 @@ begin : multistate_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: func_call (test_cthread_read_defined_0.cpp:247:5) 
+// Clocked THREAD: func_call (test_cthread_read_defined_0.cpp:254:5) 
 
 // Thread-local variables
 logic func_call_PROC_STATE;
 logic func_call_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : func_call_comb     // test_cthread_read_defined_0.cpp:247:5
+always_comb begin : func_call_comb     // test_cthread_read_defined_0.cpp:254:5
     func_call_func;
 end
 function void func_call_func;
@@ -242,7 +242,7 @@ function void func_call_func;
             // Call func_int_defined() begin
             dd = 0;
             // Call func_int_defined() end
-            func_call_PROC_STATE_next = 0; return;    // test_cthread_read_defined_0.cpp:264:9;
+            func_call_PROC_STATE_next = 0; return;    // test_cthread_read_defined_0.cpp:271:9;
         end
         0: begin
         end
@@ -258,14 +258,14 @@ begin : func_call_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: func_call_sc_type (test_cthread_read_defined_0.cpp:267:5) 
+// Clocked THREAD: func_call_sc_type (test_cthread_read_defined_0.cpp:274:5) 
 
 // Thread-local variables
 logic func_call_sc_type_PROC_STATE;
 logic func_call_sc_type_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : func_call_sc_type_comb     // test_cthread_read_defined_0.cpp:267:5
+always_comb begin : func_call_sc_type_comb     // test_cthread_read_defined_0.cpp:274:5
     func_call_sc_type_func;
 end
 function void func_call_sc_type_func;
@@ -285,7 +285,7 @@ function void func_call_sc_type_func;
             // Call func_sc_read() begin
             b_1 = ee == 0;
             // Call func_sc_read() end
-            func_call_sc_type_PROC_STATE_next = 0; return;    // test_cthread_read_defined_0.cpp:280:9;
+            func_call_sc_type_PROC_STATE_next = 0; return;    // test_cthread_read_defined_0.cpp:287:9;
         end
         0: begin
         end
@@ -301,14 +301,14 @@ begin : func_call_sc_type_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: func_call_arr (test_cthread_read_defined_0.cpp:290:5) 
+// Clocked THREAD: func_call_arr (test_cthread_read_defined_0.cpp:297:5) 
 
 // Thread-local variables
 logic func_call_arr_PROC_STATE;
 logic func_call_arr_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : func_call_arr_comb     // test_cthread_read_defined_0.cpp:290:5
+always_comb begin : func_call_arr_comb     // test_cthread_read_defined_0.cpp:297:5
     func_call_arr_func;
 end
 function void func_call_arr_func;
@@ -316,7 +316,7 @@ function void func_call_arr_func;
     
     case (func_call_arr_PROC_STATE)
         default : begin
-            func_call_arr_PROC_STATE_next = 0; return;    // test_cthread_read_defined_0.cpp:301:9;
+            func_call_arr_PROC_STATE_next = 0; return;    // test_cthread_read_defined_0.cpp:308:9;
         end
         0: begin
         end
@@ -332,7 +332,7 @@ begin : func_call_arr_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: func_call_arr2 (test_cthread_read_defined_0.cpp:315:5) 
+// Clocked THREAD: func_call_arr2 (test_cthread_read_defined_0.cpp:322:5) 
 
 // Thread-local variables
 logic signed [31:0] bb[3];
@@ -343,7 +343,7 @@ logic func_call_arr2_PROC_STATE;
 logic func_call_arr2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : func_call_arr2_comb     // test_cthread_read_defined_0.cpp:315:5
+always_comb begin : func_call_arr2_comb     // test_cthread_read_defined_0.cpp:322:5
     func_call_arr2_func;
 end
 function void func_call_arr2_func;
@@ -366,7 +366,7 @@ function void func_call_arr2_func;
             // Call func_arr3a() begin
             ii_2 = cc_next[sig][1];
             // Call func_arr3a() end
-            func_call_arr2_PROC_STATE_next = 0; return;    // test_cthread_read_defined_0.cpp:326:9;
+            func_call_arr2_PROC_STATE_next = 0; return;    // test_cthread_read_defined_0.cpp:333:9;
         end
         0: begin
         end
@@ -384,10 +384,10 @@ begin : func_call_arr2_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_value (test_cthread_read_defined_0.cpp:143:5) 
+// Method process: return_value (test_cthread_read_defined_0.cpp:150:5) 
 
 always_comb 
-begin : return_value     // test_cthread_read_defined_0.cpp:143:5
+begin : return_value     // test_cthread_read_defined_0.cpp:150:5
     integer TMP_0;
     integer i;
     integer j;

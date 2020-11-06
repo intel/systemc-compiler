@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 
 using namespace sc_core;
@@ -50,7 +57,7 @@ public:
         }
     }
     
-    // Loop with wait(), BUG in SMEM KVG -- fixed
+    // Loop with wait(), BUG in real design -- fixed
     void for_in_if2() 
     {
         int k = 0;
@@ -117,3 +124,4 @@ int sc_main(int argc, char *argv[]) {
     sc_start();
     return 0;
 }
+

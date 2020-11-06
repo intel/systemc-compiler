@@ -18,10 +18,10 @@ module A // "a_mod"
 logic [7:0] s;
 
 //------------------------------------------------------------------------------
-// Method process: reference (test_var_ref_arr_unkwn.cpp:24:5) 
+// Method process: reference (test_var_ref_arr_unkwn.cpp:31:5) 
 
 always_comb 
-begin : reference     // test_var_ref_arr_unkwn.cpp:24:5
+begin : reference     // test_var_ref_arr_unkwn.cpp:31:5
     integer unsigned larr[5];
     integer i;
     i = s;
@@ -30,13 +30,13 @@ begin : reference     // test_var_ref_arr_unkwn.cpp:24:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: reference2 (test_var_ref_arr_unkwn.cpp:34:5) 
+// Method process: reference2 (test_var_ref_arr_unkwn.cpp:41:5) 
 
 // Process-local variables
 logic [31:0] arr[3][4];
 
 always_comb 
-begin : reference2     // test_var_ref_arr_unkwn.cpp:34:5
+begin : reference2     // test_var_ref_arr_unkwn.cpp:41:5
     integer i;
     i = s;
     i++;

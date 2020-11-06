@@ -330,7 +330,8 @@ void DesignDbGenerator::addChildrenRecursive(TypedObject hostTO, Object* hostEO)
 
         bool isConstArray = hostTO.getType().isConstQualified() ||
                             hostEO->is_constant();
-        bool intArray = isAnyInteger(arrayObj->getInnerElementType());
+        bool intArray = arrayObj->size() != 0 && 
+                        isAnyInteger(arrayObj->getInnerElementType());
 
         // For efficiency, array elements for non-const integer arrays are not created
         // TODO: support small array here
@@ -351,9 +352,11 @@ void DesignDbGenerator::addChildrenRecursive(TypedObject hostTO, Object* hostEO)
 
         } else {
             // Create dummy primitive inside array to hold bitwidth
-            auto intObj = arrayObj->getFirstInnerElement().getAs<IntegerObject>();
-            hostEO->mutable_primitive()->set_kind(Primitive::VALUE);
-            fillIntValue(hostEO, *intObj);
+            if (arrayObj->size() != 0) {
+                auto intObj = arrayObj->getFirstInnerElement().getAs<IntegerObject>();
+                hostEO->mutable_primitive()->set_kind(Primitive::VALUE);
+                fillIntValue(hostEO, *intObj);
+            }
         }
     }
 

@@ -30,7 +30,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_decl_in_scope.cpp:320:5)
+// Module: A (test_array_decl_in_scope.cpp:327:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -42,10 +42,10 @@ logic nrst;
 logic signed [31:0] sig;
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_if_meth (test_array_decl_in_scope.cpp:61:5) 
+// Method process: rec_arr_if_meth (test_array_decl_in_scope.cpp:68:5) 
 
 always_comb 
-begin : rec_arr_if_meth     // test_array_decl_in_scope.cpp:61:5
+begin : rec_arr_if_meth     // test_array_decl_in_scope.cpp:68:5
     integer i;
     logic signed [1:0] s_a;
     logic [3:0] s_b;
@@ -73,10 +73,10 @@ begin : rec_arr_if_meth     // test_array_decl_in_scope.cpp:61:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_loop_meth (test_array_decl_in_scope.cpp:79:5) 
+// Method process: rec_arr_loop_meth (test_array_decl_in_scope.cpp:86:5) 
 
 always_comb 
-begin : rec_arr_loop_meth     // test_array_decl_in_scope.cpp:79:5
+begin : rec_arr_loop_meth     // test_array_decl_in_scope.cpp:86:5
     integer i;
     logic signed [1:0] s_a[3];
     logic [3:0] s_b[3];
@@ -95,10 +95,10 @@ begin : rec_arr_loop_meth     // test_array_decl_in_scope.cpp:79:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_compl_meth (test_array_decl_in_scope.cpp:95:5) 
+// Method process: rec_arr_compl_meth (test_array_decl_in_scope.cpp:102:5) 
 
 always_comb 
-begin : rec_arr_compl_meth     // test_array_decl_in_scope.cpp:95:5
+begin : rec_arr_compl_meth     // test_array_decl_in_scope.cpp:102:5
     logic signed [1:0] s_a[3];
     logic [3:0] s_b[3];
     logic signed [1:0] r_a[3];
@@ -122,7 +122,7 @@ begin : rec_arr_compl_meth     // test_array_decl_in_scope.cpp:95:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_if_thread_comb (test_array_decl_in_scope.cpp:116:5) 
+// Clocked THREAD: rec_arr_if_thread_comb (test_array_decl_in_scope.cpp:123:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -131,7 +131,7 @@ logic rec_arr_if_thread_comb_PROC_STATE;
 logic rec_arr_if_thread_comb_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_if_thread_comb_comb     // test_array_decl_in_scope.cpp:116:5
+always_comb begin : rec_arr_if_thread_comb_comb     // test_array_decl_in_scope.cpp:123:5
     rec_arr_if_thread_comb_func;
 end
 function void rec_arr_if_thread_comb_func;
@@ -162,7 +162,7 @@ function void rec_arr_if_thread_comb_func;
                     r_a[i_next] = s_a;
                 end
             end
-            rec_arr_if_thread_comb_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:131:13;
+            rec_arr_if_thread_comb_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:138:13;
         end
         1: begin
             i_next++;
@@ -180,7 +180,7 @@ function void rec_arr_if_thread_comb_func;
                     r_a[i_next] = s_a;
                 end
             end
-            rec_arr_if_thread_comb_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:131:13;
+            rec_arr_if_thread_comb_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:138:13;
         end
     endcase
 endfunction
@@ -190,7 +190,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : rec_arr_if_thread_comb_ff
     if ( ~nrst ) begin
         i <= sig;
-        rec_arr_if_thread_comb_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:119:9;
+        rec_arr_if_thread_comb_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:126:9;
     end
     else begin
         i <= i_next;
@@ -199,7 +199,7 @@ begin : rec_arr_if_thread_comb_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_if_thread_reg (test_array_decl_in_scope.cpp:138:5) 
+// Clocked THREAD: rec_if_thread_reg (test_array_decl_in_scope.cpp:145:5) 
 
 // Thread-local variables
 logic signed [31:0] i0;
@@ -208,7 +208,7 @@ logic [1:0] rec_if_thread_reg_PROC_STATE;
 logic [1:0] rec_if_thread_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_if_thread_reg_comb     // test_array_decl_in_scope.cpp:138:5
+always_comb begin : rec_if_thread_reg_comb     // test_array_decl_in_scope.cpp:145:5
     rec_if_thread_reg_func;
 end
 function void rec_if_thread_reg_func;
@@ -223,22 +223,22 @@ function void rec_if_thread_reg_func;
             begin
                 r_a = 0;
                 r_b = 0;
-                rec_if_thread_reg_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:147:17;
+                rec_if_thread_reg_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:154:17;
             end
-            rec_if_thread_reg_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:151:13;
+            rec_if_thread_reg_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:158:13;
         end
         1: begin
             r_a = 1;
-            rec_if_thread_reg_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:151:13;
+            rec_if_thread_reg_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:158:13;
         end
         2: begin
             if (|i_next0)
             begin
                 r_a = 0;
                 r_b = 0;
-                rec_if_thread_reg_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:147:17;
+                rec_if_thread_reg_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:154:17;
             end
-            rec_if_thread_reg_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:151:13;
+            rec_if_thread_reg_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:158:13;
         end
     endcase
 endfunction
@@ -248,7 +248,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : rec_if_thread_reg_ff
     if ( ~nrst ) begin
         i0 <= sig;
-        rec_if_thread_reg_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:141:9;
+        rec_if_thread_reg_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:148:9;
     end
     else begin
         i0 <= i_next0;
@@ -257,7 +257,7 @@ begin : rec_if_thread_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_if_thread_reg2 (test_array_decl_in_scope.cpp:157:5) 
+// Clocked THREAD: rec_if_thread_reg2 (test_array_decl_in_scope.cpp:164:5) 
 
 // Thread-local variables
 logic signed [31:0] i1;
@@ -266,7 +266,7 @@ logic [1:0] rec_if_thread_reg2_PROC_STATE;
 logic [1:0] rec_if_thread_reg2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_if_thread_reg2_comb     // test_array_decl_in_scope.cpp:157:5
+always_comb begin : rec_if_thread_reg2_comb     // test_array_decl_in_scope.cpp:164:5
     rec_if_thread_reg2_func;
 end
 function void rec_if_thread_reg2_func;
@@ -281,9 +281,9 @@ function void rec_if_thread_reg2_func;
             begin
                 r_a = 0;
                 r_b = 0;
-                rec_if_thread_reg2_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:166:17;
+                rec_if_thread_reg2_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:173:17;
             end
-            rec_if_thread_reg2_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:174:13;
+            rec_if_thread_reg2_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:181:13;
         end
         1: begin
             if (|i_next1)
@@ -291,16 +291,16 @@ function void rec_if_thread_reg2_func;
                 i_next1++;
             end
             r_a = 1;
-            rec_if_thread_reg2_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:174:13;
+            rec_if_thread_reg2_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:181:13;
         end
         2: begin
             if (|i_next1)
             begin
                 r_a = 0;
                 r_b = 0;
-                rec_if_thread_reg2_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:166:17;
+                rec_if_thread_reg2_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:173:17;
             end
-            rec_if_thread_reg2_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:174:13;
+            rec_if_thread_reg2_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:181:13;
         end
     endcase
 endfunction
@@ -310,7 +310,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : rec_if_thread_reg2_ff
     if ( ~nrst ) begin
         i1 <= sig;
-        rec_if_thread_reg2_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:160:9;
+        rec_if_thread_reg2_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:167:9;
     end
     else begin
         i1 <= i_next1;
@@ -319,7 +319,7 @@ begin : rec_if_thread_reg2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_if_thread_reg (test_array_decl_in_scope.cpp:180:5) 
+// Clocked THREAD: rec_arr_if_thread_reg (test_array_decl_in_scope.cpp:187:5) 
 
 // Thread-local variables
 logic signed [31:0] i2;
@@ -336,7 +336,7 @@ logic [1:0] rec_arr_if_thread_reg_PROC_STATE;
 logic [1:0] rec_arr_if_thread_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_if_thread_reg_comb     // test_array_decl_in_scope.cpp:180:5
+always_comb begin : rec_arr_if_thread_reg_comb     // test_array_decl_in_scope.cpp:187:5
     rec_arr_if_thread_reg_func;
 end
 function void rec_arr_if_thread_reg_func;
@@ -357,18 +357,18 @@ function void rec_arr_if_thread_reg_func;
                 if (i_next2 == 2)
                 begin
                     i_next2 = r_b_next[i_next2];
-                    rec_arr_if_thread_reg_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:194:21;
+                    rec_arr_if_thread_reg_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:201:21;
                 end
-                rec_arr_if_thread_reg_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:196:17;
+                rec_arr_if_thread_reg_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:203:17;
             end
-            rec_arr_if_thread_reg_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:200:13;
+            rec_arr_if_thread_reg_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:207:13;
         end
         1: begin
-            rec_arr_if_thread_reg_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:196:17;
+            rec_arr_if_thread_reg_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:203:17;
         end
         2: begin
             r_a_next[i_next2] = s_a_next;
-            rec_arr_if_thread_reg_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:200:13;
+            rec_arr_if_thread_reg_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:207:13;
         end
         3: begin
             if (i_next2 == 1)
@@ -379,11 +379,11 @@ function void rec_arr_if_thread_reg_func;
                 if (i_next2 == 2)
                 begin
                     i_next2 = r_b_next[i_next2];
-                    rec_arr_if_thread_reg_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:194:21;
+                    rec_arr_if_thread_reg_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:201:21;
                 end
-                rec_arr_if_thread_reg_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:196:17;
+                rec_arr_if_thread_reg_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:203:17;
             end
-            rec_arr_if_thread_reg_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:200:13;
+            rec_arr_if_thread_reg_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:207:13;
         end
     endcase
 endfunction
@@ -393,7 +393,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : rec_arr_if_thread_reg_ff
     if ( ~nrst ) begin
         i2 <= sig;
-        rec_arr_if_thread_reg_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:183:9;
+        rec_arr_if_thread_reg_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:190:9;
     end
     else begin
         i2 <= i_next2;
@@ -406,7 +406,7 @@ begin : rec_arr_if_thread_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_if_thread_reg2 (test_array_decl_in_scope.cpp:205:5) 
+// Clocked THREAD: rec_arr_if_thread_reg2 (test_array_decl_in_scope.cpp:212:5) 
 
 // Thread-local variables
 logic signed [31:0] i3;
@@ -423,7 +423,7 @@ logic [2:0] rec_arr_if_thread_reg2_PROC_STATE;
 logic [2:0] rec_arr_if_thread_reg2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_if_thread_reg2_comb     // test_array_decl_in_scope.cpp:205:5
+always_comb begin : rec_arr_if_thread_reg2_comb     // test_array_decl_in_scope.cpp:212:5
     rec_arr_if_thread_reg2_func;
 end
 function void rec_arr_if_thread_reg2_func;
@@ -440,20 +440,20 @@ function void rec_arr_if_thread_reg2_func;
         0: begin
             if (i_next3 == 1)
             begin
-                rec_arr_if_thread_reg2_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:215:17;
+                rec_arr_if_thread_reg2_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:222:17;
             end else begin
                 f_a_next[1] = e_a_next[2]; f_b_next[1] = e_b_next[2];
-                rec_arr_if_thread_reg2_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:223:17;
+                rec_arr_if_thread_reg2_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:230:17;
             end
         end
         1: begin
             i_next3++;
             if (i_next3 == 1)
             begin
-                rec_arr_if_thread_reg2_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:215:17;
+                rec_arr_if_thread_reg2_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:222:17;
             end else begin
                 f_a_next[1] = e_a_next[2]; f_b_next[1] = e_b_next[2];
-                rec_arr_if_thread_reg2_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:223:17;
+                rec_arr_if_thread_reg2_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:230:17;
             end
         end
         2: begin
@@ -461,21 +461,21 @@ function void rec_arr_if_thread_reg2_func;
             begin
                 i_next3 = f_a_next[i_next3];
             end else begin
-                rec_arr_if_thread_reg2_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:229:21;
+                rec_arr_if_thread_reg2_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:236:21;
             end
-            rec_arr_if_thread_reg2_PROC_STATE_next = 4; return;    // test_array_decl_in_scope.cpp:232:17;
+            rec_arr_if_thread_reg2_PROC_STATE_next = 4; return;    // test_array_decl_in_scope.cpp:239:17;
         end
         3: begin
-            rec_arr_if_thread_reg2_PROC_STATE_next = 4; return;    // test_array_decl_in_scope.cpp:232:17;
+            rec_arr_if_thread_reg2_PROC_STATE_next = 4; return;    // test_array_decl_in_scope.cpp:239:17;
         end
         4: begin
             i_next3 = e_b_next[i_next3 + 1];
             if (i_next3 == 1)
             begin
-                rec_arr_if_thread_reg2_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:215:17;
+                rec_arr_if_thread_reg2_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:222:17;
             end else begin
                 f_a_next[1] = e_a_next[2]; f_b_next[1] = e_b_next[2];
-                rec_arr_if_thread_reg2_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:223:17;
+                rec_arr_if_thread_reg2_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:230:17;
             end
         end
     endcase
@@ -486,7 +486,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : rec_arr_if_thread_reg2_ff
     if ( ~nrst ) begin
         i3 <= sig;
-        rec_arr_if_thread_reg2_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:208:9;
+        rec_arr_if_thread_reg2_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:215:9;
     end
     else begin
         i3 <= i_next3;
@@ -499,7 +499,7 @@ begin : rec_arr_if_thread_reg2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_if_loop_thread (test_array_decl_in_scope.cpp:239:5) 
+// Clocked THREAD: rec_arr_if_loop_thread (test_array_decl_in_scope.cpp:246:5) 
 
 // Thread-local variables
 logic signed [31:0] i4;
@@ -512,7 +512,7 @@ logic [1:0] rec_arr_if_loop_thread_PROC_STATE;
 logic [1:0] rec_arr_if_loop_thread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_if_loop_thread_comb     // test_array_decl_in_scope.cpp:239:5
+always_comb begin : rec_arr_if_loop_thread_comb     // test_array_decl_in_scope.cpp:246:5
     rec_arr_if_loop_thread_func;
 end
 function void rec_arr_if_loop_thread_func;
@@ -525,15 +525,15 @@ function void rec_arr_if_loop_thread_func;
         0: begin
             if (!(|sig))
             begin
-                rec_arr_if_loop_thread_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:250:17;
+                rec_arr_if_loop_thread_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:257:17;
             end
-            rec_arr_if_loop_thread_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:264:13;
+            rec_arr_if_loop_thread_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:271:13;
         end
         1: begin
             if (|i_next4)
             begin
                 g_a_next[i_next4] = i_next4 + 1;
-                rec_arr_if_loop_thread_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:254:21;
+                rec_arr_if_loop_thread_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:261:21;
             end
             for (integer i = 0; i < 3; i++)
             begin
@@ -542,9 +542,9 @@ function void rec_arr_if_loop_thread_func;
             i_next4 = g_a_next[i_next4];
             if (!(|sig))
             begin
-                rec_arr_if_loop_thread_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:250:17;
+                rec_arr_if_loop_thread_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:257:17;
             end
-            rec_arr_if_loop_thread_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:264:13;
+            rec_arr_if_loop_thread_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:271:13;
         end
         2: begin
             for (integer i = 0; i < 3; i++)
@@ -554,16 +554,16 @@ function void rec_arr_if_loop_thread_func;
             i_next4 = g_a_next[i_next4];
             if (!(|sig))
             begin
-                rec_arr_if_loop_thread_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:250:17;
+                rec_arr_if_loop_thread_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:257:17;
             end
-            rec_arr_if_loop_thread_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:264:13;
+            rec_arr_if_loop_thread_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:271:13;
         end
         3: begin
             if (!(|sig))
             begin
-                rec_arr_if_loop_thread_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:250:17;
+                rec_arr_if_loop_thread_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:257:17;
             end
-            rec_arr_if_loop_thread_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:264:13;
+            rec_arr_if_loop_thread_PROC_STATE_next = 3; return;    // test_array_decl_in_scope.cpp:271:13;
         end
     endcase
 endfunction
@@ -573,7 +573,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : rec_arr_if_loop_thread_ff
     if ( ~nrst ) begin
         i4 <= sig;
-        rec_arr_if_loop_thread_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:242:9;
+        rec_arr_if_loop_thread_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:249:9;
     end
     else begin
         i4 <= i_next4;
@@ -584,7 +584,7 @@ begin : rec_arr_if_loop_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_if_loop_thread_break (test_array_decl_in_scope.cpp:269:5) 
+// Clocked THREAD: rec_arr_if_loop_thread_break (test_array_decl_in_scope.cpp:276:5) 
 
 // Thread-local variables
 logic signed [31:0] i5;
@@ -597,7 +597,7 @@ logic [1:0] rec_arr_if_loop_thread_break_PROC_STATE;
 logic [1:0] rec_arr_if_loop_thread_break_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_if_loop_thread_break_comb     // test_array_decl_in_scope.cpp:269:5
+always_comb begin : rec_arr_if_loop_thread_break_comb     // test_array_decl_in_scope.cpp:276:5
     rec_arr_if_loop_thread_break_func;
 end
 function void rec_arr_if_loop_thread_break_func;
@@ -614,33 +614,33 @@ function void rec_arr_if_loop_thread_break_func;
             begin
                 // break begin
                 m_b[i_next5 + 1] = i_next5;
-                rec_arr_if_loop_thread_break_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:290:13;
+                rec_arr_if_loop_thread_break_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:297:13;
                 // break end
             end
             i_next5 = h_a_next[i_next5];
-            rec_arr_if_loop_thread_break_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:285:17;
+            rec_arr_if_loop_thread_break_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:292:17;
         end
         1: begin
             if (|sig)
             begin
                 // break begin
                 m_b[i_next5 + 1] = i_next5;
-                rec_arr_if_loop_thread_break_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:290:13;
+                rec_arr_if_loop_thread_break_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:297:13;
                 // break end
             end
             i_next5 = h_a_next[i_next5];
-            rec_arr_if_loop_thread_break_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:285:17;
+            rec_arr_if_loop_thread_break_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:292:17;
         end
         2: begin
             if (|sig)
             begin
                 // break begin
                 m_b[i_next5 + 1] = i_next5;
-                rec_arr_if_loop_thread_break_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:290:13;
+                rec_arr_if_loop_thread_break_PROC_STATE_next = 2; return;    // test_array_decl_in_scope.cpp:297:13;
                 // break end
             end
             i_next5 = h_a_next[i_next5];
-            rec_arr_if_loop_thread_break_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:285:17;
+            rec_arr_if_loop_thread_break_PROC_STATE_next = 1; return;    // test_array_decl_in_scope.cpp:292:17;
         end
     endcase
 endfunction
@@ -650,7 +650,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : rec_arr_if_loop_thread_break_ff
     if ( ~nrst ) begin
         i5 <= sig;
-        rec_arr_if_loop_thread_break_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:272:9;
+        rec_arr_if_loop_thread_break_PROC_STATE <= 0;    // test_array_decl_in_scope.cpp:279:9;
     end
     else begin
         i5 <= i_next5;
@@ -661,7 +661,7 @@ begin : rec_arr_if_loop_thread_break_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_if_loop_thread_reset (test_array_decl_in_scope.cpp:295:5) 
+// Clocked THREAD: rec_arr_if_loop_thread_reset (test_array_decl_in_scope.cpp:302:5) 
 
 // Thread-local variables
 logic signed [1:0] n_a[3];
@@ -672,7 +672,7 @@ logic signed [31:0] j;
 logic signed [31:0] j_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_if_loop_thread_reset_comb     // test_array_decl_in_scope.cpp:295:5
+always_comb begin : rec_arr_if_loop_thread_reset_comb     // test_array_decl_in_scope.cpp:302:5
     rec_arr_if_loop_thread_reset_func;
 end
 function void rec_arr_if_loop_thread_reset_func;

@@ -23,7 +23,7 @@ assign minst_clk[0] = clk;
 assign minst_clk[1] = clk;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_memRecThread (test_array_record_cthread.cpp:36:5) 
+// Clocked THREAD: minst_memRecThread (test_array_record_cthread.cpp:43:5) 
 
 // Thread-local variables
 logic signed [31:0] minst_rr_rec_arr_c[2][2];
@@ -37,7 +37,7 @@ logic minst_rr_a[2];
 logic [3:0] minst_rr_b[2][3];
 
 // Next-state combinational logic
-always_comb begin : minst_memRecThread_comb     // test_array_record_cthread.cpp:36:5
+always_comb begin : minst_memRecThread_comb     // test_array_record_cthread.cpp:43:5
     minst_memRecThread_func;
 end
 function void minst_memRecThread_func;
@@ -66,7 +66,7 @@ begin : minst_memRecThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_memRecArrThread (test_array_record_cthread.cpp:56:5) 
+// Clocked THREAD: minst_memRecArrThread (test_array_record_cthread.cpp:63:5) 
 
 // Thread-local variables
 logic signed [31:0] minst_w_rec_c[2][2];
@@ -79,7 +79,7 @@ logic signed [31:0] minst_w_rec_arr_c[2][2][2];
 logic signed [31:0] minst_ww_rec_arr_c[2][3][2];
 
 // Next-state combinational logic
-always_comb begin : minst_memRecArrThread_comb     // test_array_record_cthread.cpp:56:5
+always_comb begin : minst_memRecArrThread_comb     // test_array_record_cthread.cpp:63:5
     minst_memRecArrThread_func;
 end
 function void minst_memRecArrThread_func;
@@ -106,10 +106,10 @@ begin : minst_memRecArrThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_memRecThread0 (test_array_record_cthread.cpp:36:5) 
+// Clocked THREAD: minst_memRecThread0 (test_array_record_cthread.cpp:43:5) 
 
 // Next-state combinational logic
-always_comb begin : minst_memRecThread0_comb     // test_array_record_cthread.cpp:36:5
+always_comb begin : minst_memRecThread0_comb     // test_array_record_cthread.cpp:43:5
     minst_memRecThread0_func;
 end
 function void minst_memRecThread0_func;
@@ -138,10 +138,10 @@ begin : minst_memRecThread0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_memRecArrThread0 (test_array_record_cthread.cpp:56:5) 
+// Clocked THREAD: minst_memRecArrThread0 (test_array_record_cthread.cpp:63:5) 
 
 // Next-state combinational logic
-always_comb begin : minst_memRecArrThread0_comb     // test_array_record_cthread.cpp:56:5
+always_comb begin : minst_memRecArrThread0_comb     // test_array_record_cthread.cpp:63:5
     minst_memRecArrThread0_func;
 end
 function void minst_memRecArrThread0_func;

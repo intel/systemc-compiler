@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_loops_method.cpp:153:5)
+// Module: A (test_array_loops_method.cpp:160:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -45,14 +45,14 @@ logic [1:0] as;
 logic s;
 
 //------------------------------------------------------------------------------
-// Method process: record_var_loops (test_array_loops_method.cpp:59:5) 
+// Method process: record_var_loops (test_array_loops_method.cpp:66:5) 
 
 // Process-local variables
 logic signed [31:0] rec_a[16];
 logic [1:0] rec_b[16];
 
 always_comb 
-begin : record_var_loops     // test_array_loops_method.cpp:59:5
+begin : record_var_loops     // test_array_loops_method.cpp:66:5
     integer num1;
     integer num2;
     num1 = 2;
@@ -82,7 +82,7 @@ begin : record_var_loops     // test_array_loops_method.cpp:59:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_var_loops_binary (test_array_loops_method.cpp:96:5) 
+// Method process: record_var_loops_binary (test_array_loops_method.cpp:103:5) 
 
 // Process-local variables
 logic [15:0] rec2a_a[12];
@@ -103,7 +103,7 @@ logic [31:0] rec2b_g[12];
 logic [31:0] rec2b_h[12];
 
 always_comb 
-begin : record_var_loops_binary     // test_array_loops_method.cpp:96:5
+begin : record_var_loops_binary     // test_array_loops_method.cpp:103:5
     integer num1;
     integer num2;
     integer num1a;

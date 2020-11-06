@@ -105,7 +105,7 @@ protected:
     std::vector<SValue> getRecVector(const SValue& val);
     
     /// Put any member expression specified in @val for @stmt 
-    void putMemberExpr(const clang::Stmt* stmt, const SValue& val,
+    void putMemberExpr(const clang::Expr* expr, const SValue& val,
                        const std::string& refRecarrIndxStr);
 
     /// Put any pointer variable de-referenced string, including pointer parameter
@@ -113,7 +113,7 @@ protected:
     /// \param lvar -- variable for value lval, lvar = getVariableForValue(lval)
     /// \param lval -- pointer value
     /// \param rval -- pointee value, state->getValue(lval, rval)
-    void putPtrDerefExpr(const clang::Stmt* stmt, const SValue& lvar,
+    void putPtrDerefExpr(const clang::Expr* expr, const SValue& lvar,
                          const SValue& lval, const SValue& rval);
 
     

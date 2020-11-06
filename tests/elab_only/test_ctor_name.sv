@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: mod_with_name (test_ctor_name.cpp:40:5)
+// Module: mod_with_name (test_ctor_name.cpp:47:5)
 //
 module mod_with_name // "top.mod2"
 (
@@ -37,10 +37,10 @@ module mod_with_name // "top.mod2"
 logic s;
 
 //------------------------------------------------------------------------------
-// Method process: proc (test_ctor_name.cpp:27:5) 
+// Method process: proc (test_ctor_name.cpp:34:5) 
 
 always_comb 
-begin : proc     // test_ctor_name.cpp:27:5
+begin : proc     // test_ctor_name.cpp:34:5
     logic b;
     b = s;
 end

@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_binary_expr_signed.cpp:205:5)
+// Module: A (test_binary_expr_signed.cpp:212:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -43,10 +43,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: binary (test_binary_expr_signed.cpp:26:5) 
+// Method process: binary (test_binary_expr_signed.cpp:33:5) 
 
 always_comb 
-begin : binary     // test_binary_expr_signed.cpp:26:5
+begin : binary     // test_binary_expr_signed.cpp:33:5
     logic signed [15:0] z;
     logic signed [15:0] bz;
     logic [15:0] uz;
@@ -62,46 +62,46 @@ begin : binary     // test_binary_expr_signed.cpp:26:5
     i = -4'sd5;
     uu = 7;
     z = (signed'({1'b0, ux}) + x) * (-2'sd1);
-    assert (z == 2) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == 2) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     z = (signed'({1'b0, ux}) - x) * x;
-    assert (z == -6'sd24) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == -6'sd24) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     z = (signed'({1'b0, ux}) * (x + 1)) - signed'({1'b0, ux});
-    assert (z == -5'sd8) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == -5'sd8) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = (-4'sd6) + ux * (-3'sd3);
-    assert (bz == -5'sd12) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == -5'sd12) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = -x + signed'({1'b0, ux * 2});
-    assert (bz == 8) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == 8) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = x + signed'({1'b0, ux}) * i;
-    assert (bz == -5'sd14) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == -5'sd14) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = x * (signed'({1'b0, ux}) - i);
-    assert (bz == -6'sd28) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == -6'sd28) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = 14 - (signed'({1'b0, ux}) - i + 3);
-    assert (bz == 4) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == 4) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     z = 1;
     bz = -4'sd5;
     bz = signed'({1'b0, uz}) * bz - x;
-    assert (bz == -6'sd31) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == -6'sd31) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = -4'sd5;
     bz = z * bz - x;
-    assert (bz == -2'sd1) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == -2'sd1) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = -4'sd5;
     bz = z * (bz + 1) - bz;
-    assert (bz == 1) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == 1) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     z = signed'({1'b0, (uu * 4)}) - i;
-    assert (z == 33) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == 33) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     z = signed'({1'b0, (uu * 4)}) - i + x * signed'({1'b0, ux});
-    assert (z == 25) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == 25) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = x / (i - 1) * signed'({1'b0, (uu - ux)});
-    assert (bz == 0) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == 0) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = x / (i - 1) * signed'({1'b0, (uu - ux + 1)});
-    assert (bz == 0) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == 0) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: binary_liter (test_binary_expr_signed.cpp:88:5) 
+// Method process: binary_liter (test_binary_expr_signed.cpp:95:5) 
 
 always_comb 
-begin : binary_liter     // test_binary_expr_signed.cpp:88:5
+begin : binary_liter     // test_binary_expr_signed.cpp:95:5
     logic signed [15:0] z;
     logic signed [15:0] bz;
     logic signed [3:0] x;
@@ -113,30 +113,30 @@ begin : binary_liter     // test_binary_expr_signed.cpp:88:5
     x = -4'sd4;
     ux = 2;
     z = (signed'({1'b0, ux}) - x) * x + 1;
-    assert (z == -6'sd23) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == -6'sd23) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     z = (signed'({1'b0, ux}) * (x + 1)) - 7;
-    assert (z == -5'sd13) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == -5'sd13) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = (-4'sd6) + ux * (-3'sd3) * 2;
-    assert (bz == -6'sd18) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == -6'sd18) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = -x + signed'({1'b0, ux * 2}) + 1;
-    assert (bz == 9) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == 9) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     i = -4'sd5;
     uu = 7;
     z = 36'(signed'({1'b0, (uu * 4)}) - i) / 1;
-    assert (z == 33) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == 33) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     z = 33'(4 * x + i) / (-3'sd2);
-    assert (z == 10) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == 10) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     z = signed'({1'b0, (uu * 4)}) - i + x * signed'({1'b0, ux}) + 1;
-    assert (z == 26) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == 26) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = x / (i - 1) * signed'({1'b0, (uu - ux + 1)});
-    assert (bz == 0) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == 0) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: compound (test_binary_expr_signed.cpp:124:5) 
+// Method process: compound (test_binary_expr_signed.cpp:131:5) 
 
 always_comb 
-begin : compound     // test_binary_expr_signed.cpp:124:5
+begin : compound     // test_binary_expr_signed.cpp:131:5
     integer z;
     logic signed [32:0] bz;
     logic signed [6:0] x;
@@ -148,31 +148,31 @@ begin : compound     // test_binary_expr_signed.cpp:124:5
     ux = 2;
     z = 1;
     z = z + ((signed'({1'b0, ux}) + x) * (-2'sd1));
-    assert (z == 3) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == 3) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     ux = ux * (signed'({1'b0, ux}) - x + 1);
-    assert (ux == 14) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (ux == 14) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     x = (signed'({1'b0, ux}) * (x + 1)) - signed'({1'b0, ux});
-    assert (x == -7'sd56) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (x == -7'sd56) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = -8'sd100;
     bz = bz / ((-4'sd6) + x * (-3'sd3));
-    assert (bz == 0) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == 0) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = -3'sd2;
     bz = bz * (-x + signed'({1'b0, ux * 2}));
-    assert (bz == -9'sd168) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == -9'sd168) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     i = -4'sd5;
     x = -4'sd4;
     uu = 7;
     ux = 2;
     bz = 1;
     bz = bz - (x / (i + 1) * signed'({1'b0, (uu - ux + 1)}));
-    assert (bz == -4'sd5) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == -4'sd5) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: unary (test_binary_expr_signed.cpp:159:5) 
+// Method process: unary (test_binary_expr_signed.cpp:166:5) 
 
 always_comb 
-begin : unary     // test_binary_expr_signed.cpp:159:5
+begin : unary     // test_binary_expr_signed.cpp:166:5
     integer z;
     logic signed [32:0] bz;
     integer i;
@@ -185,16 +185,16 @@ begin : unary     // test_binary_expr_signed.cpp:159:5
     x = -4'sd4;
     ux = 2;
     z = -x + i - 1;
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     bz = (-x) * 3 + (-z) * i;
-    assert (bz == 2) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (bz == 2) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: ternary (test_binary_expr_signed.cpp:176:5) 
+// Method process: ternary (test_binary_expr_signed.cpp:183:5) 
 
 always_comb 
-begin : ternary     // test_binary_expr_signed.cpp:176:5
+begin : ternary     // test_binary_expr_signed.cpp:183:5
     integer z;
     logic signed [32:0] bz;
     integer i;
@@ -207,13 +207,13 @@ begin : ternary     // test_binary_expr_signed.cpp:176:5
     x = -4'sd4;
     ux = 2;
     z = 1;
-    assert (z == 1) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == 1) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     z = i - 1;
-    assert (z == -4'sd6) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == -4'sd6) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     z = (signed'({1'b0, ux}) + i) * x;
-    assert (z == 12) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == 12) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
     z = (-x) * 3 + (-z) * i;
-    assert (z == 72) else $error("Assertion failed at test_binary_expr_signed.cpp:24:24>");
+    assert (z == 72) else $error("Assertion failed at test_binary_expr_signed.cpp:31:24>");
 end
 
 endmodule

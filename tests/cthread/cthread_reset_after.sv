@@ -23,7 +23,7 @@ logic [3:0] s4;
 logic [3:0] s5[3];
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: after1 (test_cthread_reset_after.cpp:35:5) 
+// Clocked THREAD: after1 (test_cthread_reset_after.cpp:42:5) 
 
 // Thread-local variables
 logic [3:0] s1_next;
@@ -33,7 +33,7 @@ logic after1_PROC_STATE;
 logic after1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : after1_comb     // test_cthread_reset_after.cpp:35:5
+always_comb begin : after1_comb     // test_cthread_reset_after.cpp:42:5
     after1_func;
 end
 function void after1_func;
@@ -47,12 +47,12 @@ function void after1_func;
             b = 2;
             s1_next = a_next + b;
             a_next++;
-            after1_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:47:13;
+            after1_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:54:13;
         end
         1: begin
             s1_next = a_next;
             a_next++;
-            after1_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:47:13;
+            after1_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:54:13;
         end
     endcase
 endfunction
@@ -63,7 +63,7 @@ begin : after1_ff
     if ( ~rstn ) begin
         a <= 1;
         s1 <= 0;
-        after1_PROC_STATE <= 0;    // test_cthread_reset_after.cpp:40:9;
+        after1_PROC_STATE <= 0;    // test_cthread_reset_after.cpp:47:9;
     end
     else begin
         s1 <= s1_next;
@@ -73,7 +73,7 @@ begin : after1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: after2 (test_cthread_reset_after.cpp:55:5) 
+// Clocked THREAD: after2 (test_cthread_reset_after.cpp:62:5) 
 
 // Thread-local variables
 logic [3:0] s2_next;
@@ -84,7 +84,7 @@ logic after2_PROC_STATE;
 logic after2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : after2_comb     // test_cthread_reset_after.cpp:55:5
+always_comb begin : after2_comb     // test_cthread_reset_after.cpp:62:5
     after2_func;
 end
 function void after2_func;
@@ -105,12 +105,12 @@ function void after2_func;
             end
             a_next0++;
             s2_next = a_next0;
-            after2_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:76:13;
+            after2_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:83:13;
         end
         1: begin
             a_next0++;
             s2_next = a_next0;
-            after2_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:76:13;
+            after2_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:83:13;
         end
     endcase
 endfunction
@@ -125,7 +125,7 @@ begin : after2_ff
         begin
             s3[i] <= 0;
         end
-        after2_PROC_STATE <= 0;    // test_cthread_reset_after.cpp:63:9;
+        after2_PROC_STATE <= 0;    // test_cthread_reset_after.cpp:70:9;
     end
     else begin
         s2 <= s2_next;
@@ -136,7 +136,7 @@ begin : after2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: after_multi1 (test_cthread_reset_after.cpp:82:5) 
+// Clocked THREAD: after_multi1 (test_cthread_reset_after.cpp:89:5) 
 
 // Thread-local variables
 logic [3:0] s4_next;
@@ -146,7 +146,7 @@ logic [2:0] after_multi1_PROC_STATE;
 logic [2:0] after_multi1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : after_multi1_comb     // test_cthread_reset_after.cpp:82:5
+always_comb begin : after_multi1_comb     // test_cthread_reset_after.cpp:89:5
     after_multi1_func;
 end
 function void after_multi1_func;
@@ -157,29 +157,29 @@ function void after_multi1_func;
     case (after_multi1_PROC_STATE)
         0: begin
             s4_next = 1;
-            after_multi1_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:88:9;
+            after_multi1_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:95:9;
         end
         1: begin
             s4_next = 2;
-            after_multi1_PROC_STATE_next = 2; return;    // test_cthread_reset_after.cpp:91:9;
+            after_multi1_PROC_STATE_next = 2; return;    // test_cthread_reset_after.cpp:98:9;
         end
         2: begin
             if (|s1)
             begin
                 s4_next = 3;
-                after_multi1_PROC_STATE_next = 3; return;    // test_cthread_reset_after.cpp:95:13;
+                after_multi1_PROC_STATE_next = 3; return;    // test_cthread_reset_after.cpp:102:13;
             end
             c_next++;
-            after_multi1_PROC_STATE_next = 4; return;    // test_cthread_reset_after.cpp:100:13;
+            after_multi1_PROC_STATE_next = 4; return;    // test_cthread_reset_after.cpp:107:13;
         end
         3: begin
             c_next++;
-            after_multi1_PROC_STATE_next = 4; return;    // test_cthread_reset_after.cpp:100:13;
+            after_multi1_PROC_STATE_next = 4; return;    // test_cthread_reset_after.cpp:107:13;
         end
         4: begin
             s4_next = c_next;
             c_next++;
-            after_multi1_PROC_STATE_next = 4; return;    // test_cthread_reset_after.cpp:100:13;
+            after_multi1_PROC_STATE_next = 4; return;    // test_cthread_reset_after.cpp:107:13;
         end
     endcase
 endfunction
@@ -189,7 +189,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : after_multi1_ff
     if ( ~rstn ) begin
         c <= 1;
-        after_multi1_PROC_STATE <= 0;    // test_cthread_reset_after.cpp:85:9;
+        after_multi1_PROC_STATE <= 0;    // test_cthread_reset_after.cpp:92:9;
     end
     else begin
         s4 <= s4_next;
@@ -199,7 +199,7 @@ begin : after_multi1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: after_multi2 (test_cthread_reset_after.cpp:106:5) 
+// Clocked THREAD: after_multi2 (test_cthread_reset_after.cpp:113:5) 
 
 // Thread-local variables
 logic [3:0] s5_next[3];
@@ -211,7 +211,7 @@ logic [1:0] after_multi2_PROC_STATE;
 logic [1:0] after_multi2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : after_multi2_comb     // test_cthread_reset_after.cpp:106:5
+always_comb begin : after_multi2_comb     // test_cthread_reset_after.cpp:113:5
     after_multi2_func;
 end
 function void after_multi2_func;
@@ -224,25 +224,25 @@ function void after_multi2_func;
         0: begin
             i_next = 0;
             s5_next[i_next] = s1;
-            after_multi2_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:116:13;
+            after_multi2_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:123:13;
         end
         1: begin
             i_next++;
             if (i_next < 3)
             begin
                 s5_next[i_next] = s1;
-                after_multi2_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:116:13;
+                after_multi2_PROC_STATE_next = 1; return;    // test_cthread_reset_after.cpp:123:13;
             end
             d_next++;
             s5_next[0] = d_next;
-            after_multi2_PROC_STATE_next = 2; return;    // test_cthread_reset_after.cpp:122:13;
+            after_multi2_PROC_STATE_next = 2; return;    // test_cthread_reset_after.cpp:129:13;
         end
         2: begin
             s5_next[2] = s5[1];
             s5_next[1] = d_next;
             d_next++;
             s5_next[0] = d_next;
-            after_multi2_PROC_STATE_next = 2; return;    // test_cthread_reset_after.cpp:122:13;
+            after_multi2_PROC_STATE_next = 2; return;    // test_cthread_reset_after.cpp:129:13;
         end
     endcase
 endfunction
@@ -256,7 +256,7 @@ begin : after_multi2_ff
         begin
             s5[i] <= 0;
         end
-        after_multi2_PROC_STATE <= 0;    // test_cthread_reset_after.cpp:112:9;
+        after_multi2_PROC_STATE <= 0;    // test_cthread_reset_after.cpp:119:9;
     end
     else begin
         s5 <= s5_next;

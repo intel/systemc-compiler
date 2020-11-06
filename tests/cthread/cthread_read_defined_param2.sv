@@ -20,7 +20,7 @@ logic signed [31:0] in;
 logic [2:0] s;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_ref_call1 (test_cthread_read_defined_param2.cpp:136:5) 
+// Clocked THREAD: const_ref_call1 (test_cthread_read_defined_param2.cpp:143:5) 
 
 // Thread-local variables
 logic [2:0] val;
@@ -29,7 +29,7 @@ logic [1:0] const_ref_call1_PROC_STATE;
 logic [1:0] const_ref_call1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : const_ref_call1_comb     // test_cthread_read_defined_param2.cpp:136:5
+always_comb begin : const_ref_call1_comb     // test_cthread_read_defined_param2.cpp:143:5
     const_ref_call1_func;
 end
 function void const_ref_call1_func;
@@ -44,7 +44,7 @@ function void const_ref_call1_func;
         0: begin
             val_next = 1;
             // Call cref() begin
-            const_ref_call1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:131:9;
+            const_ref_call1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:138:9;
             // Call cref() end
         end
         1: begin
@@ -54,7 +54,7 @@ function void const_ref_call1_func;
             i = TMP_0;
             val_next = in + 2;
             // Call cref() begin
-            const_ref_call1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:131:9;
+            const_ref_call1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:138:9;
             // Call cref() end
         end
         2: begin
@@ -62,12 +62,12 @@ function void const_ref_call1_func;
             TMP_1 = val_next;
             // Call cref() end
             i = TMP_1;
-            const_ref_call1_PROC_STATE_next = 3; return;    // test_cthread_read_defined_param2.cpp:143:13;
+            const_ref_call1_PROC_STATE_next = 3; return;    // test_cthread_read_defined_param2.cpp:150:13;
         end
         3: begin
             val_next = 1;
             // Call cref() begin
-            const_ref_call1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:131:9;
+            const_ref_call1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:138:9;
             // Call cref() end
         end
     endcase
@@ -79,7 +79,7 @@ begin : const_ref_call1_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        const_ref_call1_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:138:9;
+        const_ref_call1_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:145:9;
     end
     else begin
         val <= val_next;
@@ -88,7 +88,7 @@ begin : const_ref_call1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_ref_call2 (test_cthread_read_defined_param2.cpp:147:5) 
+// Clocked THREAD: const_ref_call2 (test_cthread_read_defined_param2.cpp:154:5) 
 
 // Thread-local variables
 logic [2:0] val0;
@@ -97,7 +97,7 @@ logic [1:0] const_ref_call2_PROC_STATE;
 logic [1:0] const_ref_call2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : const_ref_call2_comb     // test_cthread_read_defined_param2.cpp:147:5
+always_comb begin : const_ref_call2_comb     // test_cthread_read_defined_param2.cpp:154:5
     const_ref_call2_func;
 end
 function void const_ref_call2_func;
@@ -112,7 +112,7 @@ function void const_ref_call2_func;
         0: begin
             val_next0 = 2;
             // Call cref() begin
-            const_ref_call2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:131:9;
+            const_ref_call2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:138:9;
             // Call cref() end
         end
         1: begin
@@ -122,7 +122,7 @@ function void const_ref_call2_func;
             i = TMP_0;
             val_next0 = 3;
             // Call cref() begin
-            const_ref_call2_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:131:9;
+            const_ref_call2_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:138:9;
             // Call cref() end
         end
         2: begin
@@ -130,12 +130,12 @@ function void const_ref_call2_func;
             TMP_1 = val_next0;
             // Call cref() end
             i = TMP_1;
-            const_ref_call2_PROC_STATE_next = 3; return;    // test_cthread_read_defined_param2.cpp:154:13;
+            const_ref_call2_PROC_STATE_next = 3; return;    // test_cthread_read_defined_param2.cpp:161:13;
         end
         3: begin
             val_next0 = 2;
             // Call cref() begin
-            const_ref_call2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:131:9;
+            const_ref_call2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:138:9;
             // Call cref() end
         end
     endcase
@@ -147,7 +147,7 @@ begin : const_ref_call2_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        const_ref_call2_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:149:9;
+        const_ref_call2_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:156:9;
     end
     else begin
         val0 <= val_next0;
@@ -156,7 +156,7 @@ begin : const_ref_call2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_ref_call3 (test_cthread_read_defined_param2.cpp:159:5) 
+// Clocked THREAD: const_ref_call3 (test_cthread_read_defined_param2.cpp:166:5) 
 
 // Thread-local variables
 logic [2:0] a;
@@ -165,7 +165,7 @@ logic [1:0] const_ref_call3_PROC_STATE;
 logic [1:0] const_ref_call3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : const_ref_call3_comb     // test_cthread_read_defined_param2.cpp:159:5
+always_comb begin : const_ref_call3_comb     // test_cthread_read_defined_param2.cpp:166:5
     const_ref_call3_func;
 end
 function void const_ref_call3_func;
@@ -179,7 +179,7 @@ function void const_ref_call3_func;
         0: begin
             a_next = 1;
             // Call cref() begin
-            const_ref_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:131:9;
+            const_ref_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:138:9;
             // Call cref() end
         end
         1: begin
@@ -187,12 +187,12 @@ function void const_ref_call3_func;
             TMP_0 = a_next;
             // Call cref() end
             i = TMP_0;
-            const_ref_call3_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:166:13;
+            const_ref_call3_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:173:13;
         end
         2: begin
             a_next = 1;
             // Call cref() begin
-            const_ref_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:131:9;
+            const_ref_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:138:9;
             // Call cref() end
         end
     endcase
@@ -204,7 +204,7 @@ begin : const_ref_call3_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        const_ref_call3_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:161:9;
+        const_ref_call3_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:168:9;
     end
     else begin
         a <= a_next;
@@ -213,7 +213,7 @@ begin : const_ref_call3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_ref_call4 (test_cthread_read_defined_param2.cpp:171:5) 
+// Clocked THREAD: const_ref_call4 (test_cthread_read_defined_param2.cpp:178:5) 
 
 // Thread-local variables
 logic [2:0] b;
@@ -222,7 +222,7 @@ logic [1:0] const_ref_call4_PROC_STATE;
 logic [1:0] const_ref_call4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : const_ref_call4_comb     // test_cthread_read_defined_param2.cpp:171:5
+always_comb begin : const_ref_call4_comb     // test_cthread_read_defined_param2.cpp:178:5
     const_ref_call4_func;
 end
 function void const_ref_call4_func;
@@ -235,7 +235,7 @@ function void const_ref_call4_func;
     case (const_ref_call4_PROC_STATE)
         0: begin
             // Call cref() begin
-            const_ref_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:131:9;
+            const_ref_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:138:9;
             // Call cref() end
         end
         1: begin
@@ -243,11 +243,11 @@ function void const_ref_call4_func;
             TMP_0 = b_next;
             // Call cref() end
             i = TMP_0;
-            const_ref_call4_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:178:13;
+            const_ref_call4_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:185:13;
         end
         2: begin
             // Call cref() begin
-            const_ref_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:131:9;
+            const_ref_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:138:9;
             // Call cref() end
         end
     endcase
@@ -260,7 +260,7 @@ begin : const_ref_call4_ff
         integer i;
         i = 0;
         b <= 1;
-        const_ref_call4_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:174:9;
+        const_ref_call4_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:181:9;
     end
     else begin
         b <= b_next;
@@ -269,7 +269,7 @@ begin : const_ref_call4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_ref_call_range (test_cthread_read_defined_param2.cpp:191:6) 
+// Clocked THREAD: const_ref_call_range (test_cthread_read_defined_param2.cpp:198:6) 
 
 // Thread-local variables
 logic [2:0] val1;
@@ -278,7 +278,7 @@ logic [1:0] const_ref_call_range_PROC_STATE;
 logic [1:0] const_ref_call_range_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : const_ref_call_range_comb     // test_cthread_read_defined_param2.cpp:191:6
+always_comb begin : const_ref_call_range_comb     // test_cthread_read_defined_param2.cpp:198:6
     const_ref_call_range_func;
 end
 function void const_ref_call_range_func;
@@ -295,7 +295,7 @@ function void const_ref_call_range_func;
             val_next1 = 1;
             // Call range_cref() begin
             c = val_next1[0];
-            const_ref_call_range_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:186:9;
+            const_ref_call_range_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:193:9;
             // Call range_cref() end
         end
         1: begin
@@ -304,13 +304,13 @@ function void const_ref_call_range_func;
             TMP_0 = l;
             // Call range_cref() end
             i = TMP_0;
-            const_ref_call_range_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:197:13;
+            const_ref_call_range_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:204:13;
         end
         2: begin
             val_next1 = 1;
             // Call range_cref() begin
             c = val_next1[0];
-            const_ref_call_range_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:186:9;
+            const_ref_call_range_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:193:9;
             // Call range_cref() end
         end
     endcase
@@ -322,7 +322,7 @@ begin : const_ref_call_range_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        const_ref_call_range_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:193:9;
+        const_ref_call_range_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:200:9;
     end
     else begin
         val1 <= val_next1;
@@ -331,7 +331,7 @@ begin : const_ref_call_range_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: ref_call3 (test_cthread_read_defined_param2.cpp:212:5) 
+// Clocked THREAD: ref_call3 (test_cthread_read_defined_param2.cpp:219:5) 
 
 // Thread-local variables
 logic [2:0] a0;
@@ -340,7 +340,7 @@ logic [1:0] ref_call3_PROC_STATE;
 logic [1:0] ref_call3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : ref_call3_comb     // test_cthread_read_defined_param2.cpp:212:5
+always_comb begin : ref_call3_comb     // test_cthread_read_defined_param2.cpp:219:5
     ref_call3_func;
 end
 function void ref_call3_func;
@@ -355,7 +355,7 @@ function void ref_call3_func;
         0: begin
             a_next0 = 1;
             // Call fref() begin
-            ref_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:206:9;
+            ref_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:213:9;
             // Call fref() end
         end
         1: begin
@@ -364,12 +364,12 @@ function void ref_call3_func;
             TMP_0 = l;
             // Call fref() end
             i = TMP_0;
-            ref_call3_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:219:13;
+            ref_call3_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:226:13;
         end
         2: begin
             a_next0 = 1;
             // Call fref() begin
-            ref_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:206:9;
+            ref_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:213:9;
             // Call fref() end
         end
     endcase
@@ -381,7 +381,7 @@ begin : ref_call3_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        ref_call3_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:214:9;
+        ref_call3_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:221:9;
     end
     else begin
         a0 <= a_next0;
@@ -390,7 +390,7 @@ begin : ref_call3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: ref_call4 (test_cthread_read_defined_param2.cpp:224:5) 
+// Clocked THREAD: ref_call4 (test_cthread_read_defined_param2.cpp:231:5) 
 
 // Thread-local variables
 logic [2:0] a1;
@@ -399,7 +399,7 @@ logic [1:0] ref_call4_PROC_STATE;
 logic [1:0] ref_call4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : ref_call4_comb     // test_cthread_read_defined_param2.cpp:224:5
+always_comb begin : ref_call4_comb     // test_cthread_read_defined_param2.cpp:231:5
     ref_call4_func;
 end
 function void ref_call4_func;
@@ -413,7 +413,7 @@ function void ref_call4_func;
     case (ref_call4_PROC_STATE)
         0: begin
             // Call fref() begin
-            ref_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:206:9;
+            ref_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:213:9;
             // Call fref() end
         end
         1: begin
@@ -422,11 +422,11 @@ function void ref_call4_func;
             TMP_0 = l;
             // Call fref() end
             i = TMP_0;
-            ref_call4_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:231:13;
+            ref_call4_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:238:13;
         end
         2: begin
             // Call fref() begin
-            ref_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:206:9;
+            ref_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:213:9;
             // Call fref() end
         end
     endcase
@@ -439,7 +439,7 @@ begin : ref_call4_ff
         integer i;
         i = 0;
         a1 <= 1;
-        ref_call4_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:227:9;
+        ref_call4_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:234:9;
     end
     else begin
         a1 <= a_next1;
@@ -448,7 +448,7 @@ begin : ref_call4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: chan_ref1 (test_cthread_read_defined_param2.cpp:242:5) 
+// Clocked THREAD: chan_ref1 (test_cthread_read_defined_param2.cpp:249:5) 
 
 // Thread-local variables
 logic [2:0] s_next;
@@ -456,7 +456,7 @@ logic [1:0] chan_ref1_PROC_STATE;
 logic [1:0] chan_ref1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : chan_ref1_comb     // test_cthread_read_defined_param2.cpp:242:5
+always_comb begin : chan_ref1_comb     // test_cthread_read_defined_param2.cpp:249:5
     chan_ref1_func;
 end
 function void chan_ref1_func;
@@ -470,7 +470,7 @@ function void chan_ref1_func;
     case (chan_ref1_PROC_STATE)
         0: begin
             // Call fch_ref() begin
-            chan_ref1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:237:9;
+            chan_ref1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:244:9;
             // Call fch_ref() end
         end
         1: begin
@@ -479,11 +479,11 @@ function void chan_ref1_func;
             TMP_0 = ll;
             // Call fch_ref() end
             d = TMP_0;
-            chan_ref1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:249:13;
+            chan_ref1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:256:13;
         end
         2: begin
             // Call fch_ref() begin
-            chan_ref1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:237:9;
+            chan_ref1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:244:9;
             // Call fch_ref() end
         end
     endcase
@@ -494,7 +494,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : chan_ref1_ff
     if ( ~rstn ) begin
         s <= 0;
-        chan_ref1_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:245:9;
+        chan_ref1_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:252:9;
     end
     else begin
         s <= s_next;
@@ -503,7 +503,7 @@ begin : chan_ref1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_val_call1 (test_cthread_read_defined_param2.cpp:261:5) 
+// Clocked THREAD: const_val_call1 (test_cthread_read_defined_param2.cpp:268:5) 
 
 // Thread-local variables
 logic [2:0] val2;
@@ -512,7 +512,7 @@ logic [1:0] const_val_call1_PROC_STATE;
 logic [1:0] const_val_call1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : const_val_call1_comb     // test_cthread_read_defined_param2.cpp:261:5
+always_comb begin : const_val_call1_comb     // test_cthread_read_defined_param2.cpp:268:5
     const_val_call1_func;
 end
 function void const_val_call1_func;
@@ -529,7 +529,7 @@ function void const_val_call1_func;
             val_next2 = 1;
             // Call cval() begin
             l = val_next2;
-            const_val_call1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:257:9;
+            const_val_call1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:264:9;
             // Call cval() end
         end
         1: begin
@@ -540,7 +540,7 @@ function void const_val_call1_func;
             val_next2 = in;
             // Call cval() begin
             l = val_next2;
-            const_val_call1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:257:9;
+            const_val_call1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:264:9;
             // Call cval() end
         end
         2: begin
@@ -548,13 +548,13 @@ function void const_val_call1_func;
             TMP_1 = val_next2;
             // Call cval() end
             i = TMP_1;
-            const_val_call1_PROC_STATE_next = 3; return;    // test_cthread_read_defined_param2.cpp:268:13;
+            const_val_call1_PROC_STATE_next = 3; return;    // test_cthread_read_defined_param2.cpp:275:13;
         end
         3: begin
             val_next2 = 1;
             // Call cval() begin
             l = val_next2;
-            const_val_call1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:257:9;
+            const_val_call1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:264:9;
             // Call cval() end
         end
     endcase
@@ -566,7 +566,7 @@ begin : const_val_call1_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        const_val_call1_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:263:9;
+        const_val_call1_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:270:9;
     end
     else begin
         val2 <= val_next2;
@@ -575,7 +575,7 @@ begin : const_val_call1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_val_call2 (test_cthread_read_defined_param2.cpp:272:6) 
+// Clocked THREAD: const_val_call2 (test_cthread_read_defined_param2.cpp:279:6) 
 
 // Thread-local variables
 logic [2:0] val3;
@@ -584,7 +584,7 @@ logic [1:0] const_val_call2_PROC_STATE;
 logic [1:0] const_val_call2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : const_val_call2_comb     // test_cthread_read_defined_param2.cpp:272:6
+always_comb begin : const_val_call2_comb     // test_cthread_read_defined_param2.cpp:279:6
     const_val_call2_func;
 end
 function void const_val_call2_func;
@@ -601,7 +601,7 @@ function void const_val_call2_func;
             val_next3 = 2 + 1;
             // Call cval() begin
             l = val_next3;
-            const_val_call2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:257:9;
+            const_val_call2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:264:9;
             // Call cval() end
         end
         1: begin
@@ -612,7 +612,7 @@ function void const_val_call2_func;
             val_next3 = 3;
             // Call cval() begin
             l = val_next3;
-            const_val_call2_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:257:9;
+            const_val_call2_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:264:9;
             // Call cval() end
         end
         2: begin
@@ -620,13 +620,13 @@ function void const_val_call2_func;
             TMP_1 = val_next3;
             // Call cval() end
             i = TMP_1;
-            const_val_call2_PROC_STATE_next = 3; return;    // test_cthread_read_defined_param2.cpp:279:13;
+            const_val_call2_PROC_STATE_next = 3; return;    // test_cthread_read_defined_param2.cpp:286:13;
         end
         3: begin
             val_next3 = 2 + 1;
             // Call cval() begin
             l = val_next3;
-            const_val_call2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:257:9;
+            const_val_call2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:264:9;
             // Call cval() end
         end
     endcase
@@ -638,7 +638,7 @@ begin : const_val_call2_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        const_val_call2_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:274:9;
+        const_val_call2_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:281:9;
     end
     else begin
         val3 <= val_next3;
@@ -647,7 +647,7 @@ begin : const_val_call2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_val_call3 (test_cthread_read_defined_param2.cpp:283:5) 
+// Clocked THREAD: const_val_call3 (test_cthread_read_defined_param2.cpp:290:5) 
 
 // Thread-local variables
 logic [2:0] val4;
@@ -656,7 +656,7 @@ logic [1:0] const_val_call3_PROC_STATE;
 logic [1:0] const_val_call3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : const_val_call3_comb     // test_cthread_read_defined_param2.cpp:283:5
+always_comb begin : const_val_call3_comb     // test_cthread_read_defined_param2.cpp:290:5
     const_val_call3_func;
 end
 function void const_val_call3_func;
@@ -674,7 +674,7 @@ function void const_val_call3_func;
             val_next4 = a;
             // Call cval() begin
             l = val_next4;
-            const_val_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:257:9;
+            const_val_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:264:9;
             // Call cval() end
         end
         1: begin
@@ -682,14 +682,14 @@ function void const_val_call3_func;
             TMP_0 = val_next4;
             // Call cval() end
             i = TMP_0;
-            const_val_call3_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:290:13;
+            const_val_call3_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:297:13;
         end
         2: begin
             a = 1;
             val_next4 = a;
             // Call cval() begin
             l = val_next4;
-            const_val_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:257:9;
+            const_val_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:264:9;
             // Call cval() end
         end
     endcase
@@ -701,7 +701,7 @@ begin : const_val_call3_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        const_val_call3_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:285:9;
+        const_val_call3_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:292:9;
     end
     else begin
         val4 <= val_next4;
@@ -710,7 +710,7 @@ begin : const_val_call3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_val_call4 (test_cthread_read_defined_param2.cpp:294:5) 
+// Clocked THREAD: const_val_call4 (test_cthread_read_defined_param2.cpp:301:5) 
 
 // Thread-local variables
 logic [2:0] a2;
@@ -721,7 +721,7 @@ logic [1:0] const_val_call4_PROC_STATE;
 logic [1:0] const_val_call4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : const_val_call4_comb     // test_cthread_read_defined_param2.cpp:294:5
+always_comb begin : const_val_call4_comb     // test_cthread_read_defined_param2.cpp:301:5
     const_val_call4_func;
 end
 function void const_val_call4_func;
@@ -738,7 +738,7 @@ function void const_val_call4_func;
             val_next5 = a_next2;
             // Call cval() begin
             l = val_next5;
-            const_val_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:257:9;
+            const_val_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:264:9;
             // Call cval() end
         end
         1: begin
@@ -746,13 +746,13 @@ function void const_val_call4_func;
             TMP_0 = val_next5;
             // Call cval() end
             i = TMP_0;
-            const_val_call4_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:301:13;
+            const_val_call4_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:308:13;
         end
         2: begin
             val_next5 = a_next2;
             // Call cval() begin
             l = val_next5;
-            const_val_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:257:9;
+            const_val_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:264:9;
             // Call cval() end
         end
     endcase
@@ -765,7 +765,7 @@ begin : const_val_call4_ff
         integer i;
         i = 0;
         a2 <= 1;
-        const_val_call4_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:297:9;
+        const_val_call4_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:304:9;
     end
     else begin
         a2 <= a_next2;
@@ -775,7 +775,7 @@ begin : const_val_call4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: val_call3 (test_cthread_read_defined_param2.cpp:313:5) 
+// Clocked THREAD: val_call3 (test_cthread_read_defined_param2.cpp:320:5) 
 
 // Thread-local variables
 logic [2:0] val6;
@@ -784,7 +784,7 @@ logic [1:0] val_call3_PROC_STATE;
 logic [1:0] val_call3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : val_call3_comb     // test_cthread_read_defined_param2.cpp:313:5
+always_comb begin : val_call3_comb     // test_cthread_read_defined_param2.cpp:320:5
     val_call3_func;
 end
 function void val_call3_func;
@@ -801,7 +801,7 @@ function void val_call3_func;
             a = 1;
             val_next6 = a;
             // Call fval() begin
-            val_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:308:9;
+            val_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:315:9;
             // Call fval() end
         end
         1: begin
@@ -810,13 +810,13 @@ function void val_call3_func;
             TMP_0 = l;
             // Call fval() end
             i = TMP_0;
-            val_call3_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:320:13;
+            val_call3_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:327:13;
         end
         2: begin
             a = 1;
             val_next6 = a;
             // Call fval() begin
-            val_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:308:9;
+            val_call3_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:315:9;
             // Call fval() end
         end
     endcase
@@ -828,7 +828,7 @@ begin : val_call3_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        val_call3_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:315:9;
+        val_call3_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:322:9;
     end
     else begin
         val6 <= val_next6;
@@ -837,7 +837,7 @@ begin : val_call3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: val_call4 (test_cthread_read_defined_param2.cpp:324:5) 
+// Clocked THREAD: val_call4 (test_cthread_read_defined_param2.cpp:331:5) 
 
 // Thread-local variables
 logic [2:0] a3;
@@ -848,7 +848,7 @@ logic [1:0] val_call4_PROC_STATE;
 logic [1:0] val_call4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : val_call4_comb     // test_cthread_read_defined_param2.cpp:324:5
+always_comb begin : val_call4_comb     // test_cthread_read_defined_param2.cpp:331:5
     val_call4_func;
 end
 function void val_call4_func;
@@ -864,7 +864,7 @@ function void val_call4_func;
         0: begin
             val_next7 = a_next3;
             // Call fval() begin
-            val_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:308:9;
+            val_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:315:9;
             // Call fval() end
         end
         1: begin
@@ -873,12 +873,12 @@ function void val_call4_func;
             TMP_0 = l;
             // Call fval() end
             i = TMP_0;
-            val_call4_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:331:13;
+            val_call4_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:338:13;
         end
         2: begin
             val_next7 = a_next3;
             // Call fval() begin
-            val_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:308:9;
+            val_call4_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:315:9;
             // Call fval() end
         end
     endcase
@@ -891,7 +891,7 @@ begin : val_call4_ff
         integer i;
         i = 0;
         a3 <= 1;
-        val_call4_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:327:9;
+        val_call4_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:334:9;
     end
     else begin
         a3 <= a_next3;
@@ -901,7 +901,7 @@ begin : val_call4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: val_call5 (test_cthread_read_defined_param2.cpp:335:5) 
+// Clocked THREAD: val_call5 (test_cthread_read_defined_param2.cpp:342:5) 
 
 // Thread-local variables
 logic [2:0] val8;
@@ -910,7 +910,7 @@ logic [1:0] val_call5_PROC_STATE;
 logic [1:0] val_call5_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : val_call5_comb     // test_cthread_read_defined_param2.cpp:335:5
+always_comb begin : val_call5_comb     // test_cthread_read_defined_param2.cpp:342:5
     val_call5_func;
 end
 function void val_call5_func;
@@ -926,7 +926,7 @@ function void val_call5_func;
         0: begin
             val_next8 = 5;
             // Call fval() begin
-            val_call5_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:308:9;
+            val_call5_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:315:9;
             // Call fval() end
         end
         1: begin
@@ -935,12 +935,12 @@ function void val_call5_func;
             TMP_0 = l;
             // Call fval() end
             i = TMP_0;
-            val_call5_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:341:13;
+            val_call5_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:348:13;
         end
         2: begin
             val_next8 = 6;
             // Call fval() begin
-            val_call5_PROC_STATE_next = 3; return;    // test_cthread_read_defined_param2.cpp:308:9;
+            val_call5_PROC_STATE_next = 3; return;    // test_cthread_read_defined_param2.cpp:315:9;
             // Call fval() end
         end
         3: begin
@@ -951,7 +951,7 @@ function void val_call5_func;
             i = TMP_1;
             val_next8 = 5;
             // Call fval() begin
-            val_call5_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:308:9;
+            val_call5_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:315:9;
             // Call fval() end
         end
     endcase
@@ -963,7 +963,7 @@ begin : val_call5_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        val_call5_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:337:9;
+        val_call5_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:344:9;
     end
     else begin
         val8 <= val_next8;
@@ -972,7 +972,7 @@ begin : val_call5_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: def_param1 (test_cthread_read_defined_param2.cpp:357:5) 
+// Clocked THREAD: def_param1 (test_cthread_read_defined_param2.cpp:364:5) 
 
 // Thread-local variables
 logic [2:0] val9;
@@ -981,7 +981,7 @@ logic [1:0] def_param1_PROC_STATE;
 logic [1:0] def_param1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : def_param1_comb     // test_cthread_read_defined_param2.cpp:357:5
+always_comb begin : def_param1_comb     // test_cthread_read_defined_param2.cpp:364:5
     def_param1_func;
 end
 function void def_param1_func;
@@ -997,7 +997,7 @@ function void def_param1_func;
             val_next9 = 1;
             // Call def_cref() begin
             l = val_next9;
-            def_param1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:352:9;
+            def_param1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:359:9;
             // Call def_cref() end
         end
         1: begin
@@ -1006,13 +1006,13 @@ function void def_param1_func;
             TMP_0 = l;
             // Call def_cref() end
             i = TMP_0;
-            def_param1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:363:13;
+            def_param1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:370:13;
         end
         2: begin
             val_next9 = 1;
             // Call def_cref() begin
             l = val_next9;
-            def_param1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:352:9;
+            def_param1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:359:9;
             // Call def_cref() end
         end
     endcase
@@ -1024,7 +1024,7 @@ begin : def_param1_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        def_param1_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:359:9;
+        def_param1_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:366:9;
     end
     else begin
         val9 <= val_next9;
@@ -1033,7 +1033,7 @@ begin : def_param1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: def_param2 (test_cthread_read_defined_param2.cpp:374:5) 
+// Clocked THREAD: def_param2 (test_cthread_read_defined_param2.cpp:381:5) 
 
 // Thread-local variables
 logic [2:0] val10;
@@ -1042,7 +1042,7 @@ logic [1:0] def_param2_PROC_STATE;
 logic [1:0] def_param2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : def_param2_comb     // test_cthread_read_defined_param2.cpp:374:5
+always_comb begin : def_param2_comb     // test_cthread_read_defined_param2.cpp:381:5
     def_param2_func;
 end
 function void def_param2_func;
@@ -1058,7 +1058,7 @@ function void def_param2_func;
             val_next10 = 1;
             // Call def_cval() begin
             l = 1;
-            def_param2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:369:9;
+            def_param2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:376:9;
             // Call def_cval() end
         end
         1: begin
@@ -1067,13 +1067,13 @@ function void def_param2_func;
             TMP_0 = l;
             // Call def_cval() end
             i = TMP_0;
-            def_param2_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:380:13;
+            def_param2_PROC_STATE_next = 2; return;    // test_cthread_read_defined_param2.cpp:387:13;
         end
         2: begin
             val_next10 = 1;
             // Call def_cval() begin
             l = 1;
-            def_param2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:369:9;
+            def_param2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_param2.cpp:376:9;
             // Call def_cval() end
         end
     endcase
@@ -1085,7 +1085,7 @@ begin : def_param2_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        def_param2_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:376:9;
+        def_param2_PROC_STATE <= 0;    // test_cthread_read_defined_param2.cpp:383:9;
     end
     else begin
         val10 <= val_next10;

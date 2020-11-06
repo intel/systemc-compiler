@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 //
 // Created by ripopov on 3/13/18.
 //
@@ -176,7 +183,7 @@ public:
         }
     }
 
-    // While with binary ||/&& operator -- BUG in HS SMEM EMC
+    // While with binary ||/&& operator -- BUG in real design EMC
     void while_with_binary_oper()
     {
         bool b1, b2;
@@ -209,7 +216,7 @@ public:
         }
     }
     
-    // While with binary ||/&& operator -- BUG in HS SMEM EMC fixed
+    // While with binary ||/&& operator -- BUG in real design EMC fixed
     void while_with_binary_oper2()
     { 
         bool b1, b2, b3;
@@ -263,3 +270,4 @@ int sc_main(int argc, char *argv[])
     sc_start(100, SC_NS);
     return 0;
 }
+

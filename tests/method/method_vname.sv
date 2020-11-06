@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_vname.cpp:87:5)
+// Module: A (test_vname.cpp:94:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -36,7 +36,7 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: var1 (test_vname.cpp:37:5) 
+// Method process: var1 (test_vname.cpp:44:5) 
 
 // Process-local variables
 logic signed [31:0] k;
@@ -44,7 +44,7 @@ logic m;
 logic [1:0] m0;
 
 always_comb 
-begin : var1     // test_vname.cpp:37:5
+begin : var1     // test_vname.cpp:44:5
     integer i_1;
     logic k_1;
     logic [2:0] m_1;
@@ -63,7 +63,7 @@ begin : var1     // test_vname.cpp:37:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: var2 (test_vname.cpp:53:5) 
+// Method process: var2 (test_vname.cpp:60:5) 
 
 // Process-local variables
 logic m;
@@ -72,7 +72,7 @@ logic signed [31:0] k;
 logic signed [31:0] j;
 
 always_comb 
-begin : var2     // test_vname.cpp:53:5
+begin : var2     // test_vname.cpp:60:5
     logic [2:0] m_1;
     m = 0;
     m0 = 1;
@@ -82,10 +82,10 @@ begin : var2     // test_vname.cpp:53:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: var3 (test_vname.cpp:64:5) 
+// Method process: var3 (test_vname.cpp:71:5) 
 
 always_comb 
-begin : var3     // test_vname.cpp:64:5
+begin : var3     // test_vname.cpp:71:5
     logic [1:0] i_1;
     logic [2:0] i_2;
     logic [3:0] i_3;

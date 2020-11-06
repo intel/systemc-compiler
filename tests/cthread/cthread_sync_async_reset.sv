@@ -37,13 +37,13 @@ module test_reset // "t_inst"
 );
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: async_rst (test_cthread_sync_async_reset.cpp:111:5) 
+// Clocked THREAD: async_rst (test_cthread_sync_async_reset.cpp:118:5) 
 
 // Thread-local variables
 logic [2:0] data0_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : async_rst_comb     // test_cthread_sync_async_reset.cpp:111:5
+always_comb begin : async_rst_comb     // test_cthread_sync_async_reset.cpp:118:5
     async_rst_func;
 end
 function void async_rst_func;
@@ -63,13 +63,13 @@ begin : async_rst_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: async_rst_active_high (test_cthread_sync_async_reset.cpp:122:5) 
+// Clocked THREAD: async_rst_active_high (test_cthread_sync_async_reset.cpp:129:5) 
 
 // Thread-local variables
 logic [2:0] data1_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : async_rst_active_high_comb     // test_cthread_sync_async_reset.cpp:122:5
+always_comb begin : async_rst_active_high_comb     // test_cthread_sync_async_reset.cpp:129:5
     async_rst_active_high_func;
 end
 function void async_rst_active_high_func;
@@ -89,13 +89,13 @@ begin : async_rst_active_high_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sync_rst (test_cthread_sync_async_reset.cpp:133:5) 
+// Clocked THREAD: sync_rst (test_cthread_sync_async_reset.cpp:140:5) 
 
 // Thread-local variables
 logic [2:0] data2_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : sync_rst_comb     // test_cthread_sync_async_reset.cpp:133:5
+always_comb begin : sync_rst_comb     // test_cthread_sync_async_reset.cpp:140:5
     sync_rst_func;
 end
 function void sync_rst_func;
@@ -115,13 +115,13 @@ begin : sync_rst_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sync_rst_active_low (test_cthread_sync_async_reset.cpp:144:5) 
+// Clocked THREAD: sync_rst_active_low (test_cthread_sync_async_reset.cpp:151:5) 
 
 // Thread-local variables
 logic [2:0] data3_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : sync_rst_active_low_comb     // test_cthread_sync_async_reset.cpp:144:5
+always_comb begin : sync_rst_active_low_comb     // test_cthread_sync_async_reset.cpp:151:5
     sync_rst_active_low_func;
 end
 function void sync_rst_active_low_func;
@@ -141,13 +141,13 @@ begin : sync_rst_active_low_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sync_rst_multi (test_cthread_sync_async_reset.cpp:155:5) 
+// Clocked THREAD: sync_rst_multi (test_cthread_sync_async_reset.cpp:162:5) 
 
 // Thread-local variables
 logic [2:0] data4_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : sync_rst_multi_comb     // test_cthread_sync_async_reset.cpp:155:5
+always_comb begin : sync_rst_multi_comb     // test_cthread_sync_async_reset.cpp:162:5
     sync_rst_multi_func;
 end
 function void sync_rst_multi_func;
@@ -167,13 +167,13 @@ begin : sync_rst_multi_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: async_rst_multi (test_cthread_sync_async_reset.cpp:166:5) 
+// Clocked THREAD: async_rst_multi (test_cthread_sync_async_reset.cpp:173:5) 
 
 // Thread-local variables
 logic [2:0] data5_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : async_rst_multi_comb     // test_cthread_sync_async_reset.cpp:166:5
+always_comb begin : async_rst_multi_comb     // test_cthread_sync_async_reset.cpp:173:5
     async_rst_multi_func;
 end
 function void async_rst_multi_func;
@@ -193,13 +193,13 @@ begin : async_rst_multi_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sync_rst_multi_active_low (test_cthread_sync_async_reset.cpp:177:5) 
+// Clocked THREAD: sync_rst_multi_active_low (test_cthread_sync_async_reset.cpp:184:5) 
 
 // Thread-local variables
 logic [2:0] data6_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : sync_rst_multi_active_low_comb     // test_cthread_sync_async_reset.cpp:177:5
+always_comb begin : sync_rst_multi_active_low_comb     // test_cthread_sync_async_reset.cpp:184:5
     sync_rst_multi_active_low_func;
 end
 function void sync_rst_multi_active_low_func;
@@ -219,13 +219,13 @@ begin : sync_rst_multi_active_low_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: async_rst_multi_active_low (test_cthread_sync_async_reset.cpp:188:5) 
+// Clocked THREAD: async_rst_multi_active_low (test_cthread_sync_async_reset.cpp:195:5) 
 
 // Thread-local variables
 logic [2:0] data7_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : async_rst_multi_active_low_comb     // test_cthread_sync_async_reset.cpp:188:5
+always_comb begin : async_rst_multi_active_low_comb     // test_cthread_sync_async_reset.cpp:195:5
     async_rst_multi_active_low_func;
 end
 function void async_rst_multi_active_low_func;
@@ -245,13 +245,13 @@ begin : async_rst_multi_active_low_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sync_rst_multi_active_low_high (test_cthread_sync_async_reset.cpp:199:5) 
+// Clocked THREAD: sync_rst_multi_active_low_high (test_cthread_sync_async_reset.cpp:206:5) 
 
 // Thread-local variables
 logic [2:0] data8_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : sync_rst_multi_active_low_high_comb     // test_cthread_sync_async_reset.cpp:199:5
+always_comb begin : sync_rst_multi_active_low_high_comb     // test_cthread_sync_async_reset.cpp:206:5
     sync_rst_multi_active_low_high_func;
 end
 function void sync_rst_multi_active_low_high_func;
@@ -271,13 +271,13 @@ begin : sync_rst_multi_active_low_high_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sync_rst_multi_active_high_low (test_cthread_sync_async_reset.cpp:210:5) 
+// Clocked THREAD: sync_rst_multi_active_high_low (test_cthread_sync_async_reset.cpp:217:5) 
 
 // Thread-local variables
 logic [2:0] data9_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : sync_rst_multi_active_high_low_comb     // test_cthread_sync_async_reset.cpp:210:5
+always_comb begin : sync_rst_multi_active_high_low_comb     // test_cthread_sync_async_reset.cpp:217:5
     sync_rst_multi_active_high_low_func;
 end
 function void sync_rst_multi_active_high_low_func;
@@ -297,13 +297,13 @@ begin : sync_rst_multi_active_high_low_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sync_rst_multi_async_single_sync (test_cthread_sync_async_reset.cpp:221:5) 
+// Clocked THREAD: sync_rst_multi_async_single_sync (test_cthread_sync_async_reset.cpp:228:5) 
 
 // Thread-local variables
 logic [2:0] data10_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : sync_rst_multi_async_single_sync_comb     // test_cthread_sync_async_reset.cpp:221:5
+always_comb begin : sync_rst_multi_async_single_sync_comb     // test_cthread_sync_async_reset.cpp:228:5
     sync_rst_multi_async_single_sync_func;
 end
 function void sync_rst_multi_async_single_sync_func;
@@ -323,13 +323,13 @@ begin : sync_rst_multi_async_single_sync_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sync_rst_multi_sync_single_async (test_cthread_sync_async_reset.cpp:232:5) 
+// Clocked THREAD: sync_rst_multi_sync_single_async (test_cthread_sync_async_reset.cpp:239:5) 
 
 // Thread-local variables
 logic [2:0] data11_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : sync_rst_multi_sync_single_async_comb     // test_cthread_sync_async_reset.cpp:232:5
+always_comb begin : sync_rst_multi_sync_single_async_comb     // test_cthread_sync_async_reset.cpp:239:5
     sync_rst_multi_sync_single_async_func;
 end
 function void sync_rst_multi_sync_single_async_func;
@@ -349,13 +349,13 @@ begin : sync_rst_multi_sync_single_async_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sync_rst_multi_sync_multi_async (test_cthread_sync_async_reset.cpp:243:4) 
+// Clocked THREAD: sync_rst_multi_sync_multi_async (test_cthread_sync_async_reset.cpp:250:4) 
 
 // Thread-local variables
 logic [2:0] data12_reg_o_next;
 
 // Next-state combinational logic
-always_comb begin : sync_rst_multi_sync_multi_async_comb     // test_cthread_sync_async_reset.cpp:243:4
+always_comb begin : sync_rst_multi_sync_multi_async_comb     // test_cthread_sync_async_reset.cpp:250:4
     sync_rst_multi_sync_multi_async_func;
 end
 function void sync_rst_multi_sync_multi_async_func;

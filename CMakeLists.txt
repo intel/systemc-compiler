@@ -95,7 +95,7 @@ install(FILES ${PROJECT_BINARY_DIR}/SVCConfig.cmake cmake/svc_target.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/SVC)
 
 # Install sctMemory
-install(DIRECTORY components/memory/sctmemory DESTINATION include)
+#install(DIRECTORY components/memory/sctmemory DESTINATION include)
 
 # Install sctCommon
 install(DIRECTORY components/common/sctcommon DESTINATION include)

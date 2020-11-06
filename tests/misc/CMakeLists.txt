@@ -1,3 +1,10 @@
+#******************************************************************************
+# Copyright (c) 2020, Intel Corporation. All rights reserved.
+# 
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+# 
+# *****************************************************************************
+
 #set(COMMON_HOME $ENV{ICSC_HOME}/svc/components/common)
 set(COMMON_TEST $ENV{ICSC_HOME}/svc/components/common/test)
 #include_directories(

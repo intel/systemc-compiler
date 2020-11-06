@@ -22,13 +22,13 @@ logic vs[3][3];
 logic ys[3][3];
 
 //------------------------------------------------------------------------------
-// Method process: array_in_method1 (test_cthread_array_access.cpp:62:5) 
+// Method process: array_in_method1 (test_cthread_array_access.cpp:69:5) 
 
 // Process-local variables
 logic [2:0] r[3];
 
 always_comb 
-begin : array_in_method1     // test_cthread_array_access.cpp:62:5
+begin : array_in_method1     // test_cthread_array_access.cpp:69:5
     integer i;
     integer j;
     r[0] = 1;
@@ -39,13 +39,13 @@ begin : array_in_method1     // test_cthread_array_access.cpp:62:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: array_in_method2 (test_cthread_array_access.cpp:72:5) 
+// Method process: array_in_method2 (test_cthread_array_access.cpp:79:5) 
 
 // Process-local variables
 logic [3:0] rr[3][2];
 
 always_comb 
-begin : array_in_method2     // test_cthread_array_access.cpp:72:5
+begin : array_in_method2     // test_cthread_array_access.cpp:79:5
     integer i;
     integer j;
     for (integer k = 0; k < 3; k++)
@@ -60,14 +60,14 @@ begin : array_in_method2     // test_cthread_array_access.cpp:72:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_in_thread1 (test_cthread_array_access.cpp:86:5) 
+// Clocked THREAD: array_in_thread1 (test_cthread_array_access.cpp:93:5) 
 
 // Thread-local variables
 logic s[3];
 logic s_next[3];
 
 // Next-state combinational logic
-always_comb begin : array_in_thread1_comb     // test_cthread_array_access.cpp:86:5
+always_comb begin : array_in_thread1_comb     // test_cthread_array_access.cpp:93:5
     array_in_thread1_func;
 end
 function void array_in_thread1_func;
@@ -91,14 +91,14 @@ begin : array_in_thread1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_in_thread2 (test_cthread_array_access.cpp:101:5) 
+// Clocked THREAD: array_in_thread2 (test_cthread_array_access.cpp:108:5) 
 
 // Thread-local variables
 logic signed [31:0] ss[2][3];
 logic signed [31:0] ss_next[2][3];
 
 // Next-state combinational logic
-always_comb begin : array_in_thread2_comb     // test_cthread_array_access.cpp:101:5
+always_comb begin : array_in_thread2_comb     // test_cthread_array_access.cpp:108:5
     array_in_thread2_func;
 end
 function void array_in_thread2_func;
@@ -134,10 +134,10 @@ begin : array_in_thread2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_use_def0 (test_cthread_array_access.cpp:126:5) 
+// Clocked THREAD: array_use_def0 (test_cthread_array_access.cpp:133:5) 
 
 // Next-state combinational logic
-always_comb begin : array_use_def0_comb     // test_cthread_array_access.cpp:126:5
+always_comb begin : array_use_def0_comb     // test_cthread_array_access.cpp:133:5
     array_use_def0_func;
 end
 function void array_use_def0_func;
@@ -159,14 +159,14 @@ begin : array_use_def0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_use_def1 (test_cthread_array_access.cpp:142:5) 
+// Clocked THREAD: array_use_def1 (test_cthread_array_access.cpp:149:5) 
 
 // Thread-local variables
 logic signed [31:0] x[2];
 logic signed [31:0] x_next[2];
 
 // Next-state combinational logic
-always_comb begin : array_use_def1_comb     // test_cthread_array_access.cpp:142:5
+always_comb begin : array_use_def1_comb     // test_cthread_array_access.cpp:149:5
     array_use_def1_func;
 end
 function void array_use_def1_func;
@@ -200,7 +200,7 @@ begin : array_use_def1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_use_def2 (test_cthread_array_access.cpp:176:5) 
+// Clocked THREAD: array_use_def2 (test_cthread_array_access.cpp:183:5) 
 
 // Thread-local variables
 logic signed [31:0] z[2];
@@ -211,7 +211,7 @@ logic [1:0] array_use_def2_PROC_STATE;
 logic [1:0] array_use_def2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : array_use_def2_comb     // test_cthread_array_access.cpp:176:5
+always_comb begin : array_use_def2_comb     // test_cthread_array_access.cpp:183:5
     array_use_def2_func;
 end
 function void array_use_def2_func;
@@ -225,7 +225,7 @@ function void array_use_def2_func;
         0: begin
             u_next[0] = 0; u_next[1] = 0;
             y[0] = 0; y[1] = 0;
-            array_use_def2_PROC_STATE_next = 1; return;    // test_cthread_array_access.cpp:188:13;
+            array_use_def2_PROC_STATE_next = 1; return;    // test_cthread_array_access.cpp:195:13;
         end
         1: begin
             z_next[1] = 2;
@@ -233,18 +233,18 @@ function void array_use_def2_func;
             u_next[0] = 3;
             i = u_next[0];
             y[1] = 4;
-            array_use_def2_PROC_STATE_next = 2; return;    // test_cthread_array_access.cpp:197:13;
+            array_use_def2_PROC_STATE_next = 2; return;    // test_cthread_array_access.cpp:204:13;
         end
         2: begin
             i = u_next[0];
             y[1] = 5;
             i = y[1];
-            array_use_def2_PROC_STATE_next = 3; return;    // test_cthread_array_access.cpp:203:13;
+            array_use_def2_PROC_STATE_next = 3; return;    // test_cthread_array_access.cpp:210:13;
         end
         3: begin
             u_next[0] = 0; u_next[1] = 0;
             y[0] = 0; y[1] = 0;
-            array_use_def2_PROC_STATE_next = 1; return;    // test_cthread_array_access.cpp:188:13;
+            array_use_def2_PROC_STATE_next = 1; return;    // test_cthread_array_access.cpp:195:13;
         end
     endcase
 endfunction
@@ -253,7 +253,7 @@ endfunction
 always_ff @(posedge clk or posedge rst) 
 begin : array_use_def2_ff
     if (rst ) begin
-        array_use_def2_PROC_STATE <= 0;    // test_cthread_array_access.cpp:178:9;
+        array_use_def2_PROC_STATE <= 0;    // test_cthread_array_access.cpp:185:9;
     end
     else begin
         z <= z_next;
@@ -263,7 +263,7 @@ begin : array_use_def2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_use_def_ptr1 (test_cthread_array_access.cpp:215:5) 
+// Clocked THREAD: array_use_def_ptr1 (test_cthread_array_access.cpp:222:5) 
 
 // Thread-local variables
 logic signed [31:0] zp[2];
@@ -277,7 +277,7 @@ logic signed [31:0] xp_next[2];
 logic signed [31:0] qp[2];
 
 // Next-state combinational logic
-always_comb begin : array_use_def_ptr1_comb     // test_cthread_array_access.cpp:215:5
+always_comb begin : array_use_def_ptr1_comb     // test_cthread_array_access.cpp:222:5
     array_use_def_ptr1_func;
 end
 function void array_use_def_ptr1_func;
@@ -312,7 +312,7 @@ begin : array_use_def_ptr1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_use_def_ptr2 (test_cthread_array_access.cpp:243:5) 
+// Clocked THREAD: array_use_def_ptr2 (test_cthread_array_access.cpp:250:5) 
 
 // Thread-local variables
 logic signed [31:0] zpp[2][2];
@@ -326,7 +326,7 @@ logic signed [31:0] xpp_next[2][2];
 logic signed [31:0] qpp[2][2];
 
 // Next-state combinational logic
-always_comb begin : array_use_def_ptr2_comb     // test_cthread_array_access.cpp:243:5
+always_comb begin : array_use_def_ptr2_comb     // test_cthread_array_access.cpp:250:5
     array_use_def_ptr2_func;
 end
 function void array_use_def_ptr2_func;
@@ -363,7 +363,7 @@ begin : array_use_def_ptr2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_use_def_sig (test_cthread_array_access.cpp:272:5) 
+// Clocked THREAD: array_use_def_sig (test_cthread_array_access.cpp:279:5) 
 
 // Thread-local variables
 logic signed [31:0] j1;
@@ -373,7 +373,7 @@ logic vs_next[3][3];
 logic ys_next[3][3];
 
 // Next-state combinational logic
-always_comb begin : array_use_def_sig_comb     // test_cthread_array_access.cpp:272:5
+always_comb begin : array_use_def_sig_comb     // test_cthread_array_access.cpp:279:5
     array_use_def_sig_func;
 end
 function void array_use_def_sig_func;

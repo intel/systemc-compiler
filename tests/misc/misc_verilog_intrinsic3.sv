@@ -22,14 +22,14 @@ logic [31:0] tmp1;
 logic [31:0] dout;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread (test_verilog_intrinsic3.cpp:104:5) 
+// Clocked THREAD: test_thread (test_verilog_intrinsic3.cpp:111:5) 
 
 // Thread-local variables
 logic test_thread_PROC_STATE;
 logic test_thread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_comb     // test_verilog_intrinsic3.cpp:104:5
+always_comb begin : test_thread_comb     // test_verilog_intrinsic3.cpp:111:5
     test_thread_func;
 end
 function void test_thread_func;
@@ -37,7 +37,7 @@ function void test_thread_func;
     
     case (test_thread_PROC_STATE)
         default : begin
-            test_thread_PROC_STATE_next = 0; return;    // test_verilog_intrinsic3.cpp:108:9;
+            test_thread_PROC_STATE_next = 0; return;    // test_verilog_intrinsic3.cpp:115:9;
         end
         0: begin
         end
@@ -95,7 +95,7 @@ endmodule
 
 //==============================================================================
 //
-// Verilog intrinsic for module: my_register (test_verilog_intrinsic3.cpp:72:5)
+// Verilog intrinsic for module: my_register (test_verilog_intrinsic3.cpp:79:5)
 //
 module my_register (
     input  logic        clk,

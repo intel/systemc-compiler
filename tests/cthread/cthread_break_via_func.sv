@@ -36,7 +36,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cthread_break_via_func.cpp:197:5)
+// Module: A (test_cthread_break_via_func.cpp:204:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -51,7 +51,7 @@ logic nrst;
 logic signed [31:0] si;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_via_func1 (test_cthread_break_via_func.cpp:60:5) 
+// Clocked THREAD: break_via_func1 (test_cthread_break_via_func.cpp:67:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -61,7 +61,7 @@ logic [1:0] break_via_func1_PROC_STATE;
 logic [1:0] break_via_func1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_via_func1_comb     // test_cthread_break_via_func.cpp:60:5
+always_comb begin : break_via_func1_comb     // test_cthread_break_via_func.cpp:67:5
     break_via_func1_func;
 end
 function void break_via_func1_func;
@@ -77,10 +77,10 @@ function void break_via_func1_func;
             begin
                 // break begin
                 k = 2;
-                break_via_func1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:71:13;
+                break_via_func1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:78:13;
                 // break end
             end
-            break_via_func1_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:48:13;
+            break_via_func1_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:55:13;
             // Call f() end
         end
         1: begin
@@ -92,14 +92,14 @@ function void break_via_func1_func;
                 begin
                     // break begin
                     k = 2;
-                    break_via_func1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:71:13;
+                    break_via_func1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:78:13;
                     // break end
                 end
-                break_via_func1_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:48:13;
+                break_via_func1_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:55:13;
             end
             // Call f() end
             k = 2;
-            break_via_func1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:71:13;
+            break_via_func1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:78:13;
         end
         2: begin
             k = 1;
@@ -109,10 +109,10 @@ function void break_via_func1_func;
             begin
                 // break begin
                 k = 2;
-                break_via_func1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:71:13;
+                break_via_func1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:78:13;
                 // break end
             end
-            break_via_func1_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:48:13;
+            break_via_func1_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:55:13;
             // Call f() end
         end
     endcase
@@ -122,7 +122,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : break_via_func1_ff
     if ( ~nrst ) begin
-        break_via_func1_PROC_STATE <= 0;    // test_cthread_break_via_func.cpp:62:9;
+        break_via_func1_PROC_STATE <= 0;    // test_cthread_break_via_func.cpp:69:9;
     end
     else begin
         i <= i_next;
@@ -131,7 +131,7 @@ begin : break_via_func1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_via_func2 (test_cthread_break_via_func.cpp:75:5) 
+// Clocked THREAD: break_via_func2 (test_cthread_break_via_func.cpp:82:5) 
 
 // Thread-local variables
 logic signed [31:0] i0;
@@ -141,7 +141,7 @@ logic [1:0] break_via_func2_PROC_STATE;
 logic [1:0] break_via_func2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_via_func2_comb     // test_cthread_break_via_func.cpp:75:5
+always_comb begin : break_via_func2_comb     // test_cthread_break_via_func.cpp:82:5
     break_via_func2_func;
 end
 function void break_via_func2_func;
@@ -163,10 +163,10 @@ function void break_via_func2_func;
                     k = 3;
                 end
                 // Call g() end
-                break_via_func2_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:87:13;
+                break_via_func2_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:94:13;
                 // break end
             end
-            break_via_func2_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:48:13;
+            break_via_func2_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:55:13;
             // Call f() end
         end
         1: begin
@@ -184,10 +184,10 @@ function void break_via_func2_func;
                         k = 3;
                     end
                     // Call g() end
-                    break_via_func2_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:87:13;
+                    break_via_func2_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:94:13;
                     // break end
                 end
-                break_via_func2_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:48:13;
+                break_via_func2_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:55:13;
             end
             // Call f() end
             k = 2;
@@ -197,7 +197,7 @@ function void break_via_func2_func;
                 k = 3;
             end
             // Call g() end
-            break_via_func2_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:87:13;
+            break_via_func2_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:94:13;
         end
         2: begin
             k = 1;
@@ -213,10 +213,10 @@ function void break_via_func2_func;
                     k = 3;
                 end
                 // Call g() end
-                break_via_func2_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:87:13;
+                break_via_func2_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:94:13;
                 // break end
             end
-            break_via_func2_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:48:13;
+            break_via_func2_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:55:13;
             // Call f() end
         end
     endcase
@@ -226,7 +226,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : break_via_func2_ff
     if ( ~nrst ) begin
-        break_via_func2_PROC_STATE <= 0;    // test_cthread_break_via_func.cpp:77:9;
+        break_via_func2_PROC_STATE <= 0;    // test_cthread_break_via_func.cpp:84:9;
     end
     else begin
         i0 <= i_next0;
@@ -235,7 +235,7 @@ begin : break_via_func2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_via_func3 (test_cthread_break_via_func.cpp:91:5) 
+// Clocked THREAD: break_via_func3 (test_cthread_break_via_func.cpp:98:5) 
 
 // Thread-local variables
 logic signed [31:0] i1;
@@ -245,7 +245,7 @@ logic [1:0] break_via_func3_PROC_STATE;
 logic [1:0] break_via_func3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_via_func3_comb     // test_cthread_break_via_func.cpp:91:5
+always_comb begin : break_via_func3_comb     // test_cthread_break_via_func.cpp:98:5
     break_via_func3_func;
 end
 function void break_via_func3_func;
@@ -273,10 +273,10 @@ function void break_via_func3_func;
                         // Call g() end
                         k = 4;
                     end
-                    break_via_func3_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:108:13;
+                    break_via_func3_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:115:13;
                     // break end
                 end
-                break_via_func3_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:48:13;
+                break_via_func3_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:55:13;
                 // Call f() end
             end
             if (c)
@@ -289,7 +289,7 @@ function void break_via_func3_func;
                 // Call g() end
                 k = 4;
             end
-            break_via_func3_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:108:13;
+            break_via_func3_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:115:13;
         end
         1: begin
             // Call f() begin
@@ -310,10 +310,10 @@ function void break_via_func3_func;
                         // Call g() end
                         k = 4;
                     end
-                    break_via_func3_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:108:13;
+                    break_via_func3_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:115:13;
                     // break end
                 end
-                break_via_func3_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:48:13;
+                break_via_func3_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:55:13;
             end
             // Call f() end
             k = 2;
@@ -327,7 +327,7 @@ function void break_via_func3_func;
                 // Call g() end
                 k = 4;
             end
-            break_via_func3_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:108:13;
+            break_via_func3_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:115:13;
         end
         2: begin
             k = 1;
@@ -349,10 +349,10 @@ function void break_via_func3_func;
                         // Call g() end
                         k = 4;
                     end
-                    break_via_func3_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:108:13;
+                    break_via_func3_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:115:13;
                     // break end
                 end
-                break_via_func3_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:48:13;
+                break_via_func3_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:55:13;
                 // Call f() end
             end
             if (c)
@@ -365,7 +365,7 @@ function void break_via_func3_func;
                 // Call g() end
                 k = 4;
             end
-            break_via_func3_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:108:13;
+            break_via_func3_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:115:13;
         end
     endcase
 endfunction
@@ -374,7 +374,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : break_via_func3_ff
     if ( ~nrst ) begin
-        break_via_func3_PROC_STATE <= 0;    // test_cthread_break_via_func.cpp:93:9;
+        break_via_func3_PROC_STATE <= 0;    // test_cthread_break_via_func.cpp:100:9;
     end
     else begin
         i1 <= i_next1;
@@ -383,14 +383,14 @@ begin : break_via_func3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_via_func4 (test_cthread_break_via_func.cpp:123:5) 
+// Clocked THREAD: break_via_func4 (test_cthread_break_via_func.cpp:130:5) 
 
 // Thread-local variables
 logic [1:0] break_via_func4_PROC_STATE;
 logic [1:0] break_via_func4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_via_func4_comb     // test_cthread_break_via_func.cpp:123:5
+always_comb begin : break_via_func4_comb     // test_cthread_break_via_func.cpp:130:5
     break_via_func4_func;
 end
 function void break_via_func4_func;
@@ -401,34 +401,34 @@ function void break_via_func4_func;
             // Call f1() begin
             if (a)
             begin
-                break_via_func4_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:117:13;
+                break_via_func4_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:124:13;
             end
             // Call f1() end
-            break_via_func4_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:130:13;
+            break_via_func4_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:137:13;
         end
         1: begin
             // Call f1() begin
             if (b)
             begin
                 // break begin
-                break_via_func4_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:130:13;
+                break_via_func4_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:137:13;
                 // break end
             end
             if (a)
             begin
-                break_via_func4_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:117:13;
+                break_via_func4_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:124:13;
             end
             // Call f1() end
-            break_via_func4_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:130:13;
+            break_via_func4_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:137:13;
         end
         2: begin
             // Call f1() begin
             if (a)
             begin
-                break_via_func4_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:117:13;
+                break_via_func4_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:124:13;
             end
             // Call f1() end
-            break_via_func4_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:130:13;
+            break_via_func4_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:137:13;
         end
     endcase
 endfunction
@@ -437,7 +437,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : break_via_func4_ff
     if ( ~nrst ) begin
-        break_via_func4_PROC_STATE <= 0;    // test_cthread_break_via_func.cpp:125:9;
+        break_via_func4_PROC_STATE <= 0;    // test_cthread_break_via_func.cpp:132:9;
     end
     else begin
         break_via_func4_PROC_STATE <= break_via_func4_PROC_STATE_next;
@@ -445,7 +445,7 @@ begin : break_via_func4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_via_func5 (test_cthread_break_via_func.cpp:147:5) 
+// Clocked THREAD: break_via_func5 (test_cthread_break_via_func.cpp:154:5) 
 
 // Thread-local variables
 logic signed [31:0] res;
@@ -454,7 +454,7 @@ logic [1:0] break_via_func5_PROC_STATE;
 logic [1:0] break_via_func5_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_via_func5_comb     // test_cthread_break_via_func.cpp:147:5
+always_comb begin : break_via_func5_comb     // test_cthread_break_via_func.cpp:154:5
     break_via_func5_func;
 end
 function void break_via_func5_func;
@@ -471,7 +471,7 @@ function void break_via_func5_func;
             if (a || b)
             begin
                 res_next = si;
-                break_via_func5_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:141:13;
+                break_via_func5_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:148:13;
             end
             TMP_0 = res_next;
             // Call f2() end
@@ -479,10 +479,10 @@ function void break_via_func5_func;
             // Call f1() begin
             if (a)
             begin
-                break_via_func5_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:117:13;
+                break_via_func5_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:124:13;
             end
             // Call f1() end
-            break_via_func5_PROC_STATE_next = 3; return;    // test_cthread_break_via_func.cpp:155:13;
+            break_via_func5_PROC_STATE_next = 3; return;    // test_cthread_break_via_func.cpp:162:13;
         end
         1: begin
             // Call f2() begin
@@ -496,16 +496,16 @@ function void break_via_func5_func;
                 // Call f1() begin
                 if (a)
                 begin
-                    break_via_func5_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:117:13;
+                    break_via_func5_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:124:13;
                 end
                 // Call f1() end
-                break_via_func5_PROC_STATE_next = 3; return;    // test_cthread_break_via_func.cpp:155:13;
+                break_via_func5_PROC_STATE_next = 3; return;    // test_cthread_break_via_func.cpp:162:13;
                 // break end
             end
             if (a || b)
             begin
                 res_next = si;
-                break_via_func5_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:141:13;
+                break_via_func5_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:148:13;
             end
             TMP_0 = res_next;
             // Call f2() end
@@ -513,25 +513,25 @@ function void break_via_func5_func;
             // Call f1() begin
             if (a)
             begin
-                break_via_func5_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:117:13;
+                break_via_func5_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:124:13;
             end
             // Call f1() end
-            break_via_func5_PROC_STATE_next = 3; return;    // test_cthread_break_via_func.cpp:155:13;
+            break_via_func5_PROC_STATE_next = 3; return;    // test_cthread_break_via_func.cpp:162:13;
         end
         2: begin
             // Call f1() begin
             if (b)
             begin
                 // break begin
-                break_via_func5_PROC_STATE_next = 3; return;    // test_cthread_break_via_func.cpp:155:13;
+                break_via_func5_PROC_STATE_next = 3; return;    // test_cthread_break_via_func.cpp:162:13;
                 // break end
             end
             if (a)
             begin
-                break_via_func5_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:117:13;
+                break_via_func5_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:124:13;
             end
             // Call f1() end
-            break_via_func5_PROC_STATE_next = 3; return;    // test_cthread_break_via_func.cpp:155:13;
+            break_via_func5_PROC_STATE_next = 3; return;    // test_cthread_break_via_func.cpp:162:13;
         end
         3: begin
             // Call f2() begin
@@ -539,7 +539,7 @@ function void break_via_func5_func;
             if (a || b)
             begin
                 res_next = si;
-                break_via_func5_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:141:13;
+                break_via_func5_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:148:13;
             end
             TMP_4 = res_next;
             // Call f2() end
@@ -547,10 +547,10 @@ function void break_via_func5_func;
             // Call f1() begin
             if (a)
             begin
-                break_via_func5_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:117:13;
+                break_via_func5_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:124:13;
             end
             // Call f1() end
-            break_via_func5_PROC_STATE_next = 3; return;    // test_cthread_break_via_func.cpp:155:13;
+            break_via_func5_PROC_STATE_next = 3; return;    // test_cthread_break_via_func.cpp:162:13;
         end
     endcase
 endfunction
@@ -559,7 +559,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : break_via_func5_ff
     if ( ~nrst ) begin
-        break_via_func5_PROC_STATE <= 0;    // test_cthread_break_via_func.cpp:149:9;
+        break_via_func5_PROC_STATE <= 0;    // test_cthread_break_via_func.cpp:156:9;
     end
     else begin
         res <= res_next;
@@ -568,7 +568,7 @@ begin : break_via_func5_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fcall_break1 (test_cthread_break_via_func.cpp:165:5) 
+// Clocked THREAD: fcall_break1 (test_cthread_break_via_func.cpp:172:5) 
 
 // Thread-local variables
 logic signed [31:0] i2;
@@ -579,7 +579,7 @@ logic [1:0] fcall_break1_PROC_STATE;
 logic [1:0] fcall_break1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : fcall_break1_comb     // test_cthread_break_via_func.cpp:165:5
+always_comb begin : fcall_break1_comb     // test_cthread_break_via_func.cpp:172:5
     fcall_break1_func;
 end
 function void fcall_break1_func;
@@ -604,10 +604,10 @@ function void fcall_break1_func;
                 TMP_0 = i + 1;
                 // Call f3() end
                 k_next = TMP_0;
-                fcall_break1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:181:13;
+                fcall_break1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:188:13;
                 // break end
             end
-            fcall_break1_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:177:17;
+            fcall_break1_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:184:17;
         end
         1: begin
             i_next2++;
@@ -622,17 +622,17 @@ function void fcall_break1_func;
                     TMP_1 = i + 1;
                     // Call f3() end
                     k_next = TMP_1;
-                    fcall_break1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:181:13;
+                    fcall_break1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:188:13;
                     // break end
                 end
-                fcall_break1_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:177:17;
+                fcall_break1_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:184:17;
             end
             i = k_next;
             // Call f3() begin
             TMP_2 = i + 1;
             // Call f3() end
             k_next = TMP_2;
-            fcall_break1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:181:13;
+            fcall_break1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:188:13;
         end
         2: begin
             i_next2 = 0;
@@ -645,10 +645,10 @@ function void fcall_break1_func;
                 TMP_3 = i + 1;
                 // Call f3() end
                 k_next = TMP_3;
-                fcall_break1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:181:13;
+                fcall_break1_PROC_STATE_next = 2; return;    // test_cthread_break_via_func.cpp:188:13;
                 // break end
             end
-            fcall_break1_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:177:17;
+            fcall_break1_PROC_STATE_next = 1; return;    // test_cthread_break_via_func.cpp:184:17;
         end
     endcase
 endfunction
@@ -658,7 +658,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : fcall_break1_ff
     if ( ~nrst ) begin
         k <= 0;
-        fcall_break1_PROC_STATE <= 0;    // test_cthread_break_via_func.cpp:168:9;
+        fcall_break1_PROC_STATE <= 0;    // test_cthread_break_via_func.cpp:175:9;
     end
     else begin
         i2 <= i_next2;

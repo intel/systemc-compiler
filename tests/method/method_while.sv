@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_while.cpp:180:5)
+// Module: A (test_while.cpp:187:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -46,13 +46,13 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: while_stmt_empty (test_while.cpp:37:5) 
+// Method process: while_stmt_empty (test_while.cpp:44:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : while_stmt_empty     // test_while.cpp:37:5
+begin : while_stmt_empty     // test_while.cpp:44:5
     integer i;
     i = 0;
     while (i < 2)
@@ -63,13 +63,13 @@ begin : while_stmt_empty     // test_while.cpp:37:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_stmt1 (test_while.cpp:47:5) 
+// Method process: while_stmt1 (test_while.cpp:54:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : while_stmt1     // test_while.cpp:47:5
+begin : while_stmt1     // test_while.cpp:54:5
     integer i;
     k = 0;
     i = 0;
@@ -81,13 +81,13 @@ begin : while_stmt1     // test_while.cpp:47:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_stmt2 (test_while.cpp:58:5) 
+// Method process: while_stmt2 (test_while.cpp:65:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : while_stmt2     // test_while.cpp:58:5
+begin : while_stmt2     // test_while.cpp:65:5
     integer j;
     integer i;
     j = 1;
@@ -106,14 +106,14 @@ begin : while_stmt2     // test_while.cpp:58:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_stmt3 (test_while.cpp:75:5) 
+// Method process: while_stmt3 (test_while.cpp:82:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : while_stmt3     // test_while.cpp:75:5
+begin : while_stmt3     // test_while.cpp:82:5
     integer i;
     integer j;
     i = 0;
@@ -134,14 +134,14 @@ begin : while_stmt3     // test_while.cpp:75:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_stmt4 (test_while.cpp:91:5) 
+// Method process: while_stmt4 (test_while.cpp:98:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : while_stmt4     // test_while.cpp:91:5
+begin : while_stmt4     // test_while.cpp:98:5
     integer i;
     integer j;
     i = 0;
@@ -160,13 +160,13 @@ begin : while_stmt4     // test_while.cpp:91:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_stmt5 (test_while.cpp:106:5) 
+// Method process: while_stmt5 (test_while.cpp:113:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : while_stmt5     // test_while.cpp:106:5
+begin : while_stmt5     // test_while.cpp:113:5
     integer i;
     integer j;
     k = 0;
@@ -184,14 +184,14 @@ begin : while_stmt5     // test_while.cpp:106:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_stmt6 (test_while.cpp:121:5) 
+// Method process: while_stmt6 (test_while.cpp:128:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : while_stmt6     // test_while.cpp:121:5
+begin : while_stmt6     // test_while.cpp:128:5
     integer i;
     k = 0;
     i = 0;
@@ -208,7 +208,7 @@ begin : while_stmt6     // test_while.cpp:121:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_stmt7 (test_while.cpp:135:5) 
+// Method process: while_stmt7 (test_while.cpp:142:5) 
 
 // Process-local variables
 logic signed [31:0] k;
@@ -216,7 +216,7 @@ logic signed [31:0] n;
 logic signed [31:0] m;
 
 always_comb 
-begin : while_stmt7     // test_while.cpp:135:5
+begin : while_stmt7     // test_while.cpp:142:5
     integer i;
     k = 0;
     n = 0;
@@ -230,13 +230,13 @@ begin : while_stmt7     // test_while.cpp:135:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_const (test_while.cpp:146:5) 
+// Method process: while_const (test_while.cpp:153:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : while_const     // test_while.cpp:146:5
+begin : while_const     // test_while.cpp:153:5
     k = 0;
     b = |(k + 1);
     k = 1;
@@ -244,13 +244,13 @@ begin : while_const     // test_while.cpp:146:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_sc_type (test_while.cpp:160:5) 
+// Method process: while_sc_type (test_while.cpp:167:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : while_sc_type     // test_while.cpp:160:5
+begin : while_sc_type     // test_while.cpp:167:5
     logic [2:0] i;
     k = 0;
     i = 0;

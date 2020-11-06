@@ -25,10 +25,10 @@ assign slave_clk = clk;
 assign slave_nrst = nrst;
 
 //------------------------------------------------------------------------------
-// Method process: slave_methProc (test_sc_port_ptr.cpp:31:5) 
+// Method process: slave_methProc (test_sc_port_ptr.cpp:38:5) 
 
 always_comb 
-begin : slave_methProc     // test_sc_port_ptr.cpp:31:5
+begin : slave_methProc     // test_sc_port_ptr.cpp:38:5
     logic [3:0] TMP_0;
     logic [3:0] val;
     val = 0;
@@ -40,7 +40,7 @@ begin : slave_methProc     // test_sc_port_ptr.cpp:31:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: slave_threadProc (test_sc_port_ptr.cpp:36:5) 
+// Clocked THREAD: slave_threadProc (test_sc_port_ptr.cpp:43:5) 
 
 // Thread-local variables
 logic [3:0] tar_s2_next;
@@ -49,7 +49,7 @@ logic [3:0] a;
 logic [3:0] a_next;
 
 // Next-state combinational logic
-always_comb begin : slave_threadProc_comb     // test_sc_port_ptr.cpp:36:5
+always_comb begin : slave_threadProc_comb     // test_sc_port_ptr.cpp:43:5
     slave_threadProc_func;
 end
 function void slave_threadProc_func;
@@ -90,10 +90,10 @@ begin : slave_threadProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: methProc (test_sc_port_ptr.cpp:105:5) 
+// Method process: methProc (test_sc_port_ptr.cpp:112:5) 
 
 always_comb 
-begin : methProc     // test_sc_port_ptr.cpp:105:5
+begin : methProc     // test_sc_port_ptr.cpp:112:5
     logic [3:0] TMP_0;
     logic [3:0] a;
     // Call getSig() begin
@@ -103,14 +103,14 @@ begin : methProc     // test_sc_port_ptr.cpp:105:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: threadProc (test_sc_port_ptr.cpp:109:5) 
+// Clocked THREAD: threadProc (test_sc_port_ptr.cpp:116:5) 
 
 // Thread-local variables
 logic [3:0] a0;
 logic [3:0] a_next0;
 
 // Next-state combinational logic
-always_comb begin : threadProc_comb     // test_sc_port_ptr.cpp:109:5
+always_comb begin : threadProc_comb     // test_sc_port_ptr.cpp:116:5
     threadProc_func;
 end
 function void threadProc_func;

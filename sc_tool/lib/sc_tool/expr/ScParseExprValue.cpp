@@ -2014,15 +2014,36 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& val)
         } else 
         if (fname.find("to_i") != string::npos ||
             fname.find("to_u") != string::npos ||
-            fname.find("to_long") != string::npos || 
-            fname.find("to_double") != string::npos) {
+            fname.find("to_long") != string::npos) {
             // This cannot be in left part, use @tval to extract variable
             state->readFromValue(tval);
-            
             // Get value of variable @tval from state
             val = getValueFromState(tval);
             
+            if (val.isInteger()) {
+                QualType type = callExpr->getType();
+                auto typeInfo = getIntTraits(type, true);
+                SCT_TOOL_ASSERT (typeInfo, "No integral type width extracted");
+                size_t width = typeInfo.getValue().first;
+                bool isUnsigned = typeInfo.getValue().second;
+
+                // Align integer value width
+                val = SValue(extrOrTrunc(val.getInteger(), width, isUnsigned), 
+                             val.getRadix());
+            }
+            
         } else 
+        if (fname.find("to_bool") != string::npos) {
+            // This cannot be in left part, use @tval to extract variable
+            state->readFromValue(tval);
+            // Get value of variable @tval from state
+            val = getValueFromState(tval);
+            // Convert to boolean
+            if (val.isInteger()) {
+                val = SValue(SValue::boolToAPSInt(val.getBoolValue()), 10);
+            }
+            
+        } else     
         if (fname.find("operator") != string::npos) {
             // ->operator=, ++, --, +=, -=, ... not supported for now 
             // as it is not widely used form

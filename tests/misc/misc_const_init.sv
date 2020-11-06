@@ -28,7 +28,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_const_init.cpp:70:5)
+// Module: A (test_const_init.cpp:76:5)
 //
 module A // "mod.modA"
 (
@@ -42,13 +42,13 @@ logic [31:0] s;
 localparam logic [31:0] arr[3] = '{ 'd1, 'd2, 'd3 };
 
 //------------------------------------------------------------------------------
-// Method process: proc (test_const_init.cpp:44:5) 
+// Method process: proc (test_const_init.cpp:50:5) 
 
 // Process-local variables
 logic [15:0] z;
 
 always_comb 
-begin : proc     // test_const_init.cpp:44:5
+begin : proc     // test_const_init.cpp:50:5
     if (1)
     begin
         s = 12 + 48;

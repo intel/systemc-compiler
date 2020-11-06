@@ -110,10 +110,10 @@ SValue ScParseExpr::getValueFromState(const SValue &lval,
             
         if (rval.isUnknown() && llval.isVariable()) {
             // Try to get constant value from AST, for variable only
-            // @llval can be variable, temporary variable, array, simple object
+            // Required for constant reference parameter with default value
             bool isConst = llval.getType().isConstQualified();
             if (isConst) {
-                rval = parseGlobalConstant(lval);
+                rval = ScParseExpr::parseGlobalConstant(lval);
             }
         }
         

@@ -19,7 +19,7 @@ logic rstn;
 logic signed [31:0] s;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_arr_reg (test_reg_arr_cthread.cpp:28:5) 
+// Clocked THREAD: record_arr_reg (test_reg_arr_cthread.cpp:35:5) 
 
 // Thread-local variables
 logic signed [31:0] r_sin[2];
@@ -30,7 +30,7 @@ logic record_arr_reg_PROC_STATE;
 logic record_arr_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_arr_reg_comb     // test_reg_arr_cthread.cpp:28:5
+always_comb begin : record_arr_reg_comb     // test_reg_arr_cthread.cpp:35:5
     record_arr_reg_func;
 end
 function void record_arr_reg_func;
@@ -44,13 +44,13 @@ function void record_arr_reg_func;
         0: begin
             i = s;
             b = r_sin_next[i];
-            record_arr_reg_PROC_STATE_next = 1; return;    // test_reg_arr_cthread.cpp:36:13;
+            record_arr_reg_PROC_STATE_next = 1; return;    // test_reg_arr_cthread.cpp:43:13;
         end
         1: begin
             r_sin_next[1] = 3;
             i = s;
             b = r_sin_next[i];
-            record_arr_reg_PROC_STATE_next = 1; return;    // test_reg_arr_cthread.cpp:36:13;
+            record_arr_reg_PROC_STATE_next = 1; return;    // test_reg_arr_cthread.cpp:43:13;
         end
     endcase
 endfunction
@@ -59,7 +59,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : record_arr_reg_ff
     if ( ~rstn ) begin
-        record_arr_reg_PROC_STATE <= 0;    // test_reg_arr_cthread.cpp:31:9;
+        record_arr_reg_PROC_STATE <= 0;    // test_reg_arr_cthread.cpp:38:9;
     end
     else begin
         r_sin <= r_sin_next;
@@ -69,7 +69,7 @@ begin : record_arr_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_arr_glob_reg (test_reg_arr_cthread.cpp:44:5) 
+// Clocked THREAD: record_arr_glob_reg (test_reg_arr_cthread.cpp:51:5) 
 
 // Thread-local variables
 logic signed [31:0] gra_sin[2];
@@ -80,7 +80,7 @@ logic record_arr_glob_reg_PROC_STATE;
 logic record_arr_glob_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_arr_glob_reg_comb     // test_reg_arr_cthread.cpp:44:5
+always_comb begin : record_arr_glob_reg_comb     // test_reg_arr_cthread.cpp:51:5
     record_arr_glob_reg_func;
 end
 function void record_arr_glob_reg_func;
@@ -92,12 +92,12 @@ function void record_arr_glob_reg_func;
     case (record_arr_glob_reg_PROC_STATE)
         0: begin
             gra_sin_next[0] = 1;
-            record_arr_glob_reg_PROC_STATE_next = 1; return;    // test_reg_arr_cthread.cpp:49:13;
+            record_arr_glob_reg_PROC_STATE_next = 1; return;    // test_reg_arr_cthread.cpp:56:13;
         end
         1: begin
             b = gra_sin_next[0];
             gra_sin_next[0] = 1;
-            record_arr_glob_reg_PROC_STATE_next = 1; return;    // test_reg_arr_cthread.cpp:49:13;
+            record_arr_glob_reg_PROC_STATE_next = 1; return;    // test_reg_arr_cthread.cpp:56:13;
         end
     endcase
 endfunction
@@ -106,7 +106,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : record_arr_glob_reg_ff
     if ( ~rstn ) begin
-        record_arr_glob_reg_PROC_STATE <= 0;    // test_reg_arr_cthread.cpp:45:9;
+        record_arr_glob_reg_PROC_STATE <= 0;    // test_reg_arr_cthread.cpp:52:9;
     end
     else begin
         gra_sin <= gra_sin_next;

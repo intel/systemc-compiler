@@ -18,10 +18,10 @@ module Dut // "dut"
 logic a2_dummy;
 
 //------------------------------------------------------------------------------
-// Method process: a2_methProcA (test_modular_iface_ptr.cpp:18:5) 
+// Method process: a2_methProcA (test_modular_iface_ptr.cpp:25:5) 
 
 always_comb 
-begin : a2_methProcA     // test_modular_iface_ptr.cpp:18:5
+begin : a2_methProcA     // test_modular_iface_ptr.cpp:25:5
     logic b;
     b = a2_dummy;
 end

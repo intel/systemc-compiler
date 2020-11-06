@@ -17,10 +17,10 @@ module ports_arrays // "PORT_ARRAY"
 );
 
 //------------------------------------------------------------------------------
-// Method process: body (test_trace.cpp:32:3) 
+// Method process: body (test_trace.cpp:38:3) 
 
 always_comb 
-begin : body     // test_trace.cpp:32:3
+begin : body     // test_trace.cpp:38:3
     integer i;
     for (i = 0; i < 4; i++)
     begin

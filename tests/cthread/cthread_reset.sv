@@ -25,14 +25,14 @@ logic [2:0] s5;
 logic arr2[3];
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_test (test_cthread_reset.cpp:91:5) 
+// Clocked THREAD: sct_assert_test (test_cthread_reset.cpp:98:5) 
 
 // Thread-local variables
 logic c;
 logic c_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_test_comb     // test_cthread_reset.cpp:91:5
+always_comb begin : sct_assert_test_comb     // test_cthread_reset.cpp:98:5
     sct_assert_test_func;
 end
 function void sct_assert_test_func;
@@ -50,19 +50,19 @@ begin : sct_assert_test_ff
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine94 : assert property ( a |=> c_next );
+    sctAssertLine101 : assert property ( a |=> c_next );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: var_in_reset_only1 (test_cthread_reset.cpp:103:5) 
+// Clocked THREAD: var_in_reset_only1 (test_cthread_reset.cpp:110:5) 
 
 // Thread-local variables
 logic var_in_reset_only1_PROC_STATE;
 logic var_in_reset_only1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : var_in_reset_only1_comb     // test_cthread_reset.cpp:103:5
+always_comb begin : var_in_reset_only1_comb     // test_cthread_reset.cpp:110:5
     var_in_reset_only1_func;
 end
 function void var_in_reset_only1_func;
@@ -71,14 +71,14 @@ function void var_in_reset_only1_func;
     
     case (var_in_reset_only1_PROC_STATE)
         0: begin
-            var_in_reset_only1_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:113:13;
+            var_in_reset_only1_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:120:13;
         end
         1: begin
             if (a)
             begin
                 kk = 1;
             end
-            var_in_reset_only1_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:113:13;
+            var_in_reset_only1_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:120:13;
         end
     endcase
 endfunction
@@ -91,7 +91,7 @@ begin : var_in_reset_only1_ff
         logic signed [7:0] jj;
         jj = 1;
         ii = jj + 42;
-        var_in_reset_only1_PROC_STATE <= 0;    // test_cthread_reset.cpp:110:9;
+        var_in_reset_only1_PROC_STATE <= 0;    // test_cthread_reset.cpp:117:9;
     end
     else begin
         var_in_reset_only1_PROC_STATE <= var_in_reset_only1_PROC_STATE_next;
@@ -99,10 +99,10 @@ begin : var_in_reset_only1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: common_wait1 (test_cthread_reset.cpp:124:5) 
+// Clocked THREAD: common_wait1 (test_cthread_reset.cpp:131:5) 
 
 // Next-state combinational logic
-always_comb begin : common_wait1_comb     // test_cthread_reset.cpp:124:5
+always_comb begin : common_wait1_comb     // test_cthread_reset.cpp:131:5
     common_wait1_func;
 end
 function void common_wait1_func;
@@ -123,7 +123,7 @@ begin : common_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: common_wait2 (test_cthread_reset.cpp:136:5) 
+// Clocked THREAD: common_wait2 (test_cthread_reset.cpp:143:5) 
 
 // Thread-local variables
 logic [2:0] y;
@@ -131,7 +131,7 @@ logic [2:0] y_next;
 logic [2:0] s1_next;
 
 // Next-state combinational logic
-always_comb begin : common_wait2_comb     // test_cthread_reset.cpp:136:5
+always_comb begin : common_wait2_comb     // test_cthread_reset.cpp:143:5
     common_wait2_func;
 end
 function void common_wait2_func;
@@ -160,7 +160,7 @@ begin : common_wait2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: common_wait3 (test_cthread_reset.cpp:153:5) 
+// Clocked THREAD: common_wait3 (test_cthread_reset.cpp:160:5) 
 
 // Thread-local variables
 logic s2_next[3];
@@ -170,7 +170,7 @@ logic common_wait3_PROC_STATE;
 logic common_wait3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : common_wait3_comb     // test_cthread_reset.cpp:153:5
+always_comb begin : common_wait3_comb     // test_cthread_reset.cpp:160:5
     common_wait3_func;
 end
 function void common_wait3_func;
@@ -184,12 +184,12 @@ function void common_wait3_func;
             begin
                 s2_next[s1] = 1;
                 y_next0++;
-                common_wait3_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:167:17;
+                common_wait3_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:174:17;
             end
-            common_wait3_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:162:13;
+            common_wait3_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:169:13;
         end
         1: begin
-            common_wait3_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:162:13;
+            common_wait3_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:169:13;
         end
     endcase
 endfunction
@@ -205,7 +205,7 @@ begin : common_wait3_ff
         begin
             s2[i] <= 0;
         end
-        common_wait3_PROC_STATE <= 0;    // test_cthread_reset.cpp:162:13;
+        common_wait3_PROC_STATE <= 0;    // test_cthread_reset.cpp:169:13;
     end
     else begin
         s2 <= s2_next;
@@ -215,7 +215,7 @@ begin : common_wait3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: common_wait4 (test_cthread_reset.cpp:172:5) 
+// Clocked THREAD: common_wait4 (test_cthread_reset.cpp:179:5) 
 
 // Thread-local variables
 logic [2:0] x;
@@ -224,7 +224,7 @@ logic [1:0] common_wait4_PROC_STATE;
 logic [1:0] common_wait4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : common_wait4_comb     // test_cthread_reset.cpp:172:5
+always_comb begin : common_wait4_comb     // test_cthread_reset.cpp:179:5
     common_wait4_func;
 end
 function void common_wait4_func;
@@ -238,21 +238,21 @@ function void common_wait4_func;
             x_next = s2[x_next];
             if (!(|s1))
             begin
-                common_wait4_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:183:32;
+                common_wait4_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:190:32;
             end
             x_next++;
-            common_wait4_PROC_STATE_next = 2; return;    // test_cthread_reset.cpp:186:13;
+            common_wait4_PROC_STATE_next = 2; return;    // test_cthread_reset.cpp:193:13;
         end
         1: begin
             if (!(|s1))
             begin
-                common_wait4_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:183:32;
+                common_wait4_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:190:32;
             end
             x_next++;
-            common_wait4_PROC_STATE_next = 2; return;    // test_cthread_reset.cpp:186:13;
+            common_wait4_PROC_STATE_next = 2; return;    // test_cthread_reset.cpp:193:13;
         end
         2: begin
-            common_wait4_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:179:13;
+            common_wait4_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:186:13;
         end
     endcase
 endfunction
@@ -265,7 +265,7 @@ begin : common_wait4_ff
         x <= 0;
         y = 0;
         x <= 1;
-        common_wait4_PROC_STATE <= 0;    // test_cthread_reset.cpp:179:13;
+        common_wait4_PROC_STATE <= 0;    // test_cthread_reset.cpp:186:13;
     end
     else begin
         x <= x_next;
@@ -274,7 +274,7 @@ begin : common_wait4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: common_wait5 (test_cthread_reset.cpp:192:5) 
+// Clocked THREAD: common_wait5 (test_cthread_reset.cpp:199:5) 
 
 // Thread-local variables
 logic [2:0] x0;
@@ -284,7 +284,7 @@ logic common_wait5_PROC_STATE;
 logic common_wait5_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : common_wait5_comb     // test_cthread_reset.cpp:192:5
+always_comb begin : common_wait5_comb     // test_cthread_reset.cpp:199:5
     common_wait5_func;
 end
 function void common_wait5_func;
@@ -296,19 +296,19 @@ function void common_wait5_func;
         0: begin
             if (!(|s1))
             begin
-                common_wait5_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:199:32;
+                common_wait5_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:206:32;
             end
             x_next0 = x_next0 + s1;
-            common_wait5_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:201:13;
+            common_wait5_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:208:13;
         end
         1: begin
             s3_next = x_next0;
             if (!(|s1))
             begin
-                common_wait5_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:199:32;
+                common_wait5_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:206:32;
             end
             x_next0 = x_next0 + s1;
-            common_wait5_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:201:13;
+            common_wait5_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:208:13;
         end
     endcase
 endfunction
@@ -322,10 +322,10 @@ begin : common_wait5_ff
         s3 <= 0;
         if (!(|s1))
         begin
-            common_wait5_PROC_STATE <= 0;    // test_cthread_reset.cpp:199:32;
+            common_wait5_PROC_STATE <= 0;    // test_cthread_reset.cpp:206:32;
         end
         x0 <= x0 + s1;
-        common_wait5_PROC_STATE <= 1;    // test_cthread_reset.cpp:201:13;
+        common_wait5_PROC_STATE <= 1;    // test_cthread_reset.cpp:208:13;
     end
     else begin
         x0 <= x_next0;
@@ -335,10 +335,10 @@ begin : common_wait5_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: no_reset1 (test_cthread_reset.cpp:211:5) 
+// Clocked THREAD: no_reset1 (test_cthread_reset.cpp:218:5) 
 
 // Next-state combinational logic
-always_comb begin : no_reset1_comb     // test_cthread_reset.cpp:211:5
+always_comb begin : no_reset1_comb     // test_cthread_reset.cpp:218:5
     no_reset1_func;
 end
 function void no_reset1_func;
@@ -368,14 +368,14 @@ begin : no_reset1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: no_reset10 (test_cthread_reset.cpp:211:5) 
+// Clocked THREAD: no_reset10 (test_cthread_reset.cpp:218:5) 
 
 // Thread-local variables
 logic no_reset1_PROC_STATE;
 logic no_reset1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : no_reset10_comb     // test_cthread_reset.cpp:211:5
+always_comb begin : no_reset10_comb     // test_cthread_reset.cpp:218:5
     no_reset10_func;
 end
 function void no_reset10_func;
@@ -390,7 +390,7 @@ function void no_reset10_func;
             begin
                 kk = 43;
             end
-            no_reset1_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:218:13;
+            no_reset1_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:225:13;
         end
         0: begin
             jj = 42;
@@ -398,7 +398,7 @@ function void no_reset10_func;
             begin
                 kk = 43;
             end
-            no_reset1_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:218:13;
+            no_reset1_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:225:13;
         end
     endcase
 endfunction
@@ -412,14 +412,14 @@ begin : no_reset10_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: no_reset2 (test_cthread_reset.cpp:223:5) 
+// Clocked THREAD: no_reset2 (test_cthread_reset.cpp:230:5) 
 
 // Thread-local variables
 logic signed [31:0] ll;
 logic signed [31:0] ll_next;
 
 // Next-state combinational logic
-always_comb begin : no_reset2_comb     // test_cthread_reset.cpp:223:5
+always_comb begin : no_reset2_comb     // test_cthread_reset.cpp:230:5
     no_reset2_func;
 end
 function void no_reset2_func;
@@ -440,7 +440,7 @@ begin : no_reset2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: no_reset3 (test_cthread_reset.cpp:233:5) 
+// Clocked THREAD: no_reset3 (test_cthread_reset.cpp:240:5) 
 
 // Thread-local variables
 logic [2:0] v;
@@ -449,7 +449,7 @@ logic no_reset3_PROC_STATE;
 logic no_reset3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : no_reset3_comb     // test_cthread_reset.cpp:233:5
+always_comb begin : no_reset3_comb     // test_cthread_reset.cpp:240:5
     no_reset3_func;
 end
 function void no_reset3_func;
@@ -459,11 +459,11 @@ function void no_reset3_func;
     case (no_reset3_PROC_STATE)
         0: begin
             v_next++;
-            no_reset3_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:240:13;
+            no_reset3_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:247:13;
         end
         1: begin
             v_next = s3;
-            no_reset3_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:237:13;
+            no_reset3_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:244:13;
         end
     endcase
 endfunction
@@ -473,7 +473,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : no_reset3_ff
     if ( ~arstn ) begin
         v <= s3;
-        no_reset3_PROC_STATE <= 0;    // test_cthread_reset.cpp:237:13;
+        no_reset3_PROC_STATE <= 0;    // test_cthread_reset.cpp:244:13;
     end
     else begin
         v <= v_next;
@@ -482,7 +482,7 @@ begin : no_reset3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: no_reset4 (test_cthread_reset.cpp:249:5) 
+// Clocked THREAD: no_reset4 (test_cthread_reset.cpp:256:5) 
 
 // Thread-local variables
 logic [2:0] s4_next;
@@ -492,7 +492,7 @@ logic no_reset4_PROC_STATE;
 logic no_reset4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : no_reset4_comb     // test_cthread_reset.cpp:249:5
+always_comb begin : no_reset4_comb     // test_cthread_reset.cpp:256:5
     no_reset4_func;
 end
 function void no_reset4_func;
@@ -508,7 +508,7 @@ function void no_reset4_func;
         0: begin
             z = w_next + 1;
             s4_next = z;
-            no_reset4_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:258:13;
+            no_reset4_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:265:13;
         end
         1: begin
             s4_next = 0;
@@ -517,7 +517,7 @@ function void no_reset4_func;
             TMP_2 = val + 1;
             // Call g() end
             w_next = TMP_2;
-            no_reset4_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:254:13;
+            no_reset4_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:261:13;
         end
     endcase
 endfunction
@@ -534,7 +534,7 @@ begin : no_reset4_ff
         TMP_0 = val + 1;
         // Call g() end
         w <= TMP_0;
-        no_reset4_PROC_STATE <= 0;    // test_cthread_reset.cpp:254:13;
+        no_reset4_PROC_STATE <= 0;    // test_cthread_reset.cpp:261:13;
     end
     else begin
         s4 <= s4_next;
@@ -544,7 +544,7 @@ begin : no_reset4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: no_reset5 (test_cthread_reset.cpp:263:5) 
+// Clocked THREAD: no_reset5 (test_cthread_reset.cpp:270:5) 
 
 // Thread-local variables
 logic [2:0] s5_next;
@@ -554,7 +554,7 @@ logic no_reset5_PROC_STATE;
 logic no_reset5_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : no_reset5_comb     // test_cthread_reset.cpp:263:5
+always_comb begin : no_reset5_comb     // test_cthread_reset.cpp:270:5
     no_reset5_func;
 end
 function void no_reset5_func;
@@ -566,20 +566,20 @@ function void no_reset5_func;
         0: begin
             if (!(|s1))
             begin
-                no_reset5_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:269:32;
+                no_reset5_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:276:32;
             end
             s5_next = z_next;
-            no_reset5_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:272:13;
+            no_reset5_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:279:13;
         end
         1: begin
             s5_next = s1 + 1;
             z_next = s3;
             if (!(|s1))
             begin
-                no_reset5_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:269:32;
+                no_reset5_PROC_STATE_next = 0; return;    // test_cthread_reset.cpp:276:32;
             end
             s5_next = z_next;
-            no_reset5_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:272:13;
+            no_reset5_PROC_STATE_next = 1; return;    // test_cthread_reset.cpp:279:13;
         end
     endcase
 endfunction
@@ -592,10 +592,10 @@ begin : no_reset5_ff
         z <= s3;
         if (!(|s1))
         begin
-            no_reset5_PROC_STATE <= 0;    // test_cthread_reset.cpp:269:32;
+            no_reset5_PROC_STATE <= 0;    // test_cthread_reset.cpp:276:32;
         end
         s5 <= z;
-        no_reset5_PROC_STATE <= 1;    // test_cthread_reset.cpp:272:13;
+        no_reset5_PROC_STATE <= 1;    // test_cthread_reset.cpp:279:13;
     end
     else begin
         s5 <= s5_next;
@@ -605,10 +605,10 @@ begin : no_reset5_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: var_fcall_in_reset_only (test_cthread_reset.cpp:285:5) 
+// Clocked THREAD: var_fcall_in_reset_only (test_cthread_reset.cpp:292:5) 
 
 // Next-state combinational logic
-always_comb begin : var_fcall_in_reset_only_comb     // test_cthread_reset.cpp:285:5
+always_comb begin : var_fcall_in_reset_only_comb     // test_cthread_reset.cpp:292:5
     var_fcall_in_reset_only_func;
 end
 function void var_fcall_in_reset_only_func;
@@ -636,10 +636,10 @@ begin : var_fcall_in_reset_only_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_init_in_reset (test_cthread_reset.cpp:299:5) 
+// Clocked THREAD: comb_init_in_reset (test_cthread_reset.cpp:306:5) 
 
 // Next-state combinational logic
-always_comb begin : comb_init_in_reset_comb     // test_cthread_reset.cpp:299:5
+always_comb begin : comb_init_in_reset_comb     // test_cthread_reset.cpp:306:5
     comb_init_in_reset_func;
 end
 function void comb_init_in_reset_func;
@@ -666,10 +666,10 @@ begin : comb_init_in_reset_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: not_used (test_cthread_reset.cpp:317:5) 
+// Clocked THREAD: not_used (test_cthread_reset.cpp:324:5) 
 
 // Next-state combinational logic
-always_comb begin : not_used_comb     // test_cthread_reset.cpp:317:5
+always_comb begin : not_used_comb     // test_cthread_reset.cpp:324:5
     not_used_func;
 end
 function void not_used_func;
@@ -687,10 +687,10 @@ begin : not_used_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_assign_in_reset (test_cthread_reset.cpp:328:5) 
+// Clocked THREAD: comb_assign_in_reset (test_cthread_reset.cpp:335:5) 
 
 // Next-state combinational logic
-always_comb begin : comb_assign_in_reset_comb     // test_cthread_reset.cpp:328:5
+always_comb begin : comb_assign_in_reset_comb     // test_cthread_reset.cpp:335:5
     comb_assign_in_reset_func;
 end
 function void comb_assign_in_reset_func;
@@ -727,7 +727,7 @@ begin : comb_assign_in_reset_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: reg_init_in_reset (test_cthread_reset.cpp:353:5) 
+// Clocked THREAD: reg_init_in_reset (test_cthread_reset.cpp:360:5) 
 
 // Thread-local variables
 logic a_next1;
@@ -739,7 +739,7 @@ logic signed [31:0] k;
 logic signed [31:0] k_next;
 
 // Next-state combinational logic
-always_comb begin : reg_init_in_reset_comb     // test_cthread_reset.cpp:353:5
+always_comb begin : reg_init_in_reset_comb     // test_cthread_reset.cpp:360:5
     reg_init_in_reset_func;
 end
 function void reg_init_in_reset_func;
@@ -769,7 +769,7 @@ begin : reg_init_in_reset_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: reg_assign_in_reset (test_cthread_reset.cpp:372:5) 
+// Clocked THREAD: reg_assign_in_reset (test_cthread_reset.cpp:379:5) 
 
 // Thread-local variables
 logic a_next2;
@@ -787,7 +787,7 @@ logic signed [31:0] arr0[3];
 logic signed [31:0] arr0_next[3];
 
 // Next-state combinational logic
-always_comb begin : reg_assign_in_reset_comb     // test_cthread_reset.cpp:372:5
+always_comb begin : reg_assign_in_reset_comb     // test_cthread_reset.cpp:379:5
     reg_assign_in_reset_func;
 end
 function void reg_assign_in_reset_func;
@@ -832,13 +832,13 @@ begin : reg_assign_in_reset_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: read_only_in_reset (test_cthread_reset.cpp:401:5) 
+// Clocked THREAD: read_only_in_reset (test_cthread_reset.cpp:408:5) 
 
 // Thread-local variables
 logic signed [31:0] aa;
 
 // Next-state combinational logic
-always_comb begin : read_only_in_reset_comb     // test_cthread_reset.cpp:401:5
+always_comb begin : read_only_in_reset_comb     // test_cthread_reset.cpp:408:5
     read_only_in_reset_func;
 end
 function void read_only_in_reset_func;
@@ -860,10 +860,10 @@ begin : read_only_in_reset_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: write_only_in_reset (test_cthread_reset.cpp:415:5) 
+// Clocked THREAD: write_only_in_reset (test_cthread_reset.cpp:422:5) 
 
 // Next-state combinational logic
-always_comb begin : write_only_in_reset_comb     // test_cthread_reset.cpp:415:5
+always_comb begin : write_only_in_reset_comb     // test_cthread_reset.cpp:422:5
     write_only_in_reset_func;
 end
 function void write_only_in_reset_func;
@@ -883,7 +883,7 @@ begin : write_only_in_reset_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_init_in_reset (test_cthread_reset.cpp:433:5) 
+// Clocked THREAD: array_init_in_reset (test_cthread_reset.cpp:440:5) 
 
 // Thread-local variables
 logic arr2_next[3];
@@ -893,7 +893,7 @@ logic a_next3;
 logic signed [1:0] arr1[3];
 
 // Next-state combinational logic
-always_comb begin : array_init_in_reset_comb     // test_cthread_reset.cpp:433:5
+always_comb begin : array_init_in_reset_comb     // test_cthread_reset.cpp:440:5
     array_init_in_reset_func;
 end
 function void array_init_in_reset_func;

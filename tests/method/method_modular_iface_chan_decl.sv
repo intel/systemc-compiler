@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: top (test_modular_iface_chan_decl.cpp:46:5)
+// Module: top (test_modular_iface_chan_decl.cpp:53:5)
 //
 module top // "tb_inst.top_inst"
 (
@@ -44,19 +44,19 @@ module top // "tb_inst.top_inst"
 logic minst_s[2];
 
 //------------------------------------------------------------------------------
-// Method process: minst_metProc (test_modular_iface_chan_decl.cpp:18:5) 
+// Method process: minst_metProc (test_modular_iface_chan_decl.cpp:25:5) 
 
 always_comb 
-begin : minst_metProc     // test_modular_iface_chan_decl.cpp:18:5
+begin : minst_metProc     // test_modular_iface_chan_decl.cpp:25:5
     logic d;
     d = minst_s[0];
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_metProc0 (test_modular_iface_chan_decl.cpp:18:5) 
+// Method process: minst_metProc0 (test_modular_iface_chan_decl.cpp:25:5) 
 
 always_comb 
-begin : minst_metProc0     // test_modular_iface_chan_decl.cpp:18:5
+begin : minst_metProc0     // test_modular_iface_chan_decl.cpp:25:5
     logic d;
     d = minst_s[1];
 end

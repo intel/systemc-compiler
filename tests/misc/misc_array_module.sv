@@ -18,10 +18,10 @@ logic signed [31:0] out;
 logic signed [31:0] sig[4];
 
 //------------------------------------------------------------------------------
-// Method process: proc (test_array_module.cpp:43:5) 
+// Method process: proc (test_array_module.cpp:50:5) 
 
 always_comb 
-begin : proc     // test_array_module.cpp:43:5
+begin : proc     // test_array_module.cpp:50:5
     sig[0] = 1;
     sig[2] = 2;
     out = sig[1] + sig[3];
@@ -57,10 +57,10 @@ module bottom // "top_inst.mods0"
 );
 
 //------------------------------------------------------------------------------
-// Method process: proc (test_array_module.cpp:14:5) 
+// Method process: proc (test_array_module.cpp:21:5) 
 
 always_comb 
-begin : proc     // test_array_module.cpp:14:5
+begin : proc     // test_array_module.cpp:21:5
     out = in;
 end
 

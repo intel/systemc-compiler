@@ -34,25 +34,25 @@ assign t = minst_out[0];
 assign t = minst_out[1];
 
 //------------------------------------------------------------------------------
-// Method process: minst_ptrProc (test_mif_var_multiple_use.cpp:35:5) 
+// Method process: minst_ptrProc (test_mif_var_multiple_use.cpp:42:5) 
 
 // Process-local variables
 logic [3:0] minst_vp[2];
 
 always_comb 
-begin : minst_ptrProc     // test_mif_var_multiple_use.cpp:35:5
+begin : minst_ptrProc     // test_mif_var_multiple_use.cpp:42:5
     minst_p[0] = minst_in[0];
     minst_vp[0] = 3;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thrProc (test_mif_var_multiple_use.cpp:41:5) 
+// Clocked THREAD: minst_thrProc (test_mif_var_multiple_use.cpp:48:5) 
 
 // Thread-local variables
 logic [3:0] minst_vp[2];
 
 // Next-state combinational logic
-always_comb begin : minst_thrProc_comb     // test_mif_var_multiple_use.cpp:41:5
+always_comb begin : minst_thrProc_comb     // test_mif_var_multiple_use.cpp:48:5
     minst_thrProc_func;
 end
 function void minst_thrProc_func;
@@ -70,13 +70,13 @@ begin : minst_thrProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thrSecProc (test_mif_var_multiple_use.cpp:52:5) 
+// Clocked THREAD: minst_thrSecProc (test_mif_var_multiple_use.cpp:59:5) 
 
 // Thread-local variables
 logic [3:0] minst_vp[2];
 
 // Next-state combinational logic
-always_comb begin : minst_thrSecProc_comb     // test_mif_var_multiple_use.cpp:52:5
+always_comb begin : minst_thrSecProc_comb     // test_mif_var_multiple_use.cpp:59:5
     minst_thrSecProc_func;
 end
 function void minst_thrSecProc_func;
@@ -94,19 +94,19 @@ begin : minst_thrSecProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_ptrProc0 (test_mif_var_multiple_use.cpp:35:5) 
+// Method process: minst_ptrProc0 (test_mif_var_multiple_use.cpp:42:5) 
 
 always_comb 
-begin : minst_ptrProc0     // test_mif_var_multiple_use.cpp:35:5
+begin : minst_ptrProc0     // test_mif_var_multiple_use.cpp:42:5
     minst_p[1] = minst_in[1];
     minst_vp[1] = 3;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thrProc0 (test_mif_var_multiple_use.cpp:41:5) 
+// Clocked THREAD: minst_thrProc0 (test_mif_var_multiple_use.cpp:48:5) 
 
 // Next-state combinational logic
-always_comb begin : minst_thrProc0_comb     // test_mif_var_multiple_use.cpp:41:5
+always_comb begin : minst_thrProc0_comb     // test_mif_var_multiple_use.cpp:48:5
     minst_thrProc0_func;
 end
 function void minst_thrProc0_func;
@@ -124,10 +124,10 @@ begin : minst_thrProc0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thrSecProc0 (test_mif_var_multiple_use.cpp:52:5) 
+// Clocked THREAD: minst_thrSecProc0 (test_mif_var_multiple_use.cpp:59:5) 
 
 // Next-state combinational logic
-always_comb begin : minst_thrSecProc0_comb     // test_mif_var_multiple_use.cpp:52:5
+always_comb begin : minst_thrSecProc0_comb     // test_mif_var_multiple_use.cpp:59:5
     minst_thrSecProc0_func;
 end
 function void minst_thrSecProc0_func;

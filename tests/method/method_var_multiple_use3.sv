@@ -35,7 +35,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Child (test_var_multiple_use3.cpp:55:5)
+// Module: Child (test_var_multiple_use3.cpp:62:5)
 //
 module Child // "top.child"
 (
@@ -49,13 +49,13 @@ module Child // "top.child"
 logic signed [31:0] s;
 
 //------------------------------------------------------------------------------
-// Method process: methA (test_var_multiple_use3.cpp:29:5) 
+// Method process: methA (test_var_multiple_use3.cpp:36:5) 
 
 // Process-local variables
 logic [2:0] v;
 
 always_comb 
-begin : methA     // test_var_multiple_use3.cpp:29:5
+begin : methA     // test_var_multiple_use3.cpp:36:5
     v = in;
     s = 2 - v;
     if (|in)
@@ -66,7 +66,7 @@ begin : methA     // test_var_multiple_use3.cpp:29:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thrA (test_var_multiple_use3.cpp:38:5) 
+// Clocked THREAD: thrA (test_var_multiple_use3.cpp:45:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
@@ -74,7 +74,7 @@ logic thrA_PROC_STATE;
 logic thrA_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thrA_comb     // test_var_multiple_use3.cpp:38:5
+always_comb begin : thrA_comb     // test_var_multiple_use3.cpp:45:5
     thrA_func;
 end
 function void thrA_func;
@@ -84,12 +84,12 @@ function void thrA_func;
     case (thrA_PROC_STATE)
         0: begin
             out_next = in;
-            thrA_PROC_STATE_next = 1; return;    // test_var_multiple_use3.cpp:44:13;
+            thrA_PROC_STATE_next = 1; return;    // test_var_multiple_use3.cpp:51:13;
         end
         1: begin
             out_next = 42;
             out_next = in;
-            thrA_PROC_STATE_next = 1; return;    // test_var_multiple_use3.cpp:44:13;
+            thrA_PROC_STATE_next = 1; return;    // test_var_multiple_use3.cpp:51:13;
         end
     endcase
 endfunction
@@ -99,7 +99,7 @@ always_ff @(posedge clk or posedge rst)
 begin : thrA_ff
     if (rst ) begin
         out <= 0;
-        thrA_PROC_STATE <= 0;    // test_var_multiple_use3.cpp:40:9;
+        thrA_PROC_STATE <= 0;    // test_var_multiple_use3.cpp:47:9;
     end
     else begin
         out <= out_next;

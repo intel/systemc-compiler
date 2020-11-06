@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_param.cpp:159:5)
+// Module: A (test_array_param.cpp:166:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -36,10 +36,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: array_in_func (test_array_param.cpp:71:5) 
+// Method process: array_in_func (test_array_param.cpp:78:5) 
 
 always_comb 
-begin : array_in_func     // test_array_param.cpp:71:5
+begin : array_in_func     // test_array_param.cpp:78:5
     integer arr[3];
     integer i;
     integer i_1;
@@ -69,10 +69,10 @@ begin : array_in_func     // test_array_param.cpp:71:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: array_2d_in_func (test_array_param.cpp:103:5) 
+// Method process: array_2d_in_func (test_array_param.cpp:110:5) 
 
 always_comb 
-begin : array_2d_in_func     // test_array_param.cpp:103:5
+begin : array_2d_in_func     // test_array_param.cpp:110:5
     integer arr[3][2];
     integer i;
     integer i_1;
@@ -88,13 +88,13 @@ begin : array_2d_in_func     // test_array_param.cpp:103:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: array_pointers_in_func (test_array_param.cpp:129:5) 
+// Method process: array_pointers_in_func (test_array_param.cpp:136:5) 
 
 // Process-local variables
 logic signed [31:0] ap[3][2];
 
 always_comb 
-begin : array_pointers_in_func     // test_array_param.cpp:129:5
+begin : array_pointers_in_func     // test_array_param.cpp:136:5
     integer i;
     integer i_1;
     ap[0][0] = 1;
@@ -109,13 +109,13 @@ begin : array_pointers_in_func     // test_array_param.cpp:129:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: double_pointers_in_func (test_array_param.cpp:147:5) 
+// Method process: double_pointers_in_func (test_array_param.cpp:154:5) 
 
 // Process-local variables
 logic signed [31:0] pp[3][2];
 
 always_comb 
-begin : double_pointers_in_func     // test_array_param.cpp:147:5
+begin : double_pointers_in_func     // test_array_param.cpp:154:5
     integer i;
     pp[0][0] = 1;
     pp[1][1] = 2;

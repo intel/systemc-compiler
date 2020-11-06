@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include <sct_assert.h>
 
@@ -50,7 +57,7 @@ public:
     static const unsigned PORT_NUM = 1;
     sc_signal<bool>       core_req[PORT_NUM];   
     
-    // BUG in Demux module SMEM  -- fixed in nextLevelCalc, no binopPred considered
+    // BUG in Demux module real design  -- fixed in nextLevelCalc, no binopPred considered
     void requestProc() 
     {
         bool reqReady = 1;
@@ -243,3 +250,4 @@ int  sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

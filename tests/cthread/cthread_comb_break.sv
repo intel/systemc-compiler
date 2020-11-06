@@ -20,14 +20,14 @@ logic signed [31:0] out;
 logic signed [31:0] in;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread (test_cthread_comb_break.cpp:23:5) 
+// Clocked THREAD: test_thread (test_cthread_comb_break.cpp:30:5) 
 
 // Thread-local variables
 logic test_thread_PROC_STATE;
 logic test_thread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_comb     // test_cthread_comb_break.cpp:23:5
+always_comb begin : test_thread_comb     // test_cthread_comb_break.cpp:30:5
     test_thread_func;
 end
 function void test_thread_func;
@@ -37,12 +37,12 @@ function void test_thread_func;
         0: begin
             if (|in)
             begin
-                test_thread_PROC_STATE_next = 1; return;    // test_cthread_comb_break.cpp:30:17;
+                test_thread_PROC_STATE_next = 1; return;    // test_cthread_comb_break.cpp:37:17;
             end
-            test_thread_PROC_STATE_next = 0; return;    // test_cthread_comb_break.cpp:27:13;
+            test_thread_PROC_STATE_next = 0; return;    // test_cthread_comb_break.cpp:34:13;
         end
         1: begin
-            test_thread_PROC_STATE_next = 0; return;    // test_cthread_comb_break.cpp:27:13;
+            test_thread_PROC_STATE_next = 0; return;    // test_cthread_comb_break.cpp:34:13;
         end
     endcase
 endfunction
@@ -52,7 +52,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread_ff
     if ( ~arstn ) begin
         out <= 0;
-        test_thread_PROC_STATE <= 0;    // test_cthread_comb_break.cpp:27:13;
+        test_thread_PROC_STATE <= 0;    // test_cthread_comb_break.cpp:34:13;
     end
     else begin
         test_thread_PROC_STATE <= test_thread_PROC_STATE_next;

@@ -18,46 +18,78 @@ logic clk;
 logic rstn;
 logic idx;
 logic signed [31:0] outs;
+logic signed [31:0] mouts;
 
 // C++ data variables
-localparam logic signed [31:0] ARR0[2] = '{ 'd20, 'd21 };
-localparam logic signed [31:0] ARR1[2] = '{ 'd30, 'd31 };
-localparam logic signed [31:0] ARR2[2] = '{ 'd40, 'd41 };
+localparam logic signed [31:0] ARR7[2] = '{ 'd70, 'd71 };
+localparam logic signed [31:0] ARR5[2] = '{ 'd50, 'd51 };
+localparam logic signed [31:0] ARR6[2] = '{ 'd61, 'd62 };
+localparam logic signed [31:0] ARR1[2] = '{ 'd10, 'd11 };
+localparam logic signed [31:0] ARR2[2] = '{ 'd21, 'd22 };
+localparam logic signed [31:0] ARR3[2] = '{ 'd30, 'd31 };
+localparam logic signed [31:0] ARR4[2] = '{ 'd40, 'd41 };
 
 //------------------------------------------------------------------------------
-// Method process: test_method (test_cthread_const_array.cpp:30:5) 
+// Method process: test_method (test_cthread_const_array.cpp:36:5) 
 
 always_comb 
-begin : test_method     // test_cthread_const_array.cpp:30:5
-    outs = ARR0[idx];
-    outs = ARR1[idx];
-    outs = ARR2[idx];
+begin : test_method     // test_cthread_const_array.cpp:36:5
+    mouts = ARR1[idx];
+    mouts = ARR2[idx];
+    mouts = ARR3[idx];
+    mouts = ARR4[idx];
+    mouts = ARR5[idx];
+    mouts = ARR6[idx];
+    mouts = ARR7[idx];
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread (test_cthread_const_array.cpp:39:5) 
+// Clocked THREAD: test_thread (test_cthread_const_array.cpp:50:5) 
 
 // Thread-local variables
 logic signed [31:0] outs_next;
+logic test_thread_PROC_STATE;
+logic test_thread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_comb     // test_cthread_const_array.cpp:39:5
+always_comb begin : test_thread_comb     // test_cthread_const_array.cpp:50:5
     test_thread_func;
 end
 function void test_thread_func;
     outs_next = outs;
-    outs_next = ARR0[idx];
-    outs_next = ARR1[idx];
-    outs_next = ARR2[idx];
+    test_thread_PROC_STATE_next = test_thread_PROC_STATE;
+    
+    case (test_thread_PROC_STATE)
+        0: begin
+            outs_next = ARR2[idx];
+            outs_next = ARR3[idx];
+            outs_next = ARR4[idx];
+            outs_next = ARR5[idx];
+            outs_next = ARR6[idx];
+            outs_next = ARR7[idx];
+            test_thread_PROC_STATE_next = 1; return;    // test_cthread_const_array.cpp:61:13;
+        end
+        1: begin
+            outs_next = ARR3[idx];
+            outs_next = ARR4[idx];
+            outs_next = ARR5[idx];
+            outs_next = ARR6[idx];
+            outs_next = ARR7[idx];
+            test_thread_PROC_STATE_next = 1; return;    // test_cthread_const_array.cpp:61:13;
+        end
+    endcase
 endfunction
 
 // Syncrhonous register update
 always_ff @(posedge clk or negedge rstn) 
 begin : test_thread_ff
     if ( ~rstn ) begin
+        outs <= ARR1[idx];
+        test_thread_PROC_STATE <= 0;    // test_cthread_const_array.cpp:52:9;
     end
     else begin
         outs <= outs_next;
+        test_thread_PROC_STATE <= test_thread_PROC_STATE_next;
     end
 end
 

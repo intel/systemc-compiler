@@ -23,7 +23,7 @@ logic [2:0] s3;
 logic [2:0] s4;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: local_rnd1 (test_cthread_var_const.cpp:37:5) 
+// Clocked THREAD: local_rnd1 (test_cthread_var_const.cpp:44:5) 
 
 // Thread-local variables
 logic [2:0] D;
@@ -35,7 +35,7 @@ logic local_rnd1_PROC_STATE_next;
 logic signed [31:0] C;
 
 // Next-state combinational logic
-always_comb begin : local_rnd1_comb     // test_cthread_var_const.cpp:37:5
+always_comb begin : local_rnd1_comb     // test_cthread_var_const.cpp:44:5
     local_rnd1_func;
 end
 function void local_rnd1_func;
@@ -46,7 +46,7 @@ function void local_rnd1_func;
     case (local_rnd1_PROC_STATE)
         0: begin
             D_next = s;
-            local_rnd1_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:44:13;
+            local_rnd1_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:51:13;
         end
         1: begin
             if (|C)
@@ -54,7 +54,7 @@ function void local_rnd1_func;
                 i = D_next;
             end
             D_next = s;
-            local_rnd1_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:44:13;
+            local_rnd1_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:51:13;
         end
     endcase
 endfunction
@@ -66,7 +66,7 @@ begin : local_rnd1_ff
         integer i;
         i = 0;
         C = in;
-        local_rnd1_PROC_STATE <= 0;    // test_cthread_var_const.cpp:40:9;
+        local_rnd1_PROC_STATE <= 0;    // test_cthread_var_const.cpp:47:9;
     end
     else begin
         D <= D_next;
@@ -75,7 +75,7 @@ begin : local_rnd1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: local_rnd2 (test_cthread_var_const.cpp:50:5) 
+// Clocked THREAD: local_rnd2 (test_cthread_var_const.cpp:57:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -90,7 +90,7 @@ logic [1:0] local_rnd2_PROC_STATE_next;
 logic signed [31:0] ARR[3];
 
 // Next-state combinational logic
-always_comb begin : local_rnd2_comb     // test_cthread_var_const.cpp:50:5
+always_comb begin : local_rnd2_comb     // test_cthread_var_const.cpp:57:5
     local_rnd2_func;
 end
 function void local_rnd2_func;
@@ -102,19 +102,19 @@ function void local_rnd2_func;
     case (local_rnd2_PROC_STATE)
         0: begin
             G_next = ARR[2];
-            local_rnd2_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:57:13;
+            local_rnd2_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:64:13;
         end
         1: begin
             if (|s)
             begin
                 i_next = ARR[s];
             end
-            local_rnd2_PROC_STATE_next = 2; return;    // test_cthread_var_const.cpp:60:13;
+            local_rnd2_PROC_STATE_next = 2; return;    // test_cthread_var_const.cpp:67:13;
         end
         2: begin
             s2_next = signed'({1'b0, G_next}) + i_next;
             G_next = ARR[2];
-            local_rnd2_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:57:13;
+            local_rnd2_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:64:13;
         end
     endcase
 endfunction
@@ -125,7 +125,7 @@ begin : local_rnd2_ff
     if ( ~rstn ) begin
         i <= 0;
         ARR[0] = 1; ARR[1] = 2; ARR[2] = in;
-        local_rnd2_PROC_STATE <= 0;    // test_cthread_var_const.cpp:53:9;
+        local_rnd2_PROC_STATE <= 0;    // test_cthread_var_const.cpp:60:9;
     end
     else begin
         i <= i_next;
@@ -136,7 +136,7 @@ begin : local_rnd2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: local_rnd3 (test_cthread_var_const.cpp:68:5) 
+// Clocked THREAD: local_rnd3 (test_cthread_var_const.cpp:75:5) 
 
 // Thread-local variables
 logic signed [31:0] i0;
@@ -155,7 +155,7 @@ logic [2:0] local_rnd3_PROC_STATE_next;
 logic [3:0] Z;
 
 // Next-state combinational logic
-always_comb begin : local_rnd3_comb     // test_cthread_var_const.cpp:68:5
+always_comb begin : local_rnd3_comb     // test_cthread_var_const.cpp:75:5
     local_rnd3_func;
 end
 function void local_rnd3_func;
@@ -169,20 +169,20 @@ function void local_rnd3_func;
     case (local_rnd3_PROC_STATE)
         0: begin
             i_next0 = Z + 1;
-            local_rnd3_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:75:9;
+            local_rnd3_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:82:9;
         end
         1: begin
             if (|s)
             begin
                 Y_next = i_next0;
-                local_rnd3_PROC_STATE_next = 2; return;    // test_cthread_var_const.cpp:80:17;
+                local_rnd3_PROC_STATE_next = 2; return;    // test_cthread_var_const.cpp:87:17;
             end
-            local_rnd3_PROC_STATE_next = 4; return;    // test_cthread_var_const.cpp:88:13;
+            local_rnd3_PROC_STATE_next = 4; return;    // test_cthread_var_const.cpp:95:13;
         end
         2: begin
             j_next = 0;
             X_next = Y_next + j_next;
-            local_rnd3_PROC_STATE_next = 3; return;    // test_cthread_var_const.cpp:84:21;
+            local_rnd3_PROC_STATE_next = 3; return;    // test_cthread_var_const.cpp:91:21;
         end
         3: begin
             s3_next = X_next;
@@ -190,17 +190,17 @@ function void local_rnd3_func;
             if (j_next < 3)
             begin
                 X_next = Y_next + j_next;
-                local_rnd3_PROC_STATE_next = 3; return;    // test_cthread_var_const.cpp:84:21;
+                local_rnd3_PROC_STATE_next = 3; return;    // test_cthread_var_const.cpp:91:21;
             end
-            local_rnd3_PROC_STATE_next = 4; return;    // test_cthread_var_const.cpp:88:13;
+            local_rnd3_PROC_STATE_next = 4; return;    // test_cthread_var_const.cpp:95:13;
         end
         4: begin
             if (|s)
             begin
                 Y_next = i_next0;
-                local_rnd3_PROC_STATE_next = 2; return;    // test_cthread_var_const.cpp:80:17;
+                local_rnd3_PROC_STATE_next = 2; return;    // test_cthread_var_const.cpp:87:17;
             end
-            local_rnd3_PROC_STATE_next = 4; return;    // test_cthread_var_const.cpp:88:13;
+            local_rnd3_PROC_STATE_next = 4; return;    // test_cthread_var_const.cpp:95:13;
         end
     endcase
 endfunction
@@ -213,7 +213,7 @@ begin : local_rnd3_ff
         if (1)
         begin
             Z = in;
-            local_rnd3_PROC_STATE <= 0;    // test_cthread_var_const.cpp:72:13;
+            local_rnd3_PROC_STATE <= 0;    // test_cthread_var_const.cpp:79:13;
         end
     end
     else begin
@@ -227,10 +227,10 @@ begin : local_rnd3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: local_def_read1 (test_cthread_var_const.cpp:93:5) 
+// Clocked THREAD: local_def_read1 (test_cthread_var_const.cpp:100:5) 
 
 // Next-state combinational logic
-always_comb begin : local_def_read1_comb     // test_cthread_var_const.cpp:93:5
+always_comb begin : local_def_read1_comb     // test_cthread_var_const.cpp:100:5
     local_def_read1_func;
 end
 function void local_def_read1_func;
@@ -255,7 +255,7 @@ begin : local_def_read1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: local_def_read2 (test_cthread_var_const.cpp:106:5) 
+// Clocked THREAD: local_def_read2 (test_cthread_var_const.cpp:113:5) 
 
 // Thread-local variables
 logic signed [31:0] ARRB[3];
@@ -269,7 +269,7 @@ logic local_def_read2_PROC_STATE_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : local_def_read2_comb     // test_cthread_var_const.cpp:106:5
+always_comb begin : local_def_read2_comb     // test_cthread_var_const.cpp:113:5
     local_def_read2_func;
 end
 function void local_def_read2_func;
@@ -283,13 +283,13 @@ function void local_def_read2_func;
         0: begin
             ARRB_next[0] = in + 1; ARRB_next[1] = in + 2; ARRB_next[2] = in + 3;
             L_next = ARRB_next[1 + s];
-            local_def_read2_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:115:13;
+            local_def_read2_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:122:13;
         end
         1: begin
             s4_next = L_next;
             ARRB_next[0] = in + 1; ARRB_next[1] = in + 2; ARRB_next[2] = in + 3;
             L_next = ARRB_next[1 + s];
-            local_def_read2_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:115:13;
+            local_def_read2_PROC_STATE_next = 1; return;    // test_cthread_var_const.cpp:122:13;
         end
     endcase
 endfunction
@@ -300,7 +300,7 @@ begin : local_def_read2_ff
     if ( ~rstn ) begin
         logic [2:0] ARRA[3];
         ARRA[0] = 1; ARRA[1] = 2; ARRA[2] = 3;
-        local_def_read2_PROC_STATE <= 0;    // test_cthread_var_const.cpp:109:9;
+        local_def_read2_PROC_STATE <= 0;    // test_cthread_var_const.cpp:116:9;
     end
     else begin
         ARRB <= ARRB_next;

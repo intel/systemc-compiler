@@ -60,7 +60,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_ff_latch.cpp:205:5)
+// Module: A (test_ff_latch.cpp:212:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -83,10 +83,10 @@ module A // "b_mod.a_mod"
 );
 
 //------------------------------------------------------------------------------
-// Method process: positive_latch (test_ff_latch.cpp:60:5) 
+// Method process: positive_latch (test_ff_latch.cpp:67:5) 
 
 always_latch 
-begin : positive_latch     // test_ff_latch.cpp:60:5
+begin : positive_latch     // test_ff_latch.cpp:67:5
     if (!rstn)
     begin
         q_pos_out = 0;
@@ -99,10 +99,10 @@ begin : positive_latch     // test_ff_latch.cpp:60:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: negative_latch (test_ff_latch.cpp:70:5) 
+// Method process: negative_latch (test_ff_latch.cpp:77:5) 
 
 always_latch 
-begin : negative_latch     // test_ff_latch.cpp:70:5
+begin : negative_latch     // test_ff_latch.cpp:77:5
     if (!rstn)
     begin
         q_neg_out = 0;
@@ -115,10 +115,10 @@ begin : negative_latch     // test_ff_latch.cpp:70:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: latch_one (test_ff_latch.cpp:80:5) 
+// Method process: latch_one (test_ff_latch.cpp:87:5) 
 
 always_latch 
-begin : latch_one     // test_ff_latch.cpp:80:5
+begin : latch_one     // test_ff_latch.cpp:87:5
     if (!rstn)
     begin
         q_one_out = 0;
@@ -131,10 +131,10 @@ begin : latch_one     // test_ff_latch.cpp:80:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: latch_zero (test_ff_latch.cpp:90:5) 
+// Method process: latch_zero (test_ff_latch.cpp:97:5) 
 
 always_latch 
-begin : latch_zero     // test_ff_latch.cpp:90:5
+begin : latch_zero     // test_ff_latch.cpp:97:5
     if (!rstn)
     begin
         q_zero_out = 'hFFFF;
@@ -147,13 +147,13 @@ begin : latch_zero     // test_ff_latch.cpp:90:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: async_rst_dff (test_ff_latch.cpp:101:5) 
+// Clocked THREAD: async_rst_dff (test_ff_latch.cpp:108:5) 
 
 // Thread-local variables
 logic [15:0] async_rst_dff_out_next;
 
 // Next-state combinational logic
-always_comb begin : async_rst_dff_comb     // test_ff_latch.cpp:101:5
+always_comb begin : async_rst_dff_comb     // test_ff_latch.cpp:108:5
     async_rst_dff_func;
 end
 function void async_rst_dff_func;
@@ -173,13 +173,13 @@ begin : async_rst_dff_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sync_rst_dff (test_ff_latch.cpp:111:5) 
+// Clocked THREAD: sync_rst_dff (test_ff_latch.cpp:118:5) 
 
 // Thread-local variables
 logic [15:0] sync_rst_dff_out_next;
 
 // Next-state combinational logic
-always_comb begin : sync_rst_dff_comb     // test_ff_latch.cpp:111:5
+always_comb begin : sync_rst_dff_comb     // test_ff_latch.cpp:118:5
     sync_rst_dff_func;
 end
 function void sync_rst_dff_func;
@@ -199,7 +199,7 @@ begin : sync_rst_dff_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: async_rst_tff (test_ff_latch.cpp:121:5) 
+// Clocked THREAD: async_rst_tff (test_ff_latch.cpp:128:5) 
 
 // Thread-local variables
 logic [15:0] async_rst_tff_out_next;
@@ -209,7 +209,7 @@ logic [15:0] b;
 logic [15:0] b_next;
 
 // Next-state combinational logic
-always_comb begin : async_rst_tff_comb     // test_ff_latch.cpp:121:5
+always_comb begin : async_rst_tff_comb     // test_ff_latch.cpp:128:5
     async_rst_tff_func;
 end
 function void async_rst_tff_func;
@@ -256,13 +256,13 @@ begin : async_rst_tff_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sync_rst_tff (test_ff_latch.cpp:155:5) 
+// Clocked THREAD: sync_rst_tff (test_ff_latch.cpp:162:5) 
 
 // Thread-local variables
 logic [15:0] sync_rst_tff_out_next;
 
 // Next-state combinational logic
-always_comb begin : sync_rst_tff_comb     // test_ff_latch.cpp:155:5
+always_comb begin : sync_rst_tff_comb     // test_ff_latch.cpp:162:5
     sync_rst_tff_func;
 end
 function void sync_rst_tff_func;

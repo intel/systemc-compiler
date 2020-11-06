@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_in_if.cpp:124:5)
+// Module: A (test_array_in_if.cpp:131:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -39,13 +39,13 @@ logic [1:0] sleep_idle_cntr[3];
 logic ms_pwrin_nenable[3];
 
 //------------------------------------------------------------------------------
-// Method process: func_in_if1 (test_array_in_if.cpp:52:5) 
+// Method process: func_in_if1 (test_array_in_if.cpp:59:5) 
 
 // Process-local variables
 logic k;
 
 always_comb 
-begin : func_in_if1     // test_array_in_if.cpp:52:5
+begin : func_in_if1     // test_array_in_if.cpp:59:5
     integer i;
     logic TMP_0;
     // Call f() begin
@@ -58,13 +58,13 @@ begin : func_in_if1     // test_array_in_if.cpp:52:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_in_if2 (test_array_in_if.cpp:60:5) 
+// Method process: func_in_if2 (test_array_in_if.cpp:67:5) 
 
 // Process-local variables
 logic k;
 
 always_comb 
-begin : func_in_if2     // test_array_in_if.cpp:60:5
+begin : func_in_if2     // test_array_in_if.cpp:67:5
     integer i;
     logic TMP_0;
     logic TMP_1;
@@ -83,18 +83,18 @@ begin : func_in_if2     // test_array_in_if.cpp:60:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_in_if_const1 (test_array_in_if.cpp:68:5) 
+// Method process: func_in_if_const1 (test_array_in_if.cpp:75:5) 
 
 always_comb 
-begin : func_in_if_const1     // test_array_in_if.cpp:68:5
+begin : func_in_if_const1     // test_array_in_if.cpp:75:5
     integer i;
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_in_if_const2 (test_array_in_if.cpp:76:5) 
+// Method process: func_in_if_const2 (test_array_in_if.cpp:83:5) 
 
 always_comb 
-begin : func_in_if_const2     // test_array_in_if.cpp:76:5
+begin : func_in_if_const2     // test_array_in_if.cpp:83:5
     integer i;
     if (1)
     begin
@@ -103,13 +103,13 @@ begin : func_in_if_const2     // test_array_in_if.cpp:76:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_in_if_const3 (test_array_in_if.cpp:84:5) 
+// Method process: func_in_if_const3 (test_array_in_if.cpp:91:5) 
 
 // Process-local variables
 logic k;
 
 always_comb 
-begin : func_in_if_const3     // test_array_in_if.cpp:84:5
+begin : func_in_if_const3     // test_array_in_if.cpp:91:5
     integer i;
     logic TMP_0;
     // Call f() begin
@@ -122,10 +122,10 @@ begin : func_in_if_const3     // test_array_in_if.cpp:84:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_in_if_const4 (test_array_in_if.cpp:92:5) 
+// Method process: func_in_if_const4 (test_array_in_if.cpp:99:5) 
 
 always_comb 
-begin : func_in_if_const4     // test_array_in_if.cpp:92:5
+begin : func_in_if_const4     // test_array_in_if.cpp:99:5
     integer i;
     logic TMP_0;
     integer i_1;
@@ -140,10 +140,10 @@ begin : func_in_if_const4     // test_array_in_if.cpp:92:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: chan_array_in_if1 (test_array_in_if.cpp:100:5) 
+// Method process: chan_array_in_if1 (test_array_in_if.cpp:107:5) 
 
 always_comb 
-begin : chan_array_in_if1     // test_array_in_if.cpp:100:5
+begin : chan_array_in_if1     // test_array_in_if.cpp:107:5
     integer i;
     if (ms_pwrin_nenable[i] || |i)
     begin
@@ -152,10 +152,10 @@ begin : chan_array_in_if1     // test_array_in_if.cpp:100:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: chan_array_in_if2 (test_array_in_if.cpp:110:5) 
+// Method process: chan_array_in_if2 (test_array_in_if.cpp:117:5) 
 
 always_comb 
-begin : chan_array_in_if2     // test_array_in_if.cpp:110:5
+begin : chan_array_in_if2     // test_array_in_if.cpp:117:5
     for (integer i = 0; i < 3; i++)
     begin
         if (block_access[i] || ms_pwrin_nenable[i])

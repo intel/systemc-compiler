@@ -19,7 +19,7 @@ logic rst;
 logic [3:0] sig;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: mult_array_decl (test_member_array_cthread.cpp:99:5) 
+// Clocked THREAD: mult_array_decl (test_member_array_cthread.cpp:106:5) 
 
 // Thread-local variables
 logic qarr_a[5][4][3];
@@ -30,7 +30,7 @@ logic [3:0] parr_b[4][3][2];
 logic [3:0] parr_b_next[4][3][2];
 
 // Next-state combinational logic
-always_comb begin : mult_array_decl_comb     // test_member_array_cthread.cpp:99:5
+always_comb begin : mult_array_decl_comb     // test_member_array_cthread.cpp:106:5
     mult_array_decl_func;
 end
 function void mult_array_decl_func;
@@ -58,10 +58,10 @@ begin : mult_array_decl_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_array_decl1 (test_member_array_cthread.cpp:117:5) 
+// Clocked THREAD: loc_array_decl1 (test_member_array_cthread.cpp:124:5) 
 
 // Next-state combinational logic
-always_comb begin : loc_array_decl1_comb     // test_member_array_cthread.cpp:117:5
+always_comb begin : loc_array_decl1_comb     // test_member_array_cthread.cpp:124:5
     loc_array_decl1_func;
 end
 function void loc_array_decl1_func;
@@ -80,10 +80,10 @@ begin : loc_array_decl1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_array_decl2 (test_member_array_cthread.cpp:129:5) 
+// Clocked THREAD: loc_array_decl2 (test_member_array_cthread.cpp:136:5) 
 
 // Next-state combinational logic
-always_comb begin : loc_array_decl2_comb     // test_member_array_cthread.cpp:129:5
+always_comb begin : loc_array_decl2_comb     // test_member_array_cthread.cpp:136:5
     loc_array_decl2_func;
 end
 function void loc_array_decl2_func;
@@ -102,7 +102,7 @@ begin : loc_array_decl2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_array_decl3 (test_member_array_cthread.cpp:141:5) 
+// Clocked THREAD: loc_array_decl3 (test_member_array_cthread.cpp:148:5) 
 
 // Thread-local variables
 logic xarr3_a[2][3];
@@ -113,7 +113,7 @@ logic loc_array_decl3_PROC_STATE;
 logic loc_array_decl3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : loc_array_decl3_comb     // test_member_array_cthread.cpp:141:5
+always_comb begin : loc_array_decl3_comb     // test_member_array_cthread.cpp:148:5
     loc_array_decl3_func;
 end
 function void loc_array_decl3_func;
@@ -125,12 +125,12 @@ function void loc_array_decl3_func;
     case (loc_array_decl3_PROC_STATE)
         0: begin
             xarr3_b_next[1][2] = 0;
-            loc_array_decl3_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:149:13;
+            loc_array_decl3_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:156:13;
         end
         1: begin
             l = xarr3_b_next[1][1];
             xarr3_b_next[1][2] = 0;
-            loc_array_decl3_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:149:13;
+            loc_array_decl3_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:156:13;
         end
     endcase
 endfunction
@@ -139,7 +139,7 @@ endfunction
 always_ff @(posedge clk or posedge rst) 
 begin : loc_array_decl3_ff
     if (rst ) begin
-        loc_array_decl3_PROC_STATE <= 0;    // test_member_array_cthread.cpp:143:9;
+        loc_array_decl3_PROC_STATE <= 0;    // test_member_array_cthread.cpp:150:9;
     end
     else begin
         xarr3_a <= xarr3_a_next;
@@ -149,7 +149,7 @@ begin : loc_array_decl3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_array_decl4 (test_member_array_cthread.cpp:154:5) 
+// Clocked THREAD: loc_array_decl4 (test_member_array_cthread.cpp:161:5) 
 
 // Thread-local variables
 logic xarr4_a[2][3];
@@ -160,7 +160,7 @@ logic loc_array_decl4_PROC_STATE;
 logic loc_array_decl4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : loc_array_decl4_comb     // test_member_array_cthread.cpp:154:5
+always_comb begin : loc_array_decl4_comb     // test_member_array_cthread.cpp:161:5
     loc_array_decl4_func;
 end
 function void loc_array_decl4_func;
@@ -172,12 +172,12 @@ function void loc_array_decl4_func;
     case (loc_array_decl4_PROC_STATE)
         0: begin
             xarr4_b_next[1][2] = 0;
-            loc_array_decl4_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:162:13;
+            loc_array_decl4_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:169:13;
         end
         1: begin
             l = xarr4_b_next[1][2];
             xarr4_b_next[1][2] = 0;
-            loc_array_decl4_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:162:13;
+            loc_array_decl4_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:169:13;
         end
     endcase
 endfunction
@@ -186,7 +186,7 @@ endfunction
 always_ff @(posedge clk or posedge rst) 
 begin : loc_array_decl4_ff
     if (rst ) begin
-        loc_array_decl4_PROC_STATE <= 0;    // test_member_array_cthread.cpp:156:9;
+        loc_array_decl4_PROC_STATE <= 0;    // test_member_array_cthread.cpp:163:9;
     end
     else begin
         xarr4_a <= xarr4_a_next;
@@ -196,7 +196,7 @@ begin : loc_array_decl4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_array_decl5 (test_member_array_cthread.cpp:169:5) 
+// Clocked THREAD: loc_array_decl5 (test_member_array_cthread.cpp:176:5) 
 
 // Thread-local variables
 logic xlarr5_a[2][3];
@@ -211,7 +211,7 @@ logic loc_array_decl5_PROC_STATE;
 logic loc_array_decl5_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : loc_array_decl5_comb     // test_member_array_cthread.cpp:169:5
+always_comb begin : loc_array_decl5_comb     // test_member_array_cthread.cpp:176:5
     loc_array_decl5_func;
 end
 function void loc_array_decl5_func;
@@ -228,14 +228,14 @@ function void loc_array_decl5_func;
             j = sig;
             xarr5_b_next[1][j] = 0;
             xlarr5_b_next[1][j] = 0;
-            loc_array_decl5_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:181:13;
+            loc_array_decl5_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:188:13;
         end
         1: begin
             l = xarr5_b_next[1][2] + xlarr5_b_next[1][2];
             j = sig;
             xarr5_b_next[1][j] = 0;
             xlarr5_b_next[1][j] = 0;
-            loc_array_decl5_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:181:13;
+            loc_array_decl5_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:188:13;
         end
     endcase
 endfunction
@@ -244,7 +244,7 @@ endfunction
 always_ff @(posedge clk or posedge rst) 
 begin : loc_array_decl5_ff
     if (rst ) begin
-        loc_array_decl5_PROC_STATE <= 0;    // test_member_array_cthread.cpp:171:9;
+        loc_array_decl5_PROC_STATE <= 0;    // test_member_array_cthread.cpp:178:9;
     end
     else begin
         xlarr5_a <= xlarr5_a_next;
@@ -256,7 +256,7 @@ begin : loc_array_decl5_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_array_decl6 (test_member_array_cthread.cpp:187:5) 
+// Clocked THREAD: loc_array_decl6 (test_member_array_cthread.cpp:194:5) 
 
 // Thread-local variables
 logic xarr6_a[2][3];
@@ -265,7 +265,7 @@ logic [3:0] xarr6_b[2][3];
 logic [3:0] xarr6_b_next[2][3];
 
 // Next-state combinational logic
-always_comb begin : loc_array_decl6_comb     // test_member_array_cthread.cpp:187:5
+always_comb begin : loc_array_decl6_comb     // test_member_array_cthread.cpp:194:5
     loc_array_decl6_func;
 end
 function void loc_array_decl6_func;
@@ -290,10 +290,10 @@ begin : loc_array_decl6_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: loc_array_decl6_meth (test_member_array_cthread.cpp:203:5) 
+// Method process: loc_array_decl6_meth (test_member_array_cthread.cpp:210:5) 
 
 always_comb 
-begin : loc_array_decl6_meth     // test_member_array_cthread.cpp:203:5
+begin : loc_array_decl6_meth     // test_member_array_cthread.cpp:210:5
     integer j;
     logic xarr6_a[2][3];
     logic [3:0] xarr6_b[2][3];
@@ -304,7 +304,7 @@ begin : loc_array_decl6_meth     // test_member_array_cthread.cpp:203:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_array_copy (test_member_array_cthread.cpp:223:5) 
+// Clocked THREAD: loc_array_copy (test_member_array_cthread.cpp:230:5) 
 
 // Thread-local variables
 logic par_a[3];
@@ -315,7 +315,7 @@ logic [1:0] loc_array_copy_PROC_STATE;
 logic [1:0] loc_array_copy_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : loc_array_copy_comb     // test_member_array_cthread.cpp:223:5
+always_comb begin : loc_array_copy_comb     // test_member_array_cthread.cpp:230:5
     loc_array_copy_func;
 end
 function void loc_array_copy_func;
@@ -334,14 +334,14 @@ function void loc_array_copy_func;
             // Call rec_param_copy() begin
             j = sig;
             par_b_next[j] = 1;
-            loc_array_copy_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:218:9;
+            loc_array_copy_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:225:9;
             // Call rec_param_copy() end
         end
         1: begin
             // Call rec_param_copy() begin
             l = par_b_next[1];
             // Call rec_param_copy() end
-            loc_array_copy_PROC_STATE_next = 2; return;    // test_member_array_cthread.cpp:232:13;
+            loc_array_copy_PROC_STATE_next = 2; return;    // test_member_array_cthread.cpp:239:13;
         end
         2: begin
             xlarr_b[0] = 0; xlarr_b[1] = 0; xlarr_b[2] = 0;
@@ -349,7 +349,7 @@ function void loc_array_copy_func;
             // Call rec_param_copy() begin
             j = sig;
             par_b_next[j] = 1;
-            loc_array_copy_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:218:9;
+            loc_array_copy_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:225:9;
             // Call rec_param_copy() end
         end
     endcase
@@ -359,7 +359,7 @@ endfunction
 always_ff @(posedge clk or posedge rst) 
 begin : loc_array_copy_ff
     if (rst ) begin
-        loc_array_copy_PROC_STATE <= 0;    // test_member_array_cthread.cpp:225:9;
+        loc_array_copy_PROC_STATE <= 0;    // test_member_array_cthread.cpp:232:9;
     end
     else begin
         par_a <= par_a_next;
@@ -369,10 +369,10 @@ begin : loc_array_copy_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_array_init (test_member_array_cthread.cpp:261:5) 
+// Clocked THREAD: loc_array_init (test_member_array_cthread.cpp:268:5) 
 
 // Next-state combinational logic
-always_comb begin : loc_array_init_comb     // test_member_array_cthread.cpp:261:5
+always_comb begin : loc_array_init_comb     // test_member_array_cthread.cpp:268:5
     loc_array_init_func;
 end
 function void loc_array_init_func;
@@ -395,7 +395,7 @@ begin : loc_array_init_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fcall_array_unknown (test_member_array_cthread.cpp:274:5) 
+// Clocked THREAD: fcall_array_unknown (test_member_array_cthread.cpp:281:5) 
 
 // Thread-local variables
 logic signed [31:0] j;
@@ -406,7 +406,7 @@ logic [3:0] yarr_b[2][3];
 logic [3:0] yarr_b_next[2][3];
 
 // Next-state combinational logic
-always_comb begin : fcall_array_unknown_comb     // test_member_array_cthread.cpp:274:5
+always_comb begin : fcall_array_unknown_comb     // test_member_array_cthread.cpp:281:5
     fcall_array_unknown_func;
 end
 function void fcall_array_unknown_func;
@@ -437,7 +437,7 @@ begin : fcall_array_unknown_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple_access (test_member_array_cthread.cpp:295:5) 
+// Clocked THREAD: simple_access (test_member_array_cthread.cpp:302:5) 
 
 // Thread-local variables
 logic s_a[3];
@@ -446,7 +446,7 @@ logic [3:0] s_b[3];
 logic [3:0] s_b_next[3];
 
 // Next-state combinational logic
-always_comb begin : simple_access_comb     // test_member_array_cthread.cpp:295:5
+always_comb begin : simple_access_comb     // test_member_array_cthread.cpp:302:5
     simple_access_func;
 end
 function void simple_access_func;
@@ -485,7 +485,7 @@ begin : simple_access_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_access (test_member_array_cthread.cpp:317:5) 
+// Clocked THREAD: array_access (test_member_array_cthread.cpp:324:5) 
 
 // Thread-local variables
 logic arr_a[2][3];
@@ -494,7 +494,7 @@ logic [3:0] arr_b[2][3];
 logic [3:0] arr_b_next[2][3];
 
 // Next-state combinational logic
-always_comb begin : array_access_comb     // test_member_array_cthread.cpp:317:5
+always_comb begin : array_access_comb     // test_member_array_cthread.cpp:324:5
     array_access_func;
 end
 function void array_access_func;
@@ -538,7 +538,7 @@ begin : array_access_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_array_access (test_member_array_cthread.cpp:341:5) 
+// Clocked THREAD: loc_array_access (test_member_array_cthread.cpp:348:5) 
 
 // Thread-local variables
 logic xarr_a[2][3];
@@ -551,7 +551,7 @@ logic [3:0] x_b[3];
 logic [3:0] x_b_next[3];
 
 // Next-state combinational logic
-always_comb begin : loc_array_access_comb     // test_member_array_cthread.cpp:341:5
+always_comb begin : loc_array_access_comb     // test_member_array_cthread.cpp:348:5
     loc_array_access_func;
 end
 function void loc_array_access_func;
@@ -599,7 +599,7 @@ begin : loc_array_access_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: local_fcall_param (test_member_array_cthread.cpp:394:5) 
+// Clocked THREAD: local_fcall_param (test_member_array_cthread.cpp:401:5) 
 
 // Thread-local variables
 logic vv_a[3];
@@ -618,7 +618,7 @@ logic [3:0] varr_b[2][3];
 logic [3:0] varr_b_next[2][3];
 
 // Next-state combinational logic
-always_comb begin : local_fcall_param_comb     // test_member_array_cthread.cpp:394:5
+always_comb begin : local_fcall_param_comb     // test_member_array_cthread.cpp:401:5
     local_fcall_param_func;
 end
 function void local_fcall_param_func;
@@ -715,10 +715,10 @@ begin : local_fcall_param_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: local_fcall_param_noinit (test_member_array_cthread.cpp:421:5) 
+// Method process: local_fcall_param_noinit (test_member_array_cthread.cpp:428:5) 
 
 always_comb 
-begin : local_fcall_param_noinit     // test_member_array_cthread.cpp:421:5
+begin : local_fcall_param_noinit     // test_member_array_cthread.cpp:428:5
     logic varr_a[2][3];
     logic [3:0] varr_b[2][3];
     integer j;
@@ -737,7 +737,7 @@ begin : local_fcall_param_noinit     // test_member_array_cthread.cpp:421:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fcall_param (test_member_array_cthread.cpp:432:5) 
+// Clocked THREAD: fcall_param (test_member_array_cthread.cpp:439:5) 
 
 // Thread-local variables
 logic r_a[3];
@@ -758,7 +758,7 @@ logic [3:0] rarr_b[2][3];
 logic [3:0] rarr_b_next[2][3];
 
 // Next-state combinational logic
-always_comb begin : fcall_param_comb     // test_member_array_cthread.cpp:432:5
+always_comb begin : fcall_param_comb     // test_member_array_cthread.cpp:439:5
     fcall_param_func;
 end
 function void fcall_param_func;
@@ -852,7 +852,7 @@ begin : fcall_param_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fcall_return (test_member_array_cthread.cpp:474:5) 
+// Clocked THREAD: fcall_return (test_member_array_cthread.cpp:481:5) 
 
 // Thread-local variables
 logic z_a[3];
@@ -871,7 +871,7 @@ logic [1:0] fcall_return_PROC_STATE;
 logic [1:0] fcall_return_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : fcall_return_comb     // test_member_array_cthread.cpp:474:5
+always_comb begin : fcall_return_comb     // test_member_array_cthread.cpp:481:5
     fcall_return_func;
 end
 function void fcall_return_func;
@@ -901,7 +901,7 @@ function void fcall_return_func;
             par_a_1 = z_a_next; par_b_1 = z_b_next;
             // Call rec_return2() begin
             res_a_next = par_a_1; res_b_next = par_b_1;
-            fcall_return_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:466:9;
+            fcall_return_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:473:9;
             // Call rec_return2() end
         end
         1: begin
@@ -913,7 +913,7 @@ function void fcall_return_func;
             par_a_1 = zarr_a_next[j]; par_b_1 = zarr_b_next[j];
             // Call rec_return2() begin
             res_a_next = par_a_1; res_b_next = par_b_1;
-            fcall_return_PROC_STATE_next = 2; return;    // test_member_array_cthread.cpp:466:9;
+            fcall_return_PROC_STATE_next = 2; return;    // test_member_array_cthread.cpp:473:9;
             // Call rec_return2() end
         end
         2: begin
@@ -921,13 +921,13 @@ function void fcall_return_func;
             TMP_2_a = res_a_next; TMP_2_b = res_b_next;
             // Call rec_return2() end
             lllrec_a = TMP_2_a; lllrec_b = TMP_2_b;
-            fcall_return_PROC_STATE_next = 3; return;    // test_member_array_cthread.cpp:488:13;
+            fcall_return_PROC_STATE_next = 3; return;    // test_member_array_cthread.cpp:495:13;
         end
         3: begin
             par_a_1 = z_a_next; par_b_1 = z_b_next;
             // Call rec_return2() begin
             res_a_next = par_a_1; res_b_next = par_b_1;
-            fcall_return_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:466:9;
+            fcall_return_PROC_STATE_next = 1; return;    // test_member_array_cthread.cpp:473:9;
             // Call rec_return2() end
         end
     endcase
@@ -953,7 +953,7 @@ begin : fcall_return_ff
         TMP_0_a = par_a; TMP_0_b = par_b;
         // Call rec_return1() end
         lrec_a = TMP_0_a; lrec_b = TMP_0_b;
-        fcall_return_PROC_STATE <= 0;    // test_member_array_cthread.cpp:480:9;
+        fcall_return_PROC_STATE <= 0;    // test_member_array_cthread.cpp:487:9;
     end
     else begin
         z_a <= z_a_next;

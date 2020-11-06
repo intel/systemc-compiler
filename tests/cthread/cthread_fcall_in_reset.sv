@@ -19,10 +19,10 @@ logic nrst;
 logic signed [31:0] s;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread0 (test_fcall_in_reset.cpp:33:5) 
+// Clocked THREAD: top_thread0 (test_fcall_in_reset.cpp:40:5) 
 
 // Next-state combinational logic
-always_comb begin : top_thread0_comb     // test_fcall_in_reset.cpp:33:5
+always_comb begin : top_thread0_comb     // test_fcall_in_reset.cpp:40:5
     top_thread0_func;
 end
 function void top_thread0_func;
@@ -48,7 +48,7 @@ begin : top_thread0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread1 (test_fcall_in_reset.cpp:44:5) 
+// Clocked THREAD: top_thread1 (test_fcall_in_reset.cpp:51:5) 
 
 // Thread-local variables
 logic signed [31:0] k;
@@ -59,7 +59,7 @@ logic signed [31:0] cs;
 logic signed [31:0] c;
 
 // Next-state combinational logic
-always_comb begin : top_thread1_comb     // test_fcall_in_reset.cpp:44:5
+always_comb begin : top_thread1_comb     // test_fcall_in_reset.cpp:51:5
     top_thread1_func;
 end
 function void top_thread1_func;
@@ -92,7 +92,7 @@ begin : top_thread1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread2 (test_fcall_in_reset.cpp:59:5) 
+// Clocked THREAD: top_thread2 (test_fcall_in_reset.cpp:66:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -106,7 +106,7 @@ logic top_thread2_PROC_STATE_next;
 logic signed [31:0] c0;
 
 // Next-state combinational logic
-always_comb begin : top_thread2_comb     // test_fcall_in_reset.cpp:59:5
+always_comb begin : top_thread2_comb     // test_fcall_in_reset.cpp:66:5
     top_thread2_func;
 end
 function void top_thread2_func;
@@ -118,12 +118,12 @@ function void top_thread2_func;
     case (top_thread2_PROC_STATE)
         0: begin
             j_next = c0 + i_next;
-            top_thread2_PROC_STATE_next = 1; return;    // test_fcall_in_reset.cpp:70:13;
+            top_thread2_PROC_STATE_next = 1; return;    // test_fcall_in_reset.cpp:77:13;
         end
         1: begin
             j_next = j_next + 42;
             j_next = c0 + i_next;
-            top_thread2_PROC_STATE_next = 1; return;    // test_fcall_in_reset.cpp:70:13;
+            top_thread2_PROC_STATE_next = 1; return;    // test_fcall_in_reset.cpp:77:13;
         end
     endcase
 endfunction
@@ -138,7 +138,7 @@ begin : top_thread2_ff
         // Call f() end
         i <= TMP_0;
         c0 = s;
-        top_thread2_PROC_STATE <= 0;    // test_fcall_in_reset.cpp:65:9;
+        top_thread2_PROC_STATE <= 0;    // test_fcall_in_reset.cpp:72:9;
     end
     else begin
         i <= i_next;

@@ -26,7 +26,7 @@ assign minst_nrst[0] = nrst;
 assign minst_nrst[1] = nrst;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_threadProc (test_var_in_reset.cpp:24:5) 
+// Clocked THREAD: minst_threadProc (test_var_in_reset.cpp:31:5) 
 
 // Thread-local variables
 logic [3:0] minst_s_next[2];
@@ -34,7 +34,7 @@ logic signed [31:0] b;
 logic signed [31:0] b_next;
 
 // Next-state combinational logic
-always_comb begin : minst_threadProc_comb     // test_var_in_reset.cpp:24:5
+always_comb begin : minst_threadProc_comb     // test_var_in_reset.cpp:31:5
     minst_threadProc_func;
 end
 function void minst_threadProc_func;
@@ -61,14 +61,14 @@ begin : minst_threadProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_threadProc0 (test_var_in_reset.cpp:24:5) 
+// Clocked THREAD: minst_threadProc0 (test_var_in_reset.cpp:31:5) 
 
 // Thread-local variables
 logic signed [31:0] b0;
 logic signed [31:0] b_next0;
 
 // Next-state combinational logic
-always_comb begin : minst_threadProc0_comb     // test_var_in_reset.cpp:24:5
+always_comb begin : minst_threadProc0_comb     // test_var_in_reset.cpp:31:5
     minst_threadProc0_func;
 end
 function void minst_threadProc0_func;

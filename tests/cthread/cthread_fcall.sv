@@ -21,7 +21,7 @@ logic signed [31:0] in;
 logic [3:0] s0;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread0 (test_cthread_fcall.cpp:221:5) 
+// Clocked THREAD: test_thread0 (test_cthread_fcall.cpp:228:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
@@ -29,7 +29,7 @@ logic test_thread0_PROC_STATE;
 logic test_thread0_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread0_comb     // test_cthread_fcall.cpp:221:5
+always_comb begin : test_thread0_comb     // test_cthread_fcall.cpp:228:5
     test_thread0_func;
 end
 function void test_thread0_func;
@@ -42,7 +42,7 @@ function void test_thread0_func;
             out_next = 1;
             // Call f1() begin
             k = 0;
-            test_thread0_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread0_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
         1: begin
@@ -53,7 +53,7 @@ function void test_thread0_func;
             out_next = 1;
             // Call f1() begin
             k = 0;
-            test_thread0_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread0_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
     endcase
@@ -64,7 +64,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread0_ff
     if ( ~arstn ) begin
         out <= 0;
-        test_thread0_PROC_STATE <= 0;    // test_cthread_fcall.cpp:224:9;
+        test_thread0_PROC_STATE <= 0;    // test_cthread_fcall.cpp:231:9;
     end
     else begin
         out <= out_next;
@@ -73,7 +73,7 @@ begin : test_thread0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_in_if1 (test_cthread_fcall.cpp:234:5) 
+// Clocked THREAD: test_thread_in_if1 (test_cthread_fcall.cpp:241:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next0;
@@ -81,7 +81,7 @@ logic [1:0] test_thread_in_if1_PROC_STATE;
 logic [1:0] test_thread_in_if1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_in_if1_comb     // test_cthread_fcall.cpp:234:5
+always_comb begin : test_thread_in_if1_comb     // test_cthread_fcall.cpp:241:5
     test_thread_in_if1_func;
 end
 function void test_thread_in_if1_func;
@@ -96,18 +96,18 @@ function void test_thread_in_if1_func;
             begin
                 // Call f1() begin
                 k = 0;
-                test_thread_in_if1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+                test_thread_in_if1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
                 // Call f1() end
             end
             out_next0 = 2;
-            test_thread_in_if1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:247:13;
+            test_thread_in_if1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:254:13;
         end
         1: begin
             // Call f1() begin
             k = 1;
             // Call f1() end
             out_next0 = 2;
-            test_thread_in_if1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:247:13;
+            test_thread_in_if1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:254:13;
         end
         2: begin
             out_next0 = 3;
@@ -116,11 +116,11 @@ function void test_thread_in_if1_func;
             begin
                 // Call f1() begin
                 k = 0;
-                test_thread_in_if1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+                test_thread_in_if1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
                 // Call f1() end
             end
             out_next0 = 2;
-            test_thread_in_if1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:247:13;
+            test_thread_in_if1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:254:13;
         end
     endcase
 endfunction
@@ -130,7 +130,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread_in_if1_ff
     if ( ~arstn ) begin
         out <= 0;
-        test_thread_in_if1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:237:9;
+        test_thread_in_if1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:244:9;
     end
     else begin
         out <= out_next0;
@@ -139,7 +139,7 @@ begin : test_thread_in_if1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_in_if2 (test_cthread_fcall.cpp:254:5) 
+// Clocked THREAD: test_thread_in_if2 (test_cthread_fcall.cpp:261:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next1;
@@ -147,7 +147,7 @@ logic [1:0] test_thread_in_if2_PROC_STATE;
 logic [1:0] test_thread_in_if2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_in_if2_comb     // test_cthread_fcall.cpp:254:5
+always_comb begin : test_thread_in_if2_comb     // test_cthread_fcall.cpp:261:5
     test_thread_in_if2_func;
 end
 function void test_thread_in_if2_func;
@@ -164,19 +164,19 @@ function void test_thread_in_if2_func;
                 begin
                     // Call f1() begin
                     k = 0;
-                    test_thread_in_if2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+                    test_thread_in_if2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
                     // Call f1() end
                 end
             end
             out_next1 = 2;
-            test_thread_in_if2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:269:13;
+            test_thread_in_if2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:276:13;
         end
         1: begin
             // Call f1() begin
             k = 1;
             // Call f1() end
             out_next1 = 2;
-            test_thread_in_if2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:269:13;
+            test_thread_in_if2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:276:13;
         end
         2: begin
             out_next1 = 3;
@@ -187,12 +187,12 @@ function void test_thread_in_if2_func;
                 begin
                     // Call f1() begin
                     k = 0;
-                    test_thread_in_if2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+                    test_thread_in_if2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
                     // Call f1() end
                 end
             end
             out_next1 = 2;
-            test_thread_in_if2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:269:13;
+            test_thread_in_if2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:276:13;
         end
     endcase
 endfunction
@@ -202,7 +202,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread_in_if2_ff
     if ( ~arstn ) begin
         out <= 0;
-        test_thread_in_if2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:257:9;
+        test_thread_in_if2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:264:9;
     end
     else begin
         out <= out_next1;
@@ -211,7 +211,7 @@ begin : test_thread_in_if2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_in_for1 (test_cthread_fcall.cpp:300:5) 
+// Clocked THREAD: test_thread_in_for1 (test_cthread_fcall.cpp:307:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next2;
@@ -221,7 +221,7 @@ logic [1:0] test_thread_in_for1_PROC_STATE;
 logic [1:0] test_thread_in_for1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_in_for1_comb     // test_cthread_fcall.cpp:300:5
+always_comb begin : test_thread_in_for1_comb     // test_cthread_fcall.cpp:307:5
     test_thread_in_for1_func;
 end
 function void test_thread_in_for1_func;
@@ -236,7 +236,7 @@ function void test_thread_in_for1_func;
             i_next = 0;
             // Call f1() begin
             k = 0;
-            test_thread_in_for1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_in_for1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
         1: begin
@@ -248,11 +248,11 @@ function void test_thread_in_for1_func;
             begin
                 // Call f1() begin
                 k = 0;
-                test_thread_in_for1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+                test_thread_in_for1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
                 // Call f1() end
             end
             out_next2 = 2;
-            test_thread_in_for1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:313:13;
+            test_thread_in_for1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:320:13;
         end
         2: begin
             out_next2 = 3;
@@ -260,7 +260,7 @@ function void test_thread_in_for1_func;
             i_next = 0;
             // Call f1() begin
             k = 0;
-            test_thread_in_for1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_in_for1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
     endcase
@@ -271,7 +271,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread_in_for1_ff
     if ( ~arstn ) begin
         out <= 0;
-        test_thread_in_for1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:303:9;
+        test_thread_in_for1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:310:9;
     end
     else begin
         out <= out_next2;
@@ -281,7 +281,7 @@ begin : test_thread_in_for1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_in_for2 (test_cthread_fcall.cpp:320:5) 
+// Clocked THREAD: test_thread_in_for2 (test_cthread_fcall.cpp:327:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next3;
@@ -293,7 +293,7 @@ logic [1:0] test_thread_in_for2_PROC_STATE;
 logic [1:0] test_thread_in_for2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_in_for2_comb     // test_cthread_fcall.cpp:320:5
+always_comb begin : test_thread_in_for2_comb     // test_cthread_fcall.cpp:327:5
     test_thread_in_for2_func;
 end
 function void test_thread_in_for2_func;
@@ -310,7 +310,7 @@ function void test_thread_in_for2_func;
             j_next = 0;
             // Call f1() begin
             k = 0;
-            test_thread_in_for2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_in_for2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
         1: begin
@@ -322,7 +322,7 @@ function void test_thread_in_for2_func;
             begin
                 // Call f1() begin
                 k = 0;
-                test_thread_in_for2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+                test_thread_in_for2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
                 // Call f1() end
             end
             i_next0++;
@@ -331,11 +331,11 @@ function void test_thread_in_for2_func;
                 j_next = 0;
                 // Call f1() begin
                 k = 0;
-                test_thread_in_for2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+                test_thread_in_for2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
                 // Call f1() end
             end
             out_next3 = 2;
-            test_thread_in_for2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:335:13;
+            test_thread_in_for2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:342:13;
         end
         2: begin
             out_next3 = 3;
@@ -344,7 +344,7 @@ function void test_thread_in_for2_func;
             j_next = 0;
             // Call f1() begin
             k = 0;
-            test_thread_in_for2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_in_for2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
     endcase
@@ -355,7 +355,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread_in_for2_ff
     if ( ~arstn ) begin
         out <= 0;
-        test_thread_in_for2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:323:9;
+        test_thread_in_for2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:330:9;
     end
     else begin
         out <= out_next3;
@@ -366,7 +366,7 @@ begin : test_thread_in_for2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_in_if3 (test_cthread_fcall.cpp:276:5) 
+// Clocked THREAD: test_thread_in_if3 (test_cthread_fcall.cpp:283:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next4;
@@ -374,7 +374,7 @@ logic [1:0] test_thread_in_if3_PROC_STATE;
 logic [1:0] test_thread_in_if3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_in_if3_comb     // test_cthread_fcall.cpp:276:5
+always_comb begin : test_thread_in_if3_comb     // test_cthread_fcall.cpp:283:5
     test_thread_in_if3_func;
 end
 function void test_thread_in_if3_func;
@@ -393,18 +393,18 @@ function void test_thread_in_if3_func;
                 end
                 // Call f1() begin
                 k = 0;
-                test_thread_in_if3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+                test_thread_in_if3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
                 // Call f1() end
             end
             out_next4 = 2;
-            test_thread_in_if3_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:293:13;
+            test_thread_in_if3_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:300:13;
         end
         1: begin
             // Call f1() begin
             k = 1;
             // Call f1() end
             out_next4 = 2;
-            test_thread_in_if3_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:293:13;
+            test_thread_in_if3_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:300:13;
         end
         2: begin
             out_next4 = 3;
@@ -417,11 +417,11 @@ function void test_thread_in_if3_func;
                 end
                 // Call f1() begin
                 k = 0;
-                test_thread_in_if3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+                test_thread_in_if3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
                 // Call f1() end
             end
             out_next4 = 2;
-            test_thread_in_if3_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:293:13;
+            test_thread_in_if3_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:300:13;
         end
     endcase
 endfunction
@@ -431,7 +431,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread_in_if3_ff
     if ( ~arstn ) begin
         out <= 0;
-        test_thread_in_if3_PROC_STATE <= 0;    // test_cthread_fcall.cpp:279:9;
+        test_thread_in_if3_PROC_STATE <= 0;    // test_cthread_fcall.cpp:286:9;
     end
     else begin
         out <= out_next4;
@@ -440,14 +440,14 @@ begin : test_thread_in_if3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_multiple1 (test_cthread_fcall.cpp:420:5) 
+// Clocked THREAD: test_thread_multiple1 (test_cthread_fcall.cpp:427:5) 
 
 // Thread-local variables
 logic [1:0] test_thread_multiple1_PROC_STATE;
 logic [1:0] test_thread_multiple1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_multiple1_comb     // test_cthread_fcall.cpp:420:5
+always_comb begin : test_thread_multiple1_comb     // test_cthread_fcall.cpp:427:5
     test_thread_multiple1_func;
 end
 function void test_thread_multiple1_func;
@@ -460,7 +460,7 @@ function void test_thread_multiple1_func;
             j = 1;
             // Call f1() begin
             k = 0;
-            test_thread_multiple1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_multiple1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
         1: begin
@@ -470,7 +470,7 @@ function void test_thread_multiple1_func;
             j = 2;
             // Call f1() begin
             k = 0;
-            test_thread_multiple1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_multiple1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
         2: begin
@@ -480,7 +480,7 @@ function void test_thread_multiple1_func;
             j = 1;
             // Call f1() begin
             k = 0;
-            test_thread_multiple1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_multiple1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
     endcase
@@ -492,7 +492,7 @@ begin : test_thread_multiple1_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_thread_multiple1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:423:9;
+        test_thread_multiple1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:430:9;
     end
     else begin
         test_thread_multiple1_PROC_STATE <= test_thread_multiple1_PROC_STATE_next;
@@ -500,7 +500,7 @@ begin : test_thread_multiple1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_multiple2 (test_cthread_fcall.cpp:435:5) 
+// Clocked THREAD: test_thread_multiple2 (test_cthread_fcall.cpp:442:5) 
 
 // Thread-local variables
 logic signed [31:0] i1;
@@ -509,7 +509,7 @@ logic [1:0] test_thread_multiple2_PROC_STATE;
 logic [1:0] test_thread_multiple2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_multiple2_comb     // test_cthread_fcall.cpp:435:5
+always_comb begin : test_thread_multiple2_comb     // test_cthread_fcall.cpp:442:5
     test_thread_multiple2_func;
 end
 function void test_thread_multiple2_func;
@@ -524,7 +524,7 @@ function void test_thread_multiple2_func;
             i_next1 = 1;
             // Call f2() begin
             k = i_next1;
-            test_thread_multiple2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:133:9;
+            test_thread_multiple2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:140:9;
             // Call f2() end
         end
         1: begin
@@ -535,7 +535,7 @@ function void test_thread_multiple2_func;
             i_next1 = 2;
             // Call f2() begin
             k = i_next1;
-            test_thread_multiple2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:133:9;
+            test_thread_multiple2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:140:9;
             // Call f2() end
         end
         2: begin
@@ -546,7 +546,7 @@ function void test_thread_multiple2_func;
             i_next1 = 1;
             // Call f2() begin
             k = i_next1;
-            test_thread_multiple2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:133:9;
+            test_thread_multiple2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:140:9;
             // Call f2() end
         end
     endcase
@@ -558,7 +558,7 @@ begin : test_thread_multiple2_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_thread_multiple2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:438:9;
+        test_thread_multiple2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:445:9;
     end
     else begin
         i1 <= i_next1;
@@ -567,7 +567,7 @@ begin : test_thread_multiple2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_multiple3 (test_cthread_fcall.cpp:450:5) 
+// Clocked THREAD: test_thread_multiple3 (test_cthread_fcall.cpp:457:5) 
 
 // Thread-local variables
 logic signed [31:0] i2;
@@ -576,7 +576,7 @@ logic [2:0] test_thread_multiple3_PROC_STATE;
 logic [2:0] test_thread_multiple3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_multiple3_comb     // test_cthread_fcall.cpp:450:5
+always_comb begin : test_thread_multiple3_comb     // test_cthread_fcall.cpp:457:5
     test_thread_multiple3_func;
 end
 function void test_thread_multiple3_func;
@@ -591,7 +591,7 @@ function void test_thread_multiple3_func;
             j = 1;
             // Call f1() begin
             k = 0;
-            test_thread_multiple3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_multiple3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
         1: begin
@@ -602,7 +602,7 @@ function void test_thread_multiple3_func;
             i_next2 = 1;
             // Call f2() begin
             k_1 = i_next2;
-            test_thread_multiple3_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:133:9;
+            test_thread_multiple3_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:140:9;
             // Call f2() end
         end
         2: begin
@@ -613,12 +613,12 @@ function void test_thread_multiple3_func;
             begin
                 // Call f1() begin
                 k = 0;
-                test_thread_multiple3_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:127:9;
+                test_thread_multiple3_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:134:9;
                 // Call f1() end
             end
             // Call f1() begin
             k = 0;
-            test_thread_multiple3_PROC_STATE_next = 5; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_multiple3_PROC_STATE_next = 5; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
         3: begin
@@ -628,7 +628,7 @@ function void test_thread_multiple3_func;
             i_next2 = 2;
             // Call f2() begin
             k_1 = i_next2;
-            test_thread_multiple3_PROC_STATE_next = 4; return;    // test_cthread_fcall.cpp:133:9;
+            test_thread_multiple3_PROC_STATE_next = 4; return;    // test_cthread_fcall.cpp:140:9;
             // Call f2() end
         end
         4: begin
@@ -637,7 +637,7 @@ function void test_thread_multiple3_func;
             // Call f2() end
             // Call f1() begin
             k = 0;
-            test_thread_multiple3_PROC_STATE_next = 5; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_multiple3_PROC_STATE_next = 5; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
         5: begin
@@ -647,7 +647,7 @@ function void test_thread_multiple3_func;
             j = 1;
             // Call f1() begin
             k = 0;
-            test_thread_multiple3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_multiple3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
         end
     endcase
@@ -659,7 +659,7 @@ begin : test_thread_multiple3_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_thread_multiple3_PROC_STATE <= 0;    // test_cthread_fcall.cpp:453:9;
+        test_thread_multiple3_PROC_STATE <= 0;    // test_cthread_fcall.cpp:460:9;
     end
     else begin
         i2 <= i_next2;
@@ -668,7 +668,7 @@ begin : test_thread_multiple3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_params1 (test_cthread_fcall.cpp:500:5) 
+// Clocked THREAD: test_thread_params1 (test_cthread_fcall.cpp:507:5) 
 
 // Thread-local variables
 logic signed [31:0] j0;
@@ -679,7 +679,7 @@ logic [1:0] test_thread_params1_PROC_STATE;
 logic [1:0] test_thread_params1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_params1_comb     // test_cthread_fcall.cpp:500:5
+always_comb begin : test_thread_params1_comb     // test_cthread_fcall.cpp:507:5
     test_thread_params1_func;
 end
 function void test_thread_params1_func;
@@ -695,31 +695,31 @@ function void test_thread_params1_func;
             // Call f3() begin
             if (|i_next3)
             begin
-                test_thread_params1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:140:13;
+                test_thread_params1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:147:13;
             end
             TMP_0 = i_next3 + 1;
             // Call f3() end
             j_next0 = TMP_0;
-            test_thread_params1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:508:13;
+            test_thread_params1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:515:13;
         end
         1: begin
             i_next3 = j_next0;
             // Call f3() begin
             if (|i_next3)
             begin
-                test_thread_params1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:140:13;
+                test_thread_params1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:147:13;
             end
             TMP_1 = i_next3 + 1;
             // Call f3() end
             j_next0 = TMP_1;
-            test_thread_params1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:508:13;
+            test_thread_params1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:515:13;
         end
         2: begin
             // Call f3() begin
             TMP_1 = i_next3 + 1;
             // Call f3() end
             j_next0 = TMP_1;
-            test_thread_params1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:508:13;
+            test_thread_params1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:515:13;
         end
     endcase
 endfunction
@@ -729,7 +729,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread_params1_ff
     if ( ~arstn ) begin
         j0 <= 0;
-        test_thread_params1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:503:9;
+        test_thread_params1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:510:9;
     end
     else begin
         j0 <= j_next0;
@@ -739,7 +739,7 @@ begin : test_thread_params1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_params2 (test_cthread_fcall.cpp:513:5) 
+// Clocked THREAD: test_thread_params2 (test_cthread_fcall.cpp:520:5) 
 
 // Thread-local variables
 logic signed [31:0] i4;
@@ -750,7 +750,7 @@ logic test_thread_params2_PROC_STATE;
 logic test_thread_params2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_params2_comb     // test_cthread_fcall.cpp:513:5
+always_comb begin : test_thread_params2_comb     // test_cthread_fcall.cpp:520:5
     test_thread_params2_func;
 end
 function void test_thread_params2_func;
@@ -765,7 +765,7 @@ function void test_thread_params2_func;
             N_next = 1;
             // Call f4() begin
             i_next4 = 0;
-            test_thread_params2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:148:13;
+            test_thread_params2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:155:13;
             // Call f4() end
         end
         1: begin
@@ -773,7 +773,7 @@ function void test_thread_params2_func;
             i_next4++;
             if (i_next4 < N_next)
             begin
-                test_thread_params2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:148:13;
+                test_thread_params2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:155:13;
             end
             // Call f4() end
             j = 2;
@@ -781,7 +781,7 @@ function void test_thread_params2_func;
             N_next = 1;
             // Call f4() begin
             i_next4 = 0;
-            test_thread_params2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:148:13;
+            test_thread_params2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:155:13;
             // Call f4() end
         end
     endcase
@@ -793,7 +793,7 @@ begin : test_thread_params2_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_thread_params2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:516:9;
+        test_thread_params2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:523:9;
     end
     else begin
         i4 <= i_next4;
@@ -803,7 +803,7 @@ begin : test_thread_params2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_params3 (test_cthread_fcall.cpp:526:5) 
+// Clocked THREAD: test_thread_params3 (test_cthread_fcall.cpp:533:5) 
 
 // Thread-local variables
 logic signed [31:0] val;
@@ -812,7 +812,7 @@ logic [1:0] test_thread_params3_PROC_STATE;
 logic [1:0] test_thread_params3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_params3_comb     // test_cthread_fcall.cpp:526:5
+always_comb begin : test_thread_params3_comb     // test_cthread_fcall.cpp:533:5
     test_thread_params3_func;
 end
 function void test_thread_params3_func;
@@ -823,12 +823,12 @@ function void test_thread_params3_func;
     
     case (test_thread_params3_PROC_STATE)
         0: begin
-            test_thread_params3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:532:13;
+            test_thread_params3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:539:13;
         end
         1: begin
             val_next = 1;
             // Call f6() begin
-            test_thread_params3_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:178:9;
+            test_thread_params3_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:185:9;
             // Call f6() end
         end
         2: begin
@@ -836,7 +836,7 @@ function void test_thread_params3_func;
             TMP_0 = val_next - 1;
             // Call f6() end
             j = TMP_0;
-            test_thread_params3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:532:13;
+            test_thread_params3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:539:13;
         end
     endcase
 endfunction
@@ -847,7 +847,7 @@ begin : test_thread_params3_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_thread_params3_PROC_STATE <= 0;    // test_cthread_fcall.cpp:529:9;
+        test_thread_params3_PROC_STATE <= 0;    // test_cthread_fcall.cpp:536:9;
     end
     else begin
         val <= val_next;
@@ -856,7 +856,7 @@ begin : test_thread_params3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_params4 (test_cthread_fcall.cpp:538:5) 
+// Clocked THREAD: test_thread_params4 (test_cthread_fcall.cpp:545:5) 
 
 // Thread-local variables
 logic signed [31:0] j1;
@@ -870,7 +870,7 @@ logic [1:0] test_thread_params4_PROC_STATE;
 logic [1:0] test_thread_params4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_params4_comb     // test_cthread_fcall.cpp:538:5
+always_comb begin : test_thread_params4_comb     // test_cthread_fcall.cpp:545:5
     test_thread_params4_func;
 end
 function void test_thread_params4_func;
@@ -886,7 +886,7 @@ function void test_thread_params4_func;
         0: begin
             val_next0 = j_next1;
             // Call f6_() begin
-            test_thread_params4_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:183:9;
+            test_thread_params4_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:190:9;
             // Call f6_() end
         end
         1: begin
@@ -894,13 +894,13 @@ function void test_thread_params4_func;
             TMP_0 = |val_next0;
             // Call f6_() end
             b_next = TMP_0;
-            test_thread_params4_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:545:13;
+            test_thread_params4_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:552:13;
         end
         2: begin
             out_next5 = b_next;
             val_next0 = j_next1;
             // Call f6_() begin
-            test_thread_params4_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:183:9;
+            test_thread_params4_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:190:9;
             // Call f6_() end
         end
     endcase
@@ -911,7 +911,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread_params4_ff
     if ( ~arstn ) begin
         j1 <= 0;
-        test_thread_params4_PROC_STATE <= 0;    // test_cthread_fcall.cpp:541:9;
+        test_thread_params4_PROC_STATE <= 0;    // test_cthread_fcall.cpp:548:9;
     end
     else begin
         j1 <= j_next1;
@@ -923,7 +923,7 @@ begin : test_thread_params4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_params5 (test_cthread_fcall.cpp:552:5) 
+// Clocked THREAD: test_thread_params5 (test_cthread_fcall.cpp:559:5) 
 
 // Thread-local variables
 logic signed [31:0] j2;
@@ -937,7 +937,7 @@ logic [1:0] test_thread_params5_PROC_STATE;
 logic [1:0] test_thread_params5_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_params5_comb     // test_cthread_fcall.cpp:552:5
+always_comb begin : test_thread_params5_comb     // test_cthread_fcall.cpp:559:5
     test_thread_params5_func;
 end
 function void test_thread_params5_func;
@@ -959,21 +959,21 @@ function void test_thread_params5_func;
             // Call f6__() begin
             if (val1)
             begin
-                test_thread_params5_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:190:13;
+                test_thread_params5_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:197:13;
             end else begin
                 x_next = signed'({1'b0, x_next}) + val2_next;
                 TMP_0 = val2_next + 2;
             end
             // Call f6__() end
             j_next2 = TMP_0;
-            test_thread_params5_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:561:13;
+            test_thread_params5_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:568:13;
         end
         1: begin
             // Call f6__() begin
             TMP_0 = val2_next + 1;
             // Call f6__() end
             j_next2 = TMP_0;
-            test_thread_params5_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:561:13;
+            test_thread_params5_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:568:13;
         end
         2: begin
             out_next6 = x_next;
@@ -983,14 +983,14 @@ function void test_thread_params5_func;
             // Call f6__() begin
             if (val1)
             begin
-                test_thread_params5_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:190:13;
+                test_thread_params5_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:197:13;
             end else begin
                 x_next = signed'({1'b0, x_next}) + val2_next;
                 TMP_1 = val2_next + 2;
             end
             // Call f6__() end
             j_next2 = TMP_1;
-            test_thread_params5_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:561:13;
+            test_thread_params5_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:568:13;
         end
     endcase
 endfunction
@@ -1000,7 +1000,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread_params5_ff
     if ( ~arstn ) begin
         j2 <= 1;
-        test_thread_params5_PROC_STATE <= 0;    // test_cthread_fcall.cpp:555:9;
+        test_thread_params5_PROC_STATE <= 0;    // test_cthread_fcall.cpp:562:9;
     end
     else begin
         j2 <= j_next2;
@@ -1012,14 +1012,14 @@ begin : test_thread_params5_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_multiple_wait1 (test_cthread_fcall.cpp:570:5) 
+// Clocked THREAD: test_thread_multiple_wait1 (test_cthread_fcall.cpp:577:5) 
 
 // Thread-local variables
 logic [1:0] test_thread_multiple_wait1_PROC_STATE;
 logic [1:0] test_thread_multiple_wait1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_multiple_wait1_comb     // test_cthread_fcall.cpp:570:5
+always_comb begin : test_thread_multiple_wait1_comb     // test_cthread_fcall.cpp:577:5
     test_thread_multiple_wait1_func;
 end
 function void test_thread_multiple_wait1_func;
@@ -1032,13 +1032,13 @@ function void test_thread_multiple_wait1_func;
             j = 1;
             // Call f5() begin
             k = 0;
-            test_thread_multiple_wait1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:156:9;
+            test_thread_multiple_wait1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:163:9;
             // Call f5() end
         end
         1: begin
             // Call f5() begin
             k = 1;
-            test_thread_multiple_wait1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:159:9;
+            test_thread_multiple_wait1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:166:9;
             // Call f5() end
         end
         2: begin
@@ -1049,7 +1049,7 @@ function void test_thread_multiple_wait1_func;
             j = 1;
             // Call f5() begin
             k = 0;
-            test_thread_multiple_wait1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:156:9;
+            test_thread_multiple_wait1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:163:9;
             // Call f5() end
         end
     endcase
@@ -1061,7 +1061,7 @@ begin : test_thread_multiple_wait1_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_thread_multiple_wait1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:573:9;
+        test_thread_multiple_wait1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:580:9;
     end
     else begin
         test_thread_multiple_wait1_PROC_STATE <= test_thread_multiple_wait1_PROC_STATE_next;
@@ -1069,14 +1069,14 @@ begin : test_thread_multiple_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_multiple_wait2 (test_cthread_fcall.cpp:583:5) 
+// Clocked THREAD: test_thread_multiple_wait2 (test_cthread_fcall.cpp:590:5) 
 
 // Thread-local variables
 logic [1:0] test_thread_multiple_wait2_PROC_STATE;
 logic [1:0] test_thread_multiple_wait2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_multiple_wait2_comb     // test_cthread_fcall.cpp:583:5
+always_comb begin : test_thread_multiple_wait2_comb     // test_cthread_fcall.cpp:590:5
     test_thread_multiple_wait2_func;
 end
 function void test_thread_multiple_wait2_func;
@@ -1089,7 +1089,7 @@ function void test_thread_multiple_wait2_func;
             j = 1;
             // Call f5_() begin
             k = 0;
-            test_thread_multiple_wait2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:167:9;
+            test_thread_multiple_wait2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:174:9;
             // Call f5_() end
         end
         1: begin
@@ -1097,7 +1097,7 @@ function void test_thread_multiple_wait2_func;
             if (|in)
             begin
                 k = 1;
-                test_thread_multiple_wait2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:171:13;
+                test_thread_multiple_wait2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:178:13;
             end
             k = 2;
             // Call f5_() end
@@ -1105,7 +1105,7 @@ function void test_thread_multiple_wait2_func;
             j = 1;
             // Call f5_() begin
             k = 0;
-            test_thread_multiple_wait2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:167:9;
+            test_thread_multiple_wait2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:174:9;
             // Call f5_() end
         end
         2: begin
@@ -1116,7 +1116,7 @@ function void test_thread_multiple_wait2_func;
             j = 1;
             // Call f5_() begin
             k = 0;
-            test_thread_multiple_wait2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:167:9;
+            test_thread_multiple_wait2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:174:9;
             // Call f5_() end
         end
     endcase
@@ -1128,7 +1128,7 @@ begin : test_thread_multiple_wait2_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_thread_multiple_wait2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:586:9;
+        test_thread_multiple_wait2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:593:9;
     end
     else begin
         test_thread_multiple_wait2_PROC_STATE <= test_thread_multiple_wait2_PROC_STATE_next;
@@ -1136,14 +1136,14 @@ begin : test_thread_multiple_wait2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_inside_call1 (test_cthread_fcall.cpp:472:5) 
+// Clocked THREAD: test_thread_inside_call1 (test_cthread_fcall.cpp:479:5) 
 
 // Thread-local variables
 logic test_thread_inside_call1_PROC_STATE;
 logic test_thread_inside_call1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_inside_call1_comb     // test_cthread_fcall.cpp:472:5
+always_comb begin : test_thread_inside_call1_comb     // test_cthread_fcall.cpp:479:5
     test_thread_inside_call1_func;
 end
 function void test_thread_inside_call1_func;
@@ -1159,7 +1159,7 @@ function void test_thread_inside_call1_func;
             l = 0;
             // Call f1() begin
             k = 0;
-            test_thread_inside_call1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_inside_call1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
             // Call f7() end
         end
@@ -1176,7 +1176,7 @@ function void test_thread_inside_call1_func;
             l = 0;
             // Call f1() begin
             k = 0;
-            test_thread_inside_call1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+            test_thread_inside_call1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
             // Call f1() end
             // Call f7() end
         end
@@ -1189,7 +1189,7 @@ begin : test_thread_inside_call1_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_thread_inside_call1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:475:9;
+        test_thread_inside_call1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:482:9;
     end
     else begin
         test_thread_inside_call1_PROC_STATE <= test_thread_inside_call1_PROC_STATE_next;
@@ -1197,14 +1197,14 @@ begin : test_thread_inside_call1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_inside_call2 (test_cthread_fcall.cpp:485:5) 
+// Clocked THREAD: test_thread_inside_call2 (test_cthread_fcall.cpp:492:5) 
 
 // Thread-local variables
 logic [1:0] test_thread_inside_call2_PROC_STATE;
 logic [1:0] test_thread_inside_call2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_inside_call2_comb     // test_cthread_fcall.cpp:485:5
+always_comb begin : test_thread_inside_call2_comb     // test_cthread_fcall.cpp:492:5
     test_thread_inside_call2_func;
 end
 function void test_thread_inside_call2_func;
@@ -1224,7 +1224,7 @@ function void test_thread_inside_call2_func;
             begin
                 // Call f1() begin
                 k = 0;
-                test_thread_inside_call2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+                test_thread_inside_call2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
                 // Call f1() end
             end
             // Call f7_() end
@@ -1235,7 +1235,7 @@ function void test_thread_inside_call2_func;
             k = 1;
             // Call f1() end
             l = 1;
-            test_thread_inside_call2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:211:9;
+            test_thread_inside_call2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:218:9;
             // Call f7_() end
         end
         2: begin
@@ -1248,7 +1248,7 @@ function void test_thread_inside_call2_func;
             begin
                 // Call f1() begin
                 k = 0;
-                test_thread_inside_call2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:127:9;
+                test_thread_inside_call2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:134:9;
                 // Call f1() end
             end
             // Call f7_() end
@@ -1262,7 +1262,7 @@ begin : test_thread_inside_call2_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_thread_inside_call2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:488:9;
+        test_thread_inside_call2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:495:9;
     end
     else begin
         test_thread_inside_call2_PROC_STATE <= test_thread_inside_call2_PROC_STATE_next;
@@ -1270,7 +1270,7 @@ begin : test_thread_inside_call2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_in_while1 (test_cthread_fcall.cpp:342:5) 
+// Clocked THREAD: test_thread_in_while1 (test_cthread_fcall.cpp:349:5) 
 
 // Thread-local variables
 logic signed [31:0] i5;
@@ -1283,7 +1283,7 @@ logic [1:0] test_thread_in_while1_PROC_STATE;
 logic [1:0] test_thread_in_while1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_in_while1_comb     // test_cthread_fcall.cpp:342:5
+always_comb begin : test_thread_in_while1_comb     // test_cthread_fcall.cpp:349:5
     test_thread_in_while1_func;
 end
 function void test_thread_in_while1_func;
@@ -1300,10 +1300,10 @@ function void test_thread_in_while1_func;
             i_next5 = 0;
             if (i_next5 < N_next0)
             begin
-                test_thread_in_while1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:148:13;
+                test_thread_in_while1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:155:13;
             end
             // Call f4() end
-            test_thread_in_while1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:351:17;
+            test_thread_in_while1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:358:17;
         end
         1: begin
             j_next3++;
@@ -1314,22 +1314,22 @@ function void test_thread_in_while1_func;
                 i_next5 = 0;
                 if (i_next5 < N_next0)
                 begin
-                    test_thread_in_while1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:148:13;
+                    test_thread_in_while1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:155:13;
                 end
                 // Call f4() end
-                test_thread_in_while1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:351:17;
+                test_thread_in_while1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:358:17;
             end
-            test_thread_in_while1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:355:13;
+            test_thread_in_while1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:362:13;
         end
         2: begin
             // Call f4() begin
             i_next5++;
             if (i_next5 < N_next0)
             begin
-                test_thread_in_while1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:148:13;
+                test_thread_in_while1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:155:13;
             end
             // Call f4() end
-            test_thread_in_while1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:351:17;
+            test_thread_in_while1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:358:17;
         end
         3: begin
             j_next3 = 0;
@@ -1338,10 +1338,10 @@ function void test_thread_in_while1_func;
             i_next5 = 0;
             if (i_next5 < N_next0)
             begin
-                test_thread_in_while1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:148:13;
+                test_thread_in_while1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:155:13;
             end
             // Call f4() end
-            test_thread_in_while1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:351:17;
+            test_thread_in_while1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:358:17;
         end
     endcase
 endfunction
@@ -1350,7 +1350,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : test_thread_in_while1_ff
     if ( ~arstn ) begin
-        test_thread_in_while1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:344:9;
+        test_thread_in_while1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:351:9;
     end
     else begin
         i5 <= i_next5;
@@ -1361,7 +1361,7 @@ begin : test_thread_in_while1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_with_break1 (test_cthread_fcall.cpp:359:5) 
+// Clocked THREAD: test_thread_with_break1 (test_cthread_fcall.cpp:366:5) 
 
 // Thread-local variables
 logic signed [31:0] j4;
@@ -1370,7 +1370,7 @@ logic [1:0] test_thread_with_break1_PROC_STATE;
 logic [1:0] test_thread_with_break1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_with_break1_comb     // test_cthread_fcall.cpp:359:5
+always_comb begin : test_thread_with_break1_comb     // test_cthread_fcall.cpp:366:5
     test_thread_with_break1_func;
 end
 function void test_thread_with_break1_func;
@@ -1385,15 +1385,15 @@ function void test_thread_with_break1_func;
             begin
                 // Call f5() begin
                 k = 0;
-                test_thread_with_break1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:156:9;
+                test_thread_with_break1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:163:9;
                 // Call f5() end
             end
-            test_thread_with_break1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:372:17;
+            test_thread_with_break1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:379:17;
         end
         1: begin
             // Call f5() begin
             k = 1;
-            test_thread_with_break1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:159:9;
+            test_thread_with_break1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:166:9;
             // Call f5() end
         end
         2: begin
@@ -1406,10 +1406,10 @@ function void test_thread_with_break1_func;
             begin
                 // Call f5() begin
                 k = 0;
-                test_thread_with_break1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:156:9;
+                test_thread_with_break1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:163:9;
                 // Call f5() end
             end
-            test_thread_with_break1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:372:17;
+            test_thread_with_break1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:379:17;
             // break end
         end
         3: begin
@@ -1420,20 +1420,20 @@ function void test_thread_with_break1_func;
                 begin
                     // Call f5() begin
                     k = 0;
-                    test_thread_with_break1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:156:9;
+                    test_thread_with_break1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:163:9;
                     // Call f5() end
                 end
-                test_thread_with_break1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:372:17;
+                test_thread_with_break1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:379:17;
             end
             j_next4 = 0;
             if (|in)
             begin
                 // Call f5() begin
                 k = 0;
-                test_thread_with_break1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:156:9;
+                test_thread_with_break1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:163:9;
                 // Call f5() end
             end
-            test_thread_with_break1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:372:17;
+            test_thread_with_break1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:379:17;
         end
     endcase
 endfunction
@@ -1442,7 +1442,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : test_thread_with_break1_ff
     if ( ~arstn ) begin
-        test_thread_with_break1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:361:9;
+        test_thread_with_break1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:368:9;
     end
     else begin
         j4 <= j_next4;
@@ -1451,7 +1451,7 @@ begin : test_thread_with_break1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_with_break2 (test_cthread_fcall.cpp:378:5) 
+// Clocked THREAD: test_thread_with_break2 (test_cthread_fcall.cpp:385:5) 
 
 // Thread-local variables
 logic signed [31:0] j5;
@@ -1462,7 +1462,7 @@ logic [1:0] test_thread_with_break2_PROC_STATE;
 logic [1:0] test_thread_with_break2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_with_break2_comb     // test_cthread_fcall.cpp:378:5
+always_comb begin : test_thread_with_break2_comb     // test_cthread_fcall.cpp:385:5
     test_thread_with_break2_func;
 end
 function void test_thread_with_break2_func;
@@ -1474,31 +1474,31 @@ function void test_thread_with_break2_func;
     case (test_thread_with_break2_PROC_STATE)
         0: begin
             j_next5 = 0;
-            test_thread_with_break2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:386:17;
+            test_thread_with_break2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:393:17;
         end
         1: begin
             if (|in)
             begin
                 // break begin
                 j_next5 = 0;
-                test_thread_with_break2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:386:17;
+                test_thread_with_break2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:393:17;
                 // break end
             end
             i_next6 = j_next5;
             // Call f3() begin
             if (|i_next6)
             begin
-                test_thread_with_break2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:140:13;
+                test_thread_with_break2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:147:13;
             end
             TMP_0 = i_next6 + 1;
             // Call f3() end
             j_next5++;
             if (j_next5 < 3)
             begin
-                test_thread_with_break2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:386:17;
+                test_thread_with_break2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:393:17;
             end
             j_next5 = 0;
-            test_thread_with_break2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:386:17;
+            test_thread_with_break2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:393:17;
         end
         2: begin
             // Call f3() begin
@@ -1507,10 +1507,10 @@ function void test_thread_with_break2_func;
             j_next5++;
             if (j_next5 < 3)
             begin
-                test_thread_with_break2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:386:17;
+                test_thread_with_break2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:393:17;
             end
             j_next5 = 0;
-            test_thread_with_break2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:386:17;
+            test_thread_with_break2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:393:17;
         end
     endcase
 endfunction
@@ -1519,7 +1519,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : test_thread_with_break2_ff
     if ( ~arstn ) begin
-        test_thread_with_break2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:380:9;
+        test_thread_with_break2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:387:9;
     end
     else begin
         j5 <= j_next5;
@@ -1529,7 +1529,7 @@ begin : test_thread_with_break2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_with_break3 (test_cthread_fcall.cpp:399:5) 
+// Clocked THREAD: test_thread_with_break3 (test_cthread_fcall.cpp:406:5) 
 
 // Thread-local variables
 logic signed [31:0] j6;
@@ -1538,7 +1538,7 @@ logic test_thread_with_break3_PROC_STATE;
 logic test_thread_with_break3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_with_break3_comb     // test_cthread_fcall.cpp:399:5
+always_comb begin : test_thread_with_break3_comb     // test_cthread_fcall.cpp:406:5
     test_thread_with_break3_func;
 end
 function void test_thread_with_break3_func;
@@ -1548,23 +1548,23 @@ function void test_thread_with_break3_func;
     case (test_thread_with_break3_PROC_STATE)
         0: begin
             j_next6 = 0;
-            test_thread_with_break3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:407:17;
+            test_thread_with_break3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:414:17;
         end
         1: begin
             if (|in)
             begin
                 // break begin
                 j_next6 = 0;
-                test_thread_with_break3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:407:17;
+                test_thread_with_break3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:414:17;
                 // break end
             end
             j_next6++;
             if (j_next6 < 3)
             begin
-                test_thread_with_break3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:407:17;
+                test_thread_with_break3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:414:17;
             end
             j_next6 = 0;
-            test_thread_with_break3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:407:17;
+            test_thread_with_break3_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:414:17;
         end
     endcase
 endfunction
@@ -1573,7 +1573,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : test_thread_with_break3_ff
     if ( ~arstn ) begin
-        test_thread_with_break3_PROC_STATE <= 0;    // test_cthread_fcall.cpp:401:9;
+        test_thread_with_break3_PROC_STATE <= 0;    // test_cthread_fcall.cpp:408:9;
     end
     else begin
         j6 <= j_next6;
@@ -1582,7 +1582,7 @@ begin : test_thread_with_break3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread_reg_arg (test_cthread_fcall.cpp:622:5) 
+// Clocked THREAD: test_thread_reg_arg (test_cthread_fcall.cpp:629:5) 
 
 // Thread-local variables
 logic signed [31:0] i7;
@@ -1591,7 +1591,7 @@ logic test_thread_reg_arg_PROC_STATE;
 logic test_thread_reg_arg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_reg_arg_comb     // test_cthread_fcall.cpp:622:5
+always_comb begin : test_thread_reg_arg_comb     // test_cthread_fcall.cpp:629:5
     test_thread_reg_arg_func;
 end
 function void test_thread_reg_arg_func;
@@ -1607,7 +1607,7 @@ function void test_thread_reg_arg_func;
             // Call f0() begin
             TMP_0 = val - 1;
             // Call f0() end
-            test_thread_reg_arg_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:628:13;
+            test_thread_reg_arg_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:635:13;
         end
         1: begin
             i_next7 = i_next7 + 1;
@@ -1615,7 +1615,7 @@ function void test_thread_reg_arg_func;
             // Call f0() begin
             TMP_1 = val - 1;
             // Call f0() end
-            test_thread_reg_arg_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:628:13;
+            test_thread_reg_arg_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:635:13;
         end
     endcase
 endfunction
@@ -1625,7 +1625,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread_reg_arg_ff
     if ( ~arstn ) begin
         i7 <= 0;
-        test_thread_reg_arg_PROC_STATE <= 0;    // test_cthread_fcall.cpp:625:9;
+        test_thread_reg_arg_PROC_STATE <= 0;    // test_cthread_fcall.cpp:632:9;
     end
     else begin
         i7 <= i_next7;
@@ -1634,7 +1634,7 @@ begin : test_thread_reg_arg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: func_in_cond1 (test_cthread_fcall.cpp:643:5) 
+// Clocked THREAD: func_in_cond1 (test_cthread_fcall.cpp:650:5) 
 
 // Thread-local variables
 logic signed [31:0] val1;
@@ -1643,7 +1643,7 @@ logic [1:0] func_in_cond1_PROC_STATE;
 logic [1:0] func_in_cond1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : func_in_cond1_comb     // test_cthread_fcall.cpp:643:5
+always_comb begin : func_in_cond1_comb     // test_cthread_fcall.cpp:650:5
     func_in_cond1_func;
 end
 function void func_in_cond1_func;
@@ -1657,7 +1657,7 @@ function void func_in_cond1_func;
             val_next1 = in;
             // Call multi_wait_f() begin
             val_next1--;
-            func_in_cond1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:639:9;
+            func_in_cond1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:646:9;
             // Call multi_wait_f() end
         end
         1: begin
@@ -1666,18 +1666,18 @@ function void func_in_cond1_func;
             // Call multi_wait_f() end
             if (|TMP_0)
             begin
-                func_in_cond1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:649:17;
+                func_in_cond1_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:656:17;
             end
-            func_in_cond1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:652:13;
+            func_in_cond1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:659:13;
         end
         2: begin
-            func_in_cond1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:652:13;
+            func_in_cond1_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:659:13;
         end
         3: begin
             val_next1 = in;
             // Call multi_wait_f() begin
             val_next1--;
-            func_in_cond1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:639:9;
+            func_in_cond1_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:646:9;
             // Call multi_wait_f() end
         end
     endcase
@@ -1687,7 +1687,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : func_in_cond1_ff
     if ( ~arstn ) begin
-        func_in_cond1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:645:9;
+        func_in_cond1_PROC_STATE <= 0;    // test_cthread_fcall.cpp:652:9;
     end
     else begin
         val1 <= val_next1;
@@ -1696,7 +1696,7 @@ begin : func_in_cond1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: func_in_cond2 (test_cthread_fcall.cpp:663:5) 
+// Clocked THREAD: func_in_cond2 (test_cthread_fcall.cpp:670:5) 
 
 // Thread-local variables
 logic signed [31:0] l;
@@ -1707,7 +1707,7 @@ logic [1:0] func_in_cond2_PROC_STATE;
 logic [1:0] func_in_cond2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : func_in_cond2_comb     // test_cthread_fcall.cpp:663:5
+always_comb begin : func_in_cond2_comb     // test_cthread_fcall.cpp:670:5
     func_in_cond2_func;
 end
 function void func_in_cond2_func;
@@ -1722,7 +1722,7 @@ function void func_in_cond2_func;
         0: begin
             // Call multi_wait_g() begin
             l_next = s0 + 1;
-            func_in_cond2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:659:9;
+            func_in_cond2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:666:9;
             // Call multi_wait_g() end
         end
         1: begin
@@ -1731,20 +1731,20 @@ function void func_in_cond2_func;
             // Call multi_wait_g() end
             if (TMP_0 > 4)
             begin
-                func_in_cond2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:669:17;
+                func_in_cond2_PROC_STATE_next = 2; return;    // test_cthread_fcall.cpp:676:17;
             end
-            func_in_cond2_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:672:13;
+            func_in_cond2_PROC_STATE_next = 3; return;    // test_cthread_fcall.cpp:679:13;
         end
         2: begin
             // Call multi_wait_g() begin
             l_next = s0 + 1;
-            func_in_cond2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:659:9;
+            func_in_cond2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:666:9;
             // Call multi_wait_g() end
         end
         3: begin
             // Call multi_wait_g() begin
             l_next = s0 + 1;
-            func_in_cond2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:659:9;
+            func_in_cond2_PROC_STATE_next = 1; return;    // test_cthread_fcall.cpp:666:9;
             // Call multi_wait_g() end
         end
     endcase
@@ -1754,7 +1754,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : func_in_cond2_ff
     if ( ~arstn ) begin
-        func_in_cond2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:665:9;
+        func_in_cond2_PROC_STATE <= 0;    // test_cthread_fcall.cpp:672:9;
     end
     else begin
         l <= l_next;

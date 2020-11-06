@@ -18,10 +18,10 @@ module A // "a_mod"
 logic [7:0] s;
 
 //------------------------------------------------------------------------------
-// Method process: read_array_bug (test_cthread_read_defined.cpp:45:5) 
+// Method process: read_array_bug (test_cthread_read_defined.cpp:52:5) 
 
 always_comb 
-begin : read_array_bug     // test_cthread_read_defined.cpp:45:5
+begin : read_array_bug     // test_cthread_read_defined.cpp:52:5
     integer a[3];
     integer b[2][2];
     logic [3:0] c[3];
@@ -34,7 +34,7 @@ begin : read_array_bug     // test_cthread_read_defined.cpp:45:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: linear1 (test_cthread_read_defined.cpp:63:5) 
+// Clocked THREAD: linear1 (test_cthread_read_defined.cpp:70:5) 
 
 // Thread-local variables
 logic signed [31:0] m;
@@ -45,7 +45,7 @@ logic linear1_PROC_STATE;
 logic linear1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : linear1_comb     // test_cthread_read_defined.cpp:63:5
+always_comb begin : linear1_comb     // test_cthread_read_defined.cpp:70:5
     linear1_func;
 end
 function void linear1_func;
@@ -59,7 +59,7 @@ function void linear1_func;
             k = m_next + 1;
             m_next = k - 1;
             n = k;
-            linear1_PROC_STATE_next = 0; return;    // test_cthread_read_defined.cpp:76:9;
+            linear1_PROC_STATE_next = 0; return;    // test_cthread_read_defined.cpp:83:9;
         end
         0: begin
         end
@@ -76,20 +76,20 @@ begin : linear1_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: linear_self (test_cthread_read_defined.cpp:82:5) 
+// Method process: linear_self (test_cthread_read_defined.cpp:89:5) 
 
 // Process-local variables
 logic signed [31:0] k1;
 logic signed [31:0] m1;
 
 always_comb 
-begin : linear_self     // test_cthread_read_defined.cpp:82:5
+begin : linear_self     // test_cthread_read_defined.cpp:89:5
     k1 = k1 + 1;
     m1 = ~m1;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: linear_comp_assign (test_cthread_read_defined.cpp:93:5) 
+// Clocked THREAD: linear_comp_assign (test_cthread_read_defined.cpp:100:5) 
 
 // Thread-local variables
 logic signed [31:0] m2;
@@ -100,7 +100,7 @@ logic linear_comp_assign_PROC_STATE;
 logic linear_comp_assign_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : linear_comp_assign_comb     // test_cthread_read_defined.cpp:93:5
+always_comb begin : linear_comp_assign_comb     // test_cthread_read_defined.cpp:100:5
     linear_comp_assign_func;
 end
 function void linear_comp_assign_func;
@@ -114,7 +114,7 @@ function void linear_comp_assign_func;
             i = 1;
             i = i + 1;
             k2_next = k2_next - m2_next;
-            linear_comp_assign_PROC_STATE_next = 0; return;    // test_cthread_read_defined.cpp:107:9;
+            linear_comp_assign_PROC_STATE_next = 0; return;    // test_cthread_read_defined.cpp:114:9;
         end
         0: begin
         end
@@ -132,7 +132,7 @@ begin : linear_comp_assign_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: linear_unary (test_cthread_read_defined.cpp:114:5) 
+// Clocked THREAD: linear_unary (test_cthread_read_defined.cpp:121:5) 
 
 // Thread-local variables
 logic signed [31:0] k3;
@@ -145,7 +145,7 @@ logic linear_unary_PROC_STATE;
 logic linear_unary_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : linear_unary_comb     // test_cthread_read_defined.cpp:114:5
+always_comb begin : linear_unary_comb     // test_cthread_read_defined.cpp:121:5
     linear_unary_func;
 end
 function void linear_unary_func;
@@ -160,7 +160,7 @@ function void linear_unary_func;
             i = k3_next;
             i = --m3_next;
             n3_next++;
-            linear_unary_PROC_STATE_next = 0; return;    // test_cthread_read_defined.cpp:129:9;
+            linear_unary_PROC_STATE_next = 0; return;    // test_cthread_read_defined.cpp:136:9;
         end
         0: begin
         end
@@ -179,14 +179,14 @@ begin : linear_unary_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: decl_init (test_cthread_read_defined.cpp:132:5) 
+// Clocked THREAD: decl_init (test_cthread_read_defined.cpp:139:5) 
 
 // Thread-local variables
 logic decl_init_PROC_STATE;
 logic decl_init_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : decl_init_comb     // test_cthread_read_defined.cpp:132:5
+always_comb begin : decl_init_comb     // test_cthread_read_defined.cpp:139:5
     decl_init_func;
 end
 function void decl_init_func;
@@ -206,7 +206,7 @@ function void decl_init_func;
             c[0] = 1; c[1] = 0; c[2] = 1;
             d[0] = 0; d[1] = 0;
             e[0] = 1; e[1] = 2; e[2] = j;
-            decl_init_PROC_STATE_next = 0; return;    // test_cthread_read_defined.cpp:152:9;
+            decl_init_PROC_STATE_next = 0; return;    // test_cthread_read_defined.cpp:159:9;
         end
         0: begin
         end
@@ -222,14 +222,14 @@ begin : decl_init_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: decl_init_array (test_cthread_read_defined.cpp:155:5) 
+// Clocked THREAD: decl_init_array (test_cthread_read_defined.cpp:162:5) 
 
 // Thread-local variables
 logic decl_init_array_PROC_STATE;
 logic decl_init_array_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : decl_init_array_comb     // test_cthread_read_defined.cpp:155:5
+always_comb begin : decl_init_array_comb     // test_cthread_read_defined.cpp:162:5
     decl_init_array_func;
 end
 function void decl_init_array_func;
@@ -246,7 +246,7 @@ function void decl_init_array_func;
             begin
                 d[i] = i;
             end
-            decl_init_array_PROC_STATE_next = 0; return;    // test_cthread_read_defined.cpp:170:9;
+            decl_init_array_PROC_STATE_next = 0; return;    // test_cthread_read_defined.cpp:177:9;
         end
         0: begin
         end
@@ -262,10 +262,10 @@ begin : decl_init_array_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: read_array (test_cthread_read_defined.cpp:174:5) 
+// Method process: read_array (test_cthread_read_defined.cpp:181:5) 
 
 always_comb 
-begin : read_array     // test_cthread_read_defined.cpp:174:5
+begin : read_array     // test_cthread_read_defined.cpp:181:5
     integer a[3];
     integer b[2][2];
     logic [3:0] c[3];
@@ -284,15 +284,15 @@ begin : read_array     // test_cthread_read_defined.cpp:174:5
     e[s]++;
     for (integer i = 0; i < 4; ++i)
     begin
-        d[i] = |(1 <<< f[i + 1]);
+        d[i] = |(1 <<< 32'(f[i + 1]));
     end
 end
 
 //------------------------------------------------------------------------------
-// Method process: wite_known_array (test_cthread_read_defined.cpp:206:5) 
+// Method process: wite_known_array (test_cthread_read_defined.cpp:213:5) 
 
 always_comb 
-begin : wite_known_array     // test_cthread_read_defined.cpp:206:5
+begin : wite_known_array     // test_cthread_read_defined.cpp:213:5
     integer a[3];
     logic b[2][2];
     integer unsigned c[2][3];
@@ -306,10 +306,10 @@ begin : wite_known_array     // test_cthread_read_defined.cpp:206:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: wite_unknown_array (test_cthread_read_defined.cpp:226:5) 
+// Method process: wite_unknown_array (test_cthread_read_defined.cpp:233:5) 
 
 always_comb 
-begin : wite_unknown_array     // test_cthread_read_defined.cpp:226:5
+begin : wite_unknown_array     // test_cthread_read_defined.cpp:233:5
     integer a[3];
     integer b[2][2];
     integer c[2][3];
@@ -325,10 +325,10 @@ begin : wite_unknown_array     // test_cthread_read_defined.cpp:226:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: linear_scint_oper (test_cthread_read_defined.cpp:250:5) 
+// Method process: linear_scint_oper (test_cthread_read_defined.cpp:257:5) 
 
 always_comb 
-begin : linear_scint_oper     // test_cthread_read_defined.cpp:250:5
+begin : linear_scint_oper     // test_cthread_read_defined.cpp:257:5
     integer i;
     integer j1;
     integer j2;
@@ -352,10 +352,10 @@ begin : linear_scint_oper     // test_cthread_read_defined.cpp:250:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: linear_scint_member (test_cthread_read_defined.cpp:283:5) 
+// Method process: linear_scint_member (test_cthread_read_defined.cpp:290:5) 
 
 always_comb 
-begin : linear_scint_member     // test_cthread_read_defined.cpp:283:5
+begin : linear_scint_member     // test_cthread_read_defined.cpp:290:5
     integer i;
     integer j1;
     integer j2;
@@ -370,10 +370,10 @@ begin : linear_scint_member     // test_cthread_read_defined.cpp:283:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: linear_scfunc_call (test_cthread_read_defined.cpp:298:5) 
+// Method process: linear_scfunc_call (test_cthread_read_defined.cpp:305:5) 
 
 always_comb 
-begin : linear_scfunc_call     // test_cthread_read_defined.cpp:298:5
+begin : linear_scfunc_call     // test_cthread_read_defined.cpp:305:5
     logic signed [2:0] x;
     logic signed [2:0] y;
     logic [5:0] z;
@@ -386,10 +386,10 @@ begin : linear_scfunc_call     // test_cthread_read_defined.cpp:298:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_init (test_cthread_read_defined.cpp:313:5) 
+// Method process: sc_type_init (test_cthread_read_defined.cpp:320:5) 
 
 always_comb 
-begin : sc_type_init     // test_cthread_read_defined.cpp:313:5
+begin : sc_type_init     // test_cthread_read_defined.cpp:320:5
     logic signed [15:0] x1;
     logic signed [15:0] y;
     logic signed [15:0] x2;
@@ -401,10 +401,10 @@ begin : sc_type_init     // test_cthread_read_defined.cpp:313:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_init2 (test_cthread_read_defined.cpp:326:6) 
+// Method process: sc_type_init2 (test_cthread_read_defined.cpp:333:6) 
 
 always_comb 
-begin : sc_type_init2     // test_cthread_read_defined.cpp:326:6
+begin : sc_type_init2     // test_cthread_read_defined.cpp:333:6
     logic signed [3:0] x;
     logic signed [3:0] y;
     logic signed [7:0] z;
@@ -414,10 +414,10 @@ begin : sc_type_init2     // test_cthread_read_defined.cpp:326:6
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_binary (test_cthread_read_defined.cpp:336:5) 
+// Method process: sc_type_binary (test_cthread_read_defined.cpp:343:5) 
 
 always_comb 
-begin : sc_type_binary     // test_cthread_read_defined.cpp:336:5
+begin : sc_type_binary     // test_cthread_read_defined.cpp:343:5
     logic signed [3:0] x;
     logic signed [3:0] y;
     logic signed [7:0] z;
@@ -433,10 +433,10 @@ begin : sc_type_binary     // test_cthread_read_defined.cpp:336:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_unary (test_cthread_read_defined.cpp:356:5) 
+// Method process: sc_type_unary (test_cthread_read_defined.cpp:363:5) 
 
 always_comb 
-begin : sc_type_unary     // test_cthread_read_defined.cpp:356:5
+begin : sc_type_unary     // test_cthread_read_defined.cpp:363:5
     logic signed [3:0] x;
     logic signed [3:0] y;
     logic b;
@@ -449,10 +449,10 @@ begin : sc_type_unary     // test_cthread_read_defined.cpp:356:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_stmt (test_cthread_read_defined.cpp:370:5) 
+// Method process: if_stmt (test_cthread_read_defined.cpp:377:5) 
 
 always_comb 
-begin : if_stmt     // test_cthread_read_defined.cpp:370:5
+begin : if_stmt     // test_cthread_read_defined.cpp:377:5
     logic c1;
     integer i1;
     integer j1;
@@ -468,10 +468,10 @@ begin : if_stmt     // test_cthread_read_defined.cpp:370:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_oper (test_cthread_read_defined.cpp:384:5) 
+// Method process: cond_oper (test_cthread_read_defined.cpp:391:5) 
 
 always_comb 
-begin : cond_oper     // test_cthread_read_defined.cpp:384:5
+begin : cond_oper     // test_cthread_read_defined.cpp:391:5
     logic c1;
     integer i1;
     integer j1;

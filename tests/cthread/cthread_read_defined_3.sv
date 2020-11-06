@@ -31,7 +31,7 @@ logic csignal_array_ptr[2];
 logic csignal_ptr_arr[2];
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: write_sig_thread (test_cthread_read_defined_3.cpp:46:5) 
+// Clocked THREAD: write_sig_thread (test_cthread_read_defined_3.cpp:53:5) 
 
 // Thread-local variables
 logic bsignal_next;
@@ -42,7 +42,7 @@ logic bsignal_array_ptr_next[2];
 logic bsignal_ptr_arr_next[2];
 
 // Next-state combinational logic
-always_comb begin : write_sig_thread_comb     // test_cthread_read_defined_3.cpp:46:5
+always_comb begin : write_sig_thread_comb     // test_cthread_read_defined_3.cpp:53:5
     write_sig_thread_func;
 end
 function void write_sig_thread_func;
@@ -82,7 +82,7 @@ begin : write_sig_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: read_sig_thread (test_cthread_read_defined_3.cpp:86:5) 
+// Clocked THREAD: read_sig_thread (test_cthread_read_defined_3.cpp:93:5) 
 
 // Thread-local variables
 logic csignal_next;
@@ -95,7 +95,7 @@ logic [1:0] read_sig_thread_PROC_STATE;
 logic [1:0] read_sig_thread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : read_sig_thread_comb     // test_cthread_read_defined_3.cpp:86:5
+always_comb begin : read_sig_thread_comb     // test_cthread_read_defined_3.cpp:93:5
     read_sig_thread_func;
 end
 function void read_sig_thread_func;
@@ -117,7 +117,7 @@ function void read_sig_thread_func;
             csignal_array_next[1] = csignal_array[0];
             b = csignal_array2d[1][0];
             csignal_array2d_next[1][0] = csignal;
-            read_sig_thread_PROC_STATE_next = 1; return;    // test_cthread_read_defined_3.cpp:122:13;
+            read_sig_thread_PROC_STATE_next = 1; return;    // test_cthread_read_defined_3.cpp:129:13;
         end
         1: begin
             b = csignal;
@@ -132,7 +132,7 @@ function void read_sig_thread_func;
             begin
                 b = csignal_ptr_arr[csignal_array_ptr[0]];
                 csignal_ptr_arr_next[csignal_array2d[0][s]] = 1;
-                read_sig_thread_PROC_STATE_next = 2; return;    // test_cthread_read_defined_3.cpp:148:17;
+                read_sig_thread_PROC_STATE_next = 2; return;    // test_cthread_read_defined_3.cpp:155:17;
             end
             b = csignal;
             csignal_next = !csignal;
@@ -141,14 +141,14 @@ function void read_sig_thread_func;
             csignal_array_next[1] = csignal_array[0];
             b = csignal_array2d[1][0];
             csignal_array2d_next[1][0] = csignal;
-            read_sig_thread_PROC_STATE_next = 1; return;    // test_cthread_read_defined_3.cpp:122:13;
+            read_sig_thread_PROC_STATE_next = 1; return;    // test_cthread_read_defined_3.cpp:129:13;
         end
         2: begin
             if (|s)
             begin
                 b = csignal_ptr_arr[csignal_array_ptr[0]];
                 csignal_ptr_arr_next[csignal_array2d[0][s]] = 1;
-                read_sig_thread_PROC_STATE_next = 2; return;    // test_cthread_read_defined_3.cpp:148:17;
+                read_sig_thread_PROC_STATE_next = 2; return;    // test_cthread_read_defined_3.cpp:155:17;
             end
             b = csignal;
             csignal_next = !csignal;
@@ -157,7 +157,7 @@ function void read_sig_thread_func;
             csignal_array_next[1] = csignal_array[0];
             b = csignal_array2d[1][0];
             csignal_array2d_next[1][0] = csignal;
-            read_sig_thread_PROC_STATE_next = 1; return;    // test_cthread_read_defined_3.cpp:122:13;
+            read_sig_thread_PROC_STATE_next = 1; return;    // test_cthread_read_defined_3.cpp:129:13;
         end
     endcase
 endfunction
@@ -175,7 +175,7 @@ begin : read_sig_thread_ff
         csignal_ptr <= 0;
         csignal_array_ptr[1] <= 0;
         csignal_ptr_arr[0] <= 0;
-        read_sig_thread_PROC_STATE <= 0;    // test_cthread_read_defined_3.cpp:102:9;
+        read_sig_thread_PROC_STATE <= 0;    // test_cthread_read_defined_3.cpp:109:9;
     end
     else begin
         csignal <= csignal_next;

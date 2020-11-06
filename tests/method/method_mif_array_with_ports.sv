@@ -40,15 +40,15 @@ assign minst_in[1] = z;
 assign t = minst_out[0];
 
 //------------------------------------------------------------------------------
-// Method process: minst_meth (test_mif_array_with_ports.cpp:29:5) 
+// Method process: minst_meth (test_mif_array_with_ports.cpp:36:5) 
 
 always_comb 
-begin : minst_meth     // test_mif_array_with_ports.cpp:29:5
+begin : minst_meth     // test_mif_array_with_ports.cpp:36:5
     minst_mout[0] = minst_min[0];
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thrd (test_mif_array_with_ports.cpp:33:5) 
+// Clocked THREAD: minst_thrd (test_mif_array_with_ports.cpp:40:5) 
 
 // Thread-local variables
 logic signed [31:0] a;
@@ -58,7 +58,7 @@ logic thrd_PROC_STATE;
 logic thrd_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : minst_thrd_comb     // test_mif_array_with_ports.cpp:33:5
+always_comb begin : minst_thrd_comb     // test_mif_array_with_ports.cpp:40:5
     minst_thrd_func;
 end
 function void minst_thrd_func;
@@ -69,12 +69,12 @@ function void minst_thrd_func;
     case (thrd_PROC_STATE)
         0: begin
             a_next = minst_in[0];
-            thrd_PROC_STATE_next = 1; return;    // test_mif_array_with_ports.cpp:39:13;
+            thrd_PROC_STATE_next = 1; return;    // test_mif_array_with_ports.cpp:46:13;
         end
         1: begin
             minst_sig_next[0] = a_next;
             a_next = minst_in[0];
-            thrd_PROC_STATE_next = 1; return;    // test_mif_array_with_ports.cpp:39:13;
+            thrd_PROC_STATE_next = 1; return;    // test_mif_array_with_ports.cpp:46:13;
         end
     endcase
 endfunction
@@ -84,7 +84,7 @@ always_ff @(posedge minst_clk[0] or posedge minst_rst[0])
 begin : minst_thrd_ff
     if (minst_rst[0] ) begin
         minst_out[0] <= 0;
-        thrd_PROC_STATE <= 0;    // test_mif_array_with_ports.cpp:35:9;
+        thrd_PROC_STATE <= 0;    // test_mif_array_with_ports.cpp:42:9;
     end
     else begin
         a <= a_next;
@@ -94,15 +94,15 @@ begin : minst_thrd_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_meth0 (test_mif_array_with_ports.cpp:29:5) 
+// Method process: minst_meth0 (test_mif_array_with_ports.cpp:36:5) 
 
 always_comb 
-begin : minst_meth0     // test_mif_array_with_ports.cpp:29:5
+begin : minst_meth0     // test_mif_array_with_ports.cpp:36:5
     minst_mout[1] = minst_min[1];
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thrd0 (test_mif_array_with_ports.cpp:33:5) 
+// Clocked THREAD: minst_thrd0 (test_mif_array_with_ports.cpp:40:5) 
 
 // Thread-local variables
 logic signed [31:0] a0;
@@ -111,7 +111,7 @@ logic thrd_PROC_STATE0;
 logic thrd_PROC_STATE_next0;
 
 // Next-state combinational logic
-always_comb begin : minst_thrd0_comb     // test_mif_array_with_ports.cpp:33:5
+always_comb begin : minst_thrd0_comb     // test_mif_array_with_ports.cpp:40:5
     minst_thrd0_func;
 end
 function void minst_thrd0_func;
@@ -122,12 +122,12 @@ function void minst_thrd0_func;
     case (thrd_PROC_STATE0)
         0: begin
             a_next0 = minst_in[1];
-            thrd_PROC_STATE_next0 = 1; return;    // test_mif_array_with_ports.cpp:39:13;
+            thrd_PROC_STATE_next0 = 1; return;    // test_mif_array_with_ports.cpp:46:13;
         end
         1: begin
             minst_sig_next[1] = a_next0;
             a_next0 = minst_in[1];
-            thrd_PROC_STATE_next0 = 1; return;    // test_mif_array_with_ports.cpp:39:13;
+            thrd_PROC_STATE_next0 = 1; return;    // test_mif_array_with_ports.cpp:46:13;
         end
     endcase
 endfunction
@@ -137,7 +137,7 @@ always_ff @(posedge minst_clk[1] or posedge minst_rst[1])
 begin : minst_thrd0_ff
     if (minst_rst[1] ) begin
         minst_out[1] <= 0;
-        thrd_PROC_STATE0 <= 0;    // test_mif_array_with_ports.cpp:35:9;
+        thrd_PROC_STATE0 <= 0;    // test_mif_array_with_ports.cpp:42:9;
     end
     else begin
         a0 <= a_next0;
@@ -147,10 +147,10 @@ begin : minst_thrd0_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: top_meth (test_mif_array_with_ports.cpp:80:5) 
+// Method process: top_meth (test_mif_array_with_ports.cpp:87:5) 
 
 always_comb 
-begin : top_meth     // test_mif_array_with_ports.cpp:80:5
+begin : top_meth     // test_mif_array_with_ports.cpp:87:5
     integer i;
     i = t + y;
 end

@@ -24,10 +24,10 @@ logic signed [31:0] s_d;
 logic signed [31:0] r;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread1 (test_sva_generate.cpp:105:5) 
+// Clocked THREAD: thread1 (test_sva_generate.cpp:112:5) 
 
 // Next-state combinational logic
-always_comb begin : thread1_comb     // test_sva_generate.cpp:105:5
+always_comb begin : thread1_comb     // test_sva_generate.cpp:112:5
     thread1_func;
 end
 function void thread1_func;
@@ -42,12 +42,12 @@ begin : thread1_ff
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine107 : assert property ( o |-> ##3 |r );
+    sctAssertLine114 : assert property ( o |-> ##3 |r );
 `endif // INTEL_SVA_OFF
 end
 
 `ifndef INTEL_SVA_OFF
-sctAssertLine92 : assert property (
+sctAssertLine99 : assert property (
     @(posedge clk) |s |=> |s_d );
 `endif // INTEL_SVA_OFF
 

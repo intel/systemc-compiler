@@ -19,10 +19,10 @@ module A // "a"
 logic rstn;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: func_call_in_reset (test_member_func_cthread.cpp:34:5) 
+// Clocked THREAD: func_call_in_reset (test_member_func_cthread.cpp:41:5) 
 
 // Next-state combinational logic
-always_comb begin : func_call_in_reset_comb     // test_member_func_cthread.cpp:34:5
+always_comb begin : func_call_in_reset_comb     // test_member_func_cthread.cpp:41:5
     func_call_in_reset_func;
 end
 function void func_call_in_reset_func;
@@ -50,14 +50,14 @@ begin : func_call_in_reset_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: call_in_reset (test_member_func_cthread.cpp:67:5) 
+// Clocked THREAD: call_in_reset (test_member_func_cthread.cpp:74:5) 
 
 // Thread-local variables
 logic [3:0] nc_nco_acc;
 logic [3:0] nc_nco_acc_next;
 
 // Next-state combinational logic
-always_comb begin : call_in_reset_comb     // test_member_func_cthread.cpp:67:5
+always_comb begin : call_in_reset_comb     // test_member_func_cthread.cpp:74:5
     call_in_reset_func;
 end
 function void call_in_reset_func;
@@ -86,7 +86,7 @@ begin : call_in_reset_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: arr_call_in_reset (test_member_func_cthread.cpp:82:5) 
+// Clocked THREAD: arr_call_in_reset (test_member_func_cthread.cpp:89:5) 
 
 // Thread-local variables
 logic [3:0] ncc_nco_acc[3];
@@ -94,7 +94,7 @@ logic [3:0] ncc_nco_acc_next[3];
 logic [3:0] nco_out_next[3];
 
 // Next-state combinational logic
-always_comb begin : arr_call_in_reset_comb     // test_member_func_cthread.cpp:82:5
+always_comb begin : arr_call_in_reset_comb     // test_member_func_cthread.cpp:89:5
     arr_call_in_reset_func;
 end
 function void arr_call_in_reset_func;

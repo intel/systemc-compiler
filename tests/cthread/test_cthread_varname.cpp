@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 
 using namespace sc_core;
@@ -50,7 +57,7 @@ public:
     }
     
     // Two variables with the same name one in called function, 
-    // Bug in HS SMEM in EMC
+    // Bug in real design in EMC
     void syncWaiting() {
         // Register
         sc_uint<3> check_hiwait_delay = a ? b.read() : c.read();
@@ -215,3 +222,4 @@ int sc_main(int argc, char *argv[]) {
     sc_start();
     return 0;
 }
+

@@ -115,33 +115,28 @@ Object* getOuterArray(SCDesign& designDB, Object* memberObj)
 void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 {
     std::cout << "--------------------------------------------------------------" << std::endl;
-    std::cout << " Intel Compiler for SystemC (ICSC) version 1.3.7, 23 Oct 2020" << std::endl;
+    std::cout << " Intel Compiler for SystemC (ICSC) version 1.3.8, 06 Nov 2020" << std::endl;
     std::cout << "--------------------------------------------------------------" << std::endl;
     
     ENABLE_REMOVE_EXTRA_CODE = noRemoveExtraCode ? 0 : 0xFFFFFFFF;
     
     using namespace std;
     using namespace DebugOptions;
-    //const char* optNames[] = {doModuleBuilder, doUseDef, doConstStmt, doConstFuncCall};
-    //const char* optNames[] = {doModuleBuilder, doGenStmt, doGenFuncCall, doGenRTL};
-    //const char* optNames[] = {doModuleBuilder, doConstCfg, doConstStmt, doConstFuncCall};
-    //const char* optNames[] = {doModuleBuilder, doGenCfg, doGenStmt, doGenFuncCall, doGenRTL};
-    //const char* optNames[] = {doModuleBuilder, doGenCfg, doGenStmt, doGenFuncCall, doGenRTL};
-    //const char* optNames[] = {doConstStmt, doState};
     //const char* optNames[] = {doElab};
+    //const char* optNames[] = {doConstCfg, doGenCfg};
     //const char* optNames[] = {doModuleBuilder, doGenCfg, doGenTerm, doGenRTL, doGenStmt, doGenBlock};
     //const char* optNames[] = {doModuleBuilder, doGenCfg, doGenStmt, doGenFuncCall, doVerWriter};
     //const char* optNames[] = {doModuleBuilder, doGenStmt, doGenName, doGenRTL}; 
     //const char* optNames[] = {doModuleBuilder, doConstCfg, doConstTerm, doConstBlock, doGenCfg};
     //const char* optNames[] = {doConstStmt}; 
-    //const char* optNames[] = {doConstCfg, doConstBlock, doModuleBuilder};
+    //const char* optNames[] = {doConstCfg, doElab};
     //const char* optNames[] = {doGenCfg, doGenLoop, doGenBlock, doModuleBuilder}; 
-    //const char* optNames[] = {doModuleBuilder, doGenCfg, doGenStmt, doGenRTL};
-    const char* optNames[] = {doModuleBuilder, doGenStmt, doGenRTL};
+    //const char* optNames[] = {doModuleBuilder, doConstCfg, doConstStmt, doState};
+    const char* optNames[] = {doModuleBuilder, doGenStmt};
     //const char* optNames[] = {doModuleBuilder};
     size_t optSize = sizeof(optNames)/sizeof(const char*);
     //DebugOptions::enable(optNames, optSize);  
-    
+   
     //keepConstVariables = true;
  
     // Find pointer to top-level module by SystemC name

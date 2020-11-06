@@ -16,10 +16,10 @@ module top // "t_inst"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: test_method (test_generic_fcall.cpp:53:5) 
+// Method process: test_method (test_generic_fcall.cpp:60:5) 
 
 always_comb 
-begin : test_method     // test_generic_fcall.cpp:53:5
+begin : test_method     // test_generic_fcall.cpp:60:5
     integer TMP_0;
     integer x;
     integer TMP_2;

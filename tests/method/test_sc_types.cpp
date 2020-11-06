@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 
 using namespace sc_core;
@@ -56,7 +63,7 @@ public:
     }
 
     // SC type range/bit for variable under type cast --
-    // BUG from SMEM KVG and DPX fixed
+    // BUG from real design fixed
     void partial_select_for_type_cast() 
     {
         sc_uint<4> a = 3;
@@ -73,7 +80,7 @@ public:
     }
     
     // Double expression in conditional statement assignment to channel range --
-    // BUG from SMEM Tiny fixed
+    // BUG from real design fixed
     void loop_range_double() 
     {
         sc_uint<32> val;
@@ -340,3 +347,4 @@ int sc_main(int argc, char *argv[]) {
     sc_start();
     return 0;
 }
+

@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_if_method.cpp:68:5)
+// Module: A (test_if_method.cpp:75:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -37,10 +37,10 @@ module A // "b_mod.a_mod"
 logic dummy;
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall (test_if_method.cpp:38:5) 
+// Method process: record_fcall (test_if_method.cpp:45:5) 
 
 always_comb 
-begin : record_fcall     // test_if_method.cpp:38:5
+begin : record_fcall     // test_if_method.cpp:45:5
     logic s1_a;
     integer s1_b;
     logic TMP_0;
@@ -61,14 +61,14 @@ begin : record_fcall     // test_if_method.cpp:38:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall2 (test_if_method.cpp:49:5) 
+// Method process: record_fcall2 (test_if_method.cpp:56:5) 
 
 // Process-local variables
 logic rec_a;
 logic signed [31:0] rec_b;
 
 always_comb 
-begin : record_fcall2     // test_if_method.cpp:49:5
+begin : record_fcall2     // test_if_method.cpp:56:5
     logic s1_a;
     integer s1_b;
     logic s2_a;

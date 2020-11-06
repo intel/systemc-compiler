@@ -1,6 +1,9 @@
-
-add_subdirectory(test_apb_dma)
-add_subdirectory(multi_source)
+#******************************************************************************
+# Copyright (c) 2020, Intel Corporation. All rights reserved.
+# 
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+# 
+# *****************************************************************************
 
 add_executable(simple_test simple_test.cpp)
 svc_target(simple_test ELAB_ONLY)

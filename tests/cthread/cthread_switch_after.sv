@@ -23,10 +23,10 @@ logic [2:0] s;
 logic [2:0] t;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: switch_if1 (test_cthread_switch_after.cpp:56:4) 
+// Clocked THREAD: switch_if1 (test_cthread_switch_after.cpp:63:4) 
 
 // Next-state combinational logic
-always_comb begin : switch_if1_comb     // test_cthread_switch_after.cpp:56:4
+always_comb begin : switch_if1_comb     // test_cthread_switch_after.cpp:63:4
     switch_if1_func;
 end
 function void switch_if1_func;
@@ -74,13 +74,13 @@ begin : switch_if1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: switch_if2 (test_cthread_switch_after.cpp:86:5) 
+// Clocked THREAD: switch_if2 (test_cthread_switch_after.cpp:93:5) 
 
 // Thread-local variables
 logic signed [31:0] k;
 
 // Next-state combinational logic
-always_comb begin : switch_if2_comb     // test_cthread_switch_after.cpp:86:5
+always_comb begin : switch_if2_comb     // test_cthread_switch_after.cpp:93:5
     switch_if2_func;
 end
 function void switch_if2_func;
@@ -127,7 +127,7 @@ begin : switch_if2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: switch_if3 (test_cthread_switch_after.cpp:112:5) 
+// Clocked THREAD: switch_if3 (test_cthread_switch_after.cpp:119:5) 
 
 // Thread-local variables
 logic signed [31:0] m;
@@ -135,7 +135,7 @@ logic switch_if3_PROC_STATE;
 logic switch_if3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : switch_if3_comb     // test_cthread_switch_after.cpp:112:5
+always_comb begin : switch_if3_comb     // test_cthread_switch_after.cpp:119:5
     switch_if3_func;
 end
 function void switch_if3_func;
@@ -156,7 +156,7 @@ function void switch_if3_func;
                 end
             end
             endcase
-            switch_if3_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:128:13;
+            switch_if3_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:135:13;
         end
         1: begin
             if (s == 1)
@@ -182,7 +182,7 @@ function void switch_if3_func;
                 end
             end
             endcase
-            switch_if3_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:128:13;
+            switch_if3_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:135:13;
         end
     endcase
 endfunction
@@ -191,7 +191,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : switch_if3_ff
     if ( ~rstn ) begin
-        switch_if3_PROC_STATE <= 0;    // test_cthread_switch_after.cpp:113:9;
+        switch_if3_PROC_STATE <= 0;    // test_cthread_switch_after.cpp:120:9;
     end
     else begin
         switch_if3_PROC_STATE <= switch_if3_PROC_STATE_next;
@@ -199,14 +199,14 @@ begin : switch_if3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: switch_if_multi1 (test_cthread_switch_after.cpp:141:5) 
+// Clocked THREAD: switch_if_multi1 (test_cthread_switch_after.cpp:148:5) 
 
 // Thread-local variables
 logic [1:0] switch_if_multi1_PROC_STATE;
 logic [1:0] switch_if_multi1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : switch_if_multi1_comb     // test_cthread_switch_after.cpp:141:5
+always_comb begin : switch_if_multi1_comb     // test_cthread_switch_after.cpp:148:5
     switch_if_multi1_func;
 end
 function void switch_if_multi1_func;
@@ -223,7 +223,7 @@ function void switch_if_multi1_func;
                 if (s < 3)
                 begin
                     i = 2;
-                    switch_if_multi1_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:150:29;
+                    switch_if_multi1_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:157:29;
                 end
             end
             endcase
@@ -231,32 +231,32 @@ function void switch_if_multi1_func;
             begin
                 case (t)
                 1 : begin
-                    switch_if_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:157:29;
+                    switch_if_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:164:29;
                 end
                 default : begin
                     i = 5;
                 end
                 endcase
             end
-            switch_if_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:162:13;
+            switch_if_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:169:13;
         end
         1: begin
             if (s == 1)
             begin
                 case (t)
                 1 : begin
-                    switch_if_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:157:29;
+                    switch_if_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:164:29;
                 end
                 default : begin
                     i = 5;
                 end
                 endcase
             end
-            switch_if_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:162:13;
+            switch_if_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:169:13;
         end
         2: begin
             i = 4;
-            switch_if_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:162:13;
+            switch_if_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:169:13;
         end
         3: begin
             case (t)
@@ -267,7 +267,7 @@ function void switch_if_multi1_func;
                 if (s < 3)
                 begin
                     i = 2;
-                    switch_if_multi1_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:150:29;
+                    switch_if_multi1_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:157:29;
                 end
             end
             endcase
@@ -275,14 +275,14 @@ function void switch_if_multi1_func;
             begin
                 case (t)
                 1 : begin
-                    switch_if_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:157:29;
+                    switch_if_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:164:29;
                 end
                 default : begin
                     i = 5;
                 end
                 endcase
             end
-            switch_if_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:162:13;
+            switch_if_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:169:13;
         end
     endcase
 endfunction
@@ -293,7 +293,7 @@ begin : switch_if_multi1_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        switch_if_multi1_PROC_STATE <= 0;    // test_cthread_switch_after.cpp:143:9;
+        switch_if_multi1_PROC_STATE <= 0;    // test_cthread_switch_after.cpp:150:9;
     end
     else begin
         switch_if_multi1_PROC_STATE <= switch_if_multi1_PROC_STATE_next;
@@ -301,10 +301,10 @@ begin : switch_if_multi1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: switch_if_for0 (test_cthread_switch_after.cpp:168:5) 
+// Clocked THREAD: switch_if_for0 (test_cthread_switch_after.cpp:175:5) 
 
 // Next-state combinational logic
-always_comb begin : switch_if_for0_comb     // test_cthread_switch_after.cpp:168:5
+always_comb begin : switch_if_for0_comb     // test_cthread_switch_after.cpp:175:5
     switch_if_for0_func;
 end
 function void switch_if_for0_func;
@@ -333,10 +333,10 @@ begin : switch_if_for0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: switch_if_for1 (test_cthread_switch_after.cpp:183:5) 
+// Clocked THREAD: switch_if_for1 (test_cthread_switch_after.cpp:190:5) 
 
 // Next-state combinational logic
-always_comb begin : switch_if_for1_comb     // test_cthread_switch_after.cpp:183:5
+always_comb begin : switch_if_for1_comb     // test_cthread_switch_after.cpp:190:5
     switch_if_for1_func;
 end
 function void switch_if_for1_func;
@@ -378,10 +378,10 @@ begin : switch_if_for1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: switch_if_for2 (test_cthread_switch_after.cpp:204:5) 
+// Clocked THREAD: switch_if_for2 (test_cthread_switch_after.cpp:211:5) 
 
 // Next-state combinational logic
-always_comb begin : switch_if_for2_comb     // test_cthread_switch_after.cpp:204:5
+always_comb begin : switch_if_for2_comb     // test_cthread_switch_after.cpp:211:5
     switch_if_for2_func;
 end
 function void switch_if_for2_func;
@@ -431,14 +431,14 @@ begin : switch_if_for2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: switch_if_for3 (test_cthread_switch_after.cpp:230:5) 
+// Clocked THREAD: switch_if_for3 (test_cthread_switch_after.cpp:237:5) 
 
 // Thread-local variables
 logic switch_if_for3_PROC_STATE;
 logic switch_if_for3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : switch_if_for3_comb     // test_cthread_switch_after.cpp:230:5
+always_comb begin : switch_if_for3_comb     // test_cthread_switch_after.cpp:237:5
     switch_if_for3_func;
 end
 function void switch_if_for3_func;
@@ -464,7 +464,7 @@ function void switch_if_for3_func;
                 endcase
             end
             endcase
-            switch_if_for3_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:246:13;
+            switch_if_for3_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:253:13;
         end
         1: begin
             sum = 0;
@@ -499,7 +499,7 @@ function void switch_if_for3_func;
                 endcase
             end
             endcase
-            switch_if_for3_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:246:13;
+            switch_if_for3_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:253:13;
         end
     endcase
 endfunction
@@ -508,7 +508,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : switch_if_for3_ff
     if ( ~rstn ) begin
-        switch_if_for3_PROC_STATE <= 0;    // test_cthread_switch_after.cpp:232:9;
+        switch_if_for3_PROC_STATE <= 0;    // test_cthread_switch_after.cpp:239:9;
     end
     else begin
         switch_if_for3_PROC_STATE <= switch_if_for3_PROC_STATE_next;
@@ -516,14 +516,14 @@ begin : switch_if_for3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: switch_if_for4 (test_cthread_switch_after.cpp:262:5) 
+// Clocked THREAD: switch_if_for4 (test_cthread_switch_after.cpp:269:5) 
 
 // Thread-local variables
 logic [1:0] switch_if_for4_PROC_STATE;
 logic [1:0] switch_if_for4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : switch_if_for4_comb     // test_cthread_switch_after.cpp:262:5
+always_comb begin : switch_if_for4_comb     // test_cthread_switch_after.cpp:269:5
     switch_if_for4_func;
 end
 function void switch_if_for4_func;
@@ -545,7 +545,7 @@ function void switch_if_for4_func;
                 default : begin
                 end
                 endcase
-                switch_if_for4_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:274:17;
+                switch_if_for4_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:281:17;
             end else begin
                 case (s)
                 1 : begin
@@ -561,7 +561,7 @@ function void switch_if_for4_func;
                     sum = sum + l;
                 end
             end
-            switch_if_for4_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:288:13;
+            switch_if_for4_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:295:13;
         end
         1: begin
             if (1)
@@ -572,7 +572,7 @@ function void switch_if_for4_func;
                     sum = sum + l;
                 end
             end
-            switch_if_for4_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:288:13;
+            switch_if_for4_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:295:13;
         end
         2: begin
             if ((|s || 0) && (1 && |t))
@@ -587,7 +587,7 @@ function void switch_if_for4_func;
                 default : begin
                 end
                 endcase
-                switch_if_for4_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:274:17;
+                switch_if_for4_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:281:17;
             end else begin
                 case (s)
                 1 : begin
@@ -603,7 +603,7 @@ function void switch_if_for4_func;
                     sum = sum + l;
                 end
             end
-            switch_if_for4_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:288:13;
+            switch_if_for4_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:295:13;
         end
     endcase
 endfunction
@@ -614,7 +614,7 @@ begin : switch_if_for4_ff
     if ( ~rstn ) begin
         integer i;
         i = 0;
-        switch_if_for4_PROC_STATE <= 0;    // test_cthread_switch_after.cpp:265:9;
+        switch_if_for4_PROC_STATE <= 0;    // test_cthread_switch_after.cpp:272:9;
     end
     else begin
         switch_if_for4_PROC_STATE <= switch_if_for4_PROC_STATE_next;
@@ -622,7 +622,7 @@ begin : switch_if_for4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: switch_if_for_multi1 (test_cthread_switch_after.cpp:294:5) 
+// Clocked THREAD: switch_if_for_multi1 (test_cthread_switch_after.cpp:301:5) 
 
 // Thread-local variables
 logic signed [31:0] j;
@@ -635,7 +635,7 @@ logic [1:0] switch_if_for_multi1_PROC_STATE;
 logic [1:0] switch_if_for_multi1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : switch_if_for_multi1_comb     // test_cthread_switch_after.cpp:294:5
+always_comb begin : switch_if_for_multi1_comb     // test_cthread_switch_after.cpp:301:5
     switch_if_for_multi1_func;
 end
 function void switch_if_for_multi1_func;
@@ -657,13 +657,13 @@ function void switch_if_for_multi1_func;
             default : begin
                 j_next = 0;
                 i_next++;
-                switch_if_for_multi1_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:303:34;
+                switch_if_for_multi1_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:310:34;
             end
             endcase
             if (s == 1)
             begin
                 l_next = 0;
-                switch_if_for_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:310:21;
+                switch_if_for_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:317:21;
             end
             case (s)
             3 : begin
@@ -676,19 +676,19 @@ function void switch_if_for_multi1_func;
                 end
             end
             endcase
-            switch_if_for_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:320:13;
+            switch_if_for_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:327:13;
         end
         1: begin
             j_next++;
             if (j_next < 7)
             begin
                 i_next++;
-                switch_if_for_multi1_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:303:34;
+                switch_if_for_multi1_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:310:34;
             end
             if (s == 1)
             begin
                 l_next = 0;
-                switch_if_for_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:310:21;
+                switch_if_for_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:317:21;
             end
             case (s)
             3 : begin
@@ -701,7 +701,7 @@ function void switch_if_for_multi1_func;
                 end
             end
             endcase
-            switch_if_for_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:320:13;
+            switch_if_for_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:327:13;
         end
         2: begin
             if (|t)
@@ -718,13 +718,13 @@ function void switch_if_for_multi1_func;
                     end
                 end
                 endcase
-                switch_if_for_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:320:13;
+                switch_if_for_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:327:13;
                 // break end
             end
             l_next++;
             if (l_next < 7)
             begin
-                switch_if_for_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:310:21;
+                switch_if_for_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:317:21;
             end
             case (s)
             3 : begin
@@ -737,7 +737,7 @@ function void switch_if_for_multi1_func;
                 end
             end
             endcase
-            switch_if_for_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:320:13;
+            switch_if_for_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:327:13;
         end
         3: begin
             i_next = t;
@@ -751,13 +751,13 @@ function void switch_if_for_multi1_func;
             default : begin
                 j_next = 0;
                 i_next++;
-                switch_if_for_multi1_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:303:34;
+                switch_if_for_multi1_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:310:34;
             end
             endcase
             if (s == 1)
             begin
                 l_next = 0;
-                switch_if_for_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:310:21;
+                switch_if_for_multi1_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:317:21;
             end
             case (s)
             3 : begin
@@ -770,7 +770,7 @@ function void switch_if_for_multi1_func;
                 end
             end
             endcase
-            switch_if_for_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:320:13;
+            switch_if_for_multi1_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:327:13;
         end
     endcase
 endfunction
@@ -779,7 +779,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : switch_if_for_multi1_ff
     if ( ~rstn ) begin
-        switch_if_for_multi1_PROC_STATE <= 0;    // test_cthread_switch_after.cpp:295:9;
+        switch_if_for_multi1_PROC_STATE <= 0;    // test_cthread_switch_after.cpp:302:9;
     end
     else begin
         j <= j_next;
@@ -790,7 +790,7 @@ begin : switch_if_for_multi1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: switch_if_for_multi2 (test_cthread_switch_after.cpp:324:5) 
+// Clocked THREAD: switch_if_for_multi2 (test_cthread_switch_after.cpp:331:5) 
 
 // Thread-local variables
 logic [3:0] n0;
@@ -804,7 +804,7 @@ logic [2:0] switch_if_for_multi2_PROC_STATE;
 logic [2:0] switch_if_for_multi2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : switch_if_for_multi2_comb     // test_cthread_switch_after.cpp:324:5
+always_comb begin : switch_if_for_multi2_comb     // test_cthread_switch_after.cpp:331:5
     switch_if_for_multi2_func;
 end
 function void switch_if_for_multi2_func;
@@ -826,13 +826,13 @@ function void switch_if_for_multi2_func;
             default : begin
                 j_next0 = 0;
                 n_next++;
-                switch_if_for_multi2_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:333:34;
+                switch_if_for_multi2_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:340:34;
             end
             endcase
             if (|n_next)
             begin
                 n_next--;
-                switch_if_for_multi2_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:340:17;
+                switch_if_for_multi2_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:347:17;
             end
             l_next0 = 0;
             c_next = 0;
@@ -843,19 +843,19 @@ function void switch_if_for_multi2_func;
             default : begin
             end
             endcase
-            switch_if_for_multi2_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:350:17;
+            switch_if_for_multi2_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:357:17;
         end
         1: begin
             j_next0++;
             if (j_next0 < 7)
             begin
                 n_next++;
-                switch_if_for_multi2_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:333:34;
+                switch_if_for_multi2_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:340:34;
             end
             if (|n_next)
             begin
                 n_next--;
-                switch_if_for_multi2_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:340:17;
+                switch_if_for_multi2_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:347:17;
             end
             l_next0 = 0;
             c_next = 0;
@@ -866,13 +866,13 @@ function void switch_if_for_multi2_func;
             default : begin
             end
             endcase
-            switch_if_for_multi2_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:350:17;
+            switch_if_for_multi2_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:357:17;
         end
         2: begin
             if (|n_next)
             begin
                 n_next--;
-                switch_if_for_multi2_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:340:17;
+                switch_if_for_multi2_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:347:17;
             end
             l_next0 = 0;
             c_next = 0;
@@ -883,7 +883,7 @@ function void switch_if_for_multi2_func;
             default : begin
             end
             endcase
-            switch_if_for_multi2_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:350:17;
+            switch_if_for_multi2_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:357:17;
         end
         3: begin
             if (|t)
@@ -900,9 +900,9 @@ function void switch_if_for_multi2_func;
                     default : begin
                     end
                     endcase
-                    switch_if_for_multi2_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:350:17;
+                    switch_if_for_multi2_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:357:17;
                 end
-                switch_if_for_multi2_PROC_STATE_next = 4; return;    // test_cthread_switch_after.cpp:355:13;
+                switch_if_for_multi2_PROC_STATE_next = 4; return;    // test_cthread_switch_after.cpp:362:13;
                 // continue end
             end
             l_next0++;
@@ -916,9 +916,9 @@ function void switch_if_for_multi2_func;
                 default : begin
                 end
                 endcase
-                switch_if_for_multi2_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:350:17;
+                switch_if_for_multi2_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:357:17;
             end
-            switch_if_for_multi2_PROC_STATE_next = 4; return;    // test_cthread_switch_after.cpp:355:13;
+            switch_if_for_multi2_PROC_STATE_next = 4; return;    // test_cthread_switch_after.cpp:362:13;
         end
         4: begin
             case (s)
@@ -931,13 +931,13 @@ function void switch_if_for_multi2_func;
             default : begin
                 j_next0 = 0;
                 n_next++;
-                switch_if_for_multi2_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:333:34;
+                switch_if_for_multi2_PROC_STATE_next = 1; return;    // test_cthread_switch_after.cpp:340:34;
             end
             endcase
             if (|n_next)
             begin
                 n_next--;
-                switch_if_for_multi2_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:340:17;
+                switch_if_for_multi2_PROC_STATE_next = 2; return;    // test_cthread_switch_after.cpp:347:17;
             end
             l_next0 = 0;
             c_next = 0;
@@ -948,7 +948,7 @@ function void switch_if_for_multi2_func;
             default : begin
             end
             endcase
-            switch_if_for_multi2_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:350:17;
+            switch_if_for_multi2_PROC_STATE_next = 3; return;    // test_cthread_switch_after.cpp:357:17;
         end
     endcase
 endfunction
@@ -958,7 +958,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : switch_if_for_multi2_ff
     if ( ~rstn ) begin
         n0 <= 0;
-        switch_if_for_multi2_PROC_STATE <= 0;    // test_cthread_switch_after.cpp:326:9;
+        switch_if_for_multi2_PROC_STATE <= 0;    // test_cthread_switch_after.cpp:333:9;
     end
     else begin
         n0 <= n_next;

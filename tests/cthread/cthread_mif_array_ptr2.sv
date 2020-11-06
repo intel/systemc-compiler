@@ -20,31 +20,31 @@ logic [3:0] minst_s[2];
 logic [3:0] minst_ss[2];
 
 //------------------------------------------------------------------------------
-// Method process: minst_meth (test_cthread_mif_array_ptr2.cpp:24:5) 
+// Method process: minst_meth (test_cthread_mif_array_ptr2.cpp:31:5) 
 
 always_comb 
-begin : minst_meth     // test_cthread_mif_array_ptr2.cpp:24:5
+begin : minst_meth     // test_cthread_mif_array_ptr2.cpp:31:5
     logic [3:0] a;
     a = minst_s[0];
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_meth0 (test_cthread_mif_array_ptr2.cpp:24:5) 
+// Method process: minst_meth0 (test_cthread_mif_array_ptr2.cpp:31:5) 
 
 always_comb 
-begin : minst_meth0     // test_cthread_mif_array_ptr2.cpp:24:5
+begin : minst_meth0     // test_cthread_mif_array_ptr2.cpp:31:5
     logic [3:0] a;
     a = minst_s[1];
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread_comb (test_cthread_mif_array_ptr2.cpp:83:5) 
+// Clocked THREAD: top_thread_comb (test_cthread_mif_array_ptr2.cpp:90:5) 
 
 // Thread-local variables
 logic [3:0] minst_vv[2];
 
 // Next-state combinational logic
-always_comb begin : top_thread_comb_comb     // test_cthread_mif_array_ptr2.cpp:83:5
+always_comb begin : top_thread_comb_comb     // test_cthread_mif_array_ptr2.cpp:90:5
     top_thread_comb_func;
 end
 function void top_thread_comb_func;
@@ -65,7 +65,7 @@ begin : top_thread_comb_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread_reg (test_cthread_mif_array_ptr2.cpp:96:5) 
+// Clocked THREAD: top_thread_reg (test_cthread_mif_array_ptr2.cpp:103:5) 
 
 // Thread-local variables
 logic [3:0] minst_vv[2];
@@ -74,7 +74,7 @@ logic top_thread_reg_PROC_STATE;
 logic top_thread_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : top_thread_reg_comb     // test_cthread_mif_array_ptr2.cpp:96:5
+always_comb begin : top_thread_reg_comb     // test_cthread_mif_array_ptr2.cpp:103:5
     top_thread_reg_func;
 end
 function void top_thread_reg_func;
@@ -85,12 +85,12 @@ function void top_thread_reg_func;
     case (top_thread_reg_PROC_STATE)
         0: begin
             minst_vv_next[1] = 2;
-            top_thread_reg_PROC_STATE_next = 1; return;    // test_cthread_mif_array_ptr2.cpp:103:13;
+            top_thread_reg_PROC_STATE_next = 1; return;    // test_cthread_mif_array_ptr2.cpp:110:13;
         end
         1: begin
             a = minst_vv_next[1];
             minst_vv_next[1] = 2;
-            top_thread_reg_PROC_STATE_next = 1; return;    // test_cthread_mif_array_ptr2.cpp:103:13;
+            top_thread_reg_PROC_STATE_next = 1; return;    // test_cthread_mif_array_ptr2.cpp:110:13;
         end
     endcase
 endfunction
@@ -100,7 +100,7 @@ always_ff @(posedge clk or posedge rst)
 begin : top_thread_reg_ff
     if (rst ) begin
         minst_vv[1] <= 1;
-        top_thread_reg_PROC_STATE <= 0;    // test_cthread_mif_array_ptr2.cpp:99:9;
+        top_thread_reg_PROC_STATE <= 0;    // test_cthread_mif_array_ptr2.cpp:106:9;
     end
     else begin
         minst_vv <= minst_vv_next;
@@ -109,7 +109,7 @@ begin : top_thread_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread_sig_reg (test_cthread_mif_array_ptr2.cpp:108:5) 
+// Clocked THREAD: top_thread_sig_reg (test_cthread_mif_array_ptr2.cpp:115:5) 
 
 // Thread-local variables
 logic [3:0] minst_ss_next[2];
@@ -117,7 +117,7 @@ logic top_thread_sig_reg_PROC_STATE;
 logic top_thread_sig_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : top_thread_sig_reg_comb     // test_cthread_mif_array_ptr2.cpp:108:5
+always_comb begin : top_thread_sig_reg_comb     // test_cthread_mif_array_ptr2.cpp:115:5
     top_thread_sig_reg_func;
 end
 function void top_thread_sig_reg_func;
@@ -128,12 +128,12 @@ function void top_thread_sig_reg_func;
     case (top_thread_sig_reg_PROC_STATE)
         0: begin
             minst_ss_next[1] = 2;
-            top_thread_sig_reg_PROC_STATE_next = 1; return;    // test_cthread_mif_array_ptr2.cpp:115:13;
+            top_thread_sig_reg_PROC_STATE_next = 1; return;    // test_cthread_mif_array_ptr2.cpp:122:13;
         end
         1: begin
             a = minst_ss[1];
             minst_ss_next[1] = 2;
-            top_thread_sig_reg_PROC_STATE_next = 1; return;    // test_cthread_mif_array_ptr2.cpp:115:13;
+            top_thread_sig_reg_PROC_STATE_next = 1; return;    // test_cthread_mif_array_ptr2.cpp:122:13;
         end
     endcase
 endfunction
@@ -143,7 +143,7 @@ always_ff @(posedge clk or posedge rst)
 begin : top_thread_sig_reg_ff
     if (rst ) begin
         minst_ss[1] <= 1;
-        top_thread_sig_reg_PROC_STATE <= 0;    // test_cthread_mif_array_ptr2.cpp:111:9;
+        top_thread_sig_reg_PROC_STATE <= 0;    // test_cthread_mif_array_ptr2.cpp:118:9;
     end
     else begin
         minst_ss <= minst_ss_next;
@@ -152,10 +152,10 @@ begin : top_thread_sig_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread_ro (test_cthread_mif_array_ptr2.cpp:121:5) 
+// Clocked THREAD: top_thread_ro (test_cthread_mif_array_ptr2.cpp:128:5) 
 
 // Next-state combinational logic
-always_comb begin : top_thread_ro_comb     // test_cthread_mif_array_ptr2.cpp:121:5
+always_comb begin : top_thread_ro_comb     // test_cthread_mif_array_ptr2.cpp:128:5
     top_thread_ro_func;
 end
 function void top_thread_ro_func;
@@ -173,7 +173,7 @@ begin : top_thread_ro_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread_fcall (test_cthread_mif_array_ptr2.cpp:131:5) 
+// Clocked THREAD: top_thread_fcall (test_cthread_mif_array_ptr2.cpp:138:5) 
 
 // Thread-local variables
 logic [3:0] minst_v[2];
@@ -184,7 +184,7 @@ logic [1:0] top_thread_fcall_PROC_STATE;
 logic [1:0] top_thread_fcall_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : top_thread_fcall_comb     // test_cthread_mif_array_ptr2.cpp:131:5
+always_comb begin : top_thread_fcall_comb     // test_cthread_mif_array_ptr2.cpp:138:5
     top_thread_fcall_func;
 end
 function void top_thread_fcall_func;
@@ -197,19 +197,19 @@ function void top_thread_fcall_func;
         0: begin
             // Call f_loc_reg() begin
             a_next = |minst_v_next[1];
-            top_thread_fcall_PROC_STATE_next = 1; return;    // test_cthread_mif_array_ptr2.cpp:39:9;
+            top_thread_fcall_PROC_STATE_next = 1; return;    // test_cthread_mif_array_ptr2.cpp:46:9;
             // Call f_loc_reg() end
         end
         1: begin
             // Call f_loc_reg() begin
             b = a_next;
             // Call f_loc_reg() end
-            top_thread_fcall_PROC_STATE_next = 2; return;    // test_cthread_mif_array_ptr2.cpp:137:13;
+            top_thread_fcall_PROC_STATE_next = 2; return;    // test_cthread_mif_array_ptr2.cpp:144:13;
         end
         2: begin
             // Call f_loc_reg() begin
             a_next = |minst_v_next[1];
-            top_thread_fcall_PROC_STATE_next = 1; return;    // test_cthread_mif_array_ptr2.cpp:39:9;
+            top_thread_fcall_PROC_STATE_next = 1; return;    // test_cthread_mif_array_ptr2.cpp:46:9;
             // Call f_loc_reg() end
         end
     endcase
@@ -219,7 +219,7 @@ endfunction
 always_ff @(posedge clk or posedge rst) 
 begin : top_thread_fcall_ff
     if (rst ) begin
-        top_thread_fcall_PROC_STATE <= 0;    // test_cthread_mif_array_ptr2.cpp:133:9;
+        top_thread_fcall_PROC_STATE <= 0;    // test_cthread_mif_array_ptr2.cpp:140:9;
     end
     else begin
         minst_v <= minst_v_next;
@@ -229,10 +229,10 @@ begin : top_thread_fcall_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread_fcall_loc (test_cthread_mif_array_ptr2.cpp:141:5) 
+// Clocked THREAD: top_thread_fcall_loc (test_cthread_mif_array_ptr2.cpp:148:5) 
 
 // Next-state combinational logic
-always_comb begin : top_thread_fcall_loc_comb     // test_cthread_mif_array_ptr2.cpp:141:5
+always_comb begin : top_thread_fcall_loc_comb     // test_cthread_mif_array_ptr2.cpp:148:5
     top_thread_fcall_loc_func;
 end
 function void top_thread_fcall_loc_func;
@@ -252,13 +252,13 @@ begin : top_thread_fcall_loc_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: top_method (test_cthread_mif_array_ptr2.cpp:151:5) 
+// Method process: top_method (test_cthread_mif_array_ptr2.cpp:158:5) 
 
 // Process-local variables
 logic [3:0] minst_vv[2];
 
 always_comb 
-begin : top_method     // test_cthread_mif_array_ptr2.cpp:151:5
+begin : top_method     // test_cthread_mif_array_ptr2.cpp:158:5
     minst_vv[1] = 2;
 end
 

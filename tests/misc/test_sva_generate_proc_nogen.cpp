@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "sct_assert.h"
 #include "systemc.h"
 #include <iostream>
@@ -335,3 +342,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

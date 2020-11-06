@@ -33,27 +33,27 @@ assign minst_in[0] = t;
 assign minst_in[1] = z;
 
 //------------------------------------------------------------------------------
-// Method process: minst_ptrProc (test_mif_array_with_ptr2.cpp:34:5) 
+// Method process: minst_ptrProc (test_mif_array_with_ptr2.cpp:41:5) 
 
 // Process-local variables
 logic [3:0] minst_vp[2];
 
 always_comb 
-begin : minst_ptrProc     // test_mif_array_with_ptr2.cpp:34:5
+begin : minst_ptrProc     // test_mif_array_with_ptr2.cpp:41:5
     minst_out[0] = minst_in[0];
     minst_p[0] = 2;
     minst_vp[0] = 3;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thrProc (test_mif_array_with_ptr2.cpp:40:5) 
+// Clocked THREAD: minst_thrProc (test_mif_array_with_ptr2.cpp:47:5) 
 
 // Thread-local variables
 logic signed [31:0] minst_p_next[2];
 logic signed [31:0] minst_out_next[2];
 
 // Next-state combinational logic
-always_comb begin : minst_thrProc_comb     // test_mif_array_with_ptr2.cpp:40:5
+always_comb begin : minst_thrProc_comb     // test_mif_array_with_ptr2.cpp:47:5
     minst_thrProc_func;
 end
 function void minst_thrProc_func;
@@ -76,20 +76,20 @@ begin : minst_thrProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_ptrProc0 (test_mif_array_with_ptr2.cpp:34:5) 
+// Method process: minst_ptrProc0 (test_mif_array_with_ptr2.cpp:41:5) 
 
 always_comb 
-begin : minst_ptrProc0     // test_mif_array_with_ptr2.cpp:34:5
+begin : minst_ptrProc0     // test_mif_array_with_ptr2.cpp:41:5
     minst_out[1] = minst_in[1];
     minst_p[1] = 2;
     minst_vp[1] = 3;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thrProc0 (test_mif_array_with_ptr2.cpp:40:5) 
+// Clocked THREAD: minst_thrProc0 (test_mif_array_with_ptr2.cpp:47:5) 
 
 // Next-state combinational logic
-always_comb begin : minst_thrProc0_comb     // test_mif_array_with_ptr2.cpp:40:5
+always_comb begin : minst_thrProc0_comb     // test_mif_array_with_ptr2.cpp:47:5
     minst_thrProc0_func;
 end
 function void minst_thrProc0_func;
@@ -112,10 +112,10 @@ begin : minst_thrProc0_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: top_method (test_mif_array_with_ptr2.cpp:88:5) 
+// Method process: top_method (test_mif_array_with_ptr2.cpp:95:5) 
 
 always_comb 
-begin : top_method     // test_mif_array_with_ptr2.cpp:88:5
+begin : top_method     // test_mif_array_with_ptr2.cpp:95:5
     integer j;
     integer TMP_0;
     j = 0;
@@ -129,13 +129,13 @@ begin : top_method     // test_mif_array_with_ptr2.cpp:88:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread (test_mif_array_with_ptr2.cpp:96:5) 
+// Clocked THREAD: top_thread (test_mif_array_with_ptr2.cpp:103:5) 
 
 // Thread-local variables
 logic signed [31:0] minst_q_next[2];
 
 // Next-state combinational logic
-always_comb begin : top_thread_comb     // test_mif_array_with_ptr2.cpp:96:5
+always_comb begin : top_thread_comb     // test_mif_array_with_ptr2.cpp:103:5
     top_thread_func;
 end
 function void top_thread_func;

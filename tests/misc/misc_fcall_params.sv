@@ -73,7 +73,7 @@ localparam logic signed [31:0] sin_tab[4] = '{ 'd1, 'd2, 'd3, 'd4 };
 localparam logic signed [31:0] cos_tab[4] = '{ 'd1, 'd2, 'd3, 'd4 };
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fcall_param_thread (test_fcall_params.cpp:77:5) 
+// Clocked THREAD: fcall_param_thread (test_fcall_params.cpp:84:5) 
 
 // Thread-local variables
 logic signed [15:0] sin_lane_next;
@@ -82,7 +82,7 @@ logic op_enable_out_next;
 logic next_op_out_next;
 
 // Next-state combinational logic
-always_comb begin : fcall_param_thread_comb     // test_fcall_params.cpp:77:5
+always_comb begin : fcall_param_thread_comb     // test_fcall_params.cpp:84:5
     fcall_param_thread_func;
 end
 function void fcall_param_thread_func;

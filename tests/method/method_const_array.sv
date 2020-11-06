@@ -22,10 +22,10 @@ localparam logic signed [63:0] DOMAIN_VALS[4] = '{ -'d1, -'d2, -'d3, -'d4 };
 localparam logic signed [31:0] INT_VALS0[4] = '{ 'd1, 'd2, 'd3, 'd4 };
 
 //------------------------------------------------------------------------------
-// Method process: test_method (test_const_array.cpp:35:5) 
+// Method process: test_method (test_const_array.cpp:42:5) 
 
 always_comb 
-begin : test_method     // test_const_array.cpp:35:5
+begin : test_method     // test_const_array.cpp:42:5
     integer i;
     integer b;
     integer x;

@@ -24,10 +24,10 @@ logic signed [69:0] c4;
 logic [3:0] byte_enbl;
 
 //------------------------------------------------------------------------------
-// Method process: literSignedWarning (test_const_liter.cpp:65:5) 
+// Method process: literSignedWarning (test_const_liter.cpp:72:5) 
 
 always_comb 
-begin : literSignedWarning     // test_const_liter.cpp:65:5
+begin : literSignedWarning     // test_const_liter.cpp:72:5
     logic [3:0] a;
     integer i;
     logic b;
@@ -41,10 +41,10 @@ begin : literSignedWarning     // test_const_liter.cpp:65:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: boolAsSigned (test_const_liter.cpp:75:5) 
+// Method process: boolAsSigned (test_const_liter.cpp:82:5) 
 
 always_comb 
-begin : boolAsSigned     // test_const_liter.cpp:75:5
+begin : boolAsSigned     // test_const_liter.cpp:82:5
     logic [3:0] a;
     logic b;
     logic [3:0] c;
@@ -57,10 +57,10 @@ begin : boolAsSigned     // test_const_liter.cpp:75:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_channel (test_const_liter.cpp:91:5) 
+// Method process: sc_shift_type_extension_channel (test_const_liter.cpp:98:5) 
 
 always_comb 
-begin : sc_shift_type_extension_channel     // test_const_liter.cpp:91:5
+begin : sc_shift_type_extension_channel     // test_const_liter.cpp:98:5
     logic [7:0] a;
     logic [65:0] x;
     a = 0;
@@ -71,10 +71,10 @@ begin : sc_shift_type_extension_channel     // test_const_liter.cpp:91:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: smemByte2Bit (test_const_liter.cpp:118:5) 
+// Method process: smemByte2Bit (test_const_liter.cpp:125:5) 
 
 always_comb 
-begin : smemByte2Bit     // test_const_liter.cpp:118:5
+begin : smemByte2Bit     // test_const_liter.cpp:125:5
     logic [31:0] TMP_0;
     logic [31:0] bitEn;
     integer i;
@@ -91,13 +91,13 @@ begin : smemByte2Bit     // test_const_liter.cpp:118:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: extra_signed_remove (test_const_liter.cpp:133:5) 
+// Method process: extra_signed_remove (test_const_liter.cpp:140:5) 
 
 // Process-local variables
 logic arr[10];
 
 always_comb 
-begin : extra_signed_remove     // test_const_liter.cpp:133:5
+begin : extra_signed_remove     // test_const_liter.cpp:140:5
     logic [15:0] d;
     integer unsigned e;
     logic [4:0] ee;
@@ -116,7 +116,7 @@ begin : extra_signed_remove     // test_const_liter.cpp:133:5
     integer k_2;
     d = 257;
     e = signed'({1'b0, 8'(d)}) + 1;
-    assert (e == 2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (e == 2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     e = signed'({1'b0, d}) - 1;
     e = signed'({1'b0, d}) * 1;
     e = signed'({1'b0, d}) & 1;
@@ -124,36 +124,36 @@ begin : extra_signed_remove     // test_const_liter.cpp:133:5
     ee = 0;
     dd = 14;
     ee = dd * 3;
-    assert (ee == 10) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (ee == 10) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     ee = dd + 42;
-    assert (ee == 24) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (ee == 24) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     ee = dd <<< 2;
-    assert (ee == 24) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (ee == 24) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     ee = dd - 4;
-    assert (ee == 10) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (ee == 10) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = -4'sd5;
     uu = 1;
     u = signed'({1'b0, uu}) + c;
-    assert (u == 'hFFFFFFFC) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (u == 'hFFFFFFFC) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     ww = -7'sd42;
     w = ww + signed'({1'b0, u});
-    assert (w == -7'sd46) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (w == -7'sd46) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     j = -7'sd42;
-    assert (j == -7'sd42) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (j == -7'sd42) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     j = j + (-7'sd41);
-    assert (j == -8'sd83) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (j == -8'sd83) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     j = j - 41;
-    assert (j == -8'sd124) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (j == -8'sd124) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     j--;
-    assert (j == -8'sd125) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (j == -8'sd125) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     jj = 42;
     jj = jj + 42;
     jj = jj + (-5'sd10);
-    assert (jj == 74) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (jj == 74) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     jj = (-5'sd10) + jj;
-    assert (jj == 64) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (jj == 64) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     jj = jj - 42;
-    assert (jj == 22) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (jj == 22) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     a = 0;
     for (integer i = 0; i < 2; i++)
     begin
@@ -172,10 +172,10 @@ begin : extra_signed_remove     // test_const_liter.cpp:133:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: signed_unsigned (test_const_liter.cpp:526:5) 
+// Method process: signed_unsigned (test_const_liter.cpp:533:5) 
 
 always_comb 
-begin : signed_unsigned     // test_const_liter.cpp:526:5
+begin : signed_unsigned     // test_const_liter.cpp:533:5
     integer a;
     integer i;
     integer unsigned u;
@@ -260,31 +260,31 @@ begin : signed_unsigned     // test_const_liter.cpp:526:5
     bu = 3;
     bi = -3'sd3;
     c = a + 1 == -4'sd4;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = a + 4'sd1 == -4'sd4;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = a + 4'd1 == -4'sd4;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = a + 4'sd1 == -4'sd4;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = a + 4'd1 == -4'sd4;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = a + i == -4'sd4;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = a + signed'({1'b0, u}) == -4'sd4;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = a + signed'({1'b0, su}) == -3'sd3;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = a + signed'({1'b0, bu}) == -3'sd2;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = a + 4 == -2'sd1;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = a + (-4'sd4) == -5'sd9;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = a + 4 == -2'sd1;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = a + (-4'sd4) == -5'sd9;
-    assert (c) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call neg_sign_binary() end
     // Call neg_sign_binary() begin
     a_1 = -4'sd5;
@@ -295,31 +295,31 @@ begin : signed_unsigned     // test_const_liter.cpp:526:5
     bu_1 = 3;
     bi_1 = -3'sd3;
     c_1 = a_1 + 1 == -4'sd4;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_1 = a_1 + 4'sd1 == -4'sd4;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_1 = a_1 + 4'd1 == -4'sd4;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_1 = a_1 + 4'sd1 == -4'sd4;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_1 = a_1 + 4'd1 == -4'sd4;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_1 = a_1 + i_1 == -4'sd4;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_1 = a_1 + signed'({1'b0, u_1}) == -4'sd4;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_1 = a_1 + signed'({1'b0, su_1}) == -3'sd3;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_1 = a_1 + signed'({1'b0, bu_1}) == -3'sd2;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_1 = a_1 + 4 == -2'sd1;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_1 = a_1 + (-4'sd4) == -5'sd9;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_1 = a_1 + 4 == -2'sd1;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_1 = a_1 + (-4'sd4) == -5'sd9;
-    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call neg_sign_binary() end
     // Call neg_sign_binary() begin
     a_2 = -4'sd5;
@@ -330,39 +330,39 @@ begin : signed_unsigned     // test_const_liter.cpp:526:5
     bu_2 = 3;
     bi_2 = -3'sd3;
     c_2 = a_2 + 1 == -4'sd4;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_2 = a_2 + 4'sd1 == -4'sd4;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_2 = a_2 + 4'd1 == -4'sd4;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_2 = a_2 + 4'sd1 == -4'sd4;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_2 = a_2 + 4'd1 == -4'sd4;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_2 = a_2 + i_2 == -4'sd4;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_2 = a_2 + signed'({1'b0, u_2}) == -4'sd4;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_2 = a_2 + signed'({1'b0, su_2}) == -3'sd3;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_2 = a_2 + signed'({1'b0, bu_2}) == -3'sd2;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_2 = a_2 + 4 == -2'sd1;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_2 = a_2 + (-4'sd4) == -5'sd9;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_2 = a_2 + 4 == -2'sd1;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c_2 = a_2 + (-4'sd4) == -5'sd9;
-    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call neg_sign_binary() end
     // Call assign_sign_unsign() begin
     ua = -2'sd1;
-    assert (ua == 'hFFFFFFFF) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (ua == 'hFFFFFFFF) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     sua = -3'sd2;
-    assert (sua == 'hE) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (sua == 'hE) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     bua = -3'sd3;
-    assert (bua == 'hD) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (bua == 'hD) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     i_3 = 1;
     u_3 = 1;
     su_3 = 2;
@@ -370,30 +370,30 @@ begin : signed_unsigned     // test_const_liter.cpp:526:5
     bu_3 = 3;
     bi_3 = -3'sd3;
     u_3 = i_3 + (-4'sd4);
-    assert (u_3 == 'hFFFFFFFD) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (u_3 == 'hFFFFFFFD) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     u_3 = si_3 + (-4'sd4);
-    assert (u_3 == 'hFFFFFFFA) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (u_3 == 'hFFFFFFFA) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     su_3 = i_3 + (-4'sd4);
-    assert (su_3 == 'hD) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (su_3 == 'hD) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     ssu = si_3 + (-4'sd4);
-    assert (ssu == 'hFA) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (ssu == 'hFA) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     ssu = bi_3 + 1;
-    assert (ssu == 'hFE) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (ssu == 'hFE) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     bu_3 = i_3 + (-4'sd4);
-    assert (bu_3 == 'hD) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (bu_3 == 'hD) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     buu = si_3 + (-4'sd4);
-    assert (buu == 'hFA) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (buu == 'hFA) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     buu = bi_3 + 1;
-    assert (buu == 'hFE) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (buu == 'hFE) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     u_3 = 5;
     bu_3 = u_3 + 32'hFFFFFFFC;
-    assert (bu_3 == 1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (bu_3 == 1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     su_3 = 4;
     u_3 = su_3 + 64'hFFFFFFFFFFFFFFFC;
-    assert (u_3 == 0) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (u_3 == 0) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     i_3 = 1;
     bu_3 = i_3 + 4;
-    assert (bu_3 == 5) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (bu_3 == 5) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     i_3 = u_3;
     si_3 = u_3;
     bi_3 = u_3;
@@ -419,27 +419,27 @@ begin : signed_unsigned     // test_const_liter.cpp:526:5
     si_4 = -5'sd9;
     su_4 = 10;
     la = i_4 + signed'({1'b0, u_4});
-    assert (la == 'hFFFFFFFF) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (la == 'hFFFFFFFF) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lb = si_4 + i_4;
-    assert (lb == -5'sd14) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lb == -5'sd14) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lb = si_4 - i_4;
-    assert (lb == -4'sd4) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lb == -4'sd4) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lb = i_4 - si_4;
-    assert (lb == 4) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lb == 4) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lc = si_4 + signed'({1'b0, u_4});
-    assert (lc == -4'sd5) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lc == -4'sd5) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lc = si_4 - signed'({1'b0, u_4});
-    assert (lc == -5'sd13) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lc == -5'sd13) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lc = signed'({1'b0, u_4}) - si_4;
-    assert (lc == 13) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lc == 13) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     ld = si_4 + signed'({1'b0, u_4});
-    assert (ld == -4'sd5) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (ld == -4'sd5) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     ld = si_4 + si_4;
-    assert (ld == -6'sd18) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (ld == -6'sd18) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     ld = si_4 - (si_4 + 1);
-    assert (ld == -2'sd1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (ld == -2'sd1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     le = si_4 + signed'({1'b0, su_4});
-    assert (le == 1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (le == 1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call sign_unsign_var() end
     // Call sign_unsign_var2() begin
     lf = 0;
@@ -451,31 +451,31 @@ begin : signed_unsigned     // test_const_liter.cpp:526:5
     i_5 = -5'sd9;
     u_5 = 10;
     llf = i_5 + signed'({1'b0, u_5});
-    assert (llf == 1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (llf == 1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     llf = i_5 + 10;
-    assert (llf == 1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (llf == 1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     llf = i_5 - 10;
-    assert (llf == 35'h7FFFFFFED) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (llf == 35'h7FFFFFFED) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf = si_5 + signed'({1'b0, u_5});
-    assert (lf == 1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf == 1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf = si_5 + sii;
-    assert (lf == 1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf == 1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf = su_5 + suu;
-    assert (lf == 257) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf == 257) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf = si_5 + signed'({1'b0, su_5});
     lfs = si_5 + signed'({1'b0, su_5});
-    assert (lf == 1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
-    assert (lfs == 1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf == 1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
+    assert (lfs == 1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     si_5 = -5'sd9;
     su_5 = 8;
     lf = si_5 + signed'({1'b0, su_5});
     lfs = si_5 + signed'({1'b0, su_5});
-    assert (lf == 'hFFFF) else $error("Assertion failed at test_const_liter.cpp:61:24>");
-    assert (lfs == -2'sd1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf == 'hFFFF) else $error("Assertion failed at test_const_liter.cpp:68:24>");
+    assert (lfs == -2'sd1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf = si_5 + sii + signed'({1'b0, su_5});
     lfs = si_5 + sii + signed'({1'b0, su_5});
-    assert (lf == 9) else $error("Assertion failed at test_const_liter.cpp:61:24>");
-    assert (lfs == 9) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf == 9) else $error("Assertion failed at test_const_liter.cpp:68:24>");
+    assert (lfs == 9) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call sign_unsign_var2() end
     // Call sign_unsign_bitwise_var_pos() begin
     lf_1 = 0;
@@ -487,25 +487,25 @@ begin : signed_unsigned     // test_const_liter.cpp:526:5
     i_6 = 'h55;
     u_6 = 'hCC;
     llf_1 = i_6 | signed'({1'b0, u_6});
-    assert (llf_1 == 'hDD) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (llf_1 == 'hDD) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     llf_1 = i_6 | 'hCC;
-    assert (llf_1 == 'hDD) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (llf_1 == 'hDD) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     llf_1 = i_6 ^ 'hCC;
-    assert (llf_1 == 'h99) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (llf_1 == 'h99) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf_1 = si_6 | signed'({1'b0, u_6});
-    assert (lf_1 == 'hDD) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf_1 == 'hDD) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf_1 = si_6 | sii_1;
-    assert (lf_1 == 'hFFDD) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf_1 == 'hFFDD) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf_1 = su_6 | suu_1;
-    assert (lf_1 == 'hDD) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf_1 == 'hDD) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf_1 = si_6 | signed'({1'b0, su_6});
-    assert (lf_1 == 'hDD) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf_1 == 'hDD) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     si2 = 'h555;
     su_6 = 'hBB;
     lf_1 = si2 | signed'({1'b0, su_6});
-    assert (lf_1 == 'h5FF) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf_1 == 'h5FF) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf_1 = si2 ^ sii_1 | signed'({1'b0, su_6});
-    assert (lf_1 == 'hFABB) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf_1 == 'hFABB) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call sign_unsign_bitwise_var_pos() end
     // Call sign_unsign_bitwise_var_neg() begin
     lf_2 = 0;
@@ -518,31 +518,31 @@ begin : signed_unsigned     // test_const_liter.cpp:526:5
     u_7 = 10;
     llf_2 = i_7 | signed'({1'b0, u_7});
     llf_2 = i_7 | 10;
-    assert (llf_2 == 35'h7FFFFFFFF) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (llf_2 == 35'h7FFFFFFFF) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     llf_2 = i_7 ^ 10;
-    assert (llf_2 == 35'h7FFFFFFFD) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (llf_2 == 35'h7FFFFFFFD) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf_2 = si_7 | signed'({1'b0, u_7});
-    assert (lf_2 == 'hFFFF) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf_2 == 'hFFFF) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf_2 = si_7 | sii_2;
-    assert (lf_2 == 'hFFFF) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf_2 == 'hFFFF) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf_2 = su_7 | suu_2;
-    assert (lf_2 == 'hFF) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf_2 == 'hFF) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf_2 = si_7 | signed'({1'b0, su_7});
-    assert (lf_2 == 'hFFFF) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf_2 == 'hFFFF) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     si_7 = -5'sd9;
     su_7 = 8;
     lf_2 = si_7 | signed'({1'b0, su_7});
-    assert (lf_2 == 'hFFFF) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf_2 == 'hFFFF) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     lf_2 = si_7 ^ sii_2 | signed'({1'b0, su_7});
-    assert (lf_2 == 'hFFFD) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (lf_2 == 'hFFFD) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call sign_unsign_bitwise_var_neg() end
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_trunc (test_const_liter.cpp:543:5) 
+// Method process: liter_trunc (test_const_liter.cpp:550:5) 
 
 always_comb 
-begin : liter_trunc     // test_const_liter.cpp:543:5
+begin : liter_trunc     // test_const_liter.cpp:550:5
     logic signed [2:0] a1;
     logic signed [2:0] a2;
     logic signed [7:0] b;
@@ -562,10 +562,10 @@ begin : liter_trunc     // test_const_liter.cpp:543:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_extend_assign (test_const_liter.cpp:568:5) 
+// Method process: liter_extend_assign (test_const_liter.cpp:575:5) 
 
 always_comb 
-begin : liter_extend_assign     // test_const_liter.cpp:568:5
+begin : liter_extend_assign     // test_const_liter.cpp:575:5
     logic signed [15:0] a1;
     logic signed [15:0] a2;
     logic signed [15:0] b1;
@@ -581,31 +581,31 @@ begin : liter_extend_assign     // test_const_liter.cpp:568:5
     a2 = -6'sh11;
     b1 = 'h11;
     b2 = -6'sh11;
-    assert (a1 == 'h11) else $error("Assertion failed at test_const_liter.cpp:61:24>");
-    assert (a2 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:61:24>");
-    assert (b1 == 'h11) else $error("Assertion failed at test_const_liter.cpp:61:24>");
-    assert (b2 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (a1 == 'h11) else $error("Assertion failed at test_const_liter.cpp:68:24>");
+    assert (a2 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:68:24>");
+    assert (b1 == 'h11) else $error("Assertion failed at test_const_liter.cpp:68:24>");
+    assert (b2 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     u1 = -6'sh11;
-    assert (u1 == 'hFFEF) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (u1 == 'hFFEF) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     b = -2'sh1;
     c = -2'sh1;
     d = -6'sh11;
     e = -6'sh11;
     f = -6'sh11;
     g = -6'sh11;
-    assert (b == -2'sh1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
-    assert (c == -2'sh1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
-    assert (d == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:61:24>");
-    assert (e == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:61:24>");
-    assert (f == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:61:24>");
-    assert (g == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (b == -2'sh1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
+    assert (c == -2'sh1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
+    assert (d == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:68:24>");
+    assert (e == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:68:24>");
+    assert (f == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:68:24>");
+    assert (g == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:68:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_overflow_oper (test_const_liter.cpp:614:5) 
+// Method process: liter_overflow_oper (test_const_liter.cpp:621:5) 
 
 always_comb 
-begin : liter_overflow_oper     // test_const_liter.cpp:614:5
+begin : liter_overflow_oper     // test_const_liter.cpp:621:5
     logic [1:0] val1;
     logic [1:0] val2;
     integer mres;
@@ -647,50 +647,50 @@ begin : liter_overflow_oper     // test_const_liter.cpp:614:5
     a = val1;
     b = val2;
     c = a * b;
-    assert (c == mres) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c == mres) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call pos_overflow_mul() end
     val1_1 = 3; val2_1 = 3; mres_1 = 9;
     // Call pos_overflow_mul() begin
     a_1 = val1_1;
     b_1 = val2_1;
     c_1 = a_1 * b_1;
-    assert (c_1 == mres_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1 == mres_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call pos_overflow_mul() end
     val1_2 = 3; val2_2 = 3; mres_2 = 9;
     // Call pos_overflow_mul() begin
     a_2 = val1_2;
     b_2 = val2_2;
     c_2 = a_2 * b_2;
-    assert (c_2 == mres_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2 == mres_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call pos_overflow_mul() end
     val1_3 = 1 <<< 31; val2_3 = 2; mres_3 = 1 <<< 32;
     // Call pos_overflow_mul() begin
     a_3 = val1_3;
     b_3 = val2_3;
     c_3 = a_3 * b_3;
-    assert (c_3 == mres_3) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_3 == mres_3) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call pos_overflow_mul() end
     val1_4 = 1 <<< 31; val2_4 = 2; mres_4 = 1 <<< 32;
     // Call pos_overflow_mul() begin
     a_4 = val1_4;
     b_4 = val2_4;
     c_4 = a_4 * b_4;
-    assert (c_4 == mres_4) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_4 == mres_4) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call pos_overflow_mul() end
     val1_5 = 1 <<< 31; val2_5 = 1 <<< 31; mres_5 = 1 <<< 62;
     // Call pos_overflow_mul() begin
     a_5 = val1_5;
     b_5 = val2_5;
     c_5 = a_5 * b_5;
-    assert (c_5 == mres_5) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_5 == mres_5) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call pos_overflow_mul() end
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_overflow_oper64 (test_const_liter.cpp:627:5) 
+// Method process: liter_overflow_oper64 (test_const_liter.cpp:634:5) 
 
 always_comb 
-begin : liter_overflow_oper64     // test_const_liter.cpp:627:5
+begin : liter_overflow_oper64     // test_const_liter.cpp:634:5
     logic [64:0] A;
     logic [69:0] B;
     logic signed [127:0] RES;
@@ -728,21 +728,21 @@ begin : liter_overflow_oper64     // test_const_liter.cpp:627:5
     C = 105;
     c = 0;
     c = C * UI;
-    assert (c == 44100) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c == 44100) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = C + UI;
-    assert (c == 525) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c == 525) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = UI - C;
-    assert (c == 315) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c == 315) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = UI / C;
-    assert (c == 4) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c == 4) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = UI % C;
-    assert (c == 0) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c == 0) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = UI | C;
-    assert (c == 493) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c == 493) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = C >>> 3;
-    assert (c == 13) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c == 13) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     c = C <<< 40;
-    assert (c == 'h690000000000) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c == 'h690000000000) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     A = A <<< 64;
     RES = RES <<< 65;
     val1 = A; val2 = 2; mres = RES;
@@ -750,21 +750,21 @@ begin : liter_overflow_oper64     // test_const_liter.cpp:627:5
     a = val1;
     b = val2;
     c_1 = a * b;
-    assert (c_1 == mres) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_1 == mres) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call pos_overflow_mul() end
     val1_1 = A; val2_1 = 2; mres_1 = RES;
     // Call pos_overflow_mul() begin
     a_1 = val1_1;
     b_1 = val2_1;
     c_2 = a_1 * b_1;
-    assert (c_2 == mres_1) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_2 == mres_1) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call pos_overflow_mul() end
     val1_2 = 2; val2_2 = A; mres_2 = RES;
     // Call pos_overflow_mul() begin
     a_2 = val1_2;
     b_2 = val2_2;
     c_3 = a_2 * b_2;
-    assert (c_3 == mres_2) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_3 == mres_2) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call pos_overflow_mul() end
     A = 41;
     A = A <<< 58;
@@ -777,15 +777,15 @@ begin : liter_overflow_oper64     // test_const_liter.cpp:627:5
     a_3 = val1_3;
     b_3 = val2_3;
     c_4 = a_3 * b_3;
-    assert (c_4 == mres_3) else $error("Assertion failed at test_const_liter.cpp:61:24>");
+    assert (c_4 == mres_3) else $error("Assertion failed at test_const_liter.cpp:68:24>");
     // Call pos_overflow_mul() end
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_extend_oper (test_const_liter.cpp:757:5) 
+// Method process: liter_extend_oper (test_const_liter.cpp:764:5) 
 
 always_comb 
-begin : liter_extend_oper     // test_const_liter.cpp:757:5
+begin : liter_extend_oper     // test_const_liter.cpp:764:5
     logic isSigned;
     logic signed [7:0] a;
     logic signed [15:0] b;
@@ -1198,27 +1198,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a = 'h11;
     b = 'h22;
     c = b + a;
-    assert (c == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d = b - a;
-    assert (d == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e = b + (-6'sh11);
-    assert (e == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f = b - 'h11;
-    assert (f == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g = b - (-7'sh22);
-    assert (g == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_1 = 2;
     b_1 = 'h22;
     c_1 = b_1 <<< a_1;
-    assert (c_1 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_1 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_1 = b_1 >>> a_1;
-    assert (d_1 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_1 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_1 = b_1 <<< 'h3;
-    assert (e_1 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_1 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_1 = b_1 >>> 'h3;
-    assert (f_1 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_1 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     if (1)
     begin
@@ -1226,15 +1226,15 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
         a_2 = -6'sh11;
         b_2 = -7'sh22;
         c_2 = b_2 + a_2;
-        assert (c_2 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:703:9");
+        assert (c_2 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:710:9");
         d_2 = b_2 - a_2;
-        assert (d_2 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:707:9");
+        assert (d_2 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:714:9");
         e_2 = b_2 + (-6'sh11);
-        assert (e_2 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:711:9");
+        assert (e_2 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:718:9");
         f_2 = b_2 - 'h11;
-        assert (f_2 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:715:9");
+        assert (f_2 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:722:9");
         g_1 = b_2 - (-6'sh11);
-        assert (g_1 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:719:9");
+        assert (g_1 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:726:9");
         // Call neg_add_sub() end
     end
     // Call run_opers() end
@@ -1244,27 +1244,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_3 = 'h11;
     b_3 = 'h22;
     c_3 = b_3 + a_3;
-    assert (c_3 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_3 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_3 = b_3 - a_3;
-    assert (d_3 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_3 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_3 = b_3 + (-6'sh11);
-    assert (e_3 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_3 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_3 = b_3 - 'h11;
-    assert (f_3 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_3 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_2 = b_3 - (-7'sh22);
-    assert (g_2 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_2 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_4 = 2;
     b_4 = 'h22;
     c_4 = b_4 <<< a_4;
-    assert (c_4 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_4 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_4 = b_4 >>> a_4;
-    assert (d_4 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_4 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_4 = b_4 <<< 'h3;
-    assert (e_4 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_4 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_4 = b_4 >>> 'h3;
-    assert (f_4 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_4 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_2 = 0;
@@ -1273,27 +1273,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_5 = 'h11;
     b_5 = 'h22;
     c_5 = b_5 + a_5;
-    assert (c_5 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_5 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_5 = b_5 - a_5;
-    assert (d_5 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_5 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_5 = b_5 + (-6'sh11);
-    assert (e_5 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_5 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_5 = b_5 - 'h11;
-    assert (f_5 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_5 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_3 = b_5 - (-7'sh22);
-    assert (g_3 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_3 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_6 = 2;
     b_6 = 'h22;
     c_6 = b_6 <<< a_6;
-    assert (c_6 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_6 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_6 = b_6 >>> a_6;
-    assert (d_6 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_6 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_6 = b_6 <<< 'h3;
-    assert (e_6 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_6 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_6 = b_6 >>> 'h3;
-    assert (f_6 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_6 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_3 = 0;
@@ -1302,27 +1302,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_7 = 'h11;
     b_7 = 'h22;
     c_7 = b_7 + a_7;
-    assert (c_7 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_7 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_7 = b_7 - a_7;
-    assert (d_7 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_7 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_7 = signed'({1'b0, b_7}) + (-6'sh11);
-    assert (e_7 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_7 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_7 = signed'({1'b0, b_7}) - 'h11;
-    assert (f_7 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_7 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_4 = signed'({1'b0, b_7}) - (-7'sh22);
-    assert (g_4 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_4 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_8 = 2;
     b_8 = 'h22;
     c_8 = b_8 <<< a_8;
-    assert (c_8 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_8 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_8 = b_8 >>> a_8;
-    assert (d_8 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_8 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_8 = b_8 <<< 'h3;
-    assert (e_8 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_8 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_8 = b_8 >>> 'h3;
-    assert (f_8 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_8 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_4 = 0;
@@ -1331,27 +1331,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_9 = 'h11;
     b_9 = 'h22;
     c_9 = b_9 + a_9;
-    assert (c_9 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_9 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_9 = b_9 - a_9;
-    assert (d_9 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_9 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_9 = signed'({1'b0, b_9}) + (-6'sh11);
-    assert (e_9 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_9 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_9 = signed'({1'b0, b_9}) - 'h11;
-    assert (f_9 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_9 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_5 = signed'({1'b0, b_9}) - (-7'sh22);
-    assert (g_5 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_5 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_10 = 2;
     b_10 = 'h22;
     c_10 = b_10 <<< a_10;
-    assert (c_10 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_10 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_10 = b_10 >>> a_10;
-    assert (d_10 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_10 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_10 = b_10 <<< 'h3;
-    assert (e_10 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_10 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_10 = b_10 >>> 'h3;
-    assert (f_10 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_10 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_5 = 0;
@@ -1360,27 +1360,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_11 = 'h11;
     b_11 = 'h22;
     c_11 = b_11 + a_11;
-    assert (c_11 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_11 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_11 = b_11 - a_11;
-    assert (d_11 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_11 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_11 = signed'({1'b0, b_11}) + (-6'sh11);
-    assert (e_11 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_11 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_11 = signed'({1'b0, b_11}) - 'h11;
-    assert (f_11 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_11 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_6 = signed'({1'b0, b_11}) - (-7'sh22);
-    assert (g_6 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_6 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_12 = 2;
     b_12 = 'h22;
     c_12 = b_12 <<< a_12;
-    assert (c_12 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_12 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_12 = b_12 >>> a_12;
-    assert (d_12 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_12 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_12 = b_12 <<< 'h3;
-    assert (e_12 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_12 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_12 = b_12 >>> 'h3;
-    assert (f_12 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_12 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_6 = 1;
@@ -1389,27 +1389,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_13 = 'h11;
     b_13 = 'h22;
     c_13 = b_13 + a_13;
-    assert (c_13 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_13 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_13 = b_13 - a_13;
-    assert (d_13 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_13 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_13 = b_13 + (-6'sh11);
-    assert (e_13 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_13 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_13 = b_13 - 'h11;
-    assert (f_13 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_13 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_7 = b_13 - (-7'sh22);
-    assert (g_7 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_7 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_14 = 2;
     b_14 = 'h22;
     c_14 = b_14 <<< a_14;
-    assert (c_14 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_14 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_14 = b_14 >>> a_14;
-    assert (d_14 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_14 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_14 = b_14 <<< 'h3;
-    assert (e_14 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_14 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_14 = b_14 >>> 'h3;
-    assert (f_14 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_14 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     if (1)
     begin
@@ -1417,15 +1417,15 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
         a_15 = -6'sh11;
         b_15 = -7'sh22;
         c_15 = b_15 + a_15;
-        assert (c_15 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:703:9");
+        assert (c_15 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:710:9");
         d_15 = b_15 - a_15;
-        assert (d_15 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:707:9");
+        assert (d_15 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:714:9");
         e_15 = b_15 + (-6'sh11);
-        assert (e_15 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:711:9");
+        assert (e_15 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:718:9");
         f_15 = b_15 - 'h11;
-        assert (f_15 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:715:9");
+        assert (f_15 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:722:9");
         g_8 = b_15 - (-6'sh11);
-        assert (g_8 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:719:9");
+        assert (g_8 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:726:9");
         // Call neg_add_sub() end
     end
     // Call run_opers() end
@@ -1435,27 +1435,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_16 = 'h11;
     b_16 = 'h22;
     c_16 = b_16 + a_16;
-    assert (c_16 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_16 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_16 = b_16 - a_16;
-    assert (d_16 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_16 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_16 = b_16 + (-6'sh11);
-    assert (e_16 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_16 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_16 = b_16 - 'h11;
-    assert (f_16 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_16 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_9 = b_16 - (-7'sh22);
-    assert (g_9 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_9 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_17 = 2;
     b_17 = 'h22;
     c_17 = b_17 <<< a_17;
-    assert (c_17 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_17 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_17 = b_17 >>> a_17;
-    assert (d_17 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_17 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_17 = b_17 <<< 'h3;
-    assert (e_17 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_17 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_17 = b_17 >>> 'h3;
-    assert (f_17 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_17 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     if (1)
     begin
@@ -1463,15 +1463,15 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
         a_18 = -6'sh11;
         b_18 = -7'sh22;
         c_18 = b_18 + a_18;
-        assert (c_18 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:703:9");
+        assert (c_18 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:710:9");
         d_18 = b_18 - a_18;
-        assert (d_18 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:707:9");
+        assert (d_18 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:714:9");
         e_18 = b_18 + (-6'sh11);
-        assert (e_18 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:711:9");
+        assert (e_18 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:718:9");
         f_18 = b_18 - 'h11;
-        assert (f_18 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:715:9");
+        assert (f_18 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:722:9");
         g_10 = b_18 - (-6'sh11);
-        assert (g_10 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:719:9");
+        assert (g_10 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:726:9");
         // Call neg_add_sub() end
     end
     // Call run_opers() end
@@ -1481,27 +1481,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_19 = 'h11;
     b_19 = 'h22;
     c_19 = b_19 + a_19;
-    assert (c_19 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_19 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_19 = b_19 - a_19;
-    assert (d_19 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_19 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_19 = b_19 + (-6'sh11);
-    assert (e_19 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_19 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_19 = b_19 - 'h11;
-    assert (f_19 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_19 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_11 = b_19 - (-7'sh22);
-    assert (g_11 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_11 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_20 = 2;
     b_20 = 'h22;
     c_20 = b_20 <<< a_20;
-    assert (c_20 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_20 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_20 = b_20 >>> a_20;
-    assert (d_20 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_20 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_20 = b_20 <<< 'h3;
-    assert (e_20 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_20 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_20 = b_20 >>> 'h3;
-    assert (f_20 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_20 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     if (1)
     begin
@@ -1509,15 +1509,15 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
         a_21 = -6'sh11;
         b_21 = -7'sh22;
         c_21 = b_21 + a_21;
-        assert (c_21 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:703:9");
+        assert (c_21 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:710:9");
         d_21 = b_21 - a_21;
-        assert (d_21 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:707:9");
+        assert (d_21 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:714:9");
         e_21 = b_21 + (-6'sh11);
-        assert (e_21 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:711:9");
+        assert (e_21 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:718:9");
         f_21 = b_21 - 'h11;
-        assert (f_21 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:715:9");
+        assert (f_21 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:722:9");
         g_12 = b_21 - (-6'sh11);
-        assert (g_12 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:719:9");
+        assert (g_12 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:726:9");
         // Call neg_add_sub() end
     end
     // Call run_opers() end
@@ -1527,27 +1527,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_22 = 'h11;
     b_22 = 'h22;
     c_22 = b_22 + a_22;
-    assert (c_22 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_22 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_22 = b_22 - a_22;
-    assert (d_22 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_22 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_22 = b_22 + (-6'sh11);
-    assert (e_22 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_22 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_22 = b_22 - 'h11;
-    assert (f_22 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_22 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_13 = b_22 - (-7'sh22);
-    assert (g_13 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_13 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_23 = 2;
     b_23 = 'h22;
     c_23 = b_23 <<< a_23;
-    assert (c_23 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_23 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_23 = b_23 >>> a_23;
-    assert (d_23 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_23 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_23 = b_23 <<< 'h3;
-    assert (e_23 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_23 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_23 = b_23 >>> 'h3;
-    assert (f_23 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_23 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     if (1)
     begin
@@ -1555,15 +1555,15 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
         a_24 = -6'sh11;
         b_24 = -7'sh22;
         c_24 = b_24 + a_24;
-        assert (c_24 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:703:9");
+        assert (c_24 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:710:9");
         d_24 = b_24 - a_24;
-        assert (d_24 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:707:9");
+        assert (d_24 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:714:9");
         e_24 = b_24 + (-6'sh11);
-        assert (e_24 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:711:9");
+        assert (e_24 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:718:9");
         f_24 = b_24 - 'h11;
-        assert (f_24 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:715:9");
+        assert (f_24 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:722:9");
         g_14 = b_24 - (-6'sh11);
-        assert (g_14 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:719:9");
+        assert (g_14 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:726:9");
         // Call neg_add_sub() end
     end
     // Call run_opers() end
@@ -1573,27 +1573,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_25 = 'h11;
     b_25 = 'h22;
     c_25 = b_25 + a_25;
-    assert (c_25 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_25 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_25 = b_25 - a_25;
-    assert (d_25 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_25 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_25 = b_25 + (-6'sh11);
-    assert (e_25 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_25 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_25 = b_25 - 'h11;
-    assert (f_25 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_25 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_15 = b_25 - (-7'sh22);
-    assert (g_15 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_15 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_26 = 2;
     b_26 = 'h22;
     c_26 = b_26 <<< a_26;
-    assert (c_26 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_26 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_26 = b_26 >>> a_26;
-    assert (d_26 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_26 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_26 = b_26 <<< 'h3;
-    assert (e_26 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_26 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_26 = b_26 >>> 'h3;
-    assert (f_26 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_26 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     if (1)
     begin
@@ -1601,15 +1601,15 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
         a_27 = -6'sh11;
         b_27 = -7'sh22;
         c_27 = b_27 + a_27;
-        assert (c_27 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:703:9");
+        assert (c_27 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:710:9");
         d_27 = b_27 - a_27;
-        assert (d_27 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:707:9");
+        assert (d_27 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:714:9");
         e_27 = b_27 + (-6'sh11);
-        assert (e_27 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:711:9");
+        assert (e_27 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:718:9");
         f_27 = b_27 - 'h11;
-        assert (f_27 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:715:9");
+        assert (f_27 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:722:9");
         g_16 = b_27 - (-6'sh11);
-        assert (g_16 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:719:9");
+        assert (g_16 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:726:9");
         // Call neg_add_sub() end
     end
     // Call run_opers() end
@@ -1619,27 +1619,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_28 = 'h11;
     b_28 = 'h22;
     c_28 = signed'({1'b0, b_28}) + a_28;
-    assert (c_28 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_28 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_28 = signed'({1'b0, b_28}) - a_28;
-    assert (d_28 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_28 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_28 = b_28 + (-6'sh11);
-    assert (e_28 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_28 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_28 = b_28 - 'h11;
-    assert (f_28 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_28 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_17 = b_28 - (-7'sh22);
-    assert (g_17 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_17 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_29 = 2;
     b_29 = 'h22;
     c_29 = b_29 <<< a_29;
-    assert (c_29 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_29 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_29 = b_29 >>> a_29;
-    assert (d_29 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_29 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_29 = b_29 <<< 'h3;
-    assert (e_29 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_29 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_29 = b_29 >>> 'h3;
-    assert (f_29 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_29 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_12 = 1;
@@ -1648,27 +1648,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_30 = 'h11;
     b_30 = 'h22;
     c_30 = b_30 + a_30;
-    assert (c_30 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_30 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_30 = b_30 - a_30;
-    assert (d_30 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_30 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_30 = b_30 + (-6'sh11);
-    assert (e_30 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_30 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_30 = b_30 - 'h11;
-    assert (f_30 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_30 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_18 = b_30 - (-7'sh22);
-    assert (g_18 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_18 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_31 = 2;
     b_31 = 'h22;
     c_31 = b_31 <<< a_31;
-    assert (c_31 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_31 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_31 = b_31 >>> a_31;
-    assert (d_31 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_31 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_31 = b_31 <<< 'h3;
-    assert (e_31 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_31 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_31 = b_31 >>> 'h3;
-    assert (f_31 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_31 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     if (1)
     begin
@@ -1676,15 +1676,15 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
         a_32 = -6'sh11;
         b_32 = -7'sh22;
         c_32 = b_32 + a_32;
-        assert (c_32 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:703:9");
+        assert (c_32 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:710:9");
         d_32 = b_32 - a_32;
-        assert (d_32 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:707:9");
+        assert (d_32 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:714:9");
         e_32 = b_32 + (-6'sh11);
-        assert (e_32 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:711:9");
+        assert (e_32 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:718:9");
         f_32 = b_32 - 'h11;
-        assert (f_32 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:715:9");
+        assert (f_32 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:722:9");
         g_19 = b_32 - (-6'sh11);
-        assert (g_19 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:719:9");
+        assert (g_19 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:726:9");
         // Call neg_add_sub() end
     end
     // Call run_opers() end
@@ -1694,27 +1694,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_33 = 'h11;
     b_33 = 'h22;
     c_33 = signed'({1'b0, b_33}) + a_33;
-    assert (c_33 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_33 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_33 = signed'({1'b0, b_33}) - a_33;
-    assert (d_33 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_33 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_33 = b_33 + (-6'sh11);
-    assert (e_33 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_33 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_33 = b_33 - 'h11;
-    assert (f_33 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_33 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_20 = b_33 - (-7'sh22);
-    assert (g_20 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_20 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_34 = 2;
     b_34 = 'h22;
     c_34 = b_34 <<< a_34;
-    assert (c_34 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_34 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_34 = b_34 >>> a_34;
-    assert (d_34 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_34 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_34 = b_34 <<< 'h3;
-    assert (e_34 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_34 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_34 = b_34 >>> 'h3;
-    assert (f_34 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_34 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_14 = 0;
@@ -1723,27 +1723,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_35 = 'h11;
     b_35 = 'h22;
     c_35 = signed'({1'b0, b_35}) + a_35;
-    assert (c_35 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_35 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_35 = signed'({1'b0, b_35}) - a_35;
-    assert (d_35 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_35 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_35 = b_35 + (-6'sh11);
-    assert (e_35 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_35 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_35 = b_35 - 'h11;
-    assert (f_35 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_35 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_21 = b_35 - (-7'sh22);
-    assert (g_21 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_21 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_36 = 2;
     b_36 = 'h22;
     c_36 = b_36 <<< a_36;
-    assert (c_36 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_36 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_36 = b_36 >>> a_36;
-    assert (d_36 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_36 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_36 = b_36 <<< 'h3;
-    assert (e_36 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_36 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_36 = b_36 >>> 'h3;
-    assert (f_36 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_36 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_15 = 0;
@@ -1752,27 +1752,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_37 = 'h11;
     b_37 = 'h22;
     c_37 = b_37 + a_37;
-    assert (c_37 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_37 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_37 = b_37 - a_37;
-    assert (d_37 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_37 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_37 = b_37 + (-6'sh11);
-    assert (e_37 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_37 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_37 = b_37 - 'h11;
-    assert (f_37 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_37 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_22 = b_37 - (-7'sh22);
-    assert (g_22 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_22 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_38 = 2;
     b_38 = 'h22;
     c_38 = b_38 <<< a_38;
-    assert (c_38 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_38 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_38 = b_38 >>> a_38;
-    assert (d_38 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_38 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_38 = b_38 <<< 'h3;
-    assert (e_38 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_38 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_38 = b_38 >>> 'h3;
-    assert (f_38 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_38 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_16 = 0;
@@ -1781,27 +1781,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_39 = 'h11;
     b_39 = 'h22;
     c_39 = b_39 + a_39;
-    assert (c_39 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_39 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_39 = b_39 - a_39;
-    assert (d_39 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_39 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_39 = b_39 + (-6'sh11);
-    assert (e_39 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_39 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_39 = b_39 - 'h11;
-    assert (f_39 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_39 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_23 = b_39 - (-7'sh22);
-    assert (g_23 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_23 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_40 = 2;
     b_40 = 'h22;
     c_40 = b_40 <<< a_40;
-    assert (c_40 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_40 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_40 = b_40 >>> a_40;
-    assert (d_40 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_40 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_40 = b_40 <<< 'h3;
-    assert (e_40 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_40 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_40 = b_40 >>> 'h3;
-    assert (f_40 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_40 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_17 = 1;
@@ -1810,27 +1810,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_41 = 'h11;
     b_41 = 'h22;
     c_41 = b_41 + a_41;
-    assert (c_41 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_41 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_41 = b_41 - a_41;
-    assert (d_41 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_41 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_41 = b_41 + (-6'sh11);
-    assert (e_41 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_41 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_41 = b_41 - 'h11;
-    assert (f_41 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_41 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_24 = b_41 - (-7'sh22);
-    assert (g_24 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_24 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_42 = 2;
     b_42 = 'h22;
     c_42 = b_42 <<< a_42;
-    assert (c_42 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_42 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_42 = b_42 >>> a_42;
-    assert (d_42 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_42 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_42 = b_42 <<< 'h3;
-    assert (e_42 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_42 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_42 = b_42 >>> 'h3;
-    assert (f_42 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_42 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     if (1)
     begin
@@ -1838,15 +1838,15 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
         a_43 = -6'sh11;
         b_43 = -7'sh22;
         c_43 = b_43 + a_43;
-        assert (c_43 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:703:9");
+        assert (c_43 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:710:9");
         d_43 = b_43 - a_43;
-        assert (d_43 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:707:9");
+        assert (d_43 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:714:9");
         e_43 = b_43 + (-6'sh11);
-        assert (e_43 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:711:9");
+        assert (e_43 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:718:9");
         f_43 = b_43 - 'h11;
-        assert (f_43 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:715:9");
+        assert (f_43 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:722:9");
         g_25 = b_43 - (-6'sh11);
-        assert (g_25 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:719:9");
+        assert (g_25 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:726:9");
         // Call neg_add_sub() end
     end
     // Call run_opers() end
@@ -1856,27 +1856,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_44 = 'h11;
     b_44 = 'h22;
     c_44 = b_44 + signed'({1'b0, a_44});
-    assert (c_44 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_44 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_44 = b_44 - signed'({1'b0, a_44});
-    assert (d_44 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_44 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_44 = b_44 + (-6'sh11);
-    assert (e_44 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_44 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_44 = b_44 - 'h11;
-    assert (f_44 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_44 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_26 = b_44 - (-7'sh22);
-    assert (g_26 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_26 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_45 = 2;
     b_45 = 'h22;
     c_45 = b_45 <<< a_45;
-    assert (c_45 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_45 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_45 = b_45 >>> a_45;
-    assert (d_45 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_45 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_45 = b_45 <<< 'h3;
-    assert (e_45 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_45 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_45 = b_45 >>> 'h3;
-    assert (f_45 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_45 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_19 = 0;
@@ -1885,27 +1885,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_46 = 'h11;
     b_46 = 'h22;
     c_46 = signed'({1'b0, b_46}) + a_46;
-    assert (c_46 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_46 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_46 = signed'({1'b0, b_46}) - a_46;
-    assert (d_46 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_46 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_46 = signed'({1'b0, b_46}) + (-6'sh11);
-    assert (e_46 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_46 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_46 = signed'({1'b0, b_46}) - 'h11;
-    assert (f_46 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_46 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_27 = signed'({1'b0, b_46}) - (-7'sh22);
-    assert (g_27 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_27 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_47 = 2;
     b_47 = 'h22;
     c_47 = b_47 <<< a_47;
-    assert (c_47 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_47 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_47 = b_47 >>> a_47;
-    assert (d_47 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_47 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_47 = b_47 <<< 'h3;
-    assert (e_47 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_47 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_47 = b_47 >>> 'h3;
-    assert (f_47 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_47 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_20 = 1;
@@ -1914,27 +1914,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_48 = 'h11;
     b_48 = 'h22;
     c_48 = b_48 + a_48;
-    assert (c_48 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_48 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_48 = b_48 - a_48;
-    assert (d_48 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_48 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_48 = b_48 + (-6'sh11);
-    assert (e_48 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_48 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_48 = b_48 - 'h11;
-    assert (f_48 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_48 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_28 = b_48 - (-7'sh22);
-    assert (g_28 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_28 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_49 = 2;
     b_49 = 'h22;
     c_49 = b_49 <<< a_49;
-    assert (c_49 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_49 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_49 = b_49 >>> a_49;
-    assert (d_49 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_49 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_49 = b_49 <<< 'h3;
-    assert (e_49 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_49 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_49 = b_49 >>> 'h3;
-    assert (f_49 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_49 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     if (1)
     begin
@@ -1942,15 +1942,15 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
         a_50 = -6'sh11;
         b_50 = -7'sh22;
         c_50 = b_50 + a_50;
-        assert (c_50 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:703:9");
+        assert (c_50 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:710:9");
         d_50 = b_50 - a_50;
-        assert (d_50 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:707:9");
+        assert (d_50 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:714:9");
         e_50 = b_50 + (-6'sh11);
-        assert (e_50 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:711:9");
+        assert (e_50 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:718:9");
         f_50 = b_50 - 'h11;
-        assert (f_50 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:715:9");
+        assert (f_50 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:722:9");
         g_29 = b_50 - (-6'sh11);
-        assert (g_29 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:719:9");
+        assert (g_29 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:726:9");
         // Call neg_add_sub() end
     end
     // Call run_opers() end
@@ -1960,27 +1960,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_51 = 'h11;
     b_51 = 'h22;
     c_51 = b_51 + a_51;
-    assert (c_51 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_51 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_51 = b_51 - a_51;
-    assert (d_51 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_51 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_51 = signed'({1'b0, b_51}) + (-6'sh11);
-    assert (e_51 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_51 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_51 = signed'({1'b0, b_51}) - 'h11;
-    assert (f_51 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_51 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_30 = signed'({1'b0, b_51}) - (-7'sh22);
-    assert (g_30 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_30 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_52 = 2;
     b_52 = 'h22;
     c_52 = b_52 <<< a_52;
-    assert (c_52 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_52 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_52 = b_52 >>> a_52;
-    assert (d_52 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_52 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_52 = b_52 <<< 'h3;
-    assert (e_52 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_52 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_52 = b_52 >>> 'h3;
-    assert (f_52 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_52 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
     isSigned_22 = 1;
@@ -1989,27 +1989,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_53 = 'h11;
     b_53 = 'h22;
     c_53 = b_53 + a_53;
-    assert (c_53 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_53 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_53 = b_53 - a_53;
-    assert (d_53 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_53 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_53 = b_53 + (-6'sh11);
-    assert (e_53 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_53 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_53 = b_53 - 'h11;
-    assert (f_53 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_53 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_31 = b_53 - (-7'sh22);
-    assert (g_31 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_31 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_54 = 2;
     b_54 = 'h22;
     c_54 = b_54 <<< a_54;
-    assert (c_54 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_54 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_54 = b_54 >>> a_54;
-    assert (d_54 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_54 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_54 = b_54 <<< 'h3;
-    assert (e_54 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_54 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_54 = b_54 >>> 'h3;
-    assert (f_54 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_54 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     if (1)
     begin
@@ -2017,15 +2017,15 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
         a_55 = -6'sh11;
         b_55 = -7'sh22;
         c_55 = b_55 + a_55;
-        assert (c_55 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:703:9");
+        assert (c_55 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:710:9");
         d_55 = b_55 - a_55;
-        assert (d_55 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:707:9");
+        assert (d_55 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:714:9");
         e_55 = b_55 + (-6'sh11);
-        assert (e_55 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:711:9");
+        assert (e_55 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:718:9");
         f_55 = b_55 - 'h11;
-        assert (f_55 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:715:9");
+        assert (f_55 == -7'sh33) else $error("Assertion failed at test_const_liter.cpp:722:9");
         g_32 = b_55 - (-6'sh11);
-        assert (g_32 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:719:9");
+        assert (g_32 == -6'sh11) else $error("Assertion failed at test_const_liter.cpp:726:9");
         // Call neg_add_sub() end
     end
     // Call run_opers() end
@@ -2035,27 +2035,27 @@ begin : liter_extend_oper     // test_const_liter.cpp:757:5
     a_56 = 'h11;
     b_56 = 'h22;
     c_56 = signed'({1'b0, b_56}) + a_56;
-    assert (c_56 == 'h33) else $error("Assertion failed at test_const_liter.cpp:676:9");
+    assert (c_56 == 'h33) else $error("Assertion failed at test_const_liter.cpp:683:9");
     d_56 = signed'({1'b0, b_56}) - a_56;
-    assert (d_56 == 'h11) else $error("Assertion failed at test_const_liter.cpp:680:9");
+    assert (d_56 == 'h11) else $error("Assertion failed at test_const_liter.cpp:687:9");
     e_56 = signed'({1'b0, b_56}) + (-6'sh11);
-    assert (e_56 == 'h11) else $error("Assertion failed at test_const_liter.cpp:684:9");
+    assert (e_56 == 'h11) else $error("Assertion failed at test_const_liter.cpp:691:9");
     f_56 = signed'({1'b0, b_56}) - 'h11;
-    assert (f_56 == 'h11) else $error("Assertion failed at test_const_liter.cpp:688:9");
+    assert (f_56 == 'h11) else $error("Assertion failed at test_const_liter.cpp:695:9");
     g_33 = signed'({1'b0, b_56}) - (-7'sh22);
-    assert (g_33 == 'h44) else $error("Assertion failed at test_const_liter.cpp:692:9");
+    assert (g_33 == 'h44) else $error("Assertion failed at test_const_liter.cpp:699:9");
     // Call pos_add_sub() end
     // Call pos_shift() begin
     a_57 = 2;
     b_57 = 'h22;
     c_57 = b_57 <<< a_57;
-    assert (c_57 == 'h88) else $error("Assertion failed at test_const_liter.cpp:730:9");
+    assert (c_57 == 'h88) else $error("Assertion failed at test_const_liter.cpp:737:9");
     d_57 = b_57 >>> a_57;
-    assert (d_57 == 'h8) else $error("Assertion failed at test_const_liter.cpp:734:9");
+    assert (d_57 == 'h8) else $error("Assertion failed at test_const_liter.cpp:741:9");
     e_57 = b_57 <<< 'h3;
-    assert (e_57 == 'h110) else $error("Assertion failed at test_const_liter.cpp:738:9");
+    assert (e_57 == 'h110) else $error("Assertion failed at test_const_liter.cpp:745:9");
     f_57 = b_57 >>> 'h3;
-    assert (f_57 == 'h4) else $error("Assertion failed at test_const_liter.cpp:742:9");
+    assert (f_57 == 'h4) else $error("Assertion failed at test_const_liter.cpp:749:9");
     // Call pos_shift() end
     // Call run_opers() end
 end

@@ -24,14 +24,14 @@ logic a2_clk;
 assign a2_clk = clk;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: a2_thread1 (test_cthread_mif.cpp:28:5) 
+// Clocked THREAD: a2_thread1 (test_cthread_mif.cpp:35:5) 
 
 // Thread-local variables
 logic [3:0] a2_s_next;
 logic [3:0] a2_v;
 
 // Next-state combinational logic
-always_comb begin : a2_thread1_comb     // test_cthread_mif.cpp:28:5
+always_comb begin : a2_thread1_comb     // test_cthread_mif.cpp:35:5
     a2_thread1_func;
 end
 function void a2_thread1_func;
@@ -56,10 +56,10 @@ begin : a2_thread1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: a2_thread2 (test_cthread_mif.cpp:42:5) 
+// Clocked THREAD: a2_thread2 (test_cthread_mif.cpp:49:5) 
 
 // Next-state combinational logic
-always_comb begin : a2_thread2_comb     // test_cthread_mif.cpp:42:5
+always_comb begin : a2_thread2_comb     // test_cthread_mif.cpp:49:5
     a2_thread2_func;
 end
 function void a2_thread2_func;
@@ -77,14 +77,14 @@ begin : a2_thread2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread (test_cthread_mif.cpp:69:5) 
+// Clocked THREAD: top_thread (test_cthread_mif.cpp:76:5) 
 
 // Thread-local variables
 logic [3:0] a2_ss_next;
 logic [3:0] a2_vv;
 
 // Next-state combinational logic
-always_comb begin : top_thread_comb     // test_cthread_mif.cpp:69:5
+always_comb begin : top_thread_comb     // test_cthread_mif.cpp:76:5
     top_thread_func;
 end
 function void top_thread_func;

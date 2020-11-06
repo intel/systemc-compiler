@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_member_func_method.cpp:171:5)
+// Module: A (test_member_func_method.cpp:178:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -37,10 +37,10 @@ module A // "b_mod.a_mod"
 logic [1:0] sig;
 
 //------------------------------------------------------------------------------
-// Method process: record_meth0 (test_member_func_method.cpp:55:5) 
+// Method process: record_meth0 (test_member_func_method.cpp:62:5) 
 
 always_comb 
-begin : record_meth0     // test_member_func_method.cpp:55:5
+begin : record_meth0     // test_member_func_method.cpp:62:5
     logic s_a[2];
     logic s_par;
     logic [1:0] i;
@@ -56,10 +56,10 @@ begin : record_meth0     // test_member_func_method.cpp:55:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_meth1 (test_member_func_method.cpp:70:5) 
+// Method process: record_meth1 (test_member_func_method.cpp:77:5) 
 
 always_comb 
-begin : record_meth1     // test_member_func_method.cpp:70:5
+begin : record_meth1     // test_member_func_method.cpp:77:5
     logic s_a[2];
     logic s_par;
     logic TMP_0;
@@ -86,10 +86,10 @@ begin : record_meth1     // test_member_func_method.cpp:70:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_meth2 (test_member_func_method.cpp:90:5) 
+// Method process: record_meth2 (test_member_func_method.cpp:97:5) 
 
 always_comb 
-begin : record_meth2     // test_member_func_method.cpp:90:5
+begin : record_meth2     // test_member_func_method.cpp:97:5
     logic s_a[2][3];
     logic b;
     logic s_par;
@@ -109,10 +109,10 @@ begin : record_meth2     // test_member_func_method.cpp:90:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_meth2a (test_member_func_method.cpp:101:5) 
+// Method process: record_meth2a (test_member_func_method.cpp:108:5) 
 
 always_comb 
-begin : record_meth2a     // test_member_func_method.cpp:101:5
+begin : record_meth2a     // test_member_func_method.cpp:108:5
     logic s_a[2];
     logic b;
     logic s_par;
@@ -132,10 +132,10 @@ begin : record_meth2a     // test_member_func_method.cpp:101:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_meth2b (test_member_func_method.cpp:113:5) 
+// Method process: record_meth2b (test_member_func_method.cpp:120:5) 
 
 always_comb 
-begin : record_meth2b     // test_member_func_method.cpp:113:5
+begin : record_meth2b     // test_member_func_method.cpp:120:5
     logic s_a[2];
     logic b;
     logic s_par;
@@ -151,10 +151,10 @@ begin : record_meth2b     // test_member_func_method.cpp:113:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_meth3 (test_member_func_method.cpp:125:5) 
+// Method process: record_meth3 (test_member_func_method.cpp:132:5) 
 
 always_comb 
-begin : record_meth3     // test_member_func_method.cpp:125:5
+begin : record_meth3     // test_member_func_method.cpp:132:5
     logic s_a[2];
     logic TMP_0;
     logic s_par;
@@ -178,10 +178,10 @@ begin : record_meth3     // test_member_func_method.cpp:125:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_multi_calls (test_member_func_method.cpp:148:5) 
+// Method process: record_multi_calls (test_member_func_method.cpp:155:5) 
 
 always_comb 
-begin : record_multi_calls     // test_member_func_method.cpp:148:5
+begin : record_multi_calls     // test_member_func_method.cpp:155:5
     logic s_a[2];
     logic [1:0] i;
     logic TMP_0;

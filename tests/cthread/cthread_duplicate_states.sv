@@ -22,7 +22,7 @@ logic ready1;
 logic valid1;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread0 (test_cthread_duplicate_states.cpp:28:5) 
+// Clocked THREAD: thread0 (test_cthread_duplicate_states.cpp:35:5) 
 
 // Thread-local variables
 logic valid0_next;
@@ -30,7 +30,7 @@ logic [1:0] thread0_PROC_STATE;
 logic [1:0] thread0_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread0_comb     // test_cthread_duplicate_states.cpp:28:5
+always_comb begin : thread0_comb     // test_cthread_duplicate_states.cpp:35:5
     thread0_func;
 end
 function void thread0_func;
@@ -40,27 +40,27 @@ function void thread0_func;
     case (thread0_PROC_STATE)
         0: begin
             valid0_next = 1;
-            thread0_PROC_STATE_next = 1; return;    // test_cthread_duplicate_states.cpp:33:13;
+            thread0_PROC_STATE_next = 1; return;    // test_cthread_duplicate_states.cpp:40:13;
         end
         1: begin
             if (!ready0)
             begin
-                thread0_PROC_STATE_next = 2; return;    // test_cthread_duplicate_states.cpp:35:17;
+                thread0_PROC_STATE_next = 2; return;    // test_cthread_duplicate_states.cpp:42:17;
             end
             valid0_next = 0;
-            thread0_PROC_STATE_next = 3; return;    // test_cthread_duplicate_states.cpp:39:13;
+            thread0_PROC_STATE_next = 3; return;    // test_cthread_duplicate_states.cpp:46:13;
         end
         2: begin
             if (!ready0)
             begin
-                thread0_PROC_STATE_next = 2; return;    // test_cthread_duplicate_states.cpp:35:17;
+                thread0_PROC_STATE_next = 2; return;    // test_cthread_duplicate_states.cpp:42:17;
             end
             valid0_next = 0;
-            thread0_PROC_STATE_next = 3; return;    // test_cthread_duplicate_states.cpp:39:13;
+            thread0_PROC_STATE_next = 3; return;    // test_cthread_duplicate_states.cpp:46:13;
         end
         3: begin
             valid0_next = 1;
-            thread0_PROC_STATE_next = 1; return;    // test_cthread_duplicate_states.cpp:33:13;
+            thread0_PROC_STATE_next = 1; return;    // test_cthread_duplicate_states.cpp:40:13;
         end
     endcase
 endfunction
@@ -69,7 +69,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : thread0_ff
     if ( ~rstn ) begin
-        thread0_PROC_STATE <= 0;    // test_cthread_duplicate_states.cpp:29:9;
+        thread0_PROC_STATE <= 0;    // test_cthread_duplicate_states.cpp:36:9;
     end
     else begin
         valid0 <= valid0_next;
@@ -78,7 +78,7 @@ begin : thread0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread1 (test_cthread_duplicate_states.cpp:43:5) 
+// Clocked THREAD: thread1 (test_cthread_duplicate_states.cpp:50:5) 
 
 // Thread-local variables
 logic valid1_next;
@@ -86,7 +86,7 @@ logic [1:0] thread1_PROC_STATE;
 logic [1:0] thread1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread1_comb     // test_cthread_duplicate_states.cpp:43:5
+always_comb begin : thread1_comb     // test_cthread_duplicate_states.cpp:50:5
     thread1_func;
 end
 function void thread1_func;
@@ -97,19 +97,19 @@ function void thread1_func;
     case (thread1_PROC_STATE)
         0: begin
             valid1_next = 1;
-            thread1_PROC_STATE_next = 1; return;    // test_cthread_duplicate_states.cpp:50:17;
+            thread1_PROC_STATE_next = 1; return;    // test_cthread_duplicate_states.cpp:57:17;
         end
         1: begin
             if (!ready1)
             begin
-                thread1_PROC_STATE_next = 1; return;    // test_cthread_duplicate_states.cpp:50:17;
+                thread1_PROC_STATE_next = 1; return;    // test_cthread_duplicate_states.cpp:57:17;
             end
             x = 42;
-            thread1_PROC_STATE_next = 2; return;    // test_cthread_duplicate_states.cpp:54:13;
+            thread1_PROC_STATE_next = 2; return;    // test_cthread_duplicate_states.cpp:61:13;
         end
         2: begin
             valid1_next = 1;
-            thread1_PROC_STATE_next = 1; return;    // test_cthread_duplicate_states.cpp:50:17;
+            thread1_PROC_STATE_next = 1; return;    // test_cthread_duplicate_states.cpp:57:17;
         end
     endcase
 endfunction
@@ -119,7 +119,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : thread1_ff
     if ( ~rstn ) begin
         valid1 <= 0;
-        thread1_PROC_STATE <= 0;    // test_cthread_duplicate_states.cpp:45:9;
+        thread1_PROC_STATE <= 0;    // test_cthread_duplicate_states.cpp:52:9;
     end
     else begin
         valid1 <= valid1_next;

@@ -42,7 +42,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Prod (test_cross_hierarchy_bind2.cpp:39:5)
+// Module: Prod (test_cross_hierarchy_bind2.cpp:46:5)
 //
 module Prod // "top.prod"
 (
@@ -57,10 +57,10 @@ logic signed [31:0] sig;
 assign in0 = sig;
 
 //------------------------------------------------------------------------------
-// Method process: proc (test_cross_hierarchy_bind2.cpp:15:5) 
+// Method process: proc (test_cross_hierarchy_bind2.cpp:22:5) 
 
 always_comb 
-begin : proc     // test_cross_hierarchy_bind2.cpp:15:5
+begin : proc     // test_cross_hierarchy_bind2.cpp:22:5
     sig = 1;
     out = in;
 end
@@ -71,7 +71,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Cons (test_cross_hierarchy_bind2.cpp:40:5)
+// Module: Cons (test_cross_hierarchy_bind2.cpp:47:5)
 //
 module Cons // "top.cons"
 (
@@ -86,10 +86,10 @@ logic signed [31:0] sig;
 assign sig = out0;
 
 //------------------------------------------------------------------------------
-// Method process: proc (test_cross_hierarchy_bind2.cpp:32:5) 
+// Method process: proc (test_cross_hierarchy_bind2.cpp:39:5) 
 
 always_comb 
-begin : proc     // test_cross_hierarchy_bind2.cpp:32:5
+begin : proc     // test_cross_hierarchy_bind2.cpp:39:5
     out = in + sig;
 end
 

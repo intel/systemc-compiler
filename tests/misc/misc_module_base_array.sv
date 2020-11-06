@@ -51,14 +51,14 @@ module B // "top.name"
 );
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: threadProc (test_module_base_array.cpp:26:5) 
+// Clocked THREAD: threadProc (test_module_base_array.cpp:33:5) 
 
 // Thread-local variables
 logic [15:0] a;
 logic [15:0] a_next;
 
 // Next-state combinational logic
-always_comb begin : threadProc_comb     // test_module_base_array.cpp:26:5
+always_comb begin : threadProc_comb     // test_module_base_array.cpp:33:5
     threadProc_func;
 end
 function void threadProc_func;

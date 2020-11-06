@@ -21,7 +21,7 @@ logic signed [31:0] a;
 logic signed [31:0] b;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_for_wait0 (test_break.cpp:146:5) 
+// Clocked THREAD: break_in_for_wait0 (test_break.cpp:153:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -30,7 +30,7 @@ logic [1:0] break_in_for_wait0_PROC_STATE;
 logic [1:0] break_in_for_wait0_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_for_wait0_comb     // test_break.cpp:146:5
+always_comb begin : break_in_for_wait0_comb     // test_break.cpp:153:5
     break_in_for_wait0_func;
 end
 function void break_in_for_wait0_func;
@@ -45,11 +45,11 @@ function void break_in_for_wait0_func;
             begin
                 // break begin
                 k = 1;
-                break_in_for_wait0_PROC_STATE_next = 2; return;    // test_break.cpp:163:13;
+                break_in_for_wait0_PROC_STATE_next = 2; return;    // test_break.cpp:170:13;
                 // break end
             end
             k = 2;
-            break_in_for_wait0_PROC_STATE_next = 1; return;    // test_break.cpp:159:17;
+            break_in_for_wait0_PROC_STATE_next = 1; return;    // test_break.cpp:166:17;
         end
         1: begin
             i_next++;
@@ -59,14 +59,14 @@ function void break_in_for_wait0_func;
                 begin
                     // break begin
                     k = 1;
-                    break_in_for_wait0_PROC_STATE_next = 2; return;    // test_break.cpp:163:13;
+                    break_in_for_wait0_PROC_STATE_next = 2; return;    // test_break.cpp:170:13;
                     // break end
                 end
                 k = 2;
-                break_in_for_wait0_PROC_STATE_next = 1; return;    // test_break.cpp:159:17;
+                break_in_for_wait0_PROC_STATE_next = 1; return;    // test_break.cpp:166:17;
             end
             k = 1;
-            break_in_for_wait0_PROC_STATE_next = 2; return;    // test_break.cpp:163:13;
+            break_in_for_wait0_PROC_STATE_next = 2; return;    // test_break.cpp:170:13;
         end
         2: begin
             i_next = 0;
@@ -74,11 +74,11 @@ function void break_in_for_wait0_func;
             begin
                 // break begin
                 k = 1;
-                break_in_for_wait0_PROC_STATE_next = 2; return;    // test_break.cpp:163:13;
+                break_in_for_wait0_PROC_STATE_next = 2; return;    // test_break.cpp:170:13;
                 // break end
             end
             k = 2;
-            break_in_for_wait0_PROC_STATE_next = 1; return;    // test_break.cpp:159:17;
+            break_in_for_wait0_PROC_STATE_next = 1; return;    // test_break.cpp:166:17;
         end
     endcase
 endfunction
@@ -89,7 +89,7 @@ begin : break_in_for_wait0_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_for_wait0_PROC_STATE <= 0;    // test_break.cpp:149:9;
+        break_in_for_wait0_PROC_STATE <= 0;    // test_break.cpp:156:9;
     end
     else begin
         i <= i_next;
@@ -98,7 +98,7 @@ begin : break_in_for_wait0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_for_wait1 (test_break.cpp:168:5) 
+// Clocked THREAD: break_in_for_wait1 (test_break.cpp:175:5) 
 
 // Thread-local variables
 logic signed [31:0] i0;
@@ -107,7 +107,7 @@ logic [1:0] break_in_for_wait1_PROC_STATE;
 logic [1:0] break_in_for_wait1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_for_wait1_comb     // test_break.cpp:168:5
+always_comb begin : break_in_for_wait1_comb     // test_break.cpp:175:5
     break_in_for_wait1_func;
 end
 function void break_in_for_wait1_func;
@@ -119,29 +119,29 @@ function void break_in_for_wait1_func;
         0: begin
             i_next0 = 0;
             k = 2;
-            break_in_for_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:177:17;
+            break_in_for_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:184:17;
         end
         1: begin
             if (in > 1)
             begin
                 // break begin
                 k = 1;
-                break_in_for_wait1_PROC_STATE_next = 2; return;    // test_break.cpp:187:13;
+                break_in_for_wait1_PROC_STATE_next = 2; return;    // test_break.cpp:194:13;
                 // break end
             end
             i_next0++;
             if (i_next0 < 3)
             begin
                 k = 2;
-                break_in_for_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:177:17;
+                break_in_for_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:184:17;
             end
             k = 1;
-            break_in_for_wait1_PROC_STATE_next = 2; return;    // test_break.cpp:187:13;
+            break_in_for_wait1_PROC_STATE_next = 2; return;    // test_break.cpp:194:13;
         end
         2: begin
             i_next0 = 0;
             k = 2;
-            break_in_for_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:177:17;
+            break_in_for_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:184:17;
         end
     endcase
 endfunction
@@ -152,7 +152,7 @@ begin : break_in_for_wait1_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_for_wait1_PROC_STATE <= 0;    // test_break.cpp:171:9;
+        break_in_for_wait1_PROC_STATE <= 0;    // test_break.cpp:178:9;
     end
     else begin
         i0 <= i_next0;
@@ -161,7 +161,7 @@ begin : break_in_for_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_for_wait2 (test_break.cpp:193:5) 
+// Clocked THREAD: break_in_for_wait2 (test_break.cpp:200:5) 
 
 // Thread-local variables
 logic signed [31:0] i1;
@@ -170,7 +170,7 @@ logic [1:0] break_in_for_wait2_PROC_STATE;
 logic [1:0] break_in_for_wait2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_for_wait2_comb     // test_break.cpp:193:5
+always_comb begin : break_in_for_wait2_comb     // test_break.cpp:200:5
     break_in_for_wait2_func;
 end
 function void break_in_for_wait2_func;
@@ -184,15 +184,15 @@ function void break_in_for_wait2_func;
             if (in > 1)
             begin
                 k = 1;
-                break_in_for_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:204:21;
+                break_in_for_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:211:21;
             end
             k = 3;
-            break_in_for_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:210:17;
+            break_in_for_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:217:17;
         end
         1: begin
             // break begin
             k = 2;
-            break_in_for_wait2_PROC_STATE_next = 3; return;    // test_break.cpp:214:13;
+            break_in_for_wait2_PROC_STATE_next = 3; return;    // test_break.cpp:221:13;
             // break end
         end
         2: begin
@@ -202,23 +202,23 @@ function void break_in_for_wait2_func;
                 if (in > 1)
                 begin
                     k = 1;
-                    break_in_for_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:204:21;
+                    break_in_for_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:211:21;
                 end
                 k = 3;
-                break_in_for_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:210:17;
+                break_in_for_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:217:17;
             end
             k = 2;
-            break_in_for_wait2_PROC_STATE_next = 3; return;    // test_break.cpp:214:13;
+            break_in_for_wait2_PROC_STATE_next = 3; return;    // test_break.cpp:221:13;
         end
         3: begin
             i_next1 = 0;
             if (in > 1)
             begin
                 k = 1;
-                break_in_for_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:204:21;
+                break_in_for_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:211:21;
             end
             k = 3;
-            break_in_for_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:210:17;
+            break_in_for_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:217:17;
         end
     endcase
 endfunction
@@ -229,7 +229,7 @@ begin : break_in_for_wait2_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_for_wait2_PROC_STATE <= 0;    // test_break.cpp:196:9;
+        break_in_for_wait2_PROC_STATE <= 0;    // test_break.cpp:203:9;
     end
     else begin
         i1 <= i_next1;
@@ -238,7 +238,7 @@ begin : break_in_for_wait2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_for_wait3 (test_break.cpp:219:5) 
+// Clocked THREAD: break_in_for_wait3 (test_break.cpp:226:5) 
 
 // Thread-local variables
 logic signed [31:0] j;
@@ -249,7 +249,7 @@ logic [1:0] break_in_for_wait3_PROC_STATE;
 logic [1:0] break_in_for_wait3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_for_wait3_comb     // test_break.cpp:219:5
+always_comb begin : break_in_for_wait3_comb     // test_break.cpp:226:5
     break_in_for_wait3_func;
 end
 function void break_in_for_wait3_func;
@@ -269,14 +269,14 @@ function void break_in_for_wait3_func;
                     k = 1;
                     // break begin
                     k = 2;
-                    break_in_for_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:244:21;
+                    break_in_for_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:251:21;
                     // break end
                 end
                 k = 3;
-                break_in_for_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:239:25;
+                break_in_for_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:246:25;
             end
             k = 4;
-            break_in_for_wait3_PROC_STATE_next = 3; return;    // test_break.cpp:250:17;
+            break_in_for_wait3_PROC_STATE_next = 3; return;    // test_break.cpp:257:17;
         end
         1: begin
             j_next++;
@@ -287,14 +287,14 @@ function void break_in_for_wait3_func;
                     k = 1;
                     // break begin
                     k = 2;
-                    break_in_for_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:244:21;
+                    break_in_for_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:251:21;
                     // break end
                 end
                 k = 3;
-                break_in_for_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:239:25;
+                break_in_for_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:246:25;
             end
             k = 2;
-            break_in_for_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:244:21;
+            break_in_for_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:251:21;
         end
         2: begin
             // break begin
@@ -307,14 +307,14 @@ function void break_in_for_wait3_func;
                     k = 1;
                     // break begin
                     k = 2;
-                    break_in_for_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:244:21;
+                    break_in_for_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:251:21;
                     // break end
                 end
                 k = 3;
-                break_in_for_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:239:25;
+                break_in_for_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:246:25;
             end
             k = 4;
-            break_in_for_wait3_PROC_STATE_next = 3; return;    // test_break.cpp:250:17;
+            break_in_for_wait3_PROC_STATE_next = 3; return;    // test_break.cpp:257:17;
             // break end
         end
         3: begin
@@ -329,14 +329,14 @@ function void break_in_for_wait3_func;
                         k = 1;
                         // break begin
                         k = 2;
-                        break_in_for_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:244:21;
+                        break_in_for_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:251:21;
                         // break end
                     end
                     k = 3;
-                    break_in_for_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:239:25;
+                    break_in_for_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:246:25;
                 end
                 k = 4;
-                break_in_for_wait3_PROC_STATE_next = 3; return;    // test_break.cpp:250:17;
+                break_in_for_wait3_PROC_STATE_next = 3; return;    // test_break.cpp:257:17;
             end
             i_next2 = 0;
             if (in > 1)
@@ -347,14 +347,14 @@ function void break_in_for_wait3_func;
                     k = 1;
                     // break begin
                     k = 2;
-                    break_in_for_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:244:21;
+                    break_in_for_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:251:21;
                     // break end
                 end
                 k = 3;
-                break_in_for_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:239:25;
+                break_in_for_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:246:25;
             end
             k = 4;
-            break_in_for_wait3_PROC_STATE_next = 3; return;    // test_break.cpp:250:17;
+            break_in_for_wait3_PROC_STATE_next = 3; return;    // test_break.cpp:257:17;
         end
     endcase
 endfunction
@@ -365,7 +365,7 @@ begin : break_in_for_wait3_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_for_wait3_PROC_STATE <= 0;    // test_break.cpp:222:9;
+        break_in_for_wait3_PROC_STATE <= 0;    // test_break.cpp:229:9;
     end
     else begin
         j <= j_next;
@@ -375,7 +375,7 @@ begin : break_in_for_wait3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_for_wait4 (test_break.cpp:256:5) 
+// Clocked THREAD: break_in_for_wait4 (test_break.cpp:263:5) 
 
 // Thread-local variables
 logic signed [31:0] j0;
@@ -386,7 +386,7 @@ logic [1:0] break_in_for_wait4_PROC_STATE;
 logic [1:0] break_in_for_wait4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_for_wait4_comb     // test_break.cpp:256:5
+always_comb begin : break_in_for_wait4_comb     // test_break.cpp:263:5
     break_in_for_wait4_func;
 end
 function void break_in_for_wait4_func;
@@ -408,15 +408,15 @@ function void break_in_for_wait4_func;
                     k = 5;
                     // break begin
                     k = 4;
-                    break_in_for_wait4_PROC_STATE_next = 3; return;    // test_break.cpp:291:13;
+                    break_in_for_wait4_PROC_STATE_next = 3; return;    // test_break.cpp:298:13;
                     // break end
                     // break end
                 end
                 k = 2;
-                break_in_for_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:277:25;
+                break_in_for_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:284:25;
             end
             k = 3;
-            break_in_for_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:286:17;
+            break_in_for_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:293:17;
         end
         1: begin
             j_next0++;
@@ -429,17 +429,17 @@ function void break_in_for_wait4_func;
                     k = 5;
                     // break begin
                     k = 4;
-                    break_in_for_wait4_PROC_STATE_next = 3; return;    // test_break.cpp:291:13;
+                    break_in_for_wait4_PROC_STATE_next = 3; return;    // test_break.cpp:298:13;
                     // break end
                     // break end
                 end
                 k = 2;
-                break_in_for_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:277:25;
+                break_in_for_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:284:25;
             end
             k = 5;
             // break begin
             k = 4;
-            break_in_for_wait4_PROC_STATE_next = 3; return;    // test_break.cpp:291:13;
+            break_in_for_wait4_PROC_STATE_next = 3; return;    // test_break.cpp:298:13;
             // break end
         end
         2: begin
@@ -456,18 +456,18 @@ function void break_in_for_wait4_func;
                         k = 5;
                         // break begin
                         k = 4;
-                        break_in_for_wait4_PROC_STATE_next = 3; return;    // test_break.cpp:291:13;
+                        break_in_for_wait4_PROC_STATE_next = 3; return;    // test_break.cpp:298:13;
                         // break end
                         // break end
                     end
                     k = 2;
-                    break_in_for_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:277:25;
+                    break_in_for_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:284:25;
                 end
                 k = 3;
-                break_in_for_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:286:17;
+                break_in_for_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:293:17;
             end
             k = 4;
-            break_in_for_wait4_PROC_STATE_next = 3; return;    // test_break.cpp:291:13;
+            break_in_for_wait4_PROC_STATE_next = 3; return;    // test_break.cpp:298:13;
         end
         3: begin
             i_next3 = 0;
@@ -481,15 +481,15 @@ function void break_in_for_wait4_func;
                     k = 5;
                     // break begin
                     k = 4;
-                    break_in_for_wait4_PROC_STATE_next = 3; return;    // test_break.cpp:291:13;
+                    break_in_for_wait4_PROC_STATE_next = 3; return;    // test_break.cpp:298:13;
                     // break end
                     // break end
                 end
                 k = 2;
-                break_in_for_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:277:25;
+                break_in_for_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:284:25;
             end
             k = 3;
-            break_in_for_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:286:17;
+            break_in_for_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:293:17;
         end
     endcase
 endfunction
@@ -500,7 +500,7 @@ begin : break_in_for_wait4_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_for_wait4_PROC_STATE <= 0;    // test_break.cpp:259:9;
+        break_in_for_wait4_PROC_STATE <= 0;    // test_break.cpp:266:9;
     end
     else begin
         j0 <= j_next0;
@@ -510,7 +510,7 @@ begin : break_in_for_wait4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_exit1 (test_break.cpp:298:5) 
+// Clocked THREAD: break_exit1 (test_break.cpp:305:5) 
 
 // Thread-local variables
 logic signed [31:0] k;
@@ -519,7 +519,7 @@ logic break_exit1_PROC_STATE;
 logic break_exit1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_exit1_comb     // test_break.cpp:298:5
+always_comb begin : break_exit1_comb     // test_break.cpp:305:5
     break_exit1_func;
 end
 function void break_exit1_func;
@@ -528,18 +528,18 @@ function void break_exit1_func;
     
     case (break_exit1_PROC_STATE)
         0: begin
-            break_exit1_PROC_STATE_next = 1; return;    // test_break.cpp:304:17;
+            break_exit1_PROC_STATE_next = 1; return;    // test_break.cpp:311:17;
         end
         1: begin
             if (|a)
             begin
                 // break begin
                 k_next = 1;
-                break_exit1_PROC_STATE_next = 1; return;    // test_break.cpp:304:17;
+                break_exit1_PROC_STATE_next = 1; return;    // test_break.cpp:311:17;
                 // break end
             end
             k_next = k_next + 1;
-            break_exit1_PROC_STATE_next = 1; return;    // test_break.cpp:304:17;
+            break_exit1_PROC_STATE_next = 1; return;    // test_break.cpp:311:17;
         end
     endcase
 endfunction
@@ -549,7 +549,7 @@ always_ff @(posedge clk or negedge arst)
 begin : break_exit1_ff
     if ( ~arst ) begin
         k <= 0;
-        break_exit1_PROC_STATE <= 0;    // test_break.cpp:300:9;
+        break_exit1_PROC_STATE <= 0;    // test_break.cpp:307:9;
     end
     else begin
         k <= k_next;
@@ -558,7 +558,7 @@ begin : break_exit1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_exit2 (test_break.cpp:318:5) 
+// Clocked THREAD: break_exit2 (test_break.cpp:325:5) 
 
 // Thread-local variables
 logic signed [31:0] k0;
@@ -567,7 +567,7 @@ logic [1:0] break_exit2_PROC_STATE;
 logic [1:0] break_exit2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_exit2_comb     // test_break.cpp:318:5
+always_comb begin : break_exit2_comb     // test_break.cpp:325:5
     break_exit2_func;
 end
 function void break_exit2_func;
@@ -576,22 +576,22 @@ function void break_exit2_func;
     
     case (break_exit2_PROC_STATE)
         0: begin
-            break_exit2_PROC_STATE_next = 1; return;    // test_break.cpp:324:17;
+            break_exit2_PROC_STATE_next = 1; return;    // test_break.cpp:331:17;
         end
         1: begin
             if (|a)
             begin
                 k_next0 = k_next0 + 1;
-                break_exit2_PROC_STATE_next = 1; return;    // test_break.cpp:324:17;
+                break_exit2_PROC_STATE_next = 1; return;    // test_break.cpp:331:17;
             end else begin
                 // break begin
-                break_exit2_PROC_STATE_next = 2; return;    // test_break.cpp:334:13;
+                break_exit2_PROC_STATE_next = 2; return;    // test_break.cpp:341:13;
                 // break end
             end
         end
         2: begin
             k_next0 = 1;
-            break_exit2_PROC_STATE_next = 1; return;    // test_break.cpp:324:17;
+            break_exit2_PROC_STATE_next = 1; return;    // test_break.cpp:331:17;
         end
     endcase
 endfunction
@@ -601,7 +601,7 @@ always_ff @(posedge clk or negedge arst)
 begin : break_exit2_ff
     if ( ~arst ) begin
         k0 <= 0;
-        break_exit2_PROC_STATE <= 0;    // test_break.cpp:320:9;
+        break_exit2_PROC_STATE <= 0;    // test_break.cpp:327:9;
     end
     else begin
         k0 <= k_next0;
@@ -610,14 +610,14 @@ begin : break_exit2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_exit2a (test_break.cpp:340:5) 
+// Clocked THREAD: break_exit2a (test_break.cpp:347:5) 
 
 // Thread-local variables
 logic [1:0] break_exit2a_PROC_STATE;
 logic [1:0] break_exit2a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_exit2a_comb     // test_break.cpp:340:5
+always_comb begin : break_exit2a_comb     // test_break.cpp:347:5
     break_exit2a_func;
 end
 function void break_exit2a_func;
@@ -626,7 +626,7 @@ function void break_exit2a_func;
     
     case (break_exit2a_PROC_STATE)
         0: begin
-            break_exit2a_PROC_STATE_next = 1; return;    // test_break.cpp:346:17;
+            break_exit2a_PROC_STATE_next = 1; return;    // test_break.cpp:353:17;
         end
         1: begin
             if (|a)
@@ -635,17 +635,17 @@ function void break_exit2a_func;
                 if (|b)
                 begin
                     // break begin
-                    break_exit2a_PROC_STATE_next = 2; return;    // test_break.cpp:355:13;
+                    break_exit2a_PROC_STATE_next = 2; return;    // test_break.cpp:362:13;
                     // break end
                 end
                 k = 1;
             end
             k = 2;
-            break_exit2a_PROC_STATE_next = 1; return;    // test_break.cpp:346:17;
+            break_exit2a_PROC_STATE_next = 1; return;    // test_break.cpp:353:17;
         end
         2: begin
             k = 3;
-            break_exit2a_PROC_STATE_next = 1; return;    // test_break.cpp:346:17;
+            break_exit2a_PROC_STATE_next = 1; return;    // test_break.cpp:353:17;
         end
     endcase
 endfunction
@@ -656,7 +656,7 @@ begin : break_exit2a_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_exit2a_PROC_STATE <= 0;    // test_break.cpp:342:9;
+        break_exit2a_PROC_STATE <= 0;    // test_break.cpp:349:9;
     end
     else begin
         break_exit2a_PROC_STATE <= break_exit2a_PROC_STATE_next;
@@ -664,7 +664,7 @@ begin : break_exit2a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_exit3 (test_break.cpp:362:5) 
+// Clocked THREAD: break_exit3 (test_break.cpp:369:5) 
 
 // Thread-local variables
 logic signed [31:0] k1;
@@ -673,7 +673,7 @@ logic [1:0] break_exit3_PROC_STATE;
 logic [1:0] break_exit3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_exit3_comb     // test_break.cpp:362:5
+always_comb begin : break_exit3_comb     // test_break.cpp:369:5
     break_exit3_func;
 end
 function void break_exit3_func;
@@ -685,10 +685,10 @@ function void break_exit3_func;
             if (|a)
             begin
                 k_next1 = 1;
-                break_exit3_PROC_STATE_next = 1; return;    // test_break.cpp:375:17;
+                break_exit3_PROC_STATE_next = 1; return;    // test_break.cpp:382:17;
             end else begin
                 // break begin
-                break_exit3_PROC_STATE_next = 2; return;    // test_break.cpp:385:13;
+                break_exit3_PROC_STATE_next = 2; return;    // test_break.cpp:392:13;
                 // break end
             end
         end
@@ -701,10 +701,10 @@ function void break_exit3_func;
             if (|a)
             begin
                 k_next1 = 1;
-                break_exit3_PROC_STATE_next = 1; return;    // test_break.cpp:375:17;
+                break_exit3_PROC_STATE_next = 1; return;    // test_break.cpp:382:17;
             end else begin
                 // break begin
-                break_exit3_PROC_STATE_next = 2; return;    // test_break.cpp:385:13;
+                break_exit3_PROC_STATE_next = 2; return;    // test_break.cpp:392:13;
                 // break end
             end
         end
@@ -713,10 +713,10 @@ function void break_exit3_func;
             if (|a)
             begin
                 k_next1 = 1;
-                break_exit3_PROC_STATE_next = 1; return;    // test_break.cpp:375:17;
+                break_exit3_PROC_STATE_next = 1; return;    // test_break.cpp:382:17;
             end else begin
                 // break begin
-                break_exit3_PROC_STATE_next = 2; return;    // test_break.cpp:385:13;
+                break_exit3_PROC_STATE_next = 2; return;    // test_break.cpp:392:13;
                 // break end
             end
         end
@@ -728,7 +728,7 @@ always_ff @(posedge clk or negedge arst)
 begin : break_exit3_ff
     if ( ~arst ) begin
         k1 <= 0;
-        break_exit3_PROC_STATE <= 0;    // test_break.cpp:364:9;
+        break_exit3_PROC_STATE <= 0;    // test_break.cpp:371:9;
     end
     else begin
         k1 <= k_next1;
@@ -737,10 +737,10 @@ begin : break_exit3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_exit4 (test_break.cpp:392:5) 
+// Clocked THREAD: break_exit4 (test_break.cpp:399:5) 
 
 // Next-state combinational logic
-always_comb begin : break_exit4_comb     // test_break.cpp:392:5
+always_comb begin : break_exit4_comb     // test_break.cpp:399:5
     break_exit4_func;
 end
 function void break_exit4_func;
@@ -778,10 +778,10 @@ begin : break_exit4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_exit4a (test_break.cpp:420:5) 
+// Clocked THREAD: break_exit4a (test_break.cpp:427:5) 
 
 // Next-state combinational logic
-always_comb begin : break_exit4a_comb     // test_break.cpp:420:5
+always_comb begin : break_exit4a_comb     // test_break.cpp:427:5
     break_exit4a_func;
 end
 function void break_exit4a_func;
@@ -815,14 +815,14 @@ begin : break_exit4a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_exit5 (test_break.cpp:443:5) 
+// Clocked THREAD: break_exit5 (test_break.cpp:450:5) 
 
 // Thread-local variables
 logic [1:0] break_exit5_PROC_STATE;
 logic [1:0] break_exit5_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_exit5_comb     // test_break.cpp:443:5
+always_comb begin : break_exit5_comb     // test_break.cpp:450:5
     break_exit5_func;
 end
 function void break_exit5_func;
@@ -836,18 +836,18 @@ function void break_exit5_func;
             begin
                 k = 1;
             end else begin
-                break_exit5_PROC_STATE_next = 1; return;    // test_break.cpp:454:21;
+                break_exit5_PROC_STATE_next = 1; return;    // test_break.cpp:461:21;
             end
-            break_exit5_PROC_STATE_next = 2; return;    // test_break.cpp:459:17;
+            break_exit5_PROC_STATE_next = 2; return;    // test_break.cpp:466:17;
         end
         1: begin
             if (|b)
             begin
                 // break begin
-                break_exit5_PROC_STATE_next = 3; return;    // test_break.cpp:463:13;
+                break_exit5_PROC_STATE_next = 3; return;    // test_break.cpp:470:13;
                 // break end
             end
-            break_exit5_PROC_STATE_next = 2; return;    // test_break.cpp:459:17;
+            break_exit5_PROC_STATE_next = 2; return;    // test_break.cpp:466:17;
         end
         2: begin
             k = 2;
@@ -855,9 +855,9 @@ function void break_exit5_func;
             begin
                 k = 1;
             end else begin
-                break_exit5_PROC_STATE_next = 1; return;    // test_break.cpp:454:21;
+                break_exit5_PROC_STATE_next = 1; return;    // test_break.cpp:461:21;
             end
-            break_exit5_PROC_STATE_next = 2; return;    // test_break.cpp:459:17;
+            break_exit5_PROC_STATE_next = 2; return;    // test_break.cpp:466:17;
         end
         3: begin
             k = 0;
@@ -865,9 +865,9 @@ function void break_exit5_func;
             begin
                 k = 1;
             end else begin
-                break_exit5_PROC_STATE_next = 1; return;    // test_break.cpp:454:21;
+                break_exit5_PROC_STATE_next = 1; return;    // test_break.cpp:461:21;
             end
-            break_exit5_PROC_STATE_next = 2; return;    // test_break.cpp:459:17;
+            break_exit5_PROC_STATE_next = 2; return;    // test_break.cpp:466:17;
         end
     endcase
 endfunction
@@ -878,7 +878,7 @@ begin : break_exit5_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_exit5_PROC_STATE <= 0;    // test_break.cpp:445:9;
+        break_exit5_PROC_STATE <= 0;    // test_break.cpp:452:9;
     end
     else begin
         break_exit5_PROC_STATE <= break_exit5_PROC_STATE_next;
@@ -886,7 +886,7 @@ begin : break_exit5_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_while_wait1 (test_break.cpp:470:5) 
+// Clocked THREAD: break_in_while_wait1 (test_break.cpp:477:5) 
 
 // Thread-local variables
 logic signed [31:0] i4;
@@ -895,7 +895,7 @@ logic [1:0] break_in_while_wait1_PROC_STATE;
 logic [1:0] break_in_while_wait1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_while_wait1_comb     // test_break.cpp:470:5
+always_comb begin : break_in_while_wait1_comb     // test_break.cpp:477:5
     break_in_while_wait1_func;
 end
 function void break_in_while_wait1_func;
@@ -907,29 +907,29 @@ function void break_in_while_wait1_func;
         0: begin
             i_next4 = 0;
             k = 2;
-            break_in_while_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:480:17;
+            break_in_while_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:487:17;
         end
         1: begin
             if (in > 1)
             begin
                 // break begin
                 k = 1;
-                break_in_while_wait1_PROC_STATE_next = 2; return;    // test_break.cpp:488:13;
+                break_in_while_wait1_PROC_STATE_next = 2; return;    // test_break.cpp:495:13;
                 // break end
             end
             i_next4++;
             if (i_next4 < 3)
             begin
                 k = 2;
-                break_in_while_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:480:17;
+                break_in_while_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:487:17;
             end
             k = 1;
-            break_in_while_wait1_PROC_STATE_next = 2; return;    // test_break.cpp:488:13;
+            break_in_while_wait1_PROC_STATE_next = 2; return;    // test_break.cpp:495:13;
         end
         2: begin
             i_next4 = 0;
             k = 2;
-            break_in_while_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:480:17;
+            break_in_while_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:487:17;
         end
     endcase
 endfunction
@@ -940,7 +940,7 @@ begin : break_in_while_wait1_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_while_wait1_PROC_STATE <= 0;    // test_break.cpp:473:9;
+        break_in_while_wait1_PROC_STATE <= 0;    // test_break.cpp:480:9;
     end
     else begin
         i4 <= i_next4;
@@ -949,7 +949,7 @@ begin : break_in_while_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_while_wait2 (test_break.cpp:493:5) 
+// Clocked THREAD: break_in_while_wait2 (test_break.cpp:500:5) 
 
 // Thread-local variables
 logic signed [31:0] i5;
@@ -958,7 +958,7 @@ logic [1:0] break_in_while_wait2_PROC_STATE;
 logic [1:0] break_in_while_wait2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_while_wait2_comb     // test_break.cpp:493:5
+always_comb begin : break_in_while_wait2_comb     // test_break.cpp:500:5
     break_in_while_wait2_func;
 end
 function void break_in_while_wait2_func;
@@ -971,7 +971,7 @@ function void break_in_while_wait2_func;
         0: begin
             i_next5 = 0;
             k = 1;
-            break_in_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:502:17;
+            break_in_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:509:17;
         end
         1: begin
             if (|a)
@@ -990,34 +990,34 @@ function void break_in_while_wait2_func;
                 begin
                     // break begin
                     k = 3;
-                    break_in_while_wait2_PROC_STATE_next = 3; return;    // test_break.cpp:518:13;
+                    break_in_while_wait2_PROC_STATE_next = 3; return;    // test_break.cpp:525:13;
                     // break end
                 end
-                break_in_while_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:512:21;
+                break_in_while_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:519:21;
             end
             i_next5++;
             if (i_next5 < 3)
             begin
                 k = 1;
-                break_in_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:502:17;
+                break_in_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:509:17;
             end
             k = 3;
-            break_in_while_wait2_PROC_STATE_next = 3; return;    // test_break.cpp:518:13;
+            break_in_while_wait2_PROC_STATE_next = 3; return;    // test_break.cpp:525:13;
         end
         2: begin
             i_next5++;
             if (i_next5 < 3)
             begin
                 k = 1;
-                break_in_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:502:17;
+                break_in_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:509:17;
             end
             k = 3;
-            break_in_while_wait2_PROC_STATE_next = 3; return;    // test_break.cpp:518:13;
+            break_in_while_wait2_PROC_STATE_next = 3; return;    // test_break.cpp:525:13;
         end
         3: begin
             i_next5 = 0;
             k = 1;
-            break_in_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:502:17;
+            break_in_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:509:17;
         end
     endcase
 endfunction
@@ -1028,7 +1028,7 @@ begin : break_in_while_wait2_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_while_wait2_PROC_STATE <= 0;    // test_break.cpp:496:9;
+        break_in_while_wait2_PROC_STATE <= 0;    // test_break.cpp:503:9;
     end
     else begin
         i5 <= i_next5;
@@ -1037,7 +1037,7 @@ begin : break_in_while_wait2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_while_wait3 (test_break.cpp:524:5) 
+// Clocked THREAD: break_in_while_wait3 (test_break.cpp:531:5) 
 
 // Thread-local variables
 logic signed [31:0] i6;
@@ -1046,7 +1046,7 @@ logic break_in_while_wait3_PROC_STATE;
 logic break_in_while_wait3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_while_wait3_comb     // test_break.cpp:524:5
+always_comb begin : break_in_while_wait3_comb     // test_break.cpp:531:5
     break_in_while_wait3_func;
 end
 function void break_in_while_wait3_func;
@@ -1068,7 +1068,7 @@ function void break_in_while_wait3_func;
                     break;
                 end
             end
-            break_in_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:539:17;
+            break_in_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:546:17;
         end
         1: begin
             if (|a)
@@ -1089,7 +1089,7 @@ function void break_in_while_wait3_func;
                             break;
                         end
                     end
-                    break_in_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:539:17;
+                    break_in_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:546:17;
                     // break end
                 end
             end
@@ -1106,7 +1106,7 @@ function void break_in_while_wait3_func;
                         break;
                     end
                 end
-                break_in_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:539:17;
+                break_in_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:546:17;
             end
             k = 3;
             i_next6 = 0;
@@ -1120,7 +1120,7 @@ function void break_in_while_wait3_func;
                     break;
                 end
             end
-            break_in_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:539:17;
+            break_in_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:546:17;
         end
     endcase
 endfunction
@@ -1131,7 +1131,7 @@ begin : break_in_while_wait3_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_while_wait3_PROC_STATE <= 0;    // test_break.cpp:527:9;
+        break_in_while_wait3_PROC_STATE <= 0;    // test_break.cpp:534:9;
     end
     else begin
         i6 <= i_next6;
@@ -1140,14 +1140,14 @@ begin : break_in_while_wait3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_while_wait4 (test_break.cpp:553:5) 
+// Clocked THREAD: break_in_while_wait4 (test_break.cpp:560:5) 
 
 // Thread-local variables
 logic [1:0] break_in_while_wait4_PROC_STATE;
 logic [1:0] break_in_while_wait4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_while_wait4_comb     // test_break.cpp:553:5
+always_comb begin : break_in_while_wait4_comb     // test_break.cpp:560:5
     break_in_while_wait4_func;
 end
 function void break_in_while_wait4_func;
@@ -1159,36 +1159,36 @@ function void break_in_while_wait4_func;
             if (|a)
             begin
                 k = 1;
-                break_in_while_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:562:17;
+                break_in_while_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:569:17;
             end
             k = 3;
-            break_in_while_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:569:13;
+            break_in_while_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:576:13;
         end
         1: begin
             if (|b)
             begin
                 // break begin
                 k = 3;
-                break_in_while_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:569:13;
+                break_in_while_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:576:13;
                 // break end
             end
             k = 2;
             if (|a)
             begin
                 k = 1;
-                break_in_while_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:562:17;
+                break_in_while_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:569:17;
             end
             k = 3;
-            break_in_while_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:569:13;
+            break_in_while_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:576:13;
         end
         2: begin
             if (|a)
             begin
                 k = 1;
-                break_in_while_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:562:17;
+                break_in_while_wait4_PROC_STATE_next = 1; return;    // test_break.cpp:569:17;
             end
             k = 3;
-            break_in_while_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:569:13;
+            break_in_while_wait4_PROC_STATE_next = 2; return;    // test_break.cpp:576:13;
         end
     endcase
 endfunction
@@ -1199,7 +1199,7 @@ begin : break_in_while_wait4_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_while_wait4_PROC_STATE <= 0;    // test_break.cpp:556:9;
+        break_in_while_wait4_PROC_STATE <= 0;    // test_break.cpp:563:9;
     end
     else begin
         break_in_while_wait4_PROC_STATE <= break_in_while_wait4_PROC_STATE_next;
@@ -1207,7 +1207,7 @@ begin : break_in_while_wait4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_while_for (test_break.cpp:575:5) 
+// Clocked THREAD: break_in_while_for (test_break.cpp:582:5) 
 
 // Thread-local variables
 logic signed [31:0] i7;
@@ -1216,7 +1216,7 @@ logic [1:0] break_in_while_for_PROC_STATE;
 logic [1:0] break_in_while_for_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_while_for_comb     // test_break.cpp:575:5
+always_comb begin : break_in_while_for_comb     // test_break.cpp:582:5
     break_in_while_for_func;
 end
 function void break_in_while_for_func;
@@ -1232,12 +1232,12 @@ function void break_in_while_for_func;
                 begin
                     k = 1;
                     i_next7 = 0;
-                    break_in_while_for_PROC_STATE_next = 1; return;    // test_break.cpp:586:25;
+                    break_in_while_for_PROC_STATE_next = 1; return;    // test_break.cpp:593:25;
                 end
-                break_in_while_for_PROC_STATE_next = 2; return;    // test_break.cpp:592:17;
+                break_in_while_for_PROC_STATE_next = 2; return;    // test_break.cpp:599:17;
             end
             k = 4;
-            break_in_while_for_PROC_STATE_next = 3; return;    // test_break.cpp:597:13;
+            break_in_while_for_PROC_STATE_next = 3; return;    // test_break.cpp:604:13;
         end
         1: begin
             if (|a)
@@ -1247,28 +1247,28 @@ function void break_in_while_for_func;
                 begin
                     // break begin
                     k = 4;
-                    break_in_while_for_PROC_STATE_next = 3; return;    // test_break.cpp:597:13;
+                    break_in_while_for_PROC_STATE_next = 3; return;    // test_break.cpp:604:13;
                     // break end
                 end
                 k = 2;
-                break_in_while_for_PROC_STATE_next = 2; return;    // test_break.cpp:592:17;
+                break_in_while_for_PROC_STATE_next = 2; return;    // test_break.cpp:599:17;
                 // break end
             end
             i_next7++;
             if (i_next7 < 3)
             begin
-                break_in_while_for_PROC_STATE_next = 1; return;    // test_break.cpp:586:25;
+                break_in_while_for_PROC_STATE_next = 1; return;    // test_break.cpp:593:25;
             end
             if (|b)
             begin
                 // break begin
                 k = 4;
-                break_in_while_for_PROC_STATE_next = 3; return;    // test_break.cpp:597:13;
+                break_in_while_for_PROC_STATE_next = 3; return;    // test_break.cpp:604:13;
                 // break end
             end else begin
                 k = 2;
             end
-            break_in_while_for_PROC_STATE_next = 2; return;    // test_break.cpp:592:17;
+            break_in_while_for_PROC_STATE_next = 2; return;    // test_break.cpp:599:17;
         end
         2: begin
             k = 3;
@@ -1278,12 +1278,12 @@ function void break_in_while_for_func;
                 begin
                     k = 1;
                     i_next7 = 0;
-                    break_in_while_for_PROC_STATE_next = 1; return;    // test_break.cpp:586:25;
+                    break_in_while_for_PROC_STATE_next = 1; return;    // test_break.cpp:593:25;
                 end
-                break_in_while_for_PROC_STATE_next = 2; return;    // test_break.cpp:592:17;
+                break_in_while_for_PROC_STATE_next = 2; return;    // test_break.cpp:599:17;
             end
             k = 4;
-            break_in_while_for_PROC_STATE_next = 3; return;    // test_break.cpp:597:13;
+            break_in_while_for_PROC_STATE_next = 3; return;    // test_break.cpp:604:13;
         end
         3: begin
             if (|a || |b)
@@ -1292,12 +1292,12 @@ function void break_in_while_for_func;
                 begin
                     k = 1;
                     i_next7 = 0;
-                    break_in_while_for_PROC_STATE_next = 1; return;    // test_break.cpp:586:25;
+                    break_in_while_for_PROC_STATE_next = 1; return;    // test_break.cpp:593:25;
                 end
-                break_in_while_for_PROC_STATE_next = 2; return;    // test_break.cpp:592:17;
+                break_in_while_for_PROC_STATE_next = 2; return;    // test_break.cpp:599:17;
             end
             k = 4;
-            break_in_while_for_PROC_STATE_next = 3; return;    // test_break.cpp:597:13;
+            break_in_while_for_PROC_STATE_next = 3; return;    // test_break.cpp:604:13;
         end
     endcase
 endfunction
@@ -1308,7 +1308,7 @@ begin : break_in_while_for_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_while_for_PROC_STATE <= 0;    // test_break.cpp:578:9;
+        break_in_while_for_PROC_STATE <= 0;    // test_break.cpp:585:9;
     end
     else begin
         i7 <= i_next7;
@@ -1317,7 +1317,7 @@ begin : break_in_while_for_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_do_while_wait1 (test_break.cpp:604:5) 
+// Clocked THREAD: break_in_do_while_wait1 (test_break.cpp:611:5) 
 
 // Thread-local variables
 logic signed [31:0] i8;
@@ -1326,7 +1326,7 @@ logic [1:0] break_in_do_while_wait1_PROC_STATE;
 logic [1:0] break_in_do_while_wait1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_do_while_wait1_comb     // test_break.cpp:604:5
+always_comb begin : break_in_do_while_wait1_comb     // test_break.cpp:611:5
     break_in_do_while_wait1_func;
 end
 function void break_in_do_while_wait1_func;
@@ -1338,29 +1338,29 @@ function void break_in_do_while_wait1_func;
         0: begin
             i_next8 = 0;
             i_next8++;
-            break_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:614:17;
+            break_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:621:17;
         end
         1: begin
             if (|a)
             begin
                 // break begin
                 k = 1;
-                break_in_do_while_wait1_PROC_STATE_next = 2; return;    // test_break.cpp:622:13;
+                break_in_do_while_wait1_PROC_STATE_next = 2; return;    // test_break.cpp:629:13;
                 // break end
             end
             k = 2;
             if (i_next8 < 3)
             begin
                 i_next8++;
-                break_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:614:17;
+                break_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:621:17;
             end
             k = 1;
-            break_in_do_while_wait1_PROC_STATE_next = 2; return;    // test_break.cpp:622:13;
+            break_in_do_while_wait1_PROC_STATE_next = 2; return;    // test_break.cpp:629:13;
         end
         2: begin
             i_next8 = 0;
             i_next8++;
-            break_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:614:17;
+            break_in_do_while_wait1_PROC_STATE_next = 1; return;    // test_break.cpp:621:17;
         end
     endcase
 endfunction
@@ -1371,7 +1371,7 @@ begin : break_in_do_while_wait1_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_do_while_wait1_PROC_STATE <= 0;    // test_break.cpp:607:9;
+        break_in_do_while_wait1_PROC_STATE <= 0;    // test_break.cpp:614:9;
     end
     else begin
         i8 <= i_next8;
@@ -1380,7 +1380,7 @@ begin : break_in_do_while_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_do_while_wait2 (test_break.cpp:627:5) 
+// Clocked THREAD: break_in_do_while_wait2 (test_break.cpp:634:5) 
 
 // Thread-local variables
 logic signed [31:0] i9;
@@ -1389,7 +1389,7 @@ logic [1:0] break_in_do_while_wait2_PROC_STATE;
 logic [1:0] break_in_do_while_wait2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_do_while_wait2_comb     // test_break.cpp:627:5
+always_comb begin : break_in_do_while_wait2_comb     // test_break.cpp:634:5
     break_in_do_while_wait2_func;
 end
 function void break_in_do_while_wait2_func;
@@ -1405,11 +1405,11 @@ function void break_in_do_while_wait2_func;
             begin
                 // break begin
                 k = 1;
-                break_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:647:13;
+                break_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:654:13;
                 // break end
             end else begin
                 k = 2;
-                break_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:641:21;
+                break_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:648:21;
             end
         end
         1: begin
@@ -1420,15 +1420,15 @@ function void break_in_do_while_wait2_func;
                 begin
                     // break begin
                     k = 1;
-                    break_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:647:13;
+                    break_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:654:13;
                     // break end
                 end else begin
                     k = 2;
-                    break_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:641:21;
+                    break_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:648:21;
                 end
             end
             k = 1;
-            break_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:647:13;
+            break_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:654:13;
         end
         2: begin
             i_next9 = 0;
@@ -1437,11 +1437,11 @@ function void break_in_do_while_wait2_func;
             begin
                 // break begin
                 k = 1;
-                break_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:647:13;
+                break_in_do_while_wait2_PROC_STATE_next = 2; return;    // test_break.cpp:654:13;
                 // break end
             end else begin
                 k = 2;
-                break_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:641:21;
+                break_in_do_while_wait2_PROC_STATE_next = 1; return;    // test_break.cpp:648:21;
             end
         end
     endcase
@@ -1453,7 +1453,7 @@ begin : break_in_do_while_wait2_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_do_while_wait2_PROC_STATE <= 0;    // test_break.cpp:630:9;
+        break_in_do_while_wait2_PROC_STATE <= 0;    // test_break.cpp:637:9;
     end
     else begin
         i9 <= i_next9;
@@ -1462,7 +1462,7 @@ begin : break_in_do_while_wait2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: break_in_do_while_wait3 (test_break.cpp:652:5) 
+// Clocked THREAD: break_in_do_while_wait3 (test_break.cpp:659:5) 
 
 // Thread-local variables
 logic signed [31:0] i10;
@@ -1471,7 +1471,7 @@ logic [1:0] break_in_do_while_wait3_PROC_STATE;
 logic [1:0] break_in_do_while_wait3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : break_in_do_while_wait3_comb     // test_break.cpp:652:5
+always_comb begin : break_in_do_while_wait3_comb     // test_break.cpp:659:5
     break_in_do_while_wait3_func;
 end
 function void break_in_do_while_wait3_func;
@@ -1484,24 +1484,24 @@ function void break_in_do_while_wait3_func;
             i_next10 = 0;
             i_next10++;
             k = 1;
-            break_in_do_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:664:21;
+            break_in_do_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:671:21;
         end
         1: begin
             if (|b)
             begin
                 // break begin
                 k = 2;
-                break_in_do_while_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:669:17;
+                break_in_do_while_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:676:17;
                 // break end
             end
             if (i_next10 < 30)
             begin
                 i_next10++;
                 k = 1;
-                break_in_do_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:664:21;
+                break_in_do_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:671:21;
             end
             k = 2;
-            break_in_do_while_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:669:17;
+            break_in_do_while_wait3_PROC_STATE_next = 2; return;    // test_break.cpp:676:17;
         end
         2: begin
             if (|a)
@@ -1509,16 +1509,16 @@ function void break_in_do_while_wait3_func;
                 i_next10 = 0;
                 i_next10++;
                 k = 1;
-                break_in_do_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:664:21;
+                break_in_do_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:671:21;
             end
             k = 3;
-            break_in_do_while_wait3_PROC_STATE_next = 3; return;    // test_break.cpp:675:13;
+            break_in_do_while_wait3_PROC_STATE_next = 3; return;    // test_break.cpp:682:13;
         end
         3: begin
             i_next10 = 0;
             i_next10++;
             k = 1;
-            break_in_do_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:664:21;
+            break_in_do_while_wait3_PROC_STATE_next = 1; return;    // test_break.cpp:671:21;
         end
     endcase
 endfunction
@@ -1529,7 +1529,7 @@ begin : break_in_do_while_wait3_ff
     if ( ~arst ) begin
         integer k;
         k = 0;
-        break_in_do_while_wait3_PROC_STATE <= 0;    // test_break.cpp:655:9;
+        break_in_do_while_wait3_PROC_STATE <= 0;    // test_break.cpp:662:9;
     end
     else begin
         i10 <= i_next10;

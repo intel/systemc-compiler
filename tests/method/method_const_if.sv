@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_const_if.cpp:363:5)
+// Module: A (test_const_if.cpp:370:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -39,10 +39,10 @@ logic [3:0] ms;
 logic [3:0] ns;
 
 //------------------------------------------------------------------------------
-// Method process: if_const (test_const_if.cpp:36:5) 
+// Method process: if_const (test_const_if.cpp:43:5) 
 
 always_comb 
-begin : if_const     // test_const_if.cpp:36:5
+begin : if_const     // test_const_if.cpp:43:5
     integer k;
     k = 0;
     if (1)
@@ -69,10 +69,10 @@ begin : if_const     // test_const_if.cpp:36:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: fcall_const (test_const_if.cpp:78:5) 
+// Method process: fcall_const (test_const_if.cpp:85:5) 
 
 always_comb 
-begin : fcall_const     // test_const_if.cpp:78:5
+begin : fcall_const     // test_const_if.cpp:85:5
     integer k;
     integer TMP_0;
     integer i;
@@ -109,10 +109,10 @@ begin : fcall_const     // test_const_if.cpp:78:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: logic_or_const (test_const_if.cpp:104:5) 
+// Method process: logic_or_const (test_const_if.cpp:111:5) 
 
 always_comb 
-begin : logic_or_const     // test_const_if.cpp:104:5
+begin : logic_or_const     // test_const_if.cpp:111:5
     integer k;
     integer i;
     logic b1;
@@ -157,10 +157,10 @@ begin : logic_or_const     // test_const_if.cpp:104:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_logic_or (test_const_if.cpp:128:6) 
+// Method process: if_logic_or (test_const_if.cpp:135:6) 
 
 always_comb 
-begin : if_logic_or     // test_const_if.cpp:128:6
+begin : if_logic_or     // test_const_if.cpp:135:6
     integer k;
     integer TMP_0;
     integer i;
@@ -224,10 +224,10 @@ begin : if_logic_or     // test_const_if.cpp:128:6
 end
 
 //------------------------------------------------------------------------------
-// Method process: logic_and_const (test_const_if.cpp:175:5) 
+// Method process: logic_and_const (test_const_if.cpp:182:5) 
 
 always_comb 
-begin : logic_and_const     // test_const_if.cpp:175:5
+begin : logic_and_const     // test_const_if.cpp:182:5
     integer k;
     integer i;
     integer TMP_0;
@@ -266,10 +266,10 @@ begin : logic_and_const     // test_const_if.cpp:175:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_logic_and (test_const_if.cpp:199:5) 
+// Method process: if_logic_and (test_const_if.cpp:206:5) 
 
 always_comb 
-begin : if_logic_and     // test_const_if.cpp:199:5
+begin : if_logic_and     // test_const_if.cpp:206:5
     integer k;
     integer TMP_0;
     integer i;
@@ -330,10 +330,10 @@ begin : if_logic_and     // test_const_if.cpp:199:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: complex_logic (test_const_if.cpp:246:5) 
+// Method process: complex_logic (test_const_if.cpp:253:5) 
 
 always_comb 
-begin : complex_logic     // test_const_if.cpp:246:5
+begin : complex_logic     // test_const_if.cpp:253:5
     integer TMP_0;
     integer i;
     logic b1;
@@ -385,10 +385,10 @@ begin : complex_logic     // test_const_if.cpp:246:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: complex_cond_call (test_const_if.cpp:261:6) 
+// Method process: complex_cond_call (test_const_if.cpp:268:6) 
 
 always_comb 
-begin : complex_cond_call     // test_const_if.cpp:261:6
+begin : complex_cond_call     // test_const_if.cpp:268:6
     integer k;
     integer TMP_0;
     integer TMP_1;
@@ -443,13 +443,13 @@ begin : complex_cond_call     // test_const_if.cpp:261:6
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_complex_cond (test_const_if.cpp:297:5) 
+// Method process: if_complex_cond (test_const_if.cpp:304:5) 
 
 // Process-local variables
 logic [3:0] m;
 
 always_comb 
-begin : if_complex_cond     // test_const_if.cpp:297:5
+begin : if_complex_cond     // test_const_if.cpp:304:5
     integer k;
     k = 1;
     m = ms;
@@ -479,13 +479,13 @@ begin : if_complex_cond     // test_const_if.cpp:297:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: very_complex_cond (test_const_if.cpp:333:5) 
+// Method process: very_complex_cond (test_const_if.cpp:340:5) 
 
 // Process-local variables
 logic [3:0] n;
 
 always_comb 
-begin : very_complex_cond     // test_const_if.cpp:333:5
+begin : very_complex_cond     // test_const_if.cpp:340:5
     integer k;
     integer TMP_0;
     integer i;

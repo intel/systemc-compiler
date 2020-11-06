@@ -1,9 +1,16 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include <sct_assert.h>
 #include <iostream>
 #include <string>
 
-// Constant modified in CTHREAD
+// Constant modified in process, error reported
 template<unsigned N>
 struct A : public sc_module 
 {
@@ -29,6 +36,7 @@ struct A : public sc_module
         
     }
     
+    sc_signal<unsigned> s;
     void const_with_ptr_thread() 
     {
         unsigned j = C5 + C6;
@@ -39,6 +47,7 @@ struct A : public sc_module
             j = *p5;
             j = *p6;
             *p6 = 1;
+            s = C6;
             
             wait();
         }
@@ -54,3 +63,4 @@ int sc_main(int argc, char *argv[])
     sc_start();
     return 0;
 }
+

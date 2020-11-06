@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_switch_enum.cpp:70:5)
+// Module: A (test_switch_enum.cpp:77:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -37,10 +37,10 @@ module A // "b_mod.a_mod"
 logic [31:0] s;
 
 //------------------------------------------------------------------------------
-// Method process: switch_enum1 (test_switch_enum.cpp:21:5) 
+// Method process: switch_enum1 (test_switch_enum.cpp:28:5) 
 
 always_comb 
-begin : switch_enum1     // test_switch_enum.cpp:21:5
+begin : switch_enum1     // test_switch_enum.cpp:28:5
     integer a;
     integer b;
     a = s;
@@ -56,10 +56,10 @@ begin : switch_enum1     // test_switch_enum.cpp:21:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_enum2 (test_switch_enum.cpp:40:5) 
+// Method process: switch_enum2 (test_switch_enum.cpp:47:5) 
 
 always_comb 
-begin : switch_enum2     // test_switch_enum.cpp:40:5
+begin : switch_enum2     // test_switch_enum.cpp:47:5
     logic [1:0] a;
     integer b;
     a = 2'(s);

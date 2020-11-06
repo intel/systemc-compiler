@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_bool.cpp:207:5)
+// Module: A (test_bool.cpp:214:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -48,10 +48,10 @@ logic s;
 logic ps;
 
 //------------------------------------------------------------------------------
-// Method process: test_bool_to_bool (test_bool.cpp:46:5) 
+// Method process: test_bool_to_bool (test_bool.cpp:53:5) 
 
 always_comb 
-begin : test_bool_to_bool     // test_bool.cpp:46:5
+begin : test_bool_to_bool     // test_bool.cpp:53:5
     logic b1;
     logic b2;
     b1 = a;
@@ -75,10 +75,10 @@ begin : test_bool_to_bool     // test_bool.cpp:46:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: test_bool_unary (test_bool.cpp:71:5) 
+// Method process: test_bool_unary (test_bool.cpp:78:5) 
 
 always_comb 
-begin : test_bool_unary     // test_bool.cpp:71:5
+begin : test_bool_unary     // test_bool.cpp:78:5
     integer unsigned i;
     logic b_1;
     i = 2;
@@ -89,13 +89,13 @@ begin : test_bool_unary     // test_bool.cpp:71:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: test_sc_to_bool (test_bool.cpp:81:5) 
+// Method process: test_sc_to_bool (test_bool.cpp:88:5) 
 
 // Process-local variables
 logic [4:0] px;
 
 always_comb 
-begin : test_sc_to_bool     // test_bool.cpp:81:5
+begin : test_sc_to_bool     // test_bool.cpp:88:5
     logic b1;
     logic [2:0] x;
     x = 0;
@@ -115,13 +115,13 @@ begin : test_sc_to_bool     // test_bool.cpp:81:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: test_ptr_comp (test_bool.cpp:105:5) 
+// Method process: test_ptr_comp (test_bool.cpp:112:5) 
 
 // Process-local variables
 logic signed [31:0] p;
 
 always_comb 
-begin : test_ptr_comp     // test_bool.cpp:105:5
+begin : test_ptr_comp     // test_bool.cpp:112:5
     logic b_1;
     b_1 = 1;
     b_1 = 0;
@@ -138,13 +138,13 @@ begin : test_ptr_comp     // test_bool.cpp:105:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: test_int_comp (test_bool.cpp:125:5) 
+// Method process: test_int_comp (test_bool.cpp:132:5) 
 
 // Process-local variables
 logic signed [31:0] p;
 
 always_comb 
-begin : test_int_comp     // test_bool.cpp:125:5
+begin : test_int_comp     // test_bool.cpp:132:5
     logic b1;
     integer i;
     logic [3:0] x;
@@ -161,10 +161,10 @@ begin : test_int_comp     // test_bool.cpp:125:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: test_sc_comp (test_bool.cpp:145:5) 
+// Method process: test_sc_comp (test_bool.cpp:152:5) 
 
 always_comb 
-begin : test_sc_comp     // test_bool.cpp:145:5
+begin : test_sc_comp     // test_bool.cpp:152:5
     logic b1;
     logic signed [3:0] x;
     logic signed [11:0] ux;
@@ -176,13 +176,13 @@ begin : test_sc_comp     // test_bool.cpp:145:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: test_bool1 (test_bool.cpp:155:5) 
+// Method process: test_bool1 (test_bool.cpp:162:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : test_bool1     // test_bool.cpp:155:5
+begin : test_bool1     // test_bool.cpp:162:5
     integer unsigned i;
     logic b1;
     i = 2;
@@ -197,10 +197,10 @@ begin : test_bool1     // test_bool.cpp:155:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: test_bool2 (test_bool.cpp:169:5) 
+// Method process: test_bool2 (test_bool.cpp:176:5) 
 
 always_comb 
-begin : test_bool2     // test_bool.cpp:169:5
+begin : test_bool2     // test_bool.cpp:176:5
     logic [3:0] x;
     logic b_1;
     x = 6;
@@ -214,13 +214,13 @@ begin : test_bool2     // test_bool.cpp:169:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: test_bool4 (test_bool.cpp:183:5) 
+// Method process: test_bool4 (test_bool.cpp:190:5) 
 
 // Process-local variables
 logic signed [31:0] p;
 
 always_comb 
-begin : test_bool4     // test_bool.cpp:183:5
+begin : test_bool4     // test_bool.cpp:190:5
     integer unsigned i;
     if (1)
     begin

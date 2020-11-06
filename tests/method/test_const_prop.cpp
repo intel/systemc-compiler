@@ -1,9 +1,16 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include <sct_assert.h>
 
 using namespace sc_core;
 
-// Simple IF statement to verify constant propagator
+// Constant propagation general case
 class A : public sc_module
 {
 public:
@@ -29,6 +36,14 @@ public:
             arr3[i] = new sc_signal<bool>("arr3");
         }
         
+        SC_METHOD(complex_if_level); sensitive << a;
+        SC_METHOD(mstrResponseMuxProc); sensitive << a;
+
+        SC_METHOD(NoReturnProc); sensitive << a;
+        SC_METHOD(NoReturnProc2); sensitive << a;
+
+        SC_METHOD(not_test); sensitive << a;
+
         SC_METHOD(intrControlProc); sensitive << a;
         SC_METHOD(chooseRequestProc); sensitive << a;
         SC_METHOD(ackProc2R2Wcache4); sensitive << a << rr_first_indx;
@@ -67,10 +82,10 @@ public:
         SC_METHOD(multiple_calls1); sensitive << a;
         SC_METHOD(multiple_calls2); sensitive << a;
         
-        SC_METHOD(mstrResponseMuxProc); sensitive << a;
+        SC_METHOD(local_array_if); sensitive << a;
 
-        SC_METHOD(NoReturnFatalError); sensitive << a;
-        SC_METHOD(NoReturnFatalError2); sensitive << a;
+        SC_CTHREAD(local_array, clk.pos());
+        async_reset_signal_is(nrst, false);
 
         SC_METHOD(return_const_in_if); sensitive << a;
         
@@ -80,32 +95,15 @@ public:
           
         SC_METHOD(return_const_in_while); sensitive << a;
         SC_METHOD(return_const_in_while2); sensitive << a;
-        
-        SC_METHOD(complex_if_level); sensitive << a;
-        
-        SC_METHOD(not_test); sensitive << a;
-        
-
-        // TODO: support me and uncomment
+        // TODO: Fix me, #220
         //SC_METHOD(return_const_in_dowhile); sensitive << a;
-        
-        
-        //SC_CTHREAD(simple_thread, clk.pos());
-        //async_reset_signal_is(nrst, false);
-        
-        //SC_METHOD(local_array_if); sensitive << a;
-
-        //SC_CTHREAD(local_array, clk.pos());
-        //async_reset_signal_is(nrst, false);
-        
-        //SC_CTHREAD(for_thread, clk.pos());
-        //async_reset_signal_is(nrst, false);
+        //~TODO
         
     }
     
     //----------------------------------------------------------------------
     // One IF at level 2 and several IF at level 4, no IF with level 3
-    // Bug in KVG SMEM -- fixed
+    // Bug in real design -- fixed
     void complex_if_level() {
         if (k) {
             if (m) {
@@ -125,7 +123,7 @@ public:
     }
 
     //----------------------------------------------------------------------
-    // Bug in cache HS SMEM 
+    // Bug in real design cache module
     sc_signal<bool>* arr1[3];
     sc_signal<bool>* arr2[3];
     sc_signal<bool>* arr3[3];
@@ -143,7 +141,7 @@ public:
 
 
     //----------------------------------------------------------------------
-    // Fatal in constant propagator -- TASK #26
+    // No return in some branch processes
     const unsigned useWriteResp0;
     const unsigned useWriteResp1;
     
@@ -156,7 +154,7 @@ public:
         }
     }
     
-    void NoReturnFatalError() 
+    void NoReturnProc() 
     {
         assert (m > k);
         if (a.read()) {
@@ -165,7 +163,7 @@ public:
         }
     }
 
-    void NoReturnFatalError2() 
+    void NoReturnProc2() 
     {
         useWriteResp(a.read());
     }
@@ -480,7 +478,7 @@ public:
         
     //----------------------------------------------------------------------
     
-    // Bug in KVG SMEM -- fixed
+    // Bug in real design -- fixed
     void intrControlProc()
     {
         // Zero iteration loop
@@ -490,7 +488,7 @@ public:
         }
     }
 
-    // Bug in KVG SMEM -- fixed
+    // Bug in real design -- fixed
     void chooseRequestProc() 
     {
         if (false) 
@@ -504,7 +502,7 @@ public:
         }    
     }
     
-    // Bug in DPX SMEM -- fixed
+    // Bug in real design -- fixed
     static const unsigned BLOCK_NUM = 3;
     static const unsigned PORT_NUM = 3;
     
@@ -537,15 +535,11 @@ public:
 
     void ackProc2R2Wcache4()
     {
-        // Current requests to blocks, one bit per request, up to two request 
-        // pre block with the same operation possible
         bool    readFirstAccess_flat[BLOCK_NUM];
         bool    readSecndAccess_flat[BLOCK_NUM];
         bool    writeFirstAccess_flat[BLOCK_NUM];
         bool    writeSecndAccess_flat[BLOCK_NUM];
 
-        // Reset request to blocks consider cache fill line port #0 request
-    LOOP_UNROLL:
         for (int i = 0; i < BLOCK_NUM; i++) {
             readFirstAccess_flat[i]  = a.read();
             readSecndAccess_flat[i]  = 0;
@@ -555,18 +549,12 @@ public:
 
         sc_uint<2> portIndx = getFirstPortIndx();
 
-        // RR priority starting with port #1
-    LOOP_UNROLL2:
         for (unsigned i = 1; i < PORT_NUM; i++) {
-            // Get next port index as port #0 already processed
             portIndx = getNextPortIndex(i, portIndx);
 
-            // Port request block index
             sc_uint<2> blockIndx = port_bindx[portIndx].read();
-            // @mem_active not considered, blocks are always on
             bool accessPermit = port_req[portIndx];
 
-            // Checking conflicts with previously processed ports
             if (!port_oper[portIndx]) {
                 if (!readFirstAccess_flat[blockIndx]) {
                     readFirstAccess_flat[blockIndx] = accessPermit;
@@ -602,6 +590,7 @@ public:
         if (i > 0) {    // termCond 1
             i = 2;
         }
+        sct_assert_const(i == 2);
     }
     
     // Two IFs with constant condition
@@ -616,10 +605,12 @@ public:
             } else {
                 i = 3;
             }
+            sct_assert_const(i == 3);
         } else {
             if (m > 0) { // termCond 1
                 i = 4;
             }
+            sct_assert_const(i == 4);
         }
     }
     
@@ -648,12 +639,15 @@ public:
     void if_in_func2() {
         f2();
         
-        if (m == 3) {}
+        sct_assert_const(m == 3);
     }
     
     // Constant propagation to function
     void f3() {
-        if (m == 4) {}
+        if (m == 4) {
+            int ll = 1;
+        }
+        sct_assert_const(m == 4);
     }
     
     void if_in_func3() {
@@ -668,6 +662,7 @@ public:
     }
     void f4(unsigned val) {
         f4_(val);
+        sct_assert_const(val == 2);    
     }
     void const_param_func() {
         f4(1);
@@ -680,7 +675,7 @@ public:
     
     void if_in_func5() {
         int i = f5();
-        //sct_assert_const (i == 5);
+        sct_assert_const (i == 5);
         if (i == 5) {}
     }
     
@@ -692,6 +687,7 @@ public:
             case 2: i = 3; break;
             default: ;
         }
+        sct_assert_const (i == 3);
     }
     
     // One SWITCH w/o constant condition 
@@ -712,6 +708,7 @@ public:
             case 2: i = 3; break;
             default: i = 4;
         }
+        sct_assert_const (i == 4);
     }
     
     // Two binary operators in condition
@@ -729,10 +726,12 @@ public:
 
     void simple_binary2() {
         int i = 0;
+        m = -1;
        
         if (i == 0 || a.read()) {
             m = 0;
         }
+        sct_assert_const (m == 0);
 
         if ((i == 1 || i == 2) && a.read()) {
             m = 1;
@@ -796,14 +795,6 @@ public:
         sct_assert_const(m == 2);
     }
     
-    // Simple THREAD
-    void simple_thread() {
-        wait();
-        while (true) {
-            wait();
-        }
-    }    
-    
     void simple_var() {
         k = 1;
         m = a.read();
@@ -830,19 +821,6 @@ public:
         }
     }    
     
-    
-    void for_thread()
-    {
-        wait();
-        
-        while (1) {
-
-            for (int i = 0; i < 2 ; i++) {
-                wait();  
-            }
-            wait();
-        }
-    }
     
     // -----------------------------------------------------------------------
     // Multiple function calls at different levels
@@ -880,16 +858,18 @@ public:
     void return_const_in_if() {
         int i = a.read();
         if (i < getConst()) {
+            int ll = 1;
         }
     }
 
     void return_const_in_for() {
         int x = 0;
         int N = getConst();
+        sct_assert_const (N==2);
         for (int i = 0; i < N; ++i) {
             x++;
         }
-        sct_assert_const(x==2);
+        sct_assert_const (x==2);
     }
 
     void return_const_in_for2() {
@@ -897,7 +877,7 @@ public:
         for (int i = 0; i < getConst(); ++i) {
             x++;
         }
-        sct_assert_const(x==2);
+        sct_assert_const (x==2);
     }
 
     void return_const_in_for3() {
@@ -905,7 +885,7 @@ public:
         for (int i = getConst(); i < 4; ++i) {
             x++;
         }
-        sct_assert_const(x==2);
+        sct_assert_const (x==2);
     }
 
     void return_const_in_while() {
@@ -913,6 +893,7 @@ public:
         while (i < getConst()) {
             i++;
         }
+        sct_assert_const (i == 2);
     }
 
     void return_const_in_while2() {
@@ -920,13 +901,15 @@ public:
         while (i < getConst_(1)) {
             i++;
         }
+        sct_assert_const (i == 2);
     }
 
     void return_const_in_dowhile() {
         int i = 0;
         do {
             i++;
-        } while (i < getConst());
+        } while (i < getConst());  // #220
+        //sct_assert_const (i == 2);
     }
 };
 
@@ -954,3 +937,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

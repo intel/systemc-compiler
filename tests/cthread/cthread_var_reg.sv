@@ -35,7 +35,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cthread_var_reg.cpp:149:5)
+// Module: A (test_cthread_var_reg.cpp:156:5)
 //
 module A // "top.a_mod"
 (
@@ -58,10 +58,10 @@ logic [3:0] arr[3];
 logic signed [31:0] s1;
 
 //------------------------------------------------------------------------------
-// Method process: channels0 (test_cthread_var_reg.cpp:43:5) 
+// Method process: channels0 (test_cthread_var_reg.cpp:50:5) 
 
 always_comb 
-begin : channels0     // test_cthread_var_reg.cpp:43:5
+begin : channels0     // test_cthread_var_reg.cpp:50:5
     logic x;
     logic [3:0] y;
     x = a;
@@ -70,7 +70,7 @@ begin : channels0     // test_cthread_var_reg.cpp:43:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: channels1 (test_cthread_var_reg.cpp:51:5) 
+// Clocked THREAD: channels1 (test_cthread_var_reg.cpp:58:5) 
 
 // Thread-local variables
 logic [3:0] b_next;
@@ -82,7 +82,7 @@ logic channels1_PROC_STATE;
 logic channels1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : channels1_comb     // test_cthread_var_reg.cpp:51:5
+always_comb begin : channels1_comb     // test_cthread_var_reg.cpp:58:5
     channels1_func;
 end
 function void channels1_func;
@@ -100,17 +100,17 @@ function void channels1_func;
             d_next = 44;
             out_next = in;
             e_next = 0;
-            channels1_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:64:13;
+            channels1_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:71:13;
         end
         1: begin
             e_next = 1;
-            c_next = d + signed'({1'b0, e});
+            c_next = 32'(d) + signed'({1'b0, e});
             b_next = 42;
             c_next = 43;
             d_next = 44;
             out_next = in;
             e_next = 0;
-            channels1_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:64:13;
+            channels1_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:71:13;
         end
     endcase
 endfunction
@@ -122,7 +122,7 @@ begin : channels1_ff
         a <= 1;
         b <= 0;
         out <= 0;
-        channels1_PROC_STATE <= 0;    // test_cthread_var_reg.cpp:56:9;
+        channels1_PROC_STATE <= 0;    // test_cthread_var_reg.cpp:63:9;
     end
     else begin
         b <= b_next;
@@ -135,7 +135,7 @@ begin : channels1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: channels2 (test_cthread_var_reg.cpp:72:5) 
+// Clocked THREAD: channels2 (test_cthread_var_reg.cpp:79:5) 
 
 // Thread-local variables
 logic [3:0] f_next;
@@ -143,7 +143,7 @@ logic [3:0] g_next;
 logic [3:0] arr_next[3];
 
 // Next-state combinational logic
-always_comb begin : channels2_comb     // test_cthread_var_reg.cpp:72:5
+always_comb begin : channels2_comb     // test_cthread_var_reg.cpp:79:5
     channels2_func;
 end
 function void channels2_func;
@@ -178,7 +178,7 @@ begin : channels2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: variables1 (test_cthread_var_reg.cpp:97:5) 
+// Clocked THREAD: variables1 (test_cthread_var_reg.cpp:104:5) 
 
 // Thread-local variables
 logic [3:0] n;
@@ -194,7 +194,7 @@ logic variables1_PROC_STATE;
 logic variables1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : variables1_comb     // test_cthread_var_reg.cpp:97:5
+always_comb begin : variables1_comb     // test_cthread_var_reg.cpp:104:5
     variables1_func;
 end
 function void variables1_func;
@@ -210,7 +210,7 @@ function void variables1_func;
             z_next = b + n_next;
             t = m_next;
             p = n_next;
-            variables1_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:108:13;
+            variables1_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:115:13;
         end
         1: begin
             if (a)
@@ -222,7 +222,7 @@ function void variables1_func;
             z_next = b + n_next;
             t = m_next;
             p = n_next;
-            variables1_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:108:13;
+            variables1_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:115:13;
         end
     endcase
 endfunction
@@ -235,7 +235,7 @@ begin : variables1_ff
         x = 1;
         k <= 0;
         m <= 0;
-        variables1_PROC_STATE <= 0;    // test_cthread_var_reg.cpp:101:9;
+        variables1_PROC_STATE <= 0;    // test_cthread_var_reg.cpp:108:9;
     end
     else begin
         n <= n_next;
@@ -247,7 +247,7 @@ begin : variables1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: variables2 (test_cthread_var_reg.cpp:120:5) 
+// Clocked THREAD: variables2 (test_cthread_var_reg.cpp:127:5) 
 
 // Thread-local variables
 logic signed [31:0] s1_next;
@@ -263,7 +263,7 @@ logic [1:0] variables2_PROC_STATE;
 logic [1:0] variables2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : variables2_comb     // test_cthread_var_reg.cpp:120:5
+always_comb begin : variables2_comb     // test_cthread_var_reg.cpp:127:5
     variables2_func;
 end
 function void variables2_func;
@@ -282,20 +282,20 @@ function void variables2_func;
                 if (|c)
                 begin
                     s1_next = w_next + v_next;
-                    variables2_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:133:21;
+                    variables2_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:140:21;
                 end
                 s1_next = v_next;
             end
-            variables2_PROC_STATE_next = 2; return;    // test_cthread_var_reg.cpp:138:13;
+            variables2_PROC_STATE_next = 2; return;    // test_cthread_var_reg.cpp:145:13;
         end
         1: begin
             if (|c)
             begin
                 s1_next = w_next + v_next;
-                variables2_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:133:21;
+                variables2_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:140:21;
             end
             s1_next = v_next;
-            variables2_PROC_STATE_next = 2; return;    // test_cthread_var_reg.cpp:138:13;
+            variables2_PROC_STATE_next = 2; return;    // test_cthread_var_reg.cpp:145:13;
         end
         2: begin
             if (|b)
@@ -304,11 +304,11 @@ function void variables2_func;
                 if (|c)
                 begin
                     s1_next = w_next + v_next;
-                    variables2_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:133:21;
+                    variables2_PROC_STATE_next = 1; return;    // test_cthread_var_reg.cpp:140:21;
                 end
                 s1_next = v_next;
             end
-            variables2_PROC_STATE_next = 2; return;    // test_cthread_var_reg.cpp:138:13;
+            variables2_PROC_STATE_next = 2; return;    // test_cthread_var_reg.cpp:145:13;
         end
     endcase
 endfunction
@@ -321,7 +321,7 @@ begin : variables2_ff
         r <= a ? arrv[0] : 1'd0;
         w <= 0;
         s1 <= 0;
-        variables2_PROC_STATE <= 0;    // test_cthread_var_reg.cpp:125:9;
+        variables2_PROC_STATE <= 0;    // test_cthread_var_reg.cpp:132:9;
     end
     else begin
         s1 <= s1_next;

@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: C (test_virtual_cast.cpp:69:5)
+// Module: C (test_virtual_cast.cpp:76:5)
 //
 module C // "b_mod.c_mod"
 (
@@ -41,14 +41,14 @@ module C // "b_mod.c_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: proc_func (test_virtual_cast.cpp:35:5) 
+// Method process: proc_func (test_virtual_cast.cpp:42:5) 
 
 // Process-local variables
 logic signed [15:0] m0;
 logic signed [7:0] m;
 
 always_comb 
-begin : proc_func     // test_virtual_cast.cpp:35:5
+begin : proc_func     // test_virtual_cast.cpp:42:5
     // Call f() begin
     m0 = m0 + 2;
     // Call f() end
@@ -66,7 +66,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: D (test_virtual_cast.cpp:70:5)
+// Module: D (test_virtual_cast.cpp:77:5)
 //
 module D // "b_mod.d_mod"
 (
@@ -75,14 +75,14 @@ module D // "b_mod.d_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: proc_func (test_virtual_cast.cpp:35:5) 
+// Method process: proc_func (test_virtual_cast.cpp:42:5) 
 
 // Process-local variables
 logic signed [15:0] m0;
 logic signed [7:0] m;
 
 always_comb 
-begin : proc_func     // test_virtual_cast.cpp:35:5
+begin : proc_func     // test_virtual_cast.cpp:42:5
     // Call f() begin
     m0 = m0 + 2;
     // Call f() end
@@ -95,7 +95,7 @@ begin : proc_func     // test_virtual_cast.cpp:35:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: proc_func0 (test_virtual_cast.cpp:57:5) 
+// Method process: proc_func0 (test_virtual_cast.cpp:64:5) 
 
 // Process-local variables
 logic signed [31:0] m1;
@@ -103,7 +103,7 @@ logic signed [15:0] m0;
 logic signed [7:0] m;
 
 always_comb 
-begin : proc_func0     // test_virtual_cast.cpp:57:5
+begin : proc_func0     // test_virtual_cast.cpp:64:5
     // Call f() begin
     m1 = m1 + 3;
     // Call f() end

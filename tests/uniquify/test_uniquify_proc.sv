@@ -65,7 +65,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut (test_uniquify_proc.cpp:50:5)
+// Module: dut (test_uniquify_proc.cpp:57:5)
 //
 module dut // "top_inst.dut0"
 (
@@ -75,10 +75,10 @@ module dut // "top_inst.dut0"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: dut_method1 (test_uniquify_proc.cpp:36:5) 
+// Method process: dut_method1 (test_uniquify_proc.cpp:43:5) 
 
 always_comb 
-begin : dut_method1     // test_uniquify_proc.cpp:36:5
+begin : dut_method1     // test_uniquify_proc.cpp:43:5
 end
 
 endmodule
@@ -87,7 +87,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut0 (test_uniquify_proc.cpp:51:5)
+// Module: dut0 (test_uniquify_proc.cpp:58:5)
 //
 module dut0 // "top_inst.dut1"
 (
@@ -97,10 +97,10 @@ module dut0 // "top_inst.dut1"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: dut_method0 (test_uniquify_proc.cpp:32:5) 
+// Method process: dut_method0 (test_uniquify_proc.cpp:39:5) 
 
 always_comb 
-begin : dut_method0     // test_uniquify_proc.cpp:32:5
+begin : dut_method0     // test_uniquify_proc.cpp:39:5
 end
 
 endmodule
@@ -109,7 +109,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut1 (test_uniquify_proc.cpp:52:5)
+// Module: dut1 (test_uniquify_proc.cpp:59:5)
 //
 module dut1 // "top_inst.dut2"
 (
@@ -119,10 +119,10 @@ module dut1 // "top_inst.dut2"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: dut_method0 (test_uniquify_proc.cpp:32:5) 
+// Method process: dut_method0 (test_uniquify_proc.cpp:39:5) 
 
 always_comb 
-begin : dut_method0     // test_uniquify_proc.cpp:32:5
+begin : dut_method0     // test_uniquify_proc.cpp:39:5
 end
 
 endmodule
@@ -131,7 +131,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut3 (test_uniquify_proc.cpp:54:5)
+// Module: dut3 (test_uniquify_proc.cpp:61:5)
 //
 module dut3 // "top_inst.dut4"
 (
@@ -141,10 +141,10 @@ module dut3 // "top_inst.dut4"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: dut_method2 (test_uniquify_proc.cpp:40:5) 
+// Method process: dut_method2 (test_uniquify_proc.cpp:47:5) 
 
 always_comb 
-begin : dut_method2     // test_uniquify_proc.cpp:40:5
+begin : dut_method2     // test_uniquify_proc.cpp:47:5
 end
 
 endmodule
@@ -153,7 +153,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut4 (test_uniquify_proc.cpp:55:5)
+// Module: dut4 (test_uniquify_proc.cpp:62:5)
 //
 module dut4 // "top_inst.dut5"
 (
@@ -163,10 +163,10 @@ module dut4 // "top_inst.dut5"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: dut_method0 (test_uniquify_proc.cpp:32:5) 
+// Method process: dut_method0 (test_uniquify_proc.cpp:39:5) 
 
 always_comb 
-begin : dut_method0     // test_uniquify_proc.cpp:32:5
+begin : dut_method0     // test_uniquify_proc.cpp:39:5
 end
 
 endmodule
@@ -175,7 +175,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut5 (test_uniquify_proc.cpp:56:5)
+// Module: dut5 (test_uniquify_proc.cpp:63:5)
 //
 module dut5 // "top_inst.dut6"
 (
@@ -185,10 +185,10 @@ module dut5 // "top_inst.dut6"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: dut_method0 (test_uniquify_proc.cpp:32:5) 
+// Method process: dut_method0 (test_uniquify_proc.cpp:39:5) 
 
 always_comb 
-begin : dut_method0     // test_uniquify_proc.cpp:32:5
+begin : dut_method0     // test_uniquify_proc.cpp:39:5
 end
 
 endmodule

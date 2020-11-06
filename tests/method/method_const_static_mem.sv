@@ -26,15 +26,15 @@ localparam logic signed [31:0] ARR[3] = '{ 'd1, 'd2, 'd3 };
 localparam logic signed [7:0] ARRI[3] = '{ 'd4, -'d5, 'd6 };
 
 //------------------------------------------------------------------------------
-// Method process: const_method (test_const_static_mem.cpp:51:5) 
+// Method process: const_method (test_const_static_mem.cpp:58:5) 
 
 always_comb 
-begin : const_method     // test_const_static_mem.cpp:51:5
+begin : const_method     // test_const_static_mem.cpp:58:5
     integer a;
     integer unsigned TMP_0;
     integer unsigned b;
     a = 42;
-    a = -7'sd43;
+    a = -32'sd43;
     a = 43;
     a = 2;
     a = -4'sd5;
@@ -46,10 +46,10 @@ begin : const_method     // test_const_static_mem.cpp:51:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_record_method (test_const_static_mem.cpp:67:5) 
+// Method process: const_record_method (test_const_static_mem.cpp:74:5) 
 
 always_comb 
-begin : const_record_method     // test_const_static_mem.cpp:67:5
+begin : const_record_method     // test_const_static_mem.cpp:74:5
     logic a;
     logic [3:0] b;
     logic rec_a;
@@ -62,14 +62,14 @@ begin : const_record_method     // test_const_static_mem.cpp:67:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_record_thread (test_const_static_mem.cpp:73:5) 
+// Clocked THREAD: const_record_thread (test_const_static_mem.cpp:80:5) 
 
 // Thread-local constants
 logic rec_a;
 logic [3:0] rec_b;
 
 // Next-state combinational logic
-always_comb begin : const_record_thread_comb     // test_const_static_mem.cpp:73:5
+always_comb begin : const_record_thread_comb     // test_const_static_mem.cpp:80:5
     const_record_thread_func;
 end
 function void const_record_thread_func;
@@ -92,14 +92,14 @@ begin : const_record_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_record_thread2 (test_const_static_mem.cpp:85:5) 
+// Clocked THREAD: const_record_thread2 (test_const_static_mem.cpp:92:5) 
 
 // Thread-local constants
 logic rec_a0;
 logic [3:0] rec_b0;
 
 // Next-state combinational logic
-always_comb begin : const_record_thread2_comb     // test_const_static_mem.cpp:85:5
+always_comb begin : const_record_thread2_comb     // test_const_static_mem.cpp:92:5
     const_record_thread2_func;
 end
 function void const_record_thread2_func;

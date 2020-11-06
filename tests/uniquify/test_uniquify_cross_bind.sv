@@ -73,7 +73,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: inner (test_uniquify_cross_bind.cpp:51:5)
+// Module: inner (test_uniquify_cross_bind.cpp:58:5)
 //
 module inner // "top_inst.inner_0"
 (
@@ -86,7 +86,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: inner2 (test_uniquify_cross_bind.cpp:53:5)
+// Module: inner2 (test_uniquify_cross_bind.cpp:60:5)
 //
 module inner2 // "top_inst.inner2_0"
 (
@@ -99,7 +99,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut (test_uniquify_cross_bind.cpp:55:5)
+// Module: dut (test_uniquify_cross_bind.cpp:62:5)
 //
 module dut // "top_inst.dut0"
 (
@@ -117,7 +117,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut1 (test_uniquify_cross_bind.cpp:57:5)
+// Module: dut1 (test_uniquify_cross_bind.cpp:64:5)
 //
 module dut1 // "top_inst.dut2"
 (
@@ -135,7 +135,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: inner3 (test_uniquify_cross_bind.cpp:59:5)
+// Module: inner3 (test_uniquify_cross_bind.cpp:66:5)
 //
 module inner3 // "top_inst.inner3_0"
 (
@@ -158,7 +158,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut2 (test_uniquify_cross_bind.cpp:25:5)
+// Module: dut2 (test_uniquify_cross_bind.cpp:32:5)
 //
 module dut2 // "top_inst.inner3_0.dut_0"
 (
@@ -176,7 +176,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: inner_deep (test_uniquify_cross_bind.cpp:61:5)
+// Module: inner_deep (test_uniquify_cross_bind.cpp:68:5)
 //
 module inner_deep // "top_inst.inner_deep_0"
 (
@@ -197,7 +197,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut_deep (test_uniquify_cross_bind.cpp:62:5)
+// Module: dut_deep (test_uniquify_cross_bind.cpp:69:5)
 //
 module dut_deep // "top_inst.dut_deep_0"
 (

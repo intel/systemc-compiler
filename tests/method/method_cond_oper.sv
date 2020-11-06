@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cond_oper.cpp:287:5)
+// Module: A (test_cond_oper.cpp:294:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -48,34 +48,34 @@ logic s1;
 logic s2;
 
 //------------------------------------------------------------------------------
-// Method process: dead_cond_error (test_cond_oper.cpp:51:5) 
+// Method process: dead_cond_error (test_cond_oper.cpp:58:5) 
 
 always_comb 
-begin : dead_cond_error     // test_cond_oper.cpp:51:5
+begin : dead_cond_error     // test_cond_oper.cpp:58:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_oper_for_channels (test_cond_oper.cpp:61:5) 
+// Method process: cond_oper_for_channels (test_cond_oper.cpp:68:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : cond_oper_for_channels     // test_cond_oper.cpp:61:5
+begin : cond_oper_for_channels     // test_cond_oper.cpp:68:5
     logic b_1;
     b_1 = |k ? s1 : s2;
     b_1 = |k ? s1 : s2;
 end
 
 //------------------------------------------------------------------------------
-// Method process: logic_expr1 (test_cond_oper.cpp:70:5) 
+// Method process: logic_expr1 (test_cond_oper.cpp:77:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : logic_expr1     // test_cond_oper.cpp:70:5
+begin : logic_expr1     // test_cond_oper.cpp:77:5
     logic l0;
     logic l1;
     logic l2;
@@ -89,14 +89,14 @@ begin : logic_expr1     // test_cond_oper.cpp:70:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: logic_expr2 (test_cond_oper.cpp:79:5) 
+// Method process: logic_expr2 (test_cond_oper.cpp:86:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] k;
 
 always_comb 
-begin : logic_expr2     // test_cond_oper.cpp:79:5
+begin : logic_expr2     // test_cond_oper.cpp:86:5
     logic l1;
     logic l2;
     logic l3;
@@ -108,14 +108,14 @@ begin : logic_expr2     // test_cond_oper.cpp:79:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: logic_expr3 (test_cond_oper.cpp:87:5) 
+// Method process: logic_expr3 (test_cond_oper.cpp:94:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] k;
 
 always_comb 
-begin : logic_expr3     // test_cond_oper.cpp:87:5
+begin : logic_expr3     // test_cond_oper.cpp:94:5
     logic l1;
     logic l2;
     logic l3;
@@ -127,14 +127,14 @@ begin : logic_expr3     // test_cond_oper.cpp:87:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: logic_expr4 (test_cond_oper.cpp:95:5) 
+// Method process: logic_expr4 (test_cond_oper.cpp:102:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] k;
 
 always_comb 
-begin : logic_expr4     // test_cond_oper.cpp:95:5
+begin : logic_expr4     // test_cond_oper.cpp:102:5
     logic l1;
     logic l2;
     logic l3;
@@ -146,28 +146,28 @@ begin : logic_expr4     // test_cond_oper.cpp:95:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_oper_compl (test_cond_oper.cpp:103:5) 
+// Method process: cond_oper_compl (test_cond_oper.cpp:110:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] k;
 
 always_comb 
-begin : cond_oper_compl     // test_cond_oper.cpp:103:5
+begin : cond_oper_compl     // test_cond_oper.cpp:110:5
     integer i;
     i = |(m + 1) ? m + 1 : m + 2;
     i = (m + 1 > k - 1) ? 1 : 2;
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_oper1 (test_cond_oper.cpp:110:5) 
+// Method process: cond_oper1 (test_cond_oper.cpp:117:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : cond_oper1     // test_cond_oper.cpp:110:5
+begin : cond_oper1     // test_cond_oper.cpp:117:5
     integer i;
     i = (m == 1) ? 1 : 2;
     i = (m > k) ? m + 1 : k + 1;
@@ -178,14 +178,14 @@ begin : cond_oper1     // test_cond_oper.cpp:110:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_oper2 (test_cond_oper.cpp:121:5) 
+// Method process: cond_oper2 (test_cond_oper.cpp:128:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] k;
 
 always_comb 
-begin : cond_oper2     // test_cond_oper.cpp:121:5
+begin : cond_oper2     // test_cond_oper.cpp:128:5
     integer i;
     if (m > 1)
     begin
@@ -206,14 +206,14 @@ begin : cond_oper2     // test_cond_oper.cpp:121:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_oper_const (test_cond_oper.cpp:255:5) 
+// Method process: cond_oper_const (test_cond_oper.cpp:262:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : cond_oper_const     // test_cond_oper.cpp:255:5
+begin : cond_oper_const     // test_cond_oper.cpp:262:5
     integer i;
     i = k;
     i = m;
@@ -224,10 +224,10 @@ begin : cond_oper_const     // test_cond_oper.cpp:255:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_oper_fcall (test_cond_oper.cpp:270:5) 
+// Method process: cond_oper_fcall (test_cond_oper.cpp:277:5) 
 
 always_comb 
-begin : cond_oper_fcall     // test_cond_oper.cpp:270:5
+begin : cond_oper_fcall     // test_cond_oper.cpp:277:5
     integer i;
     integer TMP_0;
     integer l;

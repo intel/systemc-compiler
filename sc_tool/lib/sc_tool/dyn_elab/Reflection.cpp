@@ -503,11 +503,15 @@ clang::QualType ArrayObject::getElementType() const
 
 clang::QualType ArrayObject::getInnerElementType() const
 {
+    assert (size() != 0 && "Zero-size array/vector getInnerElementType()");
     return getFirstInnerElement().getType();
 }
 
-TypedObject ArrayObject::getFirstInnerElement() const {
+TypedObject ArrayObject::getFirstInnerElement() const 
+{
+    assert (size() != 0 && "Zero-size array/vector getFirstInnerElement()");
     TypedObject element = (*this)[0];
+    
     while (element.isArrayObject()) {
         element = element.getAs<ArrayObject>()->operator[](0);
     }

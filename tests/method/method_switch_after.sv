@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_switch_after.cpp:204:5)
+// Module: A (test_switch_after.cpp:211:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -48,10 +48,10 @@ logic [2:0] s;
 logic [2:0] t;
 
 //------------------------------------------------------------------------------
-// Method process: switch_if1 (test_switch_after.cpp:37:5) 
+// Method process: switch_if1 (test_switch_after.cpp:44:5) 
 
 always_comb 
-begin : switch_if1     // test_switch_after.cpp:37:5
+begin : switch_if1     // test_switch_after.cpp:44:5
     integer i;
     case (t)
     1 : begin
@@ -87,13 +87,13 @@ begin : switch_if1     // test_switch_after.cpp:37:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_if2 (test_switch_after.cpp:62:5) 
+// Method process: switch_if2 (test_switch_after.cpp:69:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : switch_if2     // test_switch_after.cpp:62:5
+begin : switch_if2     // test_switch_after.cpp:69:5
     integer i;
     k = s;
     if (|t)
@@ -128,13 +128,13 @@ begin : switch_if2     // test_switch_after.cpp:62:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_if3 (test_switch_after.cpp:83:5) 
+// Method process: switch_if3 (test_switch_after.cpp:90:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : switch_if3     // test_switch_after.cpp:83:5
+begin : switch_if3     // test_switch_after.cpp:90:5
     integer i;
     m = s + 1;
     case (t)
@@ -162,10 +162,10 @@ begin : switch_if3     // test_switch_after.cpp:83:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_if_for1 (test_switch_after.cpp:106:5) 
+// Method process: switch_if_for1 (test_switch_after.cpp:113:5) 
 
 always_comb 
-begin : switch_if_for1     // test_switch_after.cpp:106:5
+begin : switch_if_for1     // test_switch_after.cpp:113:5
     integer i;
     i = t;
     case (s)
@@ -195,10 +195,10 @@ begin : switch_if_for1     // test_switch_after.cpp:106:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_if_for2 (test_switch_after.cpp:121:5) 
+// Method process: switch_if_for2 (test_switch_after.cpp:128:5) 
 
 always_comb 
-begin : switch_if_for2     // test_switch_after.cpp:121:5
+begin : switch_if_for2     // test_switch_after.cpp:128:5
     integer i;
     i = s;
     for (integer j = 0; j < 70; j++)
@@ -236,10 +236,10 @@ begin : switch_if_for2     // test_switch_after.cpp:121:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_if_for3 (test_switch_after.cpp:142:5) 
+// Method process: switch_if_for3 (test_switch_after.cpp:149:5) 
 
 always_comb 
-begin : switch_if_for3     // test_switch_after.cpp:142:5
+begin : switch_if_for3     // test_switch_after.cpp:149:5
     integer i;
     logic [23:0] sum;
     i = (1 && |s) ? 0 : 1;
@@ -277,10 +277,10 @@ begin : switch_if_for3     // test_switch_after.cpp:142:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_if_for4 (test_switch_after.cpp:168:5) 
+// Method process: switch_if_for4 (test_switch_after.cpp:175:5) 
 
 always_comb 
-begin : switch_if_for4     // test_switch_after.cpp:168:5
+begin : switch_if_for4     // test_switch_after.cpp:175:5
     integer i;
     integer unsigned sum;
     i = 0;

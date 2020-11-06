@@ -35,7 +35,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Child (test_var_multiple_use2.cpp:52:5)
+// Module: Child (test_var_multiple_use2.cpp:59:5)
 //
 module Child // "top.child"
 (
@@ -49,20 +49,20 @@ module Child // "top.child"
 logic signed [31:0] s;
 
 //------------------------------------------------------------------------------
-// Method process: methA (test_var_multiple_use2.cpp:28:5) 
+// Method process: methA (test_var_multiple_use2.cpp:35:5) 
 
 // Process-local variables
 logic [2:0] v;
 
 always_comb 
-begin : methA     // test_var_multiple_use2.cpp:28:5
+begin : methA     // test_var_multiple_use2.cpp:35:5
     v = in;
     s = 2 - v;
     out = 1 + in;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thrA (test_var_multiple_use2.cpp:34:5) 
+// Clocked THREAD: thrA (test_var_multiple_use2.cpp:41:5) 
 
 // Thread-local variables
 logic [2:0] v;
@@ -74,7 +74,7 @@ logic [1:0] thrA_PROC_STATE;
 logic [1:0] thrA_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thrA_comb     // test_var_multiple_use2.cpp:34:5
+always_comb begin : thrA_comb     // test_var_multiple_use2.cpp:41:5
     thrA_func;
 end
 function void thrA_func;
@@ -86,15 +86,15 @@ function void thrA_func;
     case (thrA_PROC_STATE)
         0: begin
             i_next = v_next;
-            thrA_PROC_STATE_next = 1; return;    // test_var_multiple_use2.cpp:40:13;
+            thrA_PROC_STATE_next = 1; return;    // test_var_multiple_use2.cpp:47:13;
         end
         1: begin
             s_next = i_next + in;
-            thrA_PROC_STATE_next = 2; return;    // test_var_multiple_use2.cpp:42:13;
+            thrA_PROC_STATE_next = 2; return;    // test_var_multiple_use2.cpp:49:13;
         end
         2: begin
             i_next = v_next;
-            thrA_PROC_STATE_next = 1; return;    // test_var_multiple_use2.cpp:40:13;
+            thrA_PROC_STATE_next = 1; return;    // test_var_multiple_use2.cpp:47:13;
         end
     endcase
 endfunction
@@ -104,7 +104,7 @@ always_ff @(posedge clk or posedge rst)
 begin : thrA_ff
     if (rst ) begin
         out <= 0;
-        thrA_PROC_STATE <= 0;    // test_var_multiple_use2.cpp:36:9;
+        thrA_PROC_STATE <= 0;    // test_var_multiple_use2.cpp:43:9;
     end
     else begin
         v <= v_next;

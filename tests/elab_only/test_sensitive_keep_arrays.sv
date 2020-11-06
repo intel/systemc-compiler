@@ -37,7 +37,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: test_sens_arrays (test_sensitive_keep_arrays.cpp:53:5)
+// Module: test_sens_arrays (test_sensitive_keep_arrays.cpp:60:5)
 //
 module test_sens_arrays // "top_inst.t0"
 (
@@ -51,31 +51,31 @@ logic ins[3];
 assign ins = sigs;
 
 //------------------------------------------------------------------------------
-// Method process: method0 (test_sensitive_keep_arrays.cpp:33:5) 
+// Method process: method0 (test_sensitive_keep_arrays.cpp:40:5) 
 
 always_comb 
-begin : method0     // test_sensitive_keep_arrays.cpp:33:5
+begin : method0     // test_sensitive_keep_arrays.cpp:40:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: method1 (test_sensitive_keep_arrays.cpp:37:5) 
+// Method process: method1 (test_sensitive_keep_arrays.cpp:44:5) 
 
 always_comb 
-begin : method1     // test_sensitive_keep_arrays.cpp:37:5
+begin : method1     // test_sensitive_keep_arrays.cpp:44:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: method2 (test_sensitive_keep_arrays.cpp:41:5) 
+// Method process: method2 (test_sensitive_keep_arrays.cpp:48:5) 
 
 always_comb 
-begin : method2     // test_sensitive_keep_arrays.cpp:41:5
+begin : method2     // test_sensitive_keep_arrays.cpp:48:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread (test_sensitive_keep_arrays.cpp:45:5) 
+// Clocked THREAD: test_thread (test_sensitive_keep_arrays.cpp:52:5) 
 
 // Next-state combinational logic
-always_comb begin : test_thread_comb     // test_sensitive_keep_arrays.cpp:45:5
+always_comb begin : test_thread_comb     // test_sensitive_keep_arrays.cpp:52:5
     test_thread_func;
 end
 function void test_thread_func;

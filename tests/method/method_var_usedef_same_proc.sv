@@ -35,7 +35,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Child (test_var_usedef_same_proc.cpp:43:5)
+// Module: Child (test_var_usedef_same_proc.cpp:50:5)
 //
 module Child // "top.child"
 (
@@ -50,19 +50,19 @@ logic signed [31:0] s;
 logic signed [31:0] t;
 
 //------------------------------------------------------------------------------
-// Method process: methA (test_var_usedef_same_proc.cpp:23:5) 
+// Method process: methA (test_var_usedef_same_proc.cpp:30:5) 
 
 always_comb 
-begin : methA     // test_var_usedef_same_proc.cpp:23:5
+begin : methA     // test_var_usedef_same_proc.cpp:30:5
     s = in;
     t = s;
 end
 
 //------------------------------------------------------------------------------
-// Method process: methB (test_var_usedef_same_proc.cpp:28:5) 
+// Method process: methB (test_var_usedef_same_proc.cpp:35:5) 
 
 always_comb 
-begin : methB     // test_var_usedef_same_proc.cpp:28:5
+begin : methB     // test_var_usedef_same_proc.cpp:35:5
     integer j;
     if (|s)
     begin

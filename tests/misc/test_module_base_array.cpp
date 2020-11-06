@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <systemc.h>
 
 // Array of pointers to module base class
@@ -62,3 +69,4 @@ int sc_main(int argc, char **argv) {
 
     return 0;
 }
+

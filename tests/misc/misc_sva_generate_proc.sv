@@ -24,7 +24,7 @@ logic signed [31:0] sarr[3];
 logic [2:0] psarr[3];
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_imm (test_sva_generate_proc.cpp:102:5) 
+// Clocked THREAD: sct_assert_imm (test_sva_generate_proc.cpp:109:5) 
 
 // Thread-local variables
 logic signed [31:0] ii;
@@ -33,7 +33,7 @@ logic sct_assert_imm_PROC_STATE;
 logic sct_assert_imm_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_imm_comb     // test_sva_generate_proc.cpp:102:5
+always_comb begin : sct_assert_imm_comb     // test_sva_generate_proc.cpp:109:5
     sct_assert_imm_func;
 end
 function void sct_assert_imm_func;
@@ -44,14 +44,14 @@ function void sct_assert_imm_func;
     case (sct_assert_imm_PROC_STATE)
         0: begin
             mm = 3;
-            assert (mm != s) else $error("Assertion failed at test_sva_generate_proc.cpp:109:9");
+            assert (mm != s) else $error("Assertion failed at test_sva_generate_proc.cpp:116:9");
             ii_next = s;
-            sct_assert_imm_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:113:13;
+            sct_assert_imm_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:120:13;
         end
         1: begin
-            assert (ii_next == s_d) else $error("Assertion failed at test_sva_generate_proc.cpp:114:13");
+            assert (ii_next == s_d) else $error("Assertion failed at test_sva_generate_proc.cpp:121:13");
             ii_next = s;
-            sct_assert_imm_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:113:13;
+            sct_assert_imm_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:120:13;
         end
     endcase
 endfunction
@@ -65,8 +65,8 @@ begin : sct_assert_imm_ff
         ii <= 0;
         kk = 1;
         mm = 2;
-        assert (kk != s) else $error("Assertion failed at test_sva_generate_proc.cpp:105:9");
-        sct_assert_imm_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:106:9;
+        assert (kk != s) else $error("Assertion failed at test_sva_generate_proc.cpp:112:9");
+        sct_assert_imm_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:113:9;
     end
     else begin
         ii <= ii_next;
@@ -75,7 +75,7 @@ begin : sct_assert_imm_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_imm_reg (test_sva_generate_proc.cpp:118:5) 
+// Clocked THREAD: sct_assert_imm_reg (test_sva_generate_proc.cpp:125:5) 
 
 // Thread-local variables
 logic signed [31:0] kk;
@@ -86,7 +86,7 @@ logic sct_assert_imm_reg_PROC_STATE;
 logic sct_assert_imm_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_imm_reg_comb     // test_sva_generate_proc.cpp:118:5
+always_comb begin : sct_assert_imm_reg_comb     // test_sva_generate_proc.cpp:125:5
     sct_assert_imm_reg_func;
 end
 function void sct_assert_imm_reg_func;
@@ -97,12 +97,12 @@ function void sct_assert_imm_reg_func;
     case (sct_assert_imm_reg_PROC_STATE)
         0: begin
             mm_next = 3;
-            assert (mm_next != s) else $error("Assertion failed at test_sva_generate_proc.cpp:125:9");
-            sct_assert_imm_reg_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:128:13;
+            assert (mm_next != s) else $error("Assertion failed at test_sva_generate_proc.cpp:132:9");
+            sct_assert_imm_reg_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:135:13;
         end
         1: begin
-            assert (mm_next == kk_next) else $error("Assertion failed at test_sva_generate_proc.cpp:129:13");
-            sct_assert_imm_reg_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:128:13;
+            assert (mm_next == kk_next) else $error("Assertion failed at test_sva_generate_proc.cpp:136:13");
+            sct_assert_imm_reg_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:135:13;
         end
     endcase
 endfunction
@@ -113,8 +113,8 @@ begin : sct_assert_imm_reg_ff
     if ( ~rstn ) begin
         kk <= 1;
         mm <= 2;
-        assert (kk != s) else $error("Assertion failed at test_sva_generate_proc.cpp:121:9");
-        sct_assert_imm_reg_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:122:9;
+        assert (kk != s) else $error("Assertion failed at test_sva_generate_proc.cpp:128:9");
+        sct_assert_imm_reg_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:129:9;
     end
     else begin
         kk <= kk_next;
@@ -124,10 +124,10 @@ begin : sct_assert_imm_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_one (test_sva_generate_proc.cpp:134:5) 
+// Clocked THREAD: sct_assert_one (test_sva_generate_proc.cpp:141:5) 
 
 // Next-state combinational logic
-always_comb begin : sct_assert_one_comb     // test_sva_generate_proc.cpp:134:5
+always_comb begin : sct_assert_one_comb     // test_sva_generate_proc.cpp:141:5
     sct_assert_one_func;
 end
 function void sct_assert_one_func;
@@ -142,19 +142,19 @@ begin : sct_assert_one_ff
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine136 : assert property ( |s |=> |s_d );
+    sctAssertLine143 : assert property ( |s |=> |s_d );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_two_same (test_sva_generate_proc.cpp:145:5) 
+// Clocked THREAD: sct_assert_two_same (test_sva_generate_proc.cpp:152:5) 
 
 // Thread-local variables
 logic sct_assert_two_same_PROC_STATE;
 logic sct_assert_two_same_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_two_same_comb     // test_sva_generate_proc.cpp:145:5
+always_comb begin : sct_assert_two_same_comb     // test_sva_generate_proc.cpp:152:5
     sct_assert_two_same_func;
 end
 function void sct_assert_two_same_func;
@@ -162,10 +162,10 @@ function void sct_assert_two_same_func;
     
     case (sct_assert_two_same_PROC_STATE)
         0: begin
-            sct_assert_two_same_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:152:13;
+            sct_assert_two_same_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:159:13;
         end
         1: begin
-            sct_assert_two_same_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:152:13;
+            sct_assert_two_same_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:159:13;
         end
     endcase
 endfunction
@@ -174,23 +174,23 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : sct_assert_two_same_ff
     if ( ~rstn ) begin
-        sct_assert_two_same_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:148:9;
+        sct_assert_two_same_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:155:9;
     end
     else begin
         sct_assert_two_same_PROC_STATE <= sct_assert_two_same_PROC_STATE_next;
 
     `ifndef INTEL_SVA_OFF
-        sctAssertLine149 : assert property ( |s |-> ##3 |s_d );
+        sctAssertLine156 : assert property ( |s |-> ##3 |s_d );
     `endif // INTEL_SVA_OFF
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine147 : assert property ( |s |=> |s_d );
+    sctAssertLine154 : assert property ( |s |=> |s_d );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_several (test_sva_generate_proc.cpp:157:5) 
+// Clocked THREAD: sct_assert_several (test_sva_generate_proc.cpp:164:5) 
 
 // Thread-local variables
 logic a;
@@ -201,7 +201,7 @@ logic arr[3];
 logic arr_next[3];
 
 // Next-state combinational logic
-always_comb begin : sct_assert_several_comb     // test_sva_generate_proc.cpp:157:5
+always_comb begin : sct_assert_several_comb     // test_sva_generate_proc.cpp:164:5
     sct_assert_several_func;
 end
 function void sct_assert_several_func;
@@ -225,21 +225,21 @@ begin : sct_assert_several_ff
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine160 : assert property ( |s |=> s_d == a_next );
-    sctAssertLine161 : assert property ( 1 |-> ##[2:3] |s_d2 && (ps == 1) );
-    sctAssertLine162 : assert property ( |psarr[1] |-> ##[3:5] sarr[0] != arr_next[2] );
+    sctAssertLine167 : assert property ( |s |=> s_d == a_next );
+    sctAssertLine168 : assert property ( 1 |-> ##[2:3] |s_d2 && (ps == 1) );
+    sctAssertLine169 : assert property ( |psarr[1] |-> ##[3:5] sarr[0] != arr_next[2] );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_several_multi1 (test_sva_generate_proc.cpp:171:5) 
+// Clocked THREAD: sct_assert_several_multi1 (test_sva_generate_proc.cpp:178:5) 
 
 // Thread-local variables
 logic [1:0] sct_assert_several_multi1_PROC_STATE;
 logic [1:0] sct_assert_several_multi1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_several_multi1_comb     // test_sva_generate_proc.cpp:171:5
+always_comb begin : sct_assert_several_multi1_comb     // test_sva_generate_proc.cpp:178:5
     sct_assert_several_multi1_func;
 end
 function void sct_assert_several_multi1_func;
@@ -247,13 +247,13 @@ function void sct_assert_several_multi1_func;
     
     case (sct_assert_several_multi1_PROC_STATE)
         0: begin
-            sct_assert_several_multi1_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:177:13;
+            sct_assert_several_multi1_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:184:13;
         end
         1: begin
-            sct_assert_several_multi1_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:179:13;
+            sct_assert_several_multi1_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:186:13;
         end
         2: begin
-            sct_assert_several_multi1_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:177:13;
+            sct_assert_several_multi1_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:184:13;
         end
     endcase
 endfunction
@@ -262,26 +262,26 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : sct_assert_several_multi1_ff
     if ( ~rstn ) begin
-        sct_assert_several_multi1_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:174:9;
+        sct_assert_several_multi1_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:181:9;
     end
     else begin
         sct_assert_several_multi1_PROC_STATE <= sct_assert_several_multi1_PROC_STATE_next;
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine173 : assert property ( |s |=> |s_d );
+    sctAssertLine180 : assert property ( |s |=> |s_d );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_several_multi2 (test_sva_generate_proc.cpp:184:5) 
+// Clocked THREAD: sct_assert_several_multi2 (test_sva_generate_proc.cpp:191:5) 
 
 // Thread-local variables
 logic [1:0] sct_assert_several_multi2_PROC_STATE;
 logic [1:0] sct_assert_several_multi2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_several_multi2_comb     // test_sva_generate_proc.cpp:184:5
+always_comb begin : sct_assert_several_multi2_comb     // test_sva_generate_proc.cpp:191:5
     sct_assert_several_multi2_func;
 end
 function void sct_assert_several_multi2_func;
@@ -291,19 +291,19 @@ function void sct_assert_several_multi2_func;
         0: begin
             if (|s)
             begin
-                sct_assert_several_multi2_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:191:17;
+                sct_assert_several_multi2_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:198:17;
             end
-            sct_assert_several_multi2_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:194:13;
+            sct_assert_several_multi2_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:201:13;
         end
         1: begin
-            sct_assert_several_multi2_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:194:13;
+            sct_assert_several_multi2_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:201:13;
         end
         2: begin
             if (|s)
             begin
-                sct_assert_several_multi2_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:191:17;
+                sct_assert_several_multi2_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:198:17;
             end
-            sct_assert_several_multi2_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:194:13;
+            sct_assert_several_multi2_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:201:13;
         end
     endcase
 endfunction
@@ -312,19 +312,19 @@ endfunction
 always_ff @(negedge clk or negedge rstn) 
 begin : sct_assert_several_multi2_ff
     if ( ~rstn ) begin
-        sct_assert_several_multi2_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:187:9;
+        sct_assert_several_multi2_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:194:9;
     end
     else begin
         sct_assert_several_multi2_PROC_STATE <= sct_assert_several_multi2_PROC_STATE_next;
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine186 : assert property ( |s |=> |s_d );
+    sctAssertLine193 : assert property ( |s |=> |s_d );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_several_multi3 (test_sva_generate_proc.cpp:199:5) 
+// Clocked THREAD: sct_assert_several_multi3 (test_sva_generate_proc.cpp:206:5) 
 
 // Thread-local variables
 logic signed [31:0] k;
@@ -333,7 +333,7 @@ logic [1:0] sct_assert_several_multi3_PROC_STATE;
 logic [1:0] sct_assert_several_multi3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_several_multi3_comb     // test_sva_generate_proc.cpp:199:5
+always_comb begin : sct_assert_several_multi3_comb     // test_sva_generate_proc.cpp:206:5
     sct_assert_several_multi3_func;
 end
 function void sct_assert_several_multi3_func;
@@ -345,30 +345,30 @@ function void sct_assert_several_multi3_func;
             if (|s)
             begin
                 k_next = s;
-                sct_assert_several_multi3_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:209:17;
+                sct_assert_several_multi3_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:216:17;
             end else begin
                 k_next++;
-                sct_assert_several_multi3_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:213:17;
+                sct_assert_several_multi3_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:220:17;
             end
         end
         1: begin
             if (|s)
             begin
                 k_next = s;
-                sct_assert_several_multi3_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:209:17;
+                sct_assert_several_multi3_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:216:17;
             end else begin
                 k_next++;
-                sct_assert_several_multi3_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:213:17;
+                sct_assert_several_multi3_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:220:17;
             end
         end
         2: begin
             if (|s)
             begin
                 k_next = s;
-                sct_assert_several_multi3_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:209:17;
+                sct_assert_several_multi3_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:216:17;
             end else begin
                 k_next++;
-                sct_assert_several_multi3_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:213:17;
+                sct_assert_several_multi3_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:220:17;
             end
         end
     endcase
@@ -379,24 +379,24 @@ always_ff @(posedge clk or negedge rstn)
 begin : sct_assert_several_multi3_ff
     if ( ~rstn ) begin
         k <= 0;
-        sct_assert_several_multi3_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:203:9;
+        sct_assert_several_multi3_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:210:9;
     end
     else begin
         k <= k_next;
         sct_assert_several_multi3_PROC_STATE <= sct_assert_several_multi3_PROC_STATE_next;
 
     `ifndef INTEL_SVA_OFF
-        sctAssertLine204 : assert property ( |s |-> ##2 |s_d2 );
+        sctAssertLine211 : assert property ( |s |-> ##2 |s_d2 );
     `endif // INTEL_SVA_OFF
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine202 : assert property ( |s |=> |s_d );
+    sctAssertLine209 : assert property ( |s |=> |s_d );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_thread_var1 (test_sva_generate_proc.cpp:219:5) 
+// Clocked THREAD: sct_assert_thread_var1 (test_sva_generate_proc.cpp:226:5) 
 
 // Thread-local variables
 logic [31:0] c;
@@ -405,7 +405,7 @@ logic [15:0] d;
 logic [15:0] d_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_thread_var1_comb     // test_sva_generate_proc.cpp:219:5
+always_comb begin : sct_assert_thread_var1_comb     // test_sva_generate_proc.cpp:226:5
     sct_assert_thread_var1_func;
 end
 function void sct_assert_thread_var1_func;
@@ -427,12 +427,12 @@ begin : sct_assert_thread_var1_ff
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine223 : assert property ( |c_next |=> d_next == 1 );
+    sctAssertLine230 : assert property ( |c_next |=> d_next == 1 );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_thread_var2 (test_sva_generate_proc.cpp:233:5) 
+// Clocked THREAD: sct_assert_thread_var2 (test_sva_generate_proc.cpp:240:5) 
 
 // Thread-local variables
 logic rec_a;
@@ -443,7 +443,7 @@ logic sct_assert_thread_var2_PROC_STATE;
 logic sct_assert_thread_var2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_thread_var2_comb     // test_sva_generate_proc.cpp:233:5
+always_comb begin : sct_assert_thread_var2_comb     // test_sva_generate_proc.cpp:240:5
     sct_assert_thread_var2_func;
 end
 function void sct_assert_thread_var2_func;
@@ -454,11 +454,11 @@ function void sct_assert_thread_var2_func;
     case (sct_assert_thread_var2_PROC_STATE)
         0: begin
             rec_b_next = s_d;
-            sct_assert_thread_var2_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:242:13;
+            sct_assert_thread_var2_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:249:13;
         end
         1: begin
             rec_b_next = s_d;
-            sct_assert_thread_var2_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:242:13;
+            sct_assert_thread_var2_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:249:13;
         end
     endcase
 endfunction
@@ -468,7 +468,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : sct_assert_thread_var2_ff
     if ( ~rstn ) begin
         rec_a <= 0;
-        sct_assert_thread_var2_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:236:9;
+        sct_assert_thread_var2_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:243:9;
     end
     else begin
         rec_a <= rec_a_next;
@@ -476,20 +476,20 @@ begin : sct_assert_thread_var2_ff
         sct_assert_thread_var2_PROC_STATE <= sct_assert_thread_var2_PROC_STATE_next;
 
     `ifndef INTEL_SVA_OFF
-        sctAssertLine238 : assert property ( rec_a_next |=> rec_b_next != s );
+        sctAssertLine245 : assert property ( rec_a_next |=> rec_b_next != s );
     `endif // INTEL_SVA_OFF
     end
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_thread_loc1 (test_sva_generate_proc.cpp:247:5) 
+// Clocked THREAD: sct_assert_thread_loc1 (test_sva_generate_proc.cpp:254:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
 logic signed [31:0] i_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_thread_loc1_comb     // test_sva_generate_proc.cpp:247:5
+always_comb begin : sct_assert_thread_loc1_comb     // test_sva_generate_proc.cpp:254:5
     sct_assert_thread_loc1_func;
 end
 function void sct_assert_thread_loc1_func;
@@ -508,19 +508,19 @@ begin : sct_assert_thread_loc1_ff
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine250 : assert property ( |s |=> i_next == s_d );
+    sctAssertLine257 : assert property ( |s |=> i_next == s_d );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_thread_loc2 (test_sva_generate_proc.cpp:260:5) 
+// Clocked THREAD: sct_assert_thread_loc2 (test_sva_generate_proc.cpp:267:5) 
 
 // Thread-local variables
 logic signed [31:0] i0;
 logic signed [31:0] i_next0;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_thread_loc2_comb     // test_sva_generate_proc.cpp:260:5
+always_comb begin : sct_assert_thread_loc2_comb     // test_sva_generate_proc.cpp:267:5
     sct_assert_thread_loc2_func;
 end
 function void sct_assert_thread_loc2_func;
@@ -538,12 +538,12 @@ begin : sct_assert_thread_loc2_ff
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine263 : assert property ( |s |-> |i_next0 );
+    sctAssertLine270 : assert property ( |s |-> |i_next0 );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_thread_loc3 (test_sva_generate_proc.cpp:271:5) 
+// Clocked THREAD: sct_assert_thread_loc3 (test_sva_generate_proc.cpp:278:5) 
 
 // Thread-local variables
 logic signed [31:0] i1;
@@ -558,7 +558,7 @@ logic [1:0] sct_assert_thread_loc3_PROC_STATE;
 logic [1:0] sct_assert_thread_loc3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_thread_loc3_comb     // test_sva_generate_proc.cpp:271:5
+always_comb begin : sct_assert_thread_loc3_comb     // test_sva_generate_proc.cpp:278:5
     sct_assert_thread_loc3_func;
 end
 function void sct_assert_thread_loc3_func;
@@ -570,15 +570,15 @@ function void sct_assert_thread_loc3_func;
     
     case (sct_assert_thread_loc3_PROC_STATE)
         0: begin
-            sct_assert_thread_loc3_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:281:13;
+            sct_assert_thread_loc3_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:288:13;
         end
         1: begin
             j_next = i_next1 == s;
             k_next0 = l_next == s;
-            sct_assert_thread_loc3_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:285:13;
+            sct_assert_thread_loc3_PROC_STATE_next = 2; return;    // test_sva_generate_proc.cpp:292:13;
         end
         2: begin
-            sct_assert_thread_loc3_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:281:13;
+            sct_assert_thread_loc3_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:288:13;
         end
     endcase
 endfunction
@@ -591,7 +591,7 @@ begin : sct_assert_thread_loc3_ff
         i1 <= 0;
         k0 <= 0;
         l <= 0;
-        sct_assert_thread_loc3_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:276:9;
+        sct_assert_thread_loc3_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:283:9;
     end
     else begin
         i1 <= i_next1;
@@ -601,24 +601,24 @@ begin : sct_assert_thread_loc3_ff
         sct_assert_thread_loc3_PROC_STATE <= sct_assert_thread_loc3_PROC_STATE_next;
 
     `ifndef INTEL_SVA_OFF
-        sctAssertLine278 : assert property ( k_next0 || |l_next |-> ##[2:3] |s );
+        sctAssertLine285 : assert property ( k_next0 || |l_next |-> ##[2:3] |s );
     `endif // INTEL_SVA_OFF
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine275 : assert property ( 0 |=> |s_d );
+    sctAssertLine282 : assert property ( 0 |=> |s_d );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_cond (test_sva_generate_proc.cpp:290:5) 
+// Clocked THREAD: sct_assert_cond (test_sva_generate_proc.cpp:297:5) 
 
 // Thread-local variables
 logic sct_assert_cond_PROC_STATE;
 logic sct_assert_cond_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_cond_comb     // test_sva_generate_proc.cpp:290:5
+always_comb begin : sct_assert_cond_comb     // test_sva_generate_proc.cpp:297:5
     sct_assert_cond_func;
 end
 function void sct_assert_cond_func;
@@ -626,10 +626,10 @@ function void sct_assert_cond_func;
     
     case (sct_assert_cond_PROC_STATE)
         0: begin
-            sct_assert_cond_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:298:13;
+            sct_assert_cond_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:305:13;
         end
         1: begin
-            sct_assert_cond_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:298:13;
+            sct_assert_cond_PROC_STATE_next = 1; return;    // test_sva_generate_proc.cpp:305:13;
         end
     endcase
 endfunction
@@ -638,13 +638,13 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : sct_assert_cond_ff
     if ( ~rstn ) begin
-        sct_assert_cond_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:293:9;
+        sct_assert_cond_PROC_STATE <= 0;    // test_sva_generate_proc.cpp:300:9;
     end
     else begin
         sct_assert_cond_PROC_STATE <= sct_assert_cond_PROC_STATE_next;
 
     `ifndef INTEL_SVA_OFF
-        sctAssertLine295 : assert property ( |s |-> ##2 |s_d2 );
+        sctAssertLine302 : assert property ( |s |-> ##2 |s_d2 );
     `endif // INTEL_SVA_OFF
     end
 end

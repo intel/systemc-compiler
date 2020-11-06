@@ -20,7 +20,7 @@ logic req[3];
 logic [15:0] data[3];
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: mainProc (test_sc_vector2.cpp:77:5) 
+// Clocked THREAD: mainProc (test_sc_vector2.cpp:84:5) 
 
 // Thread-local variables
 logic req_next[3];
@@ -28,7 +28,7 @@ logic [1:0] mainProc_PROC_STATE;
 logic [1:0] mainProc_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : mainProc_comb     // test_sc_vector2.cpp:77:5
+always_comb begin : mainProc_comb     // test_sc_vector2.cpp:84:5
     mainProc_func;
 end
 function void mainProc_func;
@@ -38,29 +38,29 @@ function void mainProc_func;
     case (mainProc_PROC_STATE)
         0: begin
             req_next[0] = 1;
-            mainProc_PROC_STATE_next = 1; return;    // test_sc_vector2.cpp:85:13;
+            mainProc_PROC_STATE_next = 1; return;    // test_sc_vector2.cpp:92:13;
         end
         1: begin
             req_next[0] = 0;
             if (!(|data[1]))
             begin
-                mainProc_PROC_STATE_next = 2; return;    // test_sc_vector2.cpp:88:37;
+                mainProc_PROC_STATE_next = 2; return;    // test_sc_vector2.cpp:95:37;
             end
             req_next[1] = 1;
-            mainProc_PROC_STATE_next = 3; return;    // test_sc_vector2.cpp:90:13;
+            mainProc_PROC_STATE_next = 3; return;    // test_sc_vector2.cpp:97:13;
         end
         2: begin
             if (!(|data[1]))
             begin
-                mainProc_PROC_STATE_next = 2; return;    // test_sc_vector2.cpp:88:37;
+                mainProc_PROC_STATE_next = 2; return;    // test_sc_vector2.cpp:95:37;
             end
             req_next[1] = 1;
-            mainProc_PROC_STATE_next = 3; return;    // test_sc_vector2.cpp:90:13;
+            mainProc_PROC_STATE_next = 3; return;    // test_sc_vector2.cpp:97:13;
         end
         3: begin
             req_next[1] = 0;
             req_next[0] = 1;
-            mainProc_PROC_STATE_next = 1; return;    // test_sc_vector2.cpp:85:13;
+            mainProc_PROC_STATE_next = 1; return;    // test_sc_vector2.cpp:92:13;
         end
     endcase
 endfunction
@@ -73,7 +73,7 @@ begin : mainProc_ff
         begin
             req[i] <= 0;
         end
-        mainProc_PROC_STATE <= 0;    // test_sc_vector2.cpp:81:9;
+        mainProc_PROC_STATE <= 0;    // test_sc_vector2.cpp:88:9;
     end
     else begin
         req <= req_next;
@@ -98,7 +98,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Producer (test_sc_vector2.cpp:64:5)
+// Module: Producer (test_sc_vector2.cpp:71:5)
 //
 module Producer // "top.p"
 (
@@ -112,10 +112,10 @@ module Producer // "top.p"
 logic greq;
 
 //------------------------------------------------------------------------------
-// Method process: methProc (test_sc_vector2.cpp:28:5) 
+// Method process: methProc (test_sc_vector2.cpp:35:5) 
 
 always_comb 
-begin : methProc     // test_sc_vector2.cpp:28:5
+begin : methProc     // test_sc_vector2.cpp:35:5
     logic a;
     a = 0;
     for (integer i = 0; i < 3; ++i)
@@ -126,7 +126,7 @@ begin : methProc     // test_sc_vector2.cpp:28:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: threadProc (test_sc_vector2.cpp:37:5) 
+// Clocked THREAD: threadProc (test_sc_vector2.cpp:44:5) 
 
 // Thread-local variables
 logic [15:0] data_next[3];
@@ -134,7 +134,7 @@ logic [3:0] n;
 logic [3:0] n_next;
 
 // Next-state combinational logic
-always_comb begin : threadProc_comb     // test_sc_vector2.cpp:37:5
+always_comb begin : threadProc_comb     // test_sc_vector2.cpp:44:5
     threadProc_func;
 end
 function void threadProc_func;

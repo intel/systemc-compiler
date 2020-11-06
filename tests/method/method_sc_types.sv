@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_sc_types.cpp:328:5)
+// Module: A (test_sc_types.cpp:335:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -50,17 +50,17 @@ logic [3:0] sig2;
 logic [2:0] sig_arr[3];
 
 //------------------------------------------------------------------------------
-// Method process: partial_select_for_type_cast (test_sc_types.cpp:60:5) 
+// Method process: partial_select_for_type_cast (test_sc_types.cpp:67:5) 
 
 always_comb 
-begin : partial_select_for_type_cast     // test_sc_types.cpp:60:5
+begin : partial_select_for_type_cast     // test_sc_types.cpp:67:5
     logic [3:0] a;
     logic b;
     integer i;
     logic [5:0] c;
     a = 3;
     b = a[1];
-    b = in1;
+    b = 1'(in1);
     b = 1'(in1);
     i = a[2 : 0];
     i = in1[1 : 0];
@@ -70,10 +70,10 @@ begin : partial_select_for_type_cast     // test_sc_types.cpp:60:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: loop_range_double (test_sc_types.cpp:77:5) 
+// Method process: loop_range_double (test_sc_types.cpp:84:5) 
 
 always_comb 
-begin : loop_range_double     // test_sc_types.cpp:77:5
+begin : loop_range_double     // test_sc_types.cpp:84:5
     logic [31:0] val;
     logic [31:0] wval;
     logic [31:0] rval;
@@ -90,10 +90,10 @@ begin : loop_range_double     // test_sc_types.cpp:77:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_types (test_sc_types.cpp:121:5) 
+// Method process: sc_types (test_sc_types.cpp:128:5) 
 
 always_comb 
-begin : sc_types     // test_sc_types.cpp:121:5
+begin : sc_types     // test_sc_types.cpp:128:5
     integer i;
     logic x;
     logic [1:0] y;
@@ -108,10 +108,10 @@ begin : sc_types     // test_sc_types.cpp:121:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_uint_local (test_sc_types.cpp:131:5) 
+// Method process: sc_uint_local (test_sc_types.cpp:138:5) 
 
 always_comb 
-begin : sc_uint_local     // test_sc_types.cpp:131:5
+begin : sc_uint_local     // test_sc_types.cpp:138:5
     integer i;
     logic [1:0] x;
     logic [1:0] y;
@@ -124,14 +124,14 @@ begin : sc_uint_local     // test_sc_types.cpp:131:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_uint_pointers (test_sc_types.cpp:143:5) 
+// Method process: sc_uint_pointers (test_sc_types.cpp:150:5) 
 
 // Process-local variables
 logic [1:0] t;
 logic [3:0] u;
 
 always_comb 
-begin : sc_uint_pointers     // test_sc_types.cpp:143:5
+begin : sc_uint_pointers     // test_sc_types.cpp:150:5
     integer i;
     logic b;
     logic [1:0] x;
@@ -149,10 +149,10 @@ begin : sc_uint_pointers     // test_sc_types.cpp:143:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_uint_channels (test_sc_types.cpp:165:5) 
+// Method process: sc_uint_channels (test_sc_types.cpp:172:5) 
 
 always_comb 
-begin : sc_uint_channels     // test_sc_types.cpp:165:5
+begin : sc_uint_channels     // test_sc_types.cpp:172:5
     integer i;
     logic b;
     logic [1:0] x;
@@ -178,13 +178,13 @@ begin : sc_uint_channels     // test_sc_types.cpp:165:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_uint_bit (test_sc_types.cpp:194:5) 
+// Method process: sc_uint_bit (test_sc_types.cpp:201:5) 
 
 // Process-local variables
 logic [1:0] t;
 
 always_comb 
-begin : sc_uint_bit     // test_sc_types.cpp:194:5
+begin : sc_uint_bit     // test_sc_types.cpp:201:5
     integer i;
     logic b;
     logic [1:0] x;
@@ -207,14 +207,14 @@ begin : sc_uint_bit     // test_sc_types.cpp:194:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_uint_range (test_sc_types.cpp:216:5) 
+// Method process: sc_uint_range (test_sc_types.cpp:223:5) 
 
 // Process-local variables
 logic [3:0] u;
 logic [1:0] t;
 
 always_comb 
-begin : sc_uint_range     // test_sc_types.cpp:216:5
+begin : sc_uint_range     // test_sc_types.cpp:223:5
     integer i;
     logic b;
     logic [1:0] x;
@@ -249,10 +249,10 @@ begin : sc_uint_range     // test_sc_types.cpp:216:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_uint_concat (test_sc_types.cpp:251:5) 
+// Method process: sc_uint_concat (test_sc_types.cpp:258:5) 
 
 always_comb 
-begin : sc_uint_concat     // test_sc_types.cpp:251:5
+begin : sc_uint_concat     // test_sc_types.cpp:258:5
     integer i;
     logic b;
     logic [1:0] x;
@@ -272,13 +272,13 @@ begin : sc_uint_concat     // test_sc_types.cpp:251:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_uint_reduce (test_sc_types.cpp:270:5) 
+// Method process: sc_uint_reduce (test_sc_types.cpp:277:5) 
 
 // Process-local variables
 logic [3:0] u;
 
 always_comb 
-begin : sc_uint_reduce     // test_sc_types.cpp:270:5
+begin : sc_uint_reduce     // test_sc_types.cpp:277:5
     integer i;
     logic [1:0] x;
     logic [3:0] y;
@@ -295,10 +295,10 @@ begin : sc_uint_reduce     // test_sc_types.cpp:270:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_variable_cast (test_sc_types.cpp:286:5) 
+// Method process: sc_variable_cast (test_sc_types.cpp:293:5) 
 
 always_comb 
-begin : sc_variable_cast     // test_sc_types.cpp:286:5
+begin : sc_variable_cast     // test_sc_types.cpp:293:5
     integer i;
     logic b;
     logic [1:0] x;
@@ -316,10 +316,10 @@ begin : sc_variable_cast     // test_sc_types.cpp:286:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_literal_cast (test_sc_types.cpp:305:5) 
+// Method process: sc_literal_cast (test_sc_types.cpp:312:5) 
 
 always_comb 
-begin : sc_literal_cast     // test_sc_types.cpp:305:5
+begin : sc_literal_cast     // test_sc_types.cpp:312:5
     integer i;
     logic b;
     logic [1:0] x;
@@ -330,10 +330,10 @@ begin : sc_literal_cast     // test_sc_types.cpp:305:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_channel_cast (test_sc_types.cpp:313:5) 
+// Method process: sc_channel_cast (test_sc_types.cpp:320:5) 
 
 always_comb 
-begin : sc_channel_cast     // test_sc_types.cpp:313:5
+begin : sc_channel_cast     // test_sc_types.cpp:320:5
     logic [1:0] x;
     x = 0;
     sig1 = 3'(in1) + 1'(out1);

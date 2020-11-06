@@ -35,7 +35,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cthread_wait_states.cpp:123:5)
+// Module: A (test_cthread_wait_states.cpp:130:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -47,10 +47,10 @@ module A // "b_mod.a_mod"
 logic a;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: single_state (test_cthread_wait_states.cpp:36:6) 
+// Clocked THREAD: single_state (test_cthread_wait_states.cpp:43:6) 
 
 // Next-state combinational logic
-always_comb begin : single_state_comb     // test_cthread_wait_states.cpp:36:6
+always_comb begin : single_state_comb     // test_cthread_wait_states.cpp:43:6
     single_state_func;
 end
 function void single_state_func;
@@ -70,14 +70,14 @@ begin : single_state_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: not_single_state1 (test_cthread_wait_states.cpp:46:5) 
+// Clocked THREAD: not_single_state1 (test_cthread_wait_states.cpp:53:5) 
 
 // Thread-local variables
 logic not_single_state1_PROC_STATE;
 logic not_single_state1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : not_single_state1_comb     // test_cthread_wait_states.cpp:46:5
+always_comb begin : not_single_state1_comb     // test_cthread_wait_states.cpp:53:5
     not_single_state1_func;
 end
 function void not_single_state1_func;
@@ -88,11 +88,11 @@ function void not_single_state1_func;
         0: begin
             i = 1;
             i = 2;
-            not_single_state1_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:54:13;
+            not_single_state1_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:61:13;
         end
         1: begin
             i = 2;
-            not_single_state1_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:54:13;
+            not_single_state1_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:61:13;
         end
     endcase
 endfunction
@@ -103,7 +103,7 @@ begin : not_single_state1_ff
     if (rst ) begin
         integer i;
         i = 0;
-        not_single_state1_PROC_STATE <= 0;    // test_cthread_wait_states.cpp:48:9;
+        not_single_state1_PROC_STATE <= 0;    // test_cthread_wait_states.cpp:55:9;
     end
     else begin
         not_single_state1_PROC_STATE <= not_single_state1_PROC_STATE_next;
@@ -111,14 +111,14 @@ begin : not_single_state1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: not_single_state2 (test_cthread_wait_states.cpp:58:5) 
+// Clocked THREAD: not_single_state2 (test_cthread_wait_states.cpp:65:5) 
 
 // Thread-local variables
 logic [1:0] not_single_state2_PROC_STATE;
 logic [1:0] not_single_state2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : not_single_state2_comb     // test_cthread_wait_states.cpp:58:5
+always_comb begin : not_single_state2_comb     // test_cthread_wait_states.cpp:65:5
     not_single_state2_func;
 end
 function void not_single_state2_func;
@@ -128,15 +128,15 @@ function void not_single_state2_func;
     case (not_single_state2_PROC_STATE)
         0: begin
             i = 1;
-            not_single_state2_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:63:9;
+            not_single_state2_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:70:9;
         end
         1: begin
             i = 2;
-            not_single_state2_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:67:13;
+            not_single_state2_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:74:13;
         end
         2: begin
             i = 2;
-            not_single_state2_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:67:13;
+            not_single_state2_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:74:13;
         end
     endcase
 endfunction
@@ -147,7 +147,7 @@ begin : not_single_state2_ff
     if (rst ) begin
         integer i;
         i = 0;
-        not_single_state2_PROC_STATE <= 0;    // test_cthread_wait_states.cpp:60:9;
+        not_single_state2_PROC_STATE <= 0;    // test_cthread_wait_states.cpp:67:9;
     end
     else begin
         not_single_state2_PROC_STATE <= not_single_state2_PROC_STATE_next;
@@ -155,14 +155,14 @@ begin : not_single_state2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: not_single_state3 (test_cthread_wait_states.cpp:71:5) 
+// Clocked THREAD: not_single_state3 (test_cthread_wait_states.cpp:78:5) 
 
 // Thread-local variables
 logic [1:0] not_single_state3_PROC_STATE;
 logic [1:0] not_single_state3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : not_single_state3_comb     // test_cthread_wait_states.cpp:71:5
+always_comb begin : not_single_state3_comb     // test_cthread_wait_states.cpp:78:5
     not_single_state3_func;
 end
 function void not_single_state3_func;
@@ -174,18 +174,18 @@ function void not_single_state3_func;
             if (a)
             begin
                 i = 1;
-                not_single_state3_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:77:13;
+                not_single_state3_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:84:13;
             end
             i = 2;
-            not_single_state3_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:82:13;
+            not_single_state3_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:89:13;
         end
         1: begin
             i = 2;
-            not_single_state3_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:82:13;
+            not_single_state3_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:89:13;
         end
         2: begin
             i = 2;
-            not_single_state3_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:82:13;
+            not_single_state3_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:89:13;
         end
     endcase
 endfunction
@@ -196,7 +196,7 @@ begin : not_single_state3_ff
     if (rst ) begin
         integer i;
         i = 0;
-        not_single_state3_PROC_STATE <= 0;    // test_cthread_wait_states.cpp:73:9;
+        not_single_state3_PROC_STATE <= 0;    // test_cthread_wait_states.cpp:80:9;
     end
     else begin
         not_single_state3_PROC_STATE <= not_single_state3_PROC_STATE_next;
@@ -204,7 +204,7 @@ begin : not_single_state3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: state_in_if (test_cthread_wait_states.cpp:86:5) 
+// Clocked THREAD: state_in_if (test_cthread_wait_states.cpp:93:5) 
 
 // Thread-local variables
 logic b;
@@ -213,7 +213,7 @@ logic [1:0] state_in_if_PROC_STATE;
 logic [1:0] state_in_if_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : state_in_if_comb     // test_cthread_wait_states.cpp:86:5
+always_comb begin : state_in_if_comb     // test_cthread_wait_states.cpp:93:5
     state_in_if_func;
 end
 function void state_in_if_func;
@@ -228,24 +228,24 @@ function void state_in_if_func;
             if (b_next)
             begin
                 i = 1;
-                state_in_if_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:93:17;
+                state_in_if_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:100:17;
             end
             j = 2;
-            state_in_if_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:96:13;
+            state_in_if_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:103:13;
         end
         1: begin
             j = 2;
-            state_in_if_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:96:13;
+            state_in_if_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:103:13;
         end
         2: begin
             b_next = !b_next;
             if (b_next)
             begin
                 i = 1;
-                state_in_if_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:93:17;
+                state_in_if_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:100:17;
             end
             j = 2;
-            state_in_if_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:96:13;
+            state_in_if_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:103:13;
         end
     endcase
 endfunction
@@ -255,7 +255,7 @@ always_ff @(posedge clk or posedge rst)
 begin : state_in_if_ff
     if (rst ) begin
         b <= 0;
-        state_in_if_PROC_STATE <= 0;    // test_cthread_wait_states.cpp:88:9;
+        state_in_if_PROC_STATE <= 0;    // test_cthread_wait_states.cpp:95:9;
     end
     else begin
         b <= b_next;
@@ -264,7 +264,7 @@ begin : state_in_if_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: state_in_for (test_cthread_wait_states.cpp:100:5) 
+// Clocked THREAD: state_in_for (test_cthread_wait_states.cpp:107:5) 
 
 // Thread-local variables
 logic b0;
@@ -275,7 +275,7 @@ logic [1:0] state_in_for_PROC_STATE;
 logic [1:0] state_in_for_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : state_in_for_comb     // test_cthread_wait_states.cpp:100:5
+always_comb begin : state_in_for_comb     // test_cthread_wait_states.cpp:107:5
     state_in_for_func;
 end
 function void state_in_for_func;
@@ -287,27 +287,27 @@ function void state_in_for_func;
         0: begin
             i_next = 0;
             b_next0 = !b_next0;
-            state_in_for_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:107:17;
+            state_in_for_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:114:17;
         end
         1: begin
             if (a)
             begin
                 // break begin
-                state_in_for_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:111:13;
+                state_in_for_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:118:13;
                 // break end
             end
             i_next++;
             if (i_next < 3)
             begin
                 b_next0 = !b_next0;
-                state_in_for_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:107:17;
+                state_in_for_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:114:17;
             end
-            state_in_for_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:111:13;
+            state_in_for_PROC_STATE_next = 2; return;    // test_cthread_wait_states.cpp:118:13;
         end
         2: begin
             i_next = 0;
             b_next0 = !b_next0;
-            state_in_for_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:107:17;
+            state_in_for_PROC_STATE_next = 1; return;    // test_cthread_wait_states.cpp:114:17;
         end
     endcase
 endfunction
@@ -317,7 +317,7 @@ always_ff @(posedge clk or posedge rst)
 begin : state_in_for_ff
     if (rst ) begin
         b0 <= 0;
-        state_in_for_PROC_STATE <= 0;    // test_cthread_wait_states.cpp:102:9;
+        state_in_for_PROC_STATE <= 0;    // test_cthread_wait_states.cpp:109:9;
     end
     else begin
         b0 <= b_next0;

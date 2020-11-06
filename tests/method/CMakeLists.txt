@@ -1,3 +1,10 @@
+#******************************************************************************
+# Copyright (c) 2020, Intel Corporation. All rights reserved.
+# 
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+# 
+# *****************************************************************************
+
 #######################################################################
 # HTR NEW TESTS
 add_executable(method_const_static_mem test_const_static_mem.cpp)
@@ -209,15 +216,15 @@ svc_target(method_explicit_type_conv GOLDEN method_explicit_type_conv.sv)
 add_executable(method_unary test_unary.cpp)
 svc_target(method_unary GOLDEN method_unary.sv)
 
-add_executable(method_sc_unary test_sc_unary.cpp)
-svc_target(method_sc_unary GOLDEN method_sc_unary.sv)
+add_executable(method_unary_sc test_unary_sc.cpp)
+svc_target(method_unary_sc GOLDEN method_unary_sc.sv)
 
 # Arrays
 
 add_executable(method_sig_array_access test_sig_array_access.cpp)
 svc_target(method_sig_array_access GOLDEN method_sig_array_access.sv)
 
-add_executable(method_enum test_method_enum.cpp)
+add_executable(method_enum test_enum.cpp)
 svc_target(method_enum GOLDEN method_enum.sv)
 
 add_executable(method_const_array test_const_array.cpp)
@@ -326,11 +333,22 @@ add_executable(method_var_usedef_same_proc test_var_usedef_same_proc.cpp)
 svc_target(method_var_usedef_same_proc  
            GOLDEN method_var_usedef_same_proc.sv)
 
+## Constant propagation
 add_executable(method_const_prop test_const_prop.cpp)
 svc_target(method_const_prop GOLDEN method_const_prop.sv)
 
 add_executable(method_const_prop_loop test_const_prop_loop.cpp)
 svc_target(method_const_prop_loop GOLDEN method_const_prop_loop.sv)
+
+add_executable(method_const_prop_range test_const_prop_range.cpp)
+svc_target(method_const_prop_range GOLDEN method_const_prop_range.sv)
+
+add_executable(method_const_prop_fail test_const_prop_fail.cpp)
+svc_target(method_const_prop_fail WILL_FAIL)
+
+add_executable(method_const_prop_fail2 test_const_prop_fail2.cpp)
+svc_target(method_const_prop_fail2 WILL_FAIL)
+
 
 add_executable(method_port_array_bind test_port_array_bind.cpp)
 svc_target(method_port_array_bind)
@@ -360,15 +378,6 @@ svc_target(method_bool GOLDEN method_bool.sv)
 #add_executable(method_child_module test_child_module.cpp)
 #svc_target(method_child_module GOLDEN method_child_module.sv WILL_FAIL)
 
-add_executable(method_const_prop_range test_const_prop_range.cpp)
-svc_target(method_const_prop_range GOLDEN method_const_prop_range.sv)
-
-add_executable(method_const_prop_fail test_const_prop_fail.cpp)
-svc_target(method_const_prop_fail WILL_FAIL)
-
-add_executable(method_const_prop_fail2 test_const_prop_fail2.cpp)
-svc_target(method_const_prop_fail2 WILL_FAIL)
-
 add_executable(method_latch test_latch.cpp)
 svc_target(method_latch GOLDEN method_latch.sv)
 
@@ -381,8 +390,6 @@ svc_target(method_forloop_other_types GOLDEN method_forloop_other_types.sv)
 add_executable(method_explicit_specialz_templ test_explicit_specialz_templ.cpp)
 svc_target(method_explicit_specialz_templ GOLDEN method_explicit_specialz_templ.sv)
 
-add_executable(method_seq_sc_meth test_seq_sc_meth.cpp)
-svc_target(method_seq_sc_meth GOLDEN method_seq_sc_meth.sv)
 
 #6) Record Pointer - more tests
 #7) Check if channel of record is supported / required to be supported

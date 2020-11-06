@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: AA (test_binary_sc_types.cpp:155:5)
+// Module: AA (test_binary_sc_types.cpp:162:5)
 //
 module AA // "b_mod.a_mod"
 (
@@ -46,10 +46,10 @@ module AA // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: tilda (test_binary_sc_types.cpp:41:5) 
+// Method process: tilda (test_binary_sc_types.cpp:48:5) 
 
 always_comb 
-begin : tilda     // test_binary_sc_types.cpp:41:5
+begin : tilda     // test_binary_sc_types.cpp:48:5
     logic signed [9:0] A;
     logic signed [63:0] bn;
     logic [15:0] ad;
@@ -65,10 +65,10 @@ begin : tilda     // test_binary_sc_types.cpp:41:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_signed_ops_neg_consts_fns (test_binary_sc_types.cpp:125:4) 
+// Method process: sc_signed_ops_neg_consts_fns (test_binary_sc_types.cpp:132:4) 
 
 always_comb 
-begin : sc_signed_ops_neg_consts_fns     // test_binary_sc_types.cpp:125:4
+begin : sc_signed_ops_neg_consts_fns     // test_binary_sc_types.cpp:132:4
     logic signed [9:0] par1;
     logic signed [11:0] par2;
     logic [21:0] par3;
@@ -159,40 +159,40 @@ begin : sc_signed_ops_neg_consts_fns     // test_binary_sc_types.cpp:125:4
     F = par6;
     eq = (A == B);
     lll = (eq == par3);
-    assert (eq == par3) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (eq == par3) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     neq = (A != B);
-    assert (neq == par4) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (neq == par4) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     lt = E > F;
     gte = A >= B;
     lte = A <= B;
-    assert (gte == par17) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
-    assert (lte == par18) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
-    assert (lt == par7) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (gte == par17) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
+    assert (lte == par18) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
+    assert (lt == par7) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     gt = E < F;
-    assert (gt == par8) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (gt == par8) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     sum = A + B;
     diff = A - B;
-    assert (sum == par9) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (sum == par9) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     sum = sum + B;
-    assert (sum == par12) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
-    assert (diff == par19) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (sum == par12) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
+    assert (diff == par19) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     mult = E * F;
     div = E / F;
-    assert (mult == par10) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
-    assert (div == par11) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (mult == par10) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
+    assert (div == par11) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     ba = A & B;
-    assert (ba == par13) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (ba == par13) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     bo = A | B;
-    assert (bo == par14) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (bo == par14) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     bx = A ^ B;
-    assert (bx == par15) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (bx == par15) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     bn = ~A;
     bo = bo & A;
-    assert (bo == par20) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (bo == par20) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     ba = ba | bo;
-    assert (bo == par21) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (bo == par21) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     bo = bo ^ A;
-    assert (bo == par22) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (bo == par22) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     // Call sc_signed_ops_neg_consts() end
     par1_1 = 10'd0; par2_1 = -12'sd5; par3_1 = 22'd0; par4_1 = 30'd1; par5_1 = 16'd0; par6_1 = -14'sd10; par7_1 = 22'd1; par8_1 = 22'd0; par9_1 = -32'sd5; par10_1 = 64'd0; par11_1 = 64'd0; par12_1 = -64'sd10; par13_1 = 32'd0; par14_1 = -32'sd5; par15_1 = -32'sd5; par16_1 = -32'sd1; par17_1 = 64'd1; par18_1 = 55'd0; par19_1 = 40'd5; par20_1 = 32'd0; par21_1 = 32'd0; par22_1 = 10'd0;
     // Call sc_signed_ops_neg_consts() begin
@@ -202,40 +202,40 @@ begin : sc_signed_ops_neg_consts_fns     // test_binary_sc_types.cpp:125:4
     F_1 = par6_1;
     eq_1 = (A_1 == B_1);
     lll_1 = (eq_1 == par3_1);
-    assert (eq_1 == par3_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (eq_1 == par3_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     neq_1 = (A_1 != B_1);
-    assert (neq_1 == par4_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (neq_1 == par4_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     lt_1 = E_1 > F_1;
     gte_1 = A_1 >= B_1;
     lte_1 = A_1 <= B_1;
-    assert (gte_1 == par17_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
-    assert (lte_1 == par18_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
-    assert (lt_1 == par7_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (gte_1 == par17_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
+    assert (lte_1 == par18_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
+    assert (lt_1 == par7_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     gt_1 = E_1 < F_1;
-    assert (gt_1 == par8_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (gt_1 == par8_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     sum_1 = A_1 + B_1;
     diff_1 = A_1 - B_1;
-    assert (sum_1 == par9_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (sum_1 == par9_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     sum_1 = sum_1 + B_1;
-    assert (sum_1 == par12_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
-    assert (diff_1 == par19_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (sum_1 == par12_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
+    assert (diff_1 == par19_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     mult_1 = E_1 * F_1;
     div_1 = E_1 / F_1;
-    assert (mult_1 == par10_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
-    assert (div_1 == par11_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (mult_1 == par10_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
+    assert (div_1 == par11_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     ba_1 = A_1 & B_1;
-    assert (ba_1 == par13_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (ba_1 == par13_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     bo_1 = A_1 | B_1;
-    assert (bo_1 == par14_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (bo_1 == par14_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     bx_1 = A_1 ^ B_1;
-    assert (bx_1 == par15_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (bx_1 == par15_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     bn_1 = ~A_1;
     bo_1 = bo_1 & A_1;
-    assert (bo_1 == par20_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (bo_1 == par20_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     ba_1 = ba_1 | bo_1;
-    assert (bo_1 == par21_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (bo_1 == par21_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     bo_1 = bo_1 ^ A_1;
-    assert (bo_1 == par22_1) else $error("Assertion failed at test_binary_sc_types.cpp:32:24>");
+    assert (bo_1 == par22_1) else $error("Assertion failed at test_binary_sc_types.cpp:39:24>");
     // Call sc_signed_ops_neg_consts() end
 end
 

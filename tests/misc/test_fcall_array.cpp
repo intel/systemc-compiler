@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <systemc.h>
 
 // Port/signal pointers, arrays and pointer arrays as function parameter
@@ -252,3 +259,4 @@ int sc_main(int argc, char **argv) {
 
     return 0;
 }
+

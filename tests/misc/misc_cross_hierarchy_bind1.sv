@@ -29,7 +29,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cross_hierarchy_bind1.cpp:24:5)
+// Module: A (test_cross_hierarchy_bind1.cpp:31:5)
 //
 module A // "top.a"
 (

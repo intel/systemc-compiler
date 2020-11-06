@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_dynamic_array.cpp:30:5)
+// Module: A (test_dynamic_array.cpp:37:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -44,10 +44,10 @@ module A // "b_mod.a_mod"
 logic signed [31:0] s1[3];
 
 //------------------------------------------------------------------------------
-// Method process: proc1 (test_dynamic_array.cpp:18:5) 
+// Method process: proc1 (test_dynamic_array.cpp:25:5) 
 
 always_comb 
-begin : proc1     // test_dynamic_array.cpp:18:5
+begin : proc1     // test_dynamic_array.cpp:25:5
     s1[0] = p1[0] ? 1 : 2;
     p2[0] = |s1[0];
 end

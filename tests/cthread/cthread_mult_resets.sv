@@ -23,13 +23,13 @@ logic areset2;
 assign areset2 = sreset;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread (test_cthread_mult_resets.cpp:30:5) 
+// Clocked THREAD: test_thread (test_cthread_mult_resets.cpp:37:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_comb     // test_cthread_mult_resets.cpp:30:5
+always_comb begin : test_thread_comb     // test_cthread_mult_resets.cpp:37:5
     test_thread_func;
 end
 function void test_thread_func;

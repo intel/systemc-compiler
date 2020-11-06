@@ -19,7 +19,7 @@ logic rstn;
 logic signed [31:0] sig;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: single_rec_call_reg (test_fcall_cthread.cpp:87:5) 
+// Clocked THREAD: single_rec_call_reg (test_fcall_cthread.cpp:94:5) 
 
 // Thread-local variables
 logic s_a;
@@ -30,7 +30,7 @@ logic single_rec_call_reg_PROC_STATE;
 logic single_rec_call_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : single_rec_call_reg_comb     // test_fcall_cthread.cpp:87:5
+always_comb begin : single_rec_call_reg_comb     // test_fcall_cthread.cpp:94:5
     single_rec_call_reg_func;
 end
 function void single_rec_call_reg_func;
@@ -47,7 +47,7 @@ function void single_rec_call_reg_func;
             // Call setA() begin
             s_a_next = s_par;
             // Call setA() end
-            single_rec_call_reg_PROC_STATE_next = 1; return;    // test_fcall_cthread.cpp:94:13;
+            single_rec_call_reg_PROC_STATE_next = 1; return;    // test_fcall_cthread.cpp:101:13;
         end
         1: begin
             // Call getA() begin
@@ -58,7 +58,7 @@ function void single_rec_call_reg_func;
             // Call setA() begin
             s_a_next = s_par;
             // Call setA() end
-            single_rec_call_reg_PROC_STATE_next = 1; return;    // test_fcall_cthread.cpp:94:13;
+            single_rec_call_reg_PROC_STATE_next = 1; return;    // test_fcall_cthread.cpp:101:13;
         end
     endcase
 endfunction
@@ -67,7 +67,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : single_rec_call_reg_ff
     if ( ~rstn ) begin
-        single_rec_call_reg_PROC_STATE <= 0;    // test_fcall_cthread.cpp:90:9;
+        single_rec_call_reg_PROC_STATE <= 0;    // test_fcall_cthread.cpp:97:9;
     end
     else begin
         s_a <= s_a_next;
@@ -77,10 +77,10 @@ begin : single_rec_call_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: single_rec_call_comb (test_fcall_cthread.cpp:101:5) 
+// Clocked THREAD: single_rec_call_comb (test_fcall_cthread.cpp:108:5) 
 
 // Next-state combinational logic
-always_comb begin : single_rec_call_comb_comb     // test_fcall_cthread.cpp:101:5
+always_comb begin : single_rec_call_comb_comb     // test_fcall_cthread.cpp:108:5
     single_rec_call_comb_func;
 end
 function void single_rec_call_comb_func;
@@ -111,7 +111,7 @@ begin : single_rec_call_comb_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_call_reg (test_fcall_cthread.cpp:116:5) 
+// Clocked THREAD: rec_arr_call_reg (test_fcall_cthread.cpp:123:5) 
 
 // Thread-local variables
 logic t_a[2];
@@ -122,7 +122,7 @@ logic rec_arr_call_reg_PROC_STATE;
 logic rec_arr_call_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_call_reg_comb     // test_fcall_cthread.cpp:116:5
+always_comb begin : rec_arr_call_reg_comb     // test_fcall_cthread.cpp:123:5
     rec_arr_call_reg_func;
 end
 function void rec_arr_call_reg_func;
@@ -139,7 +139,7 @@ function void rec_arr_call_reg_func;
             // Call setA() begin
             t_a_next[1] = t_par;
             // Call setA() end
-            rec_arr_call_reg_PROC_STATE_next = 1; return;    // test_fcall_cthread.cpp:123:13;
+            rec_arr_call_reg_PROC_STATE_next = 1; return;    // test_fcall_cthread.cpp:130:13;
         end
         1: begin
             // Call getA() begin
@@ -150,7 +150,7 @@ function void rec_arr_call_reg_func;
             // Call setA() begin
             t_a_next[1] = t_par;
             // Call setA() end
-            rec_arr_call_reg_PROC_STATE_next = 1; return;    // test_fcall_cthread.cpp:123:13;
+            rec_arr_call_reg_PROC_STATE_next = 1; return;    // test_fcall_cthread.cpp:130:13;
         end
     endcase
 endfunction
@@ -159,7 +159,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : rec_arr_call_reg_ff
     if ( ~rstn ) begin
-        rec_arr_call_reg_PROC_STATE <= 0;    // test_fcall_cthread.cpp:119:9;
+        rec_arr_call_reg_PROC_STATE <= 0;    // test_fcall_cthread.cpp:126:9;
     end
     else begin
         t_a <= t_a_next;
@@ -169,10 +169,10 @@ begin : rec_arr_call_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_call_comb (test_fcall_cthread.cpp:130:5) 
+// Clocked THREAD: rec_arr_call_comb (test_fcall_cthread.cpp:137:5) 
 
 // Next-state combinational logic
-always_comb begin : rec_arr_call_comb_comb     // test_fcall_cthread.cpp:130:5
+always_comb begin : rec_arr_call_comb_comb     // test_fcall_cthread.cpp:137:5
     rec_arr_call_comb_func;
 end
 function void rec_arr_call_comb_func;
@@ -201,7 +201,7 @@ begin : rec_arr_call_comb_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_call_reset_reg2 (test_fcall_cthread.cpp:144:5) 
+// Clocked THREAD: rec_arr_call_reset_reg2 (test_fcall_cthread.cpp:151:5) 
 
 // Thread-local variables
 logic w_a[2];
@@ -212,7 +212,7 @@ logic rec_arr_call_reset_reg2_PROC_STATE;
 logic rec_arr_call_reset_reg2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_call_reset_reg2_comb     // test_fcall_cthread.cpp:144:5
+always_comb begin : rec_arr_call_reset_reg2_comb     // test_fcall_cthread.cpp:151:5
     rec_arr_call_reset_reg2_func;
 end
 function void rec_arr_call_reset_reg2_func;
@@ -228,10 +228,10 @@ function void rec_arr_call_reset_reg2_func;
             TMP_0 = w_a_next[1];
             // Call getA() end
             c = TMP_0;
-            rec_arr_call_reset_reg2_PROC_STATE_next = 1; return;    // test_fcall_cthread.cpp:152:13;
+            rec_arr_call_reset_reg2_PROC_STATE_next = 1; return;    // test_fcall_cthread.cpp:159:13;
         end
         1: begin
-            rec_arr_call_reset_reg2_PROC_STATE_next = 1; return;    // test_fcall_cthread.cpp:152:13;
+            rec_arr_call_reset_reg2_PROC_STATE_next = 1; return;    // test_fcall_cthread.cpp:159:13;
         end
     endcase
 endfunction
@@ -245,7 +245,7 @@ begin : rec_arr_call_reset_reg2_ff
         // Call setA() begin
         w_a[1] <= w_par;
         // Call setA() end
-        rec_arr_call_reset_reg2_PROC_STATE <= 0;    // test_fcall_cthread.cpp:148:9;
+        rec_arr_call_reset_reg2_PROC_STATE <= 0;    // test_fcall_cthread.cpp:155:9;
     end
     else begin
         w_a <= w_a_next;
@@ -255,7 +255,7 @@ begin : rec_arr_call_reset_reg2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_call_reg2 (test_fcall_cthread.cpp:156:5) 
+// Clocked THREAD: rec_arr_call_reg2 (test_fcall_cthread.cpp:163:5) 
 
 // Thread-local variables
 logic z_a[2];
@@ -264,7 +264,7 @@ logic signed [31:0] z_b[2];
 logic signed [31:0] z_b_next[2];
 
 // Next-state combinational logic
-always_comb begin : rec_arr_call_reg2_comb     // test_fcall_cthread.cpp:156:5
+always_comb begin : rec_arr_call_reg2_comb     // test_fcall_cthread.cpp:163:5
     rec_arr_call_reg2_func;
 end
 function void rec_arr_call_reg2_func;
@@ -290,7 +290,7 @@ begin : rec_arr_call_reg2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_call_unknw_reg (test_fcall_cthread.cpp:169:5) 
+// Clocked THREAD: rec_arr_call_unknw_reg (test_fcall_cthread.cpp:176:5) 
 
 // Thread-local variables
 logic s_a0[2];
@@ -299,7 +299,7 @@ logic signed [31:0] s_b0[2];
 logic signed [31:0] s_b_next0[2];
 
 // Next-state combinational logic
-always_comb begin : rec_arr_call_unknw_reg_comb     // test_fcall_cthread.cpp:169:5
+always_comb begin : rec_arr_call_unknw_reg_comb     // test_fcall_cthread.cpp:176:5
     rec_arr_call_unknw_reg_func;
 end
 function void rec_arr_call_unknw_reg_func;
@@ -332,7 +332,7 @@ begin : rec_arr_call_unknw_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_call_unknw_reg2 (test_fcall_cthread.cpp:184:5) 
+// Clocked THREAD: rec_arr_call_unknw_reg2 (test_fcall_cthread.cpp:191:5) 
 
 // Thread-local variables
 logic s_a1[2];
@@ -341,7 +341,7 @@ logic signed [31:0] s_b1[2];
 logic signed [31:0] s_b_next1[2];
 
 // Next-state combinational logic
-always_comb begin : rec_arr_call_unknw_reg2_comb     // test_fcall_cthread.cpp:184:5
+always_comb begin : rec_arr_call_unknw_reg2_comb     // test_fcall_cthread.cpp:191:5
     rec_arr_call_unknw_reg2_func;
 end
 function void rec_arr_call_unknw_reg2_func;
@@ -374,7 +374,7 @@ begin : rec_arr_call_unknw_reg2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_call_unknw_reg3 (test_fcall_cthread.cpp:199:5) 
+// Clocked THREAD: rec_arr_call_unknw_reg3 (test_fcall_cthread.cpp:206:5) 
 
 // Thread-local variables
 logic s_a2[2];
@@ -383,7 +383,7 @@ logic signed [31:0] s_b2[2];
 logic signed [31:0] s_b_next2[2];
 
 // Next-state combinational logic
-always_comb begin : rec_arr_call_unknw_reg3_comb     // test_fcall_cthread.cpp:199:5
+always_comb begin : rec_arr_call_unknw_reg3_comb     // test_fcall_cthread.cpp:206:5
     rec_arr_call_unknw_reg3_func;
 end
 function void rec_arr_call_unknw_reg3_func;
@@ -416,10 +416,10 @@ begin : rec_arr_call_unknw_reg3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_call_unknw_loc (test_fcall_cthread.cpp:216:5) 
+// Clocked THREAD: rec_arr_call_unknw_loc (test_fcall_cthread.cpp:223:5) 
 
 // Next-state combinational logic
-always_comb begin : rec_arr_call_unknw_loc_comb     // test_fcall_cthread.cpp:216:5
+always_comb begin : rec_arr_call_unknw_loc_comb     // test_fcall_cthread.cpp:223:5
     rec_arr_call_unknw_loc_func;
 end
 function void rec_arr_call_unknw_loc_func;
@@ -447,10 +447,10 @@ begin : rec_arr_call_unknw_loc_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_call_unknw_loc_in_call (test_fcall_cthread.cpp:231:5) 
+// Clocked THREAD: rec_arr_call_unknw_loc_in_call (test_fcall_cthread.cpp:238:5) 
 
 // Next-state combinational logic
-always_comb begin : rec_arr_call_unknw_loc_in_call_comb     // test_fcall_cthread.cpp:231:5
+always_comb begin : rec_arr_call_unknw_loc_in_call_comb     // test_fcall_cthread.cpp:238:5
     rec_arr_call_unknw_loc_in_call_func;
 end
 function void rec_arr_call_unknw_loc_in_call_func;

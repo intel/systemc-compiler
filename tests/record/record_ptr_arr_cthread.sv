@@ -28,7 +28,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_ptr_arr_cthread.cpp:87:5)
+// Module: A (test_ptr_arr_cthread.cpp:94:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -40,7 +40,7 @@ logic rst;
 logic signed [31:0] s;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_ptr_simple (test_ptr_arr_cthread.cpp:43:5) 
+// Clocked THREAD: rec_ptr_simple (test_ptr_arr_cthread.cpp:50:5) 
 
 // Thread-local variables
 logic r1_a[2];
@@ -49,7 +49,7 @@ logic [3:0] r1_b[2];
 logic [3:0] r1_b_next[2];
 
 // Next-state combinational logic
-always_comb begin : rec_ptr_simple_comb     // test_ptr_arr_cthread.cpp:43:5
+always_comb begin : rec_ptr_simple_comb     // test_ptr_arr_cthread.cpp:50:5
     rec_ptr_simple_func;
 end
 function void rec_ptr_simple_func;
@@ -76,7 +76,7 @@ begin : rec_ptr_simple_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_ptr_loop (test_ptr_arr_cthread.cpp:54:5) 
+// Clocked THREAD: rec_ptr_loop (test_ptr_arr_cthread.cpp:61:5) 
 
 // Thread-local variables
 logic r2_a[2];
@@ -85,7 +85,7 @@ logic [3:0] r2_b[2];
 logic [3:0] r2_b_next[2];
 
 // Next-state combinational logic
-always_comb begin : rec_ptr_loop_comb     // test_ptr_arr_cthread.cpp:54:5
+always_comb begin : rec_ptr_loop_comb     // test_ptr_arr_cthread.cpp:61:5
     rec_ptr_loop_func;
 end
 function void rec_ptr_loop_func;
@@ -123,7 +123,7 @@ begin : rec_ptr_loop_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_ptr_unknw (test_ptr_arr_cthread.cpp:70:5) 
+// Clocked THREAD: rec_ptr_unknw (test_ptr_arr_cthread.cpp:77:5) 
 
 // Thread-local variables
 logic r3_a[2];
@@ -132,7 +132,7 @@ logic [3:0] r3_b[2];
 logic [3:0] r3_b_next[2];
 
 // Next-state combinational logic
-always_comb begin : rec_ptr_unknw_comb     // test_ptr_arr_cthread.cpp:70:5
+always_comb begin : rec_ptr_unknw_comb     // test_ptr_arr_cthread.cpp:77:5
     rec_ptr_unknw_func;
 end
 function void rec_ptr_unknw_func;

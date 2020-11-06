@@ -17,7 +17,7 @@ module test // "t"
 logic dummy;
 
 //------------------------------------------------------------------------------
-// Method process: test_method (test_standard_collection.cpp:44:5) 
+// Method process: test_method (test_standard_collection.cpp:51:5) 
 
 // Process-local variables
 logic signed [31:0] intPair_first;
@@ -32,7 +32,7 @@ logic signed [31:0] ppa_b_x[2];
 logic signed [31:0] ppa_b_y[2];
 
 always_comb 
-begin : test_method     // test_standard_collection.cpp:44:5
+begin : test_method     // test_standard_collection.cpp:51:5
     integer idx;
     integer idx1;
     integer idx2;

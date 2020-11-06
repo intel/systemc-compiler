@@ -19,32 +19,32 @@ logic signed [31:0] t;
 logic [3:0] minst_s[2];
 
 //------------------------------------------------------------------------------
-// Method process: minst_metProc (test_modular_iface_array_ptr3.cpp:21:5) 
+// Method process: minst_metProc (test_modular_iface_array_ptr3.cpp:28:5) 
 
 // Process-local variables
 logic [3:0] minst_v[2];
 
 always_comb 
-begin : minst_metProc     // test_modular_iface_array_ptr3.cpp:21:5
+begin : minst_metProc     // test_modular_iface_array_ptr3.cpp:28:5
     minst_v[0] = minst_s[0];
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_metProc0 (test_modular_iface_array_ptr3.cpp:21:5) 
+// Method process: minst_metProc0 (test_modular_iface_array_ptr3.cpp:28:5) 
 
 always_comb 
-begin : minst_metProc0     // test_modular_iface_array_ptr3.cpp:21:5
+begin : minst_metProc0     // test_modular_iface_array_ptr3.cpp:28:5
     minst_v[1] = minst_s[1];
 end
 
 //------------------------------------------------------------------------------
-// Method process: top_method (test_modular_iface_array_ptr3.cpp:50:5) 
+// Method process: top_method (test_modular_iface_array_ptr3.cpp:57:5) 
 
 // Process-local variables
 logic [3:0] minst_vvv[2];
 
 always_comb 
-begin : top_method     // test_modular_iface_array_ptr3.cpp:50:5
+begin : top_method     // test_modular_iface_array_ptr3.cpp:57:5
     logic [3:0] a;
     // Call f() begin
     minst_vvv[0] = minst_s[0];
@@ -54,13 +54,13 @@ begin : top_method     // test_modular_iface_array_ptr3.cpp:50:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: top_method2 (test_modular_iface_array_ptr3.cpp:57:5) 
+// Method process: top_method2 (test_modular_iface_array_ptr3.cpp:64:5) 
 
 // Process-local variables
 logic [3:0] minst_vv[2];
 
 always_comb 
-begin : top_method2     // test_modular_iface_array_ptr3.cpp:57:5
+begin : top_method2     // test_modular_iface_array_ptr3.cpp:64:5
     minst_vv[1] = t;
 end
 

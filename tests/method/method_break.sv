@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_break.cpp:229:5)
+// Module: A (test_break.cpp:236:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -47,10 +47,10 @@ module A // "b_mod.a_mod"
 logic signed [31:0] si;
 
 //------------------------------------------------------------------------------
-// Method process: for_break1 (test_break.cpp:43:5) 
+// Method process: for_break1 (test_break.cpp:50:5) 
 
 always_comb 
-begin : for_break1     // test_break.cpp:43:5
+begin : for_break1     // test_break.cpp:50:5
     integer k;
     k = 0;
     for (integer i = 0; i < 2; i++)
@@ -65,10 +65,10 @@ begin : for_break1     // test_break.cpp:43:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_break2 (test_break.cpp:54:5) 
+// Method process: for_break2 (test_break.cpp:61:5) 
 
 always_comb 
-begin : for_break2     // test_break.cpp:54:5
+begin : for_break2     // test_break.cpp:61:5
     integer k;
     k = 0;
     for (integer i = 0; i < 2; i++)
@@ -87,10 +87,10 @@ begin : for_break2     // test_break.cpp:54:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_break3 (test_break.cpp:70:5) 
+// Method process: for_break3 (test_break.cpp:77:5) 
 
 always_comb 
-begin : for_break3     // test_break.cpp:70:5
+begin : for_break3     // test_break.cpp:77:5
     integer k;
     integer m;
     k = 0;
@@ -114,10 +114,10 @@ begin : for_break3     // test_break.cpp:70:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_break4 (test_break.cpp:86:5) 
+// Method process: for_break4 (test_break.cpp:93:5) 
 
 always_comb 
-begin : for_break4     // test_break.cpp:86:5
+begin : for_break4     // test_break.cpp:93:5
     integer k;
     integer m;
     k = 0;
@@ -142,10 +142,10 @@ begin : for_break4     // test_break.cpp:86:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_break5 (test_break.cpp:106:5) 
+// Method process: for_break5 (test_break.cpp:113:5) 
 
 always_comb 
-begin : for_break5     // test_break.cpp:106:5
+begin : for_break5     // test_break.cpp:113:5
     integer k;
     k = 0;
     for (integer i = 0; i < 2; i++)
@@ -168,10 +168,10 @@ begin : for_break5     // test_break.cpp:106:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_break6 (test_break.cpp:126:5) 
+// Method process: for_break6 (test_break.cpp:133:5) 
 
 always_comb 
-begin : for_break6     // test_break.cpp:126:5
+begin : for_break6     // test_break.cpp:133:5
     integer k;
     k = 0;
     for (integer i = 0; i < 2; i++)
@@ -193,10 +193,10 @@ begin : for_break6     // test_break.cpp:126:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_break1 (test_break.cpp:143:5) 
+// Method process: while_break1 (test_break.cpp:150:5) 
 
 always_comb 
-begin : while_break1     // test_break.cpp:143:5
+begin : while_break1     // test_break.cpp:150:5
     integer i;
     integer j;
     i = 10;
@@ -225,10 +225,10 @@ begin : while_break1     // test_break.cpp:143:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_break2 (test_break.cpp:163:5) 
+// Method process: while_break2 (test_break.cpp:170:5) 
 
 always_comb 
-begin : while_break2     // test_break.cpp:163:5
+begin : while_break2     // test_break.cpp:170:5
     integer k;
     while (a)
     begin
@@ -249,10 +249,10 @@ begin : while_break2     // test_break.cpp:163:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_break1 (test_break.cpp:183:5) 
+// Method process: do_while_break1 (test_break.cpp:190:5) 
 
 always_comb 
-begin : do_while_break1     // test_break.cpp:183:5
+begin : do_while_break1     // test_break.cpp:190:5
     integer i;
     integer j;
     i = 10;
@@ -283,10 +283,10 @@ begin : do_while_break1     // test_break.cpp:183:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_break2 (test_break.cpp:202:5) 
+// Method process: do_while_break2 (test_break.cpp:209:5) 
 
 always_comb 
-begin : do_while_break2     // test_break.cpp:202:5
+begin : do_while_break2     // test_break.cpp:209:5
     integer k;
     integer i;
     do

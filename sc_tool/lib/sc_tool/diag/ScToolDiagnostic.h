@@ -160,6 +160,9 @@ public:
         SYNTH_CPP_COMMA             = 188,
         CPP_COMMA_SIMPLE_LHS        = 189,
         SC_CONCAT_INT_TO_BOOL       = 190,
+        SC_BIT_WRONG_INDEX          = 191,
+        SC_BIT_WRONG_BASE           = 192,
+        CPP_NONSTD_TYPE_WIDTH       = 193,
 
         SC_FATAL_ELAB_TYPES_NS      = 200,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -239,6 +242,10 @@ private:
         idFormatMap[SYNTH_ZERO_TYPE_WIDTH] =
             {clang::DiagnosticIDs::Fatal, 
             "Zero type width not allowed for variable : %0"};
+        idFormatMap[CPP_NONSTD_TYPE_WIDTH] =
+            {clang::DiagnosticIDs::Warning, 
+            "C++ type width differs from SC synth standard requirements : %0"};
+        
         
         idFormatMap[SYNTH_WIDTH_WIDENNING] =
             {clang::DiagnosticIDs::Remark, 
@@ -246,16 +253,16 @@ private:
 
         idFormatMap[SC_RANGE_DIFF_VARS] =
             {clang::DiagnosticIDs::Fatal, 
-            "Incorrect range, different variables in lo/hi"};
+            "Incorrect range access, different variables in lo/hi"};
         idFormatMap[SC_RANGE_WRONG_INDEX] =
             {clang::DiagnosticIDs::Fatal, 
-            "Incorrect range, low index bigger than high or negative one"};
+            "Incorrect range access, low index bigger than high or negative one"};
         idFormatMap[SC_RANGE_WRONG_WIDTH] =
             {clang::DiagnosticIDs::Fatal, 
-            "Incorrect range, high index out of variable width"};
+            "Incorrect range access, high index out of variable width"};
         idFormatMap[SC_RANGE_WRONG_BASE] =
             {clang::DiagnosticIDs::Error, 
-            "Incorrect range, base cannot be expression or literal"};
+            "Incorrect range access, base cannot be expression or literal"};
         idFormatMap[SYNTH_SWITCH_LAST_EMPTY_CASE] =
             {clang::DiagnosticIDs::Fatal, 
             "Incorrect switch statement, no break in last case"};
@@ -263,6 +270,13 @@ private:
             {clang::DiagnosticIDs::Fatal, 
             "Incorrect switch statement, all cases are empty"};
                 
+        idFormatMap[SC_BIT_WRONG_INDEX] =
+            {clang::DiagnosticIDs::Fatal, 
+            "Incorrect bit access, index out of variable width"};
+        idFormatMap[SC_BIT_WRONG_BASE] =
+            {clang::DiagnosticIDs::Error, 
+            "Incorrect bit access, base cannot be expression or literal"};
+        
         idFormatMap[CPP_FOR_WITHOUT_INIT] =
             {clang::DiagnosticIDs::Warning, 
             "For loop without counter initialization"};

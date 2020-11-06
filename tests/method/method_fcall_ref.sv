@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_fcall_ref.cpp:355:5)
+// Module: A (test_fcall_ref.cpp:362:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -52,10 +52,10 @@ logic [3:0] sig_arr[3];
 logic [7:0] sig_arr2[3];
 
 //------------------------------------------------------------------------------
-// Method process: const_reference (test_fcall_ref.cpp:114:5) 
+// Method process: const_reference (test_fcall_ref.cpp:121:5) 
 
 always_comb 
-begin : const_reference     // test_fcall_ref.cpp:114:5
+begin : const_reference     // test_fcall_ref.cpp:121:5
     integer TMP_0;
     integer val;
     val = 1;
@@ -68,10 +68,10 @@ begin : const_reference     // test_fcall_ref.cpp:114:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_reference_sc (test_fcall_ref.cpp:120:5) 
+// Method process: const_reference_sc (test_fcall_ref.cpp:127:5) 
 
 always_comb 
-begin : const_reference_sc     // test_fcall_ref.cpp:120:5
+begin : const_reference_sc     // test_fcall_ref.cpp:127:5
     logic [1:0] i;
     logic [1:0] TMP_0;
     logic [1:0] j;
@@ -122,10 +122,10 @@ begin : const_reference_sc     // test_fcall_ref.cpp:120:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_reference_noninit (test_fcall_ref.cpp:136:5) 
+// Method process: const_reference_noninit (test_fcall_ref.cpp:143:5) 
 
 always_comb 
-begin : const_reference_noninit     // test_fcall_ref.cpp:136:5
+begin : const_reference_noninit     // test_fcall_ref.cpp:143:5
     integer k_1;
     integer TMP_0;
     integer j;
@@ -143,10 +143,10 @@ begin : const_reference_noninit     // test_fcall_ref.cpp:136:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_reference_expr (test_fcall_ref.cpp:146:5) 
+// Method process: const_reference_expr (test_fcall_ref.cpp:153:5) 
 
 always_comb 
-begin : const_reference_expr     // test_fcall_ref.cpp:146:5
+begin : const_reference_expr     // test_fcall_ref.cpp:153:5
     logic [3:0] TMP_0;
     logic [3:0] j;
     logic [1:0] TMP_1;
@@ -164,10 +164,10 @@ begin : const_reference_expr     // test_fcall_ref.cpp:146:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_reference_sig (test_fcall_ref.cpp:160:5) 
+// Method process: const_reference_sig (test_fcall_ref.cpp:167:5) 
 
 always_comb 
-begin : const_reference_sig     // test_fcall_ref.cpp:160:5
+begin : const_reference_sig     // test_fcall_ref.cpp:167:5
     logic [1:0] TMP_0;
     logic [1:0] j;
     logic [1:0] TMP_1;
@@ -205,10 +205,10 @@ begin : const_reference_sig     // test_fcall_ref.cpp:160:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_reference_sig_arr (test_fcall_ref.cpp:176:5) 
+// Method process: const_reference_sig_arr (test_fcall_ref.cpp:183:5) 
 
 always_comb 
-begin : const_reference_sig_arr     // test_fcall_ref.cpp:176:5
+begin : const_reference_sig_arr     // test_fcall_ref.cpp:183:5
     logic [1:0] TMP_0;
     logic [1:0] j;
     logic [1:0] TMP_1;
@@ -236,10 +236,10 @@ begin : const_reference_sig_arr     // test_fcall_ref.cpp:176:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: scint_reference (test_fcall_ref.cpp:189:5) 
+// Method process: scint_reference (test_fcall_ref.cpp:196:5) 
 
 always_comb 
-begin : scint_reference     // test_fcall_ref.cpp:189:5
+begin : scint_reference     // test_fcall_ref.cpp:196:5
     logic [2:0] x;
     logic [1:0] k_1;
     integer j;
@@ -257,10 +257,10 @@ begin : scint_reference     // test_fcall_ref.cpp:189:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: reference_inner_call (test_fcall_ref.cpp:218:5) 
+// Method process: reference_inner_call (test_fcall_ref.cpp:225:5) 
 
 always_comb 
-begin : reference_inner_call     // test_fcall_ref.cpp:218:5
+begin : reference_inner_call     // test_fcall_ref.cpp:225:5
     logic [1:0] TMP_0;
     logic [2:0] x;
     logic [1:0] k_1;
@@ -291,7 +291,7 @@ begin : reference_inner_call     // test_fcall_ref.cpp:218:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: pointer_param (test_fcall_ref.cpp:268:5) 
+// Method process: pointer_param (test_fcall_ref.cpp:275:5) 
 
 // Process-local variables
 logic signed [31:0] q;
@@ -299,7 +299,7 @@ logic [2:0] s;
 logic r;
 
 always_comb 
-begin : pointer_param     // test_fcall_ref.cpp:268:5
+begin : pointer_param     // test_fcall_ref.cpp:275:5
     integer i;
     integer TMP_0;
     integer TMP_1;
@@ -331,14 +331,14 @@ begin : pointer_param     // test_fcall_ref.cpp:268:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: pointer_param_modfied (test_fcall_ref.cpp:283:5) 
+// Method process: pointer_param_modfied (test_fcall_ref.cpp:290:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] q;
 
 always_comb 
-begin : pointer_param_modfied     // test_fcall_ref.cpp:283:5
+begin : pointer_param_modfied     // test_fcall_ref.cpp:290:5
     integer i;
     m = 1;
     // Call ptr4() begin
@@ -353,14 +353,14 @@ begin : pointer_param_modfied     // test_fcall_ref.cpp:283:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: pointer_inner_call (test_fcall_ref.cpp:300:5) 
+// Method process: pointer_inner_call (test_fcall_ref.cpp:307:5) 
 
 // Process-local variables
 logic [2:0] s;
 logic [2:0] n;
 
 always_comb 
-begin : pointer_inner_call     // test_fcall_ref.cpp:300:5
+begin : pointer_inner_call     // test_fcall_ref.cpp:307:5
     integer i;
     integer TMP_0;
     integer i_1;
@@ -386,10 +386,10 @@ begin : pointer_inner_call     // test_fcall_ref.cpp:300:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: recursive_ref (test_fcall_ref.cpp:323:5) 
+// Method process: recursive_ref (test_fcall_ref.cpp:330:5) 
 
 always_comb 
-begin : recursive_ref     // test_fcall_ref.cpp:323:5
+begin : recursive_ref     // test_fcall_ref.cpp:330:5
     logic [3:0] x;
     logic [3:0] TMP_0;
     integer res;
@@ -404,10 +404,10 @@ begin : recursive_ref     // test_fcall_ref.cpp:323:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: recursive_ref_const (test_fcall_ref.cpp:342:5) 
+// Method process: recursive_ref_const (test_fcall_ref.cpp:349:5) 
 
 always_comb 
-begin : recursive_ref_const     // test_fcall_ref.cpp:342:5
+begin : recursive_ref_const     // test_fcall_ref.cpp:349:5
     logic [3:0] TMP_0;
     integer TMP_1;
     integer res;

@@ -23,10 +23,10 @@ logic c;
 logic d;
 
 //------------------------------------------------------------------------------
-// Method process: methProc (test_comb_signal.cpp:27:5) 
+// Method process: methProc (test_comb_signal.cpp:34:5) 
 
 always_comb 
-begin : methProc     // test_comb_signal.cpp:27:5
+begin : methProc     // test_comb_signal.cpp:34:5
     if (nrst)
     begin
         req1 = 0;
@@ -38,7 +38,7 @@ begin : methProc     // test_comb_signal.cpp:27:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thrdProc (test_comb_signal.cpp:37:5) 
+// Clocked THREAD: thrdProc (test_comb_signal.cpp:44:5) 
 
 // Thread-local variables
 logic req1_next;
@@ -48,7 +48,7 @@ logic a0;
 logic a_next;
 
 // Next-state combinational logic
-always_comb begin : thrdProc_comb     // test_comb_signal.cpp:37:5
+always_comb begin : thrdProc_comb     // test_comb_signal.cpp:44:5
     thrdProc_func;
 end
 function void thrdProc_func;

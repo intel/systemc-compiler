@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include "sc_sel_type.h"
 #include "sct_assert.h"
@@ -27,7 +34,8 @@ public:
     {
         SC_CTHREAD(syncProc, clk);
         async_reset_signal_is(rstn, false);
-                
+     
+        SC_METHOD(enumOperation); sensitive << s << a;
         SC_METHOD(comma); sensitive << s << a;
         SC_METHOD(shift); sensitive << s << a;
         SC_METHOD(sc_type_shift); sensitive << dummy;
@@ -57,7 +65,7 @@ public:
     typedef sc_suint<STORED_RESP_WIDTH>::T StoredResp_t;
     sc_signal<StoredResp_t>    sig;
     
-    // BUG in STX SMEM -- fixed
+    // BUG in real design -- fixed
     void syncProc() 
     {
         sig = (StoredResp_t(1) << STORED_RESP_WIDTH-1);
@@ -66,6 +74,55 @@ public:
         while (true) {
             wait();
         }
+    }
+
+// ---------------------------------------------------------------------------    
+    // Enum in binary operations 
+    enum E1 {
+        U1_ENUM=1,
+        U2_ENUM=2,
+        U3_ENUM=0
+    };
+    
+    enum E2 {
+        I1_ENUM=1,
+        I2_ENUM=-2,
+        I3_ENUM=0
+    };
+    
+    void enumOperation() 
+    {
+        E1 uvar = U1_ENUM;
+        E2 ivar = I2_ENUM;
+
+        bool b = false;
+        int i = 11; 
+        sc_uint<4> x = 1;
+        sc_int<4> y = -1;
+        unsigned u = 1;
+        sc_biguint<17> bu = 1;
+        sc_bigint<24> bi = -2;
+        sc_bigint<33> z;
+        
+        i = b + uvar;
+
+        i = x + ivar;
+        CHECK(i == -1);
+        i = x + uvar;
+        CHECK(i == 2);
+        i = -2 + uvar;
+        CHECK(i == -1);
+        
+        i = -2;
+        i = i + uvar; CHECK(i == -1);
+        i = -2;
+        i = i + ivar; CHECK(i == -4);
+        i = u + uvar; CHECK(i == 2);
+        i = u + ivar; CHECK(i == -1);
+        z = bu + uvar; CHECK(z == 2);
+        z = bu + ivar; CHECK(z == -1);
+        z = bi + uvar; CHECK(z == -1);
+        z = bi + ivar; CHECK(z == -4);
     }
     
 // ---------------------------------------------------------------------------    
@@ -544,3 +601,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

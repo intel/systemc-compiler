@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "sct_assert.h"
 #include "systemc.h"
 
@@ -43,7 +50,7 @@ public:
         SC_METHOD(switch_empty_fcall2); sensitive << s << t;
     }
     
-    // BUG from HR2 accelerators, #123
+    // BUG from real design accelerators, #123
     void switch_if_after_empty() {
         int i = 0; 
         
@@ -294,3 +301,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_bool.cpp:93:5)
+// Module: A (test_bool.cpp:100:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -47,14 +47,14 @@ module A // "b_mod.a_mod"
 logic rstn;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_ptr_comp (test_bool.cpp:43:5) 
+// Clocked THREAD: test_ptr_comp (test_bool.cpp:50:5) 
 
 // Thread-local variables
 logic signed [31:0] p;
 logic signed [31:0] p_next;
 
 // Next-state combinational logic
-always_comb begin : test_ptr_comp_comb     // test_bool.cpp:43:5
+always_comb begin : test_ptr_comp_comb     // test_bool.cpp:50:5
     test_ptr_comp_func;
 end
 function void test_ptr_comp_func;
@@ -81,14 +81,14 @@ begin : test_ptr_comp_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_ptr_to_bool (test_bool.cpp:64:5) 
+// Clocked THREAD: test_ptr_to_bool (test_bool.cpp:71:5) 
 
 // Thread-local variables
 logic signed [31:0] p;
 logic signed [31:0] p_next0;
 
 // Next-state combinational logic
-always_comb begin : test_ptr_to_bool_comb     // test_bool.cpp:64:5
+always_comb begin : test_ptr_to_bool_comb     // test_bool.cpp:71:5
     test_ptr_to_bool_func;
 end
 function void test_ptr_to_bool_func;

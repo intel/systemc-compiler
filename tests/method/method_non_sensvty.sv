@@ -36,7 +36,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_non_sensvty.cpp:137:5)
+// Module: A (test_non_sensvty.cpp:144:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -50,10 +50,10 @@ module A // "b_mod.a_mod"
 logic s1;
 
 //------------------------------------------------------------------------------
-// Method process: false_non_sensitive2 (test_non_sensvty.cpp:60:5) 
+// Method process: false_non_sensitive2 (test_non_sensvty.cpp:67:5) 
 
 always_comb 
-begin : false_non_sensitive2     // test_non_sensvty.cpp:60:5
+begin : false_non_sensitive2     // test_non_sensvty.cpp:67:5
     logic tmp;
     tmp = a;
     b = s1;

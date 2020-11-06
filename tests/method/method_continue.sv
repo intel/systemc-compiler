@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_continue.cpp:232:5)
+// Module: A (test_continue.cpp:239:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -47,10 +47,10 @@ module A // "b_mod.a_mod"
 logic signed [31:0] si;
 
 //------------------------------------------------------------------------------
-// Method process: for_level (test_continue.cpp:50:5) 
+// Method process: for_level (test_continue.cpp:57:5) 
 
 always_comb 
-begin : for_level     // test_continue.cpp:50:5
+begin : for_level     // test_continue.cpp:57:5
     for (integer i = 0; i < 3; i++)
     begin
         if (i < 2)
@@ -61,10 +61,10 @@ begin : for_level     // test_continue.cpp:50:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_level (test_continue.cpp:58:5) 
+// Method process: while_level (test_continue.cpp:65:5) 
 
 always_comb 
-begin : while_level     // test_continue.cpp:58:5
+begin : while_level     // test_continue.cpp:65:5
     integer i;
     i = 0;
     while (i < 3)
@@ -78,10 +78,10 @@ begin : while_level     // test_continue.cpp:58:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_level (test_continue.cpp:68:5) 
+// Method process: do_while_level (test_continue.cpp:75:5) 
 
 always_comb 
-begin : do_while_level     // test_continue.cpp:68:5
+begin : do_while_level     // test_continue.cpp:75:5
     integer i;
     i = 0;
     do
@@ -96,10 +96,10 @@ begin : do_while_level     // test_continue.cpp:68:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_continue1 (test_continue.cpp:82:5) 
+// Method process: for_continue1 (test_continue.cpp:89:5) 
 
 always_comb 
-begin : for_continue1     // test_continue.cpp:82:5
+begin : for_continue1     // test_continue.cpp:89:5
     integer k;
     k = 0;
     for (integer i = 0; i < 2; i++)
@@ -114,10 +114,10 @@ begin : for_continue1     // test_continue.cpp:82:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_continue4 (test_continue.cpp:92:5) 
+// Method process: for_continue4 (test_continue.cpp:99:5) 
 
 always_comb 
-begin : for_continue4     // test_continue.cpp:92:5
+begin : for_continue4     // test_continue.cpp:99:5
     integer k;
     k = 0;
     for (integer i = 0; i < 2; i++)
@@ -140,10 +140,10 @@ begin : for_continue4     // test_continue.cpp:92:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_continue5 (test_continue.cpp:108:5) 
+// Method process: for_continue5 (test_continue.cpp:115:5) 
 
 always_comb 
-begin : for_continue5     // test_continue.cpp:108:5
+begin : for_continue5     // test_continue.cpp:115:5
     integer k;
     integer m;
     k = 0;
@@ -168,10 +168,10 @@ begin : for_continue5     // test_continue.cpp:108:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_continue6 (test_continue.cpp:124:5) 
+// Method process: for_continue6 (test_continue.cpp:131:5) 
 
 always_comb 
-begin : for_continue6     // test_continue.cpp:124:5
+begin : for_continue6     // test_continue.cpp:131:5
     integer k;
     integer m;
     k = 0;
@@ -195,10 +195,10 @@ begin : for_continue6     // test_continue.cpp:124:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_continue7 (test_continue.cpp:140:5) 
+// Method process: for_continue7 (test_continue.cpp:147:5) 
 
 always_comb 
-begin : for_continue7     // test_continue.cpp:140:5
+begin : for_continue7     // test_continue.cpp:147:5
     integer k;
     integer m;
     k = 0;
@@ -223,10 +223,10 @@ begin : for_continue7     // test_continue.cpp:140:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_continue1 (test_continue.cpp:158:5) 
+// Method process: while_continue1 (test_continue.cpp:165:5) 
 
 always_comb 
-begin : while_continue1     // test_continue.cpp:158:5
+begin : while_continue1     // test_continue.cpp:165:5
     integer i;
     integer k;
     integer m;
@@ -248,10 +248,10 @@ begin : while_continue1     // test_continue.cpp:158:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_continue2 (test_continue.cpp:173:5) 
+// Method process: while_continue2 (test_continue.cpp:180:5) 
 
 always_comb 
-begin : while_continue2     // test_continue.cpp:173:5
+begin : while_continue2     // test_continue.cpp:180:5
     integer i;
     integer k;
     i = 0;
@@ -276,10 +276,10 @@ begin : while_continue2     // test_continue.cpp:173:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_continue1 (test_continue.cpp:194:5) 
+// Method process: do_while_continue1 (test_continue.cpp:201:5) 
 
 always_comb 
-begin : do_while_continue1     // test_continue.cpp:194:5
+begin : do_while_continue1     // test_continue.cpp:201:5
     integer i;
     integer k;
     i = 0;
@@ -297,10 +297,10 @@ begin : do_while_continue1     // test_continue.cpp:194:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_continue2 (test_continue.cpp:207:5) 
+// Method process: do_while_continue2 (test_continue.cpp:214:5) 
 
 always_comb 
-begin : do_while_continue2     // test_continue.cpp:207:5
+begin : do_while_continue2     // test_continue.cpp:214:5
     integer i;
     integer k;
     i = 0;

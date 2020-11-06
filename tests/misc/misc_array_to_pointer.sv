@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_to_pointer.cpp:70:5)
+// Module: A (test_array_to_pointer.cpp:77:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -41,7 +41,7 @@ module A // "b_mod.a_mod"
 );
 
 //------------------------------------------------------------------------------
-// Method process: read_array (test_array_to_pointer.cpp:46:5) 
+// Method process: read_array (test_array_to_pointer.cpp:53:5) 
 
 // Process-local variables
 logic signed [31:0] pi[3];
@@ -49,7 +49,7 @@ logic signed [31:0] pa[3];
 logic signed [31:0] pb[3];
 
 always_comb 
-begin : read_array     // test_array_to_pointer.cpp:46:5
+begin : read_array     // test_array_to_pointer.cpp:53:5
     integer i;
     i = pi[0];
     i = pa[1];

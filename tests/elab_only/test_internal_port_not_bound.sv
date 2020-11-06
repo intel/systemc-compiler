@@ -42,7 +42,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Child (test_internal_port_not_bound.cpp:39:5)
+// Module: Child (test_internal_port_not_bound.cpp:46:5)
 //
 module Child // "top.child"
 (
@@ -57,10 +57,10 @@ module Child // "top.child"
 );
 
 //------------------------------------------------------------------------------
-// Method process: meth_proc (test_internal_port_not_bound.cpp:31:5) 
+// Method process: meth_proc (test_internal_port_not_bound.cpp:38:5) 
 
 always_comb 
-begin : meth_proc     // test_internal_port_not_bound.cpp:31:5
+begin : meth_proc     // test_internal_port_not_bound.cpp:38:5
     out = in;
     out_p = in_p;
 end

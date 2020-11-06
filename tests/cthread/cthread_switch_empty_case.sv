@@ -20,7 +20,7 @@ logic signed [31:0] out;
 logic signed [31:0] in;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty1 (test_cthread_switch_empty_case.cpp:124:5) 
+// Clocked THREAD: test_switch_empty1 (test_cthread_switch_empty_case.cpp:131:5) 
 
 // Thread-local variables
 logic signed [31:0] j;
@@ -29,7 +29,7 @@ logic test_switch_empty1_PROC_STATE;
 logic test_switch_empty1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty1_comb     // test_cthread_switch_empty_case.cpp:124:5
+always_comb begin : test_switch_empty1_comb     // test_cthread_switch_empty_case.cpp:131:5
     test_switch_empty1_func;
 end
 function void test_switch_empty1_func;
@@ -51,7 +51,7 @@ function void test_switch_empty1_func;
                 j_next = 3;
             end
             endcase
-            test_switch_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:138:13;
+            test_switch_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:145:13;
         end
         1: begin
             i = 1;
@@ -67,7 +67,7 @@ function void test_switch_empty1_func;
                 j_next = 3;
             end
             endcase
-            test_switch_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:138:13;
+            test_switch_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:145:13;
         end
     endcase
 endfunction
@@ -77,7 +77,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_switch_empty1_ff
     if ( ~arstn ) begin
         j <= 0;
-        test_switch_empty1_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:127:9;
+        test_switch_empty1_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:134:9;
     end
     else begin
         j <= j_next;
@@ -86,14 +86,14 @@ begin : test_switch_empty1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty2 (test_cthread_switch_empty_case.cpp:144:5) 
+// Clocked THREAD: test_switch_empty2 (test_cthread_switch_empty_case.cpp:151:5) 
 
 // Thread-local variables
 logic [1:0] test_switch_empty2_PROC_STATE;
 logic [1:0] test_switch_empty2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty2_comb     // test_cthread_switch_empty_case.cpp:144:5
+always_comb begin : test_switch_empty2_comb     // test_cthread_switch_empty_case.cpp:151:5
     test_switch_empty2_func;
 end
 function void test_switch_empty2_func;
@@ -107,18 +107,18 @@ function void test_switch_empty2_func;
             case (0)
             0 : begin  // Empty case without break
                 j = 2;
-                test_switch_empty2_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:155:32;
+                test_switch_empty2_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:162:32;
             end
             1 : begin
                 j = 2;
-                test_switch_empty2_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:155:32;
+                test_switch_empty2_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:162:32;
             end
             default : begin
             end
             endcase
         end
         1: begin
-            test_switch_empty2_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:158:13;
+            test_switch_empty2_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:165:13;
         end
         2: begin
             i = 1;
@@ -126,11 +126,11 @@ function void test_switch_empty2_func;
             case (0)
             0 : begin  // Empty case without break
                 j = 2;
-                test_switch_empty2_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:155:32;
+                test_switch_empty2_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:162:32;
             end
             1 : begin
                 j = 2;
-                test_switch_empty2_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:155:32;
+                test_switch_empty2_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:162:32;
             end
             default : begin
             end
@@ -145,7 +145,7 @@ begin : test_switch_empty2_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch_empty2_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:147:9;
+        test_switch_empty2_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:154:9;
     end
     else begin
         test_switch_empty2_PROC_STATE <= test_switch_empty2_PROC_STATE_next;
@@ -153,14 +153,14 @@ begin : test_switch_empty2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty2a (test_cthread_switch_empty_case.cpp:163:5) 
+// Clocked THREAD: test_switch_empty2a (test_cthread_switch_empty_case.cpp:170:5) 
 
 // Thread-local variables
 logic [1:0] test_switch_empty2a_PROC_STATE;
 logic [1:0] test_switch_empty2a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty2a_comb     // test_cthread_switch_empty_case.cpp:163:5
+always_comb begin : test_switch_empty2a_comb     // test_cthread_switch_empty_case.cpp:170:5
     test_switch_empty2a_func;
 end
 function void test_switch_empty2a_func;
@@ -172,36 +172,36 @@ function void test_switch_empty2a_func;
             case (in)
             0 : begin  // Empty case without break
                 j = 2;
-                test_switch_empty2a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:173:32;
+                test_switch_empty2a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:180:32;
             end
             1 : begin
                 j = 2;
-                test_switch_empty2a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:173:32;
+                test_switch_empty2a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:180:32;
             end
             default : begin
                 j = 3;
             end
             endcase
-            test_switch_empty2a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:176:13;
+            test_switch_empty2a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:183:13;
         end
         1: begin
-            test_switch_empty2a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:176:13;
+            test_switch_empty2a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:183:13;
         end
         2: begin
             case (in)
             0 : begin  // Empty case without break
                 j = 2;
-                test_switch_empty2a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:173:32;
+                test_switch_empty2a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:180:32;
             end
             1 : begin
                 j = 2;
-                test_switch_empty2a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:173:32;
+                test_switch_empty2a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:180:32;
             end
             default : begin
                 j = 3;
             end
             endcase
-            test_switch_empty2a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:176:13;
+            test_switch_empty2a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:183:13;
         end
     endcase
 endfunction
@@ -212,7 +212,7 @@ begin : test_switch_empty2a_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch_empty2a_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:166:9;
+        test_switch_empty2a_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:173:9;
     end
     else begin
         test_switch_empty2a_PROC_STATE <= test_switch_empty2a_PROC_STATE_next;
@@ -220,7 +220,7 @@ begin : test_switch_empty2a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty3 (test_cthread_switch_empty_case.cpp:181:5) 
+// Clocked THREAD: test_switch_empty3 (test_cthread_switch_empty_case.cpp:188:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -229,7 +229,7 @@ logic [1:0] test_switch_empty3_PROC_STATE;
 logic [1:0] test_switch_empty3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty3_comb     // test_cthread_switch_empty_case.cpp:181:5
+always_comb begin : test_switch_empty3_comb     // test_cthread_switch_empty_case.cpp:188:5
     test_switch_empty3_func;
 end
 function void test_switch_empty3_func;
@@ -241,7 +241,7 @@ function void test_switch_empty3_func;
     case (test_switch_empty3_PROC_STATE)
         0: begin
             i_next = 0;
-            test_switch_empty3_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:189:13;
+            test_switch_empty3_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:196:13;
         end
         1: begin
             case (0)
@@ -249,14 +249,14 @@ function void test_switch_empty3_func;
                 j = 2;
                 // Call f() begin
                 k = 0;
-                test_switch_empty3_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:97:9;
+                test_switch_empty3_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:104:9;
                 // Call f() end
             end
             1 : begin
                 j = 2;
                 // Call f() begin
                 k = 0;
-                test_switch_empty3_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:97:9;
+                test_switch_empty3_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:104:9;
                 // Call f() end
             end
             default : begin
@@ -269,7 +269,7 @@ function void test_switch_empty3_func;
             // Call f() end
             i_next = 1;
             i_next = 0;
-            test_switch_empty3_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:189:13;
+            test_switch_empty3_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:196:13;
         end
     endcase
 endfunction
@@ -280,7 +280,7 @@ begin : test_switch_empty3_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch_empty3_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:184:9;
+        test_switch_empty3_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:191:9;
     end
     else begin
         i <= i_next;
@@ -289,7 +289,7 @@ begin : test_switch_empty3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty3a (test_cthread_switch_empty_case.cpp:201:5) 
+// Clocked THREAD: test_switch_empty3a (test_cthread_switch_empty_case.cpp:208:5) 
 
 // Thread-local variables
 logic signed [31:0] j0;
@@ -298,7 +298,7 @@ logic [1:0] test_switch_empty3a_PROC_STATE;
 logic [1:0] test_switch_empty3a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty3a_comb     // test_cthread_switch_empty_case.cpp:201:5
+always_comb begin : test_switch_empty3a_comb     // test_cthread_switch_empty_case.cpp:208:5
     test_switch_empty3a_func;
 end
 function void test_switch_empty3a_func;
@@ -308,7 +308,7 @@ function void test_switch_empty3a_func;
     
     case (test_switch_empty3a_PROC_STATE)
         0: begin
-            test_switch_empty3a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:208:13;
+            test_switch_empty3a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:215:13;
         end
         1: begin
             case (in)
@@ -316,32 +316,32 @@ function void test_switch_empty3a_func;
                 j_next0 = 2;
                 // Call f() begin
                 k = 0;
-                test_switch_empty3a_PROC_STATE_next = 3; return;    // test_cthread_switch_empty_case.cpp:97:9;
+                test_switch_empty3a_PROC_STATE_next = 3; return;    // test_cthread_switch_empty_case.cpp:104:9;
                 // Call f() end
             end
             1 : begin
                 j_next0 = 2;
                 // Call f() begin
                 k = 0;
-                test_switch_empty3a_PROC_STATE_next = 3; return;    // test_cthread_switch_empty_case.cpp:97:9;
+                test_switch_empty3a_PROC_STATE_next = 3; return;    // test_cthread_switch_empty_case.cpp:104:9;
                 // Call f() end
             end
             default : begin
                 j_next0 = 3;
-                test_switch_empty3a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:214:33;
+                test_switch_empty3a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:221:33;
             end
             endcase
         end
         2: begin
             j_next0++;
-            test_switch_empty3a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:208:13;
+            test_switch_empty3a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:215:13;
         end
         3: begin
             // Call f() begin
             k = 1;
             // Call f() end
             j_next0++;
-            test_switch_empty3a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:208:13;
+            test_switch_empty3a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:215:13;
         end
     endcase
 endfunction
@@ -351,7 +351,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_switch_empty3a_ff
     if ( ~arstn ) begin
         j0 <= 0;
-        test_switch_empty3a_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:204:9;
+        test_switch_empty3a_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:211:9;
     end
     else begin
         j0 <= j_next0;
@@ -360,7 +360,7 @@ begin : test_switch_empty3a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty4 (test_cthread_switch_empty_case.cpp:221:5) 
+// Clocked THREAD: test_switch_empty4 (test_cthread_switch_empty_case.cpp:228:5) 
 
 // Thread-local variables
 logic signed [31:0] i0;
@@ -369,7 +369,7 @@ logic [1:0] test_switch_empty4_PROC_STATE;
 logic [1:0] test_switch_empty4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty4_comb     // test_cthread_switch_empty_case.cpp:221:5
+always_comb begin : test_switch_empty4_comb     // test_cthread_switch_empty_case.cpp:228:5
     test_switch_empty4_func;
 end
 function void test_switch_empty4_func;
@@ -380,7 +380,7 @@ function void test_switch_empty4_func;
     case (test_switch_empty4_PROC_STATE)
         0: begin
             i_next0 = 0;
-            test_switch_empty4_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:229:13;
+            test_switch_empty4_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:236:13;
         end
         1: begin
             case (0)
@@ -388,14 +388,14 @@ function void test_switch_empty4_func;
                 j = 2;
                 if (|in)
                 begin
-                    test_switch_empty4_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:235:40;
+                    test_switch_empty4_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:242:40;
                 end
             end
             1 : begin
                 j = 2;
                 if (|in)
                 begin
-                    test_switch_empty4_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:235:40;
+                    test_switch_empty4_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:242:40;
                 end
             end
             default : begin
@@ -403,12 +403,12 @@ function void test_switch_empty4_func;
             endcase
             i_next0 = 1;
             i_next0 = 0;
-            test_switch_empty4_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:229:13;
+            test_switch_empty4_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:236:13;
         end
         2: begin
             i_next0 = 1;
             i_next0 = 0;
-            test_switch_empty4_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:229:13;
+            test_switch_empty4_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:236:13;
         end
     endcase
 endfunction
@@ -419,7 +419,7 @@ begin : test_switch_empty4_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch_empty4_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:224:9;
+        test_switch_empty4_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:231:9;
     end
     else begin
         i0 <= i_next0;
@@ -428,7 +428,7 @@ begin : test_switch_empty4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty4a (test_cthread_switch_empty_case.cpp:243:5) 
+// Clocked THREAD: test_switch_empty4a (test_cthread_switch_empty_case.cpp:250:5) 
 
 // Thread-local variables
 logic signed [31:0] i1;
@@ -437,7 +437,7 @@ logic [1:0] test_switch_empty4a_PROC_STATE;
 logic [1:0] test_switch_empty4a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty4a_comb     // test_cthread_switch_empty_case.cpp:243:5
+always_comb begin : test_switch_empty4a_comb     // test_cthread_switch_empty_case.cpp:250:5
     test_switch_empty4a_func;
 end
 function void test_switch_empty4a_func;
@@ -448,7 +448,7 @@ function void test_switch_empty4a_func;
     case (test_switch_empty4a_PROC_STATE)
         0: begin
             i_next1 = 1;
-            test_switch_empty4a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:251:13;
+            test_switch_empty4a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:258:13;
         end
         1: begin
             case (1)
@@ -456,14 +456,14 @@ function void test_switch_empty4a_func;
                 j = 2;
                 if (|in)
                 begin
-                    test_switch_empty4a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:257:40;
+                    test_switch_empty4a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:264:40;
                 end
             end
             1 : begin
                 j = 2;
                 if (|in)
                 begin
-                    test_switch_empty4a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:257:40;
+                    test_switch_empty4a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:264:40;
                 end
             end
             default : begin
@@ -471,12 +471,12 @@ function void test_switch_empty4a_func;
             endcase
             i_next1 = 1;
             i_next1 = 1;
-            test_switch_empty4a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:251:13;
+            test_switch_empty4a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:258:13;
         end
         2: begin
             i_next1 = 1;
             i_next1 = 1;
-            test_switch_empty4a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:251:13;
+            test_switch_empty4a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:258:13;
         end
     endcase
 endfunction
@@ -487,7 +487,7 @@ begin : test_switch_empty4a_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch_empty4a_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:246:9;
+        test_switch_empty4a_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:253:9;
     end
     else begin
         i1 <= i_next1;
@@ -496,7 +496,7 @@ begin : test_switch_empty4a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty4b (test_cthread_switch_empty_case.cpp:265:5) 
+// Clocked THREAD: test_switch_empty4b (test_cthread_switch_empty_case.cpp:272:5) 
 
 // Thread-local variables
 logic signed [31:0] i2;
@@ -505,7 +505,7 @@ logic test_switch_empty4b_PROC_STATE;
 logic test_switch_empty4b_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty4b_comb     // test_cthread_switch_empty_case.cpp:265:5
+always_comb begin : test_switch_empty4b_comb     // test_cthread_switch_empty_case.cpp:272:5
     test_switch_empty4b_func;
 end
 function void test_switch_empty4b_func;
@@ -516,7 +516,7 @@ function void test_switch_empty4b_func;
     case (test_switch_empty4b_PROC_STATE)
         0: begin
             i_next2 = 2;
-            test_switch_empty4b_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:273:13;
+            test_switch_empty4b_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:280:13;
         end
         1: begin
             case (2)
@@ -530,7 +530,7 @@ function void test_switch_empty4b_func;
             endcase
             i_next2 = 1;
             i_next2 = 2;
-            test_switch_empty4b_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:273:13;
+            test_switch_empty4b_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:280:13;
         end
     endcase
 endfunction
@@ -541,7 +541,7 @@ begin : test_switch_empty4b_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch_empty4b_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:268:9;
+        test_switch_empty4b_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:275:9;
     end
     else begin
         i2 <= i_next2;
@@ -550,14 +550,14 @@ begin : test_switch_empty4b_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty4c (test_cthread_switch_empty_case.cpp:287:5) 
+// Clocked THREAD: test_switch_empty4c (test_cthread_switch_empty_case.cpp:294:5) 
 
 // Thread-local variables
 logic [1:0] test_switch_empty4c_PROC_STATE;
 logic [1:0] test_switch_empty4c_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty4c_comb     // test_cthread_switch_empty_case.cpp:287:5
+always_comb begin : test_switch_empty4c_comb     // test_cthread_switch_empty_case.cpp:294:5
     test_switch_empty4c_func;
 end
 function void test_switch_empty4c_func;
@@ -568,7 +568,7 @@ function void test_switch_empty4c_func;
     case (test_switch_empty4c_PROC_STATE)
         0: begin
             i = 0;
-            test_switch_empty4c_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:295:13;
+            test_switch_empty4c_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:302:13;
         end
         1: begin
             case (in)
@@ -576,14 +576,14 @@ function void test_switch_empty4c_func;
                 j = 2;
                 if (|in)
                 begin
-                    test_switch_empty4c_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:301:40;
+                    test_switch_empty4c_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:308:40;
                 end
             end
             1 : begin
                 j = 2;
                 if (|in)
                 begin
-                    test_switch_empty4c_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:301:40;
+                    test_switch_empty4c_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:308:40;
                 end
             end
             default : begin
@@ -592,12 +592,12 @@ function void test_switch_empty4c_func;
             endcase
             i = 1;
             i = 0;
-            test_switch_empty4c_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:295:13;
+            test_switch_empty4c_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:302:13;
         end
         2: begin
             i = 1;
             i = 0;
-            test_switch_empty4c_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:295:13;
+            test_switch_empty4c_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:302:13;
         end
     endcase
 endfunction
@@ -608,7 +608,7 @@ begin : test_switch_empty4c_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch_empty4c_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:290:9;
+        test_switch_empty4c_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:297:9;
     end
     else begin
         test_switch_empty4c_PROC_STATE <= test_switch_empty4c_PROC_STATE_next;
@@ -616,7 +616,7 @@ begin : test_switch_empty4c_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty4d (test_cthread_switch_empty_case.cpp:310:5) 
+// Clocked THREAD: test_switch_empty4d (test_cthread_switch_empty_case.cpp:317:5) 
 
 // Thread-local variables
 logic signed [31:0] j1;
@@ -627,7 +627,7 @@ logic [1:0] test_switch_empty4d_PROC_STATE;
 logic [1:0] test_switch_empty4d_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty4d_comb     // test_cthread_switch_empty_case.cpp:310:5
+always_comb begin : test_switch_empty4d_comb     // test_cthread_switch_empty_case.cpp:317:5
     test_switch_empty4d_func;
 end
 function void test_switch_empty4d_func;
@@ -639,19 +639,19 @@ function void test_switch_empty4d_func;
     case (test_switch_empty4d_PROC_STATE)
         0: begin
             i = 0;
-            test_switch_empty4d_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:318:13;
+            test_switch_empty4d_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:325:13;
         end
         1: begin
             case (in)
             0 : begin  // Empty case without break
                 j_next1 = 2;
                 k_next = 0;
-                test_switch_empty4d_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:325:29;
+                test_switch_empty4d_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:332:29;
             end
             1 : begin
                 j_next1 = 2;
                 k_next = 0;
-                test_switch_empty4d_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:325:29;
+                test_switch_empty4d_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:332:29;
             end
             default : begin
                 j_next1 = 3;
@@ -659,18 +659,18 @@ function void test_switch_empty4d_func;
             endcase
             i = 1;
             i = 0;
-            test_switch_empty4d_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:318:13;
+            test_switch_empty4d_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:325:13;
         end
         2: begin
             j_next1++;
             k_next++;
             if (k_next < 2)
             begin
-                test_switch_empty4d_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:325:29;
+                test_switch_empty4d_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:332:29;
             end
             i = 1;
             i = 0;
-            test_switch_empty4d_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:318:13;
+            test_switch_empty4d_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:325:13;
         end
     endcase
 endfunction
@@ -680,7 +680,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_switch_empty4d_ff
     if ( ~arstn ) begin
         j1 <= 0;
-        test_switch_empty4d_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:313:9;
+        test_switch_empty4d_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:320:9;
     end
     else begin
         j1 <= j_next1;
@@ -690,7 +690,7 @@ begin : test_switch_empty4d_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty4e (test_cthread_switch_empty_case.cpp:336:5) 
+// Clocked THREAD: test_switch_empty4e (test_cthread_switch_empty_case.cpp:343:5) 
 
 // Thread-local variables
 logic signed [31:0] k0;
@@ -699,7 +699,7 @@ logic test_switch_empty4e_PROC_STATE;
 logic test_switch_empty4e_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty4e_comb     // test_cthread_switch_empty_case.cpp:336:5
+always_comb begin : test_switch_empty4e_comb     // test_cthread_switch_empty_case.cpp:343:5
     test_switch_empty4e_func;
 end
 function void test_switch_empty4e_func;
@@ -711,24 +711,24 @@ function void test_switch_empty4e_func;
             case (in)
             0 : begin  // Empty case without break
                 k_next0 = 0;
-                test_switch_empty4e_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:346:29;
+                test_switch_empty4e_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:353:29;
             end
             1 : begin
                 k_next0 = 0;
-                test_switch_empty4e_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:346:29;
+                test_switch_empty4e_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:353:29;
             end
             default : begin
             end
             endcase
-            test_switch_empty4e_PROC_STATE_next = 0; return;    // test_cthread_switch_empty_case.cpp:340:13;
+            test_switch_empty4e_PROC_STATE_next = 0; return;    // test_cthread_switch_empty_case.cpp:347:13;
         end
         1: begin
             k_next0++;
             if (k_next0 < 2)
             begin
-                test_switch_empty4e_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:346:29;
+                test_switch_empty4e_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:353:29;
             end
-            test_switch_empty4e_PROC_STATE_next = 0; return;    // test_cthread_switch_empty_case.cpp:340:13;
+            test_switch_empty4e_PROC_STATE_next = 0; return;    // test_cthread_switch_empty_case.cpp:347:13;
         end
     endcase
 endfunction
@@ -737,7 +737,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : test_switch_empty4e_ff
     if ( ~arstn ) begin
-        test_switch_empty4e_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:340:13;
+        test_switch_empty4e_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:347:13;
     end
     else begin
         k0 <= k_next0;
@@ -746,7 +746,7 @@ begin : test_switch_empty4e_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty4f (test_cthread_switch_empty_case.cpp:354:5) 
+// Clocked THREAD: test_switch_empty4f (test_cthread_switch_empty_case.cpp:361:5) 
 
 // Thread-local variables
 logic signed [31:0] k1;
@@ -755,7 +755,7 @@ logic test_switch_empty4f_PROC_STATE;
 logic test_switch_empty4f_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty4f_comb     // test_cthread_switch_empty_case.cpp:354:5
+always_comb begin : test_switch_empty4f_comb     // test_cthread_switch_empty_case.cpp:361:5
     test_switch_empty4f_func;
 end
 function void test_switch_empty4f_func;
@@ -767,26 +767,26 @@ function void test_switch_empty4f_func;
             case (in)
             0 : begin  // Empty case without break
                 k_next1 = 0;
-                test_switch_empty4f_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:364:29;
+                test_switch_empty4f_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:371:29;
             end
             1 : begin
                 k_next1 = 0;
-                test_switch_empty4f_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:364:29;
+                test_switch_empty4f_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:371:29;
             end
             2 : begin  // Empty case without break
             end
             default : begin
             end
             endcase
-            test_switch_empty4f_PROC_STATE_next = 0; return;    // test_cthread_switch_empty_case.cpp:358:13;
+            test_switch_empty4f_PROC_STATE_next = 0; return;    // test_cthread_switch_empty_case.cpp:365:13;
         end
         1: begin
             k_next1++;
             if (k_next1 < 2)
             begin
-                test_switch_empty4f_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:364:29;
+                test_switch_empty4f_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:371:29;
             end
-            test_switch_empty4f_PROC_STATE_next = 0; return;    // test_cthread_switch_empty_case.cpp:358:13;
+            test_switch_empty4f_PROC_STATE_next = 0; return;    // test_cthread_switch_empty_case.cpp:365:13;
         end
     endcase
 endfunction
@@ -795,7 +795,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : test_switch_empty4f_ff
     if ( ~arstn ) begin
-        test_switch_empty4f_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:358:13;
+        test_switch_empty4f_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:365:13;
     end
     else begin
         k1 <= k_next1;
@@ -804,14 +804,14 @@ begin : test_switch_empty4f_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty4g (test_cthread_switch_empty_case.cpp:373:5) 
+// Clocked THREAD: test_switch_empty4g (test_cthread_switch_empty_case.cpp:380:5) 
 
 // Thread-local variables
 logic test_switch_empty4g_PROC_STATE;
 logic test_switch_empty4g_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty4g_comb     // test_cthread_switch_empty_case.cpp:373:5
+always_comb begin : test_switch_empty4g_comb     // test_cthread_switch_empty_case.cpp:380:5
     test_switch_empty4g_func;
 end
 function void test_switch_empty4g_func;
@@ -821,18 +821,18 @@ function void test_switch_empty4g_func;
         0: begin
             case (in)
             0 : begin  // Empty case without break
-                test_switch_empty4g_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:382:25;
+                test_switch_empty4g_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:389:25;
             end
             1 : begin
-                test_switch_empty4g_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:382:25;
+                test_switch_empty4g_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:389:25;
             end
             default : begin
             end
             endcase
-            test_switch_empty4g_PROC_STATE_next = 0; return;    // test_cthread_switch_empty_case.cpp:377:13;
+            test_switch_empty4g_PROC_STATE_next = 0; return;    // test_cthread_switch_empty_case.cpp:384:13;
         end
         1: begin
-            test_switch_empty4g_PROC_STATE_next = 0; return;    // test_cthread_switch_empty_case.cpp:377:13;
+            test_switch_empty4g_PROC_STATE_next = 0; return;    // test_cthread_switch_empty_case.cpp:384:13;
         end
     endcase
 endfunction
@@ -841,7 +841,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : test_switch_empty4g_ff
     if ( ~arstn ) begin
-        test_switch_empty4g_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:377:13;
+        test_switch_empty4g_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:384:13;
     end
     else begin
         test_switch_empty4g_PROC_STATE <= test_switch_empty4g_PROC_STATE_next;
@@ -849,14 +849,14 @@ begin : test_switch_empty4g_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty4i (test_cthread_switch_empty_case.cpp:389:5) 
+// Clocked THREAD: test_switch_empty4i (test_cthread_switch_empty_case.cpp:396:5) 
 
 // Thread-local variables
 logic [1:0] test_switch_empty4i_PROC_STATE;
 logic [1:0] test_switch_empty4i_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty4i_comb     // test_cthread_switch_empty_case.cpp:389:5
+always_comb begin : test_switch_empty4i_comb     // test_cthread_switch_empty_case.cpp:396:5
     test_switch_empty4i_func;
 end
 function void test_switch_empty4i_func;
@@ -867,7 +867,7 @@ function void test_switch_empty4i_func;
     case (test_switch_empty4i_PROC_STATE)
         0: begin
             i = 0;
-            test_switch_empty4i_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:397:13;
+            test_switch_empty4i_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:404:13;
         end
         1: begin
             case (in)
@@ -878,25 +878,25 @@ function void test_switch_empty4i_func;
                 j = 2;
                 if (|in)
                 begin
-                    test_switch_empty4i_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:404:41;
+                    test_switch_empty4i_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:411:41;
                 end
             end
             default : begin
                 j = 2;
                 if (|in)
                 begin
-                    test_switch_empty4i_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:404:41;
+                    test_switch_empty4i_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:411:41;
                 end
             end
             endcase
             i = 1;
             i = 0;
-            test_switch_empty4i_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:397:13;
+            test_switch_empty4i_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:404:13;
         end
         2: begin
             i = 1;
             i = 0;
-            test_switch_empty4i_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:397:13;
+            test_switch_empty4i_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:404:13;
         end
     endcase
 endfunction
@@ -907,7 +907,7 @@ begin : test_switch_empty4i_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch_empty4i_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:392:9;
+        test_switch_empty4i_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:399:9;
     end
     else begin
         test_switch_empty4i_PROC_STATE <= test_switch_empty4i_PROC_STATE_next;
@@ -915,14 +915,14 @@ begin : test_switch_empty4i_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty5 (test_cthread_switch_empty_case.cpp:412:5) 
+// Clocked THREAD: test_switch_empty5 (test_cthread_switch_empty_case.cpp:419:5) 
 
 // Thread-local variables
 logic [1:0] test_switch_empty5_PROC_STATE;
 logic [1:0] test_switch_empty5_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty5_comb     // test_cthread_switch_empty_case.cpp:412:5
+always_comb begin : test_switch_empty5_comb     // test_cthread_switch_empty_case.cpp:419:5
     test_switch_empty5_func;
 end
 function void test_switch_empty5_func;
@@ -934,7 +934,7 @@ function void test_switch_empty5_func;
     case (test_switch_empty5_PROC_STATE)
         0: begin
             j = 1;
-            test_switch_empty5_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:420:13;
+            test_switch_empty5_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:427:13;
         end
         1: begin
             j = 2;
@@ -945,25 +945,25 @@ function void test_switch_empty5_func;
                 case (1)
                 0 : begin  // Empty case without break
                     k = 2;
-                    test_switch_empty5_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:107:21;
+                    test_switch_empty5_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:114:21;
                 end
                 1 : begin
                     k = 2;
-                    test_switch_empty5_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:107:21;
+                    test_switch_empty5_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:114:21;
                 end
                 endcase
                 k = 3;
                 // Call f1() end
             end
             j = 1;
-            test_switch_empty5_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:420:13;
+            test_switch_empty5_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:427:13;
         end
         2: begin
             // Call f1() begin
             k = 3;
             // Call f1() end
             j = 1;
-            test_switch_empty5_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:420:13;
+            test_switch_empty5_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:427:13;
         end
     endcase
 endfunction
@@ -974,7 +974,7 @@ begin : test_switch_empty5_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch_empty5_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:415:9;
+        test_switch_empty5_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:422:9;
     end
     else begin
         test_switch_empty5_PROC_STATE <= test_switch_empty5_PROC_STATE_next;
@@ -982,14 +982,14 @@ begin : test_switch_empty5_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty5a (test_cthread_switch_empty_case.cpp:429:5) 
+// Clocked THREAD: test_switch_empty5a (test_cthread_switch_empty_case.cpp:436:5) 
 
 // Thread-local variables
 logic [1:0] test_switch_empty5a_PROC_STATE;
 logic [1:0] test_switch_empty5a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty5a_comb     // test_cthread_switch_empty_case.cpp:429:5
+always_comb begin : test_switch_empty5a_comb     // test_cthread_switch_empty_case.cpp:436:5
     test_switch_empty5a_func;
 end
 function void test_switch_empty5a_func;
@@ -1001,7 +1001,7 @@ function void test_switch_empty5a_func;
     case (test_switch_empty5a_PROC_STATE)
         0: begin
             j = 1;
-            test_switch_empty5a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:437:13;
+            test_switch_empty5a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:444:13;
         end
         1: begin
             if (|in)
@@ -1011,25 +1011,25 @@ function void test_switch_empty5a_func;
                 case (i)
                 0 : begin  // Empty case without break
                     k = 2;
-                    test_switch_empty5a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:107:21;
+                    test_switch_empty5a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:114:21;
                 end
                 1 : begin
                     k = 2;
-                    test_switch_empty5a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:107:21;
+                    test_switch_empty5a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:114:21;
                 end
                 endcase
                 k = 3;
                 // Call f1() end
             end
             j = 1;
-            test_switch_empty5a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:437:13;
+            test_switch_empty5a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:444:13;
         end
         2: begin
             // Call f1() begin
             k = 3;
             // Call f1() end
             j = 1;
-            test_switch_empty5a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:437:13;
+            test_switch_empty5a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:444:13;
         end
     endcase
 endfunction
@@ -1040,7 +1040,7 @@ begin : test_switch_empty5a_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch_empty5a_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:432:9;
+        test_switch_empty5a_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:439:9;
     end
     else begin
         test_switch_empty5a_PROC_STATE <= test_switch_empty5a_PROC_STATE_next;
@@ -1048,7 +1048,7 @@ begin : test_switch_empty5a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty6 (test_cthread_switch_empty_case.cpp:446:5) 
+// Clocked THREAD: test_switch_empty6 (test_cthread_switch_empty_case.cpp:453:5) 
 
 // Thread-local variables
 logic signed [31:0] j2;
@@ -1059,7 +1059,7 @@ logic [1:0] test_switch_empty6_PROC_STATE;
 logic [1:0] test_switch_empty6_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty6_comb     // test_cthread_switch_empty_case.cpp:446:5
+always_comb begin : test_switch_empty6_comb     // test_cthread_switch_empty_case.cpp:453:5
     test_switch_empty6_func;
 end
 function void test_switch_empty6_func;
@@ -1075,10 +1075,10 @@ function void test_switch_empty6_func;
             // Call f2() begin
             case (i_next3)
             0 : begin  // Empty case without break
-                test_switch_empty6_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:117:21;
+                test_switch_empty6_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:124:21;
             end
             1 : begin
-                test_switch_empty6_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:117:21;
+                test_switch_empty6_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:124:21;
             end
             default : begin
                 TMP_0 = i_next3;
@@ -1086,24 +1086,24 @@ function void test_switch_empty6_func;
             endcase
             // Call f2() end
             j_next2 = TMP_0;
-            test_switch_empty6_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:454:13;
+            test_switch_empty6_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:461:13;
         end
         1: begin
             // Call f2() begin
             TMP_0 = i_next3 + 2;
             // Call f2() end
             j_next2 = TMP_0;
-            test_switch_empty6_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:454:13;
+            test_switch_empty6_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:461:13;
         end
         2: begin
             i_next3 = j_next2;
             // Call f2() begin
             case (i_next3)
             0 : begin  // Empty case without break
-                test_switch_empty6_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:117:21;
+                test_switch_empty6_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:124:21;
             end
             1 : begin
-                test_switch_empty6_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:117:21;
+                test_switch_empty6_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:124:21;
             end
             default : begin
                 TMP_1 = i_next3;
@@ -1111,7 +1111,7 @@ function void test_switch_empty6_func;
             endcase
             // Call f2() end
             j_next2 = TMP_1;
-            test_switch_empty6_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:454:13;
+            test_switch_empty6_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:461:13;
         end
     endcase
 endfunction
@@ -1121,7 +1121,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_switch_empty6_ff
     if ( ~arstn ) begin
         j2 <= 0;
-        test_switch_empty6_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:449:9;
+        test_switch_empty6_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:456:9;
     end
     else begin
         j2 <= j_next2;
@@ -1131,7 +1131,7 @@ begin : test_switch_empty6_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_empty6a (test_cthread_switch_empty_case.cpp:458:5) 
+// Clocked THREAD: test_switch_empty6a (test_cthread_switch_empty_case.cpp:465:5) 
 
 // Thread-local variables
 logic signed [31:0] i4;
@@ -1140,7 +1140,7 @@ logic [1:0] test_switch_empty6a_PROC_STATE;
 logic [1:0] test_switch_empty6a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_empty6a_comb     // test_cthread_switch_empty_case.cpp:458:5
+always_comb begin : test_switch_empty6a_comb     // test_cthread_switch_empty_case.cpp:465:5
     test_switch_empty6a_func;
 end
 function void test_switch_empty6a_func;
@@ -1156,10 +1156,10 @@ function void test_switch_empty6a_func;
             // Call f2() begin
             case (i_next4)
             0 : begin  // Empty case without break
-                test_switch_empty6a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:117:21;
+                test_switch_empty6a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:124:21;
             end
             1 : begin
-                test_switch_empty6a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:117:21;
+                test_switch_empty6a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:124:21;
             end
             default : begin
                 TMP_0 = i_next4;
@@ -1167,24 +1167,24 @@ function void test_switch_empty6a_func;
             endcase
             // Call f2() end
             j = TMP_0;
-            test_switch_empty6a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:466:13;
+            test_switch_empty6a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:473:13;
         end
         1: begin
             // Call f2() begin
             TMP_0 = i_next4 + 2;
             // Call f2() end
             j = TMP_0;
-            test_switch_empty6a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:466:13;
+            test_switch_empty6a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:473:13;
         end
         2: begin
             i_next4 = in;
             // Call f2() begin
             case (i_next4)
             0 : begin  // Empty case without break
-                test_switch_empty6a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:117:21;
+                test_switch_empty6a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:124:21;
             end
             1 : begin
-                test_switch_empty6a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:117:21;
+                test_switch_empty6a_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:124:21;
             end
             default : begin
                 TMP_1 = i_next4;
@@ -1192,7 +1192,7 @@ function void test_switch_empty6a_func;
             endcase
             // Call f2() end
             j = TMP_1;
-            test_switch_empty6a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:466:13;
+            test_switch_empty6a_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:473:13;
         end
     endcase
 endfunction
@@ -1203,7 +1203,7 @@ begin : test_switch_empty6a_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch_empty6a_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:461:9;
+        test_switch_empty6a_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:468:9;
     end
     else begin
         i4 <= i_next4;
@@ -1212,7 +1212,7 @@ begin : test_switch_empty6a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread (test_cthread_switch_empty_case.cpp:470:5) 
+// Clocked THREAD: test_thread (test_cthread_switch_empty_case.cpp:477:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
@@ -1220,7 +1220,7 @@ logic [2:0] test_thread_PROC_STATE;
 logic [2:0] test_thread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_comb     // test_cthread_switch_empty_case.cpp:470:5
+always_comb begin : test_thread_comb     // test_cthread_switch_empty_case.cpp:477:5
     test_thread_func;
 end
 function void test_thread_func;
@@ -1249,25 +1249,25 @@ function void test_thread_func;
             endcase
             case (in)
             0 : begin  // Empty case without break
-                test_thread_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:496:17;
+                test_thread_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:503:17;
             end
             1 : begin
-                test_thread_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:496:17;
+                test_thread_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:503:17;
             end
             default : begin
-                test_thread_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:502:17;
+                test_thread_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:509:17;
             end
             endcase
         end
         1: begin
-            test_thread_PROC_STATE_next = 4; return;    // test_cthread_switch_empty_case.cpp:506:13;
+            test_thread_PROC_STATE_next = 4; return;    // test_cthread_switch_empty_case.cpp:513:13;
         end
         2: begin
             out_next = 2;
-            test_thread_PROC_STATE_next = 3; return;    // test_cthread_switch_empty_case.cpp:498:17;
+            test_thread_PROC_STATE_next = 3; return;    // test_cthread_switch_empty_case.cpp:505:17;
         end
         3: begin
-            test_thread_PROC_STATE_next = 4; return;    // test_cthread_switch_empty_case.cpp:506:13;
+            test_thread_PROC_STATE_next = 4; return;    // test_cthread_switch_empty_case.cpp:513:13;
         end
         4: begin
             case (in)
@@ -1290,13 +1290,13 @@ function void test_thread_func;
             endcase
             case (in)
             0 : begin  // Empty case without break
-                test_thread_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:496:17;
+                test_thread_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:503:17;
             end
             1 : begin
-                test_thread_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:496:17;
+                test_thread_PROC_STATE_next = 2; return;    // test_cthread_switch_empty_case.cpp:503:17;
             end
             default : begin
-                test_thread_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:502:17;
+                test_thread_PROC_STATE_next = 1; return;    // test_cthread_switch_empty_case.cpp:509:17;
             end
             endcase
         end
@@ -1308,7 +1308,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread_ff
     if ( ~arstn ) begin
         out <= 0;
-        test_thread_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:473:9;
+        test_thread_PROC_STATE <= 0;    // test_cthread_switch_empty_case.cpp:480:9;
     end
     else begin
         out <= out_next;

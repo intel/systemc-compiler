@@ -20,36 +20,36 @@ logic [3:0] minst_s[2];
 logic signed [31:0] minst_p[2];
 
 //------------------------------------------------------------------------------
-// Method process: minst_metProc (test_modular_iface_array_unkwn.cpp:28:5) 
+// Method process: minst_metProc (test_modular_iface_array_unkwn.cpp:35:5) 
 
 // Process-local variables
 logic [3:0] minst_vp[2];
 
 always_comb 
-begin : minst_metProc     // test_modular_iface_array_unkwn.cpp:28:5
+begin : minst_metProc     // test_modular_iface_array_unkwn.cpp:35:5
     minst_s[0] = 1;
     minst_p[0] = 2;
     minst_vp[0] = 3;
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_metProc0 (test_modular_iface_array_unkwn.cpp:28:5) 
+// Method process: minst_metProc0 (test_modular_iface_array_unkwn.cpp:35:5) 
 
 always_comb 
-begin : minst_metProc0     // test_modular_iface_array_unkwn.cpp:28:5
+begin : minst_metProc0     // test_modular_iface_array_unkwn.cpp:35:5
     minst_s[1] = 1;
     minst_p[1] = 2;
     minst_vp[1] = 3;
 end
 
 //------------------------------------------------------------------------------
-// Method process: top_method (test_modular_iface_array_unkwn.cpp:69:5) 
+// Method process: top_method (test_modular_iface_array_unkwn.cpp:76:5) 
 
 // Process-local variables
 logic [3:0] minst_vp[2];
 
 always_comb 
-begin : top_method     // test_modular_iface_array_unkwn.cpp:69:5
+begin : top_method     // test_modular_iface_array_unkwn.cpp:76:5
     integer i;
     i = t;
     minst_s[1] = 1;

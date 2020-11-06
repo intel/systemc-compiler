@@ -36,7 +36,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_const_prop.cpp:941:5)
+// Module: A (test_const_prop.cpp:924:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -56,10 +56,101 @@ logic [1:0] rr_first_indx;
 logic [1:0] port_bindx[3];
 
 //------------------------------------------------------------------------------
-// Method process: intrControlProc (test_const_prop.cpp:484:5) 
+// Method process: complex_if_level (test_const_prop.cpp:107:5) 
+
+// Process-local variables
+logic signed [31:0] k;
+logic signed [31:0] m;
+logic signed [31:0] n;
 
 always_comb 
-begin : intrControlProc     // test_const_prop.cpp:484:5
+begin : complex_if_level     // test_const_prop.cpp:107:5
+    integer aa;
+    integer bb;
+    if (|k)
+    begin
+        if (|m)
+        begin
+            if (|n)
+            begin
+                if (k > n)
+                begin
+                    aa = 0;
+                end
+            end else begin
+                if (1)
+                begin
+                    bb = 1;
+                end
+            end
+        end
+    end
+end
+
+//------------------------------------------------------------------------------
+// Method process: mstrResponseMuxProc (test_const_prop.cpp:131:5) 
+
+// Process-local variables
+logic signed [31:0] m;
+
+always_comb 
+begin : mstrResponseMuxProc     // test_const_prop.cpp:131:5
+    integer i;
+    i = a;
+    if ((arr1[i] && 1) || arr3[i])
+    begin
+        m = 1;
+    end
+end
+
+//------------------------------------------------------------------------------
+// Method process: NoReturnProc (test_const_prop.cpp:157:5) 
+
+always_comb 
+begin : NoReturnProc     // test_const_prop.cpp:157:5
+end
+
+//------------------------------------------------------------------------------
+// Method process: NoReturnProc2 (test_const_prop.cpp:166:5) 
+
+always_comb 
+begin : NoReturnProc2     // test_const_prop.cpp:166:5
+    logic TMP_0;
+    integer unsigned portId;
+    portId = a;
+    // Call useWriteResp() begin
+    case (portId)
+    0 : begin
+        TMP_0 = 1;
+    end
+    1 : begin
+        TMP_0 = 1;
+    end
+    default : begin
+        TMP_0 = 1;
+    end
+    endcase
+    // Call useWriteResp() end
+end
+
+//------------------------------------------------------------------------------
+// Method process: not_test (test_const_prop.cpp:173:5) 
+
+always_comb 
+begin : not_test     // test_const_prop.cpp:173:5
+    logic [2:0] x;
+    logic [2:0] y;
+    logic b_1;
+    x = 3;
+    y = ~x;
+    b_1 = x == y;
+end
+
+//------------------------------------------------------------------------------
+// Method process: intrControlProc (test_const_prop.cpp:482:5) 
+
+always_comb 
+begin : intrControlProc     // test_const_prop.cpp:482:5
     logic b_1;
     integer i;
     b_1 = 0;
@@ -67,17 +158,17 @@ begin : intrControlProc     // test_const_prop.cpp:484:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: chooseRequestProc (test_const_prop.cpp:494:5) 
+// Method process: chooseRequestProc (test_const_prop.cpp:492:5) 
 
 always_comb 
-begin : chooseRequestProc     // test_const_prop.cpp:494:5
+begin : chooseRequestProc     // test_const_prop.cpp:492:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: ackProc2R2Wcache4 (test_const_prop.cpp:538:5) 
+// Method process: ackProc2R2Wcache4 (test_const_prop.cpp:536:5) 
 
 always_comb 
-begin : ackProc2R2Wcache4     // test_const_prop.cpp:538:5
+begin : ackProc2R2Wcache4     // test_const_prop.cpp:536:5
     logic readFirstAccess_flat[3];
     logic readSecndAccess_flat[3];
     logic writeFirstAccess_flat[3];
@@ -151,10 +242,10 @@ begin : ackProc2R2Wcache4     // test_const_prop.cpp:538:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: simple_if1 (test_const_prop.cpp:598:5) 
+// Method process: simple_if1 (test_const_prop.cpp:586:5) 
 
 always_comb 
-begin : simple_if1     // test_const_prop.cpp:598:5
+begin : simple_if1     // test_const_prop.cpp:586:5
     integer i;
     i = 1;
     if (1)
@@ -164,13 +255,13 @@ begin : simple_if1     // test_const_prop.cpp:598:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: simple_if2 (test_const_prop.cpp:608:5) 
+// Method process: simple_if2 (test_const_prop.cpp:597:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : simple_if2     // test_const_prop.cpp:608:5
+begin : simple_if2     // test_const_prop.cpp:597:5
     integer i;
     i = 1;
     m = i + 1;
@@ -190,10 +281,10 @@ begin : simple_if2     // test_const_prop.cpp:608:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_in_func1 (test_const_prop.cpp:634:5) 
+// Method process: if_in_func1 (test_const_prop.cpp:625:5) 
 
 always_comb 
-begin : if_in_func1     // test_const_prop.cpp:634:5
+begin : if_in_func1     // test_const_prop.cpp:625:5
     integer i;
     integer j;
     i = 1;
@@ -207,34 +298,41 @@ begin : if_in_func1     // test_const_prop.cpp:634:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_in_func2 (test_const_prop.cpp:648:5) 
+// Method process: if_in_func2 (test_const_prop.cpp:639:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : if_in_func2     // test_const_prop.cpp:648:5
+begin : if_in_func2     // test_const_prop.cpp:639:5
     // Call f2() begin
     m = 3;
     // Call f2() end
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_in_func3 (test_const_prop.cpp:659:5) 
+// Method process: if_in_func3 (test_const_prop.cpp:653:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : if_in_func3     // test_const_prop.cpp:659:5
+begin : if_in_func3     // test_const_prop.cpp:653:5
+    integer ll;
     m = 4;
+    // Call f3() begin
+    if (1)
+    begin
+        ll = 1;
+    end
+    // Call f3() end
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_param_func (test_const_prop.cpp:672:5) 
+// Method process: const_param_func (test_const_prop.cpp:667:5) 
 
 always_comb 
-begin : const_param_func     // test_const_prop.cpp:672:5
+begin : const_param_func     // test_const_prop.cpp:667:5
     integer unsigned val;
     val = 1;
     // Call f4() begin
@@ -245,10 +343,10 @@ begin : const_param_func     // test_const_prop.cpp:672:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_in_func5 (test_const_prop.cpp:681:5) 
+// Method process: if_in_func5 (test_const_prop.cpp:676:5) 
 
 always_comb 
-begin : if_in_func5     // test_const_prop.cpp:681:5
+begin : if_in_func5     // test_const_prop.cpp:676:5
     integer TMP_0;
     integer i;
     // Call f5() begin
@@ -258,10 +356,10 @@ begin : if_in_func5     // test_const_prop.cpp:681:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: simple_switch1 (test_const_prop.cpp:688:5) 
+// Method process: simple_switch1 (test_const_prop.cpp:683:5) 
 
 always_comb 
-begin : simple_switch1     // test_const_prop.cpp:688:5
+begin : simple_switch1     // test_const_prop.cpp:683:5
     integer i;
     i = 2;
     case (2)
@@ -276,10 +374,10 @@ begin : simple_switch1     // test_const_prop.cpp:688:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: simple_switch2 (test_const_prop.cpp:698:5) 
+// Method process: simple_switch2 (test_const_prop.cpp:694:5) 
 
 always_comb 
-begin : simple_switch2     // test_const_prop.cpp:698:5
+begin : simple_switch2     // test_const_prop.cpp:694:5
     integer i;
     i = a;
     case (i)
@@ -295,10 +393,10 @@ begin : simple_switch2     // test_const_prop.cpp:698:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: simple_switch3 (test_const_prop.cpp:708:5) 
+// Method process: simple_switch3 (test_const_prop.cpp:704:5) 
 
 always_comb 
-begin : simple_switch3     // test_const_prop.cpp:708:5
+begin : simple_switch3     // test_const_prop.cpp:704:5
     integer i;
     i = 3;
     case (3)
@@ -313,13 +411,13 @@ begin : simple_switch3     // test_const_prop.cpp:708:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: simple_binary1 (test_const_prop.cpp:718:5) 
+// Method process: simple_binary1 (test_const_prop.cpp:715:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : simple_binary1     // test_const_prop.cpp:718:5
+begin : simple_binary1     // test_const_prop.cpp:715:5
     integer i;
     i = 1;
     if (1)
@@ -329,15 +427,16 @@ begin : simple_binary1     // test_const_prop.cpp:718:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: simple_binary2 (test_const_prop.cpp:730:5) 
+// Method process: simple_binary2 (test_const_prop.cpp:727:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : simple_binary2     // test_const_prop.cpp:730:5
+begin : simple_binary2     // test_const_prop.cpp:727:5
     integer i;
     i = 0;
+    m = -2'sd1;
     if (1)
     begin
         m = 0;
@@ -369,13 +468,13 @@ begin : simple_binary2     // test_const_prop.cpp:730:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: simple_binary3 (test_const_prop.cpp:766:5) 
+// Method process: simple_binary3 (test_const_prop.cpp:765:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : simple_binary3     // test_const_prop.cpp:766:5
+begin : simple_binary3     // test_const_prop.cpp:765:5
     integer i;
     i = 0;
     if ((i == 0 && i == 1) || a)
@@ -397,26 +496,26 @@ begin : simple_binary3     // test_const_prop.cpp:766:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: simple_cond1 (test_const_prop.cpp:791:5) 
+// Method process: simple_cond1 (test_const_prop.cpp:790:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : simple_cond1     // test_const_prop.cpp:791:5
+begin : simple_cond1     // test_const_prop.cpp:790:5
     integer i;
     i = 1;
     m = 2;
 end
 
 //------------------------------------------------------------------------------
-// Method process: double_if1 (test_const_prop.cpp:188:5) 
+// Method process: double_if1 (test_const_prop.cpp:186:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : double_if1     // test_const_prop.cpp:188:5
+begin : double_if1     // test_const_prop.cpp:186:5
     if (a)
     begin
         if (b)
@@ -437,13 +536,13 @@ begin : double_if1     // test_const_prop.cpp:188:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: double_if2 (test_const_prop.cpp:208:5) 
+// Method process: double_if2 (test_const_prop.cpp:206:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : double_if2     // test_const_prop.cpp:208:5
+begin : double_if2     // test_const_prop.cpp:206:5
     if (a)
     begin
         if (b)
@@ -457,13 +556,13 @@ begin : double_if2     // test_const_prop.cpp:208:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: double_if3 (test_const_prop.cpp:222:5) 
+// Method process: double_if3 (test_const_prop.cpp:220:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : double_if3     // test_const_prop.cpp:222:5
+begin : double_if3     // test_const_prop.cpp:220:5
     if (a)
     begin
         if (b)
@@ -482,13 +581,13 @@ begin : double_if3     // test_const_prop.cpp:222:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: double_if4 (test_const_prop.cpp:240:5) 
+// Method process: double_if4 (test_const_prop.cpp:238:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : double_if4     // test_const_prop.cpp:240:5
+begin : double_if4     // test_const_prop.cpp:238:5
     if (a)
     begin
         if (b)
@@ -519,13 +618,13 @@ begin : double_if4     // test_const_prop.cpp:240:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: double_if5 (test_const_prop.cpp:270:5) 
+// Method process: double_if5 (test_const_prop.cpp:268:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : double_if5     // test_const_prop.cpp:270:5
+begin : double_if5     // test_const_prop.cpp:268:5
     integer TMP_0;
     if (a)
     begin
@@ -551,13 +650,13 @@ begin : double_if5     // test_const_prop.cpp:270:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: double_if6 (test_const_prop.cpp:290:5) 
+// Method process: double_if6 (test_const_prop.cpp:288:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : double_if6     // test_const_prop.cpp:290:5
+begin : double_if6     // test_const_prop.cpp:288:5
     if (a)
     begin
         if (b)
@@ -592,13 +691,13 @@ begin : double_if6     // test_const_prop.cpp:290:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: seq_if (test_const_prop.cpp:460:5) 
+// Method process: seq_if (test_const_prop.cpp:458:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : seq_if     // test_const_prop.cpp:460:5
+begin : seq_if     // test_const_prop.cpp:458:5
     if (a)
     begin
         m = 1;
@@ -619,13 +718,13 @@ begin : seq_if     // test_const_prop.cpp:460:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: double_if_for1 (test_const_prop.cpp:322:5) 
+// Method process: double_if_for1 (test_const_prop.cpp:320:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : double_if_for1     // test_const_prop.cpp:322:5
+begin : double_if_for1     // test_const_prop.cpp:320:5
     if (a)
     begin
         if (b)
@@ -661,13 +760,13 @@ begin : double_if_for1     // test_const_prop.cpp:322:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: double_if_for2 (test_const_prop.cpp:351:5) 
+// Method process: double_if_for2 (test_const_prop.cpp:349:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : double_if_for2     // test_const_prop.cpp:351:5
+begin : double_if_for2     // test_const_prop.cpp:349:5
     if (a)
     begin
         if (b)
@@ -718,13 +817,13 @@ begin : double_if_for2     // test_const_prop.cpp:351:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: double_if_while (test_const_prop.cpp:392:5) 
+// Method process: double_if_while (test_const_prop.cpp:390:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : double_if_while     // test_const_prop.cpp:392:5
+begin : double_if_while     // test_const_prop.cpp:390:5
     integer i;
     integer i_1;
     integer j;
@@ -782,13 +881,13 @@ begin : double_if_while     // test_const_prop.cpp:392:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: double_if_break (test_const_prop.cpp:435:5) 
+// Method process: double_if_break (test_const_prop.cpp:433:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : double_if_break     // test_const_prop.cpp:435:5
+begin : double_if_break     // test_const_prop.cpp:433:5
     for (integer i = 0; i < 2; i++)
     begin
         if (a)
@@ -805,17 +904,17 @@ begin : double_if_break     // test_const_prop.cpp:435:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: false_if_break (test_const_prop.cpp:450:5) 
+// Method process: false_if_break (test_const_prop.cpp:448:5) 
 
 always_comb 
-begin : false_if_break     // test_const_prop.cpp:450:5
+begin : false_if_break     // test_const_prop.cpp:448:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: multiple_calls1 (test_const_prop.cpp:853:5) 
+// Method process: multiple_calls1 (test_const_prop.cpp:831:5) 
 
 always_comb 
-begin : multiple_calls1     // test_const_prop.cpp:853:5
+begin : multiple_calls1     // test_const_prop.cpp:831:5
     integer k_1;
     if (a)
     begin
@@ -829,10 +928,10 @@ begin : multiple_calls1     // test_const_prop.cpp:853:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: multiple_calls2 (test_const_prop.cpp:862:5) 
+// Method process: multiple_calls2 (test_const_prop.cpp:840:5) 
 
 always_comb 
-begin : multiple_calls2     // test_const_prop.cpp:862:5
+begin : multiple_calls2     // test_const_prop.cpp:840:5
     integer k_1;
     // Call g() begin
     k_1 = 0;
@@ -846,69 +945,55 @@ begin : multiple_calls2     // test_const_prop.cpp:862:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: mstrResponseMuxProc (test_const_prop.cpp:133:5) 
-
-// Process-local variables
-logic signed [31:0] m;
+// Method process: local_array_if (test_const_prop.cpp:806:5) 
 
 always_comb 
-begin : mstrResponseMuxProc     // test_const_prop.cpp:133:5
-    integer i;
-    i = a;
-    if ((arr1[i] && 1) || arr3[i])
-    begin
-        m = 1;
+begin : local_array_if     // test_const_prop.cpp:806:5
+    logic arr[3];
+end
+
+//------------------------------------------------------------------------------
+// Clocked THREAD: local_array (test_const_prop.cpp:813:5) 
+
+// Next-state combinational logic
+always_comb begin : local_array_comb     // test_const_prop.cpp:813:5
+    local_array_func;
+end
+function void local_array_func;
+endfunction
+
+// Syncrhonous register update
+always_ff @(posedge clk or negedge nrst) 
+begin : local_array_ff
+    if ( ~nrst ) begin
+    end
+    else begin
     end
 end
 
 //------------------------------------------------------------------------------
-// Method process: NoReturnFatalError (test_const_prop.cpp:159:5) 
+// Method process: return_const_in_if (test_const_prop.cpp:858:5) 
 
 always_comb 
-begin : NoReturnFatalError     // test_const_prop.cpp:159:5
-end
-
-//------------------------------------------------------------------------------
-// Method process: NoReturnFatalError2 (test_const_prop.cpp:168:5) 
-
-always_comb 
-begin : NoReturnFatalError2     // test_const_prop.cpp:168:5
-    logic TMP_0;
-    integer unsigned portId;
-    portId = a;
-    // Call useWriteResp() begin
-    case (portId)
-    0 : begin
-        TMP_0 = 1;
-    end
-    1 : begin
-        TMP_0 = 1;
-    end
-    default : begin
-        TMP_0 = 1;
-    end
-    endcase
-    // Call useWriteResp() end
-end
-
-//------------------------------------------------------------------------------
-// Method process: return_const_in_if (test_const_prop.cpp:880:5) 
-
-always_comb 
-begin : return_const_in_if     // test_const_prop.cpp:880:5
+begin : return_const_in_if     // test_const_prop.cpp:858:5
     integer i;
     integer TMP_0;
+    integer ll;
     i = a;
     // Call getConst() begin
     TMP_0 = 2;
     // Call getConst() end
+    if (i < TMP_0)
+    begin
+        ll = 1;
+    end
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_const_in_for (test_const_prop.cpp:886:5) 
+// Method process: return_const_in_for (test_const_prop.cpp:865:5) 
 
 always_comb 
-begin : return_const_in_for     // test_const_prop.cpp:886:5
+begin : return_const_in_for     // test_const_prop.cpp:865:5
     integer x;
     integer TMP_0;
     integer N;
@@ -924,10 +1009,10 @@ begin : return_const_in_for     // test_const_prop.cpp:886:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_const_in_for2 (test_const_prop.cpp:895:5) 
+// Method process: return_const_in_for2 (test_const_prop.cpp:875:5) 
 
 always_comb 
-begin : return_const_in_for2     // test_const_prop.cpp:895:5
+begin : return_const_in_for2     // test_const_prop.cpp:875:5
     integer x;
     integer TMP_0;
     integer TMP_1;
@@ -945,10 +1030,10 @@ begin : return_const_in_for2     // test_const_prop.cpp:895:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_const_in_for3 (test_const_prop.cpp:903:5) 
+// Method process: return_const_in_for3 (test_const_prop.cpp:883:5) 
 
 always_comb 
-begin : return_const_in_for3     // test_const_prop.cpp:903:5
+begin : return_const_in_for3     // test_const_prop.cpp:883:5
     integer x;
     integer TMP_0;
     x = 0;
@@ -962,10 +1047,10 @@ begin : return_const_in_for3     // test_const_prop.cpp:903:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_const_in_while (test_const_prop.cpp:911:5) 
+// Method process: return_const_in_while (test_const_prop.cpp:891:5) 
 
 always_comb 
-begin : return_const_in_while     // test_const_prop.cpp:911:5
+begin : return_const_in_while     // test_const_prop.cpp:891:5
     integer i;
     integer TMP_0;
     integer TMP_1;
@@ -983,10 +1068,10 @@ begin : return_const_in_while     // test_const_prop.cpp:911:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_const_in_while2 (test_const_prop.cpp:918:5) 
+// Method process: return_const_in_while2 (test_const_prop.cpp:899:5) 
 
 always_comb 
-begin : return_const_in_while2     // test_const_prop.cpp:918:5
+begin : return_const_in_while2     // test_const_prop.cpp:899:5
     integer i;
     integer TMP_0;
     integer i_1;
@@ -1004,51 +1089,6 @@ begin : return_const_in_while2     // test_const_prop.cpp:918:5
         TMP_0 = i_1 + 1;
         // Call getConst_() end
     end
-end
-
-//------------------------------------------------------------------------------
-// Method process: complex_if_level (test_const_prop.cpp:109:5) 
-
-// Process-local variables
-logic signed [31:0] k;
-logic signed [31:0] m;
-logic signed [31:0] n;
-
-always_comb 
-begin : complex_if_level     // test_const_prop.cpp:109:5
-    integer aa;
-    integer bb;
-    if (|k)
-    begin
-        if (|m)
-        begin
-            if (|n)
-            begin
-                if (k > n)
-                begin
-                    aa = 0;
-                end
-            end else begin
-                if (1)
-                begin
-                    bb = 1;
-                end
-            end
-        end
-    end
-end
-
-//------------------------------------------------------------------------------
-// Method process: not_test (test_const_prop.cpp:175:5) 
-
-always_comb 
-begin : not_test     // test_const_prop.cpp:175:5
-    logic [2:0] x;
-    logic [2:0] y;
-    logic b_1;
-    x = 3;
-    y = ~x;
-    b_1 = x == y;
 end
 
 endmodule

@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_binary_signed.cpp:757:5)
+// Module: A (test_binary_signed.cpp:764:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -43,10 +43,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: liter_suff_U (test_binary_signed.cpp:47:5) 
+// Method process: liter_suff_U (test_binary_signed.cpp:54:5) 
 
 always_comb 
-begin : liter_suff_U     // test_binary_signed.cpp:47:5
+begin : liter_suff_U     // test_binary_signed.cpp:54:5
     logic signed [2:0] x;
     logic signed [3:0] y;
     logic signed [7:0] z;
@@ -54,19 +54,19 @@ begin : liter_suff_U     // test_binary_signed.cpp:47:5
     y = -4'sd6;
     z = 0;
     z = 6 / 2;
-    assert (z == 3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = (-4'sd6) / 2;
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 12 / 6;
-    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 12 / (-4'sd6);
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_suff_L (test_binary_signed.cpp:65:5) 
+// Method process: liter_suff_L (test_binary_signed.cpp:72:5) 
 
 always_comb 
-begin : liter_suff_L     // test_binary_signed.cpp:65:5
+begin : liter_suff_L     // test_binary_signed.cpp:72:5
     logic signed [2:0] x;
     logic signed [3:0] y;
     logic signed [7:0] z;
@@ -76,34 +76,34 @@ begin : liter_suff_L     // test_binary_signed.cpp:65:5
     z = 0;
     bz = 0;
     z = 6 / 2;
-    assert (z == 3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = (-4'sd6) / 2;
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 12 / 6;
-    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 12 / (-4'sd6);
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = 1 <<< 62;
-    assert (bz == 'h4000000000000000) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == 'h4000000000000000) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = (1 <<< 62) * (-2'sd1);
-    assert (bz == -64'sh4000000000000000) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -64'sh4000000000000000) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = 64'((1 <<< 62) * (-2'sd1)) / 2;
-    assert (bz == -63'sh2000000000000000) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -63'sh2000000000000000) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = 63'sh3FFFFFFFFFFFFFFC + 4;
-    assert (bz == 'h4000000000000000) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == 'h4000000000000000) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = (-63'sh3FFFFFFFFFFFFFFC) - 4;
-    assert (bz == -64'sh4000000000000000) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -64'sh4000000000000000) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = (-63'sh3FFFFFFFFFFFFFFC) / 2;
-    assert (bz == -62'sh1FFFFFFFFFFFFFFE) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -62'sh1FFFFFFFFFFFFFFE) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = 'h3FFFFFFFFFFFFFFC / 2;
-    assert (bz == 'h1FFFFFFFFFFFFFFE) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == 'h1FFFFFFFFFFFFFFE) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_suff_var (test_binary_signed.cpp:104:5) 
+// Method process: liter_suff_var (test_binary_signed.cpp:111:5) 
 
 always_comb 
-begin : liter_suff_var     // test_binary_signed.cpp:104:5
+begin : liter_suff_var     // test_binary_signed.cpp:111:5
     integer i;
     logic signed [3:0] x;
     logic signed [4:0] y;
@@ -115,28 +115,28 @@ begin : liter_suff_var     // test_binary_signed.cpp:104:5
     z = -4'sd6;
     bz = 0;
     bz = x / 2;
-    assert (bz == 3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == 3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = y / 2;
-    assert (bz == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = i / 2;
-    assert (bz == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = z / 2;
-    assert (bz == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = 12 / x;
-    assert (bz == 2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == 2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = 12 / y;
-    assert (bz == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = 12 / i;
-    assert (bz == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = 12 / z;
-    assert (bz == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_neg_non_div_bug (test_binary_signed.cpp:134:5) 
+// Method process: liter_neg_non_div_bug (test_binary_signed.cpp:141:5) 
 
 always_comb 
-begin : liter_neg_non_div_bug     // test_binary_signed.cpp:134:5
+begin : liter_neg_non_div_bug     // test_binary_signed.cpp:141:5
     integer i;
     integer j;
     logic signed [15:0] z;
@@ -153,26 +153,26 @@ begin : liter_neg_non_div_bug     // test_binary_signed.cpp:134:5
     ux = 2;
     uu = 42;
     z = signed'({1'b0, bu}) + (signed'({1'b0, ux}) + x);
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     i = -2'sd1;
     i = j + signed'({1'b0, uu}) * i;
-    assert (i == -7'sd38) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (i == -7'sd38) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 1;
     bz = signed'({1'b0, bu}) * bz - x;
     z = (-4'sd6) / ux;
     bz = (-4'sd6) + ux * (-3'sd3);
-    assert (bz == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 35'(-uu * 4) / (-3'sd2);
-    assert (z == 0) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 0) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     uu = ux + (1 + 2);
     uu = ux / (1 <<< 2);
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_neg_div (test_binary_signed.cpp:170:5) 
+// Method process: liter_neg_div (test_binary_signed.cpp:177:5) 
 
 always_comb 
-begin : liter_neg_div     // test_binary_signed.cpp:170:5
+begin : liter_neg_div     // test_binary_signed.cpp:177:5
     logic signed [2:0] x;
     logic signed [3:0] y;
     logic signed [7:0] z;
@@ -183,33 +183,33 @@ begin : liter_neg_div     // test_binary_signed.cpp:170:5
     z = 0;
     ux = 2;
     z = (-4'sd6) / 2;
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = (-4'sd6) * 2 - 3;
-    assert (z == -5'sd15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -5'sd15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 12 / (-4'sd4) + 3 * (-2'sd1);
-    assert (z == -4'sd6) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -4'sd6) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 2 / (5 - 6);
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 2 / (5 + (-4'sd6));
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = (-4'sd6) / 4'sd2;
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = (-4'sd6) * 4'sd2 + 5'sd3;
-    assert (z == -5'sd9) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -5'sd9) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 2 / (4'sd5 - 4'sd6);
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 2 / (4'sd5 + (-4'sd6));
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     uu = 2;
     z = (-4'sd6) / uu;
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_neg_div_part (test_binary_signed.cpp:216:5) 
+// Method process: liter_neg_div_part (test_binary_signed.cpp:223:5) 
 
 always_comb 
-begin : liter_neg_div_part     // test_binary_signed.cpp:216:5
+begin : liter_neg_div_part     // test_binary_signed.cpp:223:5
     logic signed [3:0] x;
     logic signed [5:0] y;
     logic signed [7:0] z;
@@ -220,19 +220,19 @@ begin : liter_neg_div_part     // test_binary_signed.cpp:216:5
     r = 0;
     z = (-4'sd5) / 2;
     r = (-4'sd5) % 2;
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
-    assert (r == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
+    assert (r == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = (-7'sd5) / 4'sd2;
     r = (-7'sd5) % 4'sd2;
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
-    assert (r == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
+    assert (r == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_neg_non_div (test_binary_signed.cpp:236:5) 
+// Method process: liter_neg_non_div (test_binary_signed.cpp:243:5) 
 
 always_comb 
-begin : liter_neg_non_div     // test_binary_signed.cpp:236:5
+begin : liter_neg_non_div     // test_binary_signed.cpp:243:5
     integer i;
     logic signed [15:0] z;
     logic signed [15:0] bz;
@@ -243,38 +243,38 @@ begin : liter_neg_non_div     // test_binary_signed.cpp:236:5
     ux = 2;
     uu = 2;
     i = (-2'sd1) * 2;
-    assert (i == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (i == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     i = (-8'sd111) + 11;
-    assert (i == -8'sd100) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (i == -8'sd100) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = (-4'sd6) * 2;
-    assert (z == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 4 * (-8'sd121);
-    assert (z == -10'sd484) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -10'sd484) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = (-5'sd10) - 20;
-    assert (bz == -6'sd30) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -6'sd30) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = (-4'sd4) + (-5'sd8) - 2;
-    assert (bz == -5'sd14) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -5'sd14) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     i = (-4'sd6) * ux;
-    assert (i == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (i == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = (-4'sd6) * ux;
-    assert (z == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = (-3'sd3) + ux;
-    assert (bz == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = (-4'sd6) + ux * (-3'sd3);
-    assert (bz == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     i = (-4'sd6) * uu;
-    assert (i == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (i == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = (-4'sd6) * signed'({1'b0, uu});
-    assert (z == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = (-4'sd6) + uu * (-3'sd3);
-    assert (bz == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (bz == -5'sd12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: cpp_type_neg_div (test_binary_signed.cpp:279:5) 
+// Method process: cpp_type_neg_div (test_binary_signed.cpp:286:5) 
 
 always_comb 
-begin : cpp_type_neg_div     // test_binary_signed.cpp:279:5
+begin : cpp_type_neg_div     // test_binary_signed.cpp:286:5
     integer x;
     integer y;
     integer z;
@@ -283,15 +283,15 @@ begin : cpp_type_neg_div     // test_binary_signed.cpp:279:5
     y = -4'sd5;
     z = y / x;
     r = y % x;
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
-    assert (r == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
+    assert (r == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_neg_div (test_binary_signed.cpp:301:5) 
+// Method process: sc_type_neg_div (test_binary_signed.cpp:308:5) 
 
 always_comb 
-begin : sc_type_neg_div     // test_binary_signed.cpp:301:5
+begin : sc_type_neg_div     // test_binary_signed.cpp:308:5
     logic signed [4:0] x;
     logic signed [6:0] y;
     logic signed [7:0] z;
@@ -302,25 +302,25 @@ begin : sc_type_neg_div     // test_binary_signed.cpp:301:5
     y = -4'sd6;
     z = 0;
     z = y / x;
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     ux = 2;
     z = y / signed'({1'b0, ux});
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     i = -4'sd6;
     z = i / signed'({1'b0, ux});
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     uu = 2;
     z = y / signed'({1'b0, uu});
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = i / signed'({1'b0, uu});
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_bigint_type_neg_div (test_binary_signed.cpp:334:5) 
+// Method process: sc_bigint_type_neg_div (test_binary_signed.cpp:341:5) 
 
 always_comb 
-begin : sc_bigint_type_neg_div     // test_binary_signed.cpp:334:5
+begin : sc_bigint_type_neg_div     // test_binary_signed.cpp:341:5
     logic signed [8:0] y;
     logic signed [4:0] x;
     logic signed [10:0] z;
@@ -331,25 +331,25 @@ begin : sc_bigint_type_neg_div     // test_binary_signed.cpp:334:5
     x = 2;
     z = 0;
     z = y / x;
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     ux = 2;
     z = y / signed'({1'b0, ux});
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bux = 2;
     z = y / signed'({1'b0, bux});
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     uu = 2;
     z = y / signed'({1'b0, uu});
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = y / 4'sd2;
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_biguint_type_neg_div (test_binary_signed.cpp:365:5) 
+// Method process: sc_biguint_type_neg_div (test_binary_signed.cpp:372:5) 
 
 always_comb 
-begin : sc_biguint_type_neg_div     // test_binary_signed.cpp:365:5
+begin : sc_biguint_type_neg_div     // test_binary_signed.cpp:372:5
     logic [8:0] y;
     logic signed [4:0] x;
     logic signed [10:0] z;
@@ -360,29 +360,29 @@ begin : sc_biguint_type_neg_div     // test_binary_signed.cpp:365:5
     x = -3'sd3;
     z = 0;
     z = signed'({1'b0, y}) / x;
-    assert (z == -4'sd4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -4'sd4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     li = -3'sd3;
     z = signed'({1'b0, y}) / li;
-    assert (z == -4'sd4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -4'sd4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bx = -3'sd3;
     z = signed'({1'b0, y}) / bx;
-    assert (z == -4'sd4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -4'sd4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     ux = 5;
     z = signed'({1'b0, y}) / (x + signed'({1'b0, ux}));
-    assert (z == 7) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 7) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = signed'({1'b0, y}) / (bx + signed'({1'b0, ux}));
-    assert (z == 7) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 7) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = signed'({1'b0, y}) * (bx - signed'({1'b0, ux})) + 1;
-    assert (z == -8'sd111) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -8'sd111) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = (bx / signed'({1'b0, ux})) * signed'({1'b0, y}) + signed'({1'b0, y});
-    assert (z == 14) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 14) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_pos_div_rem (test_binary_signed.cpp:400:5) 
+// Method process: sc_type_pos_div_rem (test_binary_signed.cpp:407:5) 
 
 always_comb 
-begin : sc_type_pos_div_rem     // test_binary_signed.cpp:400:5
+begin : sc_type_pos_div_rem     // test_binary_signed.cpp:407:5
     logic signed [2:0] x;
     logic signed [4:0] y;
     logic signed [7:0] z;
@@ -399,37 +399,37 @@ begin : sc_type_pos_div_rem     // test_binary_signed.cpp:400:5
     r = 0;
     z = y / x;
     r = y % x;
-    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
-    assert (r == 1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
+    assert (r == 1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     ux = 2;
     z = y / signed'({1'b0, ux});
     r = y % signed'({1'b0, ux});
-    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
-    assert (r == 1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
+    assert (r == 1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     uy = 5;
     z = uy / ux;
     r = uy % ux;
-    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
-    assert (r == 1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
+    assert (r == 1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bx = 2;
     by = 5;
     z = by / bx;
     r = by % bx;
-    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
-    assert (r == 1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
+    assert (r == 1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bux = 2;
     buy = 5;
     z = buy / bux;
     r = buy % bux;
-    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
-    assert (r == 1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == 2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
+    assert (r == 1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_neg_div2 (test_binary_signed.cpp:445:5) 
+// Method process: sc_type_neg_div2 (test_binary_signed.cpp:452:5) 
 
 always_comb 
-begin : sc_type_neg_div2     // test_binary_signed.cpp:445:5
+begin : sc_type_neg_div2     // test_binary_signed.cpp:452:5
     logic signed [5:0] x;
     logic signed [5:0] y;
     logic signed [5:0] z;
@@ -440,19 +440,19 @@ begin : sc_type_neg_div2     // test_binary_signed.cpp:445:5
     z = 0;
     z = y / x;
     r = y % x;
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
-    assert (r == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
+    assert (r == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     y = -5'sd12;
     ux = 3;
     z = y / ux;
-    assert (z == -4'sd4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -4'sd4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: expl_sign_cast (test_binary_signed.cpp:466:5) 
+// Method process: expl_sign_cast (test_binary_signed.cpp:473:5) 
 
 always_comb 
-begin : expl_sign_cast     // test_binary_signed.cpp:466:5
+begin : expl_sign_cast     // test_binary_signed.cpp:473:5
     integer i;
     logic signed [15:0] z;
     logic signed [15:0] bz;
@@ -500,40 +500,40 @@ begin : expl_sign_cast     // test_binary_signed.cpp:466:5
     bux = bux + 9'(bux);
     bz = -4'sd5;
     bz = bz + uu;
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = -4'sd5;
     bz = bz + signed'(7'(uu));
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = -4'sd5;
     bz = bz + ux;
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = -4'sd5;
     bz = bz + signed'(7'(ux));
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bz = -4'sd5;
     bz = bz + signed'(7'(bux));
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     bx = -signed'({1'b0, bux});
     bx = -signed'({1'b0, bux}) + i;
     bx = -signed'(4'(bux)) + i;
     bx = -signed'(8'(bux)) + x;
     bx = -signed'({1'b0, 9'(bux)}) + x;
-    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = x - signed'(32'(ux)) + 1;
-    assert (z == -4'sd6) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -4'sd6) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = x * signed'(32'(ux)) + signed'({1'b0, ux});
-    assert (z == -5'sd8) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -5'sd8) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = 13'(x) / signed'(15'(ux));
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = signed'(64'(ux)) / (-2'sd1);
-    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -3'sd2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_types_64bit (test_binary_signed.cpp:591:5) 
+// Method process: sc_types_64bit (test_binary_signed.cpp:598:5) 
 
 always_comb 
-begin : sc_types_64bit     // test_binary_signed.cpp:591:5
+begin : sc_types_64bit     // test_binary_signed.cpp:598:5
     logic signed [63:0] x;
     logic [63:0] ux;
     integer i;
@@ -548,23 +548,23 @@ begin : sc_types_64bit     // test_binary_signed.cpp:591:5
     z = 0;
     z = x * signed'({1'b0, ux});
     z = x * signed'(64'(ux));
-    assert (z == -5'sd15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -5'sd15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = x / signed'({1'b0, ux});
     z = x / signed'(64'(ux));
-    assert (z == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = x * signed'({1'b0, uu});
-    assert (z == -5'sd15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -5'sd15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = x / signed'({1'b0, uu});
-    assert (z == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == -2'sd1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = i * signed'({1'b0, ux});
     z = i / signed'({1'b0, ux});
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_neg_comp (test_binary_signed.cpp:551:5) 
+// Method process: sc_type_neg_comp (test_binary_signed.cpp:558:5) 
 
 always_comb 
-begin : sc_type_neg_comp     // test_binary_signed.cpp:551:5
+begin : sc_type_neg_comp     // test_binary_signed.cpp:558:5
     integer i;
     integer unsigned uu;
     logic signed [3:0] x;
@@ -577,37 +577,37 @@ begin : sc_type_neg_comp     // test_binary_signed.cpp:551:5
     y = 2;
     ux = 2;
     b_1 = x == y;
-    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     b_1 = ux == y;
-    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     b_1 = i == y;
-    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     b_1 = i == x;
-    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     b_1 = i == uu;
-    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     b_1 = x == uu;
-    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     b_1 = ux == uu;
-    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     x = -4'sd5;
     y = -4'sd5;
     i = -4'sd5;
     b_1 = x == y;
-    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     b_1 = i == y;
-    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (b_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     b_1 = i == ux;
-    assert (!b_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (!b_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     b_1 = y == ux;
-    assert (!b_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (!b_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: cpp_sc_type_mix (test_binary_signed.cpp:656:5) 
+// Method process: cpp_sc_type_mix (test_binary_signed.cpp:663:5) 
 
 always_comb 
-begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
+begin : cpp_sc_type_mix     // test_binary_signed.cpp:663:5
     integer div;
     integer rem;
     integer mul;
@@ -777,27 +777,27 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     if (1)
     begin
         z = i / x;
-        assert (z == div) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z == div) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         z = i % x;
-        assert (z == rem) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z == rem) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     z = i * x;
-    assert (z == mul) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == mul) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = i - x;
-    assert (z == sub) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == sub) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z = i + x;
-    assert (z == add) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z == add) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_1 = 1431655762; rem_1 = 0; mul_1 = -6'sd30; sub_1 = -5'sd13; add_1 = -4'sd7; doDiv_1 = 0;
     // Call cpp_sc_type_mix() begin
     x_1 = 3;
     i_1 = -5'sd10;
     z_1 = i_1 * signed'({1'b0, x_1});
-    assert (z_1 == mul_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_1 == mul_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_1 = i_1 - signed'({1'b0, x_1});
-    assert (z_1 == sub_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_1 == sub_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_1 = i_1 + signed'({1'b0, x_1});
-    assert (z_1 == add_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_1 == add_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_2 = -3'sd3; rem_2 = -2'sd1; mul_2 = -6'sd30; sub_2 = -5'sd13; add_2 = -4'sd7; doDiv_2 = 1;
     // Call cpp_sc_type_mix() begin
@@ -806,16 +806,16 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     if (1)
     begin
         z_2 = i_2 / signed'({1'b0, x_2});
-        assert (z_2 == div_2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_2 == div_2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         z_2 = i_2 % signed'({1'b0, x_2});
-        assert (z_2 == rem_2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_2 == rem_2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     z_2 = i_2 * signed'({1'b0, x_2});
-    assert (z_2 == mul_2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_2 == mul_2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_2 = i_2 - signed'({1'b0, x_2});
-    assert (z_2 == sub_2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_2 == sub_2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_2 = i_2 + signed'({1'b0, x_2});
-    assert (z_2 == add_2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_2 == add_2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_3 = -3'sd3; rem_3 = -2'sd1; mul_3 = -6'sd30; sub_3 = -5'sd13; add_3 = -4'sd7; doDiv_3 = 1;
     // Call cpp_sc_type_mix() begin
@@ -825,16 +825,16 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     if (1)
     begin
         z_3 = i_3 / signed'({1'b0, x_3});
-        assert (z_3 == div_3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_3 == div_3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         z_3 = i_3 % signed'({1'b0, x_3});
-        assert (z_3 == rem_3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_3 == rem_3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     z_3 = i_3 * signed'({1'b0, x_3});
-    assert (z_3 == mul_3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_3 == mul_3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_3 = i_3 - signed'({1'b0, x_3});
-    assert (z_3 == sub_3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_3 == sub_3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_3 = i_3 + signed'({1'b0, x_3});
-    assert (z_3 == add_3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_3 == add_3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_4 = -3'sd3; rem_4 = -2'sd1; mul_4 = -6'sd30; sub_4 = -5'sd13; add_4 = -4'sd7; doDiv_4 = 1;
     // Call cpp_sc_type_mix() begin
@@ -844,38 +844,38 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     if (1)
     begin
         z_4 = i_4 / signed'({1'b0, x_4});
-        assert (z_4 == div_4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_4 == div_4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         z_4 = i_4 % signed'({1'b0, x_4});
-        assert (z_4 == rem_4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_4 == rem_4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     z_4 = i_4 * signed'({1'b0, x_4});
-    assert (z_4 == mul_4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_4 == mul_4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_4 = i_4 - signed'({1'b0, x_4});
-    assert (z_4 == sub_4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_4 == sub_4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_4 = i_4 + signed'({1'b0, x_4});
-    assert (z_4 == add_4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_4 == add_4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_5 = 1431655762; rem_5 = 0; mul_5 = -6'sd30; sub_5 = -5'sd13; add_5 = -4'sd7; doDiv_5 = 0;
     // Call cpp_sc_type_mix() begin
     x_5 = 3;
     i_5 = -5'sd10;
     z_5 = i_5 * signed'({1'b0, x_5});
-    assert (z_5 == mul_5) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_5 == mul_5) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_5 = i_5 - signed'({1'b0, x_5});
-    assert (z_5 == sub_5) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_5 == sub_5) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_5 = i_5 + signed'({1'b0, x_5});
-    assert (z_5 == add_5) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_5 == add_5) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_6 = 1431655762; rem_6 = 0; mul_6 = -6'sd30; sub_6 = -5'sd13; add_6 = -4'sd7; doDiv_6 = 0;
     // Call cpp_sc_type_mix() begin
     x_6 = 3;
     i_6 = -5'sd10;
     z_6 = i_6 * signed'({1'b0, x_6});
-    assert (z_6 == mul_6) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_6 == mul_6) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_6 = i_6 - signed'({1'b0, x_6});
-    assert (z_6 == sub_6) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_6 == sub_6) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_6 = i_6 + signed'({1'b0, x_6});
-    assert (z_6 == add_6) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_6 == add_6) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_7 = 82; rem_7 = 0; mul_7 = -6'sd30; sub_7 = -5'sd13; add_7 = -4'sd7; doDiv_7 = 0;
     // Call cpp_sc_type_mix() begin
@@ -883,11 +883,11 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     i_7 = -5'sd10;
     z_7 = 0;
     z_7 = i_7 * signed'({1'b0, x_7});
-    assert (z_7 == mul_7) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_7 == mul_7) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_7 = i_7 - signed'({1'b0, x_7});
-    assert (z_7 == sub_7) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_7 == sub_7) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_7 = i_7 + signed'({1'b0, x_7});
-    assert (z_7 == add_7) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_7 == add_7) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_8 = -3'sd3; rem_8 = -2'sd1; mul_8 = -6'sd30; sub_8 = -5'sd13; add_8 = -4'sd7; doDiv_8 = 1;
     // Call cpp_sc_type_mix() begin
@@ -897,16 +897,16 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     if (1)
     begin
         z_8 = i_8 / signed'({1'b0, x_8});
-        assert (z_8 == div_8) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_8 == div_8) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         z_8 = i_8 % signed'({1'b0, x_8});
-        assert (z_8 == rem_8) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_8 == rem_8) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     z_8 = i_8 * signed'({1'b0, x_8});
-    assert (z_8 == mul_8) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_8 == mul_8) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_8 = i_8 - signed'({1'b0, x_8});
-    assert (z_8 == sub_8) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_8 == sub_8) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_8 = i_8 + signed'({1'b0, x_8});
-    assert (z_8 == add_8) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_8 == add_8) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_9 = -3'sd3; rem_9 = -2'sd1; mul_9 = -6'sd30; sub_9 = -5'sd13; add_9 = -4'sd7; doDiv_9 = 0;
     // Call cpp_sc_type_mix() begin
@@ -914,11 +914,11 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     i_9 = -5'sd10;
     z_9 = 0;
     z_9 = i_9 * signed'({1'b0, x_9});
-    assert (z_9 == mul_9) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_9 == mul_9) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_9 = i_9 - signed'({1'b0, x_9});
-    assert (z_9 == sub_9) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_9 == sub_9) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_9 = i_9 + signed'({1'b0, x_9});
-    assert (z_9 == add_9) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_9 == add_9) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_10 = -3'sd3; rem_10 = -2'sd1; mul_10 = -6'sd30; sub_10 = -5'sd13; add_10 = -4'sd7; doDiv_10 = 0;
     // Call cpp_sc_type_mix() begin
@@ -926,11 +926,11 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     i_10 = -5'sd10;
     z_10 = 0;
     z_10 = i_10 * signed'({1'b0, x_10});
-    assert (z_10 == mul_10) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_10 == mul_10) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_10 = i_10 - signed'({1'b0, x_10});
-    assert (z_10 == sub_10) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_10 == sub_10) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_10 = i_10 + signed'({1'b0, x_10});
-    assert (z_10 == add_10) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_10 == add_10) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_11 = -3'sd3; rem_11 = -2'sd1; mul_11 = -6'sd30; sub_11 = -5'sd13; add_11 = -4'sd7; doDiv_11 = 1;
     // Call cpp_sc_type_mix() begin
@@ -940,16 +940,16 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     if (1)
     begin
         z_11 = i_11 / signed'({1'b0, x_11});
-        assert (z_11 == div_11) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_11 == div_11) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         z_11 = i_11 % signed'({1'b0, x_11});
-        assert (z_11 == rem_11) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_11 == rem_11) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     z_11 = i_11 * signed'({1'b0, x_11});
-    assert (z_11 == mul_11) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_11 == mul_11) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_11 = i_11 - signed'({1'b0, x_11});
-    assert (z_11 == sub_11) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_11 == sub_11) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_11 = i_11 + signed'({1'b0, x_11});
-    assert (z_11 == add_11) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_11 == add_11) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_12 = -3'sd3; rem_12 = -2'sd1; mul_12 = -6'sd30; sub_12 = -5'sd13; add_12 = -4'sd7; doDiv_12 = 1;
     // Call cpp_sc_type_mix() begin
@@ -959,16 +959,16 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     if (1)
     begin
         z_12 = i_12 / signed'({1'b0, x_12});
-        assert (z_12 == div_12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_12 == div_12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         z_12 = i_12 % signed'({1'b0, x_12});
-        assert (z_12 == rem_12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_12 == rem_12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     z_12 = i_12 * signed'({1'b0, x_12});
-    assert (z_12 == mul_12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_12 == mul_12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_12 = i_12 - signed'({1'b0, x_12});
-    assert (z_12 == sub_12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_12 == sub_12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_12 = i_12 + signed'({1'b0, x_12});
-    assert (z_12 == add_12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_12 == add_12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_13 = -3'sd3; rem_13 = -2'sd1; mul_13 = -6'sd30; sub_13 = -5'sd13; add_13 = -4'sd7; doDiv_13 = 1;
     // Call cpp_sc_type_mix() begin
@@ -978,16 +978,16 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     if (1)
     begin
         z_13 = i_13 / signed'({1'b0, x_13});
-        assert (z_13 == div_13) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_13 == div_13) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         z_13 = i_13 % signed'({1'b0, x_13});
-        assert (z_13 == rem_13) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_13 == rem_13) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     z_13 = i_13 * signed'({1'b0, x_13});
-    assert (z_13 == mul_13) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_13 == mul_13) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_13 = i_13 - signed'({1'b0, x_13});
-    assert (z_13 == sub_13) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_13 == sub_13) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_13 = i_13 + signed'({1'b0, x_13});
-    assert (z_13 == add_13) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_13 == add_13) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_14 = -3'sd3; rem_14 = -2'sd1; mul_14 = -6'sd30; sub_14 = -5'sd13; add_14 = -4'sd7; doDiv_14 = 1;
     // Call cpp_sc_type_mix() begin
@@ -997,16 +997,16 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     if (1)
     begin
         z_14 = i_14 / signed'({1'b0, x_14});
-        assert (z_14 == div_14) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_14 == div_14) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         z_14 = i_14 % signed'({1'b0, x_14});
-        assert (z_14 == rem_14) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_14 == rem_14) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     z_14 = i_14 * signed'({1'b0, x_14});
-    assert (z_14 == mul_14) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_14 == mul_14) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_14 = i_14 - signed'({1'b0, x_14});
-    assert (z_14 == sub_14) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_14 == sub_14) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_14 = i_14 + signed'({1'b0, x_14});
-    assert (z_14 == add_14) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_14 == add_14) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_15 = -3'sd3; rem_15 = -2'sd1; mul_15 = -6'sd30; sub_15 = -5'sd13; add_15 = -4'sd7; doDiv_15 = 1;
     // Call cpp_sc_type_mix() begin
@@ -1016,16 +1016,16 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     if (1)
     begin
         z_15 = i_15 / signed'({1'b0, x_15});
-        assert (z_15 == div_15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_15 == div_15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         z_15 = i_15 % signed'({1'b0, x_15});
-        assert (z_15 == rem_15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_15 == rem_15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     z_15 = i_15 * signed'({1'b0, x_15});
-    assert (z_15 == mul_15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_15 == mul_15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_15 = i_15 - signed'({1'b0, x_15});
-    assert (z_15 == sub_15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_15 == sub_15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_15 = i_15 + signed'({1'b0, x_15});
-    assert (z_15 == add_15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_15 == add_15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_16 = -3'sd3; rem_16 = -2'sd1; mul_16 = -6'sd30; sub_16 = -5'sd13; add_16 = -4'sd7; doDiv_16 = 1;
     // Call cpp_sc_type_mix() begin
@@ -1035,16 +1035,16 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     if (1)
     begin
         z_16 = i_16 / signed'({1'b0, x_16});
-        assert (z_16 == div_16) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_16 == div_16) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         z_16 = i_16 % signed'({1'b0, x_16});
-        assert (z_16 == rem_16) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_16 == rem_16) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     z_16 = i_16 * signed'({1'b0, x_16});
-    assert (z_16 == mul_16) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_16 == mul_16) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_16 = i_16 - signed'({1'b0, x_16});
-    assert (z_16 == sub_16) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_16 == sub_16) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_16 = i_16 + signed'({1'b0, x_16});
-    assert (z_16 == add_16) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_16 == add_16) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
     div_17 = -3'sd3; rem_17 = -2'sd1; mul_17 = -6'sd30; sub_17 = -5'sd13; add_17 = -4'sd7; doDiv_17 = 1;
     // Call cpp_sc_type_mix() begin
@@ -1054,24 +1054,24 @@ begin : cpp_sc_type_mix     // test_binary_signed.cpp:656:5
     if (1)
     begin
         z_17 = i_17 / signed'({1'b0, x_17});
-        assert (z_17 == div_17) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_17 == div_17) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         z_17 = i_17 % signed'({1'b0, x_17});
-        assert (z_17 == rem_17) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (z_17 == rem_17) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     z_17 = i_17 * signed'({1'b0, x_17});
-    assert (z_17 == mul_17) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_17 == mul_17) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_17 = i_17 - signed'({1'b0, x_17});
-    assert (z_17 == sub_17) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_17 == sub_17) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     z_17 = i_17 + signed'({1'b0, x_17});
-    assert (z_17 == add_17) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (z_17 == add_17) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call cpp_sc_type_mix() end
 end
 
 //------------------------------------------------------------------------------
-// Method process: compl_expr_mix (test_binary_signed.cpp:716:5) 
+// Method process: compl_expr_mix (test_binary_signed.cpp:723:5) 
 
 always_comb 
-begin : compl_expr_mix     // test_binary_signed.cpp:716:5
+begin : compl_expr_mix     // test_binary_signed.cpp:723:5
     integer div;
     integer mul;
     integer add;
@@ -1288,7 +1288,7 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     y = 6;
     z = 2;
     r = (x * y) + signed'({1'b0, z});
-    assert (r == add2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r == add2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_1 = -3'sd2; mul_1 = -8'sd72; add_1 = -5'sd9; sub_1 = -4'sd6; add2_1 = -9'sd142; doDiv_1 = 1;
     // Call compl_expr() begin
@@ -1298,16 +1298,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_1 = (x_1 / y_1) / signed'({1'b0, z_1});
-        assert (r_1 == div_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_1 == div_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_1 = 16'(x_1 * y_1) / signed'({1'b0, z_1});
-        assert (r_1 == mul_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_1 == mul_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_1 = 9'(x_1 + y_1) / signed'({1'b0, z_1});
-        assert (r_1 == add_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_1 == add_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_1 = (x_1 / y_1) - signed'({1'b0, z_1});
-        assert (r_1 == sub_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_1 == sub_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_1 = (x_1 * y_1) + signed'({1'b0, z_1});
-    assert (r_1 == add2_1) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_1 == add2_1) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_2 = -3'sd2; mul_2 = -8'sd72; add_2 = -5'sd9; sub_2 = -4'sd6; add2_2 = -9'sd142; doDiv_2 = 1;
     // Call compl_expr() begin
@@ -1317,16 +1317,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_2 = (x_2 / y_2) / signed'({1'b0, z_2});
-        assert (r_2 == div_2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_2 == div_2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_2 = 41'(x_2 * y_2) / signed'({1'b0, z_2});
-        assert (r_2 == mul_2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_2 == mul_2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_2 = 34'(x_2 + y_2) / signed'({1'b0, z_2});
-        assert (r_2 == add_2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_2 == add_2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_2 = (x_2 / y_2) - signed'({1'b0, z_2});
-        assert (r_2 == sub_2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_2 == sub_2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_2 = (x_2 * y_2) + signed'({1'b0, z_2});
-    assert (r_2 == add2_2) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_2 == add2_2) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_3 = -3'sd2; mul_3 = -8'sd72; add_3 = -5'sd9; sub_3 = -4'sd6; add2_3 = -9'sd142; doDiv_3 = 1;
     // Call compl_expr() begin
@@ -1336,16 +1336,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_3 = (x_3 / y_3) / signed'({1'b0, z_3});
-        assert (r_3 == div_3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_3 == div_3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_3 = 16'(x_3 * y_3) / signed'({1'b0, z_3});
-        assert (r_3 == mul_3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_3 == mul_3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_3 = 9'(x_3 + y_3) / signed'({1'b0, z_3});
-        assert (r_3 == add_3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_3 == add_3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_3 = (x_3 / y_3) - signed'({1'b0, z_3});
-        assert (r_3 == sub_3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_3 == sub_3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_3 = (x_3 * y_3) + signed'({1'b0, z_3});
-    assert (r_3 == add2_3) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_3 == add2_3) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_4 = -3'sd2; mul_4 = -8'sd72; add_4 = -5'sd9; sub_4 = -4'sd6; add2_4 = -9'sd142; doDiv_4 = 1;
     // Call compl_expr() begin
@@ -1356,16 +1356,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_4 = (x_4 / y_4) / signed'({1'b0, z_4});
-        assert (r_4 == div_4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_4 == div_4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_4 = 16'(x_4 * y_4) / signed'({1'b0, z_4});
-        assert (r_4 == mul_4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_4 == mul_4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_4 = 9'(x_4 + y_4) / signed'({1'b0, z_4});
-        assert (r_4 == add_4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_4 == add_4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_4 = (x_4 / y_4) - signed'({1'b0, z_4});
-        assert (r_4 == sub_4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_4 == sub_4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_4 = (x_4 * y_4) + signed'({1'b0, z_4});
-    assert (r_4 == add2_4) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_4 == add2_4) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_5 = -3'sd2; mul_5 = -8'sd72; add_5 = -5'sd9; sub_5 = -4'sd6; add2_5 = -9'sd142; doDiv_5 = 1;
     // Call compl_expr() begin
@@ -1376,16 +1376,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_5 = (x_5 / y_5) / signed'({1'b0, z_5});
-        assert (r_5 == div_5) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_5 == div_5) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_5 = 66'(x_5 * y_5) / signed'({1'b0, z_5});
-        assert (r_5 == mul_5) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_5 == mul_5) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_5 = 34'(x_5 + y_5) / signed'({1'b0, z_5});
-        assert (r_5 == add_5) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_5 == add_5) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_5 = (x_5 / y_5) - signed'({1'b0, z_5});
-        assert (r_5 == sub_5) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_5 == sub_5) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_5 = (x_5 * y_5) + signed'({1'b0, z_5});
-    assert (r_5 == add2_5) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_5 == add2_5) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_6 = -3'sd2; mul_6 = -8'sd72; add_6 = -5'sd9; sub_6 = -4'sd6; add2_6 = -9'sd142; doDiv_6 = 1;
     // Call compl_expr() begin
@@ -1395,16 +1395,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_6 = (x_6 / y_6) / signed'({1'b0, z_6});
-        assert (r_6 == div_6) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_6 == div_6) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_6 = 40'(x_6 * y_6) / signed'({1'b0, z_6});
-        assert (r_6 == mul_6) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_6 == mul_6) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_6 = 33'(x_6 + y_6) / signed'({1'b0, z_6});
-        assert (r_6 == add_6) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_6 == add_6) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_6 = (x_6 / y_6) - signed'({1'b0, z_6});
-        assert (r_6 == sub_6) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_6 == sub_6) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_6 = (x_6 * y_6) + signed'({1'b0, z_6});
-    assert (r_6 == add2_6) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_6 == add2_6) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_7 = -3'sd2; mul_7 = -8'sd72; add_7 = -5'sd9; sub_7 = -4'sd6; add2_7 = -9'sd142; doDiv_7 = 1;
     // Call compl_expr() begin
@@ -1415,16 +1415,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_7 = (x_7 / y_7) / signed'({1'b0, z_7});
-        assert (r_7 == div_7) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_7 == div_7) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_7 = 16'(x_7 * y_7) / signed'({1'b0, z_7});
-        assert (r_7 == mul_7) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_7 == mul_7) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_7 = 9'(x_7 + y_7) / signed'({1'b0, z_7});
-        assert (r_7 == add_7) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_7 == add_7) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_7 = (x_7 / y_7) - signed'({1'b0, z_7});
-        assert (r_7 == sub_7) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_7 == sub_7) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_7 = (x_7 * y_7) + signed'({1'b0, z_7});
-    assert (r_7 == add2_7) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_7 == add2_7) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_8 = -3'sd2; mul_8 = -8'sd72; add_8 = -5'sd9; sub_8 = -4'sd6; add2_8 = -9'sd142; doDiv_8 = 1;
     // Call compl_expr() begin
@@ -1434,16 +1434,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_8 = (x_8 / y_8) / signed'({1'b0, z_8});
-        assert (r_8 == div_8) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_8 == div_8) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_8 = 64'(x_8 * y_8) / signed'({1'b0, z_8});
-        assert (r_8 == mul_8) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_8 == mul_8) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_8 = 33'(x_8 + y_8) / signed'({1'b0, z_8});
-        assert (r_8 == add_8) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_8 == add_8) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_8 = (x_8 / y_8) - signed'({1'b0, z_8});
-        assert (r_8 == sub_8) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_8 == sub_8) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_8 = (x_8 * y_8) + signed'({1'b0, z_8});
-    assert (r_8 == add2_8) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_8 == add2_8) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_9 = -3'sd2; mul_9 = -8'sd72; add_9 = -5'sd9; sub_9 = -4'sd6; add2_9 = -9'sd142; doDiv_9 = 1;
     // Call compl_expr() begin
@@ -1453,16 +1453,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_9 = (x_9 / y_9) / signed'({1'b0, z_9});
-        assert (r_9 == div_9) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_9 == div_9) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_9 = 64'(x_9 * y_9) / signed'({1'b0, z_9});
-        assert (r_9 == mul_9) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_9 == mul_9) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_9 = 33'(x_9 + y_9) / signed'({1'b0, z_9});
-        assert (r_9 == add_9) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_9 == add_9) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_9 = (x_9 / y_9) - signed'({1'b0, z_9});
-        assert (r_9 == sub_9) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_9 == sub_9) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_9 = (x_9 * y_9) + signed'({1'b0, z_9});
-    assert (r_9 == add2_9) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_9 == add2_9) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_10 = -3'sd2; mul_10 = -8'sd72; add_10 = -5'sd9; sub_10 = -4'sd6; add2_10 = -9'sd142; doDiv_10 = 1;
     // Call compl_expr() begin
@@ -1472,16 +1472,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_10 = (x_10 / y_10) / signed'({1'b0, z_10});
-        assert (r_10 == div_10) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_10 == div_10) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_10 = 16'(x_10 * y_10) / signed'({1'b0, z_10});
-        assert (r_10 == mul_10) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_10 == mul_10) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_10 = 9'(x_10 + y_10) / signed'({1'b0, z_10});
-        assert (r_10 == add_10) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_10 == add_10) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_10 = (x_10 / y_10) - signed'({1'b0, z_10});
-        assert (r_10 == sub_10) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_10 == sub_10) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_10 = (x_10 * y_10) + signed'({1'b0, z_10});
-    assert (r_10 == add2_10) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_10 == add2_10) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_11 = -3'sd2; mul_11 = -8'sd72; add_11 = -5'sd9; sub_11 = -4'sd6; add2_11 = -9'sd142; doDiv_11 = 1;
     // Call compl_expr() begin
@@ -1492,16 +1492,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_11 = (x_11 / y_11) / signed'({1'b0, z_11});
-        assert (r_11 == div_11) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_11 == div_11) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_11 = 16'(x_11 * y_11) / signed'({1'b0, z_11});
-        assert (r_11 == mul_11) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_11 == mul_11) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_11 = 9'(x_11 + y_11) / signed'({1'b0, z_11});
-        assert (r_11 == add_11) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_11 == add_11) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_11 = (x_11 / y_11) - signed'({1'b0, z_11});
-        assert (r_11 == sub_11) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_11 == sub_11) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_11 = (x_11 * y_11) + signed'({1'b0, z_11});
-    assert (r_11 == add2_11) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_11 == add2_11) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_12 = -3'sd2; mul_12 = -8'sd72; add_12 = -5'sd9; sub_12 = -4'sd6; add2_12 = -9'sd142; doDiv_12 = 1;
     // Call compl_expr() begin
@@ -1511,16 +1511,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_12 = (x_12 / y_12) / signed'({1'b0, z_12});
-        assert (r_12 == div_12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_12 == div_12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_12 = 40'(x_12 * y_12) / signed'({1'b0, z_12});
-        assert (r_12 == mul_12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_12 == mul_12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_12 = 33'(x_12 + y_12) / signed'({1'b0, z_12});
-        assert (r_12 == add_12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_12 == add_12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_12 = (x_12 / y_12) - signed'({1'b0, z_12});
-        assert (r_12 == sub_12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_12 == sub_12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_12 = (x_12 * y_12) + signed'({1'b0, z_12});
-    assert (r_12 == add2_12) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_12 == add2_12) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_13 = -3'sd2; mul_13 = -8'sd72; add_13 = -5'sd9; sub_13 = -4'sd6; add2_13 = -9'sd142; doDiv_13 = 1;
     // Call compl_expr() begin
@@ -1530,16 +1530,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_13 = (x_13 / y_13) / signed'({1'b0, z_13});
-        assert (r_13 == div_13) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_13 == div_13) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_13 = 65'(x_13 * y_13) / signed'({1'b0, z_13});
-        assert (r_13 == mul_13) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_13 == mul_13) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_13 = 34'(x_13 + y_13) / signed'({1'b0, z_13});
-        assert (r_13 == add_13) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_13 == add_13) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_13 = (x_13 / y_13) - signed'({1'b0, z_13});
-        assert (r_13 == sub_13) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_13 == sub_13) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_13 = (x_13 * y_13) + signed'({1'b0, z_13});
-    assert (r_13 == add2_13) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_13 == add2_13) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_14 = -3'sd2; mul_14 = -8'sd72; add_14 = -5'sd9; sub_14 = -4'sd6; add2_14 = -9'sd142; doDiv_14 = 1;
     // Call compl_expr() begin
@@ -1550,16 +1550,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_14 = (x_14 / y_14) / signed'({1'b0, z_14});
-        assert (r_14 == div_14) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_14 == div_14) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_14 = 16'(x_14 * y_14) / signed'({1'b0, z_14});
-        assert (r_14 == mul_14) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_14 == mul_14) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_14 = 9'(x_14 + y_14) / signed'({1'b0, z_14});
-        assert (r_14 == add_14) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_14 == add_14) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_14 = (x_14 / y_14) - signed'({1'b0, z_14});
-        assert (r_14 == sub_14) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_14 == sub_14) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_14 = (x_14 * y_14) + signed'({1'b0, z_14});
-    assert (r_14 == add2_14) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_14 == add2_14) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_15 = -3'sd2; mul_15 = -8'sd72; add_15 = -5'sd9; sub_15 = -4'sd6; add2_15 = -9'sd142; doDiv_15 = 1;
     // Call compl_expr() begin
@@ -1570,16 +1570,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_15 = (x_15 / y_15) / signed'({1'b0, z_15});
-        assert (r_15 == div_15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_15 == div_15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_15 = 64'(x_15 * y_15) / signed'({1'b0, z_15});
-        assert (r_15 == mul_15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_15 == mul_15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_15 = 33'(x_15 + y_15) / signed'({1'b0, z_15});
-        assert (r_15 == add_15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_15 == add_15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_15 = (x_15 / y_15) - signed'({1'b0, z_15});
-        assert (r_15 == sub_15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_15 == sub_15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_15 = (x_15 * y_15) + signed'({1'b0, z_15});
-    assert (r_15 == add2_15) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_15 == add2_15) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_16 = -3'sd2; mul_16 = -8'sd72; add_16 = -5'sd9; sub_16 = -4'sd6; add2_16 = -9'sd142; doDiv_16 = 1;
     // Call compl_expr() begin
@@ -1590,16 +1590,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_16 = (x_16 / y_16) / signed'({1'b0, z_16});
-        assert (r_16 == div_16) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_16 == div_16) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_16 = 16'(x_16 * y_16) / signed'({1'b0, z_16});
-        assert (r_16 == mul_16) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_16 == mul_16) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_16 = 9'(x_16 + y_16) / signed'({1'b0, z_16});
-        assert (r_16 == add_16) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_16 == add_16) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_16 = (x_16 / y_16) - signed'({1'b0, z_16});
-        assert (r_16 == sub_16) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_16 == sub_16) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_16 = (x_16 * y_16) + signed'({1'b0, z_16});
-    assert (r_16 == add2_16) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_16 == add2_16) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_17 = -3'sd2; mul_17 = -8'sd72; add_17 = -5'sd9; sub_17 = -4'sd6; add2_17 = -9'sd142; doDiv_17 = 1;
     // Call compl_expr() begin
@@ -1610,16 +1610,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_17 = (x_17 / y_17) / signed'({1'b0, z_17});
-        assert (r_17 == div_17) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_17 == div_17) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_17 = 16'(x_17 * y_17) / signed'({1'b0, z_17});
-        assert (r_17 == mul_17) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_17 == mul_17) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_17 = 9'(x_17 + y_17) / signed'({1'b0, z_17});
-        assert (r_17 == add_17) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_17 == add_17) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_17 = (x_17 / y_17) - signed'({1'b0, z_17});
-        assert (r_17 == sub_17) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_17 == sub_17) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_17 = (x_17 * y_17) + signed'({1'b0, z_17});
-    assert (r_17 == add2_17) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_17 == add2_17) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_18 = -3'sd2; mul_18 = -8'sd72; add_18 = -5'sd9; sub_18 = -4'sd6; add2_18 = -9'sd142; doDiv_18 = 1;
     // Call compl_expr() begin
@@ -1630,16 +1630,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_18 = (x_18 / y_18) / signed'({1'b0, z_18});
-        assert (r_18 == div_18) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_18 == div_18) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_18 = 40'(x_18 * y_18) / signed'({1'b0, z_18});
-        assert (r_18 == mul_18) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_18 == mul_18) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_18 = 33'(x_18 + y_18) / signed'({1'b0, z_18});
-        assert (r_18 == add_18) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_18 == add_18) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_18 = (x_18 / y_18) - signed'({1'b0, z_18});
-        assert (r_18 == sub_18) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_18 == sub_18) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_18 = (x_18 * y_18) + signed'({1'b0, z_18});
-    assert (r_18 == add2_18) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_18 == add2_18) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_19 = -3'sd2; mul_19 = -8'sd72; add_19 = -5'sd9; sub_19 = -4'sd6; add2_19 = -9'sd142; doDiv_19 = 1;
     // Call compl_expr() begin
@@ -1650,16 +1650,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_19 = (x_19 / y_19) / signed'({1'b0, z_19});
-        assert (r_19 == div_19) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_19 == div_19) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_19 = 16'(x_19 * y_19) / signed'({1'b0, z_19});
-        assert (r_19 == mul_19) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_19 == mul_19) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_19 = 9'(x_19 + y_19) / signed'({1'b0, z_19});
-        assert (r_19 == add_19) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_19 == add_19) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_19 = (x_19 / y_19) - signed'({1'b0, z_19});
-        assert (r_19 == sub_19) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_19 == sub_19) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_19 = (x_19 * y_19) + signed'({1'b0, z_19});
-    assert (r_19 == add2_19) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_19 == add2_19) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
     div_20 = -3'sd2; mul_20 = -8'sd72; add_20 = -5'sd9; sub_20 = -4'sd6; add2_20 = -9'sd142; doDiv_20 = 1;
     // Call compl_expr() begin
@@ -1670,16 +1670,16 @@ begin : compl_expr_mix     // test_binary_signed.cpp:716:5
     if (1)
     begin
         r_20 = (x_20 / y_20) / signed'({1'b0, z_20});
-        assert (r_20 == div_20) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_20 == div_20) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_20 = 98'(x_20 * y_20) / signed'({1'b0, z_20});
-        assert (r_20 == mul_20) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_20 == mul_20) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_20 = 66'(x_20 + y_20) / signed'({1'b0, z_20});
-        assert (r_20 == add_20) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_20 == add_20) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
         r_20 = (x_20 / y_20) - signed'({1'b0, z_20});
-        assert (r_20 == sub_20) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+        assert (r_20 == sub_20) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     end
     r_20 = (x_20 * y_20) + signed'({1'b0, z_20});
-    assert (r_20 == add2_20) else $error("Assertion failed at test_binary_signed.cpp:43:24>");
+    assert (r_20 == add2_20) else $error("Assertion failed at test_binary_signed.cpp:50:24>");
     // Call compl_expr() end
 end
 

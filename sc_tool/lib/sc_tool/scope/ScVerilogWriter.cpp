@@ -109,103 +109,41 @@ string ScVerilogWriter::getVarDeclVerilog(const QualType& type,
     } else {
         string s;
         
-        if (auto width = getScUintBiguint(ctype)) {
-            if (width.getValue() > 1) {
-                s = "logic [" + to_string(width.getValue()-1) + ":0]";
-
-            } else 
-            if (width.getValue() == 1) {
-                s = "logic";
-                
-            } else {
-                if (init) {
-                    ScDiag::reportScDiag(init->getBeginLoc(), 
-                                         ScDiag::SYNTH_ZERO_TYPE_WIDTH) << varName;
-                } else {
-                    ScDiag::reportScDiag(ScDiag::SYNTH_ZERO_TYPE_WIDTH) << varName;
-                }
+        if (auto typeInfo = getIntTraits(ctype)) {
+            size_t width = typeInfo.getValue().first;
+            bool isUnsigned = typeInfo.getValue().second;
+            
+            // SV integer and unsigned are exactly 32bit
+            bool isInt = false;
+            bool isUInt = false;
+            if (auto btype = dyn_cast<BuiltinType>(ctype.getTypePtr())) {
+                auto kind = btype->getKind();
+                isInt = width == 32 && kind == BuiltinType::Kind::Int;
+                isUInt = width == 32 && kind == BuiltinType::Kind::UInt;
             }
-        } else 
-        if (auto width = getScIntBigint(ctype)) {
-            if (width.getValue() > 1) {
-                s = "logic signed [" + to_string(width.getValue()-1) + ":0]";
 
-            } else 
-            if (width.getValue() == 1) {
-                s = "logic signed";
-                
-            } else {
-                if (init) {
-                    ScDiag::reportScDiag(init->getBeginLoc(), 
-                                         ScDiag::SYNTH_ZERO_TYPE_WIDTH) << varName;
-                } else {
-                    ScDiag::reportScDiag(ScDiag::SYNTH_ZERO_TYPE_WIDTH) << varName;
-                }
-            }
-        } else 
-        if (auto btype = dyn_cast<BuiltinType>(ctype.getTypePtr())) {
-            auto kind = btype->getKind();
-
-            if (kind == BuiltinType::Kind::Bool) {
-                s = "logic";
-            } else 
-            if (kind == BuiltinType::Kind::UChar || 
-                kind == BuiltinType::Kind::Char_U) {
-                s = "logic [7:0]";
-            } else 
-            if (kind == BuiltinType::Kind::UShort) {
-                s = "logic [15:0]";
-            } else 
-            if (kind == BuiltinType::Kind::UInt) {
-                s = "integer unsigned";
-            } else 
-            if (kind == BuiltinType::Kind::ULong ||
-                kind == BuiltinType::Kind::ULongLong) {
-                s = "logic [63:0]";
-            } else 
-            if (kind == BuiltinType::Kind::UInt128) {
-                s = "logic [127:0]";
-            } else 
-            if (kind == BuiltinType::Kind::SChar || 
-                kind == BuiltinType::Kind::Char_S) {
-                s = "logic signed [7:0]";
-            } else 
-            if (kind == BuiltinType::Kind::Short) {
-                s = "logic signed [15:0]";
-            } else 
-            if (kind == BuiltinType::Kind::Int) {
+            if (isInt) {
                 s = "integer";
             } else 
-            if (kind == BuiltinType::Kind::Long ||
-                kind == BuiltinType::Kind::LongLong) {
-                s = "logic signed [63:0]";
+            if (isUInt) {
+                s = "integer unsigned";
             } else 
-            if (kind == BuiltinType::Kind::Int128) {
-                s = "logic signed [127:0]";
-            }
-        } else 
-        if (auto etype = dyn_cast<EnumType>(ctype.getTypePtr())) {
-            auto edecl = etype->getDecl();
-            size_t width = edecl->getNumPositiveBits() + 
-                           edecl->getNumNegativeBits();
-
-            if (edecl->getNumNegativeBits()) {
-                if (width > 1) {
-                    s = "logic signed [" + to_string(width-1) + ":0]";
-
-                } else 
-                if (width == 1) {
-                    s = "logic signed";
-                }
-            } else {
+            if (isUnsigned) {
                 if (width > 1) {
                     s = "logic [" + to_string(width-1) + ":0]";
-
                 } else 
                 if (width == 1) {
                     s = "logic";
                 }
+            } else {
+                if (width > 1) {
+                    s = "logic signed [" + to_string(width-1) + ":0]";
+                } else 
+                if (width == 1) {
+                    s = "logic signed";
+                }
             }
+            
         } else 
         if (init && isScSigned(ctype)) {
             size_t width = getExprWidth(init);
@@ -249,17 +187,8 @@ string ScVerilogWriter::getVarDeclVerilog(const QualType& type,
         s = s + " " + varName;
         return s;
     }
-    
-    string typeStr = ctype.getAsString();
-    if (init) {
-        ScDiag::reportScDiag(init->getBeginLoc(), 
-                             ScDiag::SYNTH_TYPE_NOT_SUPPORTED) << typeStr;
-    } else {
-        ScDiag::reportScDiag(ScDiag::SYNTH_TYPE_NOT_SUPPORTED) << typeStr;
-    }
-    return string("UNKNOWN_TYPE " + varName);
 }
-
+    
 // Get index to provide unique name for local variable
 unsigned ScVerilogWriter::getUniqueNameIndex(const std::string& origVarName, 
                                              const SValue& val, bool isNext) 
@@ -695,9 +624,6 @@ std::string ScVerilogWriter::makeLiteralStr(const std::string& literStr,
 {
     APSInt val(literStr);
 
-    SCT_TOOL_ASSERT ((minCastWidth == 0) == (lastCastWidth == 0), 
-                     "Only one of minCastWidth/lastCastWidth is non-zero");
-    
     bool isZero = val.isNullValue();
     bool isOne = val == 1;
     bool isNegative = val < 0;
@@ -818,7 +744,8 @@ std::string ScVerilogWriter::makeTermStr(const std::string& termStr,
 pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt, 
                                                       bool skipCast, 
                                                       bool addNegBrackets,
-                                                      bool doSignCast) 
+                                                      bool doSignCast,
+                                                      bool doConcat) 
 {
     auto info = terms.at(stmt);
 
@@ -826,16 +753,22 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
     string rdName = names.first;
     string wrName = names.second;
     
-    SCT_TOOL_ASSERT ((info.minCastWidth == 0) == (info.lastCastWidth == 0), 
+    SCT_TOOL_ASSERT ((info.minCastWidth == 0) == 
+                     (info.lastCastWidth == 0 || !info.explCast), 
                      "Only one of minCastWidth/lastCastWidth is non-zero");
-
+    
     if (info.literRadix) {
-        // Cast applied in makeLiteralStr()
+        // Apply lastCastWidth only for explicit cast or concatenation
+        size_t lastCastWidth = (info.explCast || doConcat) ? 
+                               info.lastCastWidth : 0; 
         rdName = makeLiteralStr(rdName, info.literRadix, info.minCastWidth, 
-                                info.lastCastWidth, info.castSign, addNegBrackets);
+                                lastCastWidth, info.castSign, addNegBrackets);
         wrName = rdName;
 
     } else {
+        // Last cast cannot be w/o explicit cast flag
+        SCT_TOOL_ASSERT (info.lastCastWidth == 0 || info.explCast, 
+                         "Last cast with no explicit cast flag");
         if (!skipCast) {
             CastSign castSign = doSignCast ? info.castSign : CastSign::NOCAST;
             
@@ -959,8 +892,9 @@ bool ScVerilogWriter::isIncrWidth(const Stmt* stmt) const
 
 // Get expression data width from @lastCast or @exprWidth after that or 
 // type information at the end
+// \param doConcat -- get expression width for concatenation
 // \return @exprWidth for given statement or 0 if width unknown
-size_t ScVerilogWriter::getExprWidth(const Stmt* stmt) {
+size_t ScVerilogWriter::getExprWidth(const Stmt* stmt, bool doConcat) {
     
     auto i = terms.find(stmt);
     if (i == terms.end()) {
@@ -969,7 +903,8 @@ size_t ScVerilogWriter::getExprWidth(const Stmt* stmt) {
     auto& info = i->second;
     
     // Get last cast width if exists, required for concatenation
-    size_t width = info.lastCastWidth ? info.lastCastWidth : info.exprWidth;
+    size_t width = ((info.explCast || doConcat) && info.lastCastWidth) ? 
+                    info.lastCastWidth : info.exprWidth;
     return width;
 }
 
@@ -1223,7 +1158,43 @@ void ScVerilogWriter::putTypeCast(const clang::Stmt* srcStmt,
     }
 }
 
-// Extend type width with type cast to given @width for @stmt
+// Set cast width for variables/expressions replaced by value,
+// used in concatenation
+void ScVerilogWriter::setReplacedCastWidth(const clang::Stmt* stmt,
+                                           const clang::QualType& type) 
+{
+    if (skipTerm) return;
+
+    // Copy in range terms from @srcStmt and store for @stmt
+    if (terms.count(stmt) != 0) {
+
+        size_t width = 64;
+        if (auto typeInfo = getIntTraits(type, true)) {
+            width = typeInfo.getValue().first;
+            
+        } else {
+            ScDiag::reportScDiag(stmt->getBeginLoc(),
+                                 ScDiag::SYNTH_UNKNOWN_TYPE_WIDTH) << 
+                                 type.getAsString();
+        }
+        SCT_TOOL_ASSERT(width > 0, "Type width is zero");
+
+        auto& info = terms.at(stmt);
+        info.lastCastWidth = width;
+        info.explCast = false;
+        
+//        cout << "setLastCastWidth stmt #" << hex << stmt << dec  
+//             << " lastCastWidth " << info.lastCastWidth << endl;
+        
+    } else {
+        SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
+                           "setLastCastWidth : No term for statement "+
+                           llvm::to_hexString((size_t)stmt, false));
+    }
+}
+
+// Extend type width for arithmetic operation  argument self-determined in SV,
+// this is type cast to given @width
 void ScVerilogWriter::extendTypeWidth(const clang::Stmt* stmt,
                                       const size_t width)
 {
@@ -1236,7 +1207,8 @@ void ScVerilogWriter::extendTypeWidth(const clang::Stmt* stmt,
         auto info = terms.at(stmt);
         info.minCastWidth = (info.minCastWidth) ? info.minCastWidth : width;
         info.lastCastWidth = (info.lastCastWidth) ? info.lastCastWidth : width;
-        //info.extnType = true;
+        // Extending type considered as type cast
+        info.explCast = true;
         //cout << "exprSign " << (int)info.exprSign << endl;
         putString(stmt, info);
             
@@ -1298,15 +1270,21 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
             putString(stmt, s, 0);
             clearSimpleTerm(stmt);
             
+            // Loop counter not replaced by value
+            notReplacedVars.insert(val);
+            
+            // Register assignment statement, for declared variables only
+            putVarAssignStmt(val, stmt);
+            
             // Remove the variable declaration
-            auto i = localDeclVerilog.begin();
-            for (; i != localDeclVerilog.end(); ++i) {
-                if (i->first == val) {
+            auto j = localDeclVerilog.begin();
+            for (; j != localDeclVerilog.end(); ++j) {
+                if (j->first == val) {
                     break;
                 }
             }
-            if (i != localDeclVerilog.end()) {
-                localDeclVerilog.erase(i);
+            if (j != localDeclVerilog.end()) {
+                localDeclVerilog.erase(j);
             }
             
         } else {
@@ -1330,12 +1308,21 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
         pair<string, string> names = getVarName(val);
         
         // Do not declare/initialize record as individual fields are declared 
-        // Skip constant variable if they are replaced with values
-        // Possible only for non-reference variable initialized with integer,
-        // which is checked in @replaceConstEnable
-        if (!isRecord && (keepConstVariables || !replaceConstEnable || 
-            (!isConst && !isConstRef)))
-        {
+        if (!isRecord) {
+            // Skip constant variable if they are replaced with values
+            // Possible only for non-reference variable initialized with integer,
+            // which is checked in @replaceConstEnable
+            if (keepConstVariables || !replaceConstEnable || 
+                (!isConst && !isConstRef))
+            {
+                // Constant/variable not replaced by value
+                //cout << "add to notReplacedVars val " << val << endl;
+                notReplacedVars.insert(val);
+            }
+
+            // Register assignment statement, for declared variables only
+            putVarAssignStmt(val, stmt);
+
             if (!isReg) {
                 // Combinatorial variables and combinational process variables
                 auto i = localDeclVerilog.begin();
@@ -1346,13 +1333,10 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                 }
                 if (i == localDeclVerilog.end()) {
                     string s = getVarDeclVerilog(type, names.first, init);
+                    //cout << "put to localDeclVerilog val " << val << endl;
                     localDeclVerilog.push_back({val, s});
                 }
             }
-            
-            // Constant/variable not replaced by value
-            //cout << "    VAR " << val << " added to globalNotReplacedConst" << endl;
-            notReplacedVars.insert(val);
 
             // If variable declaration is removed, no initialization required
             bool removeUnusedInit = false;
@@ -1366,7 +1350,7 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                          !i->second.isAccessAfterReset());
                 }
             }
-            
+
             // Write variable initialization, already done for isConst && !isReg
             if (stmt && (init || initLocalVars) && !removeUnusedInit) {
                 if (init && terms.count(init) == 0) {
@@ -1377,9 +1361,9 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                 // Use read name in @assign (emptySensitivity)
                 bool secName = !isClockThreadReset && isReg && !emptySensitivity;
                 string lhsName = secName ? names.second : names.first;
-                // If no initalizer use 0 
+                // If no initializer use 0 
                 string rhsName = init ? getTermAsRValue(init).first : "0";
-                
+
                 putAssignBase(stmt, val, lhsName, rhsName, 0);
             }
         }
@@ -1394,7 +1378,8 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
 
 // Array declaration statement, array initialization added as separate
 // assignments for @stmt  
-void ScVerilogWriter::putArrayDecl(const SValue& val, const QualType& type, 
+void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val, 
+                                   const QualType& type, 
                                    const vector<size_t>& arrSizes) 
 {
     if (skipTerm) return;
@@ -1407,6 +1392,12 @@ void ScVerilogWriter::putArrayDecl(const SValue& val, const QualType& type,
     
     // Do not declare record as individual fields are declared
     if (!isReg && !isRecord) {
+        // Constant/variable array not replaced by value
+        notReplacedVars.insert(val);
+        
+        // Register assignment statement, for declared variables only
+        putVarAssignStmt(val, stmt);
+        
         // Combinatorial variables and combinational process variables
         auto i = localDeclVerilog.begin();
         for (; i != localDeclVerilog.end(); ++i) {
@@ -1428,7 +1419,7 @@ void ScVerilogWriter::putArrayDecl(const SValue& val, const QualType& type,
             string s = getVarDeclVerilog(type, names.first) + indx;
             localDeclVerilog.push_back({val, s});
             //cout << "   " << s << endl;
-        }    
+        } 
     }
 }
 
@@ -2025,12 +2016,16 @@ void ScVerilogWriter::putArrayIndexExpr(const Stmt* stmt, const Expr* base,
 }
 
 // Constant and variable based range part-select
-void ScVerilogWriter::putPartSelectExpr(const Stmt* stmt, const Expr* base,
+void ScVerilogWriter::putPartSelectExpr(const Stmt* stmt,  const SValue& val,
+                                        const Expr* base,
                                         const Expr* hindx, const Expr* lindx,
                                         bool useDelta)
 {
     if (skipTerm) return;
-
+    
+    // Part select not replaced by value, base need to be declared
+    notReplacedVars.insert(val);
+    
     if (terms.count(base) && terms.count(hindx) && terms.count(lindx)) {
         auto baseInfo = terms.at(base);
         if (!baseInfo.simplTerm || baseInfo.literRadix) {
@@ -2047,6 +2042,11 @@ void ScVerilogWriter::putPartSelectExpr(const Stmt* stmt, const Expr* base,
         if (lindxInfo.literRadix && lindxInfo.literRadix != 10) {
             lindxInfo.literRadix = 10;
         }
+
+        // Type width after cast
+        size_t castWidth = getExprTypeWidth(base);
+        // Internal (minimal) type width, this number of bits can be accessed 
+        size_t intrWidth = getMinExprTypeWidth(base);
 
         // Check incorrect range
         APSInt lval(APInt(64, 0), true);
@@ -2066,19 +2066,22 @@ void ScVerilogWriter::putPartSelectExpr(const Stmt* stmt, const Expr* base,
                 ScDiag::reportScDiag(hindx->getBeginLoc(), 
                                      ScDiag::SC_RANGE_WRONG_INDEX);
             }
-        }
+            if (intrWidth == 1 && (!lval.isNullValue() || !hval.isNullValue())) {
+                ScDiag::reportScDiag(base->getBeginLoc(), 
+                                     ScDiag::SC_RANGE_WRONG_INDEX);
+            }
+        }        
         
-        // If base type width is 1, skip range access as it is @logic
-        size_t baseWidth = getMinExprTypeWidth(base);
+        // Add bit suffix if both type widths more than one
         string range = "";
-        if (baseWidth > 1) {
+        if (castWidth > 1 && intrWidth > 1) {
             range = "[" + getTermAsRValue(hindx).first + 
-                        (useDelta ? " +: " : " : ") + 
-                        getTermAsRValue(lindx).first + "]";
+                    (useDelta ? " +: " : " : ") + 
+                    getTermAsRValue(lindx).first + "]";
         }
         
-        // @true -- remove cast prefix and brackets
-        auto names = getTermAsRValue(base, true);
+        // Remove cast prefix/brackets for bit suffix and single bit variable
+        auto names = getTermAsRValue(base, castWidth > 1);
         string rdName = names.first + range;
         string wrName = names.second + range;
         
@@ -2094,17 +2097,21 @@ void ScVerilogWriter::putPartSelectExpr(const Stmt* stmt, const Expr* base,
 }
 
 // Constant and variable based bit part-select
-void ScVerilogWriter::putBitSelectExpr(const Stmt* stmt, 
+void ScVerilogWriter::putBitSelectExpr(const Stmt* stmt, const SValue& val,
                                        const Expr* base,
                                        const Expr* index)
 {
     if (skipTerm) return;
-
+    
+    // Bit select not replaced by value, base need to be declared
+    notReplacedVars.insert(val);
+    //cout << "notReplacedVars add val " << val << endl;
+    
     if (terms.count(base) && terms.count(index)) {
         auto baseInfo = terms.at(base);
         if (!baseInfo.simplTerm || baseInfo.literRadix) {
             ScDiag::reportScDiag(base->getBeginLoc(), 
-                                 ScDiag::SC_RANGE_WRONG_BASE);
+                                 ScDiag::SC_BIT_WRONG_BASE);
         }
         
         // Use only decimal for bit index literal
@@ -2113,24 +2120,32 @@ void ScVerilogWriter::putBitSelectExpr(const Stmt* stmt,
             indexInfo.literRadix = 10;
         }
         
+        // Type width after cast
+        size_t castWidth = getExprTypeWidth(base);
+        // Internal (minimal) type width, this number of bits can be accessed 
+        size_t intrWidth = getMinExprTypeWidth(base);
+        
         // Check incorrect bit index
         if (indexInfo.literRadix) {
             APSInt lval(indexInfo.str.first);
             if (lval < 0) {
                 ScDiag::reportScDiag(index->getBeginLoc(), 
-                                     ScDiag::SC_RANGE_WRONG_INDEX);
+                                     ScDiag::SC_BIT_WRONG_INDEX);
+            }
+            if (intrWidth == 1 && !lval.isNullValue()) {
+                ScDiag::reportScDiag(base->getBeginLoc(), 
+                                     ScDiag::SC_BIT_WRONG_INDEX);
             }
         }
         
-        // If base type width is 1, skip range access as it is @logic
-        size_t baseWidth = getMinExprTypeWidth(base);
+        // Add bit suffix if both type widths more than one
         string bit = "";
-        if (baseWidth > 1) {
+        if (castWidth > 1 && intrWidth > 1) {
             bit = "[" + getTermAsRValue(index).first + "]"; 
         }
         
-        // @true -- remove cast prefix and brackets
-        auto names = getTermAsRValue(base, true);
+        // Remove cast prefix/brackets for bit suffix and single bit variable
+        auto names = getTermAsRValue(base, castWidth > 1);
         string rdName = names.first + bit;
         string wrName = names.second + bit;
         
@@ -2242,7 +2257,7 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
         // Set SCAST for operand if another non-literal operand has UCAST or
         // signed expression, that converts signed+unsigned mix to signed in SV.
         // No cast by literal to keep unsigned arithmetic, commonly used.
-        // Do not apply cast s there is explicit cast (minCastWidth != 0).
+        // Do not apply cast if there is explicit cast.
         // That is not equal to SC but better than have unsigned semantic in SV
         // which is also not equal to SC
         auto setExprSCast = 
@@ -2608,6 +2623,7 @@ void ScVerilogWriter::putUnary(const Stmt* stmt, string opcode, const Expr* rhs,
             sinfo.literRadix = literRadix;
             sinfo.minCastWidth = info.minCastWidth;
             sinfo.lastCastWidth = info.lastCastWidth;
+            sinfo.explCast = info.explCast;
         }
         
         // Set increase result width 
@@ -2689,14 +2705,16 @@ void ScVerilogWriter::putConcat(const clang::Stmt* stmt,
     if (skipTerm) return;
 
     if (terms.count(first) && terms.count(second)) {
-        string rdName = "{" + getTermAsRValue(first).first + ", " + 
-                              getTermAsRValue(second).first + "}";
-        string wrName = "{" + getTermAsRValue(first).second + ", " + 
-                              getTermAsRValue(second).second + "}";
+        string rdName = "{" + 
+                getTermAsRValue(first, false, false, false, true).first + ", " + 
+                getTermAsRValue(second, false, false, false, true).first + "}";
+        string wrName = "{" + 
+                getTermAsRValue(first, false, false, false, true).second + ", " + 
+                getTermAsRValue(second, false, false, false, true).second + "}";
         
         // Take sum of LHS and RHS widths if both of them are known
-        size_t lwidth = getExprWidth(first);
-        size_t rwidth = getExprWidth(second); 
+        size_t lwidth = getExprWidth(first, true);
+        size_t rwidth = getExprWidth(second, true); 
         size_t width = (lwidth && rwidth) ? (lwidth + rwidth) : 0;
         
         putString(stmt, pair<string,string>(rdName, wrName), width);
@@ -2923,18 +2941,24 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
     
     //cout << "---------- printLocalDeclaration" << endl;
     for (const auto& pair : localDeclVerilog) {
+        const SValue& val = pair.first;
         // Skip constant defined in thread reset section declaration in process
         // @varTraits used for CTHREAD variables only
         if (REMOVE_BODY_UNUSED() && !isCombProcess) {
-            auto i = varTraits.find(pair.first);
+            auto i = varTraits.find(val);
             if (i != varTraits.end()) {
                 if (i->second.isReadOnlyCDR()) continue;
                 if (!i->second.isAccessAfterReset()) continue;
             }
         }
         
+        // Remove constant/variable which is replaced by value
+        if (notReplacedVars.count(val) == 0) {
+            continue;
+        }
+        
         printSplitString(os, pair.second, emptySensMethod ? "" : TAB_SYM);
-        //cout << "   " << pair.first << " : " << pair.second << endl;
+        //cout << "   " << val << " : " << pair.second << endl;
     }
 
     // Put current to next assignment for registers
@@ -3008,6 +3032,10 @@ void ScVerilogWriter::printResetCombDecl(std::ostream &os)
             }
         }
             
+        if (!notReplacedVars.count(pair.first)) {
+            continue;
+        }
+        
         // Local constant, static constant, function parameter or
         // temporary variables not stored in @varTraits, 
         // it needs to provide them for reset section as well

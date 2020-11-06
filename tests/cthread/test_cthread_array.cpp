@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 //
 // Created by Mikhail Moiseev
 //
@@ -56,7 +63,7 @@ public:
         async_reset_signal_is(arstn, false);
     }
 
-    // BUG in last SMEM HR2 -- in ConfigCtrl.h extra copy of @reqSource in Verilog
+    // BUG in last real design -- in ConfigCtrl.h extra copy of @reqSource in Verilog
     // Shorten version
     sc_signal<sc_uint<2>>   fifo_source;
     sc_signal<sc_uint<2>>   master_resp_data[3];
@@ -82,7 +89,7 @@ public:
         }
     }
     
-    // BUG in last SMEM HR2 -- in ConfigCtrl.h extra copy of @reqSource in Verilog
+    // BUG in last real design -- in ConfigCtrl.h extra copy of @reqSource in Verilog
     // Full version
     void bug_in_array_index2() {
         wait();
@@ -201,3 +208,4 @@ int sc_main(int argc, char *argv[])
     sc_start(100, SC_NS);
     return 0;
 }
+

@@ -21,14 +21,14 @@ logic signed [31:0] sig1;
 logic signed [31:0] arr[2];
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread (test_cthread_read_only.cpp:26:5) 
+// Clocked THREAD: test_thread (test_cthread_read_only.cpp:33:5) 
 
 // Thread-local variables
 logic signed [31:0] sig0_next;
 logic signed [31:0] arr0[2];
 
 // Next-state combinational logic
-always_comb begin : test_thread_comb     // test_cthread_read_only.cpp:26:5
+always_comb begin : test_thread_comb     // test_cthread_read_only.cpp:33:5
     test_thread_func;
 end
 function void test_thread_func;
@@ -49,13 +49,13 @@ begin : test_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread1 (test_cthread_read_only.cpp:37:5) 
+// Clocked THREAD: test_thread1 (test_cthread_read_only.cpp:44:5) 
 
 // Thread-local variables
 logic signed [31:0] sig1_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread1_comb     // test_cthread_read_only.cpp:37:5
+always_comb begin : test_thread1_comb     // test_cthread_read_only.cpp:44:5
     test_thread1_func;
 end
 function void test_thread1_func;

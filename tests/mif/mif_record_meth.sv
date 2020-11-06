@@ -18,10 +18,10 @@ logic minst_s;
 logic ninst_s;
 
 //------------------------------------------------------------------------------
-// Method process: minst_locRecMeth (test_record_meth.cpp:29:5) 
+// Method process: minst_locRecMeth (test_record_meth.cpp:36:5) 
 
 always_comb 
-begin : minst_locRecMeth     // test_record_meth.cpp:29:5
+begin : minst_locRecMeth     // test_record_meth.cpp:36:5
     logic t_a;
     logic [3:0] t_b;
     logic tt_a;
@@ -37,10 +37,10 @@ begin : minst_locRecMeth     // test_record_meth.cpp:29:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_locRecArrMeth (test_record_meth.cpp:43:5) 
+// Method process: minst_locRecArrMeth (test_record_meth.cpp:50:5) 
 
 always_comb 
-begin : minst_locRecArrMeth     // test_record_meth.cpp:43:5
+begin : minst_locRecArrMeth     // test_record_meth.cpp:50:5
     logic v_a[2];
     logic [3:0] v_b[2];
     logic vv_a[4];
@@ -60,7 +60,7 @@ begin : minst_locRecArrMeth     // test_record_meth.cpp:43:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_memRecMeth (test_record_meth.cpp:65:5) 
+// Method process: minst_memRecMeth (test_record_meth.cpp:72:5) 
 
 // Process-local variables
 logic minst_r_a;
@@ -69,7 +69,7 @@ logic minst_rr_a;
 logic [3:0] minst_rr_b;
 
 always_comb 
-begin : minst_memRecMeth     // test_record_meth.cpp:65:5
+begin : minst_memRecMeth     // test_record_meth.cpp:72:5
     logic [3:0] x;
     minst_r_b = 4;
     minst_rr_a = minst_s;
@@ -78,7 +78,7 @@ begin : minst_memRecMeth     // test_record_meth.cpp:65:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_memRecArrMeth (test_record_meth.cpp:78:5) 
+// Method process: minst_memRecArrMeth (test_record_meth.cpp:85:5) 
 
 // Process-local variables
 logic minst_w_a[2];
@@ -87,7 +87,7 @@ logic minst_ww_a[4];
 logic [3:0] minst_ww_b[4];
 
 always_comb 
-begin : minst_memRecArrMeth     // test_record_meth.cpp:78:5
+begin : minst_memRecArrMeth     // test_record_meth.cpp:85:5
     integer sum;
     logic [3:0] x;
     minst_w_a[0] = 0;
@@ -103,10 +103,10 @@ begin : minst_memRecArrMeth     // test_record_meth.cpp:78:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: ninst_locRecMeth (test_record_meth.cpp:29:5) 
+// Method process: ninst_locRecMeth (test_record_meth.cpp:36:5) 
 
 always_comb 
-begin : ninst_locRecMeth     // test_record_meth.cpp:29:5
+begin : ninst_locRecMeth     // test_record_meth.cpp:36:5
     logic t_a;
     logic [3:0] t_b;
     logic tt_a;
@@ -122,10 +122,10 @@ begin : ninst_locRecMeth     // test_record_meth.cpp:29:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: ninst_locRecArrMeth (test_record_meth.cpp:43:5) 
+// Method process: ninst_locRecArrMeth (test_record_meth.cpp:50:5) 
 
 always_comb 
-begin : ninst_locRecArrMeth     // test_record_meth.cpp:43:5
+begin : ninst_locRecArrMeth     // test_record_meth.cpp:50:5
     logic v_a[2];
     logic [3:0] v_b[2];
     logic vv_a[4];
@@ -145,7 +145,7 @@ begin : ninst_locRecArrMeth     // test_record_meth.cpp:43:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: ninst_memRecMeth (test_record_meth.cpp:65:5) 
+// Method process: ninst_memRecMeth (test_record_meth.cpp:72:5) 
 
 // Process-local variables
 logic ninst_r_a;
@@ -154,7 +154,7 @@ logic ninst_rr_a;
 logic [3:0] ninst_rr_b;
 
 always_comb 
-begin : ninst_memRecMeth     // test_record_meth.cpp:65:5
+begin : ninst_memRecMeth     // test_record_meth.cpp:72:5
     logic [3:0] x;
     ninst_r_b = 4;
     ninst_rr_a = ninst_s;
@@ -163,7 +163,7 @@ begin : ninst_memRecMeth     // test_record_meth.cpp:65:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: ninst_memRecArrMeth (test_record_meth.cpp:78:5) 
+// Method process: ninst_memRecArrMeth (test_record_meth.cpp:85:5) 
 
 // Process-local variables
 logic ninst_w_a[2];
@@ -172,7 +172,7 @@ logic ninst_ww_a[4];
 logic [3:0] ninst_ww_b[4];
 
 always_comb 
-begin : ninst_memRecArrMeth     // test_record_meth.cpp:78:5
+begin : ninst_memRecArrMeth     // test_record_meth.cpp:85:5
     integer sum;
     logic [3:0] x;
     ninst_w_a[0] = 0;
@@ -188,14 +188,14 @@ begin : ninst_memRecArrMeth     // test_record_meth.cpp:78:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: memRecMeth (test_record_meth.cpp:109:5) 
+// Method process: memRecMeth (test_record_meth.cpp:116:5) 
 
 // Process-local variables
 logic rr_a;
 logic [3:0] rr_b;
 
 always_comb 
-begin : memRecMeth     // test_record_meth.cpp:109:5
+begin : memRecMeth     // test_record_meth.cpp:116:5
     rr_b = 5;
 end
 

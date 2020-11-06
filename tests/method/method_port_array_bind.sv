@@ -38,7 +38,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: middle (test_port_array_bind.cpp:119:5)
+// Module: middle (test_port_array_bind.cpp:126:5)
 //
 module middle // "t_inst.m_inst"
 (
@@ -53,10 +53,10 @@ module middle // "t_inst.m_inst"
 logic [1:0] in2d[2][2];
 
 //------------------------------------------------------------------------------
-// Method process: drive_in2d_method (test_port_array_bind.cpp:79:5) 
+// Method process: drive_in2d_method (test_port_array_bind.cpp:86:5) 
 
 always_comb 
-begin : drive_in2d_method     // test_port_array_bind.cpp:79:5
+begin : drive_in2d_method     // test_port_array_bind.cpp:86:5
     in2d[0][0] = 0;
     in2d[0][1] = in2d[0][0] + 1;
     in2d[0][1] = 1;
@@ -81,7 +81,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: bottom (test_port_array_bind.cpp:52:5)
+// Module: bottom (test_port_array_bind.cpp:59:5)
 //
 module bottom // "t_inst.m_inst.b_inst"
 (
@@ -94,10 +94,10 @@ module bottom // "t_inst.m_inst.b_inst"
 );
 
 //------------------------------------------------------------------------------
-// Method process: test_method (test_port_array_bind.cpp:35:5) 
+// Method process: test_method (test_port_array_bind.cpp:42:5) 
 
 always_comb 
-begin : test_method     // test_port_array_bind.cpp:35:5
+begin : test_method     // test_port_array_bind.cpp:42:5
     out[0] = in[1];
     out2d[0][1] = in2d[1][0] + 1;
 end

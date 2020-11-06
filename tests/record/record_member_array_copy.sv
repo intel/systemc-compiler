@@ -19,10 +19,10 @@ logic rst;
 logic [3:0] s;
 
 //------------------------------------------------------------------------------
-// Method process: simple_loc_rec_meth (test_member_array_copy.cpp:63:5) 
+// Method process: simple_loc_rec_meth (test_member_array_copy.cpp:70:5) 
 
 always_comb 
-begin : simple_loc_rec_meth     // test_member_array_copy.cpp:63:5
+begin : simple_loc_rec_meth     // test_member_array_copy.cpp:70:5
     logic ar_a;
     logic [3:0] ar_b;
     logic br_a;
@@ -33,10 +33,10 @@ begin : simple_loc_rec_meth     // test_member_array_copy.cpp:63:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: loc_rec_meth (test_member_array_copy.cpp:71:5) 
+// Method process: loc_rec_meth (test_member_array_copy.cpp:78:5) 
 
 always_comb 
-begin : loc_rec_meth     // test_member_array_copy.cpp:71:5
+begin : loc_rec_meth     // test_member_array_copy.cpp:78:5
     logic [3:0] ar_b[3];
     logic [3:0] br_b[3];
     ar_b[0] = 0; ar_b[1] = 0; ar_b[2] = 0;
@@ -44,13 +44,13 @@ begin : loc_rec_meth     // test_member_array_copy.cpp:71:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: glob_rec_meth (test_member_array_copy.cpp:113:5) 
+// Method process: glob_rec_meth (test_member_array_copy.cpp:120:5) 
 
 // Process-local variables
 logic [3:0] gr_b[3];
 
 always_comb 
-begin : glob_rec_meth     // test_member_array_copy.cpp:113:5
+begin : glob_rec_meth     // test_member_array_copy.cpp:120:5
     logic [3:0] lr_b[3];
     gr_b[0] = 1;
     gr_b[1] = 2;
@@ -59,7 +59,7 @@ begin : glob_rec_meth     // test_member_array_copy.cpp:113:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_array_copy (test_member_array_copy.cpp:155:5) 
+// Clocked THREAD: loc_array_copy (test_member_array_copy.cpp:162:5) 
 
 // Thread-local variables
 logic [3:0] par_b[3];
@@ -68,7 +68,7 @@ logic [1:0] loc_array_copy_PROC_STATE;
 logic [1:0] loc_array_copy_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : loc_array_copy_comb     // test_member_array_copy.cpp:155:5
+always_comb begin : loc_array_copy_comb     // test_member_array_copy.cpp:162:5
     loc_array_copy_func;
 end
 function void loc_array_copy_func;
@@ -83,21 +83,21 @@ function void loc_array_copy_func;
             par_b_next = xlarr_b;
             // Call rec_param_copy() begin
             par_b_next[s] = 1;
-            loc_array_copy_PROC_STATE_next = 1; return;    // test_member_array_copy.cpp:150:9;
+            loc_array_copy_PROC_STATE_next = 1; return;    // test_member_array_copy.cpp:157:9;
             // Call rec_param_copy() end
         end
         1: begin
             // Call rec_param_copy() begin
             l = par_b_next[1];
             // Call rec_param_copy() end
-            loc_array_copy_PROC_STATE_next = 2; return;    // test_member_array_copy.cpp:164:13;
+            loc_array_copy_PROC_STATE_next = 2; return;    // test_member_array_copy.cpp:171:13;
         end
         2: begin
             xlarr_b[0] = 0; xlarr_b[1] = 0; xlarr_b[2] = 0;
             par_b_next = xlarr_b;
             // Call rec_param_copy() begin
             par_b_next[s] = 1;
-            loc_array_copy_PROC_STATE_next = 1; return;    // test_member_array_copy.cpp:150:9;
+            loc_array_copy_PROC_STATE_next = 1; return;    // test_member_array_copy.cpp:157:9;
             // Call rec_param_copy() end
         end
     endcase
@@ -107,7 +107,7 @@ endfunction
 always_ff @(posedge clk or posedge rst) 
 begin : loc_array_copy_ff
     if (rst ) begin
-        loc_array_copy_PROC_STATE <= 0;    // test_member_array_copy.cpp:157:9;
+        loc_array_copy_PROC_STATE <= 0;    // test_member_array_copy.cpp:164:9;
     end
     else begin
         par_b <= par_b_next;

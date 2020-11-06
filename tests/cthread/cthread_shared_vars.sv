@@ -21,7 +21,7 @@ logic signed [31:0] b_sig;
 logic signed [31:0] c_sig;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread_0 (test_cthread_shared_vars.cpp:27:5) 
+// Clocked THREAD: thread_0 (test_cthread_shared_vars.cpp:34:5) 
 
 // Thread-local variables
 logic signed [31:0] a_sig_next;
@@ -32,7 +32,7 @@ logic [1:0] thread_0_PROC_STATE;
 logic [1:0] thread_0_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread_0_comb     // test_cthread_shared_vars.cpp:27:5
+always_comb begin : thread_0_comb     // test_cthread_shared_vars.cpp:34:5
     thread_0_func;
 end
 function void thread_0_func;
@@ -45,18 +45,18 @@ function void thread_0_func;
             z_next = 0;
             comb = z_next;
             a_sig_next = 1 + comb;
-            thread_0_PROC_STATE_next = 1; return;    // test_cthread_shared_vars.cpp:34:13;
+            thread_0_PROC_STATE_next = 1; return;    // test_cthread_shared_vars.cpp:41:13;
         end
         1: begin
             a_sig_next = 2 + z_next;
-            thread_0_PROC_STATE_next = 2; return;    // test_cthread_shared_vars.cpp:36:13;
+            thread_0_PROC_STATE_next = 2; return;    // test_cthread_shared_vars.cpp:43:13;
         end
         2: begin
             a_sig_next = 12;
             z_next = 0;
             comb = z_next;
             a_sig_next = 1 + comb;
-            thread_0_PROC_STATE_next = 1; return;    // test_cthread_shared_vars.cpp:34:13;
+            thread_0_PROC_STATE_next = 1; return;    // test_cthread_shared_vars.cpp:41:13;
         end
     endcase
 endfunction
@@ -66,7 +66,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : thread_0_ff
     if ( ~rstn ) begin
         a_sig <= 0;
-        thread_0_PROC_STATE <= 0;    // test_cthread_shared_vars.cpp:29:9;
+        thread_0_PROC_STATE <= 0;    // test_cthread_shared_vars.cpp:36:9;
     end
     else begin
         a_sig <= a_sig_next;
@@ -76,7 +76,7 @@ begin : thread_0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread_1 (test_cthread_shared_vars.cpp:42:5) 
+// Clocked THREAD: thread_1 (test_cthread_shared_vars.cpp:49:5) 
 
 // Thread-local variables
 logic signed [31:0] b_sig_next;
@@ -85,7 +85,7 @@ logic [1:0] thread_1_PROC_STATE;
 logic [1:0] thread_1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread_1_comb     // test_cthread_shared_vars.cpp:42:5
+always_comb begin : thread_1_comb     // test_cthread_shared_vars.cpp:49:5
     thread_1_func;
 end
 function void thread_1_func;
@@ -96,15 +96,15 @@ function void thread_1_func;
     case (thread_1_PROC_STATE)
         0: begin
             c_sig_next = a_sig + c_sig;
-            thread_1_PROC_STATE_next = 1; return;    // test_cthread_shared_vars.cpp:48:13;
+            thread_1_PROC_STATE_next = 1; return;    // test_cthread_shared_vars.cpp:55:13;
         end
         1: begin
             b_sig_next = 12;
-            thread_1_PROC_STATE_next = 2; return;    // test_cthread_shared_vars.cpp:50:13;
+            thread_1_PROC_STATE_next = 2; return;    // test_cthread_shared_vars.cpp:57:13;
         end
         2: begin
             c_sig_next = a_sig + c_sig;
-            thread_1_PROC_STATE_next = 1; return;    // test_cthread_shared_vars.cpp:48:13;
+            thread_1_PROC_STATE_next = 1; return;    // test_cthread_shared_vars.cpp:55:13;
         end
     endcase
 endfunction
@@ -115,7 +115,7 @@ begin : thread_1_ff
     if ( ~rstn ) begin
         b_sig <= 0;
         c_sig <= 0;
-        thread_1_PROC_STATE <= 0;    // test_cthread_shared_vars.cpp:45:9;
+        thread_1_PROC_STATE <= 0;    // test_cthread_shared_vars.cpp:52:9;
     end
     else begin
         b_sig <= b_sig_next;

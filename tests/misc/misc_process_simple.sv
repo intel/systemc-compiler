@@ -19,10 +19,10 @@ module MyModule // "tb_inst.top_mod"
 logic signed [31:0] sig;
 
 //------------------------------------------------------------------------------
-// Method process: methodProc (test_process_simple.cpp:13:5) 
+// Method process: methodProc (test_process_simple.cpp:20:5) 
 
 always_comb 
-begin : methodProc     // test_process_simple.cpp:13:5
+begin : methodProc     // test_process_simple.cpp:20:5
     logic b;
     b = in;
     if (sig != 0)

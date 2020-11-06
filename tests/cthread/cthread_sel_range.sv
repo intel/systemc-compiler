@@ -11,16 +11,45 @@
 //
 module top // "top_inst"
 (
+    input logic clk
 );
 
 // SystemC signals
-logic clk;
 logic arstn;
 logic signed [31:0] in;
 logic signed [31:0] out;
+logic [3:0] s;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: range_select_lhs1 (test_cthread_sel_range.cpp:52:5) 
+// Clocked THREAD: range_select_use_def (test_cthread_sel_range.cpp:68:5) 
+
+// Thread-local variables
+logic [4:0] z;
+logic [4:0] z_next;
+
+// Next-state combinational logic
+always_comb begin : range_select_use_def_comb     // test_cthread_sel_range.cpp:68:5
+    range_select_use_def_func;
+end
+function void range_select_use_def_func;
+    z_next = z;
+    z_next[2 : 1] = 1;
+    z_next[4 : 0] = 1;
+endfunction
+
+// Syncrhonous register update
+always_ff @(posedge clk or negedge arstn) 
+begin : range_select_use_def_ff
+    if ( ~arstn ) begin
+        z <= 0;
+    end
+    else begin
+        z <= z_next;
+    end
+end
+
+//------------------------------------------------------------------------------
+// Clocked THREAD: range_select_lhs1 (test_cthread_sel_range.cpp:86:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
@@ -30,7 +59,7 @@ logic [2:0] a;
 logic [2:0] a_next;
 
 // Next-state combinational logic
-always_comb begin : range_select_lhs1_comb     // test_cthread_sel_range.cpp:52:5
+always_comb begin : range_select_lhs1_comb     // test_cthread_sel_range.cpp:86:5
     range_select_lhs1_func;
 end
 function void range_select_lhs1_func;
@@ -58,7 +87,7 @@ begin : range_select_lhs1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: range_select_lhs1a (test_cthread_sel_range.cpp:69:5) 
+// Clocked THREAD: range_select_lhs1a (test_cthread_sel_range.cpp:103:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next0;
@@ -66,7 +95,7 @@ logic [2:0] x0;
 logic [2:0] x_next0;
 
 // Next-state combinational logic
-always_comb begin : range_select_lhs1a_comb     // test_cthread_sel_range.cpp:69:5
+always_comb begin : range_select_lhs1a_comb     // test_cthread_sel_range.cpp:103:5
     range_select_lhs1a_func;
 end
 function void range_select_lhs1a_func;
@@ -92,7 +121,7 @@ begin : range_select_lhs1a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: range_select_lhs2 (test_cthread_sel_range.cpp:84:5) 
+// Clocked THREAD: range_select_lhs2 (test_cthread_sel_range.cpp:118:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next1;
@@ -100,7 +129,7 @@ logic [3:0] b;
 logic [3:0] b_next;
 
 // Next-state combinational logic
-always_comb begin : range_select_lhs2_comb     // test_cthread_sel_range.cpp:84:5
+always_comb begin : range_select_lhs2_comb     // test_cthread_sel_range.cpp:118:5
     range_select_lhs2_func;
 end
 function void range_select_lhs2_func;
@@ -123,13 +152,13 @@ begin : range_select_lhs2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: range_select_lhs3 (test_cthread_sel_range.cpp:97:5) 
+// Clocked THREAD: range_select_lhs3 (test_cthread_sel_range.cpp:131:5) 
 
 // Thread-local variables
 logic [4:0] c;
 
 // Next-state combinational logic
-always_comb begin : range_select_lhs3_comb     // test_cthread_sel_range.cpp:97:5
+always_comb begin : range_select_lhs3_comb     // test_cthread_sel_range.cpp:131:5
     range_select_lhs3_func;
 end
 function void range_select_lhs3_func;
@@ -149,14 +178,14 @@ begin : range_select_lhs3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: range_select_lhs4 (test_cthread_sel_range.cpp:110:5) 
+// Clocked THREAD: range_select_lhs4 (test_cthread_sel_range.cpp:144:5) 
 
 // Thread-local variables
 logic [5:0] d;
 logic [5:0] d_next;
 
 // Next-state combinational logic
-always_comb begin : range_select_lhs4_comb     // test_cthread_sel_range.cpp:110:5
+always_comb begin : range_select_lhs4_comb     // test_cthread_sel_range.cpp:144:5
     range_select_lhs4_func;
 end
 function void range_select_lhs4_func;
@@ -175,7 +204,7 @@ begin : range_select_lhs4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: range_select_lhs4a (test_cthread_sel_range.cpp:121:5) 
+// Clocked THREAD: range_select_lhs4a (test_cthread_sel_range.cpp:155:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next2;
@@ -183,7 +212,7 @@ logic [6:0] e;
 logic [6:0] e_next;
 
 // Next-state combinational logic
-always_comb begin : range_select_lhs4a_comb     // test_cthread_sel_range.cpp:121:5
+always_comb begin : range_select_lhs4a_comb     // test_cthread_sel_range.cpp:155:5
     range_select_lhs4a_func;
 end
 function void range_select_lhs4a_func;
@@ -205,10 +234,162 @@ begin : range_select_lhs4a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: range_select_lhs_misc (test_cthread_sel_range.cpp:133:5) 
+// Clocked THREAD: range_select_logic (test_cthread_sel_range.cpp:167:5) 
+
+// Thread-local variables
+logic signed [31:0] j;
+logic signed [31:0] j_next;
+logic [6:0] x1;
+logic [6:0] x_next1;
 
 // Next-state combinational logic
-always_comb begin : range_select_lhs_misc_comb     // test_cthread_sel_range.cpp:133:5
+always_comb begin : range_select_logic_comb     // test_cthread_sel_range.cpp:167:5
+    range_select_logic_func;
+end
+function void range_select_logic_func;
+    integer k;
+    logic b_1;
+    j_next = j;
+    x_next1 = x1;
+    k = 0;
+    x_next1[j_next - 1 +: 2] = 1;
+    if (|x_next1[j_next - 1 +: 2])
+    begin
+        k = 1;
+    end
+    if (x_next1[1 : 0] == 3)
+    begin
+        k = 2;
+    end
+    if (x_next1[1 : 1] || j_next == 1)
+    begin
+        if (|x_next1[j_next +: 3] && j_next == 2)
+        begin
+            k = 3;
+        end
+        k = 4;
+    end
+    b_1 = |x_next1[1 : 0] || x_next1[2 : 1] == 1 && x_next1[3 : 0] > 0;
+    b_1 = |x_next1[1 : 0] || 1 && b_1 && !(0 || |x_next1[3 : 2] || x_next1[3 : 1] == x_next1[2 : 0]);
+endfunction
+
+// Syncrhonous register update
+always_ff @(posedge clk or negedge arstn) 
+begin : range_select_logic_ff
+    if ( ~arstn ) begin
+        j <= s;
+        x1 <= 0;
+    end
+    else begin
+        j <= j_next;
+        x1 <= x_next1;
+    end
+end
+
+//------------------------------------------------------------------------------
+// Clocked THREAD: range_select_comp_logic (test_cthread_sel_range.cpp:192:5) 
+
+// Thread-local variables
+logic [9:0] x2;
+logic [9:0] x_next2;
+
+// Next-state combinational logic
+always_comb begin : range_select_comp_logic_comb     // test_cthread_sel_range.cpp:192:5
+    range_select_comp_logic_func;
+end
+function void range_select_comp_logic_func;
+    integer k;
+    x_next2 = x2;
+    k = 0;
+    if (1 && |x_next2[1 : 0])
+    begin
+        k = 1;
+    end
+    if (1)
+    begin
+        k = 2;
+    end
+    if (0 || |x_next2[4 : 2])
+    begin
+        k = 4;
+    end
+    if (0 || 1 && |x_next2[5 : 1] || 0)
+    begin
+        k = 5;
+    end
+    if (1)
+    begin
+        k = 6;
+    end
+endfunction
+
+// Syncrhonous register update
+always_ff @(posedge clk or negedge arstn) 
+begin : range_select_comp_logic_ff
+    if ( ~arstn ) begin
+        integer j;
+        j = s;
+        x2 <= 0;
+        x2[5 : 0] = s;
+    end
+    else begin
+        x2 <= x_next2;
+    end
+end
+
+//------------------------------------------------------------------------------
+// Clocked THREAD: range_select_arithm (test_cthread_sel_range.cpp:212:5) 
+
+// Thread-local variables
+logic signed [31:0] j0;
+logic signed [31:0] j_next0;
+logic [19:0] y;
+logic [19:0] y_next;
+logic [39:0] z0;
+logic [39:0] z_next0;
+
+// Next-state combinational logic
+always_comb begin : range_select_arithm_comb     // test_cthread_sel_range.cpp:212:5
+    range_select_arithm_func;
+end
+function void range_select_arithm_func;
+    logic [15:0] yy;
+    logic [15:0] zz;
+    j_next0 = j0;
+    y_next = y;
+    z_next0 = z0;
+    yy = y_next[j_next0 +: 3] + 1;
+    yy = y_next[3 : 0] * yy;
+    yy = y_next[10 : 7] / y_next[2 : 1] + y_next[5 : 4];
+    yy = 6'(y_next[12 : 10] - y_next[14 : 10]) >>> y_next[7 : 4];
+    zz = 0;
+    zz = y_next[3 : 0] % z_next0[3 : 0];
+    zz = z_next0[10 : 7] / y_next[2 : 1] + z_next0[5 : 4];
+    zz = z_next0[14 : 10] >>> j_next0;
+    zz = 7'(signed'({1'b0, z_next0[14 : 10]}) * 3) >>> z_next0[5 : 0];
+    zz = z_next0[30 : 10] % z_next0[5 : 0];
+endfunction
+
+// Syncrhonous register update
+always_ff @(posedge clk or negedge arstn) 
+begin : range_select_arithm_ff
+    if ( ~arstn ) begin
+        j0 <= s;
+        y <= j0 + 1;
+        z0 <= j0 + 2;
+    end
+    else begin
+        j0 <= j_next0;
+        y <= y_next;
+        z0 <= z_next0;
+    end
+end
+
+//------------------------------------------------------------------------------
+// Clocked THREAD: range_select_lhs_misc (test_cthread_sel_range.cpp:236:5) 
+
+// Next-state combinational logic
+always_comb begin : range_select_lhs_misc_comb     // test_cthread_sel_range.cpp:236:5
     range_select_lhs_misc_func;
 end
 function void range_select_lhs_misc_func;

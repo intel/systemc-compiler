@@ -24,10 +24,10 @@ logic master_req[3];
 logic req_fifo_out_valid[3];
 
 //------------------------------------------------------------------------------
-// Method process: popRespProc (test_level_error.cpp:50:5) 
+// Method process: popRespProc (test_level_error.cpp:57:5) 
 
 always_comb 
-begin : popRespProc     // test_level_error.cpp:50:5
+begin : popRespProc     // test_level_error.cpp:57:5
     integer j;
     j = b;
     if (1)
@@ -42,10 +42,10 @@ begin : popRespProc     // test_level_error.cpp:50:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: popRespProc2 (test_level_error.cpp:62:5) 
+// Method process: popRespProc2 (test_level_error.cpp:69:5) 
 
 always_comb 
-begin : popRespProc2     // test_level_error.cpp:62:5
+begin : popRespProc2     // test_level_error.cpp:69:5
     logic rsSlave;
     logic rsLocal;
     rsSlave = a;
@@ -74,10 +74,10 @@ begin : popRespProc2     // test_level_error.cpp:62:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cgEnableProc (test_level_error.cpp:98:5) 
+// Method process: cgEnableProc (test_level_error.cpp:105:5) 
 
 always_comb 
-begin : cgEnableProc     // test_level_error.cpp:98:5
+begin : cgEnableProc     // test_level_error.cpp:105:5
     logic masterReq;
     masterReq = 0;
     for (integer i = 0; i < 3; i++)
@@ -88,10 +88,10 @@ begin : cgEnableProc     // test_level_error.cpp:98:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: long_literal1 (test_level_error.cpp:146:5) 
+// Method process: long_literal1 (test_level_error.cpp:153:5) 
 
 always_comb 
-begin : long_literal1     // test_level_error.cpp:146:5
+begin : long_literal1     // test_level_error.cpp:153:5
     integer j;
     integer TMP_0;
     integer par;
@@ -117,10 +117,10 @@ begin : long_literal1     // test_level_error.cpp:146:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: long_literal2 (test_level_error.cpp:152:5) 
+// Method process: long_literal2 (test_level_error.cpp:159:5) 
 
 always_comb 
-begin : long_literal2     // test_level_error.cpp:152:5
+begin : long_literal2     // test_level_error.cpp:159:5
     integer j;
     integer TMP_0;
     integer par;

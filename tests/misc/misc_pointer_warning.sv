@@ -18,14 +18,14 @@ module A // "a_mod"
 logic nrst;
 
 //------------------------------------------------------------------------------
-// Method process: nonconst_ptr_method (test_pointer_warning.cpp:35:5) 
+// Method process: nonconst_ptr_method (test_pointer_warning.cpp:42:5) 
 
 // Process-local variables
 logic signed [31:0] q0;
 logic [3:0] v0;
 
 always_comb 
-begin : nonconst_ptr_method     // test_pointer_warning.cpp:35:5
+begin : nonconst_ptr_method     // test_pointer_warning.cpp:42:5
     integer j;
     q0 = 1;
     v0 = 2;
@@ -33,7 +33,7 @@ begin : nonconst_ptr_method     // test_pointer_warning.cpp:35:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: nonconst_ptr_thread (test_pointer_warning.cpp:40:5) 
+// Clocked THREAD: nonconst_ptr_thread (test_pointer_warning.cpp:47:5) 
 
 // Thread-local variables
 logic [3:0] v1;
@@ -42,7 +42,7 @@ logic signed [31:0] q1;
 logic signed [31:0] q1_next;
 
 // Next-state combinational logic
-always_comb begin : nonconst_ptr_thread_comb     // test_pointer_warning.cpp:40:5
+always_comb begin : nonconst_ptr_thread_comb     // test_pointer_warning.cpp:47:5
     nonconst_ptr_thread_func;
 end
 function void nonconst_ptr_thread_func;

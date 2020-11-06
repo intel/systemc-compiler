@@ -1,9 +1,16 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include <sct_assert.h>
 #include <iostream>
 #include <string>
 
-// Remove constants which is pointe by pointer dereference
+// Pointers to constant replaced with values at dereference
 template<unsigned N>
 struct AA : public sc_module 
 {
@@ -23,12 +30,18 @@ struct AA : public sc_module
     const bool* pb;
     const sc_uint<16>* pc;
     const sc_int<8>* pd;
+    const sc_bigint<8>* pe;
+    const sc_biguint<8>* pf;
 
     SC_HAS_PROCESS(AA);
 
     AA(const sc_module_name& name) : 
         sc_module(name), pa(&A), pb(&B), pc(&C), pd(&D)
     {
+        pe = sc_new<sc_bigint<8>>(-51);
+        pf = sc_new<sc_biguint<8>>();
+        *(const_cast<sc_biguint<8>*>(pf)) = 52;
+        
         SC_METHOD(sig_init_method);
         sensitive << s;
         
@@ -45,6 +58,8 @@ struct AA : public sc_module
         k = C + 1;
         int n = *pc;
         int l; l = *p1;
+        l = pe->to_int() - pf->to_uint64();
+        auto ll = *pe + *pf;
     }
 
     void sig_init_thread() {
@@ -74,3 +89,4 @@ int sc_main(int argc, char *argv[])
     sc_start();
     return 0;
 }
+

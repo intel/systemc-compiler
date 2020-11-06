@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_simple_method.cpp:215:5)
+// Module: A (test_simple_method.cpp:222:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -36,23 +36,23 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: record_concat1 (test_simple_method.cpp:46:5) 
+// Method process: record_concat1 (test_simple_method.cpp:53:5) 
 
 // Process-local variables
 logic [1:0] scRec_a;
 logic [2:0] scRec_b;
 
 always_comb 
-begin : record_concat1     // test_simple_method.cpp:46:5
+begin : record_concat1     // test_simple_method.cpp:53:5
     logic [4:0] c;
     c = {scRec_a, scRec_b};
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_concat2 (test_simple_method.cpp:51:5) 
+// Method process: record_concat2 (test_simple_method.cpp:58:5) 
 
 always_comb 
-begin : record_concat2     // test_simple_method.cpp:51:5
+begin : record_concat2     // test_simple_method.cpp:58:5
     logic [1:0] scRecLoc_a;
     logic [2:0] scRecLoc_b;
     logic [4:0] c;
@@ -62,10 +62,10 @@ begin : record_concat2     // test_simple_method.cpp:51:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_local_var1 (test_simple_method.cpp:94:5) 
+// Method process: record_local_var1 (test_simple_method.cpp:101:5) 
 
 always_comb 
-begin : record_local_var1     // test_simple_method.cpp:94:5
+begin : record_local_var1     // test_simple_method.cpp:101:5
     integer r_x;
     logic signed [1:0] r_y;
     r_y = 1;
@@ -76,10 +76,10 @@ begin : record_local_var1     // test_simple_method.cpp:94:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_local_var2 (test_simple_method.cpp:121:5) 
+// Method process: record_local_var2 (test_simple_method.cpp:128:5) 
 
 always_comb 
-begin : record_local_var2     // test_simple_method.cpp:121:5
+begin : record_local_var2     // test_simple_method.cpp:128:5
     integer x_;
     integer y_;
     integer c_x;

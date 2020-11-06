@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 
 // @auto type for declaration with initialization of @sc_bigint/@sc_biguint and 
@@ -80,3 +87,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

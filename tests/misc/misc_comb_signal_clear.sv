@@ -22,10 +22,10 @@ logic csa[2];
 logic cspa[2];
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thrdProc (test_comb_signal_clear.cpp:30:5) 
+// Clocked THREAD: thrdProc (test_comb_signal_clear.cpp:37:5) 
 
 // Next-state combinational logic
-always_comb begin : thrdProc_comb     // test_comb_signal_clear.cpp:30:5
+always_comb begin : thrdProc_comb     // test_comb_signal_clear.cpp:37:5
     thrdProc_func;
 end
 function void thrdProc_func;

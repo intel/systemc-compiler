@@ -1,13 +1,21 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <systemc.h>
 
 // Constants and static constants in global scope
-
 const bool BOOL_CONST = true;
 static const bool BOOL_ST_CONST = true;
 
 const int INT_CONST = 2;
 static const int INT_ST_CONST = 3;
 
+const sc_int<4> SC_INT_CONST = -2;
+static const sc_uint<4> SC_UINT_ST_CONST = 3;
 
 struct MyStruct : public sc_module, sc_interface
 {
@@ -40,6 +48,8 @@ SC_MODULE(MyModule)
         wait();
         while (true) {
             bool b = struct1.mb_read();
+            sig = SC_INT_CONST;
+            sig = SC_UINT_ST_CONST;
             wait();
         }
     }
@@ -67,4 +77,5 @@ int sc_main(int argc, char **argv) {
 
     return 0;
 }
+
 

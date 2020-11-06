@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 //
 // Created by ripopov on 6/14/18.
 //
@@ -140,3 +147,4 @@ int sc_main (int argc, char **argv) {
 
     return 0;
 }
+

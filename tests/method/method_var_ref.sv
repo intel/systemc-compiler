@@ -30,7 +30,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_var_ref.cpp:239:5)
+// Module: A (test_var_ref.cpp:246:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -48,14 +48,14 @@ logic [7:0] sig_arr2[3];
 logic [31:0] indx;
 
 //------------------------------------------------------------------------------
-// Method process: reference1 (test_var_ref.cpp:52:5) 
+// Method process: reference1 (test_var_ref.cpp:59:5) 
 
 // Process-local variables
 logic signed [31:0] n;
 logic signed [31:0] k;
 
 always_comb 
-begin : reference1     // test_var_ref.cpp:52:5
+begin : reference1     // test_var_ref.cpp:59:5
     integer a;
     integer unsigned m_1[3];
     logic bb[5];
@@ -75,13 +75,13 @@ begin : reference1     // test_var_ref.cpp:52:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: reference2 (test_var_ref.cpp:78:5) 
+// Method process: reference2 (test_var_ref.cpp:85:5) 
 
 // Process-local variables
 logic [6:0] f;
 
 always_comb 
-begin : reference2     // test_var_ref.cpp:78:5
+begin : reference2     // test_var_ref.cpp:85:5
     logic [3:0] a;
     logic [2:0] m1[4];
     logic signed [64:0] m2[3];
@@ -97,13 +97,13 @@ begin : reference2     // test_var_ref.cpp:78:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: reference3 (test_var_ref.cpp:98:5) 
+// Method process: reference3 (test_var_ref.cpp:105:5) 
 
 // Process-local variables
 logic [3:0] gm[3][4];
 
 always_comb 
-begin : reference3     // test_var_ref.cpp:98:5
+begin : reference3     // test_var_ref.cpp:105:5
     integer unsigned lm[5];
     integer i;
     lm[s] = 1;
@@ -118,14 +118,14 @@ begin : reference3     // test_var_ref.cpp:98:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_reference (test_var_ref.cpp:122:5) 
+// Method process: const_reference (test_var_ref.cpp:129:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : const_reference     // test_var_ref.cpp:122:5
+begin : const_reference     // test_var_ref.cpp:129:5
     integer a;
     integer unsigned d;
     integer unsigned e;
@@ -145,13 +145,13 @@ begin : const_reference     // test_var_ref.cpp:122:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_reference2 (test_var_ref.cpp:149:5) 
+// Method process: const_reference2 (test_var_ref.cpp:156:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : const_reference2     // test_var_ref.cpp:149:5
+begin : const_reference2     // test_var_ref.cpp:156:5
     logic [3:0] a;
     logic [2:0] arr[5];
     logic [2:0] f_1;
@@ -165,13 +165,13 @@ begin : const_reference2     // test_var_ref.cpp:149:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_reference3 (test_var_ref.cpp:166:5) 
+// Method process: const_reference3 (test_var_ref.cpp:173:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : const_reference3     // test_var_ref.cpp:166:5
+begin : const_reference3     // test_var_ref.cpp:173:5
     logic [2:0] arr[3];
     integer sum;
     arr[0] = 0; arr[1] = 0; arr[2] = 0;
@@ -179,10 +179,10 @@ begin : const_reference3     // test_var_ref.cpp:166:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_reference_sig (test_var_ref.cpp:180:5) 
+// Method process: const_reference_sig (test_var_ref.cpp:187:5) 
 
 always_comb 
-begin : const_reference_sig     // test_var_ref.cpp:180:5
+begin : const_reference_sig     // test_var_ref.cpp:187:5
     logic [3:0] c;
     logic [3:0] d;
     logic [3:0] e;
@@ -194,10 +194,10 @@ begin : const_reference_sig     // test_var_ref.cpp:180:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_reference_sig_arr (test_var_ref.cpp:195:5) 
+// Method process: const_reference_sig_arr (test_var_ref.cpp:202:5) 
 
 always_comb 
-begin : const_reference_sig_arr     // test_var_ref.cpp:195:5
+begin : const_reference_sig_arr     // test_var_ref.cpp:202:5
     logic [3:0] e;
     integer sum;
     e = sig_arr2[s];
@@ -205,20 +205,20 @@ begin : const_reference_sig_arr     // test_var_ref.cpp:195:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: init_list (test_var_ref.cpp:213:5) 
+// Method process: init_list (test_var_ref.cpp:220:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : init_list     // test_var_ref.cpp:213:5
+begin : init_list     // test_var_ref.cpp:220:5
     integer il4[2];
     m = 1;
     il4[0] = 0; il4[1] = m;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_ref_wait (test_var_ref.cpp:223:5) 
+// Clocked THREAD: array_ref_wait (test_var_ref.cpp:230:5) 
 
 // Thread-local variables
 logic [3:0] arr[3];
@@ -228,7 +228,7 @@ logic [1:0] array_ref_wait_PROC_STATE;
 logic [1:0] array_ref_wait_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : array_ref_wait_comb     // test_var_ref.cpp:223:5
+always_comb begin : array_ref_wait_comb     // test_var_ref.cpp:230:5
     array_ref_wait_func;
 end
 function void array_ref_wait_func;
@@ -238,14 +238,14 @@ function void array_ref_wait_func;
     
     case (array_ref_wait_PROC_STATE)
         0: begin
-            array_ref_wait_PROC_STATE_next = 1; return;    // test_var_ref.cpp:229:13;
+            array_ref_wait_PROC_STATE_next = 1; return;    // test_var_ref.cpp:236:13;
         end
         1: begin
             sig_next = arr_next[indx];
-            array_ref_wait_PROC_STATE_next = 2; return;    // test_var_ref.cpp:231:13;
+            array_ref_wait_PROC_STATE_next = 2; return;    // test_var_ref.cpp:238:13;
         end
         2: begin
-            array_ref_wait_PROC_STATE_next = 1; return;    // test_var_ref.cpp:229:13;
+            array_ref_wait_PROC_STATE_next = 1; return;    // test_var_ref.cpp:236:13;
         end
     endcase
 endfunction
@@ -255,7 +255,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : array_ref_wait_ff
     if ( ~nrst ) begin
         arr[0] <= 0; arr[1] <= 0; arr[2] <= 0;
-        array_ref_wait_PROC_STATE <= 0;    // test_var_ref.cpp:225:9;
+        array_ref_wait_PROC_STATE <= 0;    // test_var_ref.cpp:232:9;
     end
     else begin
         arr <= arr_next;

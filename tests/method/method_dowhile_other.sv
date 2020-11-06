@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_dowhile_other.cpp:154:5)
+// Module: A (test_dowhile_other.cpp:161:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -46,13 +46,13 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: do_while_sc_int_type (test_dowhile_other.cpp:37:5) 
+// Method process: do_while_sc_int_type (test_dowhile_other.cpp:44:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : do_while_sc_int_type     // test_dowhile_other.cpp:37:5
+begin : do_while_sc_int_type     // test_dowhile_other.cpp:44:5
     logic signed [2:0] i;
     logic signed [3:0] j;
     k = 0;
@@ -68,13 +68,13 @@ begin : do_while_sc_int_type     // test_dowhile_other.cpp:37:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_sc_uint_type (test_dowhile_other.cpp:50:5) 
+// Method process: do_while_sc_uint_type (test_dowhile_other.cpp:57:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : do_while_sc_uint_type     // test_dowhile_other.cpp:50:5
+begin : do_while_sc_uint_type     // test_dowhile_other.cpp:57:5
     logic [4:0] i;
     logic [5:0] j;
     i = 0;
@@ -88,13 +88,13 @@ begin : do_while_sc_uint_type     // test_dowhile_other.cpp:50:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_sc_bigint_type (test_dowhile_other.cpp:60:5) 
+// Method process: do_while_sc_bigint_type (test_dowhile_other.cpp:67:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : do_while_sc_bigint_type     // test_dowhile_other.cpp:60:5
+begin : do_while_sc_bigint_type     // test_dowhile_other.cpp:67:5
     logic signed [4:0] i;
     logic signed [5:0] j;
     i = 0;
@@ -108,13 +108,13 @@ begin : do_while_sc_bigint_type     // test_dowhile_other.cpp:60:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_sc_biguint_type (test_dowhile_other.cpp:70:5) 
+// Method process: do_while_sc_biguint_type (test_dowhile_other.cpp:77:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : do_while_sc_biguint_type     // test_dowhile_other.cpp:70:5
+begin : do_while_sc_biguint_type     // test_dowhile_other.cpp:77:5
     logic [6:0] i;
     logic [7:0] j;
     i = 0;
@@ -128,13 +128,13 @@ begin : do_while_sc_biguint_type     // test_dowhile_other.cpp:70:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_long_type (test_dowhile_other.cpp:80:5) 
+// Method process: do_while_long_type (test_dowhile_other.cpp:87:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : do_while_long_type     // test_dowhile_other.cpp:80:5
+begin : do_while_long_type     // test_dowhile_other.cpp:87:5
     logic signed [63:0] i;
     logic signed [63:0] j;
     i = 0;
@@ -148,13 +148,13 @@ begin : do_while_long_type     // test_dowhile_other.cpp:80:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_ulong_type (test_dowhile_other.cpp:90:5) 
+// Method process: do_while_ulong_type (test_dowhile_other.cpp:97:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : do_while_ulong_type     // test_dowhile_other.cpp:90:5
+begin : do_while_ulong_type     // test_dowhile_other.cpp:97:5
     logic [63:0] i;
     logic [63:0] j;
     i = 0;
@@ -168,13 +168,13 @@ begin : do_while_ulong_type     // test_dowhile_other.cpp:90:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_short_type (test_dowhile_other.cpp:100:5) 
+// Method process: do_while_short_type (test_dowhile_other.cpp:107:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : do_while_short_type     // test_dowhile_other.cpp:100:5
+begin : do_while_short_type     // test_dowhile_other.cpp:107:5
     logic signed [15:0] i;
     logic signed [15:0] j;
     i = 0;
@@ -188,13 +188,13 @@ begin : do_while_short_type     // test_dowhile_other.cpp:100:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_ushort_type (test_dowhile_other.cpp:110:5) 
+// Method process: do_while_ushort_type (test_dowhile_other.cpp:117:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : do_while_ushort_type     // test_dowhile_other.cpp:110:5
+begin : do_while_ushort_type     // test_dowhile_other.cpp:117:5
     logic [15:0] i;
     logic [15:0] j;
     i = 0;
@@ -208,13 +208,13 @@ begin : do_while_ushort_type     // test_dowhile_other.cpp:110:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_mixed_type (test_dowhile_other.cpp:120:5) 
+// Method process: do_while_mixed_type (test_dowhile_other.cpp:127:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : do_while_mixed_type     // test_dowhile_other.cpp:120:5
+begin : do_while_mixed_type     // test_dowhile_other.cpp:127:5
     logic [15:0] i;
     logic [15:0] j;
     logic signed [15:0] l;

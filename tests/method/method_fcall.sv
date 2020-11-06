@@ -28,29 +28,29 @@ assign s1[0] = struct_c_out_port;
 assign s1[1] = struct_c2_out_port;
 
 //------------------------------------------------------------------------------
-// Method process: std_funcs (test_fcall.cpp:423:5) 
+// Method process: std_funcs (test_fcall.cpp:430:5) 
 
 always_comb 
-begin : std_funcs     // test_fcall.cpp:423:5
+begin : std_funcs     // test_fcall.cpp:430:5
     integer unsigned a_1;
     a_1 = 2;
 end
 
 //------------------------------------------------------------------------------
-// Method process: read_channel_in_cout (test_fcall.cpp:112:5) 
+// Method process: read_channel_in_cout (test_fcall.cpp:119:5) 
 
 always_comb 
-begin : read_channel_in_cout     // test_fcall.cpp:112:5
+begin : read_channel_in_cout     // test_fcall.cpp:119:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_call_params (test_fcall.cpp:247:5) 
+// Method process: func_call_params (test_fcall.cpp:254:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : func_call_params     // test_fcall.cpp:247:5
+begin : func_call_params     // test_fcall.cpp:254:5
     integer j;
     integer TMP_0;
     integer i;
@@ -105,13 +105,13 @@ begin : func_call_params     // test_fcall.cpp:247:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: child_record_call (test_fcall.cpp:272:5) 
+// Method process: child_record_call (test_fcall.cpp:279:5) 
 
 // Process-local variables
 logic signed [31:0] struct_c_m;
 
 always_comb 
-begin : child_record_call     // test_fcall.cpp:272:5
+begin : child_record_call     // test_fcall.cpp:279:5
     integer j;
     logic [2:0] x;
     logic [2:0] y;
@@ -145,10 +145,10 @@ begin : child_record_call     // test_fcall.cpp:272:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: port_access_call (test_fcall.cpp:291:5) 
+// Method process: port_access_call (test_fcall.cpp:298:5) 
 
 always_comb 
-begin : port_access_call     // test_fcall.cpp:291:5
+begin : port_access_call     // test_fcall.cpp:298:5
     logic b1;
     logic TMP_0;
     logic [1:0] val;
@@ -167,10 +167,10 @@ begin : port_access_call     // test_fcall.cpp:291:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: included_func_calls (test_fcall.cpp:303:5) 
+// Method process: included_func_calls (test_fcall.cpp:310:5) 
 
 always_comb 
-begin : included_func_calls     // test_fcall.cpp:303:5
+begin : included_func_calls     // test_fcall.cpp:310:5
     logic [2:0] TMP_0;
     integer val;
     logic [3:0] TMP_1;
@@ -210,13 +210,13 @@ begin : included_func_calls     // test_fcall.cpp:303:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: multiple_returns (test_fcall.cpp:312:5) 
+// Method process: multiple_returns (test_fcall.cpp:319:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : multiple_returns     // test_fcall.cpp:312:5
+begin : multiple_returns     // test_fcall.cpp:319:5
     integer j;
     integer unsigned TMP_0;
     integer unsigned val;
@@ -243,10 +243,10 @@ begin : multiple_returns     // test_fcall.cpp:312:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: return_in_loop (test_fcall.cpp:322:5) 
+// Method process: return_in_loop (test_fcall.cpp:329:5) 
 
 always_comb 
-begin : return_in_loop     // test_fcall.cpp:322:5
+begin : return_in_loop     // test_fcall.cpp:329:5
     integer unsigned TMP_0;
     integer unsigned val;
     integer j;
@@ -271,10 +271,10 @@ begin : return_in_loop     // test_fcall.cpp:322:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: glob_func_call (test_fcall.cpp:229:5) 
+// Method process: glob_func_call (test_fcall.cpp:236:5) 
 
 always_comb 
-begin : glob_func_call     // test_fcall.cpp:229:5
+begin : glob_func_call     // test_fcall.cpp:236:5
     integer a_1;
     integer TMP_0;
     integer i;
@@ -295,10 +295,10 @@ begin : glob_func_call     // test_fcall.cpp:229:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: static_func_call (test_fcall.cpp:238:5) 
+// Method process: static_func_call (test_fcall.cpp:245:5) 
 
 always_comb 
-begin : static_func_call     // test_fcall.cpp:238:5
+begin : static_func_call     // test_fcall.cpp:245:5
     integer i;
     integer TMP_0;
     integer i_1;
@@ -319,13 +319,13 @@ begin : static_func_call     // test_fcall.cpp:238:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: included_funcs1 (test_fcall.cpp:348:5) 
+// Method process: included_funcs1 (test_fcall.cpp:355:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : included_funcs1     // test_fcall.cpp:348:5
+begin : included_funcs1     // test_fcall.cpp:355:5
     k = 1;
     if (a)
     begin
@@ -339,13 +339,13 @@ begin : included_funcs1     // test_fcall.cpp:348:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: included_funcs2 (test_fcall.cpp:357:5) 
+// Method process: included_funcs2 (test_fcall.cpp:364:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : included_funcs2     // test_fcall.cpp:357:5
+begin : included_funcs2     // test_fcall.cpp:364:5
     k = 1;
     // Call g1() begin
     if (a)
@@ -366,10 +366,10 @@ begin : included_funcs2     // test_fcall.cpp:357:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_double_used (test_fcall.cpp:368:5) 
+// Method process: func_double_used (test_fcall.cpp:375:5) 
 
 always_comb 
-begin : func_double_used     // test_fcall.cpp:368:5
+begin : func_double_used     // test_fcall.cpp:375:5
     logic TMP_0;
     integer i;
     logic b_1;
@@ -381,10 +381,10 @@ begin : func_double_used     // test_fcall.cpp:368:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_chan_pointer (test_fcall.cpp:385:5) 
+// Method process: func_chan_pointer (test_fcall.cpp:392:5) 
 
 always_comb 
-begin : func_chan_pointer     // test_fcall.cpp:385:5
+begin : func_chan_pointer     // test_fcall.cpp:392:5
     integer j;
     integer TMP_0;
     integer i;
@@ -417,13 +417,13 @@ begin : func_chan_pointer     // test_fcall.cpp:385:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_var_pointer (test_fcall.cpp:408:5) 
+// Method process: func_var_pointer (test_fcall.cpp:415:5) 
 
 // Process-local variables
 logic [2:0] s;
 
 always_comb 
-begin : func_var_pointer     // test_fcall.cpp:408:5
+begin : func_var_pointer     // test_fcall.cpp:415:5
     integer j;
     logic TMP_0;
     logic b_1;
@@ -435,10 +435,10 @@ begin : func_var_pointer     // test_fcall.cpp:408:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: special_funcs (test_fcall.cpp:415:5) 
+// Method process: special_funcs (test_fcall.cpp:422:5) 
 
 always_comb 
-begin : special_funcs     // test_fcall.cpp:415:5
+begin : special_funcs     // test_fcall.cpp:422:5
     integer y;
     y = 0;
 end

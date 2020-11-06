@@ -18,7 +18,7 @@ module A // "a"
 logic rstn;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_assign (test_reg_cthread1.cpp:46:5) 
+// Clocked THREAD: record_assign (test_reg_cthread1.cpp:53:5) 
 
 // Thread-local variables
 logic signed [31:0] s_sin;
@@ -33,7 +33,7 @@ logic record_assign_PROC_STATE;
 logic record_assign_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_assign_comb     // test_reg_cthread1.cpp:46:5
+always_comb begin : record_assign_comb     // test_reg_cthread1.cpp:53:5
     record_assign_func;
 end
 function void record_assign_func;
@@ -48,13 +48,13 @@ function void record_assign_func;
         0: begin
             s_sin_next = 1;
             r_sin_next = s_sin_next; r_cos_next = s_cos_next;
-            record_assign_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:53:13;
+            record_assign_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:60:13;
         end
         1: begin
             b = r_sin_next;
             s_sin_next = 1;
             r_sin_next = s_sin_next; r_cos_next = s_cos_next;
-            record_assign_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:53:13;
+            record_assign_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:60:13;
         end
     endcase
 endfunction
@@ -65,7 +65,7 @@ begin : record_assign_ff
     if ( ~rstn ) begin
         s_sin <= 1;
         s_cos <= 2;
-        record_assign_PROC_STATE <= 0;    // test_reg_cthread1.cpp:48:9;
+        record_assign_PROC_STATE <= 0;    // test_reg_cthread1.cpp:55:9;
     end
     else begin
         s_sin <= s_sin_next;
@@ -77,7 +77,7 @@ begin : record_assign_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_usedef_assign (test_reg_cthread1.cpp:59:5) 
+// Clocked THREAD: record_usedef_assign (test_reg_cthread1.cpp:66:5) 
 
 // Thread-local variables
 logic signed [31:0] r_sin0;
@@ -88,7 +88,7 @@ logic record_usedef_assign_PROC_STATE;
 logic record_usedef_assign_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_usedef_assign_comb     // test_reg_cthread1.cpp:59:5
+always_comb begin : record_usedef_assign_comb     // test_reg_cthread1.cpp:66:5
     record_usedef_assign_func;
 end
 function void record_usedef_assign_func;
@@ -101,13 +101,13 @@ function void record_usedef_assign_func;
         0: begin
             r_sin_next0 = 1;
             r_cos_next0 = 2;
-            record_usedef_assign_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:64:13;
+            record_usedef_assign_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:71:13;
         end
         1: begin
             i = r_sin_next0;
             r_sin_next0 = 1;
             r_cos_next0 = 2;
-            record_usedef_assign_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:64:13;
+            record_usedef_assign_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:71:13;
         end
     endcase
 endfunction
@@ -116,7 +116,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : record_usedef_assign_ff
     if ( ~rstn ) begin
-        record_usedef_assign_PROC_STATE <= 0;    // test_reg_cthread1.cpp:60:9;
+        record_usedef_assign_PROC_STATE <= 0;    // test_reg_cthread1.cpp:67:9;
     end
     else begin
         r_sin0 <= r_sin_next0;
@@ -126,7 +126,7 @@ begin : record_usedef_assign_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_glob_reg (test_reg_cthread1.cpp:72:5) 
+// Clocked THREAD: record_glob_reg (test_reg_cthread1.cpp:79:5) 
 
 // Thread-local variables
 logic signed [31:0] gr_sin;
@@ -137,7 +137,7 @@ logic record_glob_reg_PROC_STATE;
 logic record_glob_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_glob_reg_comb     // test_reg_cthread1.cpp:72:5
+always_comb begin : record_glob_reg_comb     // test_reg_cthread1.cpp:79:5
     record_glob_reg_func;
 end
 function void record_glob_reg_func;
@@ -149,12 +149,12 @@ function void record_glob_reg_func;
     case (record_glob_reg_PROC_STATE)
         0: begin
             gr_sin_next = 1;
-            record_glob_reg_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:77:13;
+            record_glob_reg_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:84:13;
         end
         1: begin
             b = gr_sin_next;
             gr_sin_next = 1;
-            record_glob_reg_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:77:13;
+            record_glob_reg_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:84:13;
         end
     endcase
 endfunction
@@ -163,7 +163,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : record_glob_reg_ff
     if ( ~rstn ) begin
-        record_glob_reg_PROC_STATE <= 0;    // test_reg_cthread1.cpp:73:9;
+        record_glob_reg_PROC_STATE <= 0;    // test_reg_cthread1.cpp:80:9;
     end
     else begin
         gr_sin <= gr_sin_next;
@@ -173,7 +173,7 @@ begin : record_glob_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_glob_assign1 (test_reg_cthread1.cpp:84:5) 
+// Clocked THREAD: record_glob_assign1 (test_reg_cthread1.cpp:91:5) 
 
 // Thread-local variables
 logic signed [31:0] grr_sin;
@@ -182,7 +182,7 @@ logic signed [31:0] grr_cos;
 logic signed [31:0] grr_cos_next;
 
 // Next-state combinational logic
-always_comb begin : record_glob_assign1_comb     // test_reg_cthread1.cpp:84:5
+always_comb begin : record_glob_assign1_comb     // test_reg_cthread1.cpp:91:5
     record_glob_assign1_func;
 end
 function void record_glob_assign1_func;
@@ -206,7 +206,7 @@ begin : record_glob_assign1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_glob_assign1a (test_reg_cthread1.cpp:97:5) 
+// Clocked THREAD: record_glob_assign1a (test_reg_cthread1.cpp:104:5) 
 
 // Thread-local variables
 logic signed [31:0] gp_sin;
@@ -215,7 +215,7 @@ logic signed [31:0] gp_cos;
 logic signed [31:0] gp_cos_next;
 
 // Next-state combinational logic
-always_comb begin : record_glob_assign1a_comb     // test_reg_cthread1.cpp:97:5
+always_comb begin : record_glob_assign1a_comb     // test_reg_cthread1.cpp:104:5
     record_glob_assign1a_func;
 end
 function void record_glob_assign1a_func;
@@ -240,7 +240,7 @@ begin : record_glob_assign1a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_glob_assign2 (test_reg_cthread1.cpp:109:5) 
+// Clocked THREAD: record_glob_assign2 (test_reg_cthread1.cpp:116:5) 
 
 // Thread-local variables
 logic signed [31:0] r_sin1;
@@ -253,7 +253,7 @@ logic record_glob_assign2_PROC_STATE;
 logic record_glob_assign2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_glob_assign2_comb     // test_reg_cthread1.cpp:109:5
+always_comb begin : record_glob_assign2_comb     // test_reg_cthread1.cpp:116:5
     record_glob_assign2_func;
 end
 function void record_glob_assign2_func;
@@ -265,13 +265,13 @@ function void record_glob_assign2_func;
         0: begin
             r_sin_next1 = 1;
             r_cos_next1 = 2;
-            record_glob_assign2_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:114:13;
+            record_glob_assign2_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:121:13;
         end
         1: begin
             gpp_sin = r_sin_next1; gpp_cos = r_cos_next1;
             r_sin_next1 = 1;
             r_cos_next1 = 2;
-            record_glob_assign2_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:114:13;
+            record_glob_assign2_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:121:13;
         end
     endcase
 endfunction
@@ -280,7 +280,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : record_glob_assign2_ff
     if ( ~rstn ) begin
-        record_glob_assign2_PROC_STATE <= 0;    // test_reg_cthread1.cpp:110:9;
+        record_glob_assign2_PROC_STATE <= 0;    // test_reg_cthread1.cpp:117:9;
     end
     else begin
         r_sin1 <= r_sin_next1;
@@ -290,7 +290,7 @@ begin : record_glob_assign2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_not_defined (test_reg_cthread1.cpp:121:5) 
+// Clocked THREAD: record_not_defined (test_reg_cthread1.cpp:128:5) 
 
 // Thread-local variables
 logic signed [31:0] rn_sin;
@@ -301,7 +301,7 @@ logic record_not_defined_PROC_STATE;
 logic record_not_defined_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_not_defined_comb     // test_reg_cthread1.cpp:121:5
+always_comb begin : record_not_defined_comb     // test_reg_cthread1.cpp:128:5
     record_not_defined_func;
 end
 function void record_not_defined_func;
@@ -314,13 +314,13 @@ function void record_not_defined_func;
         0: begin
             rn_sin_next = 1;
             rn_cos_next = 2;
-            record_not_defined_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:126:13;
+            record_not_defined_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:133:13;
         end
         1: begin
             i = rn_sin_next;
             rn_sin_next = 1;
             rn_cos_next = 2;
-            record_not_defined_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:126:13;
+            record_not_defined_PROC_STATE_next = 1; return;    // test_reg_cthread1.cpp:133:13;
         end
     endcase
 endfunction
@@ -329,7 +329,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : record_not_defined_ff
     if ( ~rstn ) begin
-        record_not_defined_PROC_STATE <= 0;    // test_reg_cthread1.cpp:122:9;
+        record_not_defined_PROC_STATE <= 0;    // test_reg_cthread1.cpp:129:9;
     end
     else begin
         rn_sin <= rn_sin_next;
@@ -339,7 +339,7 @@ begin : record_not_defined_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_glob_not_defined (test_reg_cthread1.cpp:133:5) 
+// Clocked THREAD: record_glob_not_defined (test_reg_cthread1.cpp:140:5) 
 
 // Thread-local variables
 logic signed [31:0] gn_sin;
@@ -348,7 +348,7 @@ logic signed [31:0] gn_cos;
 logic signed [31:0] gn_cos_next;
 
 // Next-state combinational logic
-always_comb begin : record_glob_not_defined_comb     // test_reg_cthread1.cpp:133:5
+always_comb begin : record_glob_not_defined_comb     // test_reg_cthread1.cpp:140:5
     record_glob_not_defined_func;
 end
 function void record_glob_not_defined_func;

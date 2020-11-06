@@ -47,7 +47,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: short_name (test_string.cpp:43:5)
+// Module: short_name (test_string.cpp:50:5)
 //
 module short_name // "mod.stubInst1"
 (
@@ -59,7 +59,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: long_memory_verilog_name (test_string.cpp:44:5)
+// Module: long_memory_verilog_name (test_string.cpp:51:5)
 //
 module long_memory_verilog_name // "mod.stubInst2"
 (
@@ -71,7 +71,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: char_const_name (test_string.cpp:45:5)
+// Module: char_const_name (test_string.cpp:52:5)
 //
 module char_const_name // "mod.stubInst3"
 (
@@ -83,7 +83,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: memory_stub_char (test_string.cpp:46:5)
+// Module: memory_stub_char (test_string.cpp:53:5)
 //
 module memory_stub_char // "mod.stubInst4"
 (
@@ -95,7 +95,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: nonconst_verilog_name (test_string.cpp:47:5)
+// Module: nonconst_verilog_name (test_string.cpp:54:5)
 //
 module nonconst_verilog_name // "mod.stubInst5"
 (

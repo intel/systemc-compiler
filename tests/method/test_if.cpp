@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include <sct_assert.h>
 
@@ -47,7 +54,7 @@ public:
     
 
     //------------------------------------------------------------------------ 
-    // Extra @conf_read_buf_enable generated before if -- bug in HS SMEM
+    // Extra @conf_read_buf_enable generated before if -- bug in real design
     // Important that @READ_BUFFER_ENABLE is need to be calculated 
     static const bool READ_BUFFER_ENABLE = TRAITS::CACHE_FEATURES & 2;
     
@@ -368,3 +375,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

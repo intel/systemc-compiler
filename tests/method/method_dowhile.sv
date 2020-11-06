@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_dowhile.cpp:154:5)
+// Module: A (test_dowhile.cpp:161:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -46,10 +46,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: do_while1 (test_dowhile.cpp:33:5) 
+// Method process: do_while1 (test_dowhile.cpp:40:5) 
 
 always_comb 
-begin : do_while1     // test_dowhile.cpp:33:5
+begin : do_while1     // test_dowhile.cpp:40:5
     integer i;
     i = 0;
     do
@@ -60,13 +60,13 @@ begin : do_while1     // test_dowhile.cpp:33:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while2 (test_dowhile.cpp:42:5) 
+// Method process: do_while2 (test_dowhile.cpp:49:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : do_while2     // test_dowhile.cpp:42:5
+begin : do_while2     // test_dowhile.cpp:49:5
     integer j;
     integer i;
     j = 1;
@@ -86,14 +86,14 @@ begin : do_while2     // test_dowhile.cpp:42:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while3 (test_dowhile.cpp:59:5) 
+// Method process: do_while3 (test_dowhile.cpp:66:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : do_while3     // test_dowhile.cpp:59:5
+begin : do_while3     // test_dowhile.cpp:66:5
     integer i;
     integer j;
     i = 0;
@@ -115,14 +115,14 @@ begin : do_while3     // test_dowhile.cpp:59:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while4 (test_dowhile.cpp:76:5) 
+// Method process: do_while4 (test_dowhile.cpp:83:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : do_while4     // test_dowhile.cpp:76:5
+begin : do_while4     // test_dowhile.cpp:83:5
     integer i;
     integer j;
     i = 0;
@@ -142,13 +142,13 @@ begin : do_while4     // test_dowhile.cpp:76:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while5 (test_dowhile.cpp:92:5) 
+// Method process: do_while5 (test_dowhile.cpp:99:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : do_while5     // test_dowhile.cpp:92:5
+begin : do_while5     // test_dowhile.cpp:99:5
     integer i;
     integer j;
     k = 0;
@@ -168,14 +168,14 @@ begin : do_while5     // test_dowhile.cpp:92:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while6 (test_dowhile.cpp:107:5) 
+// Method process: do_while6 (test_dowhile.cpp:114:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : do_while6     // test_dowhile.cpp:107:5
+begin : do_while6     // test_dowhile.cpp:114:5
     integer i;
     k = 0;
     i = 0;
@@ -193,13 +193,13 @@ begin : do_while6     // test_dowhile.cpp:107:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: do_while_fcall (test_dowhile.cpp:138:5) 
+// Method process: do_while_fcall (test_dowhile.cpp:145:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : do_while_fcall     // test_dowhile.cpp:138:5
+begin : do_while_fcall     // test_dowhile.cpp:145:5
     integer TMP_0;
     integer i;
     k = 0;

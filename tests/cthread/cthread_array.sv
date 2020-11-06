@@ -30,13 +30,13 @@ logic [1:0] addr;
 logic [15:0] wdata;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: bug_in_array_index (test_cthread_array.cpp:65:5) 
+// Clocked THREAD: bug_in_array_index (test_cthread_array.cpp:72:5) 
 
 // Thread-local variables
 logic [1:0] master_resp_data_next[3];
 
 // Next-state combinational logic
-always_comb begin : bug_in_array_index_comb     // test_cthread_array.cpp:65:5
+always_comb begin : bug_in_array_index_comb     // test_cthread_array.cpp:72:5
     bug_in_array_index_func;
 end
 function void bug_in_array_index_func;
@@ -59,13 +59,13 @@ begin : bug_in_array_index_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: bug_in_array_index2 (test_cthread_array.cpp:87:5) 
+// Clocked THREAD: bug_in_array_index2 (test_cthread_array.cpp:94:5) 
 
 // Thread-local variables
 logic [1:0] master_resp_data_next0[3];
 
 // Next-state combinational logic
-always_comb begin : bug_in_array_index2_comb     // test_cthread_array.cpp:87:5
+always_comb begin : bug_in_array_index2_comb     // test_cthread_array.cpp:94:5
     bug_in_array_index2_func;
 end
 function void bug_in_array_index2_func;
@@ -88,10 +88,10 @@ begin : bug_in_array_index2_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: array_of_pointers (test_cthread_array.cpp:127:5) 
+// Method process: array_of_pointers (test_cthread_array.cpp:134:5) 
 
 always_comb 
-begin : array_of_pointers     // test_cthread_array.cpp:127:5
+begin : array_of_pointers     // test_cthread_array.cpp:134:5
     for (integer i = 0; i < 1; i++)
     begin
         arbt_req[i] = 0;
@@ -99,10 +99,10 @@ begin : array_of_pointers     // test_cthread_array.cpp:127:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: chan_array_read (test_cthread_array.cpp:134:5) 
+// Method process: chan_array_read (test_cthread_array.cpp:141:5) 
 
 always_comb 
-begin : chan_array_read     // test_cthread_array.cpp:134:5
+begin : chan_array_read     // test_cthread_array.cpp:141:5
     logic b;
     for (integer i = 0; i < 1; i++)
     begin
@@ -118,7 +118,7 @@ begin : chan_array_read     // test_cthread_array.cpp:134:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: operProc (test_cthread_array.cpp:159:5) 
+// Clocked THREAD: operProc (test_cthread_array.cpp:166:5) 
 
 // Thread-local variables
 logic [15:0] block_memory[4];
@@ -130,7 +130,7 @@ logic operProc_PROC_STATE;
 logic operProc_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : operProc_comb     // test_cthread_array.cpp:159:5
+always_comb begin : operProc_comb     // test_cthread_array.cpp:166:5
     operProc_func;
 end
 function void operProc_func;
@@ -155,7 +155,7 @@ function void operProc_func;
                     block_memory_next[addr] = wdata;
                 end
             end
-            operProc_PROC_STATE_next = 0; return;    // test_cthread_array.cpp:177:13;
+            operProc_PROC_STATE_next = 0; return;    // test_cthread_array.cpp:184:13;
         end
         0: begin
             pwrout_nenable_next = pwrout__next;
@@ -169,7 +169,7 @@ function void operProc_func;
                     block_memory_next[addr] = wdata;
                 end
             end
-            operProc_PROC_STATE_next = 0; return;    // test_cthread_array.cpp:177:13;
+            operProc_PROC_STATE_next = 0; return;    // test_cthread_array.cpp:184:13;
         end
     endcase
 endfunction
@@ -186,7 +186,7 @@ begin : operProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_of_pointers2 (test_cthread_array.cpp:182:5) 
+// Clocked THREAD: array_of_pointers2 (test_cthread_array.cpp:189:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -198,7 +198,7 @@ logic array_of_pointers2_PROC_STATE;
 logic array_of_pointers2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : array_of_pointers2_comb     // test_cthread_array.cpp:182:5
+always_comb begin : array_of_pointers2_comb     // test_cthread_array.cpp:189:5
     array_of_pointers2_func;
 end
 function void array_of_pointers2_func;
@@ -209,12 +209,12 @@ function void array_of_pointers2_func;
     case (array_of_pointers2_PROC_STATE)
         0: begin
             m_next[1] = m_next[0] + i_next;
-            array_of_pointers2_PROC_STATE_next = 1; return;    // test_cthread_array.cpp:189:13;
+            array_of_pointers2_PROC_STATE_next = 1; return;    // test_cthread_array.cpp:196:13;
         end
         1: begin
             n[0][1] = m_next[1];
             m_next[1] = m_next[0] + i_next;
-            array_of_pointers2_PROC_STATE_next = 1; return;    // test_cthread_array.cpp:189:13;
+            array_of_pointers2_PROC_STATE_next = 1; return;    // test_cthread_array.cpp:196:13;
         end
     endcase
 endfunction
@@ -228,7 +228,7 @@ begin : array_of_pointers2_ff
             m[i] <= 0;
         end
         i <= m[0];
-        array_of_pointers2_PROC_STATE <= 0;    // test_cthread_array.cpp:185:9;
+        array_of_pointers2_PROC_STATE <= 0;    // test_cthread_array.cpp:192:9;
     end
     else begin
         i <= i_next;

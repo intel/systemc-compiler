@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_return_method.cpp:72:5)
+// Module: A (test_return_method.cpp:79:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -37,10 +37,10 @@ module A // "b_mod.a_mod"
 logic dummy;
 
 //------------------------------------------------------------------------------
-// Method process: record_return1 (test_return_method.cpp:39:5) 
+// Method process: record_return1 (test_return_method.cpp:46:5) 
 
 always_comb 
-begin : record_return1     // test_return_method.cpp:39:5
+begin : record_return1     // test_return_method.cpp:46:5
     logic r_a;
     integer r_b;
     logic TMP_0_a;
@@ -57,10 +57,10 @@ begin : record_return1     // test_return_method.cpp:39:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_return2 (test_return_method.cpp:52:5) 
+// Method process: record_return2 (test_return_method.cpp:59:5) 
 
 always_comb 
-begin : record_return2     // test_return_method.cpp:52:5
+begin : record_return2     // test_return_method.cpp:59:5
     logic val1;
     integer val2;
     logic r_a;
@@ -83,10 +83,10 @@ begin : record_return2     // test_return_method.cpp:52:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_return3 (test_return_method.cpp:60:5) 
+// Method process: record_return3 (test_return_method.cpp:67:5) 
 
 always_comb 
-begin : record_return3     // test_return_method.cpp:60:5
+begin : record_return3     // test_return_method.cpp:67:5
     logic s_a;
     integer s_b;
     logic r_a;

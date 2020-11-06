@@ -42,7 +42,7 @@ localparam logic [7:0] marr[3] = '{ 'd1, 'd2, 'd3 };
 localparam logic arr[3] = '{ 1, 1, 0 };
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread (test_sva_generate_mod.cpp:136:5) 
+// Clocked THREAD: test_thread (test_sva_generate_mod.cpp:143:5) 
 
 // Thread-local variables
 logic signed [31:0] s_next;
@@ -51,7 +51,7 @@ logic signed [31:0] s_d2_next;
 logic signed [31:0] s_d3_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_comb     // test_sva_generate_mod.cpp:136:5
+always_comb begin : test_thread_comb     // test_sva_generate_mod.cpp:143:5
     test_thread_func;
 end
 function void test_thread_func;
@@ -84,69 +84,69 @@ begin : test_thread_ff
 end
 
 `ifndef INTEL_SVA_OFF
-sctAssertLine80 : assert property (
-    @(posedge clk) |s |-> |s );
-sctAssertLine81 : assert property (
-    @(posedge clk) |s |=> |s_d );
-sctAssertLine82 : assert property (
-    @(posedge clk) |s |-> ##[1:5] |s_d );
-sctAssertLine83 : assert property (
-    @(posedge clk) |s |-> ##3 |s_d3 );
-sctAssertLine86 : assert property (
-    @(posedge clk) |s || |s_d |=> |s_d2 && |s_d3 );
 sctAssertLine87 : assert property (
-    @(posedge clk) m + 1 == 2 || 1 |=> mm - marr[1] > 3 );
+    @(posedge clk) |s |-> |s );
 sctAssertLine88 : assert property (
-    @(posedge clk) m % 2 != 2 || mm == s |=> |marr[2] );
-sctAssertLine91 : assert property (
-    @(posedge clk) u[1] |-> |s );
-sctAssertLine92 : assert property (
-    @(posedge clk) up[2] |-> |s );
+    @(posedge clk) |s |=> |s_d );
+sctAssertLine89 : assert property (
+    @(posedge clk) |s |-> ##[1:5] |s_d );
+sctAssertLine90 : assert property (
+    @(posedge clk) |s |-> ##3 |s_d3 );
 sctAssertLine93 : assert property (
-    @(posedge clk) |u[2 : 1] |-> |s );
+    @(posedge clk) |s || |s_d |=> |s_d2 && |s_d3 );
 sctAssertLine94 : assert property (
-    @(posedge clk) |up[5 : 3] |-> |s );
-sctAssertLine97 : assert property (
-    @(posedge clk) nrpi |=> |r0 && nrpo );
+    @(posedge clk) m + 1 == 2 || 1 |=> mm - marr[1] > 3 );
+sctAssertLine95 : assert property (
+    @(posedge clk) m % 2 != 2 || mm == s |=> |marr[2] );
 sctAssertLine98 : assert property (
-    @(posedge clk) nrs |-> nrs );
+    @(posedge clk) u[1] |-> |s );
 sctAssertLine99 : assert property (
-    @(posedge clk) |r0 || nrs2 |-> !(|r0) && nrs3 );
+    @(posedge clk) up[2] |-> |s );
 sctAssertLine100 : assert property (
-    @(posedge clk) 1 || nrs2 |-> !1 && nrs3 );
-sctAssertLine103 : assert property (
-    @(posedge clk) s == 1 |-> ##3 |s_d3 );
+    @(posedge clk) |u[2 : 1] |-> |s );
+sctAssertLine101 : assert property (
+    @(posedge clk) |up[5 : 3] |-> |s );
 sctAssertLine104 : assert property (
-    @(posedge clk) |ps |-> ##[1:2] |s || |s );
+    @(posedge clk) nrpi |=> |r0 && nrpo );
+sctAssertLine105 : assert property (
+    @(posedge clk) nrs |-> nrs );
+sctAssertLine106 : assert property (
+    @(posedge clk) |r0 || nrs2 |-> !(|r0) && nrs3 );
 sctAssertLine107 : assert property (
-    @(posedge clk) arr[1] |=> |s );
-sctAssertLine108 : assert property (
-    @(posedge clk) |sarr[2] |-> |sarr[0] );
-sctAssertLine109 : assert property (
-    @(posedge clk) |psarr[1] |=> |sarr[2] );
-sctAssertLine113 : assert property (
-    @(posedge clk) arr[i] |=> |s );
+    @(posedge clk) 1 || nrs2 |-> !1 && nrs3 );
+sctAssertLine110 : assert property (
+    @(posedge clk) s == 1 |-> ##3 |s_d3 );
+sctAssertLine111 : assert property (
+    @(posedge clk) |ps |-> ##[1:2] |s || |s );
 sctAssertLine114 : assert property (
-    @(posedge clk) |sarr[1 + i] |-> |(arr[0] + i) );
+    @(posedge clk) arr[1] |=> |s );
 sctAssertLine115 : assert property (
-    @(posedge clk) |psarr[1] |=> |psarr[2 + i] );
-sctAssertLine118 : assert property (
-    @(posedge clk) |s |=> |s_d || |o );
-sctAssertLine119 : assert property (
-    @(posedge clk) |o |-> |o );
+    @(posedge clk) |sarr[2] |-> |sarr[0] );
+sctAssertLine116 : assert property (
+    @(posedge clk) |psarr[1] |=> |sarr[2] );
+sctAssertLine120 : assert property (
+    @(posedge clk) arr[i] |=> |s );
+sctAssertLine121 : assert property (
+    @(posedge clk) |sarr[1 + i] |-> |(arr[0] + i) );
 sctAssertLine122 : assert property (
-    @(posedge clk) rec_a |-> |(rec_b + 1) );
+    @(posedge clk) |psarr[1] |=> |psarr[2 + i] );
 sctAssertLine125 : assert property (
-    @(posedge clk) nrpi |=> nrpo || nrs );
+    @(posedge clk) |s |=> |s_d || |o );
 sctAssertLine126 : assert property (
-    @(posedge clk) nrarr[1] |=> nrptr );
-sctAssertLine127 : assert property (
-    @(posedge clk) s == 2 |=> ps != 2 );
-sctAssertLine130 : assert property (
-    @(posedge clk) |reg_v |=> |r0 || |r );
+    @(posedge clk) |o |-> |o );
+sctAssertLine129 : assert property (
+    @(posedge clk) rec_a |-> |(rec_b + 1) );
+sctAssertLine132 : assert property (
+    @(posedge clk) nrpi |=> nrpo || nrs );
 sctAssertLine133 : assert property (
-    @(posedge clk) 1 |-> rstn || !(|s) );
+    @(posedge clk) nrarr[1] |=> nrptr );
 sctAssertLine134 : assert property (
+    @(posedge clk) s == 2 |=> ps != 2 );
+sctAssertLine137 : assert property (
+    @(posedge clk) |reg_v |=> |r0 || |r );
+sctAssertLine140 : assert property (
+    @(posedge clk) 1 |-> rstn || !(|s) );
+sctAssertLine141 : assert property (
     @(posedge clk) 1 |-> !(|s_d2) || |s );
 `endif // INTEL_SVA_OFF
 

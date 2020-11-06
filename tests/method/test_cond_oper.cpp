@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 
 using namespace sc_core;
@@ -47,7 +54,7 @@ public:
     sc_signal<bool>  s0;
     
     // "No term in sub-statement" error reported for dead sub-condition, #68
-    // BUG in STX SMEM -- 
+    // BUG in real design
     void dead_cond_error() {
         if (true || !s0) {
         }
@@ -57,7 +64,7 @@ public:
     sc_signal<bool>  s2;
 
     // Conditional operator for channels
-    // BUG in HS SMEM -- fixed
+    // BUG in real design -- fixed
     void cond_oper_for_channels()
     {
         bool b;

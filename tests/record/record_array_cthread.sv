@@ -28,7 +28,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_cthread.cpp:722:5)
+// Module: A (test_array_cthread.cpp:729:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -40,7 +40,7 @@ logic nrst;
 logic [3:0] sig;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr_declare (test_array_cthread.cpp:129:5) 
+// Clocked THREAD: rec_loc_arr_declare (test_array_cthread.cpp:136:5) 
 
 // Thread-local variables
 logic signed [1:0] ad_a[2];
@@ -49,7 +49,7 @@ logic [3:0] ad_b[2];
 logic [3:0] ad_b_next[2];
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr_declare_comb     // test_array_cthread.cpp:129:5
+always_comb begin : rec_loc_arr_declare_comb     // test_array_cthread.cpp:136:5
     rec_loc_arr_declare_func;
 end
 function void rec_loc_arr_declare_func;
@@ -71,14 +71,14 @@ begin : rec_loc_arr_declare_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr0 (test_array_cthread.cpp:146:5) 
+// Clocked THREAD: rec_loc_arr0 (test_array_cthread.cpp:153:5) 
 
 // Thread-local variables
 logic signed [31:0] ap_b;
 logic signed [31:0] ap_b_next;
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr0_comb     // test_array_cthread.cpp:146:5
+always_comb begin : rec_loc_arr0_comb     // test_array_cthread.cpp:153:5
     rec_loc_arr0_func;
 end
 function void rec_loc_arr0_func;
@@ -102,7 +102,7 @@ begin : rec_loc_arr0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr0a (test_array_cthread.cpp:165:5) 
+// Clocked THREAD: rec_loc_arr0a (test_array_cthread.cpp:172:5) 
 
 // Thread-local variables
 logic signed [31:0] ar_b;
@@ -115,7 +115,7 @@ logic rec_loc_arr0a_PROC_STATE;
 logic rec_loc_arr0a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr0a_comb     // test_array_cthread.cpp:165:5
+always_comb begin : rec_loc_arr0a_comb     // test_array_cthread.cpp:172:5
     rec_loc_arr0a_func;
 end
 function void rec_loc_arr0a_func;
@@ -128,13 +128,13 @@ function void rec_loc_arr0a_func;
         0: begin
             ar_b_next0[1] = sig - 1;
             ar_b_next = sig + 1;
-            rec_loc_arr0a_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:173:13;
+            rec_loc_arr0a_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:180:13;
         end
         1: begin
             ar_b_next0[0] = signed'({1'b0, ar_b_next0[1]}) - ar_b_next;
             ar_b_next0[1] = sig - 1;
             ar_b_next = sig + 1;
-            rec_loc_arr0a_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:173:13;
+            rec_loc_arr0a_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:180:13;
         end
     endcase
 endfunction
@@ -143,7 +143,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_loc_arr0a_ff
     if ( ~nrst ) begin
-        rec_loc_arr0a_PROC_STATE <= 0;    // test_array_cthread.cpp:167:9;
+        rec_loc_arr0a_PROC_STATE <= 0;    // test_array_cthread.cpp:174:9;
     end
     else begin
         ar_b <= ar_b_next;
@@ -154,7 +154,7 @@ begin : rec_loc_arr0a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr1 (test_array_cthread.cpp:180:5) 
+// Clocked THREAD: rec_loc_arr1 (test_array_cthread.cpp:187:5) 
 
 // Thread-local variables
 logic signed [1:0] br_a[2];
@@ -163,7 +163,7 @@ logic [3:0] br_b[2];
 logic [3:0] br_b_next[2];
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr1_comb     // test_array_cthread.cpp:180:5
+always_comb begin : rec_loc_arr1_comb     // test_array_cthread.cpp:187:5
     rec_loc_arr1_func;
 end
 function void rec_loc_arr1_func;
@@ -187,7 +187,7 @@ begin : rec_loc_arr1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr2 (test_array_cthread.cpp:194:5) 
+// Clocked THREAD: rec_loc_arr2 (test_array_cthread.cpp:201:5) 
 
 // Thread-local variables
 logic signed [1:0] crr_a[2][3];
@@ -196,7 +196,7 @@ logic [3:0] crr_b[2][3];
 logic [3:0] crr_b_next[2][3];
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr2_comb     // test_array_cthread.cpp:194:5
+always_comb begin : rec_loc_arr2_comb     // test_array_cthread.cpp:201:5
     rec_loc_arr2_func;
 end
 function void rec_loc_arr2_func;
@@ -223,14 +223,14 @@ begin : rec_loc_arr2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: code_scope_state_clean (test_array_cthread.cpp:210:5) 
+// Clocked THREAD: code_scope_state_clean (test_array_cthread.cpp:217:5) 
 
 // Thread-local variables
 logic signed [31:0] k;
 logic signed [31:0] k_next;
 
 // Next-state combinational logic
-always_comb begin : code_scope_state_clean_comb     // test_array_cthread.cpp:210:5
+always_comb begin : code_scope_state_clean_comb     // test_array_cthread.cpp:217:5
     code_scope_state_clean_func;
 end
 function void code_scope_state_clean_func;
@@ -254,7 +254,7 @@ begin : code_scope_state_clean_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: code_scope_state_clean1 (test_array_cthread.cpp:227:5) 
+// Clocked THREAD: code_scope_state_clean1 (test_array_cthread.cpp:234:5) 
 
 // Thread-local variables
 logic signed [31:0] k0;
@@ -263,7 +263,7 @@ logic [1:0] code_scope_state_clean1_PROC_STATE;
 logic [1:0] code_scope_state_clean1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : code_scope_state_clean1_comb     // test_array_cthread.cpp:227:5
+always_comb begin : code_scope_state_clean1_comb     // test_array_cthread.cpp:234:5
     code_scope_state_clean1_func;
 end
 function void code_scope_state_clean1_func;
@@ -276,17 +276,17 @@ function void code_scope_state_clean1_func;
     case (code_scope_state_clean1_PROC_STATE)
         0: begin
             dd_a[k_next0] = 1;
-            code_scope_state_clean1_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:237:17;
+            code_scope_state_clean1_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:244:17;
         end
         1: begin
             k_next0++;
             dd_a[k_next0] = 2;
             j = k_next0;
-            code_scope_state_clean1_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:244:13;
+            code_scope_state_clean1_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:251:13;
         end
         2: begin
             dd_a[k_next0] = 1;
-            code_scope_state_clean1_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:237:17;
+            code_scope_state_clean1_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:244:17;
         end
     endcase
 endfunction
@@ -296,7 +296,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : code_scope_state_clean1_ff
     if ( ~nrst ) begin
         k0 <= sig;
-        code_scope_state_clean1_PROC_STATE <= 0;    // test_array_cthread.cpp:230:9;
+        code_scope_state_clean1_PROC_STATE <= 0;    // test_array_cthread.cpp:237:9;
     end
     else begin
         k0 <= k_next0;
@@ -305,7 +305,7 @@ begin : code_scope_state_clean1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: code_scope_state_clean2 (test_array_cthread.cpp:249:5) 
+// Clocked THREAD: code_scope_state_clean2 (test_array_cthread.cpp:256:5) 
 
 // Thread-local variables
 logic signed [31:0] k1;
@@ -314,7 +314,7 @@ logic code_scope_state_clean2_PROC_STATE;
 logic code_scope_state_clean2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : code_scope_state_clean2_comb     // test_array_cthread.cpp:249:5
+always_comb begin : code_scope_state_clean2_comb     // test_array_cthread.cpp:256:5
     code_scope_state_clean2_func;
 end
 function void code_scope_state_clean2_func;
@@ -326,13 +326,13 @@ function void code_scope_state_clean2_func;
     case (code_scope_state_clean2_PROC_STATE)
         0: begin
             dd_a[k_next1] = 1;
-            code_scope_state_clean2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:259:17;
+            code_scope_state_clean2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:266:17;
         end
         1: begin
             k_next1++;
             dd_a[k_next1] = 2;
             dd_a[k_next1] = 1;
-            code_scope_state_clean2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:259:17;
+            code_scope_state_clean2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:266:17;
         end
     endcase
 endfunction
@@ -342,7 +342,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : code_scope_state_clean2_ff
     if ( ~nrst ) begin
         k1 <= sig;
-        code_scope_state_clean2_PROC_STATE <= 0;    // test_array_cthread.cpp:252:9;
+        code_scope_state_clean2_PROC_STATE <= 0;    // test_array_cthread.cpp:259:9;
     end
     else begin
         k1 <= k_next1;
@@ -351,7 +351,7 @@ begin : code_scope_state_clean2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr_multistate (test_array_cthread.cpp:269:5) 
+// Clocked THREAD: rec_loc_arr_multistate (test_array_cthread.cpp:276:5) 
 
 // Thread-local variables
 logic signed [31:0] k2;
@@ -360,7 +360,7 @@ logic rec_loc_arr_multistate_PROC_STATE;
 logic rec_loc_arr_multistate_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr_multistate_comb     // test_array_cthread.cpp:269:5
+always_comb begin : rec_loc_arr_multistate_comb     // test_array_cthread.cpp:276:5
     rec_loc_arr_multistate_func;
 end
 function void rec_loc_arr_multistate_func;
@@ -373,13 +373,13 @@ function void rec_loc_arr_multistate_func;
         0: begin
             k_next2 = sig;
             dd_a[k_next2] = 2;
-            rec_loc_arr_multistate_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:279:13;
+            rec_loc_arr_multistate_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:286:13;
         end
         1: begin
             dd_a[k_next2] = 3;
             k_next2 = sig;
             dd_a[k_next2] = 2;
-            rec_loc_arr_multistate_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:279:13;
+            rec_loc_arr_multistate_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:286:13;
         end
     endcase
 endfunction
@@ -388,7 +388,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_loc_arr_multistate_ff
     if ( ~nrst ) begin
-        rec_loc_arr_multistate_PROC_STATE <= 0;    // test_array_cthread.cpp:272:9;
+        rec_loc_arr_multistate_PROC_STATE <= 0;    // test_array_cthread.cpp:279:9;
     end
     else begin
         k2 <= k_next2;
@@ -397,7 +397,7 @@ begin : rec_loc_arr_multistate_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr3 (test_array_cthread.cpp:286:5) 
+// Clocked THREAD: rec_loc_arr3 (test_array_cthread.cpp:293:5) 
 
 // Thread-local variables
 logic signed [1:0] dr_a[2];
@@ -414,7 +414,7 @@ logic rec_loc_arr3_PROC_STATE;
 logic rec_loc_arr3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr3_comb     // test_array_cthread.cpp:286:5
+always_comb begin : rec_loc_arr3_comb     // test_array_cthread.cpp:293:5
     rec_loc_arr3_func;
 end
 function void rec_loc_arr3_func;
@@ -430,14 +430,14 @@ function void rec_loc_arr3_func;
             i_next = sig;
             dr_a_next[i_next] = 2;
             drr_a_next[1][i_next + 1] = dr_a_next[1];
-            rec_loc_arr3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:296:13;
+            rec_loc_arr3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:303:13;
         end
         1: begin
             i_next = drr_b_next[1][i_next];
             i_next = sig;
             dr_a_next[i_next] = 2;
             drr_a_next[1][i_next + 1] = dr_a_next[1];
-            rec_loc_arr3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:296:13;
+            rec_loc_arr3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:303:13;
         end
     endcase
 endfunction
@@ -446,7 +446,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_loc_arr3_ff
     if ( ~nrst ) begin
-        rec_loc_arr3_PROC_STATE <= 0;    // test_array_cthread.cpp:288:9;
+        rec_loc_arr3_PROC_STATE <= 0;    // test_array_cthread.cpp:295:9;
     end
     else begin
         dr_a <= dr_a_next;
@@ -459,7 +459,7 @@ begin : rec_loc_arr3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr4 (test_array_cthread.cpp:303:5) 
+// Clocked THREAD: rec_loc_arr4 (test_array_cthread.cpp:310:5) 
 
 // Thread-local variables
 logic signed [1:0] err_a[2][3][4];
@@ -474,7 +474,7 @@ logic rec_loc_arr4_PROC_STATE;
 logic rec_loc_arr4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr4_comb     // test_array_cthread.cpp:303:5
+always_comb begin : rec_loc_arr4_comb     // test_array_cthread.cpp:310:5
     rec_loc_arr4_func;
 end
 function void rec_loc_arr4_func;
@@ -491,7 +491,7 @@ function void rec_loc_arr4_func;
             err_a_next[1][2][3] = j_next;
             err_b_next[1][j_next][1] = 42;
             err_b_next[i_next0][j_next + 1][2] = err_b_next[1][j_next][i_next0];
-            rec_loc_arr4_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:314:13;
+            rec_loc_arr4_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:321:13;
         end
         1: begin
             i_next0 = err_b_next[i_next0][j_next + 1][2] + err_b_next[0][1][j_next];
@@ -500,7 +500,7 @@ function void rec_loc_arr4_func;
             err_a_next[1][2][3] = j_next;
             err_b_next[1][j_next][1] = 42;
             err_b_next[i_next0][j_next + 1][2] = err_b_next[1][j_next][i_next0];
-            rec_loc_arr4_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:314:13;
+            rec_loc_arr4_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:321:13;
         end
     endcase
 endfunction
@@ -509,7 +509,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_loc_arr4_ff
     if ( ~nrst ) begin
-        rec_loc_arr4_PROC_STATE <= 0;    // test_array_cthread.cpp:305:9;
+        rec_loc_arr4_PROC_STATE <= 0;    // test_array_cthread.cpp:312:9;
     end
     else begin
         err_a <= err_a_next;
@@ -521,7 +521,7 @@ begin : rec_loc_arr4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr5 (test_array_cthread.cpp:322:5) 
+// Clocked THREAD: rec_loc_arr5 (test_array_cthread.cpp:329:5) 
 
 // Thread-local variables
 logic signed [31:0] i1;
@@ -534,7 +534,7 @@ logic rec_loc_arr5_PROC_STATE;
 logic rec_loc_arr5_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr5_comb     // test_array_cthread.cpp:322:5
+always_comb begin : rec_loc_arr5_comb     // test_array_cthread.cpp:329:5
     rec_loc_arr5_func;
 end
 function void rec_loc_arr5_func;
@@ -547,13 +547,13 @@ function void rec_loc_arr5_func;
     case (rec_loc_arr5_PROC_STATE)
         0: begin
             i_next1 = sig;
-            rec_loc_arr5_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:329:13;
+            rec_loc_arr5_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:336:13;
         end
         1: begin
             frr_b_next[i_next1][1] = 42;
             j = frr_b_next[1][1];
             i_next1 = sig;
-            rec_loc_arr5_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:329:13;
+            rec_loc_arr5_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:336:13;
         end
     endcase
 endfunction
@@ -562,7 +562,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_loc_arr5_ff
     if ( ~nrst ) begin
-        rec_loc_arr5_PROC_STATE <= 0;    // test_array_cthread.cpp:324:9;
+        rec_loc_arr5_PROC_STATE <= 0;    // test_array_cthread.cpp:331:9;
     end
     else begin
         i1 <= i_next1;
@@ -573,7 +573,7 @@ begin : rec_loc_arr5_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr6 (test_array_cthread.cpp:336:5) 
+// Clocked THREAD: rec_loc_arr6 (test_array_cthread.cpp:343:5) 
 
 // Thread-local variables
 logic signed [31:0] i2;
@@ -586,7 +586,7 @@ logic rec_loc_arr6_PROC_STATE;
 logic rec_loc_arr6_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr6_comb     // test_array_cthread.cpp:336:5
+always_comb begin : rec_loc_arr6_comb     // test_array_cthread.cpp:343:5
     rec_loc_arr6_func;
 end
 function void rec_loc_arr6_func;
@@ -599,13 +599,13 @@ function void rec_loc_arr6_func;
     case (rec_loc_arr6_PROC_STATE)
         0: begin
             i_next2 = sig;
-            rec_loc_arr6_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:343:13;
+            rec_loc_arr6_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:350:13;
         end
         1: begin
             grr_b_next[1][i_next2] = 42;
             j = grr_b_next[1][1];
             i_next2 = sig;
-            rec_loc_arr6_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:343:13;
+            rec_loc_arr6_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:350:13;
         end
     endcase
 endfunction
@@ -614,7 +614,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_loc_arr6_ff
     if ( ~nrst ) begin
-        rec_loc_arr6_PROC_STATE <= 0;    // test_array_cthread.cpp:338:9;
+        rec_loc_arr6_PROC_STATE <= 0;    // test_array_cthread.cpp:345:9;
     end
     else begin
         i2 <= i_next2;
@@ -625,7 +625,7 @@ begin : rec_loc_arr6_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr7 (test_array_cthread.cpp:350:5) 
+// Clocked THREAD: rec_loc_arr7 (test_array_cthread.cpp:357:5) 
 
 // Thread-local variables
 logic signed [31:0] i3;
@@ -638,7 +638,7 @@ logic rec_loc_arr7_PROC_STATE;
 logic rec_loc_arr7_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr7_comb     // test_array_cthread.cpp:350:5
+always_comb begin : rec_loc_arr7_comb     // test_array_cthread.cpp:357:5
     rec_loc_arr7_func;
 end
 function void rec_loc_arr7_func;
@@ -651,13 +651,13 @@ function void rec_loc_arr7_func;
     case (rec_loc_arr7_PROC_STATE)
         0: begin
             i_next3 = sig;
-            rec_loc_arr7_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:357:13;
+            rec_loc_arr7_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:364:13;
         end
         1: begin
             hrr_b_next[1][1] = 42;
             j = hrr_b_next[i_next3][1];
             i_next3 = sig;
-            rec_loc_arr7_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:357:13;
+            rec_loc_arr7_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:364:13;
         end
     endcase
 endfunction
@@ -666,7 +666,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_loc_arr7_ff
     if ( ~nrst ) begin
-        rec_loc_arr7_PROC_STATE <= 0;    // test_array_cthread.cpp:352:9;
+        rec_loc_arr7_PROC_STATE <= 0;    // test_array_cthread.cpp:359:9;
     end
     else begin
         i3 <= i_next3;
@@ -677,7 +677,7 @@ begin : rec_loc_arr7_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr8 (test_array_cthread.cpp:364:5) 
+// Clocked THREAD: rec_loc_arr8 (test_array_cthread.cpp:371:5) 
 
 // Thread-local variables
 logic signed [31:0] i4;
@@ -690,7 +690,7 @@ logic rec_loc_arr8_PROC_STATE;
 logic rec_loc_arr8_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr8_comb     // test_array_cthread.cpp:364:5
+always_comb begin : rec_loc_arr8_comb     // test_array_cthread.cpp:371:5
     rec_loc_arr8_func;
 end
 function void rec_loc_arr8_func;
@@ -703,13 +703,13 @@ function void rec_loc_arr8_func;
     case (rec_loc_arr8_PROC_STATE)
         0: begin
             i_next4 = sig;
-            rec_loc_arr8_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:371:13;
+            rec_loc_arr8_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:378:13;
         end
         1: begin
             jrr_b_next[1][1] = 42;
             j = jrr_b_next[1][i_next4];
             i_next4 = sig;
-            rec_loc_arr8_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:371:13;
+            rec_loc_arr8_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:378:13;
         end
     endcase
 endfunction
@@ -718,7 +718,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_loc_arr8_ff
     if ( ~nrst ) begin
-        rec_loc_arr8_PROC_STATE <= 0;    // test_array_cthread.cpp:366:9;
+        rec_loc_arr8_PROC_STATE <= 0;    // test_array_cthread.cpp:373:9;
     end
     else begin
         i4 <= i_next4;
@@ -729,7 +729,7 @@ begin : rec_loc_arr8_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr9 (test_array_cthread.cpp:378:5) 
+// Clocked THREAD: rec_loc_arr9 (test_array_cthread.cpp:385:5) 
 
 // Thread-local variables
 logic signed [31:0] i5;
@@ -742,7 +742,7 @@ logic rec_loc_arr9_PROC_STATE;
 logic rec_loc_arr9_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr9_comb     // test_array_cthread.cpp:378:5
+always_comb begin : rec_loc_arr9_comb     // test_array_cthread.cpp:385:5
     rec_loc_arr9_func;
 end
 function void rec_loc_arr9_func;
@@ -755,13 +755,13 @@ function void rec_loc_arr9_func;
     case (rec_loc_arr9_PROC_STATE)
         0: begin
             i_next5 = sig;
-            rec_loc_arr9_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:385:13;
+            rec_loc_arr9_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:392:13;
         end
         1: begin
             irr_b_next[i_next5][i_next5] = 42;
             j = irr_b_next[i_next5][i_next5];
             i_next5 = sig;
-            rec_loc_arr9_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:385:13;
+            rec_loc_arr9_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:392:13;
         end
     endcase
 endfunction
@@ -770,7 +770,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_loc_arr9_ff
     if ( ~nrst ) begin
-        rec_loc_arr9_PROC_STATE <= 0;    // test_array_cthread.cpp:380:9;
+        rec_loc_arr9_PROC_STATE <= 0;    // test_array_cthread.cpp:387:9;
     end
     else begin
         i5 <= i_next5;
@@ -781,14 +781,14 @@ begin : rec_loc_arr9_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_loc_arr10 (test_array_cthread.cpp:392:5) 
+// Clocked THREAD: rec_loc_arr10 (test_array_cthread.cpp:399:5) 
 
 // Thread-local variables
 logic rec_loc_arr10_PROC_STATE;
 logic rec_loc_arr10_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_loc_arr10_comb     // test_array_cthread.cpp:392:5
+always_comb begin : rec_loc_arr10_comb     // test_array_cthread.cpp:399:5
     rec_loc_arr10_func;
 end
 function void rec_loc_arr10_func;
@@ -801,13 +801,13 @@ function void rec_loc_arr10_func;
     case (rec_loc_arr10_PROC_STATE)
         0: begin
             i = sig;
-            rec_loc_arr10_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:399:13;
+            rec_loc_arr10_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:406:13;
         end
         1: begin
             krr_b[1][2] = 42;
             j = krr_b[1][2];
             i = sig;
-            rec_loc_arr10_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:399:13;
+            rec_loc_arr10_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:406:13;
         end
     endcase
 endfunction
@@ -816,7 +816,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_loc_arr10_ff
     if ( ~nrst ) begin
-        rec_loc_arr10_PROC_STATE <= 0;    // test_array_cthread.cpp:394:9;
+        rec_loc_arr10_PROC_STATE <= 0;    // test_array_cthread.cpp:401:9;
     end
     else begin
         rec_loc_arr10_PROC_STATE <= rec_loc_arr10_PROC_STATE_next;
@@ -824,7 +824,7 @@ begin : rec_loc_arr10_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_assign (test_array_cthread.cpp:409:5) 
+// Clocked THREAD: rec_arr_elem_assign (test_array_cthread.cpp:416:5) 
 
 // Thread-local variables
 logic signed [1:0] mr_a[3];
@@ -833,7 +833,7 @@ logic [3:0] mr_b[3];
 logic [3:0] mr_b_next[3];
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_assign_comb     // test_array_cthread.cpp:409:5
+always_comb begin : rec_arr_elem_assign_comb     // test_array_cthread.cpp:416:5
     rec_arr_elem_assign_func;
 end
 function void rec_arr_elem_assign_func;
@@ -860,7 +860,7 @@ begin : rec_arr_elem_assign_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_field_assign (test_array_cthread.cpp:425:5) 
+// Clocked THREAD: rec_arr_elem_field_assign (test_array_cthread.cpp:432:5) 
 
 // Thread-local variables
 logic signed [1:0] pr_a[3];
@@ -873,7 +873,7 @@ logic [3:0] rr_b[3];
 logic [3:0] rr_b_next[3];
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_field_assign_comb     // test_array_cthread.cpp:425:5
+always_comb begin : rec_arr_elem_field_assign_comb     // test_array_cthread.cpp:432:5
     rec_arr_elem_field_assign_func;
 end
 function void rec_arr_elem_field_assign_func;
@@ -902,7 +902,7 @@ begin : rec_arr_elem_field_assign_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_const_val1 (test_array_cthread.cpp:493:5) 
+// Clocked THREAD: rec_arr_elem_const_val1 (test_array_cthread.cpp:500:5) 
 
 // Thread-local variables
 logic signed [1:0] par_a;
@@ -913,7 +913,7 @@ logic [1:0] rec_arr_elem_const_val1_PROC_STATE;
 logic [1:0] rec_arr_elem_const_val1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_const_val1_comb     // test_array_cthread.cpp:493:5
+always_comb begin : rec_arr_elem_const_val1_comb     // test_array_cthread.cpp:500:5
     rec_arr_elem_const_val1_func;
 end
 function void rec_arr_elem_const_val1_func;
@@ -931,14 +931,14 @@ function void rec_arr_elem_const_val1_func;
             sr_b = sig;
             par_a_next = sr_a; par_b_next = sr_b;
             // Call ff1() begin
-            rec_arr_elem_const_val1_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:489:9;
+            rec_arr_elem_const_val1_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:496:9;
             // Call ff1() end
         end
         1: begin
             // Call ff1() begin
             i = par_a_next + signed'({1'b0, par_b_next});
             // Call ff1() end
-            rec_arr_elem_const_val1_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:501:13;
+            rec_arr_elem_const_val1_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:508:13;
         end
         2: begin
             sr_a = 0;
@@ -946,7 +946,7 @@ function void rec_arr_elem_const_val1_func;
             sr_b = sig;
             par_a_next = sr_a; par_b_next = sr_b;
             // Call ff1() begin
-            rec_arr_elem_const_val1_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:489:9;
+            rec_arr_elem_const_val1_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:496:9;
             // Call ff1() end
         end
     endcase
@@ -956,7 +956,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_arr_elem_const_val1_ff
     if ( ~nrst ) begin
-        rec_arr_elem_const_val1_PROC_STATE <= 0;    // test_array_cthread.cpp:495:9;
+        rec_arr_elem_const_val1_PROC_STATE <= 0;    // test_array_cthread.cpp:502:9;
     end
     else begin
         par_a <= par_a_next;
@@ -966,7 +966,7 @@ begin : rec_arr_elem_const_val1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_const_val2 (test_array_cthread.cpp:505:5) 
+// Clocked THREAD: rec_arr_elem_const_val2 (test_array_cthread.cpp:512:5) 
 
 // Thread-local variables
 logic signed [1:0] par_a0;
@@ -981,7 +981,7 @@ logic [1:0] rec_arr_elem_const_val2_PROC_STATE;
 logic [1:0] rec_arr_elem_const_val2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_const_val2_comb     // test_array_cthread.cpp:505:5
+always_comb begin : rec_arr_elem_const_val2_comb     // test_array_cthread.cpp:512:5
     rec_arr_elem_const_val2_func;
 end
 function void rec_arr_elem_const_val2_func;
@@ -996,12 +996,12 @@ function void rec_arr_elem_const_val2_func;
         0: begin
             sr_a_next = 0;
             sr_b_next = 0;
-            rec_arr_elem_const_val2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:510:13;
+            rec_arr_elem_const_val2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:517:13;
         end
         1: begin
             par_a_next0 = sr_a_next; par_b_next0 = sr_b_next;
             // Call ff1() begin
-            rec_arr_elem_const_val2_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:489:9;
+            rec_arr_elem_const_val2_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:496:9;
             // Call ff1() end
         end
         2: begin
@@ -1010,7 +1010,7 @@ function void rec_arr_elem_const_val2_func;
             // Call ff1() end
             sr_a_next = 0;
             sr_b_next = 0;
-            rec_arr_elem_const_val2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:510:13;
+            rec_arr_elem_const_val2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:517:13;
         end
     endcase
 endfunction
@@ -1019,7 +1019,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_arr_elem_const_val2_ff
     if ( ~nrst ) begin
-        rec_arr_elem_const_val2_PROC_STATE <= 0;    // test_array_cthread.cpp:507:9;
+        rec_arr_elem_const_val2_PROC_STATE <= 0;    // test_array_cthread.cpp:514:9;
     end
     else begin
         par_a0 <= par_a_next0;
@@ -1031,7 +1031,7 @@ begin : rec_arr_elem_const_val2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_const_val3 (test_array_cthread.cpp:516:5) 
+// Clocked THREAD: rec_arr_elem_const_val3 (test_array_cthread.cpp:523:5) 
 
 // Thread-local variables
 logic signed [1:0] crra_a[3];
@@ -1046,7 +1046,7 @@ logic [1:0] rec_arr_elem_const_val3_PROC_STATE;
 logic [1:0] rec_arr_elem_const_val3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_const_val3_comb     // test_array_cthread.cpp:516:5
+always_comb begin : rec_arr_elem_const_val3_comb     // test_array_cthread.cpp:523:5
     rec_arr_elem_const_val3_func;
 end
 function void rec_arr_elem_const_val3_func;
@@ -1061,19 +1061,19 @@ function void rec_arr_elem_const_val3_func;
         0: begin
             par_a_next1 = crra_a_next[1]; par_b_next1 = crra_b_next[1];
             // Call ff1() begin
-            rec_arr_elem_const_val3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:489:9;
+            rec_arr_elem_const_val3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:496:9;
             // Call ff1() end
         end
         1: begin
             // Call ff1() begin
             i = par_a_next1 + signed'({1'b0, par_b_next1});
             // Call ff1() end
-            rec_arr_elem_const_val3_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:522:13;
+            rec_arr_elem_const_val3_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:529:13;
         end
         2: begin
             par_a_next1 = crra_a_next[1]; par_b_next1 = crra_b_next[1];
             // Call ff1() begin
-            rec_arr_elem_const_val3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:489:9;
+            rec_arr_elem_const_val3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:496:9;
             // Call ff1() end
         end
     endcase
@@ -1083,7 +1083,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_arr_elem_const_val3_ff
     if ( ~nrst ) begin
-        rec_arr_elem_const_val3_PROC_STATE <= 0;    // test_array_cthread.cpp:519:9;
+        rec_arr_elem_const_val3_PROC_STATE <= 0;    // test_array_cthread.cpp:526:9;
     end
     else begin
         crra_a <= crra_a_next;
@@ -1095,7 +1095,7 @@ begin : rec_arr_elem_const_val3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_const_val4 (test_array_cthread.cpp:526:5) 
+// Clocked THREAD: rec_arr_elem_const_val4 (test_array_cthread.cpp:533:5) 
 
 // Thread-local variables
 logic signed [1:0] par_a2;
@@ -1110,7 +1110,7 @@ logic [1:0] rec_arr_elem_const_val4_PROC_STATE;
 logic [1:0] rec_arr_elem_const_val4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_const_val4_comb     // test_array_cthread.cpp:526:5
+always_comb begin : rec_arr_elem_const_val4_comb     // test_array_cthread.cpp:533:5
     rec_arr_elem_const_val4_func;
 end
 function void rec_arr_elem_const_val4_func;
@@ -1124,20 +1124,20 @@ function void rec_arr_elem_const_val4_func;
     
     case (rec_arr_elem_const_val4_PROC_STATE)
         0: begin
-            rec_arr_elem_const_val4_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:531:13;
+            rec_arr_elem_const_val4_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:538:13;
         end
         1: begin
             i = sig;
             par_a_next2 = crrb_a_next[i]; par_b_next2 = crrb_b_next[i];
             // Call ff1() begin
-            rec_arr_elem_const_val4_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:489:9;
+            rec_arr_elem_const_val4_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:496:9;
             // Call ff1() end
         end
         2: begin
             // Call ff1() begin
             i_1 = par_a_next2 + signed'({1'b0, par_b_next2});
             // Call ff1() end
-            rec_arr_elem_const_val4_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:531:13;
+            rec_arr_elem_const_val4_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:538:13;
         end
     endcase
 endfunction
@@ -1146,7 +1146,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_arr_elem_const_val4_ff
     if ( ~nrst ) begin
-        rec_arr_elem_const_val4_PROC_STATE <= 0;    // test_array_cthread.cpp:529:9;
+        rec_arr_elem_const_val4_PROC_STATE <= 0;    // test_array_cthread.cpp:536:9;
     end
     else begin
         par_a2 <= par_a_next2;
@@ -1158,10 +1158,10 @@ begin : rec_arr_elem_const_val4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_func_param_val (test_array_cthread.cpp:448:5) 
+// Clocked THREAD: rec_arr_elem_func_param_val (test_array_cthread.cpp:455:5) 
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_func_param_val_comb     // test_array_cthread.cpp:448:5
+always_comb begin : rec_arr_elem_func_param_val_comb     // test_array_cthread.cpp:455:5
     rec_arr_elem_func_param_val_func;
 end
 function void rec_arr_elem_func_param_val_func;
@@ -1188,7 +1188,7 @@ begin : rec_arr_elem_func_param_val_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_func_param_val2 (test_array_cthread.cpp:460:5) 
+// Clocked THREAD: rec_arr_elem_func_param_val2 (test_array_cthread.cpp:467:5) 
 
 // Thread-local variables
 logic signed [1:0] tr_a[3];
@@ -1197,7 +1197,7 @@ logic [3:0] tr_b[3];
 logic [3:0] tr_b_next[3];
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_func_param_val2_comb     // test_array_cthread.cpp:460:5
+always_comb begin : rec_arr_elem_func_param_val2_comb     // test_array_cthread.cpp:467:5
     rec_arr_elem_func_param_val2_func;
 end
 function void rec_arr_elem_func_param_val2_func;
@@ -1224,7 +1224,7 @@ begin : rec_arr_elem_func_param_val2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_func_param_val3 (test_array_cthread.cpp:473:5) 
+// Clocked THREAD: rec_arr_elem_func_param_val3 (test_array_cthread.cpp:480:5) 
 
 // Thread-local variables
 logic signed [31:0] i6;
@@ -1235,7 +1235,7 @@ logic [3:0] tr_b0[3];
 logic [3:0] tr_b_next0[3];
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_func_param_val3_comb     // test_array_cthread.cpp:473:5
+always_comb begin : rec_arr_elem_func_param_val3_comb     // test_array_cthread.cpp:480:5
     rec_arr_elem_func_param_val3_func;
 end
 function void rec_arr_elem_func_param_val3_func;
@@ -1265,7 +1265,7 @@ begin : rec_arr_elem_func_param_val3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_func_param_ref (test_array_cthread.cpp:543:5) 
+// Clocked THREAD: rec_arr_elem_func_param_ref (test_array_cthread.cpp:550:5) 
 
 // Thread-local variables
 logic signed [1:0] vr_a[3];
@@ -1276,7 +1276,7 @@ logic rec_arr_elem_func_param_ref_PROC_STATE;
 logic rec_arr_elem_func_param_ref_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_func_param_ref_comb     // test_array_cthread.cpp:543:5
+always_comb begin : rec_arr_elem_func_param_ref_comb     // test_array_cthread.cpp:550:5
     rec_arr_elem_func_param_ref_func;
 end
 function void rec_arr_elem_func_param_ref_func;
@@ -1291,7 +1291,7 @@ function void rec_arr_elem_func_param_ref_func;
             // Call f2() begin
             k = vr_b_next[1];
             // Call f2() end
-            rec_arr_elem_func_param_ref_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:549:13;
+            rec_arr_elem_func_param_ref_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:556:13;
         end
         1: begin
             i = sig;
@@ -1301,7 +1301,7 @@ function void rec_arr_elem_func_param_ref_func;
             // Call f2() begin
             k = vr_b_next[1];
             // Call f2() end
-            rec_arr_elem_func_param_ref_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:549:13;
+            rec_arr_elem_func_param_ref_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:556:13;
         end
     endcase
 endfunction
@@ -1310,7 +1310,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_arr_elem_func_param_ref_ff
     if ( ~nrst ) begin
-        rec_arr_elem_func_param_ref_PROC_STATE <= 0;    // test_array_cthread.cpp:545:9;
+        rec_arr_elem_func_param_ref_PROC_STATE <= 0;    // test_array_cthread.cpp:552:9;
     end
     else begin
         vr_a <= vr_a_next;
@@ -1320,7 +1320,7 @@ begin : rec_arr_elem_func_param_ref_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_func_param_ref2 (test_array_cthread.cpp:585:5) 
+// Clocked THREAD: rec_arr_elem_func_param_ref2 (test_array_cthread.cpp:592:5) 
 
 // Thread-local variables
 logic signed [31:0] i7;
@@ -1337,7 +1337,7 @@ logic rec_arr_elem_func_param_ref2_PROC_STATE;
 logic rec_arr_elem_func_param_ref2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_func_param_ref2_comb     // test_array_cthread.cpp:585:5
+always_comb begin : rec_arr_elem_func_param_ref2_comb     // test_array_cthread.cpp:592:5
     rec_arr_elem_func_param_ref2_func;
 end
 function void rec_arr_elem_func_param_ref2_func;
@@ -1359,7 +1359,7 @@ function void rec_arr_elem_func_param_ref2_func;
             // Call f2_two() begin
             k = wr_b_next[i_next7] + wr_b_next[1];
             // Call f2_two() end
-            rec_arr_elem_func_param_ref2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:596:13;
+            rec_arr_elem_func_param_ref2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:603:13;
         end
         1: begin
             w_a = 0;
@@ -1376,7 +1376,7 @@ function void rec_arr_elem_func_param_ref2_func;
             // Call f2_two() begin
             k = wr_b_next[i_next7] + wr_b_next[1];
             // Call f2_two() end
-            rec_arr_elem_func_param_ref2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:596:13;
+            rec_arr_elem_func_param_ref2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:603:13;
         end
     endcase
 endfunction
@@ -1386,7 +1386,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : rec_arr_elem_func_param_ref2_ff
     if ( ~nrst ) begin
         i7 <= sig;
-        rec_arr_elem_func_param_ref2_PROC_STATE <= 0;    // test_array_cthread.cpp:589:9;
+        rec_arr_elem_func_param_ref2_PROC_STATE <= 0;    // test_array_cthread.cpp:596:9;
     end
     else begin
         i7 <= i_next7;
@@ -1399,7 +1399,7 @@ begin : rec_arr_elem_func_param_ref2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_func_param_ref3 (test_array_cthread.cpp:608:5) 
+// Clocked THREAD: rec_arr_elem_func_param_ref3 (test_array_cthread.cpp:615:5) 
 
 // Thread-local variables
 logic signed [31:0] i8;
@@ -1408,7 +1408,7 @@ logic rec_arr_elem_func_param_ref3_PROC_STATE;
 logic rec_arr_elem_func_param_ref3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_func_param_ref3_comb     // test_array_cthread.cpp:608:5
+always_comb begin : rec_arr_elem_func_param_ref3_comb     // test_array_cthread.cpp:615:5
     rec_arr_elem_func_param_ref3_func;
 end
 function void rec_arr_elem_func_param_ref3_func;
@@ -1428,7 +1428,7 @@ function void rec_arr_elem_func_param_ref3_func;
             // Call f3() begin
             vr_b[i_next8 + 1] = 1;
             // Call f3() end
-            rec_arr_elem_func_param_ref3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:618:13;
+            rec_arr_elem_func_param_ref3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:625:13;
         end
         1: begin
             // Call f3() begin
@@ -1443,7 +1443,7 @@ function void rec_arr_elem_func_param_ref3_func;
             // Call f3() begin
             vr_b[i_next8 + 1] = 1;
             // Call f3() end
-            rec_arr_elem_func_param_ref3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:618:13;
+            rec_arr_elem_func_param_ref3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:625:13;
         end
     endcase
 endfunction
@@ -1453,7 +1453,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : rec_arr_elem_func_param_ref3_ff
     if ( ~nrst ) begin
         i8 <= sig;
-        rec_arr_elem_func_param_ref3_PROC_STATE <= 0;    // test_array_cthread.cpp:611:9;
+        rec_arr_elem_func_param_ref3_PROC_STATE <= 0;    // test_array_cthread.cpp:618:9;
     end
     else begin
         i8 <= i_next8;
@@ -1462,7 +1462,7 @@ begin : rec_arr_elem_func_param_ref3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_func_param_val (test_array_cthread.cpp:693:5) 
+// Clocked THREAD: rec_arr_func_param_val (test_array_cthread.cpp:700:5) 
 
 // Thread-local variables
 logic signed [1:0] ar_a0[2];
@@ -1471,7 +1471,7 @@ logic [3:0] ar_b1[2];
 logic [3:0] ar_b_next1[2];
 
 // Next-state combinational logic
-always_comb begin : rec_arr_func_param_val_comb     // test_array_cthread.cpp:693:5
+always_comb begin : rec_arr_func_param_val_comb     // test_array_cthread.cpp:700:5
     rec_arr_func_param_val_func;
 end
 function void rec_arr_func_param_val_func;
@@ -1497,7 +1497,7 @@ begin : rec_arr_func_param_val_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_func_param_val2 (test_array_cthread.cpp:703:5) 
+// Clocked THREAD: rec_arr_func_param_val2 (test_array_cthread.cpp:710:5) 
 
 // Thread-local variables
 logic signed [1:0] ar_a1[2];
@@ -1508,7 +1508,7 @@ logic rec_arr_func_param_val2_PROC_STATE;
 logic rec_arr_func_param_val2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_func_param_val2_comb     // test_array_cthread.cpp:703:5
+always_comb begin : rec_arr_func_param_val2_comb     // test_array_cthread.cpp:710:5
     rec_arr_func_param_val2_func;
 end
 function void rec_arr_func_param_val2_func;
@@ -1524,7 +1524,7 @@ function void rec_arr_func_param_val2_func;
             i = sig;
             ar_a_next1[i] = 0;
             ar_b_next2[i] = 1;
-            rec_arr_func_param_val2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:711:13;
+            rec_arr_func_param_val2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:718:13;
         end
         1: begin
             // Call f5() begin
@@ -1534,7 +1534,7 @@ function void rec_arr_func_param_val2_func;
             i = sig;
             ar_a_next1[i] = 0;
             ar_b_next2[i] = 1;
-            rec_arr_func_param_val2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:711:13;
+            rec_arr_func_param_val2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:718:13;
         end
     endcase
 endfunction
@@ -1543,7 +1543,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : rec_arr_func_param_val2_ff
     if ( ~nrst ) begin
-        rec_arr_func_param_val2_PROC_STATE <= 0;    // test_array_cthread.cpp:705:9;
+        rec_arr_func_param_val2_PROC_STATE <= 0;    // test_array_cthread.cpp:712:9;
     end
     else begin
         ar_a1 <= ar_a_next1;
@@ -1553,7 +1553,7 @@ begin : rec_arr_func_param_val2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_func_param_cref1 (test_array_cthread.cpp:631:5) 
+// Clocked THREAD: rec_arr_elem_func_param_cref1 (test_array_cthread.cpp:638:5) 
 
 // Thread-local variables
 logic signed [1:0] cvr_a[3];
@@ -1568,7 +1568,7 @@ logic [1:0] rec_arr_elem_func_param_cref1_PROC_STATE;
 logic [1:0] rec_arr_elem_func_param_cref1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_func_param_cref1_comb     // test_array_cthread.cpp:631:5
+always_comb begin : rec_arr_elem_func_param_cref1_comb     // test_array_cthread.cpp:638:5
     rec_arr_elem_func_param_cref1_func;
 end
 function void rec_arr_elem_func_param_cref1_func;
@@ -1585,20 +1585,20 @@ function void rec_arr_elem_func_param_cref1_func;
             // Call cref_sum() begin
             res = cvr_a_next[1] + signed'({1'b0, cvr_b_next[1]});
             // Call cref_sum() end
-            rec_arr_elem_func_param_cref1_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:639:13;
+            rec_arr_elem_func_param_cref1_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:646:13;
         end
         1: begin
             indx = sig;
             // Call cref_sum() begin
             res = cwr_a_next[indx] + signed'({1'b0, cwr_b_next[indx]});
             // Call cref_sum() end
-            rec_arr_elem_func_param_cref1_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:644:13;
+            rec_arr_elem_func_param_cref1_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:651:13;
         end
         2: begin
             // Call cref_sum() begin
             res = cvr_a_next[1] + signed'({1'b0, cvr_b_next[1]});
             // Call cref_sum() end
-            rec_arr_elem_func_param_cref1_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:639:13;
+            rec_arr_elem_func_param_cref1_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:646:13;
         end
     endcase
 endfunction
@@ -1609,7 +1609,7 @@ begin : rec_arr_elem_func_param_cref1_ff
     if ( ~nrst ) begin
         integer indx;
         indx = 0;
-        rec_arr_elem_func_param_cref1_PROC_STATE <= 0;    // test_array_cthread.cpp:634:9;
+        rec_arr_elem_func_param_cref1_PROC_STATE <= 0;    // test_array_cthread.cpp:641:9;
     end
     else begin
         cvr_a <= cvr_a_next;
@@ -1621,7 +1621,7 @@ begin : rec_arr_elem_func_param_cref1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_func_param_cref2 (test_array_cthread.cpp:656:5) 
+// Clocked THREAD: rec_arr_elem_func_param_cref2 (test_array_cthread.cpp:663:5) 
 
 // Thread-local variables
 logic signed [1:0] cvrr_a[3];
@@ -1634,7 +1634,7 @@ logic [1:0] rec_arr_elem_func_param_cref2_PROC_STATE;
 logic [1:0] rec_arr_elem_func_param_cref2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_func_param_cref2_comb     // test_array_cthread.cpp:656:5
+always_comb begin : rec_arr_elem_func_param_cref2_comb     // test_array_cthread.cpp:663:5
     rec_arr_elem_func_param_cref2_func;
 end
 function void rec_arr_elem_func_param_cref2_func;
@@ -1652,10 +1652,10 @@ function void rec_arr_elem_func_param_cref2_func;
             begin
                 // Call cref_wait() begin
                 res_next = cvrr_a_next[2];
-                rec_arr_elem_func_param_cref2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:651:9;
+                rec_arr_elem_func_param_cref2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:658:9;
                 // Call cref_wait() end
             end
-            rec_arr_elem_func_param_cref2_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:666:13;
+            rec_arr_elem_func_param_cref2_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:673:13;
         end
         1: begin
             // Call cref_wait() begin
@@ -1663,17 +1663,17 @@ function void rec_arr_elem_func_param_cref2_func;
             TMP_0 = res_next;
             // Call cref_wait() end
             res_1 = TMP_0;
-            rec_arr_elem_func_param_cref2_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:666:13;
+            rec_arr_elem_func_param_cref2_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:673:13;
         end
         2: begin
             if (|sig)
             begin
                 // Call cref_wait() begin
                 res_next = cvrr_a_next[2];
-                rec_arr_elem_func_param_cref2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:651:9;
+                rec_arr_elem_func_param_cref2_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:658:9;
                 // Call cref_wait() end
             end
-            rec_arr_elem_func_param_cref2_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:666:13;
+            rec_arr_elem_func_param_cref2_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:673:13;
         end
     endcase
 endfunction
@@ -1684,7 +1684,7 @@ begin : rec_arr_elem_func_param_cref2_ff
     if ( ~nrst ) begin
         integer indx;
         indx = 0;
-        rec_arr_elem_func_param_cref2_PROC_STATE <= 0;    // test_array_cthread.cpp:659:9;
+        rec_arr_elem_func_param_cref2_PROC_STATE <= 0;    // test_array_cthread.cpp:666:9;
     end
     else begin
         cvrr_a <= cvrr_a_next;
@@ -1695,7 +1695,7 @@ begin : rec_arr_elem_func_param_cref2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: rec_arr_elem_func_param_cref3 (test_array_cthread.cpp:670:5) 
+// Clocked THREAD: rec_arr_elem_func_param_cref3 (test_array_cthread.cpp:677:5) 
 
 // Thread-local variables
 logic signed [1:0] cwrr_a[3];
@@ -1708,7 +1708,7 @@ logic [1:0] rec_arr_elem_func_param_cref3_PROC_STATE;
 logic [1:0] rec_arr_elem_func_param_cref3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : rec_arr_elem_func_param_cref3_comb     // test_array_cthread.cpp:670:5
+always_comb begin : rec_arr_elem_func_param_cref3_comb     // test_array_cthread.cpp:677:5
     rec_arr_elem_func_param_cref3_func;
 end
 function void rec_arr_elem_func_param_cref3_func;
@@ -1727,17 +1727,17 @@ function void rec_arr_elem_func_param_cref3_func;
                 indx = sig;
                 // Call cref_wait() begin
                 res_next0 = cwrr_a_next[indx];
-                rec_arr_elem_func_param_cref3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:651:9;
+                rec_arr_elem_func_param_cref3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:658:9;
                 // Call cref_wait() end
             end
-            rec_arr_elem_func_param_cref3_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:681:13;
+            rec_arr_elem_func_param_cref3_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:688:13;
         end
         1: begin
             // Call cref_wait() begin
             res_next0 = res_next0 + signed'({1'b0, cwrr_b_next[indx]});
             TMP_0 = res_next0;
             // Call cref_wait() end
-            rec_arr_elem_func_param_cref3_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:681:13;
+            rec_arr_elem_func_param_cref3_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:688:13;
         end
         2: begin
             if (sig < 3)
@@ -1745,10 +1745,10 @@ function void rec_arr_elem_func_param_cref3_func;
                 indx = sig;
                 // Call cref_wait() begin
                 res_next0 = cwrr_a_next[indx];
-                rec_arr_elem_func_param_cref3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:651:9;
+                rec_arr_elem_func_param_cref3_PROC_STATE_next = 1; return;    // test_array_cthread.cpp:658:9;
                 // Call cref_wait() end
             end
-            rec_arr_elem_func_param_cref3_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:681:13;
+            rec_arr_elem_func_param_cref3_PROC_STATE_next = 2; return;    // test_array_cthread.cpp:688:13;
         end
     endcase
 endfunction
@@ -1759,7 +1759,7 @@ begin : rec_arr_elem_func_param_cref3_ff
     if ( ~nrst ) begin
         integer indx;
         indx = 0;
-        rec_arr_elem_func_param_cref3_PROC_STATE <= 0;    // test_array_cthread.cpp:673:9;
+        rec_arr_elem_func_param_cref3_PROC_STATE <= 0;    // test_array_cthread.cpp:680:9;
     end
     else begin
         cwrr_a <= cwrr_a_next;

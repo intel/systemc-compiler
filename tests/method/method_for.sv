@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_for.cpp:231:5)
+// Module: A (test_for.cpp:238:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -46,10 +46,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: requestProc (test_for.cpp:54:5) 
+// Method process: requestProc (test_for.cpp:61:5) 
 
 always_comb 
-begin : requestProc     // test_for.cpp:54:5
+begin : requestProc     // test_for.cpp:61:5
     logic reqReady;
     reqReady = 1;
     for (integer port = 0; port < 1; port++)
@@ -63,17 +63,17 @@ begin : requestProc     // test_for.cpp:54:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_stmt_empty (test_for.cpp:67:5) 
+// Method process: for_stmt_empty (test_for.cpp:74:5) 
 
 always_comb 
-begin : for_stmt_empty     // test_for.cpp:67:5
+begin : for_stmt_empty     // test_for.cpp:74:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_stmt1 (test_for.cpp:72:5) 
+// Method process: for_stmt1 (test_for.cpp:79:5) 
 
 always_comb 
-begin : for_stmt1     // test_for.cpp:72:5
+begin : for_stmt1     // test_for.cpp:79:5
     integer j;
     integer l;
     j = a;
@@ -86,10 +86,10 @@ begin : for_stmt1     // test_for.cpp:72:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_stmt2 (test_for.cpp:82:5) 
+// Method process: for_stmt2 (test_for.cpp:89:5) 
 
 always_comb 
-begin : for_stmt2     // test_for.cpp:82:5
+begin : for_stmt2     // test_for.cpp:89:5
     integer j;
     integer l;
     integer l_1;
@@ -109,10 +109,10 @@ begin : for_stmt2     // test_for.cpp:82:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_stmt3 (test_for.cpp:99:5) 
+// Method process: for_stmt3 (test_for.cpp:106:5) 
 
 always_comb 
-begin : for_stmt3     // test_for.cpp:99:5
+begin : for_stmt3     // test_for.cpp:106:5
     integer j;
     j = 1;
     for (integer i = 0; i < 3; i++)
@@ -129,14 +129,14 @@ begin : for_stmt3     // test_for.cpp:99:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_stmt4 (test_for.cpp:114:5) 
+// Method process: for_stmt4 (test_for.cpp:121:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : for_stmt4     // test_for.cpp:114:5
+begin : for_stmt4     // test_for.cpp:121:5
     integer i;
     integer j;
     i = 0;
@@ -156,14 +156,14 @@ begin : for_stmt4     // test_for.cpp:114:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_stmt5 (test_for.cpp:131:5) 
+// Method process: for_stmt5 (test_for.cpp:138:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : for_stmt5     // test_for.cpp:131:5
+begin : for_stmt5     // test_for.cpp:138:5
     integer i;
     integer j;
     i = 0;
@@ -181,13 +181,13 @@ begin : for_stmt5     // test_for.cpp:131:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_stmt6 (test_for.cpp:145:5) 
+// Method process: for_stmt6 (test_for.cpp:152:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : for_stmt6     // test_for.cpp:145:5
+begin : for_stmt6     // test_for.cpp:152:5
     k = 0;
     for (integer i = 0; i < 2; i++)
     begin
@@ -200,13 +200,13 @@ begin : for_stmt6     // test_for.cpp:145:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_stmt7 (test_for.cpp:158:5) 
+// Method process: for_stmt7 (test_for.cpp:165:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : for_stmt7     // test_for.cpp:158:5
+begin : for_stmt7     // test_for.cpp:165:5
     integer i;
     i = 1;
     k = 0;
@@ -221,10 +221,10 @@ begin : for_stmt7     // test_for.cpp:158:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_for (test_for.cpp:180:5) 
+// Method process: sc_type_for (test_for.cpp:187:5) 
 
 always_comb 
-begin : sc_type_for     // test_for.cpp:180:5
+begin : sc_type_for     // test_for.cpp:187:5
     integer a_1[8];
     for (logic [3:0] i = 0; i < 8; i++)
     begin

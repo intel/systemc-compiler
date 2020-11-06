@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_multiple_pointers_var.cpp:39:5)
+// Module: A (test_multiple_pointers_var.cpp:46:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -37,13 +37,13 @@ module A // "b_mod.a_mod"
 logic signed [31:0] s;
 
 //------------------------------------------------------------------------------
-// Method process: meth (test_multiple_pointers_var.cpp:30:5) 
+// Method process: meth (test_multiple_pointers_var.cpp:37:5) 
 
 // Process-local variables
 logic a;
 
 always_comb 
-begin : meth     // test_multiple_pointers_var.cpp:30:5
+begin : meth     // test_multiple_pointers_var.cpp:37:5
     a = |s;
     a = |(s + 1);
 end

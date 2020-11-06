@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_virtual_field.cpp:93:5)
+// Module: A (test_virtual_field.cpp:100:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -36,7 +36,7 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: proc (test_virtual_field.cpp:66:5) 
+// Method process: proc (test_virtual_field.cpp:73:5) 
 
 // Process-local variables
 logic signed [31:0] e_n0;
@@ -44,7 +44,7 @@ logic signed [31:0] n;
 logic signed [31:0] e_k0;
 
 always_comb 
-begin : proc     // test_virtual_field.cpp:66:5
+begin : proc     // test_virtual_field.cpp:73:5
     integer TMP_0;
     integer i;
     integer j;
@@ -62,7 +62,7 @@ begin : proc     // test_virtual_field.cpp:66:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: proc_d (test_virtual_field.cpp:74:5) 
+// Method process: proc_d (test_virtual_field.cpp:81:5) 
 
 // Process-local variables
 logic signed [31:0] d_n0;
@@ -70,7 +70,7 @@ logic [31:0] d_n;
 logic [31:0] d_k;
 
 always_comb 
-begin : proc_d     // test_virtual_field.cpp:74:5
+begin : proc_d     // test_virtual_field.cpp:81:5
     // Call g() begin
     d_n0--;
     // Call g() end
@@ -80,7 +80,7 @@ begin : proc_d     // test_virtual_field.cpp:74:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: proc_e (test_virtual_field.cpp:79:5) 
+// Method process: proc_e (test_virtual_field.cpp:86:5) 
 
 // Process-local variables
 logic signed [31:0] e_k0;
@@ -89,7 +89,7 @@ logic [31:0] e_k;
 logic signed [31:0] e_n0;
 
 always_comb 
-begin : proc_e     // test_virtual_field.cpp:79:5
+begin : proc_e     // test_virtual_field.cpp:86:5
     e_k0 = 0;
     e_k = 1;
     // Call f() begin

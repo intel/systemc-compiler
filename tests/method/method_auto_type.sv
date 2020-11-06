@@ -23,10 +23,10 @@ logic signed [65:0] int_sig;
 logic [65:0] uint_sig;
 
 //------------------------------------------------------------------------------
-// Method process: cpp_types_to_auto (test_auto_type.cpp:25:5) 
+// Method process: cpp_types_to_auto (test_auto_type.cpp:32:5) 
 
 always_comb 
-begin : cpp_types_to_auto     // test_auto_type.cpp:25:5
+begin : cpp_types_to_auto     // test_auto_type.cpp:32:5
     logic signed [15:0] a;
     logic [15:0] c;
     logic b1;
@@ -54,10 +54,10 @@ begin : cpp_types_to_auto     // test_auto_type.cpp:25:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_types_to_auto (test_auto_type.cpp:42:5) 
+// Method process: sc_types_to_auto (test_auto_type.cpp:49:5) 
 
 always_comb 
-begin : sc_types_to_auto     // test_auto_type.cpp:42:5
+begin : sc_types_to_auto     // test_auto_type.cpp:49:5
     logic signed [7:0] b1;
     logic signed [15:0] b2;
     logic [15:0] b3;
@@ -73,10 +73,10 @@ begin : sc_types_to_auto     // test_auto_type.cpp:42:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_signed_to_auto (test_auto_type.cpp:53:5) 
+// Method process: sc_signed_to_auto (test_auto_type.cpp:60:5) 
 
 always_comb 
-begin : sc_signed_to_auto     // test_auto_type.cpp:53:5
+begin : sc_signed_to_auto     // test_auto_type.cpp:60:5
     logic signed [65:0] a;
     logic signed [65:0] b1;
     logic signed [66:0] b2;
@@ -94,10 +94,10 @@ begin : sc_signed_to_auto     // test_auto_type.cpp:53:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_unsigned_to_auto (test_auto_type.cpp:64:5) 
+// Method process: sc_unsigned_to_auto (test_auto_type.cpp:71:5) 
 
 always_comb 
-begin : sc_unsigned_to_auto     // test_auto_type.cpp:64:5
+begin : sc_unsigned_to_auto     // test_auto_type.cpp:71:5
     logic [65:0] a;
     logic [65:0] b1;
     logic signed [66:0] b2;

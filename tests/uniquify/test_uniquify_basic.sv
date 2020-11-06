@@ -45,7 +45,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut (test_uniquify_basic.cpp:35:5)
+// Module: dut (test_uniquify_basic.cpp:42:5)
 //
 module dut // "top_inst.dut0"
 (
@@ -53,7 +53,7 @@ module dut // "top_inst.dut0"
 );
 
 //------------------------------------------------------------------------------
-// Method process: dut_method (test_uniquify_basic.cpp:25:5) 
+// Method process: dut_method (test_uniquify_basic.cpp:32:5) 
 
 
 
@@ -70,7 +70,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: inner (test_uniquify_basic.cpp:18:5)
+// Module: inner (test_uniquify_basic.cpp:25:5)
 //
 module inner // "top_inst.dut0.inner_inst"
 (
@@ -84,7 +84,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut0 (test_uniquify_basic.cpp:36:5)
+// Module: dut0 (test_uniquify_basic.cpp:43:5)
 //
 module dut0 // "top_inst.dut1"
 (
@@ -92,7 +92,7 @@ module dut0 // "top_inst.dut1"
 );
 
 //------------------------------------------------------------------------------
-// Method process: dut_method (test_uniquify_basic.cpp:25:5) 
+// Method process: dut_method (test_uniquify_basic.cpp:32:5) 
 
 
 
@@ -109,7 +109,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: dut1 (test_uniquify_basic.cpp:37:5)
+// Module: dut1 (test_uniquify_basic.cpp:44:5)
 //
 module dut1 // "top_inst.dut2"
 (
@@ -117,7 +117,7 @@ module dut1 // "top_inst.dut2"
 );
 
 //------------------------------------------------------------------------------
-// Method process: dut_method (test_uniquify_basic.cpp:25:5) 
+// Method process: dut_method (test_uniquify_basic.cpp:32:5) 
 
 
 

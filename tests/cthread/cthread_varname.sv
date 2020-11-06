@@ -35,7 +35,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cthread_varname.cpp:191:5)
+// Module: A (test_cthread_varname.cpp:198:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -51,10 +51,10 @@ logic s1;
 logic s2;
 
 //------------------------------------------------------------------------------
-// Method process: local_varname (test_cthread_varname.cpp:45:5) 
+// Method process: local_varname (test_cthread_varname.cpp:52:5) 
 
 always_comb 
-begin : local_varname     // test_cthread_varname.cpp:45:5
+begin : local_varname     // test_cthread_varname.cpp:52:5
     integer m_1;
     integer k_1;
     integer a_1;
@@ -63,7 +63,7 @@ begin : local_varname     // test_cthread_varname.cpp:45:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: doble_varname_func (test_cthread_varname.cpp:60:5) 
+// Clocked THREAD: doble_varname_func (test_cthread_varname.cpp:67:5) 
 
 // Thread-local variables
 logic signed [31:0] m;
@@ -75,7 +75,7 @@ logic [1:0] doble_varname_func_PROC_STATE;
 logic [1:0] doble_varname_func_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : doble_varname_func_comb     // test_cthread_varname.cpp:60:5
+always_comb begin : doble_varname_func_comb     // test_cthread_varname.cpp:67:5
     doble_varname_func_func;
 end
 function void doble_varname_func_func;
@@ -90,14 +90,14 @@ function void doble_varname_func_func;
             m_next = check_hiwait_delay_1;
             // Call syncWaiting() begin
             check_hiwait_delay_next = a ? b : c;
-            doble_varname_func_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:57:9;
+            doble_varname_func_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:64:9;
             // Call syncWaiting() end
         end
         1: begin
             // Call syncWaiting() begin
             m_next = check_hiwait_delay_next;
             // Call syncWaiting() end
-            doble_varname_func_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:70:13;
+            doble_varname_func_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:77:13;
         end
         2: begin
             k = m_next;
@@ -105,7 +105,7 @@ function void doble_varname_func_func;
             m_next = check_hiwait_delay_1;
             // Call syncWaiting() begin
             check_hiwait_delay_next = a ? b : c;
-            doble_varname_func_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:57:9;
+            doble_varname_func_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:64:9;
             // Call syncWaiting() end
         end
     endcase
@@ -115,7 +115,7 @@ endfunction
 always_ff @(posedge clk or posedge rst) 
 begin : doble_varname_func_ff
     if (rst ) begin
-        doble_varname_func_PROC_STATE <= 0;    // test_cthread_varname.cpp:62:9;
+        doble_varname_func_PROC_STATE <= 0;    // test_cthread_varname.cpp:69:9;
     end
     else begin
         m <= m_next;
@@ -125,7 +125,7 @@ begin : doble_varname_func_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: doble_varname_scope (test_cthread_varname.cpp:76:5) 
+// Clocked THREAD: doble_varname_scope (test_cthread_varname.cpp:83:5) 
 
 // Thread-local variables
 logic [2:0] acheck_hiwait_delay;
@@ -135,7 +135,7 @@ logic [1:0] doble_varname_scope_PROC_STATE;
 logic [1:0] doble_varname_scope_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : doble_varname_scope_comb     // test_cthread_varname.cpp:76:5
+always_comb begin : doble_varname_scope_comb     // test_cthread_varname.cpp:83:5
     doble_varname_scope_func;
 end
 function void doble_varname_scope_func;
@@ -150,13 +150,13 @@ function void doble_varname_scope_func;
             if (a)
             begin
                 acheck_hiwait_delay_next = 1;
-                doble_varname_scope_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:87:17;
+                doble_varname_scope_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:94:17;
             end
-            doble_varname_scope_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:91:13;
+            doble_varname_scope_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:98:13;
         end
         1: begin
             m = acheck_hiwait_delay_next;
-            doble_varname_scope_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:91:13;
+            doble_varname_scope_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:98:13;
         end
         2: begin
             acheck_hiwait_delay_1 = 1;
@@ -164,9 +164,9 @@ function void doble_varname_scope_func;
             if (a)
             begin
                 acheck_hiwait_delay_next = 1;
-                doble_varname_scope_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:87:17;
+                doble_varname_scope_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:94:17;
             end
-            doble_varname_scope_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:91:13;
+            doble_varname_scope_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:98:13;
         end
     endcase
 endfunction
@@ -175,7 +175,7 @@ endfunction
 always_ff @(posedge clk or posedge rst) 
 begin : doble_varname_scope_ff
     if (rst ) begin
-        doble_varname_scope_PROC_STATE <= 0;    // test_cthread_varname.cpp:78:9;
+        doble_varname_scope_PROC_STATE <= 0;    // test_cthread_varname.cpp:85:9;
     end
     else begin
         acheck_hiwait_delay <= acheck_hiwait_delay_next;
@@ -184,7 +184,7 @@ begin : doble_varname_scope_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: doble_varname_scope_reg (test_cthread_varname.cpp:96:5) 
+// Clocked THREAD: doble_varname_scope_reg (test_cthread_varname.cpp:103:5) 
 
 // Thread-local variables
 logic [1:0] bcheck_hiwait_delay;
@@ -196,7 +196,7 @@ logic [1:0] doble_varname_scope_reg_PROC_STATE;
 logic [1:0] doble_varname_scope_reg_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : doble_varname_scope_reg_comb     // test_cthread_varname.cpp:96:5
+always_comb begin : doble_varname_scope_reg_comb     // test_cthread_varname.cpp:103:5
     doble_varname_scope_reg_func;
 end
 function void doble_varname_scope_reg_func;
@@ -207,24 +207,24 @@ function void doble_varname_scope_reg_func;
     case (doble_varname_scope_reg_PROC_STATE)
         0: begin
             bcheck_hiwait_delay_next = 1;
-            doble_varname_scope_reg_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:102:13;
+            doble_varname_scope_reg_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:109:13;
         end
         1: begin
             m = bcheck_hiwait_delay_next;
             if (a)
             begin
                 bcheck_hiwait_delay_next0 = 1;
-                doble_varname_scope_reg_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:108:17;
+                doble_varname_scope_reg_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:115:17;
             end
-            doble_varname_scope_reg_PROC_STATE_next = 3; return;    // test_cthread_varname.cpp:112:13;
+            doble_varname_scope_reg_PROC_STATE_next = 3; return;    // test_cthread_varname.cpp:119:13;
         end
         2: begin
             m = bcheck_hiwait_delay_next0;
-            doble_varname_scope_reg_PROC_STATE_next = 3; return;    // test_cthread_varname.cpp:112:13;
+            doble_varname_scope_reg_PROC_STATE_next = 3; return;    // test_cthread_varname.cpp:119:13;
         end
         3: begin
             bcheck_hiwait_delay_next = 1;
-            doble_varname_scope_reg_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:102:13;
+            doble_varname_scope_reg_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:109:13;
         end
     endcase
 endfunction
@@ -233,7 +233,7 @@ endfunction
 always_ff @(posedge clk or posedge rst) 
 begin : doble_varname_scope_reg_ff
     if (rst ) begin
-        doble_varname_scope_reg_PROC_STATE <= 0;    // test_cthread_varname.cpp:98:9;
+        doble_varname_scope_reg_PROC_STATE <= 0;    // test_cthread_varname.cpp:105:9;
     end
     else begin
         bcheck_hiwait_delay <= bcheck_hiwait_delay_next;
@@ -243,13 +243,13 @@ begin : doble_varname_scope_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: doble_varname_scope_comb (test_cthread_varname.cpp:117:5) 
+// Clocked THREAD: doble_varname_scope_comb (test_cthread_varname.cpp:124:5) 
 
 // Thread-local variables
 logic signed [31:0] m;
 
 // Next-state combinational logic
-always_comb begin : doble_varname_scope_comb_comb     // test_cthread_varname.cpp:117:5
+always_comb begin : doble_varname_scope_comb_comb     // test_cthread_varname.cpp:124:5
     doble_varname_scope_comb_func;
 end
 function void doble_varname_scope_comb_func;
@@ -274,7 +274,7 @@ begin : doble_varname_scope_comb_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: double_reg1 (test_cthread_varname.cpp:139:5) 
+// Clocked THREAD: double_reg1 (test_cthread_varname.cpp:146:5) 
 
 // Thread-local variables
 logic s1_next;
@@ -288,7 +288,7 @@ logic [1:0] double_reg1_PROC_STATE;
 logic [1:0] double_reg1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : double_reg1_comb     // test_cthread_varname.cpp:139:5
+always_comb begin : double_reg1_comb     // test_cthread_varname.cpp:146:5
     double_reg1_func;
 end
 function void double_reg1_func;
@@ -304,27 +304,27 @@ function void double_reg1_func;
             if (a)
             begin
                 varC_next = b;
-                double_reg1_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:150:17;
+                double_reg1_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:157:17;
             end
-            double_reg1_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:154:13;
+            double_reg1_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:161:13;
         end
         1: begin
             s1_next = |(varC_next ? varA_next : varB_next);
             varB_next = 3;
-            double_reg1_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:154:13;
+            double_reg1_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:161:13;
         end
         2: begin
             varA_next = varB_next;
-            double_reg1_PROC_STATE_next = 3; return;    // test_cthread_varname.cpp:157:13;
+            double_reg1_PROC_STATE_next = 3; return;    // test_cthread_varname.cpp:164:13;
         end
         3: begin
             varB_next = 1;
             if (a)
             begin
                 varC_next = b;
-                double_reg1_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:150:17;
+                double_reg1_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:157:17;
             end
-            double_reg1_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:154:13;
+            double_reg1_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:161:13;
         end
     endcase
 endfunction
@@ -335,7 +335,7 @@ begin : double_reg1_ff
     if (rst ) begin
         s1 <= 1;
         varA <= 0;
-        double_reg1_PROC_STATE <= 0;    // test_cthread_varname.cpp:143:9;
+        double_reg1_PROC_STATE <= 0;    // test_cthread_varname.cpp:150:9;
     end
     else begin
         s1 <= s1_next;
@@ -347,7 +347,7 @@ begin : double_reg1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: double_reg2 (test_cthread_varname.cpp:162:5) 
+// Clocked THREAD: double_reg2 (test_cthread_varname.cpp:169:5) 
 
 // Thread-local variables
 logic s2_next;
@@ -361,7 +361,7 @@ logic [1:0] double_reg2_PROC_STATE;
 logic [1:0] double_reg2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : double_reg2_comb     // test_cthread_varname.cpp:162:5
+always_comb begin : double_reg2_comb     // test_cthread_varname.cpp:169:5
     double_reg2_func;
 end
 function void double_reg2_func;
@@ -376,15 +376,15 @@ function void double_reg2_func;
             if (b)
             begin
                 varB_next0 = a ? 1 : 2;
-                double_reg2_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:171:17;
+                double_reg2_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:178:17;
             end
             varC_next0 = varA_next0 + 1;
-            double_reg2_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:176:13;
+            double_reg2_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:183:13;
         end
         1: begin
             s2_next = |varB_next0;
             varC_next0 = varA_next0 + 1;
-            double_reg2_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:176:13;
+            double_reg2_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:183:13;
         end
         2: begin
             varA_next0++;
@@ -392,10 +392,10 @@ function void double_reg2_func;
             if (b)
             begin
                 varB_next0 = a ? 1 : 2;
-                double_reg2_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:171:17;
+                double_reg2_PROC_STATE_next = 1; return;    // test_cthread_varname.cpp:178:17;
             end
             varC_next0 = varA_next0 + 1;
-            double_reg2_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:176:13;
+            double_reg2_PROC_STATE_next = 2; return;    // test_cthread_varname.cpp:183:13;
         end
     endcase
 endfunction
@@ -406,7 +406,7 @@ begin : double_reg2_ff
     if (rst ) begin
         s2 <= 0;
         varA0 <= 1;
-        double_reg2_PROC_STATE <= 0;    // test_cthread_varname.cpp:166:9;
+        double_reg2_PROC_STATE <= 0;    // test_cthread_varname.cpp:173:9;
     end
     else begin
         s2 <= s2_next;

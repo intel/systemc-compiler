@@ -17,13 +17,13 @@ module Top // "top"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: top_method (test_modular_iface_array_ptr2.cpp:40:5) 
+// Method process: top_method (test_modular_iface_array_ptr2.cpp:47:5) 
 
 // Process-local variables
 logic [3:0] minst_vv[2];
 
 always_comb 
-begin : top_method     // test_modular_iface_array_ptr2.cpp:40:5
+begin : top_method     // test_modular_iface_array_ptr2.cpp:47:5
     minst_vv[1] = 2;
 end
 

@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <systemc.h>
 
 // Test for bit/range access in LHS
@@ -84,7 +91,7 @@ public:
         async_reset_signal_is(arstn, false);       
     }
 
-    // BUG in Tiny SMEM -- fixed
+    // BUG in real design -- fixed
     sc_uint<3> popIndx;
     void comb_var_not_changed()
     {
@@ -264,3 +271,4 @@ int sc_main(int argc, char *argv[])
     sc_start(100, SC_NS);
     return 0;
 }
+

@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_func_param_method.cpp:205:5)
+// Module: A (test_func_param_method.cpp:212:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -36,10 +36,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall_ref (test_func_param_method.cpp:81:5) 
+// Method process: record_fcall_ref (test_func_param_method.cpp:88:5) 
 
 always_comb 
-begin : record_fcall_ref     // test_func_param_method.cpp:81:5
+begin : record_fcall_ref     // test_func_param_method.cpp:88:5
     logic s_a;
     integer s_b;
     logic b;
@@ -55,10 +55,10 @@ begin : record_fcall_ref     // test_func_param_method.cpp:81:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall_val (test_func_param_method.cpp:93:5) 
+// Method process: record_fcall_val (test_func_param_method.cpp:100:5) 
 
 always_comb 
-begin : record_fcall_val     // test_func_param_method.cpp:93:5
+begin : record_fcall_val     // test_func_param_method.cpp:100:5
     logic s_a;
     integer s_b;
     logic par_a;
@@ -73,10 +73,10 @@ begin : record_fcall_val     // test_func_param_method.cpp:93:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall_two_val (test_func_param_method.cpp:101:5) 
+// Method process: record_fcall_two_val (test_func_param_method.cpp:108:5) 
 
 always_comb 
-begin : record_fcall_two_val     // test_func_param_method.cpp:101:5
+begin : record_fcall_two_val     // test_func_param_method.cpp:108:5
     logic s_a;
     integer s_b;
     logic r_a;
@@ -95,14 +95,14 @@ begin : record_fcall_two_val     // test_func_param_method.cpp:101:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall_two_val2 (test_func_param_method.cpp:109:5) 
+// Method process: record_fcall_two_val2 (test_func_param_method.cpp:116:5) 
 
 // Process-local variables
 logic gr_a;
 logic signed [31:0] gr_b;
 
 always_comb 
-begin : record_fcall_two_val2     // test_func_param_method.cpp:109:5
+begin : record_fcall_two_val2     // test_func_param_method.cpp:116:5
     logic s_a;
     integer s_b;
     logic par1_a;
@@ -120,10 +120,10 @@ begin : record_fcall_two_val2     // test_func_param_method.cpp:109:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall_two_ref (test_func_param_method.cpp:117:5) 
+// Method process: record_fcall_two_ref (test_func_param_method.cpp:124:5) 
 
 always_comb 
-begin : record_fcall_two_ref     // test_func_param_method.cpp:117:5
+begin : record_fcall_two_ref     // test_func_param_method.cpp:124:5
     logic s_a;
     integer s_b;
     logic r_a;
@@ -136,14 +136,14 @@ begin : record_fcall_two_ref     // test_func_param_method.cpp:117:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall_two_ref2 (test_func_param_method.cpp:125:5) 
+// Method process: record_fcall_two_ref2 (test_func_param_method.cpp:132:5) 
 
 // Process-local variables
 logic gs_a;
 logic signed [31:0] gs_b;
 
 always_comb 
-begin : record_fcall_two_ref2     // test_func_param_method.cpp:125:5
+begin : record_fcall_two_ref2     // test_func_param_method.cpp:132:5
     logic r_a;
     integer r_b;
     logic b;
@@ -155,10 +155,10 @@ begin : record_fcall_two_ref2     // test_func_param_method.cpp:125:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall_mixed (test_func_param_method.cpp:142:5) 
+// Method process: record_fcall_mixed (test_func_param_method.cpp:149:5) 
 
 always_comb 
-begin : record_fcall_mixed     // test_func_param_method.cpp:142:5
+begin : record_fcall_mixed     // test_func_param_method.cpp:149:5
     logic r_a;
     integer r_b;
     integer j;
@@ -183,10 +183,10 @@ begin : record_fcall_mixed     // test_func_param_method.cpp:142:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_two_fcalls_mixed (test_func_param_method.cpp:151:5) 
+// Method process: record_two_fcalls_mixed (test_func_param_method.cpp:158:5) 
 
 always_comb 
-begin : record_two_fcalls_mixed     // test_func_param_method.cpp:151:5
+begin : record_two_fcalls_mixed     // test_func_param_method.cpp:158:5
     logic s_a;
     integer s_b;
     logic r_a;
@@ -235,10 +235,10 @@ begin : record_two_fcalls_mixed     // test_func_param_method.cpp:151:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall_const_ref1 (test_func_param_method.cpp:171:5) 
+// Method process: record_fcall_const_ref1 (test_func_param_method.cpp:178:5) 
 
 always_comb 
-begin : record_fcall_const_ref1     // test_func_param_method.cpp:171:5
+begin : record_fcall_const_ref1     // test_func_param_method.cpp:178:5
     logic r_a;
     integer r_b;
     logic t_a;
@@ -250,10 +250,10 @@ begin : record_fcall_const_ref1     // test_func_param_method.cpp:171:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall_const_ref2 (test_func_param_method.cpp:182:5) 
+// Method process: record_fcall_const_ref2 (test_func_param_method.cpp:189:5) 
 
 always_comb 
-begin : record_fcall_const_ref2     // test_func_param_method.cpp:182:5
+begin : record_fcall_const_ref2     // test_func_param_method.cpp:189:5
     logic r_a;
     integer r_b;
     logic t_a;
@@ -268,10 +268,10 @@ begin : record_fcall_const_ref2     // test_func_param_method.cpp:182:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall_const_ref3 (test_func_param_method.cpp:194:5) 
+// Method process: record_fcall_const_ref3 (test_func_param_method.cpp:201:5) 
 
 always_comb 
-begin : record_fcall_const_ref3     // test_func_param_method.cpp:194:5
+begin : record_fcall_const_ref3     // test_func_param_method.cpp:201:5
     logic r_a;
     integer r_b;
     logic t_a;

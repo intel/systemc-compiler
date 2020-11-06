@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_if.cpp:356:5)
+// Module: A (test_if.cpp:363:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -48,20 +48,20 @@ logic s1;
 logic s2;
 
 //------------------------------------------------------------------------------
-// Method process: if_const_and_signal (test_if.cpp:57:5) 
+// Method process: if_const_and_signal (test_if.cpp:64:5) 
 
 always_comb 
-begin : if_const_and_signal     // test_if.cpp:57:5
+begin : if_const_and_signal     // test_if.cpp:64:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_empty1 (test_if.cpp:76:5) 
+// Method process: if_empty1 (test_if.cpp:83:5) 
 
 // Process-local variables
 logic signed [31:0] n;
 
 always_comb 
-begin : if_empty1     // test_if.cpp:76:5
+begin : if_empty1     // test_if.cpp:83:5
     integer i;
     if (n > 0)
     begin
@@ -71,13 +71,13 @@ begin : if_empty1     // test_if.cpp:76:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_empty2 (test_if.cpp:87:5) 
+// Method process: if_empty2 (test_if.cpp:94:5) 
 
 // Process-local variables
 logic signed [31:0] n;
 
 always_comb 
-begin : if_empty2     // test_if.cpp:87:5
+begin : if_empty2     // test_if.cpp:94:5
     integer i;
     if (n > 0)
     begin
@@ -88,25 +88,25 @@ begin : if_empty2     // test_if.cpp:87:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_empty3 (test_if.cpp:98:5) 
+// Method process: if_empty3 (test_if.cpp:105:5) 
 
 // Process-local variables
 logic signed [31:0] n;
 
 always_comb 
-begin : if_empty3     // test_if.cpp:98:5
+begin : if_empty3     // test_if.cpp:105:5
     b = 1;
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_empty4 (test_if.cpp:107:5) 
+// Method process: if_empty4 (test_if.cpp:114:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] n;
 
 always_comb 
-begin : if_empty4     // test_if.cpp:107:5
+begin : if_empty4     // test_if.cpp:114:5
     if (n > 0)
     begin
         if (n > 1)
@@ -123,10 +123,10 @@ begin : if_empty4     // test_if.cpp:107:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_stmt1 (test_if.cpp:125:5) 
+// Method process: if_stmt1 (test_if.cpp:132:5) 
 
 always_comb 
-begin : if_stmt1     // test_if.cpp:125:5
+begin : if_stmt1     // test_if.cpp:132:5
     integer i;
     integer j_1;
     j_1 = a;
@@ -140,14 +140,14 @@ begin : if_stmt1     // test_if.cpp:125:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_stmt2 (test_if.cpp:138:5) 
+// Method process: if_stmt2 (test_if.cpp:145:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] n;
 
 always_comb 
-begin : if_stmt2     // test_if.cpp:138:5
+begin : if_stmt2     // test_if.cpp:145:5
     integer i;
     if (m > 0)
     begin
@@ -168,14 +168,14 @@ begin : if_stmt2     // test_if.cpp:138:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_stmt2a (test_if.cpp:157:5) 
+// Method process: if_stmt2a (test_if.cpp:164:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] n;
 
 always_comb 
-begin : if_stmt2a     // test_if.cpp:157:5
+begin : if_stmt2a     // test_if.cpp:164:5
     integer k_1;
     k_1 = 0;
     if (m > 0)
@@ -197,14 +197,14 @@ begin : if_stmt2a     // test_if.cpp:157:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_stmt3 (test_if.cpp:180:5) 
+// Method process: if_stmt3 (test_if.cpp:187:5) 
 
 // Process-local variables
 logic signed [31:0] n;
 logic signed [31:0] k;
 
 always_comb 
-begin : if_stmt3     // test_if.cpp:180:5
+begin : if_stmt3     // test_if.cpp:187:5
     integer i;
     if (a)
     begin
@@ -225,10 +225,10 @@ begin : if_stmt3     // test_if.cpp:180:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_stmt4 (test_if.cpp:199:5) 
+// Method process: if_stmt4 (test_if.cpp:206:5) 
 
 always_comb 
-begin : if_stmt4     // test_if.cpp:199:5
+begin : if_stmt4     // test_if.cpp:206:5
     integer i;
     if (a)
     begin
@@ -241,7 +241,7 @@ begin : if_stmt4     // test_if.cpp:199:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_stmt5 (test_if.cpp:211:5) 
+// Method process: if_stmt5 (test_if.cpp:218:5) 
 
 // Process-local variables
 logic signed [31:0] m;
@@ -249,7 +249,7 @@ logic signed [31:0] k;
 logic signed [31:0] n;
 
 always_comb 
-begin : if_stmt5     // test_if.cpp:211:5
+begin : if_stmt5     // test_if.cpp:218:5
     integer i;
     if (m > 0)
     begin
@@ -272,14 +272,14 @@ begin : if_stmt5     // test_if.cpp:211:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_compl_cond1 (test_if.cpp:231:5) 
+// Method process: if_compl_cond1 (test_if.cpp:238:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] k;
 
 always_comb 
-begin : if_compl_cond1     // test_if.cpp:231:5
+begin : if_compl_cond1     // test_if.cpp:238:5
     integer i;
     if (m == 1 || k == 1)
     begin
@@ -300,14 +300,14 @@ begin : if_compl_cond1     // test_if.cpp:231:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_compl_cond2 (test_if.cpp:253:5) 
+// Method process: if_compl_cond2 (test_if.cpp:260:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] k;
 
 always_comb 
-begin : if_compl_cond2     // test_if.cpp:253:5
+begin : if_compl_cond2     // test_if.cpp:260:5
     integer i;
     if (m == 1 && k == 1)
     begin
@@ -328,14 +328,14 @@ begin : if_compl_cond2     // test_if.cpp:253:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_compl_cond3 (test_if.cpp:275:5) 
+// Method process: if_compl_cond3 (test_if.cpp:282:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] k;
 
 always_comb 
-begin : if_compl_cond3     // test_if.cpp:275:5
+begin : if_compl_cond3     // test_if.cpp:282:5
     integer i;
     if (m == 1 && k == 2 || k < m)
     begin
@@ -356,14 +356,14 @@ begin : if_compl_cond3     // test_if.cpp:275:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_compl_cond4 (test_if.cpp:297:5) 
+// Method process: if_compl_cond4 (test_if.cpp:304:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] k;
 
 always_comb 
-begin : if_compl_cond4     // test_if.cpp:297:5
+begin : if_compl_cond4     // test_if.cpp:304:5
     integer i;
     if (m == 1 && (k == 2 || k < m))
     begin
@@ -384,14 +384,14 @@ begin : if_compl_cond4     // test_if.cpp:297:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_const (test_if.cpp:319:5) 
+// Method process: if_const (test_if.cpp:326:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] k;
 
 always_comb 
-begin : if_const     // test_if.cpp:319:5
+begin : if_const     // test_if.cpp:326:5
     integer i;
     if (0)
     begin

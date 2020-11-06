@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_const_prop_range.cpp:132:5)
+// Module: A (test_const_prop_range.cpp:139:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -44,13 +44,13 @@ module A // "b_mod.a_mod"
 );
 
 //------------------------------------------------------------------------------
-// Method process: bitConstProp (test_const_prop_range.cpp:24:5) 
+// Method process: bitConstProp (test_const_prop_range.cpp:31:5) 
 
 // Process-local variables
 logic [3:0] x;
 
 always_comb 
-begin : bitConstProp     // test_const_prop_range.cpp:24:5
+begin : bitConstProp     // test_const_prop_range.cpp:31:5
     logic [3:0] y;
     x = 11;
     x = 11;
@@ -63,13 +63,13 @@ begin : bitConstProp     // test_const_prop_range.cpp:24:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rangeConstProp (test_const_prop_range.cpp:43:5) 
+// Method process: rangeConstProp (test_const_prop_range.cpp:50:5) 
 
 // Process-local variables
 logic [3:0] x;
 
 always_comb 
-begin : rangeConstProp     // test_const_prop_range.cpp:43:5
+begin : rangeConstProp     // test_const_prop_range.cpp:50:5
     logic [3:0] y;
     x = 11;
     x = 11;
@@ -83,20 +83,20 @@ begin : rangeConstProp     // test_const_prop_range.cpp:43:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: concatConstProp (test_const_prop_range.cpp:65:5) 
+// Method process: concatConstProp (test_const_prop_range.cpp:72:5) 
 
 always_comb 
-begin : concatConstProp     // test_const_prop_range.cpp:65:5
+begin : concatConstProp     // test_const_prop_range.cpp:72:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: concatConstPropRHS (test_const_prop_range.cpp:81:5) 
+// Method process: concatConstPropRHS (test_const_prop_range.cpp:88:5) 
 
 // Process-local variables
 logic [3:0] x;
 
 always_comb 
-begin : concatConstPropRHS     // test_const_prop_range.cpp:81:5
+begin : concatConstPropRHS     // test_const_prop_range.cpp:88:5
     logic [4:0] y;
     logic signed [3:0] z;
     logic [7:0] t;
@@ -110,13 +110,13 @@ begin : concatConstPropRHS     // test_const_prop_range.cpp:81:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: constPropLHS (test_const_prop_range.cpp:104:5) 
+// Method process: constPropLHS (test_const_prop_range.cpp:111:5) 
 
 // Process-local variables
 logic [3:0] x;
 
 always_comb 
-begin : constPropLHS     // test_const_prop_range.cpp:104:5
+begin : constPropLHS     // test_const_prop_range.cpp:111:5
     x = 2;
     x[0] = 1;
     x = 3;

@@ -21,13 +21,13 @@ module Top // "top"
 logic [3:0] sig[3];
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: threadProc (test_array_in_top.cpp:30:5) 
+// Clocked THREAD: threadProc (test_array_in_top.cpp:37:5) 
 
 // Thread-local variables
 logic [3:0] out_next[3];
 
 // Next-state combinational logic
-always_comb begin : threadProc_comb     // test_array_in_top.cpp:30:5
+always_comb begin : threadProc_comb     // test_array_in_top.cpp:37:5
     threadProc_func;
 end
 function void threadProc_func;
@@ -53,10 +53,10 @@ begin : threadProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: methProc (test_array_in_top.cpp:24:5) 
+// Method process: methProc (test_array_in_top.cpp:31:5) 
 
 always_comb 
-begin : methProc     // test_array_in_top.cpp:24:5
+begin : methProc     // test_array_in_top.cpp:31:5
     sig[0] = 1;
     sig[2] = 2;
     out[0] = sig[1] + sig[2];

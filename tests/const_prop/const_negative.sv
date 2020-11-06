@@ -16,10 +16,10 @@ module top // "t_inst"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: assign_proc (test_const_negative.cpp:67:5) 
+// Method process: assign_proc (test_const_negative.cpp:74:5) 
 
 always_comb 
-begin : assign_proc     // test_const_negative.cpp:67:5
+begin : assign_proc     // test_const_negative.cpp:74:5
     integer neg_val;
     integer j;
     logic [15:0] l1;
@@ -50,123 +50,123 @@ begin : assign_proc     // test_const_negative.cpp:67:5
     neg_val = -7'sd42;
     // Call assign() begin
     j = 42;
-    assert (j == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = -7'sd42;
-    assert (j == neg_val) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = 42;
-    assert (j == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = -7'sd42;
-    assert (j == neg_val) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     l1 = 42;
     j = -l1;
-    assert (j == neg_val) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call assign() end
     neg_val_1 = 'hFFFFFFD6;
     // Call assign() begin
     j_1 = 42;
-    assert (j_1 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = -7'sd42;
-    assert (j_1 == neg_val_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = 42;
-    assert (j_1 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = -7'sd42;
-    assert (j_1 == neg_val_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     l1_1 = 42;
     j_1 = -l1_1;
-    assert (j_1 == neg_val_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call assign() end
     neg_val_2 = -7'sd42;
     // Call assign() begin
     j_2 = 42;
-    assert (j_2 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = -7'sd42;
-    assert (j_2 == neg_val_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = 42;
-    assert (j_2 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = -7'sd42;
-    assert (j_2 == neg_val_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     l1_2 = 42;
     j_2 = -l1_2;
-    assert (j_2 == neg_val_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call assign() end
     neg_val_3 = 32'hFFFFFFD6;
     // Call assign() begin
     j_3 = 42;
-    assert (j_3 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = -7'sd42;
-    assert (j_3 == neg_val_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = 42;
-    assert (j_3 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = -7'sd42;
-    assert (j_3 == neg_val_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     l1_3 = 42;
     j_3 = -l1_3;
-    assert (j_3 == neg_val_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call assign() end
     neg_val_4 = 'h1FFFFFFD6;
     // Call assign() begin
     j_4 = 42;
-    assert (j_4 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = -7'sd42;
-    assert (j_4 == neg_val_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = 42;
-    assert (j_4 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = -7'sd42;
-    assert (j_4 == neg_val_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     l1_4 = 42;
     j_4 = -l1_4;
-    assert (j_4 == neg_val_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call assign() end
     neg_val_5 = -7'sd42;
     // Call assign() begin
     j_5 = 42;
-    assert (j_5 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = -7'sd42;
-    assert (j_5 == neg_val_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = 42;
-    assert (j_5 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = -7'sd42;
-    assert (j_5 == neg_val_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     l1_5 = 42;
     j_5 = -l1_5;
-    assert (j_5 == neg_val_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call assign() end
     neg_val_6 = 'h1FFFFFFD6;
     // Call assign() begin
     j_6 = 42;
-    assert (j_6 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = -7'sd42;
-    assert (j_6 == neg_val_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = 42;
-    assert (j_6 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = -7'sd42;
-    assert (j_6 == neg_val_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     l1_6 = 42;
     j_6 = -l1_6;
-    assert (j_6 == neg_val_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call assign() end
     neg_val_7 = 'hFFFFFFD6;
     // Call assign_unsigned() begin
     j_7 = 42;
-    assert (j_7 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_7 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_7 = -7'sd42;
-    assert (j_7 == neg_val_7) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_7 == neg_val_7) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call assign_unsigned() end
     // Call assign_bigint() begin
     l1_7 = 42;
     k = -signed'({1'b0, l1_7});
-    assert (k == 65494) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (k == 65494) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     l2 = 42;
     j_8 = -signed'({1'b0, l2});
-    assert (j_8 == -7'sd42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_8 == -7'sd42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call assign_bigint() end
 end
 
 //------------------------------------------------------------------------------
-// Method process: unary_proc (test_const_negative.cpp:156:5) 
+// Method process: unary_proc (test_const_negative.cpp:163:5) 
 
 always_comb 
-begin : unary_proc     // test_const_negative.cpp:156:5
+begin : unary_proc     // test_const_negative.cpp:163:5
     integer neg_val1;
     integer neg_val2;
     integer j;
@@ -200,165 +200,165 @@ begin : unary_proc     // test_const_negative.cpp:156:5
     j = 1;
     j--;
     j--;
-    assert (j == neg_val1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j++;
     j++;
-    assert (j == 1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == 1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = -7'sd42;
     j = j;
-    assert (j == neg_val2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = -7'sd42;
     j = -j;
-    assert (j == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = -7'sd42;
     b = |j;
-    assert (b) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (b) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     b = !(|j);
-    assert (!b) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (!b) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = ~j;
-    assert (j == 41) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == 41) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call unary() end
     neg_val1_1 = 'hFFFFFFFF; neg_val2_1 = 'hFFFFFFD6;
     // Call unary() begin
     j_1 = 1;
     j_1--;
     j_1--;
-    assert (j_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1++;
     j_1++;
-    assert (j_1 == 1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == 1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = -7'sd42;
     j_1 = j_1;
-    assert (j_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = -7'sd42;
     j_1 = -j_1;
-    assert (j_1 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = -7'sd42;
     b_1 = |j_1;
-    assert (b_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (b_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     b_1 = !(|j_1);
-    assert (!b_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (!b_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = ~j_1;
-    assert (j_1 == 41) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == 41) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call unary() end
     neg_val1_2 = -2'sd1; neg_val2_2 = -7'sd42;
     // Call unary() begin
     j_2 = 1;
     j_2--;
     j_2--;
-    assert (j_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2++;
     j_2++;
-    assert (j_2 == 1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == 1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = -7'sd42;
     j_2 = j_2;
-    assert (j_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = -7'sd42;
     j_2 = -j_2;
-    assert (j_2 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = -7'sd42;
     b_2 = |j_2;
-    assert (b_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (b_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     b_2 = !(|j_2);
-    assert (!b_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (!b_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = ~j_2;
-    assert (j_2 == 41) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == 41) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call unary() end
     neg_val1_3 = 65535; neg_val2_3 = 65494;
     // Call unary() begin
     j_3 = 1;
     j_3--;
     j_3--;
-    assert (j_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3++;
     j_3++;
-    assert (j_3 == 1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == 1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = -7'sd42;
     j_3 = j_3;
-    assert (j_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = -7'sd42;
     j_3 = -j_3;
-    assert (j_3 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = -7'sd42;
     b_3 = |j_3;
-    assert (b_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (b_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     b_3 = !(|j_3);
-    assert (!b_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (!b_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = ~j_3;
-    assert (j_3 == 41) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == 41) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call unary() end
     neg_val1_4 = 'h1FFFFFFFF; neg_val2_4 = 'h1FFFFFFD6;
     // Call unary() begin
     j_4 = 1;
     j_4--;
     j_4--;
-    assert (j_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4++;
     j_4++;
-    assert (j_4 == 1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == 1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = -7'sd42;
     j_4 = j_4;
-    assert (j_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = -7'sd42;
     j_4 = -j_4;
-    assert (j_4 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = -7'sd42;
     b_4 = |j_4;
-    assert (b_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (b_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     b_4 = !(|j_4);
-    assert (!b_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (!b_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = ~j_4;
-    assert (j_4 == 41) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == 41) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call unary() end
     neg_val1_5 = -2'sd1; neg_val2_5 = -7'sd42;
     // Call unary_bigint() begin
     j_5 = 1;
     j_5--;
     j_5--;
-    assert (j_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5++;
     j_5++;
-    assert (j_5 == 1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == 1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = -7'sd42;
     j_5 = j_5;
-    assert (j_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = -7'sd42;
     j_5 = -j_5;
-    assert (j_5 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = -7'sd42;
-    b_5 = |j_5;
-    assert (b_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
-    b_5 = !(|j_5);
-    assert (!b_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    b_5 = |64'(j_5);
+    assert (b_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
+    b_5 = !(|64'(j_5));
+    assert (!b_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call unary_bigint() end
     neg_val1_6 = 'h1FFFFFFFF; neg_val2_6 = 'h1FFFFFFD6;
     // Call unary_bigint() begin
     j_6 = 1;
     j_6--;
     j_6--;
-    assert (j_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6++;
     j_6++;
-    assert (j_6 == 1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == 1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = -7'sd42;
     j_6 = j_6;
-    assert (j_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = -7'sd42;
     j_6 = -signed'({1'b0, j_6});
-    assert (j_6 == 42) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == 42) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = -7'sd42;
-    b_6 = |j_6;
-    assert (b_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
-    b_6 = !(|j_6);
-    assert (!b_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    b_6 = |64'(j_6);
+    assert (b_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
+    b_6 = !(|64'(j_6));
+    assert (!b_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call unary_bigint() end
 end
 
 //------------------------------------------------------------------------------
-// Method process: binary_proc (test_const_negative.cpp:235:5) 
+// Method process: binary_proc (test_const_negative.cpp:242:5) 
 
 always_comb 
-begin : binary_proc     // test_const_negative.cpp:235:5
+begin : binary_proc     // test_const_negative.cpp:242:5
     integer neg_val1;
     integer neg_val2;
     integer neg_val3;
@@ -413,195 +413,195 @@ begin : binary_proc     // test_const_negative.cpp:235:5
     // Call binary() begin
     j = -7'sd42;
     r = j + 1;
-    assert (r == neg_val1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r == neg_val1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r = (-7'sd42) + j;
-    assert (r == neg_val2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r == neg_val2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r = j - (-2'sd1);
-    assert (r == neg_val1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r == neg_val1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r = (-7'sd42) - (-j);
-    assert (r == neg_val2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r == neg_val2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r = (-7'sd42) - j;
-    assert (r == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r = j * 1 - 1 * (-2'sd1);
-    assert (r == neg_val1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r == neg_val1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r = (-j) * (-3'sd2);
-    assert (r == neg_val2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r == neg_val2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r = (-7'sd42) * 2;
-    assert (r == neg_val2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r == neg_val2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     if (1)
     begin
         r = j / 1 - 1 / (-2'sd1);
-        assert (r == neg_val1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+        assert (r == neg_val1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
         r = 35'(-j * 4) / (-3'sd2);
-        assert (r == neg_val3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+        assert (r == neg_val3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     end
     // Call binary() end
     neg_val1_1 = 'hFFFFFFD7; neg_val2_1 = 'hFFFFFFAC; neg_val3_1 = 0; doDiv_1 = 0;
     // Call binary() begin
     j_1 = -7'sd42;
     r_1 = j_1 + 1;
-    assert (r_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_1 = (-7'sd42) + j_1;
-    assert (r_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_1 = j_1 - (-2'sd1);
-    assert (r_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_1 = (-7'sd42) - (-j_1);
-    assert (r_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_1 = (-7'sd42) - j_1;
-    assert (r_1 == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_1 == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_1 = j_1 * 1 - 1 * (-2'sd1);
-    assert (r_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_1 = (-j_1) * (-3'sd2);
-    assert (r_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_1 = (-7'sd42) * 2;
-    assert (r_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call binary() end
     neg_val1_2 = -7'sd41; neg_val2_2 = -8'sd84; neg_val3_2 = -8'sd84; doDiv_2 = 1;
     // Call binary() begin
     j_2 = -7'sd42;
     r_2 = j_2 + 1;
-    assert (r_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_2 = (-7'sd42) + j_2;
-    assert (r_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_2 = j_2 - (-2'sd1);
-    assert (r_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_2 = (-7'sd42) - (-j_2);
-    assert (r_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_2 = (-7'sd42) - j_2;
-    assert (r_2 == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_2 == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_2 = j_2 * 1 - 1 * (-2'sd1);
-    assert (r_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_2 = (-j_2) * (-3'sd2);
-    assert (r_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_2 = (-7'sd42) * 2;
-    assert (r_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     if (1)
     begin
         r_2 = j_2 / 1 - 1 / (-2'sd1);
-        assert (r_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+        assert (r_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
         r_2 = 19'(-j_2 * 4) / (-3'sd2);
-        assert (r_2 == neg_val3_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+        assert (r_2 == neg_val3_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     end
     // Call binary() end
     neg_val1_3 = 65495; neg_val2_3 = 65452; neg_val3_3 = 0; doDiv_3 = 0;
     // Call binary() begin
     j_3 = -7'sd42;
     r_3 = j_3 + 1;
-    assert (r_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_3 = (-7'sd42) + j_3;
-    assert (r_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_3 = j_3 - (-2'sd1);
-    assert (r_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_3 = (-7'sd42) - (-j_3);
-    assert (r_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_3 = (-7'sd42) - j_3;
-    assert (r_3 == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_3 == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_3 = j_3 * 1 - 1 * (-2'sd1);
-    assert (r_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_3 = (-j_3) * (-3'sd2);
-    assert (r_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_3 = (-7'sd42) * 2;
-    assert (r_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call binary() end
     neg_val1_4 = 'h1FFFFFFD7; neg_val2_4 = 'h1FFFFFFAC; neg_val3_4 = 0; doDiv_4 = 0;
     // Call binary() begin
     j_4 = -7'sd42;
     r_4 = j_4 + 1;
-    assert (r_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_4 = (-7'sd42) + j_4;
-    assert (r_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_4 = j_4 - (-2'sd1);
-    assert (r_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_4 = (-7'sd42) - (-j_4);
-    assert (r_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_4 = (-7'sd42) - j_4;
-    assert (r_4 == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_4 == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_4 = j_4 * 1 - 1 * (-2'sd1);
-    assert (r_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_4 = (-j_4) * (-3'sd2);
-    assert (r_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_4 = (-7'sd42) * 2;
-    assert (r_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call binary() end
     neg_val1_5 = -7'sd41; neg_val2_5 = -8'sd84; neg_val3_5 = -8'sd84; doDiv_5 = 1;
     // Call binary() begin
     j_5 = -7'sd42;
     r_5 = j_5 + 1;
-    assert (r_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_5 = (-7'sd42) + j_5;
-    assert (r_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_5 = j_5 - (-2'sd1);
-    assert (r_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_5 = (-7'sd42) - (-j_5);
-    assert (r_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_5 = (-7'sd42) - j_5;
-    assert (r_5 == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_5 == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_5 = j_5 * 1 - 1 * (-2'sd1);
-    assert (r_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_5 = (-j_5) * (-3'sd2);
-    assert (r_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_5 = (-7'sd42) * 2;
-    assert (r_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     if (1)
     begin
         r_5 = j_5 / 1 - 1 / (-2'sd1);
-        assert (r_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+        assert (r_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
         r_5 = 36'(-j_5 * 4) / (-3'sd2);
-        assert (r_5 == neg_val3_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+        assert (r_5 == neg_val3_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     end
     // Call binary() end
     neg_val1_6 = 'h1FFFFFFD7; neg_val2_6 = 'h1FFFFFFAC; neg_val3_6 = 'h1FFFFFFAC; doDiv_6 = 1;
     // Call binary() begin
     j_6 = -7'sd42;
     r_6 = signed'({1'b0, j_6}) + 1;
-    assert (r_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_6 = (-7'sd42) + j_6;
-    assert (r_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_6 = signed'({1'b0, j_6}) - (-2'sd1);
-    assert (r_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_6 = (-7'sd42) - (-signed'({1'b0, j_6}));
-    assert (r_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_6 = (-7'sd42) - j_6;
-    assert (r_6 == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_6 == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_6 = signed'({1'b0, j_6}) * 1 - 1 * (-2'sd1);
-    assert (r_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_6 = (-signed'({1'b0, j_6})) * (-3'sd2);
-    assert (r_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_6 = (-7'sd42) * 2;
-    assert (r_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     if (1)
     begin
         r_6 = signed'({1'b0, j_6}) / 1 - 1 / (-2'sd1);
-        assert (r_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+        assert (r_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
         r_6 = 36'(-signed'({1'b0, j_6}) * 4) / (-3'sd2);
-        assert (r_6 == neg_val3_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+        assert (r_6 == neg_val3_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     end
     // Call binary() end
     // Call binary_bigint() begin
     j_7 = -7'sd42;
     r_7 = signed'({1'b0, j_7}) / 1 - 1 / (-2'sd1);
-    assert (r_7 == 65495) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_7 == 65495) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     r_7 = 19'(-signed'({1'b0, j_7}) * 4) / (-3'sd2);
-    assert (r_7 == 65452) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (r_7 == 65452) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     y = -4'sd5;
     z = y - signed'({1'b0, j_7});
-    assert (z == 37) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (z == 37) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     z = -y * signed'({1'b0, j_7});
-    assert (z == -9'sd210) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (z == -9'sd210) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     l1 = 42;
     k = 1 + (-signed'({1'b0, l1}));
-    assert (k == 65495) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (k == 65495) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     l2 = 42;
     jj = 1 + (-signed'({1'b0, l2}));
-    assert (jj == -7'sd41) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (jj == -7'sd41) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call binary_bigint() end
 end
 
 //------------------------------------------------------------------------------
-// Method process: compound_proc (test_const_negative.cpp:335:5) 
+// Method process: compound_proc (test_const_negative.cpp:342:5) 
 
 always_comb 
-begin : compound_proc     // test_const_negative.cpp:335:5
+begin : compound_proc     // test_const_negative.cpp:342:5
     integer neg_val1;
     integer neg_val2;
     integer neg_val3;
@@ -640,268 +640,268 @@ begin : compound_proc     // test_const_negative.cpp:335:5
     // Call compound() begin
     j = -7'sd42;
     j = j + 1;
-    assert (j == neg_val1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = -7'sd42;
     j = j + (-7'sd42);
-    assert (j == neg_val2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = -7'sd42;
     j = j - (-2'sd1);
-    assert (j == neg_val1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = -7'sd42;
     j = j - (-j);
-    assert (j == neg_val2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = -7'sd42;
     j = j - (-7'sd42);
-    assert (j == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = -7'sd42;
     j = j * 1;
-    assert (j + 1 == neg_val1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j + 1 == neg_val1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = 42;
     j = j * (-3'sd2);
-    assert (j == neg_val2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = -7'sd42;
     j = j * 2;
-    assert (j == neg_val2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = (-7'sd42) + 1;
     j = j / 1;
-    assert (j == neg_val1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j = -7'sd42;
     j = j * (-4'sd4);
     j = j / (-3'sd2);
-    assert (j == neg_val3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j == neg_val3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call compound() end
     neg_val1_1 = 'hFFFFFFD7; neg_val2_1 = 'hFFFFFFAC; neg_val3_1 = 0;
     // Call compound() begin
     j_1 = -7'sd42;
     j_1 = j_1 + 1;
-    assert (j_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = -7'sd42;
     j_1 = j_1 + (-7'sd42);
-    assert (j_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = -7'sd42;
     j_1 = j_1 - (-2'sd1);
-    assert (j_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = -7'sd42;
     j_1 = j_1 - (-j_1);
-    assert (j_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = -7'sd42;
     j_1 = j_1 - (-7'sd42);
-    assert (j_1 == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = -7'sd42;
     j_1 = j_1 * 1;
-    assert (j_1 + 1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 + 1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = 42;
     j_1 = j_1 * (-3'sd2);
-    assert (j_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = -7'sd42;
     j_1 = j_1 * 2;
-    assert (j_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val2_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = (-7'sd42) + 1;
     j_1 = j_1 / 1;
-    assert (j_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val1_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_1 = -7'sd42;
     j_1 = j_1 * (-4'sd4);
     j_1 = j_1 / (-3'sd2);
-    assert (j_1 == neg_val3_1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_1 == neg_val3_1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call compound() end
     neg_val1_2 = -7'sd41; neg_val2_2 = -8'sd84; neg_val3_2 = -8'sd84;
     // Call compound() begin
     j_2 = -7'sd42;
     j_2 = j_2 + 1;
-    assert (j_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = -7'sd42;
     j_2 = j_2 + (-7'sd42);
-    assert (j_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = -7'sd42;
     j_2 = j_2 - (-2'sd1);
-    assert (j_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = -7'sd42;
     j_2 = j_2 - (-j_2);
-    assert (j_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = -7'sd42;
     j_2 = j_2 - (-7'sd42);
-    assert (j_2 == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = -7'sd42;
     j_2 = j_2 * 1;
-    assert (j_2 + 1 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 + 1 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = 42;
     j_2 = j_2 * (-3'sd2);
-    assert (j_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = -7'sd42;
     j_2 = j_2 * 2;
-    assert (j_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val2_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = (-7'sd42) + 1;
     j_2 = j_2 / 1;
-    assert (j_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val1_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_2 = -7'sd42;
     j_2 = j_2 * (-4'sd4);
     j_2 = j_2 / (-3'sd2);
-    assert (j_2 == neg_val3_2) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_2 == neg_val3_2) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call compound() end
     neg_val1_3 = 65495; neg_val2_3 = 65452; neg_val3_3 = 0;
     // Call compound() begin
     j_3 = -7'sd42;
     j_3 = j_3 + 1;
-    assert (j_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = -7'sd42;
     j_3 = j_3 + (-7'sd42);
-    assert (j_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = -7'sd42;
     j_3 = j_3 - (-2'sd1);
-    assert (j_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = -7'sd42;
     j_3 = j_3 - (-j_3);
-    assert (j_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = -7'sd42;
     j_3 = j_3 - (-7'sd42);
-    assert (j_3 == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = -7'sd42;
     j_3 = j_3 * 1;
-    assert (j_3 + 1 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 + 1 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = 42;
     j_3 = j_3 * (-3'sd2);
-    assert (j_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = -7'sd42;
     j_3 = j_3 * 2;
-    assert (j_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val2_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = (-7'sd42) + 1;
     j_3 = j_3 / 1;
-    assert (j_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val1_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_3 = -7'sd42;
     j_3 = j_3 * (-4'sd4);
     j_3 = j_3 / (-3'sd2);
-    assert (j_3 == neg_val3_3) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_3 == neg_val3_3) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call compound() end
     neg_val1_4 = 'h1FFFFFFD7; neg_val2_4 = 'h1FFFFFFAC; neg_val3_4 = 0;
     // Call compound() begin
     j_4 = -7'sd42;
     j_4 = j_4 + 1;
-    assert (j_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = -7'sd42;
     j_4 = j_4 + (-7'sd42);
-    assert (j_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = -7'sd42;
     j_4 = j_4 - (-2'sd1);
-    assert (j_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = -7'sd42;
     j_4 = j_4 - (-j_4);
-    assert (j_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = -7'sd42;
     j_4 = j_4 - (-7'sd42);
-    assert (j_4 == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = -7'sd42;
     j_4 = j_4 * 1;
-    assert (j_4 + 1 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 + 1 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = 42;
     j_4 = j_4 * (-3'sd2);
-    assert (j_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = -7'sd42;
     j_4 = j_4 * 2;
-    assert (j_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val2_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = (-7'sd42) + 1;
     j_4 = j_4 / 1;
-    assert (j_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val1_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_4 = -7'sd42;
     j_4 = j_4 * (-4'sd4);
     j_4 = j_4 / (-3'sd2);
-    assert (j_4 == neg_val3_4) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_4 == neg_val3_4) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call compound() end
     neg_val1_5 = -7'sd41; neg_val2_5 = -8'sd84; neg_val3_5 = -8'sd84;
     // Call compound() begin
     j_5 = -7'sd42;
     j_5 = j_5 + 1;
-    assert (j_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = -7'sd42;
     j_5 = j_5 + (-7'sd42);
-    assert (j_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = -7'sd42;
     j_5 = j_5 - (-2'sd1);
-    assert (j_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = -7'sd42;
     j_5 = j_5 - (-j_5);
-    assert (j_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = -7'sd42;
     j_5 = j_5 - (-7'sd42);
-    assert (j_5 == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = -7'sd42;
     j_5 = j_5 * 1;
-    assert (j_5 + 1 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 + 1 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = 42;
     j_5 = j_5 * (-3'sd2);
-    assert (j_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = -7'sd42;
     j_5 = j_5 * 2;
-    assert (j_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val2_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = (-7'sd42) + 1;
     j_5 = j_5 / 1;
-    assert (j_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val1_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_5 = -7'sd42;
     j_5 = j_5 * (-4'sd4);
     j_5 = j_5 / (-3'sd2);
-    assert (j_5 == neg_val3_5) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_5 == neg_val3_5) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call compound() end
     neg_val1_6 = 'h1FFFFFFD7; neg_val2_6 = 'h1FFFFFFAC; neg_val3_6 = 'h1FFFFFFAC;
     // Call compound() begin
     j_6 = -7'sd42;
     j_6 = signed'({1'b0, j_6}) + 1;
-    assert (j_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = -7'sd42;
     j_6 = j_6 + (-7'sd42);
-    assert (j_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = -7'sd42;
     j_6 = signed'({1'b0, j_6}) - (-2'sd1);
-    assert (j_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = -7'sd42;
     j_6 = signed'({1'b0, j_6}) - (-signed'({1'b0, j_6}));
-    assert (j_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = -7'sd42;
     j_6 = j_6 - (-7'sd42);
-    assert (j_6 == 0) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == 0) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = -7'sd42;
     j_6 = signed'({1'b0, j_6}) * 1;
-    assert (signed'({1'b0, j_6}) + 1 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (signed'({1'b0, j_6}) + 1 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = 42;
     j_6 = signed'({1'b0, j_6}) * (-3'sd2);
-    assert (j_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = -7'sd42;
     j_6 = signed'({1'b0, j_6}) * 2;
-    assert (j_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val2_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = (-7'sd42) + 1;
     j_6 = signed'({1'b0, j_6}) / 1;
-    assert (j_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val1_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_6 = -7'sd42;
     j_6 = signed'({1'b0, j_6}) * (-4'sd4);
     j_6 = signed'({1'b0, j_6}) / (-3'sd2);
-    assert (j_6 == neg_val3_6) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_6 == neg_val3_6) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call compound() end
     // Call compound_bigint() begin
     j_7 = -7'sd42;
     j_7 = signed'({1'b0, j_7}) / 1;
-    assert (j_7 == 65494) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_7 == 65494) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     j_7 = -7'sd42;
     j_7 = signed'({1'b0, j_7}) * (-4'sd4);
     j_7 = signed'({1'b0, j_7}) / (-3'sd2);
-    assert (j_7 == 65452) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (j_7 == 65452) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     y = -4'sd5;
     j_7 = -7'sd42;
     y = y + (-signed'({1'b0, j_7}));
-    assert (y == 37) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (y == 37) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     y = y * signed'({1'b0, j_7});
-    assert (y == -12'sd1554) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (y == -12'sd1554) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     l1 = 42;
     k = 1;
     k = signed'({1'b0, k}) + (-signed'({1'b0, l1}));
-    assert (k == 65495) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (k == 65495) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     l2 = 42;
     jj = 1;
     jj = jj + (-signed'({1'b0, l2}));
-    assert (jj == -7'sd41) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (jj == -7'sd41) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     jj = -7'sd41;
     jj = jj + signed'({1'b0, l2});
-    assert (jj == 1) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (jj == 1) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     jj = -7'sd41;
     jj = jj - signed'({1'b0, l2});
-    assert (jj == -8'sd83) else $error("Assertion failed at test_const_negative.cpp:17:20>");
+    assert (jj == -8'sd83) else $error("Assertion failed at test_const_negative.cpp:24:20>");
     // Call compound_bigint() end
 end
 

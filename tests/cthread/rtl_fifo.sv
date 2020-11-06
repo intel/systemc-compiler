@@ -44,7 +44,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Circ_buf (test_rtl_fifo.cpp:139:5)
+// Module: Circ_buf (test_rtl_fifo.cpp:146:5)
 //
 module Circ_buf // "b_mod.a_mod"
 (
@@ -74,10 +74,10 @@ logic empty_next;
 logic [31:0] data_out_next;
 
 //------------------------------------------------------------------------------
-// Method process: ns_logic (test_rtl_fifo.cpp:84:5) 
+// Method process: ns_logic (test_rtl_fifo.cpp:91:5) 
 
 always_comb 
-begin : ns_logic     // test_rtl_fifo.cpp:84:5
+begin : ns_logic     // test_rtl_fifo.cpp:91:5
     buf0_next = buf0;
     buf1_next = buf1;
     buf2_next = buf2;
@@ -122,7 +122,7 @@ begin : ns_logic     // test_rtl_fifo.cpp:84:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: update_regs (test_rtl_fifo.cpp:62:5) 
+// Clocked THREAD: update_regs (test_rtl_fifo.cpp:69:5) 
 
 // Thread-local variables
 logic full_next0;
@@ -135,7 +135,7 @@ logic [31:0] buf3_next0;
 logic [31:0] data_out_next0;
 
 // Next-state combinational logic
-always_comb begin : update_regs_comb     // test_rtl_fifo.cpp:62:5
+always_comb begin : update_regs_comb     // test_rtl_fifo.cpp:69:5
     update_regs_func;
 end
 function void update_regs_func;
@@ -183,10 +183,10 @@ begin : update_regs_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: gen_full (test_rtl_fifo.cpp:50:5) 
+// Method process: gen_full (test_rtl_fifo.cpp:57:5) 
 
 always_comb 
-begin : gen_full     // test_rtl_fifo.cpp:50:5
+begin : gen_full     // test_rtl_fifo.cpp:57:5
     if (num_in_buf_next == 4)
     begin
         full_next = 1;
@@ -196,10 +196,10 @@ begin : gen_full     // test_rtl_fifo.cpp:50:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: gen_empty (test_rtl_fifo.cpp:56:5) 
+// Method process: gen_empty (test_rtl_fifo.cpp:63:5) 
 
 always_comb 
-begin : gen_empty     // test_rtl_fifo.cpp:56:5
+begin : gen_empty     // test_rtl_fifo.cpp:63:5
     if (num_in_buf_next == 0)
     begin
         empty_next = 1;

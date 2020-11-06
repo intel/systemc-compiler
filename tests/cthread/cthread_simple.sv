@@ -43,7 +43,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cthread_simple.cpp:196:5)
+// Module: A (test_cthread_simple.cpp:203:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -61,19 +61,19 @@ logic ps;
 logic o;
 
 //------------------------------------------------------------------------------
-// Method process: concat_meth (test_cthread_simple.cpp:55:5) 
+// Method process: concat_meth (test_cthread_simple.cpp:62:5) 
 
 always_comb 
-begin : concat_meth     // test_cthread_simple.cpp:55:5
+begin : concat_meth     // test_cthread_simple.cpp:62:5
     logic [1:0] c;
     c = {1'(ps), 1'd0};
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple_concat (test_cthread_simple.cpp:60:5) 
+// Clocked THREAD: simple_concat (test_cthread_simple.cpp:67:5) 
 
 // Next-state combinational logic
-always_comb begin : simple_concat_comb     // test_cthread_simple.cpp:60:5
+always_comb begin : simple_concat_comb     // test_cthread_simple.cpp:67:5
     simple_concat_func;
 end
 function void simple_concat_func;
@@ -91,10 +91,10 @@ begin : simple_concat_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple_reg_ro (test_cthread_simple.cpp:69:5) 
+// Clocked THREAD: simple_reg_ro (test_cthread_simple.cpp:76:5) 
 
 // Next-state combinational logic
-always_comb begin : simple_reg_ro_comb     // test_cthread_simple.cpp:69:5
+always_comb begin : simple_reg_ro_comb     // test_cthread_simple.cpp:76:5
     simple_reg_ro_func;
 end
 function void simple_reg_ro_func;
@@ -112,10 +112,10 @@ begin : simple_reg_ro_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple_thread (test_cthread_simple.cpp:78:5) 
+// Clocked THREAD: simple_thread (test_cthread_simple.cpp:85:5) 
 
 // Next-state combinational logic
-always_comb begin : simple_thread_comb     // test_cthread_simple.cpp:78:5
+always_comb begin : simple_thread_comb     // test_cthread_simple.cpp:85:5
     simple_thread_func;
 end
 function void simple_thread_func;
@@ -131,13 +131,13 @@ begin : simple_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple_reg (test_cthread_simple.cpp:85:5) 
+// Clocked THREAD: simple_reg (test_cthread_simple.cpp:92:5) 
 
 // Thread-local variables
 logic o_next;
 
 // Next-state combinational logic
-always_comb begin : simple_reg_comb     // test_cthread_simple.cpp:85:5
+always_comb begin : simple_reg_comb     // test_cthread_simple.cpp:92:5
     simple_reg_func;
 end
 function void simple_reg_func;
@@ -162,14 +162,14 @@ begin : simple_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple_thread_wo_reset1 (test_cthread_simple.cpp:98:5) 
+// Clocked THREAD: simple_thread_wo_reset1 (test_cthread_simple.cpp:105:5) 
 
 // Thread-local variables
 logic simple_thread_wo_reset1_PROC_STATE;
 logic simple_thread_wo_reset1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : simple_thread_wo_reset1_comb     // test_cthread_simple.cpp:98:5
+always_comb begin : simple_thread_wo_reset1_comb     // test_cthread_simple.cpp:105:5
     simple_thread_wo_reset1_func;
 end
 function void simple_thread_wo_reset1_func;
@@ -179,11 +179,11 @@ function void simple_thread_wo_reset1_func;
     case (simple_thread_wo_reset1_PROC_STATE)
         default : begin
             i = 0;
-            simple_thread_wo_reset1_PROC_STATE_next = 0; return;    // test_cthread_simple.cpp:101:13;
+            simple_thread_wo_reset1_PROC_STATE_next = 0; return;    // test_cthread_simple.cpp:108:13;
         end
         0: begin
             i = 0;
-            simple_thread_wo_reset1_PROC_STATE_next = 0; return;    // test_cthread_simple.cpp:101:13;
+            simple_thread_wo_reset1_PROC_STATE_next = 0; return;    // test_cthread_simple.cpp:108:13;
         end
     endcase
 endfunction
@@ -197,14 +197,14 @@ begin : simple_thread_wo_reset1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple_thread_wo_reset2 (test_cthread_simple.cpp:105:5) 
+// Clocked THREAD: simple_thread_wo_reset2 (test_cthread_simple.cpp:112:5) 
 
 // Thread-local variables
 logic simple_thread_wo_reset2_PROC_STATE;
 logic simple_thread_wo_reset2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : simple_thread_wo_reset2_comb     // test_cthread_simple.cpp:105:5
+always_comb begin : simple_thread_wo_reset2_comb     // test_cthread_simple.cpp:112:5
     simple_thread_wo_reset2_func;
 end
 function void simple_thread_wo_reset2_func;
@@ -215,11 +215,11 @@ function void simple_thread_wo_reset2_func;
         default : begin
             i = 0;
             i = 1;
-            simple_thread_wo_reset2_PROC_STATE_next = 0; return;    // test_cthread_simple.cpp:109:13;
+            simple_thread_wo_reset2_PROC_STATE_next = 0; return;    // test_cthread_simple.cpp:116:13;
         end
         0: begin
             i = 1;
-            simple_thread_wo_reset2_PROC_STATE_next = 0; return;    // test_cthread_simple.cpp:109:13;
+            simple_thread_wo_reset2_PROC_STATE_next = 0; return;    // test_cthread_simple.cpp:116:13;
         end
     endcase
 endfunction

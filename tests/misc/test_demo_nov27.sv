@@ -22,7 +22,7 @@ logic valid;
 logic signed [31:0] t2out;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread0 (test_demo_nov27.cpp:161:5) 
+// Clocked THREAD: thread0 (test_demo_nov27.cpp:168:5) 
 
 // Thread-local variables
 logic signed [31:0] tout_next;
@@ -30,7 +30,7 @@ logic [1:0] thread0_PROC_STATE;
 logic [1:0] thread0_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread0_comb     // test_demo_nov27.cpp:161:5
+always_comb begin : thread0_comb     // test_demo_nov27.cpp:168:5
     thread0_func;
 end
 function void thread0_func;
@@ -40,16 +40,16 @@ function void thread0_func;
     case (thread0_PROC_STATE)
         0: begin
             tout_next = 1;
-            thread0_PROC_STATE_next = 1; return;    // test_demo_nov27.cpp:167:13;
+            thread0_PROC_STATE_next = 1; return;    // test_demo_nov27.cpp:174:13;
         end
         1: begin
             tout_next = 2;
-            thread0_PROC_STATE_next = 2; return;    // test_demo_nov27.cpp:169:13;
+            thread0_PROC_STATE_next = 2; return;    // test_demo_nov27.cpp:176:13;
         end
         2: begin
             tout_next = 3;
             tout_next = 1;
-            thread0_PROC_STATE_next = 1; return;    // test_demo_nov27.cpp:167:13;
+            thread0_PROC_STATE_next = 1; return;    // test_demo_nov27.cpp:174:13;
         end
     endcase
 endfunction
@@ -59,7 +59,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : thread0_ff
     if ( ~rstn ) begin
         tout <= 0;
-        thread0_PROC_STATE <= 0;    // test_demo_nov27.cpp:163:9;
+        thread0_PROC_STATE <= 0;    // test_demo_nov27.cpp:170:9;
     end
     else begin
         tout <= tout_next;
@@ -68,7 +68,7 @@ begin : thread0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread1 (test_demo_nov27.cpp:181:5) 
+// Clocked THREAD: thread1 (test_demo_nov27.cpp:188:5) 
 
 // Thread-local variables
 logic valid_next;
@@ -76,7 +76,7 @@ logic thread1_PROC_STATE;
 logic thread1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread1_comb     // test_demo_nov27.cpp:181:5
+always_comb begin : thread1_comb     // test_demo_nov27.cpp:188:5
     thread1_func;
 end
 function void thread1_func;
@@ -86,12 +86,12 @@ function void thread1_func;
     case (thread1_PROC_STATE)
         0: begin
             valid_next = 1;
-            thread1_PROC_STATE_next = 1; return;    // test_demo_nov27.cpp:186:14;
+            thread1_PROC_STATE_next = 1; return;    // test_demo_nov27.cpp:193:14;
         end
         1: begin
             if (!ready)
             begin
-                thread1_PROC_STATE_next = 1; return;    // test_demo_nov27.cpp:186:14;
+                thread1_PROC_STATE_next = 1; return;    // test_demo_nov27.cpp:193:14;
             end
         end
     endcase
@@ -102,7 +102,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : thread1_ff
     if ( ~rstn ) begin
         valid <= 0;
-        thread1_PROC_STATE <= 0;    // test_demo_nov27.cpp:183:9;
+        thread1_PROC_STATE <= 0;    // test_demo_nov27.cpp:190:9;
     end
     else begin
         valid <= valid_next;
@@ -111,7 +111,7 @@ begin : thread1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread2 (test_demo_nov27.cpp:196:5) 
+// Clocked THREAD: thread2 (test_demo_nov27.cpp:203:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -121,7 +121,7 @@ logic thread2_PROC_STATE;
 logic thread2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread2_comb     // test_demo_nov27.cpp:196:5
+always_comb begin : thread2_comb     // test_demo_nov27.cpp:203:5
     thread2_func;
 end
 function void thread2_func;
@@ -134,17 +134,17 @@ function void thread2_func;
             i_next = 0;
             if (i_next < t2out)
             begin
-                thread2_PROC_STATE_next = 1; return;    // test_demo_nov27.cpp:202:17;
+                thread2_PROC_STATE_next = 1; return;    // test_demo_nov27.cpp:209:17;
             end
-            thread2_PROC_STATE_next = 0; return;    // test_demo_nov27.cpp:199:13;
+            thread2_PROC_STATE_next = 0; return;    // test_demo_nov27.cpp:206:13;
         end
         1: begin
             i_next++;
             if (i_next < t2out)
             begin
-                thread2_PROC_STATE_next = 1; return;    // test_demo_nov27.cpp:202:17;
+                thread2_PROC_STATE_next = 1; return;    // test_demo_nov27.cpp:209:17;
             end
-            thread2_PROC_STATE_next = 0; return;    // test_demo_nov27.cpp:199:13;
+            thread2_PROC_STATE_next = 0; return;    // test_demo_nov27.cpp:206:13;
         end
     endcase
 endfunction
@@ -154,7 +154,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : thread2_ff
     if ( ~rstn ) begin
         t2out <= 0;
-        thread2_PROC_STATE <= 0;    // test_demo_nov27.cpp:199:13;
+        thread2_PROC_STATE <= 0;    // test_demo_nov27.cpp:206:13;
     end
     else begin
         i <= i_next;

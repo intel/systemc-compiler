@@ -1,3 +1,10 @@
+#******************************************************************************
+# Copyright (c) 2020, Intel Corporation. All rights reserved.
+# 
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+# 
+# *****************************************************************************
+
 add_executable(const_negative test_const_negative.cpp)
 svc_target(const_negative GOLDEN const_negative.sv)
 

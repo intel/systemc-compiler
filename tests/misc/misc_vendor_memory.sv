@@ -53,7 +53,7 @@ endmodule
 
 //==============================================================================
 //
-// Verilog intrinsic for module: intrinsic_name (test_vendor_memory.cpp:83:5)
+// Verilog intrinsic for module: intrinsic_name (test_vendor_memory.cpp:90:5)
 //
 module intrinsic_name(input clk);
 endmodule
@@ -61,7 +61,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: flat_name (test_vendor_memory.cpp:84:5)
+// Module: flat_name (test_vendor_memory.cpp:91:5)
 //
 module flat_name // "mod.stubInst4"
 (
@@ -74,7 +74,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: flat_name0 (test_vendor_memory.cpp:86:5)
+// Module: flat_name0 (test_vendor_memory.cpp:93:5)
 //
 module flat_name0 // "mod.stubInst6"
 (

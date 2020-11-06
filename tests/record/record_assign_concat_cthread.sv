@@ -18,7 +18,7 @@ module A // "a"
 logic rstn;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_assign1 (test_assign_concat_cthread.cpp:37:5) 
+// Clocked THREAD: record_assign1 (test_assign_concat_cthread.cpp:44:5) 
 
 // Thread-local variables
 logic s_a;
@@ -27,7 +27,7 @@ logic signed [31:0] s_b;
 logic signed [31:0] s_b_next;
 
 // Next-state combinational logic
-always_comb begin : record_assign1_comb     // test_assign_concat_cthread.cpp:37:5
+always_comb begin : record_assign1_comb     // test_assign_concat_cthread.cpp:44:5
     record_assign1_func;
 end
 function void record_assign1_func;
@@ -53,10 +53,10 @@ begin : record_assign1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_assign2 (test_assign_concat_cthread.cpp:52:5) 
+// Clocked THREAD: record_assign2 (test_assign_concat_cthread.cpp:59:5) 
 
 // Next-state combinational logic
-always_comb begin : record_assign2_comb     // test_assign_concat_cthread.cpp:52:5
+always_comb begin : record_assign2_comb     // test_assign_concat_cthread.cpp:59:5
     record_assign2_func;
 end
 function void record_assign2_func;
@@ -78,7 +78,7 @@ begin : record_assign2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_assign3 (test_assign_concat_cthread.cpp:67:5) 
+// Clocked THREAD: record_assign3 (test_assign_concat_cthread.cpp:74:5) 
 
 // Thread-local variables
 logic t_a;
@@ -91,7 +91,7 @@ logic signed [31:0] v_b;
 logic signed [31:0] v_b_next;
 
 // Next-state combinational logic
-always_comb begin : record_assign3_comb     // test_assign_concat_cthread.cpp:67:5
+always_comb begin : record_assign3_comb     // test_assign_concat_cthread.cpp:74:5
     record_assign3_func;
 end
 function void record_assign3_func;
@@ -122,7 +122,7 @@ begin : record_assign3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_concat_reg (test_assign_concat_cthread.cpp:81:5) 
+// Clocked THREAD: record_concat_reg (test_assign_concat_cthread.cpp:88:5) 
 
 // Thread-local variables
 logic x_a;
@@ -131,7 +131,7 @@ logic signed [31:0] x_b;
 logic signed [31:0] x_b_next;
 
 // Next-state combinational logic
-always_comb begin : record_concat_reg_comb     // test_assign_concat_cthread.cpp:81:5
+always_comb begin : record_concat_reg_comb     // test_assign_concat_cthread.cpp:88:5
     record_concat_reg_func;
 end
 function void record_concat_reg_func;
@@ -155,10 +155,10 @@ begin : record_concat_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_concat_comb (test_assign_concat_cthread.cpp:94:5) 
+// Clocked THREAD: record_concat_comb (test_assign_concat_cthread.cpp:101:5) 
 
 // Next-state combinational logic
-always_comb begin : record_concat_comb_comb     // test_assign_concat_cthread.cpp:94:5
+always_comb begin : record_concat_comb_comb     // test_assign_concat_cthread.cpp:101:5
     record_concat_comb_func;
 end
 function void record_concat_comb_func;

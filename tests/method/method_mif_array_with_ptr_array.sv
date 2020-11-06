@@ -28,13 +28,13 @@ assign a = minst_out;
 assign b = minst_outt;
 
 //------------------------------------------------------------------------------
-// Method process: minst_methProc (test_mif_array_with_ptr_array.cpp:36:5) 
+// Method process: minst_methProc (test_mif_array_with_ptr_array.cpp:43:5) 
 
 // Process-local variables
 logic [3:0] minst_var[2][2];
 
 always_comb 
-begin : minst_methProc     // test_mif_array_with_ptr_array.cpp:36:5
+begin : minst_methProc     // test_mif_array_with_ptr_array.cpp:43:5
     integer j;
     j = minst_s[0];
     minst_var[0][j + 1] = minst_in[0][j];
@@ -42,10 +42,10 @@ begin : minst_methProc     // test_mif_array_with_ptr_array.cpp:36:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_methProc0 (test_mif_array_with_ptr_array.cpp:36:5) 
+// Method process: minst_methProc0 (test_mif_array_with_ptr_array.cpp:43:5) 
 
 always_comb 
-begin : minst_methProc0     // test_mif_array_with_ptr_array.cpp:36:5
+begin : minst_methProc0     // test_mif_array_with_ptr_array.cpp:43:5
     integer j;
     j = minst_s[1];
     minst_var[1][j + 1] = minst_in[1][j];
@@ -53,13 +53,13 @@ begin : minst_methProc0     // test_mif_array_with_ptr_array.cpp:36:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: top_method (test_mif_array_with_ptr_array.cpp:70:5) 
+// Method process: top_method (test_mif_array_with_ptr_array.cpp:77:5) 
 
 // Process-local variables
 logic [3:0] minst_vart[2][2];
 
 always_comb 
-begin : top_method     // test_mif_array_with_ptr_array.cpp:70:5
+begin : top_method     // test_mif_array_with_ptr_array.cpp:77:5
     integer j;
     integer i;
     j = a[1][1];

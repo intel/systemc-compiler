@@ -25,13 +25,13 @@ assign slave_clk = clk;
 assign slave_nrst = nrst;
 
 //------------------------------------------------------------------------------
-// Method process: slave_methProc (test_sc_port_ptr_dyn.cpp:33:5) 
+// Method process: slave_methProc (test_sc_port_ptr_dyn.cpp:40:5) 
 
 // Process-local variables
 logic [3:0] slave_slave_port_l1;
 
 always_comb 
-begin : slave_methProc     // test_sc_port_ptr_dyn.cpp:33:5
+begin : slave_methProc     // test_sc_port_ptr_dyn.cpp:40:5
     logic [3:0] val;
     val = 0;
     // Call g() begin
@@ -41,7 +41,7 @@ begin : slave_methProc     // test_sc_port_ptr_dyn.cpp:33:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: slave_threadProc (test_sc_port_ptr_dyn.cpp:38:5) 
+// Clocked THREAD: slave_threadProc (test_sc_port_ptr_dyn.cpp:45:5) 
 
 // Thread-local variables
 logic [3:0] s_next;
@@ -49,7 +49,7 @@ logic [3:0] a;
 logic [3:0] a_next;
 
 // Next-state combinational logic
-always_comb begin : slave_threadProc_comb     // test_sc_port_ptr_dyn.cpp:38:5
+always_comb begin : slave_threadProc_comb     // test_sc_port_ptr_dyn.cpp:45:5
     slave_threadProc_func;
 end
 function void slave_threadProc_func;
@@ -86,13 +86,13 @@ begin : slave_threadProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: methProc (test_sc_port_ptr_dyn.cpp:108:5) 
+// Method process: methProc (test_sc_port_ptr_dyn.cpp:115:5) 
 
 // Process-local variables
 logic [3:0] slave_slave_port_l1;
 
 always_comb 
-begin : methProc     // test_sc_port_ptr_dyn.cpp:108:5
+begin : methProc     // test_sc_port_ptr_dyn.cpp:115:5
     logic [3:0] TMP_0;
     logic [3:0] a;
     // Call h() begin

@@ -20,7 +20,7 @@ logic signed [31:0] in;
 logic signed [31:0] out;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: concat_lhs1 (test_cthread_concat.cpp:44:5) 
+// Clocked THREAD: concat_lhs1 (test_cthread_concat.cpp:51:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
@@ -30,7 +30,7 @@ logic [2:0] a;
 logic [2:0] a_next;
 
 // Next-state combinational logic
-always_comb begin : concat_lhs1_comb     // test_cthread_concat.cpp:44:5
+always_comb begin : concat_lhs1_comb     // test_cthread_concat.cpp:51:5
     concat_lhs1_func;
 end
 function void concat_lhs1_func;
@@ -57,7 +57,7 @@ begin : concat_lhs1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: concat_lhs1a (test_cthread_concat.cpp:59:5) 
+// Clocked THREAD: concat_lhs1a (test_cthread_concat.cpp:66:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next0;
@@ -67,7 +67,7 @@ logic [1:0] y;
 logic [1:0] y_next;
 
 // Next-state combinational logic
-always_comb begin : concat_lhs1a_comb     // test_cthread_concat.cpp:59:5
+always_comb begin : concat_lhs1a_comb     // test_cthread_concat.cpp:66:5
     concat_lhs1a_func;
 end
 function void concat_lhs1a_func;
@@ -95,7 +95,7 @@ begin : concat_lhs1a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: concat_lhs2 (test_cthread_concat.cpp:75:5) 
+// Clocked THREAD: concat_lhs2 (test_cthread_concat.cpp:82:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next1;
@@ -105,7 +105,7 @@ logic [2:0] x1;
 logic [2:0] x_next1;
 
 // Next-state combinational logic
-always_comb begin : concat_lhs2_comb     // test_cthread_concat.cpp:75:5
+always_comb begin : concat_lhs2_comb     // test_cthread_concat.cpp:82:5
     concat_lhs2_func;
 end
 function void concat_lhs2_func;
@@ -131,7 +131,7 @@ begin : concat_lhs2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: concat_lhs3 (test_cthread_concat.cpp:89:5) 
+// Clocked THREAD: concat_lhs3 (test_cthread_concat.cpp:96:5) 
 
 // Thread-local variables
 logic [2:0] x2;
@@ -139,7 +139,7 @@ logic [2:0] x_next2;
 logic [4:0] c;
 
 // Next-state combinational logic
-always_comb begin : concat_lhs3_comb     // test_cthread_concat.cpp:89:5
+always_comb begin : concat_lhs3_comb     // test_cthread_concat.cpp:96:5
     concat_lhs3_func;
 end
 function void concat_lhs3_func;
@@ -162,14 +162,14 @@ begin : concat_lhs3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: concat_lhs4 (test_cthread_concat.cpp:103:5) 
+// Clocked THREAD: concat_lhs4 (test_cthread_concat.cpp:110:5) 
 
 // Thread-local variables
 logic [5:0] d;
 logic [5:0] d_next;
 
 // Next-state combinational logic
-always_comb begin : concat_lhs4_comb     // test_cthread_concat.cpp:103:5
+always_comb begin : concat_lhs4_comb     // test_cthread_concat.cpp:110:5
     concat_lhs4_func;
 end
 function void concat_lhs4_func;

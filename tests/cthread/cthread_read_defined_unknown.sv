@@ -36,7 +36,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cthread_read_defined_unknown.cpp:247:5)
+// Module: A (test_cthread_read_defined_unknown.cpp:254:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -51,26 +51,26 @@ logic pca[3];
 logic ppca[3][2];
 
 //------------------------------------------------------------------------------
-// Method process: read_pointer (test_cthread_read_defined_unknown.cpp:63:5) 
+// Method process: read_pointer (test_cthread_read_defined_unknown.cpp:70:5) 
 
 // Process-local variables
 logic signed [31:0] pi;
 
 always_comb 
-begin : read_pointer     // test_cthread_read_defined_unknown.cpp:63:5
+begin : read_pointer     // test_cthread_read_defined_unknown.cpp:70:5
     integer i;
     i = pi;
 end
 
 //------------------------------------------------------------------------------
-// Method process: read_pointer_array_unknown1 (test_cthread_read_defined_unknown.cpp:69:5) 
+// Method process: read_pointer_array_unknown1 (test_cthread_read_defined_unknown.cpp:76:5) 
 
 // Process-local variables
 logic signed [31:0] pa[3];
 logic [2:0] ppa[3][2];
 
 always_comb 
-begin : read_pointer_array_unknown1     // test_cthread_read_defined_unknown.cpp:69:5
+begin : read_pointer_array_unknown1     // test_cthread_read_defined_unknown.cpp:76:5
     integer i;
     logic [2:0] x;
     logic b_1;
@@ -81,13 +81,13 @@ begin : read_pointer_array_unknown1     // test_cthread_read_defined_unknown.cpp
 end
 
 //------------------------------------------------------------------------------
-// Method process: read_pointer_array_unknown2 (test_cthread_read_defined_unknown.cpp:89:5) 
+// Method process: read_pointer_array_unknown2 (test_cthread_read_defined_unknown.cpp:96:5) 
 
 // Process-local variables
 logic [2:0] ppa[3][2];
 
 always_comb 
-begin : read_pointer_array_unknown2     // test_cthread_read_defined_unknown.cpp:89:5
+begin : read_pointer_array_unknown2     // test_cthread_read_defined_unknown.cpp:96:5
     logic [2:0] x;
     logic b_1;
     x = ppa[1][a];
@@ -96,13 +96,13 @@ begin : read_pointer_array_unknown2     // test_cthread_read_defined_unknown.cpp
 end
 
 //------------------------------------------------------------------------------
-// Method process: read_pointer_array_unknown3 (test_cthread_read_defined_unknown.cpp:104:5) 
+// Method process: read_pointer_array_unknown3 (test_cthread_read_defined_unknown.cpp:111:5) 
 
 // Process-local variables
 logic [2:0] ppa[3][2];
 
 always_comb 
-begin : read_pointer_array_unknown3     // test_cthread_read_defined_unknown.cpp:104:5
+begin : read_pointer_array_unknown3     // test_cthread_read_defined_unknown.cpp:111:5
     logic [2:0] x;
     logic b_1;
     x = ppa[0][a];
@@ -111,14 +111,14 @@ begin : read_pointer_array_unknown3     // test_cthread_read_defined_unknown.cpp
 end
 
 //------------------------------------------------------------------------------
-// Method process: define_pointer_array_unknown1 (test_cthread_read_defined_unknown.cpp:119:5) 
+// Method process: define_pointer_array_unknown1 (test_cthread_read_defined_unknown.cpp:126:5) 
 
 // Process-local variables
 logic signed [31:0] pa[3];
 logic [2:0] ppa[3][2];
 
 always_comb 
-begin : define_pointer_array_unknown1     // test_cthread_read_defined_unknown.cpp:119:5
+begin : define_pointer_array_unknown1     // test_cthread_read_defined_unknown.cpp:126:5
     logic [2:0] x;
     pa[a] = 1;
     x = 0;
@@ -130,10 +130,10 @@ begin : define_pointer_array_unknown1     // test_cthread_read_defined_unknown.c
 end
 
 //------------------------------------------------------------------------------
-// Method process: read_array_unknown1 (test_cthread_read_defined_unknown.cpp:142:5) 
+// Method process: read_array_unknown1 (test_cthread_read_defined_unknown.cpp:149:5) 
 
 always_comb 
-begin : read_array_unknown1     // test_cthread_read_defined_unknown.cpp:142:5
+begin : read_array_unknown1     // test_cthread_read_defined_unknown.cpp:149:5
     integer arr[2];
     integer arr_[2][3];
     integer i;
@@ -142,10 +142,10 @@ begin : read_array_unknown1     // test_cthread_read_defined_unknown.cpp:142:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: read_array_unknown2 (test_cthread_read_defined_unknown.cpp:154:5) 
+// Method process: read_array_unknown2 (test_cthread_read_defined_unknown.cpp:161:5) 
 
 always_comb 
-begin : read_array_unknown2     // test_cthread_read_defined_unknown.cpp:154:5
+begin : read_array_unknown2     // test_cthread_read_defined_unknown.cpp:161:5
     integer arr[2];
     integer arr_[2][3];
     integer i;
@@ -155,10 +155,10 @@ begin : read_array_unknown2     // test_cthread_read_defined_unknown.cpp:154:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: read_array_unknown3 (test_cthread_read_defined_unknown.cpp:165:5) 
+// Method process: read_array_unknown3 (test_cthread_read_defined_unknown.cpp:172:5) 
 
 always_comb 
-begin : read_array_unknown3     // test_cthread_read_defined_unknown.cpp:165:5
+begin : read_array_unknown3     // test_cthread_read_defined_unknown.cpp:172:5
     integer arr[2];
     integer arr_[2][3];
     arr[a]++;
@@ -166,10 +166,10 @@ begin : read_array_unknown3     // test_cthread_read_defined_unknown.cpp:165:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: read_array_unknown4 (test_cthread_read_defined_unknown.cpp:176:5) 
+// Method process: read_array_unknown4 (test_cthread_read_defined_unknown.cpp:183:5) 
 
 always_comb 
-begin : read_array_unknown4     // test_cthread_read_defined_unknown.cpp:176:5
+begin : read_array_unknown4     // test_cthread_read_defined_unknown.cpp:183:5
     integer arr[2];
     integer arr_[2][3];
     arr[a] = arr[a] - 1;
@@ -177,10 +177,10 @@ begin : read_array_unknown4     // test_cthread_read_defined_unknown.cpp:176:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: read_array_unknown_sc_type (test_cthread_read_defined_unknown.cpp:187:5) 
+// Method process: read_array_unknown_sc_type (test_cthread_read_defined_unknown.cpp:194:5) 
 
 always_comb 
-begin : read_array_unknown_sc_type     // test_cthread_read_defined_unknown.cpp:187:5
+begin : read_array_unknown_sc_type     // test_cthread_read_defined_unknown.cpp:194:5
     logic [2:0] arr1[2];
     integer i;
     logic [2:0] arr2[2];
@@ -198,29 +198,29 @@ begin : read_array_unknown_sc_type     // test_cthread_read_defined_unknown.cpp:
 end
 
 //------------------------------------------------------------------------------
-// Method process: define_array_unknown1 (test_cthread_read_defined_unknown.cpp:208:5) 
+// Method process: define_array_unknown1 (test_cthread_read_defined_unknown.cpp:215:5) 
 
 always_comb 
-begin : define_array_unknown1     // test_cthread_read_defined_unknown.cpp:208:5
+begin : define_array_unknown1     // test_cthread_read_defined_unknown.cpp:215:5
     integer arr[2];
     arr[a] = 0;
 end
 
 //------------------------------------------------------------------------------
-// Method process: define_array_unknown2 (test_cthread_read_defined_unknown.cpp:217:5) 
+// Method process: define_array_unknown2 (test_cthread_read_defined_unknown.cpp:224:5) 
 
 always_comb 
-begin : define_array_unknown2     // test_cthread_read_defined_unknown.cpp:217:5
+begin : define_array_unknown2     // test_cthread_read_defined_unknown.cpp:224:5
     integer arr[2][2];
     arr[a][1] = 0;
     arr[0][a] = 0;
 end
 
 //------------------------------------------------------------------------------
-// Method process: define_array_unknown_sc_type (test_cthread_read_defined_unknown.cpp:227:5) 
+// Method process: define_array_unknown_sc_type (test_cthread_read_defined_unknown.cpp:234:5) 
 
 always_comb 
-begin : define_array_unknown_sc_type     // test_cthread_read_defined_unknown.cpp:227:5
+begin : define_array_unknown_sc_type     // test_cthread_read_defined_unknown.cpp:234:5
     logic signed [1:0] arr[2];
     arr[0] = 0; arr[1] = 0;
     arr[a] = 0;

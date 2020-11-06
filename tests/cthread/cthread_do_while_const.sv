@@ -32,7 +32,7 @@ logic signed [31:0] s10;
 logic signed [31:0] s11;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const1 (test_do_while_const.cpp:60:5) 
+// Clocked THREAD: const1 (test_do_while_const.cpp:67:5) 
 
 // Thread-local variables
 logic s1_next;
@@ -40,7 +40,7 @@ logic s1_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const1_comb     // test_do_while_const.cpp:60:5
+always_comb begin : const1_comb     // test_do_while_const.cpp:67:5
     const1_func;
 end
 function void const1_func;
@@ -64,7 +64,7 @@ begin : const1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const2 (test_do_while_const.cpp:77:5) 
+// Clocked THREAD: const2 (test_do_while_const.cpp:84:5) 
 
 // Thread-local variables
 logic s2_next;
@@ -72,7 +72,7 @@ logic s2_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const2_comb     // test_do_while_const.cpp:77:5
+always_comb begin : const2_comb     // test_do_while_const.cpp:84:5
     const2_func;
 end
 function void const2_func;
@@ -96,7 +96,7 @@ begin : const2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const3 (test_do_while_const.cpp:94:5) 
+// Clocked THREAD: const3 (test_do_while_const.cpp:101:5) 
 
 // Thread-local variables
 logic s3_next;
@@ -104,7 +104,7 @@ logic s3_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const3_comb     // test_do_while_const.cpp:94:5
+always_comb begin : const3_comb     // test_do_while_const.cpp:101:5
     const3_func;
 end
 function void const3_func;
@@ -128,7 +128,7 @@ begin : const3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const4 (test_do_while_const.cpp:111:5) 
+// Clocked THREAD: const4 (test_do_while_const.cpp:118:5) 
 
 // Thread-local variables
 logic s4_next;
@@ -136,7 +136,7 @@ logic s4_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const4_comb     // test_do_while_const.cpp:111:5
+always_comb begin : const4_comb     // test_do_while_const.cpp:118:5
     const4_func;
 end
 function void const4_func;
@@ -160,7 +160,7 @@ begin : const4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_wait1 (test_do_while_const.cpp:131:5) 
+// Clocked THREAD: const_wait1 (test_do_while_const.cpp:138:5) 
 
 // Thread-local variables
 logic s5_next;
@@ -170,7 +170,7 @@ logic [1:0] const_wait1_PROC_STATE_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const_wait1_comb     // test_do_while_const.cpp:131:5
+always_comb begin : const_wait1_comb     // test_do_while_const.cpp:138:5
     const_wait1_func;
 end
 function void const_wait1_func;
@@ -180,19 +180,19 @@ function void const_wait1_func;
     case (const_wait1_PROC_STATE)
         0: begin
             s5_next = !s5;
-            const_wait1_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:141:17;
+            const_wait1_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:148:17;
         end
         1: begin
             if (s || 0)
             begin
                 s5_next = !s5;
-                const_wait1_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:141:17;
+                const_wait1_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:148:17;
             end
-            const_wait1_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:143:13;
+            const_wait1_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:150:13;
         end
         2: begin
             s5_next = !s5;
-            const_wait1_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:141:17;
+            const_wait1_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:148:17;
         end
     endcase
 endfunction
@@ -202,7 +202,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : const_wait1_ff
     if ( ~rstn ) begin
         s5 <= 0;
-        const_wait1_PROC_STATE <= 0;    // test_do_while_const.cpp:135:9;
+        const_wait1_PROC_STATE <= 0;    // test_do_while_const.cpp:142:9;
     end
     else begin
         s5 <= s5_next;
@@ -211,7 +211,7 @@ begin : const_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_wait2 (test_do_while_const.cpp:150:5) 
+// Clocked THREAD: const_wait2 (test_do_while_const.cpp:157:5) 
 
 // Thread-local variables
 logic signed [31:0] s6_next;
@@ -219,7 +219,7 @@ logic signed [31:0] s6_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const_wait2_comb     // test_do_while_const.cpp:150:5
+always_comb begin : const_wait2_comb     // test_do_while_const.cpp:157:5
     const_wait2_func;
 end
 function void const_wait2_func;
@@ -239,13 +239,13 @@ begin : const_wait2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_wait2a (test_do_while_const.cpp:166:5) 
+// Clocked THREAD: const_wait2a (test_do_while_const.cpp:173:5) 
 
 // Thread-local variables
 logic signed [31:0] s6a_next;
 
 // Next-state combinational logic
-always_comb begin : const_wait2a_comb     // test_do_while_const.cpp:166:5
+always_comb begin : const_wait2a_comb     // test_do_while_const.cpp:173:5
     const_wait2a_func;
 end
 function void const_wait2a_func;
@@ -265,7 +265,7 @@ begin : const_wait2a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_wait2b (test_do_while_const.cpp:181:5) 
+// Clocked THREAD: const_wait2b (test_do_while_const.cpp:188:5) 
 
 // Thread-local variables
 logic signed [31:0] s6b_next;
@@ -273,7 +273,7 @@ logic [1:0] const_wait2b_PROC_STATE;
 logic [1:0] const_wait2b_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : const_wait2b_comb     // test_do_while_const.cpp:181:5
+always_comb begin : const_wait2b_comb     // test_do_while_const.cpp:188:5
     const_wait2b_func;
 end
 function void const_wait2b_func;
@@ -282,19 +282,19 @@ function void const_wait2b_func;
     
     case (const_wait2b_PROC_STATE)
         0: begin
-            const_wait2b_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:189:17;
+            const_wait2b_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:196:17;
         end
         1: begin
             s6b_next = 1;
             if (s)
             begin
-                const_wait2b_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:189:17;
+                const_wait2b_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:196:17;
             end
             s6b_next = 2;
-            const_wait2b_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:198:13;
+            const_wait2b_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:205:13;
         end
         2: begin
-            const_wait2b_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:189:17;
+            const_wait2b_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:196:17;
         end
     endcase
 endfunction
@@ -304,7 +304,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : const_wait2b_ff
     if ( ~rstn ) begin
         s6b <= 0;
-        const_wait2b_PROC_STATE <= 0;    // test_do_while_const.cpp:184:9;
+        const_wait2b_PROC_STATE <= 0;    // test_do_while_const.cpp:191:9;
     end
     else begin
         s6b <= s6b_next;
@@ -313,7 +313,7 @@ begin : const_wait2b_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_wait3 (test_do_while_const.cpp:203:5) 
+// Clocked THREAD: const_wait3 (test_do_while_const.cpp:210:5) 
 
 // Thread-local variables
 logic signed [31:0] s7_next;
@@ -321,7 +321,7 @@ logic signed [31:0] s7_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const_wait3_comb     // test_do_while_const.cpp:203:5
+always_comb begin : const_wait3_comb     // test_do_while_const.cpp:210:5
     const_wait3_func;
 end
 function void const_wait3_func;
@@ -346,7 +346,7 @@ begin : const_wait3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_wait4 (test_do_while_const.cpp:222:5) 
+// Clocked THREAD: const_wait4 (test_do_while_const.cpp:229:5) 
 
 // Thread-local variables
 logic signed [31:0] s8_next;
@@ -356,7 +356,7 @@ logic [1:0] const_wait4_PROC_STATE_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const_wait4_comb     // test_do_while_const.cpp:222:5
+always_comb begin : const_wait4_comb     // test_do_while_const.cpp:229:5
     const_wait4_func;
 end
 function void const_wait4_func;
@@ -366,15 +366,15 @@ function void const_wait4_func;
     case (const_wait4_PROC_STATE)
         0: begin
             s8_next = 2;
-            const_wait4_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:232:17;
+            const_wait4_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:239:17;
         end
         1: begin
             s8_next = 3;
-            const_wait4_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:236:13;
+            const_wait4_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:243:13;
         end
         2: begin
             s8_next = 2;
-            const_wait4_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:232:17;
+            const_wait4_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:239:17;
         end
     endcase
 endfunction
@@ -384,7 +384,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : const_wait4_ff
     if ( ~rstn ) begin
         s8 <= 0;
-        const_wait4_PROC_STATE <= 0;    // test_do_while_const.cpp:226:9;
+        const_wait4_PROC_STATE <= 0;    // test_do_while_const.cpp:233:9;
     end
     else begin
         s8 <= s8_next;
@@ -393,7 +393,7 @@ begin : const_wait4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_wait5 (test_do_while_const.cpp:242:5) 
+// Clocked THREAD: const_wait5 (test_do_while_const.cpp:249:5) 
 
 // Thread-local variables
 logic signed [31:0] s9_next;
@@ -403,7 +403,7 @@ logic [1:0] const_wait5_PROC_STATE_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const_wait5_comb     // test_do_while_const.cpp:242:5
+always_comb begin : const_wait5_comb     // test_do_while_const.cpp:249:5
     const_wait5_func;
 end
 function void const_wait5_func;
@@ -413,23 +413,23 @@ function void const_wait5_func;
     case (const_wait5_PROC_STATE)
         0: begin
             s9_next = 1;
-            const_wait5_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:252:17;
+            const_wait5_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:259:17;
         end
         1: begin
             if (s)
             begin
                 // break begin
                 s9_next = 3;
-                const_wait5_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:259:13;
+                const_wait5_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:266:13;
                 // break end
             end
             s9_next = 2;
             s9_next = 3;
-            const_wait5_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:259:13;
+            const_wait5_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:266:13;
         end
         2: begin
             s9_next = 1;
-            const_wait5_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:252:17;
+            const_wait5_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:259:17;
         end
     endcase
 endfunction
@@ -439,7 +439,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : const_wait5_ff
     if ( ~rstn ) begin
         s9 <= 0;
-        const_wait5_PROC_STATE <= 0;    // test_do_while_const.cpp:246:9;
+        const_wait5_PROC_STATE <= 0;    // test_do_while_const.cpp:253:9;
     end
     else begin
         s9 <= s9_next;
@@ -448,7 +448,7 @@ begin : const_wait5_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_wait6 (test_do_while_const.cpp:264:5) 
+// Clocked THREAD: const_wait6 (test_do_while_const.cpp:271:5) 
 
 // Thread-local variables
 logic signed [31:0] s10_next;
@@ -458,7 +458,7 @@ logic [2:0] const_wait6_PROC_STATE_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const_wait6_comb     // test_do_while_const.cpp:264:5
+always_comb begin : const_wait6_comb     // test_do_while_const.cpp:271:5
     const_wait6_func;
 end
 function void const_wait6_func;
@@ -469,9 +469,9 @@ function void const_wait6_func;
         0: begin
             if (s1)
             begin
-                const_wait6_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:275:21;
+                const_wait6_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:282:21;
             end else begin
-                const_wait6_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:279:17;
+                const_wait6_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:286:17;
             end
         end
         1: begin
@@ -481,49 +481,49 @@ function void const_wait6_func;
             begin
                 if (s1)
                 begin
-                    const_wait6_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:275:21;
+                    const_wait6_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:282:21;
                 end else begin
-                    const_wait6_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:279:17;
+                    const_wait6_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:286:17;
                 end
             end
             if (s4)
             begin
                 s10_next = 4;
             end
-            const_wait6_PROC_STATE_next = 4; return;    // test_do_while_const.cpp:288:13;
+            const_wait6_PROC_STATE_next = 4; return;    // test_do_while_const.cpp:295:13;
             // continue end
         end
         2: begin
             s10_next = 2;
-            const_wait6_PROC_STATE_next = 3; return;    // test_do_while_const.cpp:283:21;
+            const_wait6_PROC_STATE_next = 3; return;    // test_do_while_const.cpp:290:21;
         end
         3: begin
             s10_next = 3;
             if (!s2 || 0)
             begin
-                const_wait6_PROC_STATE_next = 3; return;    // test_do_while_const.cpp:283:21;
+                const_wait6_PROC_STATE_next = 3; return;    // test_do_while_const.cpp:290:21;
             end
             if (s3 && 1)
             begin
                 if (s1)
                 begin
-                    const_wait6_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:275:21;
+                    const_wait6_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:282:21;
                 end else begin
-                    const_wait6_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:279:17;
+                    const_wait6_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:286:17;
                 end
             end
             if (s4)
             begin
                 s10_next = 4;
             end
-            const_wait6_PROC_STATE_next = 4; return;    // test_do_while_const.cpp:288:13;
+            const_wait6_PROC_STATE_next = 4; return;    // test_do_while_const.cpp:295:13;
         end
         4: begin
             if (s1)
             begin
-                const_wait6_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:275:21;
+                const_wait6_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:282:21;
             end else begin
-                const_wait6_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:279:17;
+                const_wait6_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:286:17;
             end
         end
     endcase
@@ -534,7 +534,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : const_wait6_ff
     if ( ~rstn ) begin
         s10 <= 0;
-        const_wait6_PROC_STATE <= 0;    // test_do_while_const.cpp:269:9;
+        const_wait6_PROC_STATE <= 0;    // test_do_while_const.cpp:276:9;
     end
     else begin
         s10 <= s10_next;
@@ -543,7 +543,7 @@ begin : const_wait6_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_wait7 (test_do_while_const.cpp:293:5) 
+// Clocked THREAD: const_wait7 (test_do_while_const.cpp:300:5) 
 
 // Thread-local variables
 logic signed [31:0] s11_next;
@@ -551,7 +551,7 @@ logic [2:0] const_wait7_PROC_STATE;
 logic [2:0] const_wait7_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : const_wait7_comb     // test_do_while_const.cpp:293:5
+always_comb begin : const_wait7_comb     // test_do_while_const.cpp:300:5
     const_wait7_func;
 end
 function void const_wait7_func;
@@ -562,30 +562,30 @@ function void const_wait7_func;
         0: begin
             if (s1)
             begin
-                const_wait7_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:302:21;
+                const_wait7_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:309:21;
             end else begin
-                const_wait7_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:306:17;
+                const_wait7_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:313:17;
             end
         end
         1: begin
             s11_next = 1;
             // continue begin
-            const_wait7_PROC_STATE_next = 3; return;    // test_do_while_const.cpp:308:13;
+            const_wait7_PROC_STATE_next = 3; return;    // test_do_while_const.cpp:315:13;
             // continue end
         end
         2: begin
-            const_wait7_PROC_STATE_next = 3; return;    // test_do_while_const.cpp:308:13;
+            const_wait7_PROC_STATE_next = 3; return;    // test_do_while_const.cpp:315:13;
         end
         3: begin
-            const_wait7_PROC_STATE_next = 4; return;    // test_do_while_const.cpp:311:17;
+            const_wait7_PROC_STATE_next = 4; return;    // test_do_while_const.cpp:318:17;
         end
         4: begin
             s11_next = 2;
             if (s1)
             begin
-                const_wait7_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:302:21;
+                const_wait7_PROC_STATE_next = 1; return;    // test_do_while_const.cpp:309:21;
             end else begin
-                const_wait7_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:306:17;
+                const_wait7_PROC_STATE_next = 2; return;    // test_do_while_const.cpp:313:17;
             end
         end
     endcase
@@ -596,7 +596,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : const_wait7_ff
     if ( ~rstn ) begin
         s11 <= 0;
-        const_wait7_PROC_STATE <= 0;    // test_do_while_const.cpp:296:9;
+        const_wait7_PROC_STATE <= 0;    // test_do_while_const.cpp:303:9;
     end
     else begin
         s11 <= s11_next;

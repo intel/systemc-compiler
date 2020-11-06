@@ -20,10 +20,10 @@ logic signed [31:0] in;
 logic signed [31:0] out;
 
 //------------------------------------------------------------------------------
-// Method process: tmp (test_if.cpp:99:5) 
+// Method process: tmp (test_if.cpp:106:5) 
 
 always_comb 
-begin : tmp     // test_if.cpp:99:5
+begin : tmp     // test_if.cpp:106:5
     logic b1;
     logic b2;
     integer i;
@@ -32,10 +32,10 @@ begin : tmp     // test_if.cpp:99:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: tmp1 (test_if.cpp:108:5) 
+// Method process: tmp1 (test_if.cpp:115:5) 
 
 always_comb 
-begin : tmp1     // test_if.cpp:108:5
+begin : tmp1     // test_if.cpp:115:5
     logic b1;
     logic b2;
     integer i;
@@ -44,10 +44,10 @@ begin : tmp1     // test_if.cpp:108:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: tmp2 (test_if.cpp:117:5) 
+// Method process: tmp2 (test_if.cpp:124:5) 
 
 always_comb 
-begin : tmp2     // test_if.cpp:117:5
+begin : tmp2     // test_if.cpp:124:5
     logic b1;
     integer i;
     b1 = |in;
@@ -55,23 +55,23 @@ begin : tmp2     // test_if.cpp:117:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: tmp3 (test_if.cpp:127:5) 
+// Method process: tmp3 (test_if.cpp:134:5) 
 
 always_comb 
-begin : tmp3     // test_if.cpp:127:5
+begin : tmp3     // test_if.cpp:134:5
     integer n;
     n = 1;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: variable_read_in_binaryop (test_if.cpp:136:5) 
+// Clocked THREAD: variable_read_in_binaryop (test_if.cpp:143:5) 
 
 // Thread-local variables
 logic closeWaLine;
 logic closeWaLine_next;
 
 // Next-state combinational logic
-always_comb begin : variable_read_in_binaryop_comb     // test_if.cpp:136:5
+always_comb begin : variable_read_in_binaryop_comb     // test_if.cpp:143:5
     variable_read_in_binaryop_func;
 end
 function void variable_read_in_binaryop_func;
@@ -92,14 +92,14 @@ begin : variable_read_in_binaryop_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: smem_if_binary_const (test_if.cpp:155:5) 
+// Clocked THREAD: smem_if_binary_const (test_if.cpp:162:5) 
 
 // Thread-local variables
 logic b;
 logic b_next;
 
 // Next-state combinational logic
-always_comb begin : smem_if_binary_const_comb     // test_if.cpp:155:5
+always_comb begin : smem_if_binary_const_comb     // test_if.cpp:162:5
     smem_if_binary_const_func;
 end
 function void smem_if_binary_const_func;
@@ -122,10 +122,10 @@ begin : smem_if_binary_const_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: simple_no_wait (test_if.cpp:167:5) 
+// Method process: simple_no_wait (test_if.cpp:174:5) 
 
 always_comb 
-begin : simple_no_wait     // test_if.cpp:167:5
+begin : simple_no_wait     // test_if.cpp:174:5
     integer k;
     k = 0;
     if (|in)
@@ -147,14 +147,14 @@ begin : simple_no_wait     // test_if.cpp:167:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple_wait (test_if.cpp:190:5) 
+// Clocked THREAD: simple_wait (test_if.cpp:197:5) 
 
 // Thread-local variables
 logic [2:0] simple_wait_PROC_STATE;
 logic [2:0] simple_wait_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : simple_wait_comb     // test_if.cpp:190:5
+always_comb begin : simple_wait_comb     // test_if.cpp:197:5
     simple_wait_func;
 end
 function void simple_wait_func;
@@ -166,46 +166,46 @@ function void simple_wait_func;
             if (|in)
             begin
                 k = 1;
-                simple_wait_PROC_STATE_next = 1; return;    // test_if.cpp:198:17;
+                simple_wait_PROC_STATE_next = 1; return;    // test_if.cpp:205:17;
             end else begin
                 if (|out)
                 begin
                     k = 4;
-                    simple_wait_PROC_STATE_next = 3; return;    // test_if.cpp:210:21;
+                    simple_wait_PROC_STATE_next = 3; return;    // test_if.cpp:217:21;
                 end
             end
-            simple_wait_PROC_STATE_next = 4; return;    // test_if.cpp:214:13;
+            simple_wait_PROC_STATE_next = 4; return;    // test_if.cpp:221:13;
         end
         1: begin
             if (|out)
             begin
                 k = 2;
-                simple_wait_PROC_STATE_next = 2; return;    // test_if.cpp:202:21;
+                simple_wait_PROC_STATE_next = 2; return;    // test_if.cpp:209:21;
             end else begin
                 k = 3;
             end
-            simple_wait_PROC_STATE_next = 4; return;    // test_if.cpp:214:13;
+            simple_wait_PROC_STATE_next = 4; return;    // test_if.cpp:221:13;
         end
         2: begin
-            simple_wait_PROC_STATE_next = 4; return;    // test_if.cpp:214:13;
+            simple_wait_PROC_STATE_next = 4; return;    // test_if.cpp:221:13;
         end
         3: begin
-            simple_wait_PROC_STATE_next = 4; return;    // test_if.cpp:214:13;
+            simple_wait_PROC_STATE_next = 4; return;    // test_if.cpp:221:13;
         end
         4: begin
             k = 6;
             if (|in)
             begin
                 k = 1;
-                simple_wait_PROC_STATE_next = 1; return;    // test_if.cpp:198:17;
+                simple_wait_PROC_STATE_next = 1; return;    // test_if.cpp:205:17;
             end else begin
                 if (|out)
                 begin
                     k = 4;
-                    simple_wait_PROC_STATE_next = 3; return;    // test_if.cpp:210:21;
+                    simple_wait_PROC_STATE_next = 3; return;    // test_if.cpp:217:21;
                 end
             end
-            simple_wait_PROC_STATE_next = 4; return;    // test_if.cpp:214:13;
+            simple_wait_PROC_STATE_next = 4; return;    // test_if.cpp:221:13;
         end
     endcase
 endfunction
@@ -216,7 +216,7 @@ begin : simple_wait_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        simple_wait_PROC_STATE <= 0;    // test_if.cpp:193:9;
+        simple_wait_PROC_STATE <= 0;    // test_if.cpp:200:9;
     end
     else begin
         simple_wait_PROC_STATE <= simple_wait_PROC_STATE_next;
@@ -224,14 +224,14 @@ begin : simple_wait_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: if_stmt_wait0 (test_if.cpp:219:5) 
+// Clocked THREAD: if_stmt_wait0 (test_if.cpp:226:5) 
 
 // Thread-local variables
 logic [1:0] if_stmt_wait0_PROC_STATE;
 logic [1:0] if_stmt_wait0_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : if_stmt_wait0_comb     // test_if.cpp:219:5
+always_comb begin : if_stmt_wait0_comb     // test_if.cpp:226:5
     if_stmt_wait0_func;
 end
 function void if_stmt_wait0_func;
@@ -243,24 +243,24 @@ function void if_stmt_wait0_func;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait0_PROC_STATE_next = 1; return;    // test_if.cpp:227:17;
+                if_stmt_wait0_PROC_STATE_next = 1; return;    // test_if.cpp:234:17;
             end
             k = 2;
-            if_stmt_wait0_PROC_STATE_next = 2; return;    // test_if.cpp:231:13;
+            if_stmt_wait0_PROC_STATE_next = 2; return;    // test_if.cpp:238:13;
         end
         1: begin
             k = 2;
-            if_stmt_wait0_PROC_STATE_next = 2; return;    // test_if.cpp:231:13;
+            if_stmt_wait0_PROC_STATE_next = 2; return;    // test_if.cpp:238:13;
         end
         2: begin
             k = 3;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait0_PROC_STATE_next = 1; return;    // test_if.cpp:227:17;
+                if_stmt_wait0_PROC_STATE_next = 1; return;    // test_if.cpp:234:17;
             end
             k = 2;
-            if_stmt_wait0_PROC_STATE_next = 2; return;    // test_if.cpp:231:13;
+            if_stmt_wait0_PROC_STATE_next = 2; return;    // test_if.cpp:238:13;
         end
     endcase
 endfunction
@@ -271,7 +271,7 @@ begin : if_stmt_wait0_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        if_stmt_wait0_PROC_STATE <= 0;    // test_if.cpp:222:9;
+        if_stmt_wait0_PROC_STATE <= 0;    // test_if.cpp:229:9;
     end
     else begin
         if_stmt_wait0_PROC_STATE <= if_stmt_wait0_PROC_STATE_next;
@@ -279,14 +279,14 @@ begin : if_stmt_wait0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: if_stmt_wait1 (test_if.cpp:237:5) 
+// Clocked THREAD: if_stmt_wait1 (test_if.cpp:244:5) 
 
 // Thread-local variables
 logic [1:0] if_stmt_wait1_PROC_STATE;
 logic [1:0] if_stmt_wait1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : if_stmt_wait1_comb     // test_if.cpp:237:5
+always_comb begin : if_stmt_wait1_comb     // test_if.cpp:244:5
     if_stmt_wait1_func;
 end
 function void if_stmt_wait1_func;
@@ -296,21 +296,21 @@ function void if_stmt_wait1_func;
     case (if_stmt_wait1_PROC_STATE)
         0: begin
             k = 1;
-            if_stmt_wait1_PROC_STATE_next = 1; return;    // test_if.cpp:244:13;
+            if_stmt_wait1_PROC_STATE_next = 1; return;    // test_if.cpp:251:13;
         end
         1: begin
             if (|in)
             begin
                 k = 2;
-                if_stmt_wait1_PROC_STATE_next = 2; return;    // test_if.cpp:248:17;
+                if_stmt_wait1_PROC_STATE_next = 2; return;    // test_if.cpp:255:17;
             end
             k = 1;
-            if_stmt_wait1_PROC_STATE_next = 1; return;    // test_if.cpp:244:13;
+            if_stmt_wait1_PROC_STATE_next = 1; return;    // test_if.cpp:251:13;
         end
         2: begin
             k = 3;
             k = 1;
-            if_stmt_wait1_PROC_STATE_next = 1; return;    // test_if.cpp:244:13;
+            if_stmt_wait1_PROC_STATE_next = 1; return;    // test_if.cpp:251:13;
         end
     endcase
 endfunction
@@ -321,7 +321,7 @@ begin : if_stmt_wait1_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        if_stmt_wait1_PROC_STATE <= 0;    // test_if.cpp:240:9;
+        if_stmt_wait1_PROC_STATE <= 0;    // test_if.cpp:247:9;
     end
     else begin
         if_stmt_wait1_PROC_STATE <= if_stmt_wait1_PROC_STATE_next;
@@ -329,14 +329,14 @@ begin : if_stmt_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: if_stmt_wait2 (test_if.cpp:254:5) 
+// Clocked THREAD: if_stmt_wait2 (test_if.cpp:261:5) 
 
 // Thread-local variables
 logic [1:0] if_stmt_wait2_PROC_STATE;
 logic [1:0] if_stmt_wait2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : if_stmt_wait2_comb     // test_if.cpp:254:5
+always_comb begin : if_stmt_wait2_comb     // test_if.cpp:261:5
     if_stmt_wait2_func;
 end
 function void if_stmt_wait2_func;
@@ -348,10 +348,10 @@ function void if_stmt_wait2_func;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait2_PROC_STATE_next = 1; return;    // test_if.cpp:262:17;
+                if_stmt_wait2_PROC_STATE_next = 1; return;    // test_if.cpp:269:17;
             end else begin
                 k = 3;
-                if_stmt_wait2_PROC_STATE_next = 2; return;    // test_if.cpp:267:17;
+                if_stmt_wait2_PROC_STATE_next = 2; return;    // test_if.cpp:274:17;
             end
         end
         1: begin
@@ -359,10 +359,10 @@ function void if_stmt_wait2_func;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait2_PROC_STATE_next = 1; return;    // test_if.cpp:262:17;
+                if_stmt_wait2_PROC_STATE_next = 1; return;    // test_if.cpp:269:17;
             end else begin
                 k = 3;
-                if_stmt_wait2_PROC_STATE_next = 2; return;    // test_if.cpp:267:17;
+                if_stmt_wait2_PROC_STATE_next = 2; return;    // test_if.cpp:274:17;
             end
         end
         2: begin
@@ -370,10 +370,10 @@ function void if_stmt_wait2_func;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait2_PROC_STATE_next = 1; return;    // test_if.cpp:262:17;
+                if_stmt_wait2_PROC_STATE_next = 1; return;    // test_if.cpp:269:17;
             end else begin
                 k = 3;
-                if_stmt_wait2_PROC_STATE_next = 2; return;    // test_if.cpp:267:17;
+                if_stmt_wait2_PROC_STATE_next = 2; return;    // test_if.cpp:274:17;
             end
         end
     endcase
@@ -385,7 +385,7 @@ begin : if_stmt_wait2_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        if_stmt_wait2_PROC_STATE <= 0;    // test_if.cpp:257:9;
+        if_stmt_wait2_PROC_STATE <= 0;    // test_if.cpp:264:9;
     end
     else begin
         if_stmt_wait2_PROC_STATE <= if_stmt_wait2_PROC_STATE_next;
@@ -393,14 +393,14 @@ begin : if_stmt_wait2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: if_stmt_wait2a (test_if.cpp:273:5) 
+// Clocked THREAD: if_stmt_wait2a (test_if.cpp:280:5) 
 
 // Thread-local variables
 logic [1:0] if_stmt_wait2a_PROC_STATE;
 logic [1:0] if_stmt_wait2a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : if_stmt_wait2a_comb     // test_if.cpp:273:5
+always_comb begin : if_stmt_wait2a_comb     // test_if.cpp:280:5
     if_stmt_wait2a_func;
 end
 function void if_stmt_wait2a_func;
@@ -412,10 +412,10 @@ function void if_stmt_wait2a_func;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait2a_PROC_STATE_next = 1; return;    // test_if.cpp:281:17;
+                if_stmt_wait2a_PROC_STATE_next = 1; return;    // test_if.cpp:288:17;
             end else begin
                 k = 3;
-                if_stmt_wait2a_PROC_STATE_next = 2; return;    // test_if.cpp:286:17;
+                if_stmt_wait2a_PROC_STATE_next = 2; return;    // test_if.cpp:293:17;
             end
         end
         1: begin
@@ -423,10 +423,10 @@ function void if_stmt_wait2a_func;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait2a_PROC_STATE_next = 1; return;    // test_if.cpp:281:17;
+                if_stmt_wait2a_PROC_STATE_next = 1; return;    // test_if.cpp:288:17;
             end else begin
                 k = 3;
-                if_stmt_wait2a_PROC_STATE_next = 2; return;    // test_if.cpp:286:17;
+                if_stmt_wait2a_PROC_STATE_next = 2; return;    // test_if.cpp:293:17;
             end
         end
         2: begin
@@ -437,10 +437,10 @@ function void if_stmt_wait2a_func;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait2a_PROC_STATE_next = 1; return;    // test_if.cpp:281:17;
+                if_stmt_wait2a_PROC_STATE_next = 1; return;    // test_if.cpp:288:17;
             end else begin
                 k = 3;
-                if_stmt_wait2a_PROC_STATE_next = 2; return;    // test_if.cpp:286:17;
+                if_stmt_wait2a_PROC_STATE_next = 2; return;    // test_if.cpp:293:17;
             end
         end
     endcase
@@ -452,7 +452,7 @@ begin : if_stmt_wait2a_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        if_stmt_wait2a_PROC_STATE <= 0;    // test_if.cpp:276:9;
+        if_stmt_wait2a_PROC_STATE <= 0;    // test_if.cpp:283:9;
     end
     else begin
         if_stmt_wait2a_PROC_STATE <= if_stmt_wait2a_PROC_STATE_next;
@@ -460,14 +460,14 @@ begin : if_stmt_wait2a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: if_stmt_wait3 (test_if.cpp:295:5) 
+// Clocked THREAD: if_stmt_wait3 (test_if.cpp:302:5) 
 
 // Thread-local variables
 logic [2:0] if_stmt_wait3_PROC_STATE;
 logic [2:0] if_stmt_wait3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : if_stmt_wait3_comb     // test_if.cpp:295:5
+always_comb begin : if_stmt_wait3_comb     // test_if.cpp:302:5
     if_stmt_wait3_func;
 end
 function void if_stmt_wait3_func;
@@ -479,53 +479,53 @@ function void if_stmt_wait3_func;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait3_PROC_STATE_next = 1; return;    // test_if.cpp:303:17;
+                if_stmt_wait3_PROC_STATE_next = 1; return;    // test_if.cpp:310:17;
             end else begin
                 if (|out)
                 begin
                     if (out == in)
                     begin
                         k = 4;
-                        if_stmt_wait3_PROC_STATE_next = 3; return;    // test_if.cpp:316:25;
+                        if_stmt_wait3_PROC_STATE_next = 3; return;    // test_if.cpp:323:25;
                     end
                 end
             end
-            if_stmt_wait3_PROC_STATE_next = 4; return;    // test_if.cpp:322:13;
+            if_stmt_wait3_PROC_STATE_next = 4; return;    // test_if.cpp:329:13;
         end
         1: begin
             if (|out)
             begin
                 k = 2;
-                if_stmt_wait3_PROC_STATE_next = 2; return;    // test_if.cpp:307:21;
+                if_stmt_wait3_PROC_STATE_next = 2; return;    // test_if.cpp:314:21;
             end else begin
                 k = 3;
             end
-            if_stmt_wait3_PROC_STATE_next = 4; return;    // test_if.cpp:322:13;
+            if_stmt_wait3_PROC_STATE_next = 4; return;    // test_if.cpp:329:13;
         end
         2: begin
-            if_stmt_wait3_PROC_STATE_next = 4; return;    // test_if.cpp:322:13;
+            if_stmt_wait3_PROC_STATE_next = 4; return;    // test_if.cpp:329:13;
         end
         3: begin
             k = 5;
-            if_stmt_wait3_PROC_STATE_next = 4; return;    // test_if.cpp:322:13;
+            if_stmt_wait3_PROC_STATE_next = 4; return;    // test_if.cpp:329:13;
         end
         4: begin
             k = 6;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait3_PROC_STATE_next = 1; return;    // test_if.cpp:303:17;
+                if_stmt_wait3_PROC_STATE_next = 1; return;    // test_if.cpp:310:17;
             end else begin
                 if (|out)
                 begin
                     if (out == in)
                     begin
                         k = 4;
-                        if_stmt_wait3_PROC_STATE_next = 3; return;    // test_if.cpp:316:25;
+                        if_stmt_wait3_PROC_STATE_next = 3; return;    // test_if.cpp:323:25;
                     end
                 end
             end
-            if_stmt_wait3_PROC_STATE_next = 4; return;    // test_if.cpp:322:13;
+            if_stmt_wait3_PROC_STATE_next = 4; return;    // test_if.cpp:329:13;
         end
     endcase
 endfunction
@@ -536,7 +536,7 @@ begin : if_stmt_wait3_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        if_stmt_wait3_PROC_STATE <= 0;    // test_if.cpp:298:9;
+        if_stmt_wait3_PROC_STATE <= 0;    // test_if.cpp:305:9;
     end
     else begin
         if_stmt_wait3_PROC_STATE <= if_stmt_wait3_PROC_STATE_next;
@@ -544,7 +544,7 @@ begin : if_stmt_wait3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: if_stmt_wait_for0 (test_if.cpp:328:5) 
+// Clocked THREAD: if_stmt_wait_for0 (test_if.cpp:335:5) 
 
 // Thread-local variables
 logic signed [31:0] k;
@@ -553,7 +553,7 @@ logic [1:0] if_stmt_wait_for0_PROC_STATE;
 logic [1:0] if_stmt_wait_for0_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : if_stmt_wait_for0_comb     // test_if.cpp:328:5
+always_comb begin : if_stmt_wait_for0_comb     // test_if.cpp:335:5
     if_stmt_wait_for0_func;
 end
 function void if_stmt_wait_for0_func;
@@ -569,7 +569,7 @@ function void if_stmt_wait_for0_func;
             if (|in)
             begin
                 k_next = 1;
-                if_stmt_wait_for0_PROC_STATE_next = 1; return;    // test_if.cpp:341:17;
+                if_stmt_wait_for0_PROC_STATE_next = 1; return;    // test_if.cpp:348:17;
             end
             for (integer i = 0; i < 3; i++)
             begin
@@ -578,9 +578,9 @@ function void if_stmt_wait_for0_func;
             if (|in)
             begin
                 k_next = 2;
-                if_stmt_wait_for0_PROC_STATE_next = 2; return;    // test_if.cpp:350:17;
+                if_stmt_wait_for0_PROC_STATE_next = 2; return;    // test_if.cpp:357:17;
             end
-            if_stmt_wait_for0_PROC_STATE_next = 3; return;    // test_if.cpp:353:13;
+            if_stmt_wait_for0_PROC_STATE_next = 3; return;    // test_if.cpp:360:13;
         end
         1: begin
             for (integer i = 0; i < 3; i++)
@@ -590,12 +590,12 @@ function void if_stmt_wait_for0_func;
             if (|in)
             begin
                 k_next = 2;
-                if_stmt_wait_for0_PROC_STATE_next = 2; return;    // test_if.cpp:350:17;
+                if_stmt_wait_for0_PROC_STATE_next = 2; return;    // test_if.cpp:357:17;
             end
-            if_stmt_wait_for0_PROC_STATE_next = 3; return;    // test_if.cpp:353:13;
+            if_stmt_wait_for0_PROC_STATE_next = 3; return;    // test_if.cpp:360:13;
         end
         2: begin
-            if_stmt_wait_for0_PROC_STATE_next = 3; return;    // test_if.cpp:353:13;
+            if_stmt_wait_for0_PROC_STATE_next = 3; return;    // test_if.cpp:360:13;
         end
         3: begin
             k_next = 3;
@@ -606,7 +606,7 @@ function void if_stmt_wait_for0_func;
             if (|in)
             begin
                 k_next = 1;
-                if_stmt_wait_for0_PROC_STATE_next = 1; return;    // test_if.cpp:341:17;
+                if_stmt_wait_for0_PROC_STATE_next = 1; return;    // test_if.cpp:348:17;
             end
             for (integer i = 0; i < 3; i++)
             begin
@@ -615,9 +615,9 @@ function void if_stmt_wait_for0_func;
             if (|in)
             begin
                 k_next = 2;
-                if_stmt_wait_for0_PROC_STATE_next = 2; return;    // test_if.cpp:350:17;
+                if_stmt_wait_for0_PROC_STATE_next = 2; return;    // test_if.cpp:357:17;
             end
-            if_stmt_wait_for0_PROC_STATE_next = 3; return;    // test_if.cpp:353:13;
+            if_stmt_wait_for0_PROC_STATE_next = 3; return;    // test_if.cpp:360:13;
         end
     endcase
 endfunction
@@ -627,7 +627,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : if_stmt_wait_for0_ff
     if ( ~arstn ) begin
         k <= 0;
-        if_stmt_wait_for0_PROC_STATE <= 0;    // test_if.cpp:331:9;
+        if_stmt_wait_for0_PROC_STATE <= 0;    // test_if.cpp:338:9;
     end
     else begin
         k <= k_next;
@@ -636,7 +636,7 @@ begin : if_stmt_wait_for0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: if_stmt_wait_for1 (test_if.cpp:359:5) 
+// Clocked THREAD: if_stmt_wait_for1 (test_if.cpp:366:5) 
 
 // Thread-local variables
 logic signed [31:0] k0;
@@ -645,7 +645,7 @@ logic [2:0] if_stmt_wait_for1_PROC_STATE;
 logic [2:0] if_stmt_wait_for1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : if_stmt_wait_for1_comb     // test_if.cpp:359:5
+always_comb begin : if_stmt_wait_for1_comb     // test_if.cpp:366:5
     if_stmt_wait_for1_func;
 end
 function void if_stmt_wait_for1_func;
@@ -661,10 +661,10 @@ function void if_stmt_wait_for1_func;
                     k_next0++;
                 end
                 k_next0 = 1;
-                if_stmt_wait_for1_PROC_STATE_next = 1; return;    // test_if.cpp:371:17;
+                if_stmt_wait_for1_PROC_STATE_next = 1; return;    // test_if.cpp:378:17;
             end else begin
                 k_next0 = 4;
-                if_stmt_wait_for1_PROC_STATE_next = 4; return;    // test_if.cpp:387:17;
+                if_stmt_wait_for1_PROC_STATE_next = 4; return;    // test_if.cpp:394:17;
             end
         end
         1: begin
@@ -676,14 +676,14 @@ function void if_stmt_wait_for1_func;
                 end
             end else begin
                 k_next0 = 3;
-                if_stmt_wait_for1_PROC_STATE_next = 2; return;    // test_if.cpp:379:21;
+                if_stmt_wait_for1_PROC_STATE_next = 2; return;    // test_if.cpp:386:21;
             end
             k_next0 = 2;
-            if_stmt_wait_for1_PROC_STATE_next = 3; return;    // test_if.cpp:382:17;
+            if_stmt_wait_for1_PROC_STATE_next = 3; return;    // test_if.cpp:389:17;
         end
         2: begin
             k_next0 = 2;
-            if_stmt_wait_for1_PROC_STATE_next = 3; return;    // test_if.cpp:382:17;
+            if_stmt_wait_for1_PROC_STATE_next = 3; return;    // test_if.cpp:389:17;
         end
         3: begin
             k_next0 = 5;
@@ -694,10 +694,10 @@ function void if_stmt_wait_for1_func;
                     k_next0++;
                 end
                 k_next0 = 1;
-                if_stmt_wait_for1_PROC_STATE_next = 1; return;    // test_if.cpp:371:17;
+                if_stmt_wait_for1_PROC_STATE_next = 1; return;    // test_if.cpp:378:17;
             end else begin
                 k_next0 = 4;
-                if_stmt_wait_for1_PROC_STATE_next = 4; return;    // test_if.cpp:387:17;
+                if_stmt_wait_for1_PROC_STATE_next = 4; return;    // test_if.cpp:394:17;
             end
         end
         4: begin
@@ -709,10 +709,10 @@ function void if_stmt_wait_for1_func;
                     k_next0++;
                 end
                 k_next0 = 1;
-                if_stmt_wait_for1_PROC_STATE_next = 1; return;    // test_if.cpp:371:17;
+                if_stmt_wait_for1_PROC_STATE_next = 1; return;    // test_if.cpp:378:17;
             end else begin
                 k_next0 = 4;
-                if_stmt_wait_for1_PROC_STATE_next = 4; return;    // test_if.cpp:387:17;
+                if_stmt_wait_for1_PROC_STATE_next = 4; return;    // test_if.cpp:394:17;
             end
         end
     endcase
@@ -723,7 +723,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : if_stmt_wait_for1_ff
     if ( ~arstn ) begin
         k0 <= 0;
-        if_stmt_wait_for1_PROC_STATE <= 0;    // test_if.cpp:362:9;
+        if_stmt_wait_for1_PROC_STATE <= 0;    // test_if.cpp:369:9;
     end
     else begin
         k0 <= k_next0;
@@ -732,7 +732,7 @@ begin : if_stmt_wait_for1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: if_stmt_wait_for2 (test_if.cpp:394:5) 
+// Clocked THREAD: if_stmt_wait_for2 (test_if.cpp:401:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -741,7 +741,7 @@ logic [1:0] if_stmt_wait_for2_PROC_STATE;
 logic [1:0] if_stmt_wait_for2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : if_stmt_wait_for2_comb     // test_if.cpp:394:5
+always_comb begin : if_stmt_wait_for2_comb     // test_if.cpp:401:5
     if_stmt_wait_for2_func;
 end
 function void if_stmt_wait_for2_func;
@@ -755,12 +755,12 @@ function void if_stmt_wait_for2_func;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait_for2_PROC_STATE_next = 1; return;    // test_if.cpp:404:21;
+                if_stmt_wait_for2_PROC_STATE_next = 1; return;    // test_if.cpp:411:21;
             end
-            if_stmt_wait_for2_PROC_STATE_next = 2; return;    // test_if.cpp:407:17;
+            if_stmt_wait_for2_PROC_STATE_next = 2; return;    // test_if.cpp:414:17;
         end
         1: begin
-            if_stmt_wait_for2_PROC_STATE_next = 2; return;    // test_if.cpp:407:17;
+            if_stmt_wait_for2_PROC_STATE_next = 2; return;    // test_if.cpp:414:17;
         end
         2: begin
             i_next++;
@@ -769,17 +769,17 @@ function void if_stmt_wait_for2_func;
                 if (|in)
                 begin
                     k = 1;
-                    if_stmt_wait_for2_PROC_STATE_next = 1; return;    // test_if.cpp:404:21;
+                    if_stmt_wait_for2_PROC_STATE_next = 1; return;    // test_if.cpp:411:21;
                 end
-                if_stmt_wait_for2_PROC_STATE_next = 2; return;    // test_if.cpp:407:17;
+                if_stmt_wait_for2_PROC_STATE_next = 2; return;    // test_if.cpp:414:17;
             end
             i_next = 0;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait_for2_PROC_STATE_next = 1; return;    // test_if.cpp:404:21;
+                if_stmt_wait_for2_PROC_STATE_next = 1; return;    // test_if.cpp:411:21;
             end
-            if_stmt_wait_for2_PROC_STATE_next = 2; return;    // test_if.cpp:407:17;
+            if_stmt_wait_for2_PROC_STATE_next = 2; return;    // test_if.cpp:414:17;
         end
     endcase
 endfunction
@@ -790,7 +790,7 @@ begin : if_stmt_wait_for2_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        if_stmt_wait_for2_PROC_STATE <= 0;    // test_if.cpp:397:9;
+        if_stmt_wait_for2_PROC_STATE <= 0;    // test_if.cpp:404:9;
     end
     else begin
         i <= i_next;
@@ -799,7 +799,7 @@ begin : if_stmt_wait_for2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: if_stmt_wait_for2a (test_if.cpp:412:5) 
+// Clocked THREAD: if_stmt_wait_for2a (test_if.cpp:419:5) 
 
 // Thread-local variables
 logic signed [31:0] j;
@@ -810,7 +810,7 @@ logic [1:0] if_stmt_wait_for2a_PROC_STATE;
 logic [1:0] if_stmt_wait_for2a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : if_stmt_wait_for2a_comb     // test_if.cpp:412:5
+always_comb begin : if_stmt_wait_for2a_comb     // test_if.cpp:419:5
     if_stmt_wait_for2a_func;
 end
 function void if_stmt_wait_for2a_func;
@@ -826,12 +826,12 @@ function void if_stmt_wait_for2a_func;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait_for2a_PROC_STATE_next = 1; return;    // test_if.cpp:423:25;
+                if_stmt_wait_for2a_PROC_STATE_next = 1; return;    // test_if.cpp:430:25;
             end
-            if_stmt_wait_for2a_PROC_STATE_next = 2; return;    // test_if.cpp:426:21;
+            if_stmt_wait_for2a_PROC_STATE_next = 2; return;    // test_if.cpp:433:21;
         end
         1: begin
-            if_stmt_wait_for2a_PROC_STATE_next = 2; return;    // test_if.cpp:426:21;
+            if_stmt_wait_for2a_PROC_STATE_next = 2; return;    // test_if.cpp:433:21;
         end
         2: begin
             j_next++;
@@ -840,9 +840,9 @@ function void if_stmt_wait_for2a_func;
                 if (|in)
                 begin
                     k = 1;
-                    if_stmt_wait_for2a_PROC_STATE_next = 1; return;    // test_if.cpp:423:25;
+                    if_stmt_wait_for2a_PROC_STATE_next = 1; return;    // test_if.cpp:430:25;
                 end
-                if_stmt_wait_for2a_PROC_STATE_next = 2; return;    // test_if.cpp:426:21;
+                if_stmt_wait_for2a_PROC_STATE_next = 2; return;    // test_if.cpp:433:21;
             end
             i_next0++;
             if (i_next0 < 3)
@@ -851,11 +851,11 @@ function void if_stmt_wait_for2a_func;
                 if (|in)
                 begin
                     k = 1;
-                    if_stmt_wait_for2a_PROC_STATE_next = 1; return;    // test_if.cpp:423:25;
+                    if_stmt_wait_for2a_PROC_STATE_next = 1; return;    // test_if.cpp:430:25;
                 end
-                if_stmt_wait_for2a_PROC_STATE_next = 2; return;    // test_if.cpp:426:21;
+                if_stmt_wait_for2a_PROC_STATE_next = 2; return;    // test_if.cpp:433:21;
             end
-            if_stmt_wait_for2a_PROC_STATE_next = 3; return;    // test_if.cpp:430:13;
+            if_stmt_wait_for2a_PROC_STATE_next = 3; return;    // test_if.cpp:437:13;
         end
         3: begin
             i_next0 = 0;
@@ -863,9 +863,9 @@ function void if_stmt_wait_for2a_func;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait_for2a_PROC_STATE_next = 1; return;    // test_if.cpp:423:25;
+                if_stmt_wait_for2a_PROC_STATE_next = 1; return;    // test_if.cpp:430:25;
             end
-            if_stmt_wait_for2a_PROC_STATE_next = 2; return;    // test_if.cpp:426:21;
+            if_stmt_wait_for2a_PROC_STATE_next = 2; return;    // test_if.cpp:433:21;
         end
     endcase
 endfunction
@@ -876,7 +876,7 @@ begin : if_stmt_wait_for2a_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        if_stmt_wait_for2a_PROC_STATE <= 0;    // test_if.cpp:415:9;
+        if_stmt_wait_for2a_PROC_STATE <= 0;    // test_if.cpp:422:9;
     end
     else begin
         j <= j_next;
@@ -886,7 +886,7 @@ begin : if_stmt_wait_for2a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: if_stmt_wait_for2b (test_if.cpp:434:5) 
+// Clocked THREAD: if_stmt_wait_for2b (test_if.cpp:441:5) 
 
 // Thread-local variables
 logic signed [31:0] i1;
@@ -897,7 +897,7 @@ logic [2:0] if_stmt_wait_for2b_PROC_STATE;
 logic [2:0] if_stmt_wait_for2b_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : if_stmt_wait_for2b_comb     // test_if.cpp:434:5
+always_comb begin : if_stmt_wait_for2b_comb     // test_if.cpp:441:5
     if_stmt_wait_for2b_func;
 end
 function void if_stmt_wait_for2b_func;
@@ -912,7 +912,7 @@ function void if_stmt_wait_for2b_func;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait_for2b_PROC_STATE_next = 1; return;    // test_if.cpp:444:21;
+                if_stmt_wait_for2b_PROC_STATE_next = 1; return;    // test_if.cpp:451:21;
             end
             j_next0 = 0;
             if (|out)
@@ -920,9 +920,9 @@ function void if_stmt_wait_for2b_func;
                 k = 2;
             end else begin
                 k = 3;
-                if_stmt_wait_for2b_PROC_STATE_next = 2; return;    // test_if.cpp:452:25;
+                if_stmt_wait_for2b_PROC_STATE_next = 2; return;    // test_if.cpp:459:25;
             end
-            if_stmt_wait_for2b_PROC_STATE_next = 3; return;    // test_if.cpp:454:21;
+            if_stmt_wait_for2b_PROC_STATE_next = 3; return;    // test_if.cpp:461:21;
         end
         1: begin
             j_next0 = 0;
@@ -931,12 +931,12 @@ function void if_stmt_wait_for2b_func;
                 k = 2;
             end else begin
                 k = 3;
-                if_stmt_wait_for2b_PROC_STATE_next = 2; return;    // test_if.cpp:452:25;
+                if_stmt_wait_for2b_PROC_STATE_next = 2; return;    // test_if.cpp:459:25;
             end
-            if_stmt_wait_for2b_PROC_STATE_next = 3; return;    // test_if.cpp:454:21;
+            if_stmt_wait_for2b_PROC_STATE_next = 3; return;    // test_if.cpp:461:21;
         end
         2: begin
-            if_stmt_wait_for2b_PROC_STATE_next = 3; return;    // test_if.cpp:454:21;
+            if_stmt_wait_for2b_PROC_STATE_next = 3; return;    // test_if.cpp:461:21;
         end
         3: begin
             j_next0++;
@@ -947,11 +947,11 @@ function void if_stmt_wait_for2b_func;
                     k = 2;
                 end else begin
                     k = 3;
-                    if_stmt_wait_for2b_PROC_STATE_next = 2; return;    // test_if.cpp:452:25;
+                    if_stmt_wait_for2b_PROC_STATE_next = 2; return;    // test_if.cpp:459:25;
                 end
-                if_stmt_wait_for2b_PROC_STATE_next = 3; return;    // test_if.cpp:454:21;
+                if_stmt_wait_for2b_PROC_STATE_next = 3; return;    // test_if.cpp:461:21;
             end
-            if_stmt_wait_for2b_PROC_STATE_next = 4; return;    // test_if.cpp:457:17;
+            if_stmt_wait_for2b_PROC_STATE_next = 4; return;    // test_if.cpp:464:17;
         end
         4: begin
             i_next1++;
@@ -960,7 +960,7 @@ function void if_stmt_wait_for2b_func;
                 if (|in)
                 begin
                     k = 1;
-                    if_stmt_wait_for2b_PROC_STATE_next = 1; return;    // test_if.cpp:444:21;
+                    if_stmt_wait_for2b_PROC_STATE_next = 1; return;    // test_if.cpp:451:21;
                 end
                 j_next0 = 0;
                 if (|out)
@@ -968,15 +968,15 @@ function void if_stmt_wait_for2b_func;
                     k = 2;
                 end else begin
                     k = 3;
-                    if_stmt_wait_for2b_PROC_STATE_next = 2; return;    // test_if.cpp:452:25;
+                    if_stmt_wait_for2b_PROC_STATE_next = 2; return;    // test_if.cpp:459:25;
                 end
-                if_stmt_wait_for2b_PROC_STATE_next = 3; return;    // test_if.cpp:454:21;
+                if_stmt_wait_for2b_PROC_STATE_next = 3; return;    // test_if.cpp:461:21;
             end
             i_next1 = 0;
             if (|in)
             begin
                 k = 1;
-                if_stmt_wait_for2b_PROC_STATE_next = 1; return;    // test_if.cpp:444:21;
+                if_stmt_wait_for2b_PROC_STATE_next = 1; return;    // test_if.cpp:451:21;
             end
             j_next0 = 0;
             if (|out)
@@ -984,9 +984,9 @@ function void if_stmt_wait_for2b_func;
                 k = 2;
             end else begin
                 k = 3;
-                if_stmt_wait_for2b_PROC_STATE_next = 2; return;    // test_if.cpp:452:25;
+                if_stmt_wait_for2b_PROC_STATE_next = 2; return;    // test_if.cpp:459:25;
             end
-            if_stmt_wait_for2b_PROC_STATE_next = 3; return;    // test_if.cpp:454:21;
+            if_stmt_wait_for2b_PROC_STATE_next = 3; return;    // test_if.cpp:461:21;
         end
     endcase
 endfunction
@@ -997,7 +997,7 @@ begin : if_stmt_wait_for2b_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        if_stmt_wait_for2b_PROC_STATE <= 0;    // test_if.cpp:437:9;
+        if_stmt_wait_for2b_PROC_STATE <= 0;    // test_if.cpp:444:9;
     end
     else begin
         i1 <= i_next1;
@@ -1007,10 +1007,10 @@ begin : if_stmt_wait_for2b_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: if_stmt_const_prop1 (test_if.cpp:462:5) 
+// Clocked THREAD: if_stmt_const_prop1 (test_if.cpp:469:5) 
 
 // Next-state combinational logic
-always_comb begin : if_stmt_const_prop1_comb     // test_if.cpp:462:5
+always_comb begin : if_stmt_const_prop1_comb     // test_if.cpp:469:5
     if_stmt_const_prop1_func;
 end
 function void if_stmt_const_prop1_func;
@@ -1034,10 +1034,10 @@ begin : if_stmt_const_prop1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: if_stmt_const_prop2 (test_if.cpp:480:5) 
+// Clocked THREAD: if_stmt_const_prop2 (test_if.cpp:487:5) 
 
 // Next-state combinational logic
-always_comb begin : if_stmt_const_prop2_comb     // test_if.cpp:480:5
+always_comb begin : if_stmt_const_prop2_comb     // test_if.cpp:487:5
     if_stmt_const_prop2_func;
 end
 function void if_stmt_const_prop2_func;

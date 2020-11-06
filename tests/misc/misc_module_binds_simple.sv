@@ -41,7 +41,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Producer (test_module_binds_simple.cpp:22:5)
+// Module: Producer (test_module_binds_simple.cpp:29:5)
 //
 module Producer // "tb_inst.top_mod.prod"
 (
@@ -61,7 +61,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Consumer (test_module_binds_simple.cpp:23:5)
+// Module: Consumer (test_module_binds_simple.cpp:30:5)
 //
 module Consumer // "tb_inst.top_mod.cons"
 (

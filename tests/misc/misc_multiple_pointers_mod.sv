@@ -16,10 +16,10 @@ module A // "a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: meth (test_multiple_pointers_mod.cpp:36:5) 
+// Method process: meth (test_multiple_pointers_mod.cpp:43:5) 
 
 always_comb 
-begin : meth     // test_multiple_pointers_mod.cpp:36:5
+begin : meth     // test_multiple_pointers_mod.cpp:43:5
 end
 
 
@@ -41,7 +41,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: B (test_multiple_pointers_mod.cpp:14:5)
+// Module: B (test_multiple_pointers_mod.cpp:21:5)
 //
 module B // "a_mod.b"
 (

@@ -18,7 +18,7 @@ logic clk;
 logic arstn;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: for_stmt_other_types_fns (test_cthread_redundant_code.cpp:66:5) 
+// Clocked THREAD: for_stmt_other_types_fns (test_cthread_redundant_code.cpp:73:5) 
 
 // Thread-local variables
 logic [14:0] i;
@@ -29,7 +29,7 @@ logic [3:0] for_stmt_other_types_fns_PROC_STATE;
 logic [3:0] for_stmt_other_types_fns_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : for_stmt_other_types_fns_comb     // test_cthread_redundant_code.cpp:66:5
+always_comb begin : for_stmt_other_types_fns_comb     // test_cthread_redundant_code.cpp:73:5
     for_stmt_other_types_fns_func;
 end
 function void for_stmt_other_types_fns_func;
@@ -47,7 +47,7 @@ function void for_stmt_other_types_fns_func;
                 k = 1;
             end
             k = 2;
-            for_stmt_other_types_fns_PROC_STATE_next = 1; return;    // test_cthread_redundant_code.cpp:112:13;
+            for_stmt_other_types_fns_PROC_STATE_next = 1; return;    // test_cthread_redundant_code.cpp:119:13;
             // Call for_stmt_no_wait() end
         end
         1: begin
@@ -57,7 +57,7 @@ function void for_stmt_other_types_fns_func;
                 k = 1;
             end
             k = 2;
-            for_stmt_other_types_fns_PROC_STATE_next = 1; return;    // test_cthread_redundant_code.cpp:112:13;
+            for_stmt_other_types_fns_PROC_STATE_next = 1; return;    // test_cthread_redundant_code.cpp:119:13;
             // Call for_stmt_no_wait() end
         end
         2: begin
@@ -90,7 +90,7 @@ begin : for_stmt_other_types_fns_ff
         // Call for_stmt_no_wait() begin
         i_1 = par1;
         k = 0;
-        for_stmt_other_types_fns_PROC_STATE <= 0;    // test_cthread_redundant_code.cpp:103:9;
+        for_stmt_other_types_fns_PROC_STATE <= 0;    // test_cthread_redundant_code.cpp:110:9;
         // Call for_stmt_no_wait() end
     end
     else begin

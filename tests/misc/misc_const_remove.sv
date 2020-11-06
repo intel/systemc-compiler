@@ -25,21 +25,30 @@ logic signed [3:0] s3;
 // C++ data variables
 localparam logic signed [31:0] NARR[3] = '{ -'d1, -'d2, -'d3 };
 localparam logic [31:0] ARR[3] = '{ 'd1, 'd2, 'd3 };
+localparam logic [2:0] L = 'd1;
 localparam logic [3:0] marr[3] = '{ 'd4, 'd5, 'd6 };
+localparam logic [2:0] S = 'd6;
 localparam logic grec1_a = 0;
 localparam logic [3:0] grec1_b = 'd4;
 localparam logic grec2_a = 1;
 localparam logic [3:0] grec2_b = 'd5;
 
 //------------------------------------------------------------------------------
-// Method process: const_range1 (test_const_remove.cpp:108:5) 
+// Method process: const_range1 (test_const_remove.cpp:116:5) 
 
 always_comb 
-begin : const_range1     // test_const_remove.cpp:108:5
+begin : const_range1     // test_const_remove.cpp:116:5
+    logic [11:0] R;
+    logic [11:0] RR;
     logic [3:0] larr[3];
     integer l;
+    R = 7;
+    RR = 7;
     larr[0] = 1; larr[1] = 2; larr[2] = 3;
-    l = R[s];
+    l = S[1];
+    l = R[1];
+    l = RR[2 : 1];
+    l = 8;
     l = L[2 : 1];
     l = larr[2][2 : 1];
     l = marr[0][1];
@@ -47,10 +56,10 @@ begin : const_range1     // test_const_remove.cpp:108:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_range2 (test_const_remove.cpp:126:5) 
+// Method process: const_range2 (test_const_remove.cpp:140:5) 
 
 always_comb 
-begin : const_range2     // test_const_remove.cpp:126:5
+begin : const_range2     // test_const_remove.cpp:140:5
     logic [2:0] val;
     integer l;
     val = 1;
@@ -60,7 +69,7 @@ begin : const_range2     // test_const_remove.cpp:126:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: negative_cost_ref1 (test_const_remove.cpp:153:5) 
+// Clocked THREAD: negative_cost_ref1 (test_const_remove.cpp:167:5) 
 
 // Thread-local variables
 logic signed [3:0] s1_next;
@@ -68,7 +77,7 @@ logic negative_cost_ref1_PROC_STATE;
 logic negative_cost_ref1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : negative_cost_ref1_comb     // test_const_remove.cpp:153:5
+always_comb begin : negative_cost_ref1_comb     // test_const_remove.cpp:167:5
     negative_cost_ref1_func;
 end
 function void negative_cost_ref1_func;
@@ -84,7 +93,7 @@ function void negative_cost_ref1_func;
             // Call cref1() begin
             s1_next = par;
             // Call cref1() end
-            negative_cost_ref1_PROC_STATE_next = 1; return;    // test_const_remove.cpp:159:13;
+            negative_cost_ref1_PROC_STATE_next = 1; return;    // test_const_remove.cpp:173:13;
         end
         1: begin
             par = -2'sd1;
@@ -96,7 +105,7 @@ function void negative_cost_ref1_func;
             // Call cref1() begin
             s1_next = par;
             // Call cref1() end
-            negative_cost_ref1_PROC_STATE_next = 1; return;    // test_const_remove.cpp:159:13;
+            negative_cost_ref1_PROC_STATE_next = 1; return;    // test_const_remove.cpp:173:13;
         end
     endcase
 endfunction
@@ -105,7 +114,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : negative_cost_ref1_ff
     if ( ~nrst ) begin
-        negative_cost_ref1_PROC_STATE <= 0;    // test_const_remove.cpp:155:9;
+        negative_cost_ref1_PROC_STATE <= 0;    // test_const_remove.cpp:169:9;
     end
     else begin
         s1 <= s1_next;
@@ -114,7 +123,7 @@ begin : negative_cost_ref1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: negative_cost_ref2 (test_const_remove.cpp:164:5) 
+// Clocked THREAD: negative_cost_ref2 (test_const_remove.cpp:178:5) 
 
 // Thread-local variables
 logic signed [63:0] s2_next;
@@ -122,7 +131,7 @@ logic [1:0] negative_cost_ref2_PROC_STATE;
 logic [1:0] negative_cost_ref2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : negative_cost_ref2_comb     // test_const_remove.cpp:164:5
+always_comb begin : negative_cost_ref2_comb     // test_const_remove.cpp:178:5
     negative_cost_ref2_func;
 end
 function void negative_cost_ref2_func;
@@ -136,20 +145,28 @@ function void negative_cost_ref2_func;
             // Call cref2() begin
             s2_next = par + 1;
             // Call cref2() end
-            negative_cost_ref2_PROC_STATE_next = 1; return;    // test_const_remove.cpp:169:13;
+            par = -7'sd43;
+            // Call cref2() begin
+            s2_next = par + 1;
+            // Call cref2() end
+            negative_cost_ref2_PROC_STATE_next = 1; return;    // test_const_remove.cpp:184:13;
         end
         1: begin
             // Call cref2() begin
             s2_next = NARR[s] + 1;
             // Call cref2() end
-            negative_cost_ref2_PROC_STATE_next = 2; return;    // test_const_remove.cpp:171:13;
+            negative_cost_ref2_PROC_STATE_next = 2; return;    // test_const_remove.cpp:186:13;
         end
         2: begin
             par = -7'sd42;
             // Call cref2() begin
             s2_next = par + 1;
             // Call cref2() end
-            negative_cost_ref2_PROC_STATE_next = 1; return;    // test_const_remove.cpp:169:13;
+            par = -7'sd43;
+            // Call cref2() begin
+            s2_next = par + 1;
+            // Call cref2() end
+            negative_cost_ref2_PROC_STATE_next = 1; return;    // test_const_remove.cpp:184:13;
         end
     endcase
 endfunction
@@ -158,7 +175,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : negative_cost_ref2_ff
     if ( ~nrst ) begin
-        negative_cost_ref2_PROC_STATE <= 0;    // test_const_remove.cpp:166:9;
+        negative_cost_ref2_PROC_STATE <= 0;    // test_const_remove.cpp:180:9;
     end
     else begin
         s2 <= s2_next;
@@ -167,7 +184,7 @@ begin : negative_cost_ref2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: negative_cost_ref3 (test_const_remove.cpp:175:5) 
+// Clocked THREAD: negative_cost_ref3 (test_const_remove.cpp:190:5) 
 
 // Thread-local variables
 logic signed [3:0] l;
@@ -181,7 +198,7 @@ logic [1:0] negative_cost_ref3_PROC_STATE;
 logic [1:0] negative_cost_ref3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : negative_cost_ref3_comb     // test_const_remove.cpp:175:5
+always_comb begin : negative_cost_ref3_comb     // test_const_remove.cpp:190:5
     negative_cost_ref3_func;
 end
 function void negative_cost_ref3_func;
@@ -196,7 +213,7 @@ function void negative_cost_ref3_func;
             par_next = -4'sd6;
             // Call cref3() begin
             l_next0 = 1;
-            negative_cost_ref3_PROC_STATE_next = 1; return;    // test_const_remove.cpp:148:9;
+            negative_cost_ref3_PROC_STATE_next = 1; return;    // test_const_remove.cpp:162:9;
             // Call cref3() end
         end
         1: begin
@@ -206,7 +223,7 @@ function void negative_cost_ref3_func;
             // Call cref3() end
             // Call cref3() begin
             l_next = 1;
-            negative_cost_ref3_PROC_STATE_next = 2; return;    // test_const_remove.cpp:148:9;
+            negative_cost_ref3_PROC_STATE_next = 2; return;    // test_const_remove.cpp:162:9;
             // Call cref3() end
         end
         2: begin
@@ -217,7 +234,7 @@ function void negative_cost_ref3_func;
             par_next = -4'sd6;
             // Call cref3() begin
             l_next0 = 1;
-            negative_cost_ref3_PROC_STATE_next = 1; return;    // test_const_remove.cpp:148:9;
+            negative_cost_ref3_PROC_STATE_next = 1; return;    // test_const_remove.cpp:162:9;
             // Call cref3() end
         end
     endcase
@@ -227,7 +244,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : negative_cost_ref3_ff
     if ( ~nrst ) begin
-        negative_cost_ref3_PROC_STATE <= 0;    // test_const_remove.cpp:177:9;
+        negative_cost_ref3_PROC_STATE <= 0;    // test_const_remove.cpp:192:9;
     end
     else begin
         l <= l_next;
@@ -239,14 +256,14 @@ begin : negative_cost_ref3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: static_const_thread (test_const_remove.cpp:193:5) 
+// Clocked THREAD: static_const_thread (test_const_remove.cpp:208:5) 
 
 // Thread-local constants
 logic signed [31:0] cs;
 logic signed [31:0] c;
 
 // Next-state combinational logic
-always_comb begin : static_const_thread_comb     // test_const_remove.cpp:193:5
+always_comb begin : static_const_thread_comb     // test_const_remove.cpp:208:5
     static_const_thread_func;
 end
 function void static_const_thread_func;
@@ -254,6 +271,7 @@ function void static_const_thread_func;
     integer TMP_3;
     integer k;
     k = c % cs;
+    k = 51 + 52;
 endfunction
 
 // Syncrhonous register update
@@ -276,10 +294,10 @@ begin : static_const_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: sig_init_method (test_const_remove.cpp:215:5) 
+// Method process: sig_init_method (test_const_remove.cpp:232:5) 
 
 always_comb 
-begin : sig_init_method     // test_const_remove.cpp:215:5
+begin : sig_init_method     // test_const_remove.cpp:232:5
     integer LC1;
     logic [3:0] LC2;
     integer h;
@@ -289,14 +307,14 @@ begin : sig_init_method     // test_const_remove.cpp:215:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sig_init_thread (test_const_remove.cpp:225:5) 
+// Clocked THREAD: sig_init_thread (test_const_remove.cpp:242:5) 
 
 // Thread-local constants
 logic signed [31:0] TC1;
 logic signed [31:0] TC2;
 
 // Next-state combinational logic
-always_comb begin : sig_init_thread_comb     // test_const_remove.cpp:225:5
+always_comb begin : sig_init_thread_comb     // test_const_remove.cpp:242:5
     sig_init_thread_func;
 end
 function void sig_init_thread_func;
@@ -331,25 +349,25 @@ begin : sig_init_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: no_sens_method (test_const_remove.cpp:243:5) 
+// Method process: no_sens_method (test_const_remove.cpp:260:5) 
 
 integer a;
 assign a = 43 + 43 + 45;
 
 //------------------------------------------------------------------------------
-// Method process: const_method (test_const_remove.cpp:248:5) 
+// Method process: const_method (test_const_remove.cpp:265:5) 
 
 always_comb 
-begin : const_method     // test_const_remove.cpp:248:5
+begin : const_method     // test_const_remove.cpp:265:5
     integer unsigned b;
     b = 42 + 43 + 45 + 3;
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_array_method (test_const_remove.cpp:253:5) 
+// Method process: const_array_method (test_const_remove.cpp:270:5) 
 
 always_comb 
-begin : const_array_method     // test_const_remove.cpp:253:5
+begin : const_array_method     // test_const_remove.cpp:270:5
     integer unsigned sum;
     integer e;
     sum = 0;
@@ -361,7 +379,7 @@ begin : const_array_method     // test_const_remove.cpp:253:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_thread (test_const_remove.cpp:262:5) 
+// Clocked THREAD: const_thread (test_const_remove.cpp:279:5) 
 
 // Thread-local variables
 logic const_thread_PROC_STATE;
@@ -370,7 +388,7 @@ logic const_thread_PROC_STATE_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const_thread_comb     // test_const_remove.cpp:262:5
+always_comb begin : const_thread_comb     // test_const_remove.cpp:279:5
     const_thread_func;
 end
 function void const_thread_func;
@@ -380,11 +398,11 @@ function void const_thread_func;
     case (const_thread_PROC_STATE)
         0: begin
             d = 42 + 44 + 46 + 43;
-            const_thread_PROC_STATE_next = 1; return;    // test_const_remove.cpp:272:13;
+            const_thread_PROC_STATE_next = 1; return;    // test_const_remove.cpp:289:13;
         end
         1: begin
             d = 42 + 44 + 46 + 43;
-            const_thread_PROC_STATE_next = 1; return;    // test_const_remove.cpp:272:13;
+            const_thread_PROC_STATE_next = 1; return;    // test_const_remove.cpp:289:13;
         end
     endcase
 endfunction
@@ -395,7 +413,7 @@ begin : const_thread_ff
     if ( ~nrst ) begin
         integer c;
         c = 44;
-        const_thread_PROC_STATE <= 0;    // test_const_remove.cpp:267:9;
+        const_thread_PROC_STATE <= 0;    // test_const_remove.cpp:284:9;
     end
     else begin
         const_thread_PROC_STATE <= const_thread_PROC_STATE_next;
@@ -403,30 +421,32 @@ begin : const_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_local_array_method (test_const_remove.cpp:277:5) 
+// Method process: const_local_array_method (test_const_remove.cpp:294:5) 
 
 always_comb 
-begin : const_local_array_method     // test_const_remove.cpp:277:5
+begin : const_local_array_method     // test_const_remove.cpp:294:5
     integer unsigned LARR[3];
+    integer unsigned LLARR[3];
     integer unsigned lsum;
     integer f;
     LARR[0] = 1; LARR[1] = 2; LARR[2] = 3;
+    LLARR[0] = 1; LLARR[1] = 2; LLARR[2] = 3;
     lsum = 0;
     for (integer i = 0; i < 3; ++i)
     begin
         lsum = lsum + LARR[i];
     end
-    f = 2;
+    f = 2 + 2;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_local_array_thread (test_const_remove.cpp:289:5) 
+// Clocked THREAD: const_local_array_thread (test_const_remove.cpp:307:5) 
 
 // Thread-local constants
 logic [31:0] TARR[3];
 
 // Next-state combinational logic
-always_comb begin : const_local_array_thread_comb     // test_const_remove.cpp:289:5
+always_comb begin : const_local_array_thread_comb     // test_const_remove.cpp:307:5
     const_local_array_thread_func;
 end
 function void const_local_array_thread_func;
@@ -451,10 +471,10 @@ begin : const_local_array_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_ref_call_thread (test_const_remove.cpp:312:5) 
+// Clocked THREAD: const_ref_call_thread (test_const_remove.cpp:330:5) 
 
 // Next-state combinational logic
-always_comb begin : const_ref_call_thread_comb     // test_const_remove.cpp:312:5
+always_comb begin : const_ref_call_thread_comb     // test_const_remove.cpp:330:5
     const_ref_call_thread_func;
 end
 function void const_ref_call_thread_func;
@@ -476,10 +496,10 @@ begin : const_ref_call_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_record_method (test_const_remove.cpp:336:5) 
+// Method process: const_record_method (test_const_remove.cpp:354:5) 
 
 always_comb 
-begin : const_record_method     // test_const_remove.cpp:336:5
+begin : const_record_method     // test_const_remove.cpp:354:5
     logic a_1;
     logic [3:0] b;
     logic rec_a;
@@ -492,7 +512,7 @@ begin : const_record_method     // test_const_remove.cpp:336:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_record_thread (test_const_remove.cpp:342:5) 
+// Clocked THREAD: const_record_thread (test_const_remove.cpp:360:5) 
 
 // Thread-local variables
 logic [3:0] trec3_b;
@@ -505,7 +525,7 @@ logic trec1_a;
 logic [3:0] trec1_b;
 
 // Next-state combinational logic
-always_comb begin : const_record_thread_comb     // test_const_remove.cpp:342:5
+always_comb begin : const_record_thread_comb     // test_const_remove.cpp:360:5
     const_record_thread_func;
 end
 function void const_record_thread_func;
@@ -527,7 +547,7 @@ function void const_record_thread_func;
             trec3_a = a;
             trec3_b_next = b;
             i = trec1_b + trec2_b;
-            const_record_thread_PROC_STATE_next = 1; return;    // test_const_remove.cpp:353:13;
+            const_record_thread_PROC_STATE_next = 1; return;    // test_const_remove.cpp:371:13;
         end
         1: begin
             i = trec3_b_next + grec2_b;
@@ -538,7 +558,7 @@ function void const_record_thread_func;
             trec3_a = a;
             trec3_b_next = b;
             i = trec1_b + trec2_b;
-            const_record_thread_PROC_STATE_next = 1; return;    // test_const_remove.cpp:353:13;
+            const_record_thread_PROC_STATE_next = 1; return;    // test_const_remove.cpp:371:13;
         end
     endcase
 endfunction
@@ -554,7 +574,7 @@ begin : const_record_thread_ff
         trec1_a = a;
         trec1_b = b;
         c = trec1_a;
-        const_record_thread_PROC_STATE <= 0;    // test_const_remove.cpp:347:9;
+        const_record_thread_PROC_STATE <= 0;    // test_const_remove.cpp:365:9;
     end
     else begin
         trec3_b <= trec3_b_next;
@@ -563,7 +583,7 @@ begin : const_record_thread_ff
 end
 
 `ifndef INTEL_SVA_OFF
-sctAssertLine210 : assert property (
+sctAssertLine227 : assert property (
     @(posedge clk) 1 |-> s != 4 - 1 );
 `endif // INTEL_SVA_OFF
 

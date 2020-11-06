@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_for_fcall.cpp:147:5)
+// Module: A (test_for_fcall.cpp:154:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -43,13 +43,13 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: func_call_cond (test_for_fcall.cpp:48:5) 
+// Method process: func_call_cond (test_for_fcall.cpp:55:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : func_call_cond     // test_for_fcall.cpp:48:5
+begin : func_call_cond     // test_for_fcall.cpp:55:5
     integer i;
     logic TMP_0;
     integer i_1;
@@ -71,13 +71,13 @@ begin : func_call_cond     // test_for_fcall.cpp:48:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_call_cond2 (test_for_fcall.cpp:69:5) 
+// Method process: func_call_cond2 (test_for_fcall.cpp:76:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : func_call_cond2     // test_for_fcall.cpp:69:5
+begin : func_call_cond2     // test_for_fcall.cpp:76:5
     integer unsigned TMP_0;
     integer unsigned TMP_1;
     k = 0;
@@ -94,13 +94,13 @@ begin : func_call_cond2     // test_for_fcall.cpp:69:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_call_cond3 (test_for_fcall.cpp:81:5) 
+// Method process: func_call_cond3 (test_for_fcall.cpp:88:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : func_call_cond3     // test_for_fcall.cpp:81:5
+begin : func_call_cond3     // test_for_fcall.cpp:88:5
     integer TMP_0;
     integer k_1;
     k = 0;
@@ -111,13 +111,13 @@ begin : func_call_cond3     // test_for_fcall.cpp:81:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_call_cond4 (test_for_fcall.cpp:92:5) 
+// Method process: func_call_cond4 (test_for_fcall.cpp:99:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : func_call_cond4     // test_for_fcall.cpp:92:5
+begin : func_call_cond4     // test_for_fcall.cpp:99:5
     integer TMP_0;
     integer j;
     integer TMP_1;
@@ -138,13 +138,13 @@ begin : func_call_cond4     // test_for_fcall.cpp:92:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_call_cond5 (test_for_fcall.cpp:104:5) 
+// Method process: func_call_cond5 (test_for_fcall.cpp:111:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : func_call_cond5     // test_for_fcall.cpp:104:5
+begin : func_call_cond5     // test_for_fcall.cpp:111:5
     logic [2:0] i;
     logic TMP_0;
     integer j;
@@ -157,13 +157,13 @@ begin : func_call_cond5     // test_for_fcall.cpp:104:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: func_call_cond7 (test_for_fcall.cpp:128:5) 
+// Method process: func_call_cond7 (test_for_fcall.cpp:135:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : func_call_cond7     // test_for_fcall.cpp:128:5
+begin : func_call_cond7     // test_for_fcall.cpp:135:5
     logic [31:0] TMP_0;
     integer j;
     logic [31:0] TMP_1;

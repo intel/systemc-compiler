@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <sct_assert.h>
 #include <systemc.h>
 #include <stdint.h>
@@ -213,7 +220,7 @@ public:
         sc_int<64> y7 = sc_int<33>(-2147483648);
     }
     
-    // BUG from SMEM tiny in fullAccessPort.h:605 -- FIXED
+    // BUG from real design in fullAccessPort.h:605 -- FIXED
     void smem_if_loop_const() {
         int k = 0;
         // Empty loop inside of dead branch
@@ -555,3 +562,4 @@ int sc_main(int argc, char *argv[]) {
     sc_start();
     return 0;
 }
+

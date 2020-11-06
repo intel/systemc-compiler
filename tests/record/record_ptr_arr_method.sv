@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_ptr_arr_method.cpp:65:5)
+// Module: A (test_ptr_arr_method.cpp:72:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -37,13 +37,13 @@ module A // "b_mod.a_mod"
 logic dummy;
 
 //------------------------------------------------------------------------------
-// Method process: rec_ptr_simple (test_ptr_arr_method.cpp:39:5) 
+// Method process: rec_ptr_simple (test_ptr_arr_method.cpp:46:5) 
 
 // Process-local variables
 logic r1_a[2];
 
 always_comb 
-begin : rec_ptr_simple     // test_ptr_arr_method.cpp:39:5
+begin : rec_ptr_simple     // test_ptr_arr_method.cpp:46:5
     logic b;
     logic TMP_0;
     b = r1_a[0];
@@ -54,13 +54,13 @@ begin : rec_ptr_simple     // test_ptr_arr_method.cpp:39:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_ptr_loop (test_ptr_arr_method.cpp:45:5) 
+// Method process: rec_ptr_loop (test_ptr_arr_method.cpp:52:5) 
 
 // Process-local variables
 logic r2_a[2];
 
 always_comb 
-begin : rec_ptr_loop     // test_ptr_arr_method.cpp:45:5
+begin : rec_ptr_loop     // test_ptr_arr_method.cpp:52:5
     logic b;
     logic TMP_0;
     b = 0;
@@ -74,13 +74,13 @@ begin : rec_ptr_loop     // test_ptr_arr_method.cpp:45:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_ptr_unknw (test_ptr_arr_method.cpp:54:5) 
+// Method process: rec_ptr_unknw (test_ptr_arr_method.cpp:61:5) 
 
 // Process-local variables
 logic r3_a[2];
 
 always_comb 
-begin : rec_ptr_unknw     // test_ptr_arr_method.cpp:54:5
+begin : rec_ptr_unknw     // test_ptr_arr_method.cpp:61:5
     integer i;
     logic b;
     logic par;

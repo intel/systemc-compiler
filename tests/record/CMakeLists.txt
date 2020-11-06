@@ -1,3 +1,10 @@
+#******************************************************************************
+# Copyright (c) 2020, Intel Corporation. All rights reserved.
+# 
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+# 
+# *****************************************************************************
+
 add_executable(record_reg_cthread0 test_reg_cthread0.cpp)
 svc_target(record_reg_cthread0 GOLDEN record_reg_cthread0.sv)
 

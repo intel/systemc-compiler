@@ -28,10 +28,10 @@ logic [3:0] rarr[3];
 logic [3:0] rarrp[3];
 
 //------------------------------------------------------------------------------
-// Method process: methProc (test_fcall_array.cpp:76:5) 
+// Method process: methProc (test_fcall_array.cpp:83:5) 
 
 always_comb 
-begin : methProc     // test_fcall_array.cpp:76:5
+begin : methProc     // test_fcall_array.cpp:83:5
     integer i;
     integer j;
     logic [3:0] newval;
@@ -69,7 +69,7 @@ begin : methProc     // test_fcall_array.cpp:76:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: intArrThread (test_fcall_array.cpp:113:5) 
+// Clocked THREAD: intArrThread (test_fcall_array.cpp:120:5) 
 
 // Thread-local variables
 logic [3:0] arr[3];
@@ -79,7 +79,7 @@ logic intArrThread_PROC_STATE;
 logic intArrThread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : intArrThread_comb     // test_fcall_array.cpp:113:5
+always_comb begin : intArrThread_comb     // test_fcall_array.cpp:120:5
     intArrThread_func;
 end
 function void intArrThread_func;
@@ -97,7 +97,7 @@ function void intArrThread_func;
                 arr_next[j] = j + 1;
             end
             // Call intArrFunc() end
-            intArrThread_PROC_STATE_next = 1; return;    // test_fcall_array.cpp:121:13;
+            intArrThread_PROC_STATE_next = 1; return;    // test_fcall_array.cpp:128:13;
         end
         1: begin
             k = 1;
@@ -111,7 +111,7 @@ function void intArrThread_func;
                 arr_next[j] = j + 1;
             end
             // Call intArrFunc() end
-            intArrThread_PROC_STATE_next = 1; return;    // test_fcall_array.cpp:121:13;
+            intArrThread_PROC_STATE_next = 1; return;    // test_fcall_array.cpp:128:13;
         end
     endcase
 endfunction
@@ -131,7 +131,7 @@ begin : intArrThread_ff
             end
         end
         // Call initIntArr() end
-        intArrThread_PROC_STATE <= 0;    // test_fcall_array.cpp:116:9;
+        intArrThread_PROC_STATE <= 0;    // test_fcall_array.cpp:123:9;
     end
     else begin
         arr <= arr_next;
@@ -140,7 +140,7 @@ begin : intArrThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: intPtrArrThread (test_fcall_array.cpp:137:5) 
+// Clocked THREAD: intPtrArrThread (test_fcall_array.cpp:144:5) 
 
 // Thread-local variables
 logic [3:0] marrp[3];
@@ -151,7 +151,7 @@ logic intPtrArrThread_PROC_STATE;
 logic intPtrArrThread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : intPtrArrThread_comb     // test_fcall_array.cpp:137:5
+always_comb begin : intPtrArrThread_comb     // test_fcall_array.cpp:144:5
     intPtrArrThread_func;
 end
 function void intPtrArrThread_func;
@@ -166,7 +166,7 @@ function void intPtrArrThread_func;
             pi_next = 1;
             marrp_next[pi_next] = 0;
             // Call intPtrArrFunc() end
-            intPtrArrThread_PROC_STATE_next = 1; return;    // test_fcall_array.cpp:144:13;
+            intPtrArrThread_PROC_STATE_next = 1; return;    // test_fcall_array.cpp:151:13;
         end
         1: begin
             l = pi_next + marrp_next[1];
@@ -174,7 +174,7 @@ function void intPtrArrThread_func;
             pi_next = 1;
             marrp_next[pi_next] = 0;
             // Call intPtrArrFunc() end
-            intPtrArrThread_PROC_STATE_next = 1; return;    // test_fcall_array.cpp:144:13;
+            intPtrArrThread_PROC_STATE_next = 1; return;    // test_fcall_array.cpp:151:13;
         end
     endcase
 endfunction
@@ -183,7 +183,7 @@ endfunction
 always_ff @(posedge clk or negedge rst) 
 begin : intPtrArrThread_ff
     if ( ~rst ) begin
-        intPtrArrThread_PROC_STATE <= 0;    // test_fcall_array.cpp:139:9;
+        intPtrArrThread_PROC_STATE <= 0;    // test_fcall_array.cpp:146:9;
     end
     else begin
         marrp <= marrp_next;
@@ -193,14 +193,14 @@ begin : intPtrArrThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sigPtrThread (test_fcall_array.cpp:167:5) 
+// Clocked THREAD: sigPtrThread (test_fcall_array.cpp:174:5) 
 
 // Thread-local variables
 logic [3:0] ss_next;
 logic [3:0] ps_next;
 
 // Next-state combinational logic
-always_comb begin : sigPtrThread_comb     // test_fcall_array.cpp:167:5
+always_comb begin : sigPtrThread_comb     // test_fcall_array.cpp:174:5
     sigPtrThread_func;
 end
 function void sigPtrThread_func;
@@ -228,14 +228,14 @@ begin : sigPtrThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sigArrThread (test_fcall_array.cpp:206:5) 
+// Clocked THREAD: sigArrThread (test_fcall_array.cpp:213:5) 
 
 // Thread-local variables
 logic [3:0] rarr_next[3];
 logic [3:0] rarrp_next[3];
 
 // Next-state combinational logic
-always_comb begin : sigArrThread_comb     // test_fcall_array.cpp:206:5
+always_comb begin : sigArrThread_comb     // test_fcall_array.cpp:213:5
     sigArrThread_func;
 end
 function void sigArrThread_func;
@@ -281,13 +281,13 @@ begin : sigArrThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sigLocRefThread (test_fcall_array.cpp:221:5) 
+// Clocked THREAD: sigLocRefThread (test_fcall_array.cpp:228:5) 
 
 // Thread-local variables
 logic [3:0] ss_next0;
 
 // Next-state combinational logic
-always_comb begin : sigLocRefThread_comb     // test_fcall_array.cpp:221:5
+always_comb begin : sigLocRefThread_comb     // test_fcall_array.cpp:228:5
     sigLocRefThread_func;
 end
 function void sigLocRefThread_func;

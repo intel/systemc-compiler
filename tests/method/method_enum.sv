@@ -16,13 +16,13 @@ module test_enum // "tenum"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: test_method (test_method_enum.cpp:21:5) 
+// Method process: test_method (test_enum.cpp:28:5) 
 
 // Process-local variables
 logic [31:0] color;
 
 always_comb 
-begin : test_method     // test_method_enum.cpp:21:5
+begin : test_method     // test_enum.cpp:28:5
     logic [1:0] xcolor;
     logic xmode;
     integer icolor;

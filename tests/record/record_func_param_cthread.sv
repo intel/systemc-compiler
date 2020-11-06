@@ -18,7 +18,7 @@ module A // "a"
 logic rstn;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_fcall_ref (test_func_param_cthread.cpp:77:5) 
+// Clocked THREAD: record_fcall_ref (test_func_param_cthread.cpp:84:5) 
 
 // Thread-local variables
 logic s_a;
@@ -29,7 +29,7 @@ logic record_fcall_ref_PROC_STATE;
 logic record_fcall_ref_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_fcall_ref_comb     // test_func_param_cthread.cpp:77:5
+always_comb begin : record_fcall_ref_comb     // test_func_param_cthread.cpp:84:5
     record_fcall_ref_func;
 end
 function void record_fcall_ref_func;
@@ -46,7 +46,7 @@ function void record_fcall_ref_func;
             b = s_a_next;
             s_b_next = 2;
             // Call f1() end
-            record_fcall_ref_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:85:13;
+            record_fcall_ref_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:92:13;
         end
         1: begin
             // Call f1_const() begin
@@ -57,7 +57,7 @@ function void record_fcall_ref_func;
             b = s_a_next;
             s_b_next = 2;
             // Call f1() end
-            record_fcall_ref_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:85:13;
+            record_fcall_ref_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:92:13;
         end
     endcase
 endfunction
@@ -66,7 +66,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : record_fcall_ref_ff
     if ( ~rstn ) begin
-        record_fcall_ref_PROC_STATE <= 0;    // test_func_param_cthread.cpp:80:9;
+        record_fcall_ref_PROC_STATE <= 0;    // test_func_param_cthread.cpp:87:9;
     end
     else begin
         s_a <= s_a_next;
@@ -76,7 +76,7 @@ begin : record_fcall_ref_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_fcall_val_reg (test_func_param_cthread.cpp:92:5) 
+// Clocked THREAD: record_fcall_val_reg (test_func_param_cthread.cpp:99:5) 
 
 // Thread-local variables
 logic s_a0;
@@ -85,7 +85,7 @@ logic signed [31:0] s_b0;
 logic signed [31:0] s_b_next0;
 
 // Next-state combinational logic
-always_comb begin : record_fcall_val_reg_comb     // test_func_param_cthread.cpp:92:5
+always_comb begin : record_fcall_val_reg_comb     // test_func_param_cthread.cpp:99:5
     record_fcall_val_reg_func;
 end
 function void record_fcall_val_reg_func;
@@ -114,10 +114,10 @@ begin : record_fcall_val_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_fcall_val_comb (test_func_param_cthread.cpp:105:5) 
+// Clocked THREAD: record_fcall_val_comb (test_func_param_cthread.cpp:112:5) 
 
 // Next-state combinational logic
-always_comb begin : record_fcall_val_comb_comb     // test_func_param_cthread.cpp:105:5
+always_comb begin : record_fcall_val_comb_comb     // test_func_param_cthread.cpp:112:5
     record_fcall_val_comb_func;
 end
 function void record_fcall_val_comb_func;
@@ -144,7 +144,7 @@ begin : record_fcall_val_comb_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_fcall_two_val (test_func_param_cthread.cpp:117:5) 
+// Clocked THREAD: record_fcall_two_val (test_func_param_cthread.cpp:124:5) 
 
 // Thread-local variables
 logic s_a1;
@@ -153,7 +153,7 @@ logic signed [31:0] s_b1;
 logic signed [31:0] s_b_next1;
 
 // Next-state combinational logic
-always_comb begin : record_fcall_two_val_comb     // test_func_param_cthread.cpp:117:5
+always_comb begin : record_fcall_two_val_comb     // test_func_param_cthread.cpp:124:5
     record_fcall_two_val_func;
 end
 function void record_fcall_two_val_func;
@@ -186,7 +186,7 @@ begin : record_fcall_two_val_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_fcall_two_val2 (test_func_param_cthread.cpp:130:5) 
+// Clocked THREAD: record_fcall_two_val2 (test_func_param_cthread.cpp:137:5) 
 
 // Thread-local variables
 logic gr_a;
@@ -195,7 +195,7 @@ logic signed [31:0] gr_b;
 logic signed [31:0] gr_b_next;
 
 // Next-state combinational logic
-always_comb begin : record_fcall_two_val2_comb     // test_func_param_cthread.cpp:130:5
+always_comb begin : record_fcall_two_val2_comb     // test_func_param_cthread.cpp:137:5
     record_fcall_two_val2_func;
 end
 function void record_fcall_two_val2_func;
@@ -229,7 +229,7 @@ begin : record_fcall_two_val2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_fcall_two_ref (test_func_param_cthread.cpp:142:5) 
+// Clocked THREAD: record_fcall_two_ref (test_func_param_cthread.cpp:149:5) 
 
 // Thread-local variables
 logic s_a2;
@@ -240,7 +240,7 @@ logic record_fcall_two_ref_PROC_STATE;
 logic record_fcall_two_ref_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_fcall_two_ref_comb     // test_func_param_cthread.cpp:142:5
+always_comb begin : record_fcall_two_ref_comb     // test_func_param_cthread.cpp:149:5
     record_fcall_two_ref_func;
 end
 function void record_fcall_two_ref_func;
@@ -253,14 +253,14 @@ function void record_fcall_two_ref_func;
     
     case (record_fcall_two_ref_PROC_STATE)
         0: begin
-            record_fcall_two_ref_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:147:13;
+            record_fcall_two_ref_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:154:13;
         end
         1: begin
             // Call f4() begin
             b = s_a_next2 && r_a;
             s_a_next2 = b;
             // Call f4() end
-            record_fcall_two_ref_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:147:13;
+            record_fcall_two_ref_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:154:13;
         end
     endcase
 endfunction
@@ -269,7 +269,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : record_fcall_two_ref_ff
     if ( ~rstn ) begin
-        record_fcall_two_ref_PROC_STATE <= 0;    // test_func_param_cthread.cpp:144:9;
+        record_fcall_two_ref_PROC_STATE <= 0;    // test_func_param_cthread.cpp:151:9;
     end
     else begin
         s_a2 <= s_a_next2;
@@ -279,7 +279,7 @@ begin : record_fcall_two_ref_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_fcall_two_ref2 (test_func_param_cthread.cpp:155:5) 
+// Clocked THREAD: record_fcall_two_ref2 (test_func_param_cthread.cpp:162:5) 
 
 // Thread-local variables
 logic gs_a;
@@ -292,7 +292,7 @@ logic signed [31:0] r_b;
 logic signed [31:0] r_b_next;
 
 // Next-state combinational logic
-always_comb begin : record_fcall_two_ref2_comb     // test_func_param_cthread.cpp:155:5
+always_comb begin : record_fcall_two_ref2_comb     // test_func_param_cthread.cpp:162:5
     record_fcall_two_ref2_func;
 end
 function void record_fcall_two_ref2_func;
@@ -322,7 +322,7 @@ begin : record_fcall_two_ref2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_fcall_const_ref2 (test_func_param_cthread.cpp:189:5) 
+// Clocked THREAD: record_fcall_const_ref2 (test_func_param_cthread.cpp:196:5) 
 
 // Thread-local variables
 logic r_a0;
@@ -337,7 +337,7 @@ logic record_fcall_const_ref2_PROC_STATE;
 logic record_fcall_const_ref2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_fcall_const_ref2_comb     // test_func_param_cthread.cpp:189:5
+always_comb begin : record_fcall_const_ref2_comb     // test_func_param_cthread.cpp:196:5
     record_fcall_const_ref2_func;
 end
 function void record_fcall_const_ref2_func;
@@ -352,7 +352,7 @@ function void record_fcall_const_ref2_func;
     case (record_fcall_const_ref2_PROC_STATE)
         0: begin
             t_a_next = 1;
-            record_fcall_const_ref2_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:195:13;
+            record_fcall_const_ref2_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:202:13;
         end
         1: begin
             // Call cref_cmp() begin
@@ -360,7 +360,7 @@ function void record_fcall_const_ref2_func;
             // Call cref_cmp() end
             b = TMP_0;
             t_a_next = 1;
-            record_fcall_const_ref2_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:195:13;
+            record_fcall_const_ref2_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:202:13;
         end
     endcase
 endfunction
@@ -369,7 +369,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : record_fcall_const_ref2_ff
     if ( ~rstn ) begin
-        record_fcall_const_ref2_PROC_STATE <= 0;    // test_func_param_cthread.cpp:192:9;
+        record_fcall_const_ref2_PROC_STATE <= 0;    // test_func_param_cthread.cpp:199:9;
     end
     else begin
         r_a0 <= r_a_next0;
@@ -381,7 +381,7 @@ begin : record_fcall_const_ref2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_fcall_const_ref3 (test_func_param_cthread.cpp:206:5) 
+// Clocked THREAD: record_fcall_const_ref3 (test_func_param_cthread.cpp:213:5) 
 
 // Thread-local variables
 logic r_a1;
@@ -396,7 +396,7 @@ logic [1:0] record_fcall_const_ref3_PROC_STATE;
 logic [1:0] record_fcall_const_ref3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : record_fcall_const_ref3_comb     // test_func_param_cthread.cpp:206:5
+always_comb begin : record_fcall_const_ref3_comb     // test_func_param_cthread.cpp:213:5
     record_fcall_const_ref3_func;
 end
 function void record_fcall_const_ref3_func;
@@ -414,7 +414,7 @@ function void record_fcall_const_ref3_func;
     case (record_fcall_const_ref3_PROC_STATE)
         0: begin
             // Call cref_sum() begin
-            record_fcall_const_ref3_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:201:9;
+            record_fcall_const_ref3_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:208:9;
             // Call cref_sum() end
         end
         1: begin
@@ -424,7 +424,7 @@ function void record_fcall_const_ref3_func;
             // Call cref_sum() end
             i = TMP_0;
             // Call cref_sum() begin
-            record_fcall_const_ref3_PROC_STATE_next = 2; return;    // test_func_param_cthread.cpp:201:9;
+            record_fcall_const_ref3_PROC_STATE_next = 2; return;    // test_func_param_cthread.cpp:208:9;
             // Call cref_sum() end
         end
         2: begin
@@ -434,7 +434,7 @@ function void record_fcall_const_ref3_func;
             // Call cref_sum() end
             i = TMP_2;
             // Call cref_sum() begin
-            record_fcall_const_ref3_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:201:9;
+            record_fcall_const_ref3_PROC_STATE_next = 1; return;    // test_func_param_cthread.cpp:208:9;
             // Call cref_sum() end
         end
     endcase
@@ -444,7 +444,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : record_fcall_const_ref3_ff
     if ( ~rstn ) begin
-        record_fcall_const_ref3_PROC_STATE <= 0;    // test_func_param_cthread.cpp:209:9;
+        record_fcall_const_ref3_PROC_STATE <= 0;    // test_func_param_cthread.cpp:216:9;
     end
     else begin
         r_a1 <= r_a_next1;

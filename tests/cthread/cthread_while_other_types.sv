@@ -23,7 +23,7 @@ logic signed [31:0] out3;
 logic signed [31:0] out4;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_wait0_sc_int (test_while_other_types.cpp:64:5) 
+// Clocked THREAD: while_with_wait0_sc_int (test_while_other_types.cpp:71:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -32,7 +32,7 @@ logic while_with_wait0_sc_int_PROC_STATE;
 logic while_with_wait0_sc_int_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_wait0_sc_int_comb     // test_while_other_types.cpp:64:5
+always_comb begin : while_with_wait0_sc_int_comb     // test_while_other_types.cpp:71:5
     while_with_wait0_sc_int_func;
 end
 function void while_with_wait0_sc_int_func;
@@ -42,16 +42,16 @@ function void while_with_wait0_sc_int_func;
     case (while_with_wait0_sc_int_PROC_STATE)
         0: begin
             i_next = 0;
-            while_with_wait0_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:72:17;
+            while_with_wait0_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:79:17;
         end
         1: begin
             i_next++;
             if (i_next < 3)
             begin
-                while_with_wait0_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:72:17;
+                while_with_wait0_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:79:17;
             end
             i_next = 0;
-            while_with_wait0_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:72:17;
+            while_with_wait0_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:79:17;
         end
     endcase
 endfunction
@@ -60,7 +60,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : while_with_wait0_sc_int_ff
     if ( ~arstn ) begin
-        while_with_wait0_sc_int_PROC_STATE <= 0;    // test_while_other_types.cpp:66:9;
+        while_with_wait0_sc_int_PROC_STATE <= 0;    // test_while_other_types.cpp:73:9;
     end
     else begin
         i <= i_next;
@@ -69,7 +69,7 @@ begin : while_with_wait0_sc_int_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_wait0a_sc_uint (test_while_other_types.cpp:79:5) 
+// Clocked THREAD: while_with_wait0a_sc_uint (test_while_other_types.cpp:86:5) 
 
 // Thread-local variables
 logic [9:0] i0;
@@ -78,7 +78,7 @@ logic [1:0] while_with_wait0a_sc_uint_PROC_STATE;
 logic [1:0] while_with_wait0a_sc_uint_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_wait0a_sc_uint_comb     // test_while_other_types.cpp:79:5
+always_comb begin : while_with_wait0a_sc_uint_comb     // test_while_other_types.cpp:86:5
     while_with_wait0a_sc_uint_func;
 end
 function void while_with_wait0a_sc_uint_func;
@@ -89,24 +89,24 @@ function void while_with_wait0a_sc_uint_func;
         0: begin
             if (i_next0 < 3)
             begin
-                while_with_wait0a_sc_uint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:86:17;
+                while_with_wait0a_sc_uint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:93:17;
             end
-            while_with_wait0a_sc_uint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:89:13;
+            while_with_wait0a_sc_uint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:96:13;
         end
         1: begin
             i_next0++;
             if (i_next0 < 3)
             begin
-                while_with_wait0a_sc_uint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:86:17;
+                while_with_wait0a_sc_uint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:93:17;
             end
-            while_with_wait0a_sc_uint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:89:13;
+            while_with_wait0a_sc_uint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:96:13;
         end
         2: begin
             if (i_next0 < 3)
             begin
-                while_with_wait0a_sc_uint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:86:17;
+                while_with_wait0a_sc_uint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:93:17;
             end
-            while_with_wait0a_sc_uint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:89:13;
+            while_with_wait0a_sc_uint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:96:13;
         end
     endcase
 endfunction
@@ -116,7 +116,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : while_with_wait0a_sc_uint_ff
     if ( ~arstn ) begin
         i0 <= 0;
-        while_with_wait0a_sc_uint_PROC_STATE <= 0;    // test_while_other_types.cpp:82:9;
+        while_with_wait0a_sc_uint_PROC_STATE <= 0;    // test_while_other_types.cpp:89:9;
     end
     else begin
         i0 <= i_next0;
@@ -125,7 +125,7 @@ begin : while_with_wait0a_sc_uint_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_wait1_sc_bigint (test_while_other_types.cpp:94:5) 
+// Clocked THREAD: while_with_wait1_sc_bigint (test_while_other_types.cpp:101:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
@@ -135,7 +135,7 @@ logic [1:0] while_with_wait1_sc_bigint_PROC_STATE;
 logic [1:0] while_with_wait1_sc_bigint_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_wait1_sc_bigint_comb     // test_while_other_types.cpp:94:5
+always_comb begin : while_with_wait1_sc_bigint_comb     // test_while_other_types.cpp:101:5
     while_with_wait1_sc_bigint_func;
 end
 function void while_with_wait1_sc_bigint_func;
@@ -148,23 +148,23 @@ function void while_with_wait1_sc_bigint_func;
             i_next1 = 0;
             i_next1++;
             out_next = 1;
-            while_with_wait1_sc_bigint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:105:17;
+            while_with_wait1_sc_bigint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:112:17;
         end
         1: begin
             if (i_next1 < 3)
             begin
                 i_next1++;
                 out_next = 1;
-                while_with_wait1_sc_bigint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:105:17;
+                while_with_wait1_sc_bigint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:112:17;
             end
             out_next = 2;
-            while_with_wait1_sc_bigint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:108:13;
+            while_with_wait1_sc_bigint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:115:13;
         end
         2: begin
             i_next1 = 0;
             i_next1++;
             out_next = 1;
-            while_with_wait1_sc_bigint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:105:17;
+            while_with_wait1_sc_bigint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:112:17;
         end
     endcase
 endfunction
@@ -174,7 +174,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : while_with_wait1_sc_bigint_ff
     if ( ~arstn ) begin
         out <= 0;
-        while_with_wait1_sc_bigint_PROC_STATE <= 0;    // test_while_other_types.cpp:97:9;
+        while_with_wait1_sc_bigint_PROC_STATE <= 0;    // test_while_other_types.cpp:104:9;
     end
     else begin
         out <= out_next;
@@ -184,7 +184,7 @@ begin : while_with_wait1_sc_bigint_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_wait2_sc_biguint (test_while_other_types.cpp:113:5) 
+// Clocked THREAD: while_with_wait2_sc_biguint (test_while_other_types.cpp:120:5) 
 
 // Thread-local variables
 logic signed [31:0] out2_next;
@@ -194,7 +194,7 @@ logic [1:0] while_with_wait2_sc_biguint_PROC_STATE;
 logic [1:0] while_with_wait2_sc_biguint_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_wait2_sc_biguint_comb     // test_while_other_types.cpp:113:5
+always_comb begin : while_with_wait2_sc_biguint_comb     // test_while_other_types.cpp:120:5
     while_with_wait2_sc_biguint_func;
 end
 function void while_with_wait2_sc_biguint_func;
@@ -207,38 +207,38 @@ function void while_with_wait2_sc_biguint_func;
             i_next2 = 0;
             i_next2++;
             out2_next = 1;
-            while_with_wait2_sc_biguint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:124:17;
+            while_with_wait2_sc_biguint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:131:17;
         end
         1: begin
             if (in > 1)
             begin
                 out2_next = 2;
-                while_with_wait2_sc_biguint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:128:21;
+                while_with_wait2_sc_biguint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:135:21;
             end
             if (i_next2 < 3)
             begin
                 i_next2++;
                 out2_next = 1;
-                while_with_wait2_sc_biguint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:124:17;
+                while_with_wait2_sc_biguint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:131:17;
             end
             out2_next = 3;
-            while_with_wait2_sc_biguint_PROC_STATE_next = 3; return;    // test_while_other_types.cpp:132:13;
+            while_with_wait2_sc_biguint_PROC_STATE_next = 3; return;    // test_while_other_types.cpp:139:13;
         end
         2: begin
             if (i_next2 < 3)
             begin
                 i_next2++;
                 out2_next = 1;
-                while_with_wait2_sc_biguint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:124:17;
+                while_with_wait2_sc_biguint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:131:17;
             end
             out2_next = 3;
-            while_with_wait2_sc_biguint_PROC_STATE_next = 3; return;    // test_while_other_types.cpp:132:13;
+            while_with_wait2_sc_biguint_PROC_STATE_next = 3; return;    // test_while_other_types.cpp:139:13;
         end
         3: begin
             i_next2 = 0;
             i_next2++;
             out2_next = 1;
-            while_with_wait2_sc_biguint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:124:17;
+            while_with_wait2_sc_biguint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:131:17;
         end
     endcase
 endfunction
@@ -248,7 +248,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : while_with_wait2_sc_biguint_ff
     if ( ~arstn ) begin
         out2 <= 0;
-        while_with_wait2_sc_biguint_PROC_STATE <= 0;    // test_while_other_types.cpp:116:9;
+        while_with_wait2_sc_biguint_PROC_STATE <= 0;    // test_while_other_types.cpp:123:9;
     end
     else begin
         out2 <= out2_next;
@@ -258,7 +258,7 @@ begin : while_with_wait2_sc_biguint_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_for_sc_int (test_while_other_types.cpp:137:5) 
+// Clocked THREAD: while_with_for_sc_int (test_while_other_types.cpp:144:5) 
 
 // Thread-local variables
 logic signed [31:0] out3_next;
@@ -270,7 +270,7 @@ logic [1:0] while_with_for_sc_int_PROC_STATE;
 logic [1:0] while_with_for_sc_int_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_for_sc_int_comb     // test_while_other_types.cpp:137:5
+always_comb begin : while_with_for_sc_int_comb     // test_while_other_types.cpp:144:5
     while_with_for_sc_int_func;
 end
 function void while_with_for_sc_int_func;
@@ -289,7 +289,7 @@ function void while_with_for_sc_int_func;
             begin
                 out3_next = j_next;
             end
-            while_with_for_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:153:21;
+            while_with_for_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:160:21;
         end
         1: begin
             j_next++;
@@ -299,7 +299,7 @@ function void while_with_for_sc_int_func;
                 begin
                     out3_next = j_next;
                 end
-                while_with_for_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:153:21;
+                while_with_for_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:160:21;
             end
             if (i_next3 < 3)
             begin
@@ -310,10 +310,10 @@ function void while_with_for_sc_int_func;
                 begin
                     out3_next = j_next;
                 end
-                while_with_for_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:153:21;
+                while_with_for_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:160:21;
             end
             out3_next = 3;
-            while_with_for_sc_int_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:157:13;
+            while_with_for_sc_int_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:164:13;
         end
         2: begin
             i_next3 = 0;
@@ -324,7 +324,7 @@ function void while_with_for_sc_int_func;
             begin
                 out3_next = j_next;
             end
-            while_with_for_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:153:21;
+            while_with_for_sc_int_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:160:21;
         end
     endcase
 endfunction
@@ -334,7 +334,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : while_with_for_sc_int_ff
     if ( ~arstn ) begin
         out3 <= 0;
-        while_with_for_sc_int_PROC_STATE <= 0;    // test_while_other_types.cpp:140:9;
+        while_with_for_sc_int_PROC_STATE <= 0;    // test_while_other_types.cpp:147:9;
     end
     else begin
         out3 <= out3_next;
@@ -345,7 +345,7 @@ begin : while_with_for_sc_int_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_signal_cond_sc_uint (test_while_other_types.cpp:162:5) 
+// Clocked THREAD: while_with_signal_cond_sc_uint (test_while_other_types.cpp:169:5) 
 
 // Thread-local variables
 logic signed [31:0] out4_next;
@@ -353,7 +353,7 @@ logic [1:0] while_with_signal_cond_sc_uint_PROC_STATE;
 logic [1:0] while_with_signal_cond_sc_uint_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_signal_cond_sc_uint_comb     // test_while_other_types.cpp:162:5
+always_comb begin : while_with_signal_cond_sc_uint_comb     // test_while_other_types.cpp:169:5
     while_with_signal_cond_sc_uint_func;
 end
 function void while_with_signal_cond_sc_uint_func;
@@ -365,28 +365,28 @@ function void while_with_signal_cond_sc_uint_func;
             if (|in)
             begin
                 out4_next = 1;
-                while_with_signal_cond_sc_uint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:171:17;
+                while_with_signal_cond_sc_uint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:178:17;
             end
             out4_next = 2;
-            while_with_signal_cond_sc_uint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:175:13;
+            while_with_signal_cond_sc_uint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:182:13;
         end
         1: begin
             if (|in)
             begin
                 out4_next = 1;
-                while_with_signal_cond_sc_uint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:171:17;
+                while_with_signal_cond_sc_uint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:178:17;
             end
             out4_next = 2;
-            while_with_signal_cond_sc_uint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:175:13;
+            while_with_signal_cond_sc_uint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:182:13;
         end
         2: begin
             if (|in)
             begin
                 out4_next = 1;
-                while_with_signal_cond_sc_uint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:171:17;
+                while_with_signal_cond_sc_uint_PROC_STATE_next = 1; return;    // test_while_other_types.cpp:178:17;
             end
             out4_next = 2;
-            while_with_signal_cond_sc_uint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:175:13;
+            while_with_signal_cond_sc_uint_PROC_STATE_next = 2; return;    // test_while_other_types.cpp:182:13;
         end
     endcase
 endfunction
@@ -396,7 +396,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : while_with_signal_cond_sc_uint_ff
     if ( ~arstn ) begin
         out4 <= 0;
-        while_with_signal_cond_sc_uint_PROC_STATE <= 0;    // test_while_other_types.cpp:165:9;
+        while_with_signal_cond_sc_uint_PROC_STATE <= 0;    // test_while_other_types.cpp:172:9;
     end
     else begin
         out4 <= out4_next;
@@ -405,7 +405,7 @@ begin : while_with_signal_cond_sc_uint_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_binary_oper_sc_bigint (test_while_other_types.cpp:180:5) 
+// Clocked THREAD: while_with_binary_oper_sc_bigint (test_while_other_types.cpp:187:5) 
 
 // Thread-local variables
 logic signed [49:0] b1;
@@ -414,7 +414,7 @@ logic signed [49:0] b2;
 logic signed [49:0] b2_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_binary_oper_sc_bigint_comb     // test_while_other_types.cpp:180:5
+always_comb begin : while_with_binary_oper_sc_bigint_comb     // test_while_other_types.cpp:187:5
     while_with_binary_oper_sc_bigint_func;
 end
 function void while_with_binary_oper_sc_bigint_func;
@@ -438,14 +438,14 @@ begin : while_with_binary_oper_sc_bigint_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_binary_oper1_sc_biguint (test_while_other_types.cpp:196:5) 
+// Clocked THREAD: while_with_binary_oper1_sc_biguint (test_while_other_types.cpp:203:5) 
 
 // Thread-local variables
 logic [24:0] b10;
 logic [24:0] b1_next0;
 
 // Next-state combinational logic
-always_comb begin : while_with_binary_oper1_sc_biguint_comb     // test_while_other_types.cpp:196:5
+always_comb begin : while_with_binary_oper1_sc_biguint_comb     // test_while_other_types.cpp:203:5
     while_with_binary_oper1_sc_biguint_func;
 end
 function void while_with_binary_oper1_sc_biguint_func;
@@ -468,7 +468,7 @@ begin : while_with_binary_oper1_sc_biguint_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_binary_oper2_sc_int (test_while_other_types.cpp:213:5) 
+// Clocked THREAD: while_with_binary_oper2_sc_int (test_while_other_types.cpp:220:5) 
 
 // Thread-local variables
 logic signed [31:0] b11;
@@ -477,7 +477,7 @@ logic signed [31:0] b20;
 logic signed [31:0] b2_next0;
 
 // Next-state combinational logic
-always_comb begin : while_with_binary_oper2_sc_int_comb     // test_while_other_types.cpp:213:5
+always_comb begin : while_with_binary_oper2_sc_int_comb     // test_while_other_types.cpp:220:5
     while_with_binary_oper2_sc_int_func;
 end
 function void while_with_binary_oper2_sc_int_func;
@@ -503,7 +503,7 @@ begin : while_with_binary_oper2_sc_int_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_binary_oper3_sc_uint (test_while_other_types.cpp:229:5) 
+// Clocked THREAD: while_with_binary_oper3_sc_uint (test_while_other_types.cpp:236:5) 
 
 // Thread-local variables
 logic [15:0] b12;
@@ -512,7 +512,7 @@ logic [15:0] b3;
 logic [15:0] b3_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_binary_oper3_sc_uint_comb     // test_while_other_types.cpp:229:5
+always_comb begin : while_with_binary_oper3_sc_uint_comb     // test_while_other_types.cpp:236:5
     while_with_binary_oper3_sc_uint_func;
 end
 function void while_with_binary_oper3_sc_uint_func;

@@ -20,7 +20,7 @@ logic [30:0] a;
 logic [30:0] b;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_init_in_reset (test_cthread_multiwait.cpp:25:5) 
+// Clocked THREAD: comb_init_in_reset (test_cthread_multiwait.cpp:32:5) 
 
 // Thread-local variables
 logic [30:0] a_next;
@@ -29,7 +29,7 @@ logic [2:0] comb_init_in_reset_PROC_STATE;
 logic [2:0] comb_init_in_reset_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : comb_init_in_reset_comb     // test_cthread_multiwait.cpp:25:5
+always_comb begin : comb_init_in_reset_comb     // test_cthread_multiwait.cpp:32:5
     comb_init_in_reset_func;
 end
 function void comb_init_in_reset_func;
@@ -40,32 +40,32 @@ function void comb_init_in_reset_func;
     case (comb_init_in_reset_PROC_STATE)
         0: begin
             a_next = 1;
-            comb_init_in_reset_PROC_STATE_next = 1; return;    // test_cthread_multiwait.cpp:31:9;
+            comb_init_in_reset_PROC_STATE_next = 1; return;    // test_cthread_multiwait.cpp:38:9;
         end
         1: begin
             a_next = 3;
             b_next = 1;
-            comb_init_in_reset_PROC_STATE_next = 2; return;    // test_cthread_multiwait.cpp:34:9;
+            comb_init_in_reset_PROC_STATE_next = 2; return;    // test_cthread_multiwait.cpp:41:9;
         end
         2: begin
             a_next = 4;
-            comb_init_in_reset_PROC_STATE_next = 3; return;    // test_cthread_multiwait.cpp:36:9;
+            comb_init_in_reset_PROC_STATE_next = 3; return;    // test_cthread_multiwait.cpp:43:9;
         end
         3: begin
             a_next = 5;
-            comb_init_in_reset_PROC_STATE_next = 4; return;    // test_cthread_multiwait.cpp:38:9;
+            comb_init_in_reset_PROC_STATE_next = 4; return;    // test_cthread_multiwait.cpp:45:9;
         end
         4: begin
             a_next = a + 1;
-            comb_init_in_reset_PROC_STATE_next = 5; return;    // test_cthread_multiwait.cpp:41:13;
+            comb_init_in_reset_PROC_STATE_next = 5; return;    // test_cthread_multiwait.cpp:48:13;
         end
         5: begin
             b_next = a + b;
-            comb_init_in_reset_PROC_STATE_next = 6; return;    // test_cthread_multiwait.cpp:43:13;
+            comb_init_in_reset_PROC_STATE_next = 6; return;    // test_cthread_multiwait.cpp:50:13;
         end
         6: begin
             a_next = a + 1;
-            comb_init_in_reset_PROC_STATE_next = 5; return;    // test_cthread_multiwait.cpp:41:13;
+            comb_init_in_reset_PROC_STATE_next = 5; return;    // test_cthread_multiwait.cpp:48:13;
         end
     endcase
 endfunction
@@ -76,7 +76,7 @@ begin : comb_init_in_reset_ff
     if ( ~arstn ) begin
         a <= 0;
         b <= 0;
-        comb_init_in_reset_PROC_STATE <= 0;    // test_cthread_multiwait.cpp:29:9;
+        comb_init_in_reset_PROC_STATE <= 0;    // test_cthread_multiwait.cpp:36:9;
     end
     else begin
         a <= a_next;

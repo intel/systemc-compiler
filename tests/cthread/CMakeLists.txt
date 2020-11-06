@@ -1,3 +1,10 @@
+#******************************************************************************
+# Copyright (c) 2020, Intel Corporation. All rights reserved.
+# 
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+# 
+# *****************************************************************************
+
 add_executable(cthread_array test_cthread_array.cpp)
 svc_target(cthread_array GOLDEN cthread_array.sv)
 
@@ -124,9 +131,6 @@ svc_target(cthread_wait_n_fail WILL_FAIL)
 add_executable(cthread_wait_n_fail2 test_cthread_wait_n_fail2.cpp)
 svc_target(cthread_wait_n_fail2 WILL_FAIL)
 
-add_executable(cthread_const_prop test_cthread_const_prop.cpp)
-svc_target(cthread_const_prop GOLDEN cthread_const_prop.sv)
-
 add_executable(cthread_duplicate_states test_cthread_duplicate_states.cpp)
 svc_target(cthread_duplicate_states GOLDEN cthread_duplicate_states.sv)
 
@@ -172,8 +176,16 @@ svc_target(cthread_shared_vars GOLDEN cthread_shared_vars.sv)
 add_executable(cthread_read_only test_cthread_read_only.cpp)
 svc_target(cthread_read_only GOLDEN cthread_read_only.sv)
 
+## Constants
 add_executable(cthread_const_array test_cthread_const_array.cpp)
 svc_target(cthread_const_array GOLDEN cthread_const_array.sv)
+
+add_executable(cthread_const_fail test_cthread_const_fail.cpp)
+svc_target(cthread_const_fail WILL_FAIL)
+
+add_executable(cthread_const_prop test_cthread_const_prop.cpp)
+svc_target(cthread_const_prop GOLDEN cthread_const_prop.sv)
+
 
 add_executable(cthread_varname test_cthread_varname.cpp)
 svc_target(cthread_varname 
@@ -284,5 +296,3 @@ svc_target(cthread_var_multiple_use
 add_executable(cthread_bool test_bool.cpp)
 svc_target(cthread_bool GOLDEN cthread_bool.sv)
 
-add_executable(cthread_const_fail test_cthread_const_fail.cpp)
-svc_target(cthread_const_fail WILL_FAIL)

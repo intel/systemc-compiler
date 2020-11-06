@@ -21,10 +21,10 @@ logic [65:0] bs;
 logic signed [65:0] bt;
 
 //------------------------------------------------------------------------------
-// Method process: comp_narrow_var_pos (test_const_cond_narrow.cpp:40:5) 
+// Method process: comp_narrow_var_pos (test_const_cond_narrow.cpp:47:5) 
 
 always_comb 
-begin : comp_narrow_var_pos     // test_const_cond_narrow.cpp:40:5
+begin : comp_narrow_var_pos     // test_const_cond_narrow.cpp:47:5
     integer k;
     logic [2:0] a;
     k = 0;
@@ -53,10 +53,10 @@ begin : comp_narrow_var_pos     // test_const_cond_narrow.cpp:40:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: comp_narrow_var_neg (test_const_cond_narrow.cpp:70:5) 
+// Method process: comp_narrow_var_neg (test_const_cond_narrow.cpp:77:5) 
 
 always_comb 
-begin : comp_narrow_var_neg     // test_const_cond_narrow.cpp:70:5
+begin : comp_narrow_var_neg     // test_const_cond_narrow.cpp:77:5
     integer k;
     logic signed [2:0] a;
     k = 0;
@@ -85,10 +85,10 @@ begin : comp_narrow_var_neg     // test_const_cond_narrow.cpp:70:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: comp_narrow_var_pos_neg (test_const_cond_narrow.cpp:100:5) 
+// Method process: comp_narrow_var_pos_neg (test_const_cond_narrow.cpp:107:5) 
 
 always_comb 
-begin : comp_narrow_var_pos_neg     // test_const_cond_narrow.cpp:100:5
+begin : comp_narrow_var_pos_neg     // test_const_cond_narrow.cpp:107:5
     integer k;
     logic [2:0] a;
     k = 0;
@@ -105,10 +105,10 @@ begin : comp_narrow_var_pos_neg     // test_const_cond_narrow.cpp:100:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: comp_narrow_var_great (test_const_cond_narrow.cpp:118:5) 
+// Method process: comp_narrow_var_great (test_const_cond_narrow.cpp:125:5) 
 
 always_comb 
-begin : comp_narrow_var_great     // test_const_cond_narrow.cpp:118:5
+begin : comp_narrow_var_great     // test_const_cond_narrow.cpp:125:5
     integer k;
     logic [2:0] a;
     logic signed [2:0] b;
@@ -136,10 +136,10 @@ begin : comp_narrow_var_great     // test_const_cond_narrow.cpp:118:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: comp_narrow_var_big_pos (test_const_cond_narrow.cpp:151:5) 
+// Method process: comp_narrow_var_big_pos (test_const_cond_narrow.cpp:158:5) 
 
 always_comb 
-begin : comp_narrow_var_big_pos     // test_const_cond_narrow.cpp:151:5
+begin : comp_narrow_var_big_pos     // test_const_cond_narrow.cpp:158:5
     integer k;
     logic [64:0] a;
     logic [65:0] C;

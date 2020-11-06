@@ -19,7 +19,7 @@ logic nrst;
 logic [3:0] s;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multi1 (test_fcall_multi_state.cpp:39:5) 
+// Clocked THREAD: multi1 (test_fcall_multi_state.cpp:46:5) 
 
 // Thread-local variables
 logic signed [31:0] arrb[3];
@@ -30,7 +30,7 @@ logic [1:0] multi1_PROC_STATE;
 logic [1:0] multi1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : multi1_comb     // test_fcall_multi_state.cpp:39:5
+always_comb begin : multi1_comb     // test_fcall_multi_state.cpp:46:5
     multi1_func;
 end
 function void multi1_func;
@@ -50,10 +50,10 @@ function void multi1_func;
             if (|s)
             begin
                 // Call cref_wait1() begin
-                multi1_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:34:9;
+                multi1_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:41:9;
                 // Call cref_wait1() end
             end
-            multi1_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:49:13;
+            multi1_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:56:13;
         end
         1: begin
             // Call cref_wait1() begin
@@ -61,23 +61,23 @@ function void multi1_func;
             TMP_0 = res;
             // Call cref_wait1() end
             res_1 = TMP_0;
-            multi1_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:49:13;
+            multi1_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:56:13;
         end
         2: begin
             if (s < 3)
             begin
                 i = s;
                 // Call cref_wait1() begin
-                multi1_PROC_STATE_next = 3; return;    // test_fcall_multi_state.cpp:34:9;
+                multi1_PROC_STATE_next = 3; return;    // test_fcall_multi_state.cpp:41:9;
                 // Call cref_wait1() end
             end
             if (|s)
             begin
                 // Call cref_wait1() begin
-                multi1_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:34:9;
+                multi1_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:41:9;
                 // Call cref_wait1() end
             end
-            multi1_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:49:13;
+            multi1_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:56:13;
         end
         3: begin
             // Call cref_wait1() begin
@@ -87,10 +87,10 @@ function void multi1_func;
             if (|s)
             begin
                 // Call cref_wait1() begin
-                multi1_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:34:9;
+                multi1_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:41:9;
                 // Call cref_wait1() end
             end
-            multi1_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:49:13;
+            multi1_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:56:13;
         end
     endcase
 endfunction
@@ -101,7 +101,7 @@ begin : multi1_ff
     if ( ~nrst ) begin
         integer i;
         i = 0;
-        multi1_PROC_STATE <= 0;    // test_fcall_multi_state.cpp:42:9;
+        multi1_PROC_STATE <= 0;    // test_fcall_multi_state.cpp:49:9;
     end
     else begin
         arrb <= arrb_next;
@@ -111,7 +111,7 @@ begin : multi1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multi2 (test_fcall_multi_state.cpp:64:5) 
+// Clocked THREAD: multi2 (test_fcall_multi_state.cpp:71:5) 
 
 // Thread-local variables
 logic signed [31:0] a;
@@ -122,7 +122,7 @@ logic [1:0] multi2_PROC_STATE;
 logic [1:0] multi2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : multi2_comb     // test_fcall_multi_state.cpp:64:5
+always_comb begin : multi2_comb     // test_fcall_multi_state.cpp:71:5
     multi2_func;
 end
 function void multi2_func;
@@ -140,16 +140,16 @@ function void multi2_func;
             if (s == 1)
             begin
                 // Call cref_wait2() begin
-                multi2_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:60:9;
+                multi2_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:67:9;
                 // Call cref_wait2() end
             end
             if (s == 2)
             begin
                 // Call cref_wait2() begin
-                multi2_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:60:9;
+                multi2_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:67:9;
                 // Call cref_wait2() end
             end
-            multi2_PROC_STATE_next = 3; return;    // test_fcall_multi_state.cpp:76:13;
+            multi2_PROC_STATE_next = 3; return;    // test_fcall_multi_state.cpp:83:13;
         end
         1: begin
             // Call cref_wait2() begin
@@ -158,31 +158,31 @@ function void multi2_func;
             if (s == 2)
             begin
                 // Call cref_wait2() begin
-                multi2_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:60:9;
+                multi2_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:67:9;
                 // Call cref_wait2() end
             end
-            multi2_PROC_STATE_next = 3; return;    // test_fcall_multi_state.cpp:76:13;
+            multi2_PROC_STATE_next = 3; return;    // test_fcall_multi_state.cpp:83:13;
         end
         2: begin
             // Call cref_wait2() begin
             TMP_2 = b_next;
             // Call cref_wait2() end
-            multi2_PROC_STATE_next = 3; return;    // test_fcall_multi_state.cpp:76:13;
+            multi2_PROC_STATE_next = 3; return;    // test_fcall_multi_state.cpp:83:13;
         end
         3: begin
             if (s == 1)
             begin
                 // Call cref_wait2() begin
-                multi2_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:60:9;
+                multi2_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:67:9;
                 // Call cref_wait2() end
             end
             if (s == 2)
             begin
                 // Call cref_wait2() begin
-                multi2_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:60:9;
+                multi2_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:67:9;
                 // Call cref_wait2() end
             end
-            multi2_PROC_STATE_next = 3; return;    // test_fcall_multi_state.cpp:76:13;
+            multi2_PROC_STATE_next = 3; return;    // test_fcall_multi_state.cpp:83:13;
         end
     endcase
 endfunction
@@ -191,7 +191,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : multi2_ff
     if ( ~nrst ) begin
-        multi2_PROC_STATE <= 0;    // test_fcall_multi_state.cpp:67:9;
+        multi2_PROC_STATE <= 0;    // test_fcall_multi_state.cpp:74:9;
     end
     else begin
         a <= a_next;
@@ -201,7 +201,7 @@ begin : multi2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multi3 (test_fcall_multi_state.cpp:86:5) 
+// Clocked THREAD: multi3 (test_fcall_multi_state.cpp:93:5) 
 
 // Thread-local variables
 logic signed [31:0] b0;
@@ -212,7 +212,7 @@ logic [1:0] multi3_PROC_STATE;
 logic [1:0] multi3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : multi3_comb     // test_fcall_multi_state.cpp:86:5
+always_comb begin : multi3_comb     // test_fcall_multi_state.cpp:93:5
     multi3_func;
 end
 function void multi3_func;
@@ -229,31 +229,31 @@ function void multi3_func;
             if (s == 1)
             begin
                 // Call cref_wait3() begin
-                multi3_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:82:9;
+                multi3_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:89:9;
                 // Call cref_wait3() end
             end
-            multi3_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:95:13;
+            multi3_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:102:13;
         end
         1: begin
             // Call cref_wait3() begin
             TMP_0 = a_next0;
             // Call cref_wait3() end
-            multi3_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:95:13;
+            multi3_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:102:13;
         end
         2: begin
             if (s == 2)
             begin
                 // Call cref_wait3() begin
-                multi3_PROC_STATE_next = 3; return;    // test_fcall_multi_state.cpp:82:9;
+                multi3_PROC_STATE_next = 3; return;    // test_fcall_multi_state.cpp:89:9;
                 // Call cref_wait3() end
             end
             if (s == 1)
             begin
                 // Call cref_wait3() begin
-                multi3_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:82:9;
+                multi3_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:89:9;
                 // Call cref_wait3() end
             end
-            multi3_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:95:13;
+            multi3_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:102:13;
         end
         3: begin
             // Call cref_wait3() begin
@@ -262,10 +262,10 @@ function void multi3_func;
             if (s == 1)
             begin
                 // Call cref_wait3() begin
-                multi3_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:82:9;
+                multi3_PROC_STATE_next = 1; return;    // test_fcall_multi_state.cpp:89:9;
                 // Call cref_wait3() end
             end
-            multi3_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:95:13;
+            multi3_PROC_STATE_next = 2; return;    // test_fcall_multi_state.cpp:102:13;
         end
     endcase
 endfunction
@@ -274,7 +274,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : multi3_ff
     if ( ~nrst ) begin
-        multi3_PROC_STATE <= 0;    // test_fcall_multi_state.cpp:89:9;
+        multi3_PROC_STATE <= 0;    // test_fcall_multi_state.cpp:96:9;
     end
     else begin
         b0 <= b_next0;
@@ -284,7 +284,7 @@ begin : multi3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multi20 (test_fcall_multi_state.cpp:64:5) 
+// Clocked THREAD: multi20 (test_fcall_multi_state.cpp:71:5) 
 
 // Thread-local variables
 logic signed [31:0] a1;
@@ -295,7 +295,7 @@ logic [1:0] multi2_PROC_STATE0;
 logic [1:0] multi2_PROC_STATE_next0;
 
 // Next-state combinational logic
-always_comb begin : multi20_comb     // test_fcall_multi_state.cpp:64:5
+always_comb begin : multi20_comb     // test_fcall_multi_state.cpp:71:5
     multi20_func;
 end
 function void multi20_func;
@@ -313,16 +313,16 @@ function void multi20_func;
             if (s == 1)
             begin
                 // Call cref_wait2() begin
-                multi2_PROC_STATE_next0 = 1; return;    // test_fcall_multi_state.cpp:60:9;
+                multi2_PROC_STATE_next0 = 1; return;    // test_fcall_multi_state.cpp:67:9;
                 // Call cref_wait2() end
             end
             if (s == 2)
             begin
                 // Call cref_wait2() begin
-                multi2_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:60:9;
+                multi2_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:67:9;
                 // Call cref_wait2() end
             end
-            multi2_PROC_STATE_next0 = 3; return;    // test_fcall_multi_state.cpp:76:13;
+            multi2_PROC_STATE_next0 = 3; return;    // test_fcall_multi_state.cpp:83:13;
         end
         1: begin
             // Call cref_wait2() begin
@@ -331,31 +331,31 @@ function void multi20_func;
             if (s == 2)
             begin
                 // Call cref_wait2() begin
-                multi2_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:60:9;
+                multi2_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:67:9;
                 // Call cref_wait2() end
             end
-            multi2_PROC_STATE_next0 = 3; return;    // test_fcall_multi_state.cpp:76:13;
+            multi2_PROC_STATE_next0 = 3; return;    // test_fcall_multi_state.cpp:83:13;
         end
         2: begin
             // Call cref_wait2() begin
             TMP_2 = b_next1;
             // Call cref_wait2() end
-            multi2_PROC_STATE_next0 = 3; return;    // test_fcall_multi_state.cpp:76:13;
+            multi2_PROC_STATE_next0 = 3; return;    // test_fcall_multi_state.cpp:83:13;
         end
         3: begin
             if (s == 1)
             begin
                 // Call cref_wait2() begin
-                multi2_PROC_STATE_next0 = 1; return;    // test_fcall_multi_state.cpp:60:9;
+                multi2_PROC_STATE_next0 = 1; return;    // test_fcall_multi_state.cpp:67:9;
                 // Call cref_wait2() end
             end
             if (s == 2)
             begin
                 // Call cref_wait2() begin
-                multi2_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:60:9;
+                multi2_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:67:9;
                 // Call cref_wait2() end
             end
-            multi2_PROC_STATE_next0 = 3; return;    // test_fcall_multi_state.cpp:76:13;
+            multi2_PROC_STATE_next0 = 3; return;    // test_fcall_multi_state.cpp:83:13;
         end
     endcase
 endfunction
@@ -364,7 +364,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : multi20_ff
     if ( ~nrst ) begin
-        multi2_PROC_STATE0 <= 0;    // test_fcall_multi_state.cpp:67:9;
+        multi2_PROC_STATE0 <= 0;    // test_fcall_multi_state.cpp:74:9;
     end
     else begin
         a1 <= a_next1;
@@ -374,7 +374,7 @@ begin : multi20_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: multi30 (test_fcall_multi_state.cpp:86:5) 
+// Clocked THREAD: multi30 (test_fcall_multi_state.cpp:93:5) 
 
 // Thread-local variables
 logic signed [31:0] b2;
@@ -385,7 +385,7 @@ logic [1:0] multi3_PROC_STATE0;
 logic [1:0] multi3_PROC_STATE_next0;
 
 // Next-state combinational logic
-always_comb begin : multi30_comb     // test_fcall_multi_state.cpp:86:5
+always_comb begin : multi30_comb     // test_fcall_multi_state.cpp:93:5
     multi30_func;
 end
 function void multi30_func;
@@ -402,31 +402,31 @@ function void multi30_func;
             if (s == 1)
             begin
                 // Call cref_wait3() begin
-                multi3_PROC_STATE_next0 = 1; return;    // test_fcall_multi_state.cpp:82:9;
+                multi3_PROC_STATE_next0 = 1; return;    // test_fcall_multi_state.cpp:89:9;
                 // Call cref_wait3() end
             end
-            multi3_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:95:13;
+            multi3_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:102:13;
         end
         1: begin
             // Call cref_wait3() begin
             TMP_0 = a_next2;
             // Call cref_wait3() end
-            multi3_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:95:13;
+            multi3_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:102:13;
         end
         2: begin
             if (s == 2)
             begin
                 // Call cref_wait3() begin
-                multi3_PROC_STATE_next0 = 3; return;    // test_fcall_multi_state.cpp:82:9;
+                multi3_PROC_STATE_next0 = 3; return;    // test_fcall_multi_state.cpp:89:9;
                 // Call cref_wait3() end
             end
             if (s == 1)
             begin
                 // Call cref_wait3() begin
-                multi3_PROC_STATE_next0 = 1; return;    // test_fcall_multi_state.cpp:82:9;
+                multi3_PROC_STATE_next0 = 1; return;    // test_fcall_multi_state.cpp:89:9;
                 // Call cref_wait3() end
             end
-            multi3_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:95:13;
+            multi3_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:102:13;
         end
         3: begin
             // Call cref_wait3() begin
@@ -435,10 +435,10 @@ function void multi30_func;
             if (s == 1)
             begin
                 // Call cref_wait3() begin
-                multi3_PROC_STATE_next0 = 1; return;    // test_fcall_multi_state.cpp:82:9;
+                multi3_PROC_STATE_next0 = 1; return;    // test_fcall_multi_state.cpp:89:9;
                 // Call cref_wait3() end
             end
-            multi3_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:95:13;
+            multi3_PROC_STATE_next0 = 2; return;    // test_fcall_multi_state.cpp:102:13;
         end
     endcase
 endfunction
@@ -447,7 +447,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : multi30_ff
     if ( ~nrst ) begin
-        multi3_PROC_STATE0 <= 0;    // test_fcall_multi_state.cpp:89:9;
+        multi3_PROC_STATE0 <= 0;    // test_fcall_multi_state.cpp:96:9;
     end
     else begin
         b2 <= b_next2;

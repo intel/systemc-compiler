@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: C (test_virtual2.cpp:69:5)
+// Module: C (test_virtual2.cpp:76:5)
 //
 module C // "b_mod.c_mod"
 (
@@ -42,13 +42,13 @@ module C // "b_mod.c_mod"
 logic s;
 
 //------------------------------------------------------------------------------
-// Method process: virt_call (test_virtual2.cpp:24:5) 
+// Method process: virt_call (test_virtual2.cpp:31:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : virt_call     // test_virtual2.cpp:24:5
+begin : virt_call     // test_virtual2.cpp:31:5
     // Call f() begin
     m = m + 2;
     s = 1;
@@ -61,7 +61,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: D (test_virtual2.cpp:70:5)
+// Module: D (test_virtual2.cpp:77:5)
 //
 module D // "b_mod.d_mod"
 (
@@ -71,13 +71,13 @@ module D // "b_mod.d_mod"
 logic s;
 
 //------------------------------------------------------------------------------
-// Method process: virt_call (test_virtual2.cpp:24:5) 
+// Method process: virt_call (test_virtual2.cpp:31:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : virt_call     // test_virtual2.cpp:24:5
+begin : virt_call     // test_virtual2.cpp:31:5
     // Call f() begin
     m = m + 3;
     s = 0;
@@ -85,13 +85,13 @@ begin : virt_call     // test_virtual2.cpp:24:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: virt_call_d (test_virtual2.cpp:60:5) 
+// Method process: virt_call_d (test_virtual2.cpp:67:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : virt_call_d     // test_virtual2.cpp:60:5
+begin : virt_call_d     // test_virtual2.cpp:67:5
     // Call f() begin
     m = m + 3;
     s = 0;

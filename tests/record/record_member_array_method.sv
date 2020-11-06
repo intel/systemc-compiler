@@ -18,14 +18,14 @@ module A // "a"
 logic [3:0] sig;
 
 //------------------------------------------------------------------------------
-// Method process: member_fcall_ref (test_member_array_method.cpp:88:5) 
+// Method process: member_fcall_ref (test_member_array_method.cpp:95:5) 
 
 // Process-local variables
 logic harr_a[2][3];
 logic [3:0] harr_b[2][3];
 
 always_comb 
-begin : member_fcall_ref     // test_member_array_method.cpp:88:5
+begin : member_fcall_ref     // test_member_array_method.cpp:95:5
     // Call rec_param_ref() begin
     harr_b[1][2] = 3;
     // Call rec_param_ref() end
@@ -33,20 +33,20 @@ begin : member_fcall_ref     // test_member_array_method.cpp:88:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: loc_array_decl (test_member_array_method.cpp:66:5) 
+// Method process: loc_array_decl (test_member_array_method.cpp:73:5) 
 
 always_comb 
-begin : loc_array_decl     // test_member_array_method.cpp:66:5
+begin : loc_array_decl     // test_member_array_method.cpp:73:5
     logic xarr_a[2][3];
     logic [3:0] xarr_b[2][3];
     xarr_b[1][2] = 0;
 end
 
 //------------------------------------------------------------------------------
-// Method process: loc_array_init (test_member_array_method.cpp:73:5) 
+// Method process: loc_array_init (test_member_array_method.cpp:80:5) 
 
 always_comb 
-begin : loc_array_init     // test_member_array_method.cpp:73:5
+begin : loc_array_init     // test_member_array_method.cpp:80:5
     logic z_a;
     logic [3:0] z_b;
     logic x_a[3];
@@ -58,14 +58,14 @@ begin : loc_array_init     // test_member_array_method.cpp:73:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: simple_access (test_member_array_method.cpp:100:5) 
+// Method process: simple_access (test_member_array_method.cpp:107:5) 
 
 // Process-local variables
 logic s_a[3];
 logic [3:0] s_b[3];
 
 always_comb 
-begin : simple_access     // test_member_array_method.cpp:100:5
+begin : simple_access     // test_member_array_method.cpp:107:5
     logic par;
     integer i_1;
     integer j;
@@ -88,14 +88,14 @@ begin : simple_access     // test_member_array_method.cpp:100:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: array_access (test_member_array_method.cpp:116:5) 
+// Method process: array_access (test_member_array_method.cpp:123:5) 
 
 // Process-local variables
 logic arr_a[2][3];
 logic [3:0] arr_b[2][3];
 
 always_comb 
-begin : array_access     // test_member_array_method.cpp:116:5
+begin : array_access     // test_member_array_method.cpp:123:5
     logic par;
     integer i_1;
     integer j_1;
@@ -123,10 +123,10 @@ begin : array_access     // test_member_array_method.cpp:116:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: loc_array_access (test_member_array_method.cpp:134:5) 
+// Method process: loc_array_access (test_member_array_method.cpp:141:5) 
 
 always_comb 
-begin : loc_array_access     // test_member_array_method.cpp:134:5
+begin : loc_array_access     // test_member_array_method.cpp:141:5
     logic x_a[3];
     logic [3:0] x_b[3];
     logic xarr_a[2][3];
@@ -158,10 +158,10 @@ begin : loc_array_access     // test_member_array_method.cpp:134:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: local_fcall_param (test_member_array_method.cpp:184:5) 
+// Method process: local_fcall_param (test_member_array_method.cpp:191:5) 
 
 always_comb 
-begin : local_fcall_param     // test_member_array_method.cpp:184:5
+begin : local_fcall_param     // test_member_array_method.cpp:191:5
     logic yy_a[3];
     logic [3:0] yy_b[3];
     logic y_a_1[3];
@@ -229,7 +229,7 @@ begin : local_fcall_param     // test_member_array_method.cpp:184:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: fcall_param (test_member_array_method.cpp:206:5) 
+// Method process: fcall_param (test_member_array_method.cpp:213:5) 
 
 // Process-local variables
 logic rr_a[3];
@@ -240,7 +240,7 @@ logic rarr_a[2][3];
 logic [3:0] rarr_b[2][3];
 
 always_comb 
-begin : fcall_param     // test_member_array_method.cpp:206:5
+begin : fcall_param     // test_member_array_method.cpp:213:5
     logic par_a[3];
     logic [3:0] par_b[3];
     integer j;
@@ -301,10 +301,10 @@ begin : fcall_param     // test_member_array_method.cpp:206:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: local_fcall_return (test_member_array_method.cpp:234:5) 
+// Method process: local_fcall_return (test_member_array_method.cpp:241:5) 
 
 always_comb 
-begin : local_fcall_return     // test_member_array_method.cpp:234:5
+begin : local_fcall_return     // test_member_array_method.cpp:241:5
     logic z_a[3];
     logic [3:0] z_b[3];
     logic zarr_a[2][3];
@@ -350,7 +350,7 @@ begin : local_fcall_return     // test_member_array_method.cpp:234:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: fcall_return (test_member_array_method.cpp:250:5) 
+// Method process: fcall_return (test_member_array_method.cpp:257:5) 
 
 // Process-local variables
 logic y_a[3];
@@ -359,7 +359,7 @@ logic yarr_a[2][3];
 logic [3:0] yarr_b[2][3];
 
 always_comb 
-begin : fcall_return     // test_member_array_method.cpp:250:5
+begin : fcall_return     // test_member_array_method.cpp:257:5
     logic par_a[3];
     logic [3:0] par_b[3];
     logic TMP_0_a[3];

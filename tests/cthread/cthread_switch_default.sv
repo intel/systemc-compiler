@@ -20,10 +20,10 @@ logic signed [31:0] s;
 logic [3:0] t;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_const_default1 (test_cthread_switch_default.cpp:59:5) 
+// Clocked THREAD: test_switch_const_default1 (test_cthread_switch_default.cpp:66:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_const_default1_comb     // test_cthread_switch_default.cpp:59:5
+always_comb begin : test_switch_const_default1_comb     // test_cthread_switch_default.cpp:66:5
     test_switch_const_default1_func;
 end
 function void test_switch_const_default1_func;
@@ -49,10 +49,10 @@ begin : test_switch_const_default1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_const_default2 (test_cthread_switch_default.cpp:76:5) 
+// Clocked THREAD: test_switch_const_default2 (test_cthread_switch_default.cpp:83:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_const_default2_comb     // test_cthread_switch_default.cpp:76:5
+always_comb begin : test_switch_const_default2_comb     // test_cthread_switch_default.cpp:83:5
     test_switch_const_default2_func;
 end
 function void test_switch_const_default2_func;
@@ -80,10 +80,10 @@ begin : test_switch_const_default2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_const_default3 (test_cthread_switch_default.cpp:93:5) 
+// Clocked THREAD: test_switch_const_default3 (test_cthread_switch_default.cpp:100:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_const_default3_comb     // test_cthread_switch_default.cpp:93:5
+always_comb begin : test_switch_const_default3_comb     // test_cthread_switch_default.cpp:100:5
     test_switch_const_default3_func;
 end
 function void test_switch_const_default3_func;
@@ -111,10 +111,10 @@ begin : test_switch_const_default3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_const_default_empty1 (test_cthread_switch_default.cpp:110:5) 
+// Clocked THREAD: test_switch_const_default_empty1 (test_cthread_switch_default.cpp:117:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_const_default_empty1_comb     // test_cthread_switch_default.cpp:110:5
+always_comb begin : test_switch_const_default_empty1_comb     // test_cthread_switch_default.cpp:117:5
     test_switch_const_default_empty1_func;
 end
 function void test_switch_const_default_empty1_func;
@@ -142,10 +142,10 @@ begin : test_switch_const_default_empty1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_const_default_empty2 (test_cthread_switch_default.cpp:127:5) 
+// Clocked THREAD: test_switch_const_default_empty2 (test_cthread_switch_default.cpp:134:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_const_default_empty2_comb     // test_cthread_switch_default.cpp:127:5
+always_comb begin : test_switch_const_default_empty2_comb     // test_cthread_switch_default.cpp:134:5
     test_switch_const_default_empty2_func;
 end
 function void test_switch_const_default_empty2_func;
@@ -174,10 +174,10 @@ begin : test_switch_const_default_empty2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_const_default_empty3 (test_cthread_switch_default.cpp:144:5) 
+// Clocked THREAD: test_switch_const_default_empty3 (test_cthread_switch_default.cpp:151:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_const_default_empty3_comb     // test_cthread_switch_default.cpp:144:5
+always_comb begin : test_switch_const_default_empty3_comb     // test_cthread_switch_default.cpp:151:5
     test_switch_const_default_empty3_func;
 end
 function void test_switch_const_default_empty3_func;
@@ -207,10 +207,10 @@ begin : test_switch_const_default_empty3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_const_default_empty4 (test_cthread_switch_default.cpp:161:5) 
+// Clocked THREAD: test_switch_const_default_empty4 (test_cthread_switch_default.cpp:168:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_const_default_empty4_comb     // test_cthread_switch_default.cpp:161:5
+always_comb begin : test_switch_const_default_empty4_comb     // test_cthread_switch_default.cpp:168:5
     test_switch_const_default_empty4_func;
 end
 function void test_switch_const_default_empty4_func;
@@ -240,10 +240,10 @@ begin : test_switch_const_default_empty4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_simple_default1 (test_cthread_switch_default.cpp:178:5) 
+// Clocked THREAD: test_switch_simple_default1 (test_cthread_switch_default.cpp:185:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_simple_default1_comb     // test_cthread_switch_default.cpp:178:5
+always_comb begin : test_switch_simple_default1_comb     // test_cthread_switch_default.cpp:185:5
     test_switch_simple_default1_func;
 end
 function void test_switch_simple_default1_func;
@@ -272,10 +272,10 @@ begin : test_switch_simple_default1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_simple_default2 (test_cthread_switch_default.cpp:195:5) 
+// Clocked THREAD: test_switch_simple_default2 (test_cthread_switch_default.cpp:202:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_simple_default2_comb     // test_cthread_switch_default.cpp:195:5
+always_comb begin : test_switch_simple_default2_comb     // test_cthread_switch_default.cpp:202:5
     test_switch_simple_default2_func;
 end
 function void test_switch_simple_default2_func;
@@ -304,10 +304,10 @@ begin : test_switch_simple_default2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_simple_default3 (test_cthread_switch_default.cpp:212:5) 
+// Clocked THREAD: test_switch_simple_default3 (test_cthread_switch_default.cpp:219:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_simple_default3_comb     // test_cthread_switch_default.cpp:212:5
+always_comb begin : test_switch_simple_default3_comb     // test_cthread_switch_default.cpp:219:5
     test_switch_simple_default3_func;
 end
 function void test_switch_simple_default3_func;
@@ -339,10 +339,10 @@ begin : test_switch_simple_default3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_simple_default_empty1 (test_cthread_switch_default.cpp:229:5) 
+// Clocked THREAD: test_switch_simple_default_empty1 (test_cthread_switch_default.cpp:236:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_simple_default_empty1_comb     // test_cthread_switch_default.cpp:229:5
+always_comb begin : test_switch_simple_default_empty1_comb     // test_cthread_switch_default.cpp:236:5
     test_switch_simple_default_empty1_func;
 end
 function void test_switch_simple_default_empty1_func;
@@ -371,10 +371,10 @@ begin : test_switch_simple_default_empty1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_simple_default_empty2 (test_cthread_switch_default.cpp:246:5) 
+// Clocked THREAD: test_switch_simple_default_empty2 (test_cthread_switch_default.cpp:253:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_simple_default_empty2_comb     // test_cthread_switch_default.cpp:246:5
+always_comb begin : test_switch_simple_default_empty2_comb     // test_cthread_switch_default.cpp:253:5
     test_switch_simple_default_empty2_func;
 end
 function void test_switch_simple_default_empty2_func;
@@ -403,10 +403,10 @@ begin : test_switch_simple_default_empty2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_simple_default_empty3 (test_cthread_switch_default.cpp:263:5) 
+// Clocked THREAD: test_switch_simple_default_empty3 (test_cthread_switch_default.cpp:270:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_simple_default_empty3_comb     // test_cthread_switch_default.cpp:263:5
+always_comb begin : test_switch_simple_default_empty3_comb     // test_cthread_switch_default.cpp:270:5
     test_switch_simple_default_empty3_func;
 end
 function void test_switch_simple_default_empty3_func;
@@ -439,10 +439,10 @@ begin : test_switch_simple_default_empty3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_simple_default_empty4 (test_cthread_switch_default.cpp:280:5) 
+// Clocked THREAD: test_switch_simple_default_empty4 (test_cthread_switch_default.cpp:287:5) 
 
 // Next-state combinational logic
-always_comb begin : test_switch_simple_default_empty4_comb     // test_cthread_switch_default.cpp:280:5
+always_comb begin : test_switch_simple_default_empty4_comb     // test_cthread_switch_default.cpp:287:5
     test_switch_simple_default_empty4_func;
 end
 function void test_switch_simple_default_empty4_func;
@@ -475,7 +475,7 @@ begin : test_switch_simple_default_empty4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_default1 (test_cthread_switch_default.cpp:299:5) 
+// Clocked THREAD: test_switch_default1 (test_cthread_switch_default.cpp:306:5) 
 
 // Thread-local variables
 logic signed [31:0] j;
@@ -484,7 +484,7 @@ logic test_switch_default1_PROC_STATE;
 logic test_switch_default1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_default1_comb     // test_cthread_switch_default.cpp:299:5
+always_comb begin : test_switch_default1_comb     // test_cthread_switch_default.cpp:306:5
     test_switch_default1_func;
 end
 function void test_switch_default1_func;
@@ -494,7 +494,7 @@ function void test_switch_default1_func;
     
     case (test_switch_default1_PROC_STATE)
         0: begin
-            test_switch_default1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:306:13;
+            test_switch_default1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:313:13;
         end
         1: begin
             case (t)
@@ -525,7 +525,7 @@ function void test_switch_default1_func;
                 end
             end
             endcase
-            test_switch_default1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:306:13;
+            test_switch_default1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:313:13;
         end
     endcase
 endfunction
@@ -535,7 +535,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_switch_default1_ff
     if ( ~arstn ) begin
         j <= 0;
-        test_switch_default1_PROC_STATE <= 0;    // test_cthread_switch_default.cpp:302:9;
+        test_switch_default1_PROC_STATE <= 0;    // test_cthread_switch_default.cpp:309:9;
     end
     else begin
         j <= j_next;
@@ -544,7 +544,7 @@ begin : test_switch_default1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_default_wait1 (test_cthread_switch_default.cpp:330:5) 
+// Clocked THREAD: test_switch_default_wait1 (test_cthread_switch_default.cpp:337:5) 
 
 // Thread-local variables
 logic signed [31:0] j0;
@@ -555,7 +555,7 @@ logic [1:0] test_switch_default_wait1_PROC_STATE;
 logic [1:0] test_switch_default_wait1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_default_wait1_comb     // test_cthread_switch_default.cpp:330:5
+always_comb begin : test_switch_default_wait1_comb     // test_cthread_switch_default.cpp:337:5
     test_switch_default_wait1_func;
 end
 function void test_switch_default_wait1_func;
@@ -566,7 +566,7 @@ function void test_switch_default_wait1_func;
     
     case (test_switch_default_wait1_PROC_STATE)
         0: begin
-            test_switch_default_wait1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:337:13;
+            test_switch_default_wait1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:344:13;
         end
         1: begin
             case (t)
@@ -580,19 +580,19 @@ function void test_switch_default_wait1_func;
                 if (s == j_next0)
                 begin
                     j_next0++;
-                    test_switch_default_wait1_PROC_STATE_next = 2; return;    // test_cthread_switch_default.cpp:346:25;
+                    test_switch_default_wait1_PROC_STATE_next = 2; return;    // test_cthread_switch_default.cpp:353:25;
                 end
                 k_next = 0;
                 j_next0--;
-                test_switch_default_wait1_PROC_STATE_next = 3; return;    // test_cthread_switch_default.cpp:350:25;
+                test_switch_default_wait1_PROC_STATE_next = 3; return;    // test_cthread_switch_default.cpp:357:25;
             end
             endcase
-            test_switch_default_wait1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:337:13;
+            test_switch_default_wait1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:344:13;
         end
         2: begin
             k_next = 0;
             j_next0--;
-            test_switch_default_wait1_PROC_STATE_next = 3; return;    // test_cthread_switch_default.cpp:350:25;
+            test_switch_default_wait1_PROC_STATE_next = 3; return;    // test_cthread_switch_default.cpp:357:25;
         end
         3: begin
             x = 0;
@@ -609,9 +609,9 @@ function void test_switch_default_wait1_func;
             if (k_next < 2)
             begin
                 j_next0--;
-                test_switch_default_wait1_PROC_STATE_next = 3; return;    // test_cthread_switch_default.cpp:350:25;
+                test_switch_default_wait1_PROC_STATE_next = 3; return;    // test_cthread_switch_default.cpp:357:25;
             end
-            test_switch_default_wait1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:337:13;
+            test_switch_default_wait1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:344:13;
         end
     endcase
 endfunction
@@ -621,7 +621,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_switch_default_wait1_ff
     if ( ~arstn ) begin
         j0 <= 0;
-        test_switch_default_wait1_PROC_STATE <= 0;    // test_cthread_switch_default.cpp:333:9;
+        test_switch_default_wait1_PROC_STATE <= 0;    // test_cthread_switch_default.cpp:340:9;
     end
     else begin
         j0 <= j_next0;
@@ -631,7 +631,7 @@ begin : test_switch_default_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_default_empty1 (test_cthread_switch_default.cpp:365:5) 
+// Clocked THREAD: test_switch_default_empty1 (test_cthread_switch_default.cpp:372:5) 
 
 // Thread-local variables
 logic signed [31:0] j1;
@@ -640,7 +640,7 @@ logic test_switch_default_empty1_PROC_STATE;
 logic test_switch_default_empty1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_default_empty1_comb     // test_cthread_switch_default.cpp:365:5
+always_comb begin : test_switch_default_empty1_comb     // test_cthread_switch_default.cpp:372:5
     test_switch_default_empty1_func;
 end
 function void test_switch_default_empty1_func;
@@ -650,7 +650,7 @@ function void test_switch_default_empty1_func;
     
     case (test_switch_default_empty1_PROC_STATE)
         0: begin
-            test_switch_default_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:372:13;
+            test_switch_default_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:379:13;
         end
         1: begin
             case (t)
@@ -682,7 +682,7 @@ function void test_switch_default_empty1_func;
                 end
             end
             endcase
-            test_switch_default_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:372:13;
+            test_switch_default_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:379:13;
         end
     endcase
 endfunction
@@ -692,7 +692,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_switch_default_empty1_ff
     if ( ~arstn ) begin
         j1 <= 0;
-        test_switch_default_empty1_PROC_STATE <= 0;    // test_cthread_switch_default.cpp:368:9;
+        test_switch_default_empty1_PROC_STATE <= 0;    // test_cthread_switch_default.cpp:375:9;
     end
     else begin
         j1 <= j_next1;
@@ -701,7 +701,7 @@ begin : test_switch_default_empty1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch_default_wait_empty1 (test_cthread_switch_default.cpp:396:5) 
+// Clocked THREAD: test_switch_default_wait_empty1 (test_cthread_switch_default.cpp:403:5) 
 
 // Thread-local variables
 logic signed [31:0] j2;
@@ -712,7 +712,7 @@ logic [1:0] test_switch_default_wait_empty1_PROC_STATE;
 logic [1:0] test_switch_default_wait_empty1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch_default_wait_empty1_comb     // test_cthread_switch_default.cpp:396:5
+always_comb begin : test_switch_default_wait_empty1_comb     // test_cthread_switch_default.cpp:403:5
     test_switch_default_wait_empty1_func;
 end
 function void test_switch_default_wait_empty1_func;
@@ -723,7 +723,7 @@ function void test_switch_default_wait_empty1_func;
     
     case (test_switch_default_wait_empty1_PROC_STATE)
         0: begin
-            test_switch_default_wait_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:403:13;
+            test_switch_default_wait_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:410:13;
         end
         1: begin
             case (t)
@@ -737,19 +737,19 @@ function void test_switch_default_wait_empty1_func;
                 if (s == j_next2)
                 begin
                     j_next2++;
-                    test_switch_default_wait_empty1_PROC_STATE_next = 2; return;    // test_cthread_switch_default.cpp:412:25;
+                    test_switch_default_wait_empty1_PROC_STATE_next = 2; return;    // test_cthread_switch_default.cpp:419:25;
                 end
                 k_next0 = 0;
                 j_next2--;
-                test_switch_default_wait_empty1_PROC_STATE_next = 3; return;    // test_cthread_switch_default.cpp:416:25;
+                test_switch_default_wait_empty1_PROC_STATE_next = 3; return;    // test_cthread_switch_default.cpp:423:25;
             end
             endcase
-            test_switch_default_wait_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:403:13;
+            test_switch_default_wait_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:410:13;
         end
         2: begin
             k_next0 = 0;
             j_next2--;
-            test_switch_default_wait_empty1_PROC_STATE_next = 3; return;    // test_cthread_switch_default.cpp:416:25;
+            test_switch_default_wait_empty1_PROC_STATE_next = 3; return;    // test_cthread_switch_default.cpp:423:25;
         end
         3: begin
             x = 0;
@@ -767,9 +767,9 @@ function void test_switch_default_wait_empty1_func;
             if (k_next0 < 2)
             begin
                 j_next2--;
-                test_switch_default_wait_empty1_PROC_STATE_next = 3; return;    // test_cthread_switch_default.cpp:416:25;
+                test_switch_default_wait_empty1_PROC_STATE_next = 3; return;    // test_cthread_switch_default.cpp:423:25;
             end
-            test_switch_default_wait_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:403:13;
+            test_switch_default_wait_empty1_PROC_STATE_next = 1; return;    // test_cthread_switch_default.cpp:410:13;
         end
     endcase
 endfunction
@@ -779,7 +779,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_switch_default_wait_empty1_ff
     if ( ~arstn ) begin
         j2 <= 0;
-        test_switch_default_wait_empty1_PROC_STATE <= 0;    // test_cthread_switch_default.cpp:399:9;
+        test_switch_default_wait_empty1_PROC_STATE <= 0;    // test_cthread_switch_default.cpp:406:9;
     end
     else begin
         j2 <= j_next2;

@@ -29,7 +29,7 @@ logic [41:0] parr2[4][5];
 logic signed [64:0] parr3[4][5][5];
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: var_ptr1 (test_pointers.cpp:92:5) 
+// Clocked THREAD: var_ptr1 (test_pointers.cpp:99:5) 
 
 // Thread-local variables
 logic [3:0] v0;
@@ -37,7 +37,7 @@ logic [3:0] v0_next;
 logic [3:0] v1;
 
 // Next-state combinational logic
-always_comb begin : var_ptr1_comb     // test_pointers.cpp:92:5
+always_comb begin : var_ptr1_comb     // test_pointers.cpp:99:5
     var_ptr1_func;
 end
 function void var_ptr1_func;
@@ -62,7 +62,7 @@ begin : var_ptr1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: var_ptr2 (test_pointers.cpp:105:5) 
+// Clocked THREAD: var_ptr2 (test_pointers.cpp:112:5) 
 
 // Thread-local variables
 logic signed [31:0] q0;
@@ -70,7 +70,7 @@ logic signed [31:0] q0_next;
 logic signed [31:0] q1;
 
 // Next-state combinational logic
-always_comb begin : var_ptr2_comb     // test_pointers.cpp:105:5
+always_comb begin : var_ptr2_comb     // test_pointers.cpp:112:5
     var_ptr2_func;
 end
 function void var_ptr2_func;
@@ -95,13 +95,13 @@ begin : var_ptr2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sig_ptr1 (test_pointers.cpp:120:5) 
+// Clocked THREAD: sig_ptr1 (test_pointers.cpp:127:5) 
 
 // Thread-local variables
 logic [3:0] s0_next;
 
 // Next-state combinational logic
-always_comb begin : sig_ptr1_comb     // test_pointers.cpp:120:5
+always_comb begin : sig_ptr1_comb     // test_pointers.cpp:127:5
     sig_ptr1_func;
 end
 function void sig_ptr1_func;
@@ -123,13 +123,13 @@ begin : sig_ptr1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sig_ptr2 (test_pointers.cpp:132:5) 
+// Clocked THREAD: sig_ptr2 (test_pointers.cpp:139:5) 
 
 // Thread-local variables
 logic [3:0] qs0_next;
 
 // Next-state combinational logic
-always_comb begin : sig_ptr2_comb     // test_pointers.cpp:132:5
+always_comb begin : sig_ptr2_comb     // test_pointers.cpp:139:5
     sig_ptr2_func;
 end
 function void sig_ptr2_func;
@@ -151,13 +151,13 @@ begin : sig_ptr2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: port_ptr (test_pointers.cpp:144:5) 
+// Clocked THREAD: port_ptr (test_pointers.cpp:151:5) 
 
 // Thread-local variables
 logic [3:0] qout_next;
 
 // Next-state combinational logic
-always_comb begin : port_ptr_comb     // test_pointers.cpp:144:5
+always_comb begin : port_ptr_comb     // test_pointers.cpp:151:5
     port_ptr_func;
 end
 function void port_ptr_func;
@@ -177,13 +177,13 @@ begin : port_ptr_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_ptr1 (test_pointers.cpp:156:5) 
+// Clocked THREAD: array_ptr1 (test_pointers.cpp:163:5) 
 
 // Thread-local variables
 logic [32:0] parr1_next[4];
 
 // Next-state combinational logic
-always_comb begin : array_ptr1_comb     // test_pointers.cpp:156:5
+always_comb begin : array_ptr1_comb     // test_pointers.cpp:163:5
     array_ptr1_func;
 end
 function void array_ptr1_func;
@@ -218,14 +218,14 @@ begin : array_ptr1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_ptr2 (test_pointers.cpp:179:5) 
+// Clocked THREAD: array_ptr2 (test_pointers.cpp:186:5) 
 
 // Thread-local variables
 logic [41:0] parr2_next[4][5];
 logic signed [64:0] parr3_next[4][5][5];
 
 // Next-state combinational logic
-always_comb begin : array_ptr2_comb     // test_pointers.cpp:179:5
+always_comb begin : array_ptr2_comb     // test_pointers.cpp:186:5
     array_ptr2_func;
 end
 function void array_ptr2_func;

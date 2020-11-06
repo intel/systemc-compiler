@@ -27,7 +27,7 @@ assign p_rstn = rstn;
 assign p_req = req;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: p_threadProc (test_sc_vector.cpp:21:5) 
+// Clocked THREAD: p_threadProc (test_sc_vector.cpp:28:5) 
 
 // Thread-local variables
 logic [15:0] p_data_next[3];
@@ -35,7 +35,7 @@ logic [3:0] n;
 logic [3:0] n_next;
 
 // Next-state combinational logic
-always_comb begin : p_threadProc_comb     // test_sc_vector.cpp:21:5
+always_comb begin : p_threadProc_comb     // test_sc_vector.cpp:28:5
     p_threadProc_func;
 end
 function void p_threadProc_func;
@@ -62,10 +62,10 @@ begin : p_threadProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: mainProc (test_sc_vector.cpp:60:5) 
+// Clocked THREAD: mainProc (test_sc_vector.cpp:67:5) 
 
 // Next-state combinational logic
-always_comb begin : mainProc_comb     // test_sc_vector.cpp:60:5
+always_comb begin : mainProc_comb     // test_sc_vector.cpp:67:5
     mainProc_func;
 end
 function void mainProc_func;

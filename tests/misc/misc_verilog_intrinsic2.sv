@@ -37,7 +37,7 @@ endmodule
 
 //==============================================================================
 //
-// Verilog intrinsic for module: A (test_verilog_intrinsic2.cpp:44:5)
+// Verilog intrinsic for module: A (test_verilog_intrinsic2.cpp:51:5)
 //
 module A(input in);
    // Some verilog code for module A
@@ -46,7 +46,7 @@ endmodule
 
 //==============================================================================
 //
-// Verilog intrinsic for module: B (test_verilog_intrinsic2.cpp:45:5)
+// Verilog intrinsic for module: B (test_verilog_intrinsic2.cpp:52:5)
 //
 module B(input in);
    // Some verilog code for module B

@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include "sct_assert.h"
 
@@ -29,6 +36,8 @@ public:
         SC_METHOD(var_cpp_type_cast); sensitive << dummy;
         SC_METHOD(const_cpp_ref_impl_cast); sensitive << dummy;
         SC_METHOD(const_cpp_ref_expl_cast); sensitive << dummy;
+        SC_METHOD(var_cpp_expl_cast); sensitive << dummy;
+        
         SC_METHOD(const_sc_type_cast); sensitive << dummy;
         SC_METHOD(var_sc_type_cast); sensitive << dummy;
         SC_METHOD(multi_sc_type_cast); sensitive << s;
@@ -159,6 +168,32 @@ public:
         CHECK(j == 2);
     }
     
+    void var_cpp_expl_cast() {
+        unsigned int u;
+        unsigned short s;
+        sc_uint<33> ux = 0x1C0000000; 
+        sc_biguint<4> bu; 
+        sc_int<4> ix; 
+        sc_bigint<4> bi; 
+        
+        int i;
+        i = ux.to_int();
+        cout << hex << " i " << i << endl;
+        CHECK(i == 0xC0000000);
+        i = ux.to_int()+1;
+        cout << hex << " i " << i << endl;
+        CHECK(i == 0xC0000001);
+        
+        i = (int)s + 1;
+        i = (int)u + 1;
+        i = (int)ux + ux.to_int() + bu.to_int();
+        i = ux.to_int();
+        i = bu.to_int();
+        i = (int)ix + ix.to_int() + bi.to_int();
+        i = ix.to_int();
+        i = bi.to_int();
+    }
+    
     // Implicit and explicit cast for SC types
     void const_sc_type_cast() {
         sc_uint<4> x = 12;
@@ -268,3 +303,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

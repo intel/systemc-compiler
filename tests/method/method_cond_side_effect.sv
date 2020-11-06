@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cond_side_effect.cpp:57:5)
+// Module: A (test_cond_side_effect.cpp:64:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -46,13 +46,13 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: if_side_effect1 (test_cond_side_effect.cpp:32:5) 
+// Method process: if_side_effect1 (test_cond_side_effect.cpp:39:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : if_side_effect1     // test_cond_side_effect.cpp:32:5
+begin : if_side_effect1     // test_cond_side_effect.cpp:39:5
     integer i;
     logic TMP_0;
     i = 0;
@@ -67,13 +67,13 @@ begin : if_side_effect1     // test_cond_side_effect.cpp:32:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_side_effect2 (test_cond_side_effect.cpp:41:5) 
+// Method process: if_side_effect2 (test_cond_side_effect.cpp:48:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : if_side_effect2     // test_cond_side_effect.cpp:41:5
+begin : if_side_effect2     // test_cond_side_effect.cpp:48:5
     integer i;
     i = 0;
     if (a && |(m++))

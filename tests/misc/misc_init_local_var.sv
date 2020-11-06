@@ -19,10 +19,10 @@ logic rstn;
 logic signed [31:0] s;
 
 //------------------------------------------------------------------------------
-// Method process: var1 (test_init_local_var.cpp:31:5) 
+// Method process: var1 (test_init_local_var.cpp:38:5) 
 
 always_comb 
-begin : var1     // test_init_local_var.cpp:31:5
+begin : var1     // test_init_local_var.cpp:38:5
     logic a;
     integer i;
     logic [3:0] x;
@@ -46,10 +46,10 @@ begin : var1     // test_init_local_var.cpp:31:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: var1_unused (test_init_local_var.cpp:48:5) 
+// Method process: var1_unused (test_init_local_var.cpp:55:5) 
 
 always_comb 
-begin : var1_unused     // test_init_local_var.cpp:48:5
+begin : var1_unused     // test_init_local_var.cpp:55:5
     logic a;
     integer i;
     logic [3:0] x;
@@ -70,7 +70,7 @@ begin : var1_unused     // test_init_local_var.cpp:48:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: var2 (test_init_local_var.cpp:64:5) 
+// Clocked THREAD: var2 (test_init_local_var.cpp:71:5) 
 
 // Thread-local variables
 logic b;
@@ -85,7 +85,7 @@ logic var2_PROC_STATE;
 logic var2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : var2_comb     // test_init_local_var.cpp:64:5
+always_comb begin : var2_comb     // test_init_local_var.cpp:71:5
     var2_func;
 end
 function void var2_func;
@@ -112,7 +112,7 @@ function void var2_func;
             d_next = 0;
             n_next = 0;
             sum_next = b_next + c + signed'({1'b0, k});
-            var2_PROC_STATE_next = 1; return;    // test_init_local_var.cpp:90:13;
+            var2_PROC_STATE_next = 1; return;    // test_init_local_var.cpp:97:13;
         end
         1: begin
             sum_next = sum_next + d_next + n_next;
@@ -127,7 +127,7 @@ function void var2_func;
             d_next = 0;
             n_next = 0;
             sum_next = b_next + c + signed'({1'b0, k});
-            var2_PROC_STATE_next = 1; return;    // test_init_local_var.cpp:90:13;
+            var2_PROC_STATE_next = 1; return;    // test_init_local_var.cpp:97:13;
         end
     endcase
 endfunction
@@ -146,7 +146,7 @@ begin : var2_ff
         jjj = 42;
         y = jjj + jj + 1;
         sum <= 0;
-        var2_PROC_STATE <= 0;    // test_init_local_var.cpp:72:9;
+        var2_PROC_STATE <= 0;    // test_init_local_var.cpp:79:9;
     end
     else begin
         b <= b_next;
@@ -158,10 +158,10 @@ begin : var2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: var2_unused (test_init_local_var.cpp:96:5) 
+// Clocked THREAD: var2_unused (test_init_local_var.cpp:103:5) 
 
 // Next-state combinational logic
-always_comb begin : var2_unused_comb     // test_init_local_var.cpp:96:5
+always_comb begin : var2_unused_comb     // test_init_local_var.cpp:103:5
     var2_unused_func;
 end
 function void var2_unused_func;

@@ -1,9 +1,16 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 
 using namespace sc_core;
 
 // Virtual and non-virtual function call of a field of this module class
-// Cache tag in SMEM use such function calls
+// Cache tag in real design use such function calls
 
 struct D_if : public sc_interface
 {

@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: top (test_modular_iface_array_ptr.cpp:183:5)
+// Module: top (test_modular_iface_array_ptr.cpp:190:5)
 //
 module top // "tb_inst.top_inst"
 (
@@ -51,7 +51,7 @@ assign minst_rst[0] = rst;
 assign minst_rst[1] = rst;
 
 //------------------------------------------------------------------------------
-// Method process: minst_metProc (test_modular_iface_array_ptr.cpp:47:5) 
+// Method process: minst_metProc (test_modular_iface_array_ptr.cpp:54:5) 
 
 // Process-local variables
 logic [2:0] minst_v[2];
@@ -59,7 +59,7 @@ logic [3:0] minst_vv[2];
 logic [2:0] minst_w[2][3];
 
 always_comb 
-begin : minst_metProc     // test_modular_iface_array_ptr.cpp:47:5
+begin : minst_metProc     // test_modular_iface_array_ptr.cpp:54:5
     logic c;
     logic d;
     minst_v[0] = 1;
@@ -72,10 +72,10 @@ begin : minst_metProc     // test_modular_iface_array_ptr.cpp:47:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_locRecMeth (test_modular_iface_array_ptr.cpp:60:5) 
+// Method process: minst_locRecMeth (test_modular_iface_array_ptr.cpp:67:5) 
 
 always_comb 
-begin : minst_locRecMeth     // test_modular_iface_array_ptr.cpp:60:5
+begin : minst_locRecMeth     // test_modular_iface_array_ptr.cpp:67:5
     logic t_a;
     logic [3:0] t_b;
     logic tt_a;
@@ -91,10 +91,10 @@ begin : minst_locRecMeth     // test_modular_iface_array_ptr.cpp:60:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_locRecArrMeth (test_modular_iface_array_ptr.cpp:74:5) 
+// Method process: minst_locRecArrMeth (test_modular_iface_array_ptr.cpp:81:5) 
 
 always_comb 
-begin : minst_locRecArrMeth     // test_modular_iface_array_ptr.cpp:74:5
+begin : minst_locRecArrMeth     // test_modular_iface_array_ptr.cpp:81:5
     logic t_a[2];
     logic [3:0] t_b[2];
     logic tt_a[3];
@@ -115,7 +115,7 @@ begin : minst_locRecArrMeth     // test_modular_iface_array_ptr.cpp:74:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_memRecMeth (test_modular_iface_array_ptr.cpp:94:5) 
+// Method process: minst_memRecMeth (test_modular_iface_array_ptr.cpp:101:5) 
 
 // Process-local variables
 logic minst_r_a[2];
@@ -124,7 +124,7 @@ logic minst_rr_a[2];
 logic [3:0] minst_rr_b[2];
 
 always_comb 
-begin : minst_memRecMeth     // test_modular_iface_array_ptr.cpp:94:5
+begin : minst_memRecMeth     // test_modular_iface_array_ptr.cpp:101:5
     logic [3:0] x;
     minst_r_a[0] = 0;
     minst_r_b[0] = 4;
@@ -134,7 +134,7 @@ begin : minst_memRecMeth     // test_modular_iface_array_ptr.cpp:94:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_memRecArrMeth (test_modular_iface_array_ptr.cpp:107:5) 
+// Method process: minst_memRecArrMeth (test_modular_iface_array_ptr.cpp:114:5) 
 
 // Process-local variables
 logic minst_p_a[2][2];
@@ -143,7 +143,7 @@ logic minst_pp_a[2][3];
 logic [3:0] minst_pp_b[2][3];
 
 always_comb 
-begin : minst_memRecArrMeth     // test_modular_iface_array_ptr.cpp:107:5
+begin : minst_memRecArrMeth     // test_modular_iface_array_ptr.cpp:114:5
     logic [3:0] x;
     minst_p_a[0][1] = 0;
     minst_p_b[0][1] = 4;
@@ -153,7 +153,7 @@ begin : minst_memRecArrMeth     // test_modular_iface_array_ptr.cpp:107:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thrProc (test_modular_iface_array_ptr.cpp:117:5) 
+// Clocked THREAD: minst_thrProc (test_modular_iface_array_ptr.cpp:124:5) 
 
 // Thread-local variables
 logic minst_s_next[2];
@@ -163,7 +163,7 @@ logic [4:0] minst_vvv[2];
 logic [4:0] minst_vvv_next[2];
 
 // Next-state combinational logic
-always_comb begin : minst_thrProc_comb     // test_modular_iface_array_ptr.cpp:117:5
+always_comb begin : minst_thrProc_comb     // test_modular_iface_array_ptr.cpp:124:5
     minst_thrProc_func;
 end
 function void minst_thrProc_func;
@@ -193,10 +193,10 @@ begin : minst_thrProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_metProc0 (test_modular_iface_array_ptr.cpp:47:5) 
+// Method process: minst_metProc0 (test_modular_iface_array_ptr.cpp:54:5) 
 
 always_comb 
-begin : minst_metProc0     // test_modular_iface_array_ptr.cpp:47:5
+begin : minst_metProc0     // test_modular_iface_array_ptr.cpp:54:5
     logic c;
     logic d;
     minst_v[1] = 1;
@@ -209,10 +209,10 @@ begin : minst_metProc0     // test_modular_iface_array_ptr.cpp:47:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_locRecMeth0 (test_modular_iface_array_ptr.cpp:60:5) 
+// Method process: minst_locRecMeth0 (test_modular_iface_array_ptr.cpp:67:5) 
 
 always_comb 
-begin : minst_locRecMeth0     // test_modular_iface_array_ptr.cpp:60:5
+begin : minst_locRecMeth0     // test_modular_iface_array_ptr.cpp:67:5
     logic t_a;
     logic [3:0] t_b;
     logic tt_a;
@@ -228,10 +228,10 @@ begin : minst_locRecMeth0     // test_modular_iface_array_ptr.cpp:60:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_locRecArrMeth0 (test_modular_iface_array_ptr.cpp:74:5) 
+// Method process: minst_locRecArrMeth0 (test_modular_iface_array_ptr.cpp:81:5) 
 
 always_comb 
-begin : minst_locRecArrMeth0     // test_modular_iface_array_ptr.cpp:74:5
+begin : minst_locRecArrMeth0     // test_modular_iface_array_ptr.cpp:81:5
     logic t_a[2];
     logic [3:0] t_b[2];
     logic tt_a[3];
@@ -252,10 +252,10 @@ begin : minst_locRecArrMeth0     // test_modular_iface_array_ptr.cpp:74:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_memRecMeth0 (test_modular_iface_array_ptr.cpp:94:5) 
+// Method process: minst_memRecMeth0 (test_modular_iface_array_ptr.cpp:101:5) 
 
 always_comb 
-begin : minst_memRecMeth0     // test_modular_iface_array_ptr.cpp:94:5
+begin : minst_memRecMeth0     // test_modular_iface_array_ptr.cpp:101:5
     logic [3:0] x;
     minst_r_a[1] = 0;
     minst_r_b[1] = 4;
@@ -265,10 +265,10 @@ begin : minst_memRecMeth0     // test_modular_iface_array_ptr.cpp:94:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_memRecArrMeth0 (test_modular_iface_array_ptr.cpp:107:5) 
+// Method process: minst_memRecArrMeth0 (test_modular_iface_array_ptr.cpp:114:5) 
 
 always_comb 
-begin : minst_memRecArrMeth0     // test_modular_iface_array_ptr.cpp:107:5
+begin : minst_memRecArrMeth0     // test_modular_iface_array_ptr.cpp:114:5
     logic [3:0] x;
     minst_p_a[1][1] = 0;
     minst_p_b[1][1] = 4;
@@ -278,14 +278,14 @@ begin : minst_memRecArrMeth0     // test_modular_iface_array_ptr.cpp:107:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thrProc0 (test_modular_iface_array_ptr.cpp:117:5) 
+// Clocked THREAD: minst_thrProc0 (test_modular_iface_array_ptr.cpp:124:5) 
 
 // Thread-local variables
 logic [2:0] i0;
 logic [2:0] i_next0;
 
 // Next-state combinational logic
-always_comb begin : minst_thrProc0_comb     // test_modular_iface_array_ptr.cpp:117:5
+always_comb begin : minst_thrProc0_comb     // test_modular_iface_array_ptr.cpp:124:5
     minst_thrProc0_func;
 end
 function void minst_thrProc0_func;

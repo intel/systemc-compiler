@@ -36,7 +36,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_empty_sensvty.cpp:94:5)
+// Module: A (test_empty_sensvty.cpp:101:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -57,7 +57,7 @@ logic signed [31:0] s7;
 logic [3:0] s8;
 
 //------------------------------------------------------------------------------
-// Method process: empty_decl (test_empty_sensvty.cpp:35:5) 
+// Method process: empty_decl (test_empty_sensvty.cpp:42:5) 
 
 integer i;
 assign i = 0;
@@ -65,7 +65,7 @@ assign s5 = 1 - 1;
 assign s6 = i + 1;
 
 //------------------------------------------------------------------------------
-// Method process: empty_cond (test_empty_sensvty.cpp:43:5) 
+// Method process: empty_cond (test_empty_sensvty.cpp:50:5) 
 
 logic [3:0] i_1;
 logic [3:0] j_1;
@@ -75,7 +75,7 @@ assign s7 = 1;
 assign s8 = i_1;
 
 //------------------------------------------------------------------------------
-// Method process: empty_if1 (test_empty_sensvty.cpp:51:5) 
+// Method process: empty_if1 (test_empty_sensvty.cpp:58:5) 
 
 logic signed [7:0] i_2;
 assign s1 = 1;
@@ -84,7 +84,7 @@ assign s2 = 3;
 assign i_2 = 1;
 
 //------------------------------------------------------------------------------
-// Method process: empty_if2 (test_empty_sensvty.cpp:68:5) 
+// Method process: empty_if2 (test_empty_sensvty.cpp:75:5) 
 
 assign b = 1;
 assign d = 2;

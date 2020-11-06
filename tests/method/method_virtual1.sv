@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: C (test_virtual1.cpp:68:5)
+// Module: C (test_virtual1.cpp:75:5)
 //
 module C // "b_mod.c_mod"
 (
@@ -36,13 +36,13 @@ module C // "b_mod.c_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: virt_call (test_virtual1.cpp:31:5) 
+// Method process: virt_call (test_virtual1.cpp:38:5) 
 
 // Process-local variables
 logic signed [31:0] m0;
 
 always_comb 
-begin : virt_call     // test_virtual1.cpp:31:5
+begin : virt_call     // test_virtual1.cpp:38:5
     logic [2:0] u;
     integer TMP_0;
     logic [2:0] val;

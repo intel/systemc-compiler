@@ -19,10 +19,10 @@ logic rst_sig;
 logic rst_sig_p;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple_rst (test_cthread_simple_reset.cpp:25:5) 
+// Clocked THREAD: simple_rst (test_cthread_simple_reset.cpp:32:5) 
 
 // Next-state combinational logic
-always_comb begin : simple_rst_comb     // test_cthread_simple_reset.cpp:25:5
+always_comb begin : simple_rst_comb     // test_cthread_simple_reset.cpp:32:5
     simple_rst_func;
 end
 function void simple_rst_func;
@@ -38,10 +38,10 @@ begin : simple_rst_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple_rst_p (test_cthread_simple_reset.cpp:33:5) 
+// Clocked THREAD: simple_rst_p (test_cthread_simple_reset.cpp:40:5) 
 
 // Next-state combinational logic
-always_comb begin : simple_rst_p_comb     // test_cthread_simple_reset.cpp:33:5
+always_comb begin : simple_rst_p_comb     // test_cthread_simple_reset.cpp:40:5
     simple_rst_p_func;
 end
 function void simple_rst_p_func;

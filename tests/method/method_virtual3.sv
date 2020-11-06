@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: C (test_virtual3.cpp:64:5)
+// Module: C (test_virtual3.cpp:71:5)
 //
 module C // "b_mod.c_mod"
 (
@@ -41,13 +41,13 @@ module C // "b_mod.c_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: virt_call (test_virtual3.cpp:23:5) 
+// Method process: virt_call (test_virtual3.cpp:30:5) 
 
 // Process-local variables
 logic signed [15:0] m0;
 
 always_comb 
-begin : virt_call     // test_virtual3.cpp:23:5
+begin : virt_call     // test_virtual3.cpp:30:5
     // Call f() begin
     m0 = m0 + 2;
     // Call f() end
@@ -59,7 +59,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: D (test_virtual3.cpp:65:5)
+// Module: D (test_virtual3.cpp:72:5)
 //
 module D // "b_mod.d_mod"
 (
@@ -68,7 +68,7 @@ module D // "b_mod.d_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: virt_call (test_virtual3.cpp:23:5) 
+// Method process: virt_call (test_virtual3.cpp:30:5) 
 
 // Process-local variables
 logic signed [31:0] m1;
@@ -76,7 +76,7 @@ logic signed [15:0] m0;
 logic signed [7:0] m;
 
 always_comb 
-begin : virt_call     // test_virtual3.cpp:23:5
+begin : virt_call     // test_virtual3.cpp:30:5
     integer i;
     // Call f() begin
     m1 = m1 + 3;

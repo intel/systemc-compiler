@@ -2191,9 +2191,12 @@ void ScTraverseProc::printFunctionBody(std::ostream &os)
     } else {
         topGraph = scopeGraph;
     }
-    //cout << "Top function scopeGraph #" << hex << topGraph.get() << dec << endl;
+    topGraph->putNotReplacedVars(codeWriter->getNotReplacedVars());
+    topGraph->putVarAssignStmts(codeWriter->getVarAssignStmts());
     
-    topGraph->printAllScopes(os);
+    //cout << "--------------------------------------------" << endl;
+    //cout << "Top function scopeGraph #" << hex << topGraph.get() << dec << endl;
+    topGraph->printAllScopes(os); 
 }
 
 // Print temporal assertion in thread process, printed in @always_ff

@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_fcall_array_unknown.cpp:223:5)
+// Module: A (test_fcall_array_unknown.cpp:230:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -49,10 +49,10 @@ logic pca1[2];
 logic pcat[2];
 
 //------------------------------------------------------------------------------
-// Method process: read_pointer_array_unknown1 (test_fcall_array_unknown.cpp:94:5) 
+// Method process: read_pointer_array_unknown1 (test_fcall_array_unknown.cpp:101:5) 
 
 always_comb 
-begin : read_pointer_array_unknown1     // test_fcall_array_unknown.cpp:94:5
+begin : read_pointer_array_unknown1     // test_fcall_array_unknown.cpp:101:5
     logic w;
     // Call f_ch_ref() begin
     w = pca[a];
@@ -60,10 +60,10 @@ begin : read_pointer_array_unknown1     // test_fcall_array_unknown.cpp:94:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: chan_pointer_array_param (test_fcall_array_unknown.cpp:102:5) 
+// Method process: chan_pointer_array_param (test_fcall_array_unknown.cpp:109:5) 
 
 always_comb 
-begin : chan_pointer_array_param     // test_fcall_array_unknown.cpp:102:5
+begin : chan_pointer_array_param     // test_fcall_array_unknown.cpp:109:5
     logic b1;
     logic b2;
     logic b3;
@@ -81,13 +81,13 @@ begin : chan_pointer_array_param     // test_fcall_array_unknown.cpp:102:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: chan_pointer_array_param_thread (test_fcall_array_unknown.cpp:111:5) 
+// Clocked THREAD: chan_pointer_array_param_thread (test_fcall_array_unknown.cpp:118:5) 
 
 // Thread-local variables
 logic pcat_next[2];
 
 // Next-state combinational logic
-always_comb begin : chan_pointer_array_param_thread_comb     // test_fcall_array_unknown.cpp:111:5
+always_comb begin : chan_pointer_array_param_thread_comb     // test_fcall_array_unknown.cpp:118:5
     chan_pointer_array_param_thread_func;
 end
 function void chan_pointer_array_param_thread_func;
@@ -114,14 +114,14 @@ begin : chan_pointer_array_param_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: var_pointer_array_param (test_fcall_array_unknown.cpp:124:5) 
+// Method process: var_pointer_array_param (test_fcall_array_unknown.cpp:131:5) 
 
 // Process-local variables
 logic [3:0] pia[2];
 logic [3:0] ia[2];
 
 always_comb 
-begin : var_pointer_array_param     // test_fcall_array_unknown.cpp:124:5
+begin : var_pointer_array_param     // test_fcall_array_unknown.cpp:131:5
     logic [3:0] c1;
     logic [3:0] z;
     logic [3:0] x;
@@ -138,7 +138,7 @@ begin : var_pointer_array_param     // test_fcall_array_unknown.cpp:124:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: var_pointer_array_param_thread (test_fcall_array_unknown.cpp:132:5) 
+// Clocked THREAD: var_pointer_array_param_thread (test_fcall_array_unknown.cpp:139:5) 
 
 // Thread-local variables
 logic [3:0] piat[2];
@@ -147,7 +147,7 @@ logic [3:0] iat[2];
 logic [3:0] iat_next[2];
 
 // Next-state combinational logic
-always_comb begin : var_pointer_array_param_thread_comb     // test_fcall_array_unknown.cpp:132:5
+always_comb begin : var_pointer_array_param_thread_comb     // test_fcall_array_unknown.cpp:139:5
     var_pointer_array_param_thread_func;
 end
 function void var_pointer_array_param_thread_func;
@@ -182,13 +182,13 @@ begin : var_pointer_array_param_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: var_pointer_array_init (test_fcall_array_unknown.cpp:148:5) 
+// Method process: var_pointer_array_init (test_fcall_array_unknown.cpp:155:5) 
 
 // Process-local variables
 logic [3:0] pia1[2];
 
 always_comb 
-begin : var_pointer_array_init     // test_fcall_array_unknown.cpp:148:5
+begin : var_pointer_array_init     // test_fcall_array_unknown.cpp:155:5
     integer j;
     logic b;
     pia1[1] = 0;
@@ -200,18 +200,18 @@ begin : var_pointer_array_init     // test_fcall_array_unknown.cpp:148:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: var_pointer_array_plus (test_fcall_array_unknown.cpp:167:5) 
+// Method process: var_pointer_array_plus (test_fcall_array_unknown.cpp:174:5) 
 
 // Process-local variables
 logic [3:0] pia2[2];
 
 always_comb 
-begin : var_pointer_array_plus     // test_fcall_array_unknown.cpp:167:5
+begin : var_pointer_array_plus     // test_fcall_array_unknown.cpp:174:5
     pia2[a] = 2;
 end
 
 //------------------------------------------------------------------------------
-// Method process: pointer_array_param (test_fcall_array_unknown.cpp:190:5) 
+// Method process: pointer_array_param (test_fcall_array_unknown.cpp:197:5) 
 
 // Process-local variables
 logic [3:0] ia1[2];
@@ -220,7 +220,7 @@ logic [3:0] iaa[2][2];
 logic [3:0] piaa[2][2];
 
 always_comb 
-begin : pointer_array_param     // test_fcall_array_unknown.cpp:190:5
+begin : pointer_array_param     // test_fcall_array_unknown.cpp:197:5
     logic [3:0] y;
     logic [3:0] y_1;
     integer k;

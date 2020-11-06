@@ -18,26 +18,29 @@ module AA // "a_mod"
 logic nrst;
 
 //------------------------------------------------------------------------------
-// Method process: sig_init_method (test_const_pointer.cpp:40:5) 
+// Method process: sig_init_method (test_const_pointer.cpp:53:5) 
 
 always_comb 
-begin : sig_init_method     // test_const_pointer.cpp:40:5
+begin : sig_init_method     // test_const_pointer.cpp:53:5
     integer k;
     integer n;
     integer l;
+    logic signed [7:0] ll;
     k = 47 + 42;
     k = 42;
     k = -7'sd42;
     k = 42 + 1;
     n = 42;
     l = 30;
+    l = 32'(pe) - 64'(pf);
+    ll = (-7'sd51) + 52;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sig_init_thread (test_const_pointer.cpp:50:5) 
+// Clocked THREAD: sig_init_thread (test_const_pointer.cpp:65:5) 
 
 // Next-state combinational logic
-always_comb begin : sig_init_thread_comb     // test_const_pointer.cpp:50:5
+always_comb begin : sig_init_thread_comb     // test_const_pointer.cpp:65:5
     sig_init_thread_func;
 end
 function void sig_init_thread_func;

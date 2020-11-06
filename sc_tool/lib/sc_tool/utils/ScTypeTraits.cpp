@@ -455,7 +455,14 @@ llvm::Optional<std::pair<size_t, bool>> getIntTraits(clang::QualType type,
     }
     type = getPureType(type);
     
+    if (auto etype = dyn_cast<EnumType>(type)) {
+        auto edecl = etype->getDecl();
+        size_t width= edecl->getNumPositiveBits() + edecl->getNumNegativeBits();
+        return std::pair<size_t, bool>(width, !edecl->getNumNegativeBits());
+        
+    } else 
     if (type->isIntegerType()) {
+        // Get real platform dependent type width
         size_t width = db->astCtx.getIntWidth(type);
         bool isUnsigned = type->isUnsignedIntegerType();
         
@@ -469,11 +476,6 @@ llvm::Optional<std::pair<size_t, bool>> getIntTraits(clang::QualType type,
     if (auto width = getScIntBigint(type)) {
         return std::pair<size_t, bool>(width.getValue(), false);
         
-    } else 
-    if (auto etype = dyn_cast<EnumType>(type)) {
-        auto edecl = etype->getDecl();
-        size_t width= edecl->getNumPositiveBits() + edecl->getNumNegativeBits();
-        return std::pair<size_t, bool>(width, !edecl->getNumNegativeBits());
     }
     
     return Optional<std::pair<size_t, bool> >();

@@ -20,25 +20,25 @@ logic signed [31:0] t;
 logic [3:0] minst_s[2];
 
 //------------------------------------------------------------------------------
-// Method process: minst_meth (test_cthread_mif_array_fcall.cpp:22:5) 
+// Method process: minst_meth (test_cthread_mif_array_fcall.cpp:29:5) 
 
 always_comb 
-begin : minst_meth     // test_cthread_mif_array_fcall.cpp:22:5
+begin : minst_meth     // test_cthread_mif_array_fcall.cpp:29:5
     logic [3:0] a;
     a = minst_s[0];
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_meth0 (test_cthread_mif_array_fcall.cpp:22:5) 
+// Method process: minst_meth0 (test_cthread_mif_array_fcall.cpp:29:5) 
 
 always_comb 
-begin : minst_meth0     // test_cthread_mif_array_fcall.cpp:22:5
+begin : minst_meth0     // test_cthread_mif_array_fcall.cpp:29:5
     logic [3:0] a;
     a = minst_s[1];
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_fcall1 (test_cthread_mif_array_fcall.cpp:63:5) 
+// Clocked THREAD: top_fcall1 (test_cthread_mif_array_fcall.cpp:70:5) 
 
 // Thread-local variables
 logic [3:0] minst_s_next[2];
@@ -46,7 +46,7 @@ logic [3:0] minst_v[2];
 logic [3:0] minst_v_next[2];
 
 // Next-state combinational logic
-always_comb begin : top_fcall1_comb     // test_cthread_mif_array_fcall.cpp:63:5
+always_comb begin : top_fcall1_comb     // test_cthread_mif_array_fcall.cpp:70:5
     top_fcall1_func;
 end
 function void top_fcall1_func;

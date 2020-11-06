@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_fcall_method.cpp:563:5)
+// Module: A (test_array_fcall_method.cpp:570:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -46,10 +46,10 @@ logic signed [31:0] srr[3];
 logic signed [31:0] spp[3];
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_val (test_array_fcall_method.cpp:74:5) 
+// Method process: rec_arr_elem_func_param_val (test_array_fcall_method.cpp:81:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_val     // test_array_fcall_method.cpp:74:5
+begin : rec_arr_elem_func_param_val     // test_array_fcall_method.cpp:81:5
     logic signed [1:0] sr_a;
     logic [3:0] sr_b;
     logic signed [1:0] par_a;
@@ -76,10 +76,10 @@ begin : rec_arr_elem_func_param_val     // test_array_fcall_method.cpp:74:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_val2 (test_array_fcall_method.cpp:88:5) 
+// Method process: rec_arr_elem_func_param_val2 (test_array_fcall_method.cpp:95:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_val2     // test_array_fcall_method.cpp:88:5
+begin : rec_arr_elem_func_param_val2     // test_array_fcall_method.cpp:95:5
     logic signed [1:0] xr_a;
     logic [3:0] xr_b;
     logic signed [1:0] yr_a;
@@ -131,10 +131,10 @@ begin : rec_arr_elem_func_param_val2     // test_array_fcall_method.cpp:88:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_val3 (test_array_fcall_method.cpp:103:5) 
+// Method process: rec_arr_elem_func_param_val3 (test_array_fcall_method.cpp:110:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_val3     // test_array_fcall_method.cpp:103:5
+begin : rec_arr_elem_func_param_val3     // test_array_fcall_method.cpp:110:5
     integer i;
     logic signed [1:0] qr_a;
     logic [3:0] qr_b;
@@ -179,10 +179,10 @@ begin : rec_arr_elem_func_param_val3     // test_array_fcall_method.cpp:103:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_ref (test_array_fcall_method.cpp:134:5) 
+// Method process: rec_arr_elem_func_param_ref (test_array_fcall_method.cpp:141:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_ref     // test_array_fcall_method.cpp:134:5
+begin : rec_arr_elem_func_param_ref     // test_array_fcall_method.cpp:141:5
     logic signed [1:0] vr_a[3];
     logic [3:0] vr_b[3];
     integer k;
@@ -197,10 +197,10 @@ begin : rec_arr_elem_func_param_ref     // test_array_fcall_method.cpp:134:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_ref2 (test_array_fcall_method.cpp:144:5) 
+// Method process: rec_arr_elem_func_param_ref2 (test_array_fcall_method.cpp:151:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_ref2     // test_array_fcall_method.cpp:144:5
+begin : rec_arr_elem_func_param_ref2     // test_array_fcall_method.cpp:151:5
     logic signed [1:0] er_a[3];
     logic [3:0] er_b[3];
     logic signed [1:0] fr_a;
@@ -235,10 +235,10 @@ begin : rec_arr_elem_func_param_ref2     // test_array_fcall_method.cpp:144:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_arr_elem_func_param_ref3 (test_array_fcall_method.cpp:169:5) 
+// Method process: rec_arr_elem_func_param_ref3 (test_array_fcall_method.cpp:176:5) 
 
 always_comb 
-begin : rec_arr_elem_func_param_ref3     // test_array_fcall_method.cpp:169:5
+begin : rec_arr_elem_func_param_ref3     // test_array_fcall_method.cpp:176:5
     logic signed [1:0] err_a[3];
     logic [3:0] err_b[3];
     logic signed [1:0] frr_a;
@@ -267,10 +267,10 @@ begin : rec_arr_elem_func_param_ref3     // test_array_fcall_method.cpp:169:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: arr_elem_in_index (test_array_fcall_method.cpp:184:5) 
+// Method process: arr_elem_in_index (test_array_fcall_method.cpp:191:5) 
 
 always_comb 
-begin : arr_elem_in_index     // test_array_fcall_method.cpp:184:5
+begin : arr_elem_in_index     // test_array_fcall_method.cpp:191:5
     integer i;
     integer irr[3];
     i = s;

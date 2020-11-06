@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_switch_empty_case.cpp:282:5)
+// Module: A (test_switch_empty_case.cpp:289:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -48,13 +48,13 @@ logic [2:0] s;
 logic [2:0] t;
 
 //------------------------------------------------------------------------------
-// Method process: switch_if_after_empty (test_switch_empty_case.cpp:47:5) 
+// Method process: switch_if_after_empty (test_switch_empty_case.cpp:54:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : switch_if_after_empty     // test_switch_empty_case.cpp:47:5
+begin : switch_if_after_empty     // test_switch_empty_case.cpp:54:5
     integer i;
     i = 0;
     case (m)
@@ -77,13 +77,13 @@ begin : switch_if_after_empty     // test_switch_empty_case.cpp:47:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_if_after_empty2 (test_switch_empty_case.cpp:63:6) 
+// Method process: switch_if_after_empty2 (test_switch_empty_case.cpp:70:6) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : switch_if_after_empty2     // test_switch_empty_case.cpp:63:6
+begin : switch_if_after_empty2     // test_switch_empty_case.cpp:70:6
     integer i;
     i = 0;
     case (m)
@@ -111,13 +111,13 @@ begin : switch_if_after_empty2     // test_switch_empty_case.cpp:63:6
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_for_after_empty (test_switch_empty_case.cpp:79:5) 
+// Method process: switch_for_after_empty (test_switch_empty_case.cpp:86:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : switch_for_after_empty     // test_switch_empty_case.cpp:79:5
+begin : switch_for_after_empty     // test_switch_empty_case.cpp:86:5
     integer i;
     i = 0;
     case (m)
@@ -143,13 +143,13 @@ begin : switch_for_after_empty     // test_switch_empty_case.cpp:79:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_for_after_empty2 (test_switch_empty_case.cpp:94:5) 
+// Method process: switch_for_after_empty2 (test_switch_empty_case.cpp:101:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : switch_for_after_empty2     // test_switch_empty_case.cpp:94:5
+begin : switch_for_after_empty2     // test_switch_empty_case.cpp:101:5
     integer i;
     i = 0;
     case (m)
@@ -162,13 +162,13 @@ begin : switch_for_after_empty2     // test_switch_empty_case.cpp:94:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_empty_case1 (test_switch_empty_case.cpp:107:5) 
+// Method process: switch_empty_case1 (test_switch_empty_case.cpp:114:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : switch_empty_case1     // test_switch_empty_case.cpp:107:5
+begin : switch_empty_case1     // test_switch_empty_case.cpp:114:5
     integer i;
     i = 0;
     case (m)
@@ -186,13 +186,13 @@ begin : switch_empty_case1     // test_switch_empty_case.cpp:107:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_empty_case_if1 (test_switch_empty_case.cpp:119:5) 
+// Method process: switch_empty_case_if1 (test_switch_empty_case.cpp:126:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : switch_empty_case_if1     // test_switch_empty_case.cpp:119:5
+begin : switch_empty_case_if1     // test_switch_empty_case.cpp:126:5
     integer i;
     i = 0;
     case (m)
@@ -228,10 +228,10 @@ begin : switch_empty_case_if1     // test_switch_empty_case.cpp:119:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_empty_case_if2 (test_switch_empty_case.cpp:134:5) 
+// Method process: switch_empty_case_if2 (test_switch_empty_case.cpp:141:5) 
 
 always_comb 
-begin : switch_empty_case_if2     // test_switch_empty_case.cpp:134:5
+begin : switch_empty_case_if2     // test_switch_empty_case.cpp:141:5
     integer i;
     i = 0;
     case (t)
@@ -264,10 +264,10 @@ begin : switch_empty_case_if2     // test_switch_empty_case.cpp:134:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_empty_case_if2a (test_switch_empty_case.cpp:150:5) 
+// Method process: switch_empty_case_if2a (test_switch_empty_case.cpp:157:5) 
 
 always_comb 
-begin : switch_empty_case_if2a     // test_switch_empty_case.cpp:150:5
+begin : switch_empty_case_if2a     // test_switch_empty_case.cpp:157:5
     integer i;
     i = 0;
     case (t)
@@ -297,10 +297,10 @@ begin : switch_empty_case_if2a     // test_switch_empty_case.cpp:150:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_empty_case_if2b (test_switch_empty_case.cpp:165:6) 
+// Method process: switch_empty_case_if2b (test_switch_empty_case.cpp:172:6) 
 
 always_comb 
-begin : switch_empty_case_if2b     // test_switch_empty_case.cpp:165:6
+begin : switch_empty_case_if2b     // test_switch_empty_case.cpp:172:6
     integer i;
     i = 0;
     case (t)
@@ -340,13 +340,13 @@ begin : switch_empty_case_if2b     // test_switch_empty_case.cpp:165:6
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_empty_case3 (test_switch_empty_case.cpp:187:5) 
+// Method process: switch_empty_case3 (test_switch_empty_case.cpp:194:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : switch_empty_case3     // test_switch_empty_case.cpp:187:5
+begin : switch_empty_case3     // test_switch_empty_case.cpp:194:5
     integer i;
     i = 0;
     case (m)
@@ -391,13 +391,13 @@ begin : switch_empty_case3     // test_switch_empty_case.cpp:187:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_empty_case4 (test_switch_empty_case.cpp:205:5) 
+// Method process: switch_empty_case4 (test_switch_empty_case.cpp:212:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : switch_empty_case4     // test_switch_empty_case.cpp:205:5
+begin : switch_empty_case4     // test_switch_empty_case.cpp:212:5
     integer i;
     i = 0;
     case (m)
@@ -418,13 +418,13 @@ begin : switch_empty_case4     // test_switch_empty_case.cpp:205:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_empty_case4a (test_switch_empty_case.cpp:219:5) 
+// Method process: switch_empty_case4a (test_switch_empty_case.cpp:226:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : switch_empty_case4a     // test_switch_empty_case.cpp:219:5
+begin : switch_empty_case4a     // test_switch_empty_case.cpp:226:5
     integer i;
     case (m)
     1 : begin  // Empty case without break
@@ -443,13 +443,13 @@ begin : switch_empty_case4a     // test_switch_empty_case.cpp:219:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_empty_case4b (test_switch_empty_case.cpp:231:5) 
+// Method process: switch_empty_case4b (test_switch_empty_case.cpp:238:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : switch_empty_case4b     // test_switch_empty_case.cpp:231:5
+begin : switch_empty_case4b     // test_switch_empty_case.cpp:238:5
     integer i;
     case (m)
     1 : begin  // Empty case without break
@@ -464,13 +464,13 @@ begin : switch_empty_case4b     // test_switch_empty_case.cpp:231:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_empty_fcall1 (test_switch_empty_case.cpp:246:5) 
+// Method process: switch_empty_fcall1 (test_switch_empty_case.cpp:253:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : switch_empty_fcall1     // test_switch_empty_case.cpp:246:5
+begin : switch_empty_fcall1     // test_switch_empty_case.cpp:253:5
     integer i;
     integer TMP_0;
     integer val;
@@ -498,13 +498,13 @@ begin : switch_empty_fcall1     // test_switch_empty_case.cpp:246:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_empty_fcall2 (test_switch_empty_case.cpp:259:5) 
+// Method process: switch_empty_fcall2 (test_switch_empty_case.cpp:266:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : switch_empty_fcall2     // test_switch_empty_case.cpp:259:5
+begin : switch_empty_fcall2     // test_switch_empty_case.cpp:266:5
     integer i;
     integer TMP_0;
     integer val;

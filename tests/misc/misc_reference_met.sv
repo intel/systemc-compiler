@@ -18,13 +18,13 @@ logic sig;
 logic sigArray[2];
 
 //------------------------------------------------------------------------------
-// Method process: test_method (test_reference_met.cpp:23:5) 
+// Method process: test_method (test_reference_met.cpp:30:5) 
 
 // Process-local variables
 logic signed [31:0] x;
 
 always_comb 
-begin : test_method     // test_reference_met.cpp:23:5
+begin : test_method     // test_reference_met.cpp:30:5
     x = sig;
     x = 2;
     sigArray[0] = 1;

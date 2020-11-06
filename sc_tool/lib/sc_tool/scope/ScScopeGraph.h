@@ -14,6 +14,7 @@
 #ifndef SCSCOPEGRAPH_H
 #define SCSCOPEGRAPH_H
 
+#include "sc_tool/cfg/SValue.h"
 #include <clang/AST/Stmt.h>
 
 #include <unordered_set>
@@ -227,6 +228,24 @@ public:
     void addFCallScope(const clang::Stmt* stmt, const clang::Stmt* loopTerm,
                        std::shared_ptr<ScScopeGraph> graph);
     
+    void putNotReplacedVars(const std::unordered_set<SValue>& vars) {
+        notReplacedVars = vars;
+    }
+    
+    void putVarAssignStmts(const std::unordered_map<SValue, std::unordered_set<
+                           const clang::Stmt*>>& stmts) 
+    {
+        using std::cout; using std::endl;
+        stmtAssignVars.clear();
+        //cout << "putVarAssignStmts --------" << endl; 
+        for (auto i : stmts) {
+            for (auto stmt : i.second) {
+                //cout << "stmt " << std::hex << stmt << " val " << i.first << endl;
+                stmtAssignVars.emplace(stmt, i.first);
+            }
+        }
+    }
+    
     /// Print scope statements and included scopes
     /// \param skipDoStmt -- skip first stament in the scope, used to increase 
     ///                      level in artificial DO statement
@@ -309,6 +328,12 @@ protected:
     
     /// Sub-statements to skip in code print
     std::unordered_set<const clang::Stmt*> subStmts;
+    
+    /// Variables and constants not replaced by integer values
+    static std::unordered_set<SValue> notReplacedVars;
+    /// Statement assigned variable, used to remove variable initialization 
+    /// statements for removed variables/constants
+    static std::unordered_map<const clang::Stmt*, SValue> stmtAssignVars;
 };
 
 }

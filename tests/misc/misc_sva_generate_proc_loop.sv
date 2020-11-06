@@ -24,14 +24,14 @@ logic sarr2[3][2];
 logic sarr2_d[3][2];
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_1d (test_sva_generate_proc_loop.cpp:44:5) 
+// Clocked THREAD: sct_assert_1d (test_sva_generate_proc_loop.cpp:51:5) 
 
 // Thread-local variables
 logic sct_assert_1d_PROC_STATE;
 logic sct_assert_1d_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_1d_comb     // test_sva_generate_proc_loop.cpp:44:5
+always_comb begin : sct_assert_1d_comb     // test_sva_generate_proc_loop.cpp:51:5
     sct_assert_1d_func;
 end
 function void sct_assert_1d_func;
@@ -39,10 +39,10 @@ function void sct_assert_1d_func;
     
     case (sct_assert_1d_PROC_STATE)
         0: begin
-            sct_assert_1d_PROC_STATE_next = 1; return;    // test_sva_generate_proc_loop.cpp:58:13;
+            sct_assert_1d_PROC_STATE_next = 1; return;    // test_sva_generate_proc_loop.cpp:65:13;
         end
         1: begin
-            sct_assert_1d_PROC_STATE_next = 1; return;    // test_sva_generate_proc_loop.cpp:58:13;
+            sct_assert_1d_PROC_STATE_next = 1; return;    // test_sva_generate_proc_loop.cpp:65:13;
         end
     endcase
 endfunction
@@ -51,30 +51,30 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : sct_assert_1d_ff
     if ( ~rstn ) begin
-        sct_assert_1d_PROC_STATE <= 0;    // test_sva_generate_proc_loop.cpp:50:9;
+        sct_assert_1d_PROC_STATE <= 0;    // test_sva_generate_proc_loop.cpp:57:9;
     end
     else begin
         sct_assert_1d_PROC_STATE <= sct_assert_1d_PROC_STATE_next;
 
     `ifndef INTEL_SVA_OFF
         for (integer j = 0; j < 2; j++) begin
-            sctAssertLine53 : assert property ( sarr[j] |-> ##2 sarr[j + 1] );
+            sctAssertLine60 : assert property ( sarr[j] |-> ##2 sarr[j + 1] );
         end
         for (integer j = 0; j < 2; j++) begin
-            sctAssertLine54 : assert property ( sarr[j] |-> ##[3:4] sarr_d[1] );
+            sctAssertLine61 : assert property ( sarr[j] |-> ##[3:4] sarr_d[1] );
         end
     `endif // INTEL_SVA_OFF
     end
 
 `ifndef INTEL_SVA_OFF
     for (integer i = 0; i < 3; i++) begin
-        sctAssertLine47 : assert property ( sarr[i] |=> sarr_d[i] );
+        sctAssertLine54 : assert property ( sarr[i] |=> sarr_d[i] );
     end
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sct_assert_2d (test_sva_generate_proc_loop.cpp:63:5) 
+// Clocked THREAD: sct_assert_2d (test_sva_generate_proc_loop.cpp:70:5) 
 
 // Thread-local variables
 logic a;
@@ -83,7 +83,7 @@ logic sct_assert_2d_PROC_STATE;
 logic sct_assert_2d_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : sct_assert_2d_comb     // test_sva_generate_proc_loop.cpp:63:5
+always_comb begin : sct_assert_2d_comb     // test_sva_generate_proc_loop.cpp:70:5
     sct_assert_2d_func;
 end
 function void sct_assert_2d_func;
@@ -92,10 +92,10 @@ function void sct_assert_2d_func;
     
     case (sct_assert_2d_PROC_STATE)
         0: begin
-            sct_assert_2d_PROC_STATE_next = 1; return;    // test_sva_generate_proc_loop.cpp:80:13;
+            sct_assert_2d_PROC_STATE_next = 1; return;    // test_sva_generate_proc_loop.cpp:87:13;
         end
         1: begin
-            sct_assert_2d_PROC_STATE_next = 1; return;    // test_sva_generate_proc_loop.cpp:80:13;
+            sct_assert_2d_PROC_STATE_next = 1; return;    // test_sva_generate_proc_loop.cpp:87:13;
         end
     endcase
 endfunction
@@ -105,7 +105,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : sct_assert_2d_ff
     if ( ~rstn ) begin
         a <= 0;
-        sct_assert_2d_PROC_STATE <= 0;    // test_sva_generate_proc_loop.cpp:72:9;
+        sct_assert_2d_PROC_STATE <= 0;    // test_sva_generate_proc_loop.cpp:79:9;
     end
     else begin
         a <= a_next;
@@ -114,7 +114,7 @@ begin : sct_assert_2d_ff
     `ifndef INTEL_SVA_OFF
         for (integer i = 0; i < 3 - 1; i++) begin
             for (integer j = 0; j < 2; j++) begin
-                sctAssertLine76 : assert property ( sarr2[i + 1][j] || sarr2_d[i][j] |-> ##[1:2] |s );
+                sctAssertLine83 : assert property ( sarr2[i + 1][j] || sarr2_d[i][j] |-> ##[1:2] |s );
             end
         end
     `endif // INTEL_SVA_OFF
@@ -123,12 +123,12 @@ begin : sct_assert_2d_ff
 `ifndef INTEL_SVA_OFF
     for (integer i = 0; i < 3; i++) begin
         for (integer j = 0; j < 2; j++) begin
-            sctAssertLine68 : assert property ( sarr2[i][j] |-> (sarr2[i][j] ^ 1) != a_next );
+            sctAssertLine75 : assert property ( sarr2[i][j] |-> (sarr2[i][j] ^ 1) != a_next );
         end
     end
     for (integer i = 0; i < 3; i++) begin
         for (integer j = 0; j < 2; j++) begin
-            sctAssertLine69 : assert property ( sarr2[i][j] || |s |=> |s_d && sarr2_d[i][j] );
+            sctAssertLine76 : assert property ( sarr2[i][j] || |s |=> |s_d && sarr2_d[i][j] );
         end
     end
 `endif // INTEL_SVA_OFF

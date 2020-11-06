@@ -1,9 +1,16 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include <sct_assert.h>
 
 using namespace sc_core;
 
-// CPA in loops
+// Constant propagation in for/whie/do..while loops
 class A : public sc_module
 {
 public:
@@ -28,6 +35,7 @@ public:
         SC_METHOD(simple_for1b); sensitive << a;
         SC_CTHREAD(simple_for2, clk.pos());
         async_reset_signal_is(nrst, false);
+        SC_METHOD(simple_for3); sensitive << a;
      
         SC_METHOD(continue_in_for1); sensitive << a;
         SC_METHOD(continue_in_for2); sensitive << a;
@@ -56,7 +64,7 @@ public:
             if (b) {k = 1;}
         }
         if (b) {m = 1;}
-        if (k == 1) {}
+        if (k == 1) {int l = 1;}
         
         sct_assert_const(k == 1);
         sct_assert_unknown(b);
@@ -80,7 +88,7 @@ public:
         for (int i = 0; i < 100; i++) {
             m++;
         }
-        if (m) {}
+        if (m) {int l = 1;}
         sct_assert_unknown(m);
     }
     
@@ -90,13 +98,13 @@ public:
         for (int i = 0; i < 100; i++) {
             b = !b;
         }
-        if (b) {}
+        if (b) {int l = 1;}
         sct_assert_unknown(b);
     }
     
     // Simple FOR with unknown iteration number
     void simple_for2() {
-        wait();          // 1
+        wait();          // 0
         
         while (true) {
             m = 0; 
@@ -104,12 +112,25 @@ public:
             
             for (int i = 0; i < k; i++) {
                 m = 1; 
-                wait();  // 2
+                wait();  // 1
             }
-            if (m) {}
+            if (m) {int l = 1;}
             sct_assert_unknown(m);
-            wait();      // 0
+            wait();      // 2
         }
+    }
+    
+    void simple_for3() {
+        m = 0; n = 0;
+        for (int i = 0; i < 2; i++) {
+            m++;
+            for (int j = 0; j < m; j++) {
+                n++;
+            }
+        }
+        
+        sct_assert_const(m == 2);
+        sct_assert_const(n == 3);
     }
 
     // -----------------------------------------------------------------------
@@ -146,6 +167,7 @@ public:
         do {
             i++;
         } while (i < 3);
+        sct_assert_const(i == 3);
     }    
 };
 
@@ -173,3 +195,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

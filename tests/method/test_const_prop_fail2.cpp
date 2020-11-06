@@ -1,9 +1,16 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include <sct_assert.h>
 
 using namespace sc_core;
 
-// Incorrect range. Test should fail
+// Incorrect SC range, test fails
 class A : public sc_module
 {
 public:
@@ -39,3 +46,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

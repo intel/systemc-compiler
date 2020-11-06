@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cthread_read_defined_ref.cpp:211:5)
+// Module: A (test_cthread_read_defined_ref.cpp:218:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -43,14 +43,14 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: var_ref (test_cthread_read_defined_ref.cpp:37:5) 
+// Clocked THREAD: var_ref (test_cthread_read_defined_ref.cpp:44:5) 
 
 // Thread-local variables
 logic [2:0] y;
 logic [2:0] y_next;
 
 // Next-state combinational logic
-always_comb begin : var_ref_comb     // test_cthread_read_defined_ref.cpp:37:5
+always_comb begin : var_ref_comb     // test_cthread_read_defined_ref.cpp:44:5
     var_ref_func;
 end
 function void var_ref_func;
@@ -77,10 +77,10 @@ begin : var_ref_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: var_ref_decl (test_cthread_read_defined_ref.cpp:65:5) 
+// Method process: var_ref_decl (test_cthread_read_defined_ref.cpp:72:5) 
 
 always_comb 
-begin : var_ref_decl     // test_cthread_read_defined_ref.cpp:65:5
+begin : var_ref_decl     // test_cthread_read_defined_ref.cpp:72:5
     logic [2:0] x;
     logic [2:0] y;
     x = 0;
@@ -91,7 +91,7 @@ begin : var_ref_decl     // test_cthread_read_defined_ref.cpp:65:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fcall_const_ref (test_cthread_read_defined_ref.cpp:99:5) 
+// Clocked THREAD: fcall_const_ref (test_cthread_read_defined_ref.cpp:106:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -104,7 +104,7 @@ logic fcall_const_ref_PROC_STATE;
 logic fcall_const_ref_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : fcall_const_ref_comb     // test_cthread_read_defined_ref.cpp:99:5
+always_comb begin : fcall_const_ref_comb     // test_cthread_read_defined_ref.cpp:106:5
     fcall_const_ref_func;
 end
 function void fcall_const_ref_func;
@@ -129,7 +129,7 @@ function void fcall_const_ref_func;
             i_2 = m;
             // Call const_ref() end
             n_next = 2;
-            fcall_const_ref_PROC_STATE_next = 1; return;    // test_cthread_read_defined_ref.cpp:118:13;
+            fcall_const_ref_PROC_STATE_next = 1; return;    // test_cthread_read_defined_ref.cpp:125:13;
         end
         1: begin
             // Call const_ref() begin
@@ -146,7 +146,7 @@ function void fcall_const_ref_func;
             i_2 = m;
             // Call const_ref() end
             n_next = 2;
-            fcall_const_ref_PROC_STATE_next = 1; return;    // test_cthread_read_defined_ref.cpp:118:13;
+            fcall_const_ref_PROC_STATE_next = 1; return;    // test_cthread_read_defined_ref.cpp:125:13;
         end
     endcase
 endfunction
@@ -156,7 +156,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : fcall_const_ref_ff
     if ( ~nrst ) begin
         k <= 0;
-        fcall_const_ref_PROC_STATE <= 0;    // test_cthread_read_defined_ref.cpp:104:9;
+        fcall_const_ref_PROC_STATE <= 0;    // test_cthread_read_defined_ref.cpp:111:9;
     end
     else begin
         i <= i_next;
@@ -167,7 +167,7 @@ begin : fcall_const_ref_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fcall_const_ref2 (test_cthread_read_defined_ref.cpp:125:5) 
+// Clocked THREAD: fcall_const_ref2 (test_cthread_read_defined_ref.cpp:132:5) 
 
 // Thread-local variables
 logic signed [31:0] i0;
@@ -180,7 +180,7 @@ logic fcall_const_ref2_PROC_STATE;
 logic fcall_const_ref2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : fcall_const_ref2_comb     // test_cthread_read_defined_ref.cpp:125:5
+always_comb begin : fcall_const_ref2_comb     // test_cthread_read_defined_ref.cpp:132:5
     fcall_const_ref2_func;
 end
 function void fcall_const_ref2_func;
@@ -212,7 +212,7 @@ function void fcall_const_ref2_func;
             i_2 = par_2;
             // Call const_ref() end
             n_next0 = 2;
-            fcall_const_ref2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_ref.cpp:143:13;
+            fcall_const_ref2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_ref.cpp:150:13;
         end
         1: begin
             par = 2 <<< n_next0;
@@ -233,7 +233,7 @@ function void fcall_const_ref2_func;
             i_2 = par_2;
             // Call const_ref() end
             n_next0 = 2;
-            fcall_const_ref2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_ref.cpp:143:13;
+            fcall_const_ref2_PROC_STATE_next = 1; return;    // test_cthread_read_defined_ref.cpp:150:13;
         end
     endcase
 endfunction
@@ -243,7 +243,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : fcall_const_ref2_ff
     if ( ~nrst ) begin
         k0 <= 0;
-        fcall_const_ref2_PROC_STATE <= 0;    // test_cthread_read_defined_ref.cpp:129:9;
+        fcall_const_ref2_PROC_STATE <= 0;    // test_cthread_read_defined_ref.cpp:136:9;
     end
     else begin
         i0 <= i_next0;
@@ -254,10 +254,10 @@ begin : fcall_const_ref2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fcall_ref_assign (test_cthread_read_defined_ref.cpp:155:5) 
+// Clocked THREAD: fcall_ref_assign (test_cthread_read_defined_ref.cpp:162:5) 
 
 // Next-state combinational logic
-always_comb begin : fcall_ref_assign_comb     // test_cthread_read_defined_ref.cpp:155:5
+always_comb begin : fcall_ref_assign_comb     // test_cthread_read_defined_ref.cpp:162:5
     fcall_ref_assign_func;
 end
 function void fcall_ref_assign_func;
@@ -299,7 +299,7 @@ begin : fcall_ref_assign_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_ref_noninit (test_cthread_read_defined_ref.cpp:184:5) 
+// Clocked THREAD: const_ref_noninit (test_cthread_read_defined_ref.cpp:191:5) 
 
 // Thread-local variables
 logic signed [31:0] p;
@@ -310,7 +310,7 @@ logic const_ref_noninit_PROC_STATE;
 logic const_ref_noninit_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : const_ref_noninit_comb     // test_cthread_read_defined_ref.cpp:184:5
+always_comb begin : const_ref_noninit_comb     // test_cthread_read_defined_ref.cpp:191:5
     const_ref_noninit_func;
 end
 function void const_ref_noninit_func;
@@ -332,7 +332,7 @@ function void const_ref_noninit_func;
             // Call const_ref() begin
             i_1 = m;
             // Call const_ref() end
-            const_ref_noninit_PROC_STATE_next = 1; return;    // test_cthread_read_defined_ref.cpp:196:13;
+            const_ref_noninit_PROC_STATE_next = 1; return;    // test_cthread_read_defined_ref.cpp:203:13;
         end
         1: begin
             // Call const_ref() begin
@@ -349,7 +349,7 @@ function void const_ref_noninit_func;
             // Call const_ref() begin
             i_1 = m;
             // Call const_ref() end
-            const_ref_noninit_PROC_STATE_next = 1; return;    // test_cthread_read_defined_ref.cpp:196:13;
+            const_ref_noninit_PROC_STATE_next = 1; return;    // test_cthread_read_defined_ref.cpp:203:13;
         end
     endcase
 endfunction
@@ -358,7 +358,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : const_ref_noninit_ff
     if ( ~nrst ) begin
-        const_ref_noninit_PROC_STATE <= 0;    // test_cthread_read_defined_ref.cpp:186:9;
+        const_ref_noninit_PROC_STATE <= 0;    // test_cthread_read_defined_ref.cpp:193:9;
     end
     else begin
         p <= p_next;

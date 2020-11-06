@@ -26,6 +26,13 @@ using namespace llvm;
 
 namespace sc {
 
+/// Variables and constants not replaced by integer values
+std::unordered_set<SValue> ScScopeGraph::notReplacedVars;
+
+/// Statement assigned variable, used to remove variable initialization 
+/// statements for removed variables/constants
+std::unordered_map<const clang::Stmt*, SValue> ScScopeGraph::stmtAssignVars;
+
 //============================================================================
 
 uint64_t CodeScope::id_gen = 0;
@@ -344,6 +351,18 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
             
             // Skip sub-statements
             if (isSubStmt(scope, stmt)) continue;
+            
+            // Skip initialization statements for removed constant/variable
+            //cout << "stmt " << hex << stmt << endl;
+            auto i = stmtAssignVars.find(stmt);
+            if (i != stmtAssignVars.end()) {
+                const SValue& val = i->second;
+                //cout << "   val " << val << endl;
+                if (notReplacedVars.count(val) == 0) {
+                    //cout << "   SKIP this stmt " << endl;
+                    continue;
+                }
+            }
             
             // Skip first @do statement in @do..@while body scope
             if (skipDoStmt) {

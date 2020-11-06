@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "sct_assert.h"
 #include "systemc.h"
 
@@ -17,7 +24,7 @@ public:
         sensitive << a;
     }
     
-    // Bug in SMEM @full_access_port_base.popRespProc()
+    // Bug in real design @full_access_port_base.popRespProc()
     void latch1() 
     {
         if (a) {
@@ -58,3 +65,4 @@ int sc_main(int argc, char *argv[]) {
     sc_start();
     return 0;
 }
+

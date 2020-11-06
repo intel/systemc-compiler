@@ -1,7 +1,13 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <systemc.h>
 
-// Constants and Enums in namespace
-
+// Constants and enums in namespace
 namespace ns
 {
     // ----- Namespace Variables
@@ -38,9 +44,6 @@ enum en_user_g {
     U3_ENUM_GLOBAL=0
 };
 
-
-
-// Simple processes example
 
 SC_MODULE(MyModule) {
     sc_in<bool>     in{"in"};
@@ -124,4 +127,5 @@ int sc_main(int argc, char **argv) {
 
     return 0;
 }
+
 

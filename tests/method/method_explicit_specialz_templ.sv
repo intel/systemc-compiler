@@ -40,7 +40,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_explicit_specialz_templ.cpp:38:5)
+// Module: A (test_explicit_specialz_templ.cpp:45:5)
 //
 module A // "b_mod.x"
 (
@@ -49,10 +49,10 @@ module A // "b_mod.x"
 );
 
 //------------------------------------------------------------------------------
-// Method process: add (test_explicit_specialz_templ.cpp:23:5) 
+// Method process: add (test_explicit_specialz_templ.cpp:30:5) 
 
 always_comb 
-begin : add     // test_explicit_specialz_templ.cpp:23:5
+begin : add     // test_explicit_specialz_templ.cpp:30:5
     c = a + 3;
 end
 
@@ -62,7 +62,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A0 (test_explicit_specialz_templ.cpp:39:5)
+// Module: A0 (test_explicit_specialz_templ.cpp:46:5)
 //
 module A0 // "b_mod.y"
 (
@@ -73,10 +73,10 @@ module A0 // "b_mod.y"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: add (test_explicit_specialz_templ.cpp:11:5) 
+// Method process: add (test_explicit_specialz_templ.cpp:18:5) 
 
 always_comb 
-begin : add     // test_explicit_specialz_templ.cpp:11:5
+begin : add     // test_explicit_specialz_templ.cpp:18:5
     c = a + 4;
 end
 

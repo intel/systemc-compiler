@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "sct_assert.h"
 #include "systemc.h"
 #include <iostream>
@@ -50,8 +57,8 @@ public:
         wait();
 
         for (int j = 0; j < 2; j++) {
-            SCT_ASSERT_LOOP(sarr[j], SCT_TIME(N), sarr[j+1], j);
-            SCT_ASSERT_LOOP(sarr[j], SCT_TIME(M, N+2), sarr_d[1], j);
+            SCT_ASSERT_LOOP(sarr[j], SCT_TIME(N), sarr[j+1], i);
+            SCT_ASSERT_LOOP(sarr[j], SCT_TIME(M, N+2), sarr_d[1], i);
         }
         
         while (true) {
@@ -119,3 +126,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

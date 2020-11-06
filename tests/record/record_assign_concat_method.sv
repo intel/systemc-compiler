@@ -42,7 +42,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_assign_concat_method.cpp:103:5)
+// Module: A (test_assign_concat_method.cpp:110:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -58,10 +58,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: record_local_var1 (test_assign_concat_method.cpp:56:5) 
+// Method process: record_local_var1 (test_assign_concat_method.cpp:63:5) 
 
 always_comb 
-begin : record_local_var1     // test_assign_concat_method.cpp:56:5
+begin : record_local_var1     // test_assign_concat_method.cpp:63:5
     integer r_x;
     logic [31:0] r_y;
     r_y = 1;
@@ -74,10 +74,10 @@ begin : record_local_var1     // test_assign_concat_method.cpp:56:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_assign1 (test_assign_concat_method.cpp:68:5) 
+// Method process: record_assign1 (test_assign_concat_method.cpp:75:5) 
 
 always_comb 
-begin : record_assign1     // test_assign_concat_method.cpp:68:5
+begin : record_assign1     // test_assign_concat_method.cpp:75:5
     logic r_a;
     integer r_b;
     logic s_a;
@@ -89,10 +89,10 @@ begin : record_assign1     // test_assign_concat_method.cpp:68:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_assign2 (test_assign_concat_method.cpp:77:5) 
+// Method process: record_assign2 (test_assign_concat_method.cpp:84:5) 
 
 always_comb 
-begin : record_assign2     // test_assign_concat_method.cpp:77:5
+begin : record_assign2     // test_assign_concat_method.cpp:84:5
     logic r_a;
     integer r_b;
     logic t_c;
@@ -103,10 +103,10 @@ begin : record_assign2     // test_assign_concat_method.cpp:77:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_assign3 (test_assign_concat_method.cpp:84:5) 
+// Method process: record_assign3 (test_assign_concat_method.cpp:91:5) 
 
 always_comb 
-begin : record_assign3     // test_assign_concat_method.cpp:84:5
+begin : record_assign3     // test_assign_concat_method.cpp:91:5
     logic t_c;
     logic [2:0] t_d;
     t_c = 0;

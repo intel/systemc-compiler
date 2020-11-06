@@ -20,7 +20,7 @@ logic signed [31:0] out;
 logic signed [31:0] in;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch1 (test_cthread_switch.cpp:76:5) 
+// Clocked THREAD: test_switch1 (test_cthread_switch.cpp:83:5) 
 
 // Thread-local variables
 logic signed [31:0] j;
@@ -29,7 +29,7 @@ logic test_switch1_PROC_STATE;
 logic test_switch1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch1_comb     // test_cthread_switch.cpp:76:5
+always_comb begin : test_switch1_comb     // test_cthread_switch.cpp:83:5
     test_switch1_func;
 end
 function void test_switch1_func;
@@ -51,7 +51,7 @@ function void test_switch1_func;
                 j_next = 3;
             end
             endcase
-            test_switch1_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:90:13;
+            test_switch1_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:97:13;
         end
         1: begin
             i = 1;
@@ -67,7 +67,7 @@ function void test_switch1_func;
                 j_next = 3;
             end
             endcase
-            test_switch1_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:90:13;
+            test_switch1_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:97:13;
         end
     endcase
 endfunction
@@ -77,7 +77,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_switch1_ff
     if ( ~arstn ) begin
         j <= 0;
-        test_switch1_PROC_STATE <= 0;    // test_cthread_switch.cpp:79:9;
+        test_switch1_PROC_STATE <= 0;    // test_cthread_switch.cpp:86:9;
     end
     else begin
         j <= j_next;
@@ -86,7 +86,7 @@ begin : test_switch1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_thread (test_cthread_switch.cpp:195:5) 
+// Clocked THREAD: test_thread (test_cthread_switch.cpp:202:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
@@ -94,7 +94,7 @@ logic [2:0] test_thread_PROC_STATE;
 logic [2:0] test_thread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_thread_comb     // test_cthread_switch.cpp:195:5
+always_comb begin : test_thread_comb     // test_cthread_switch.cpp:202:5
     test_thread_func;
 end
 function void test_thread_func;
@@ -126,23 +126,23 @@ function void test_thread_func;
                 out_next = 1;
             end
             1 : begin
-                test_thread_PROC_STATE_next = 2; return;    // test_cthread_switch.cpp:223:17;
+                test_thread_PROC_STATE_next = 2; return;    // test_cthread_switch.cpp:230:17;
             end
             default : begin
-                test_thread_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:229:17;
+                test_thread_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:236:17;
             end
             endcase
-            test_thread_PROC_STATE_next = 4; return;    // test_cthread_switch.cpp:233:13;
+            test_thread_PROC_STATE_next = 4; return;    // test_cthread_switch.cpp:240:13;
         end
         1: begin
-            test_thread_PROC_STATE_next = 4; return;    // test_cthread_switch.cpp:233:13;
+            test_thread_PROC_STATE_next = 4; return;    // test_cthread_switch.cpp:240:13;
         end
         2: begin
             out_next = 2;
-            test_thread_PROC_STATE_next = 3; return;    // test_cthread_switch.cpp:225:17;
+            test_thread_PROC_STATE_next = 3; return;    // test_cthread_switch.cpp:232:17;
         end
         3: begin
-            test_thread_PROC_STATE_next = 4; return;    // test_cthread_switch.cpp:233:13;
+            test_thread_PROC_STATE_next = 4; return;    // test_cthread_switch.cpp:240:13;
         end
         4: begin
             case (in)
@@ -168,13 +168,13 @@ function void test_thread_func;
                 out_next = 1;
             end
             1 : begin
-                test_thread_PROC_STATE_next = 2; return;    // test_cthread_switch.cpp:223:17;
+                test_thread_PROC_STATE_next = 2; return;    // test_cthread_switch.cpp:230:17;
             end
             default : begin
-                test_thread_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:229:17;
+                test_thread_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:236:17;
             end
             endcase
-            test_thread_PROC_STATE_next = 4; return;    // test_cthread_switch.cpp:233:13;
+            test_thread_PROC_STATE_next = 4; return;    // test_cthread_switch.cpp:240:13;
         end
     endcase
 endfunction
@@ -184,7 +184,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_thread_ff
     if ( ~arstn ) begin
         out <= 0;
-        test_thread_PROC_STATE <= 0;    // test_cthread_switch.cpp:198:9;
+        test_thread_PROC_STATE <= 0;    // test_cthread_switch.cpp:205:9;
     end
     else begin
         out <= out_next;
@@ -193,14 +193,14 @@ begin : test_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch2 (test_cthread_switch.cpp:96:5) 
+// Clocked THREAD: test_switch2 (test_cthread_switch.cpp:103:5) 
 
 // Thread-local variables
 logic test_switch2_PROC_STATE;
 logic test_switch2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch2_comb     // test_cthread_switch.cpp:96:5
+always_comb begin : test_switch2_comb     // test_cthread_switch.cpp:103:5
     test_switch2_func;
 end
 function void test_switch2_func;
@@ -220,7 +220,7 @@ function void test_switch2_func;
             default : begin
             end
             endcase
-            test_switch2_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:110:13;
+            test_switch2_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:117:13;
         end
         1: begin
             i = 1;
@@ -234,7 +234,7 @@ function void test_switch2_func;
             default : begin
             end
             endcase
-            test_switch2_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:110:13;
+            test_switch2_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:117:13;
         end
     endcase
 endfunction
@@ -245,7 +245,7 @@ begin : test_switch2_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch2_PROC_STATE <= 0;    // test_cthread_switch.cpp:99:9;
+        test_switch2_PROC_STATE <= 0;    // test_cthread_switch.cpp:106:9;
     end
     else begin
         test_switch2_PROC_STATE <= test_switch2_PROC_STATE_next;
@@ -253,7 +253,7 @@ begin : test_switch2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch3 (test_cthread_switch.cpp:116:5) 
+// Clocked THREAD: test_switch3 (test_cthread_switch.cpp:123:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -262,7 +262,7 @@ logic test_switch3_PROC_STATE;
 logic test_switch3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch3_comb     // test_cthread_switch.cpp:116:5
+always_comb begin : test_switch3_comb     // test_cthread_switch.cpp:123:5
     test_switch3_func;
 end
 function void test_switch3_func;
@@ -273,7 +273,7 @@ function void test_switch3_func;
     case (test_switch3_PROC_STATE)
         0: begin
             i_next = 0;
-            test_switch3_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:124:13;
+            test_switch3_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:131:13;
         end
         1: begin
             case (0)
@@ -287,7 +287,7 @@ function void test_switch3_func;
             endcase
             i_next = 1;
             i_next = 0;
-            test_switch3_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:124:13;
+            test_switch3_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:131:13;
         end
     endcase
 endfunction
@@ -298,7 +298,7 @@ begin : test_switch3_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch3_PROC_STATE <= 0;    // test_cthread_switch.cpp:119:9;
+        test_switch3_PROC_STATE <= 0;    // test_cthread_switch.cpp:126:9;
     end
     else begin
         i <= i_next;
@@ -307,7 +307,7 @@ begin : test_switch3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch4 (test_cthread_switch.cpp:137:5) 
+// Clocked THREAD: test_switch4 (test_cthread_switch.cpp:144:5) 
 
 // Thread-local variables
 logic signed [31:0] j0;
@@ -320,7 +320,7 @@ logic [1:0] test_switch4_PROC_STATE;
 logic [1:0] test_switch4_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch4_comb     // test_cthread_switch.cpp:137:5
+always_comb begin : test_switch4_comb     // test_cthread_switch.cpp:144:5
     test_switch4_func;
 end
 function void test_switch4_func;
@@ -332,14 +332,14 @@ function void test_switch4_func;
     case (test_switch4_PROC_STATE)
         0: begin
             i_next0 = 0;
-            test_switch4_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:145:13;
+            test_switch4_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:152:13;
         end
         1: begin
             case (0)
             0 : begin
                 j_next0 = 1;
                 k_next = 0;
-                test_switch4_PROC_STATE_next = 2; return;    // test_cthread_switch.cpp:151:29;
+                test_switch4_PROC_STATE_next = 2; return;    // test_cthread_switch.cpp:158:29;
             end
             1 : begin
             end
@@ -352,11 +352,11 @@ function void test_switch4_func;
             k_next++;
             if (k_next < 2)
             begin
-                test_switch4_PROC_STATE_next = 2; return;    // test_cthread_switch.cpp:151:29;
+                test_switch4_PROC_STATE_next = 2; return;    // test_cthread_switch.cpp:158:29;
             end
             i_next0 = 1;
             i_next0 = 0;
-            test_switch4_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:145:13;
+            test_switch4_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:152:13;
         end
     endcase
 endfunction
@@ -366,7 +366,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_switch4_ff
     if ( ~arstn ) begin
         j0 <= 0;
-        test_switch4_PROC_STATE <= 0;    // test_cthread_switch.cpp:140:9;
+        test_switch4_PROC_STATE <= 0;    // test_cthread_switch.cpp:147:9;
     end
     else begin
         j0 <= j_next0;
@@ -377,14 +377,14 @@ begin : test_switch4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch5 (test_cthread_switch.cpp:165:5) 
+// Clocked THREAD: test_switch5 (test_cthread_switch.cpp:172:5) 
 
 // Thread-local variables
 logic test_switch5_PROC_STATE;
 logic test_switch5_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch5_comb     // test_cthread_switch.cpp:165:5
+always_comb begin : test_switch5_comb     // test_cthread_switch.cpp:172:5
     test_switch5_func;
 end
 function void test_switch5_func;
@@ -396,7 +396,7 @@ function void test_switch5_func;
     case (test_switch5_PROC_STATE)
         0: begin
             j = 1;
-            test_switch5_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:173:13;
+            test_switch5_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:180:13;
         end
         1: begin
             j = 2;
@@ -414,7 +414,7 @@ function void test_switch5_func;
                 // Call f1() end
             end
             j = 1;
-            test_switch5_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:173:13;
+            test_switch5_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:180:13;
         end
     endcase
 endfunction
@@ -425,7 +425,7 @@ begin : test_switch5_ff
     if ( ~arstn ) begin
         integer j;
         j = 0;
-        test_switch5_PROC_STATE <= 0;    // test_cthread_switch.cpp:168:9;
+        test_switch5_PROC_STATE <= 0;    // test_cthread_switch.cpp:175:9;
     end
     else begin
         test_switch5_PROC_STATE <= test_switch5_PROC_STATE_next;
@@ -433,7 +433,7 @@ begin : test_switch5_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_switch6 (test_cthread_switch.cpp:183:5) 
+// Clocked THREAD: test_switch6 (test_cthread_switch.cpp:190:5) 
 
 // Thread-local variables
 logic signed [31:0] j1;
@@ -444,7 +444,7 @@ logic [1:0] test_switch6_PROC_STATE;
 logic [1:0] test_switch6_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_switch6_comb     // test_cthread_switch.cpp:183:5
+always_comb begin : test_switch6_comb     // test_cthread_switch.cpp:190:5
     test_switch6_func;
 end
 function void test_switch6_func;
@@ -463,7 +463,7 @@ function void test_switch6_func;
                 TMP_0 = i_next1 + 1;
             end
             1 : begin
-                test_switch6_PROC_STATE_next = 2; return;    // test_cthread_switch.cpp:69:21;
+                test_switch6_PROC_STATE_next = 2; return;    // test_cthread_switch.cpp:76:21;
             end
             default : begin
                 TMP_0 = i_next1;
@@ -471,7 +471,7 @@ function void test_switch6_func;
             endcase
             // Call f2() end
             j_next1 = TMP_0;
-            test_switch6_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:191:13;
+            test_switch6_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:198:13;
         end
         1: begin
             i_next1 = j_next1;
@@ -481,7 +481,7 @@ function void test_switch6_func;
                 TMP_1 = i_next1 + 1;
             end
             1 : begin
-                test_switch6_PROC_STATE_next = 2; return;    // test_cthread_switch.cpp:69:21;
+                test_switch6_PROC_STATE_next = 2; return;    // test_cthread_switch.cpp:76:21;
             end
             default : begin
                 TMP_1 = i_next1;
@@ -489,14 +489,14 @@ function void test_switch6_func;
             endcase
             // Call f2() end
             j_next1 = TMP_1;
-            test_switch6_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:191:13;
+            test_switch6_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:198:13;
         end
         2: begin
             // Call f2() begin
             TMP_1 = i_next1 + 2;
             // Call f2() end
             j_next1 = TMP_1;
-            test_switch6_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:191:13;
+            test_switch6_PROC_STATE_next = 1; return;    // test_cthread_switch.cpp:198:13;
         end
     endcase
 endfunction
@@ -506,7 +506,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : test_switch6_ff
     if ( ~arstn ) begin
         j1 <= 0;
-        test_switch6_PROC_STATE <= 0;    // test_cthread_switch.cpp:186:9;
+        test_switch6_PROC_STATE <= 0;    // test_cthread_switch.cpp:193:9;
     end
     else begin
         j1 <= j_next1;

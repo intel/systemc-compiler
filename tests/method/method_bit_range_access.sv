@@ -7,40 +7,14 @@
 
 //==============================================================================
 //
-// Module: B_top ()
+// Module: A ()
 //
-module B_top // "b_mod"
+module A // "a_mod"
 (
 );
 
 // SystemC signals
-logic [31:0] sig_inp;
-logic [31:0] sig_outp;
-
-
-//------------------------------------------------------------------------------
-
-A a_mod
-(
-  .inp(sig_inp),
-  .outp(sig_outp)
-);
-
-endmodule
-
-
-
-//==============================================================================
-//
-// Module: A (test_bit_range_access.cpp:218:5)
-//
-module A // "b_mod.a_mod"
-(
-    input logic [31:0] inp,
-    output logic [31:0] outp
-);
-
-// SystemC signals
+logic [31:0] inp;
 logic [7:0] ssig[2];
 logic sig;
 logic bsig;
@@ -51,69 +25,332 @@ logic cs;
 logic signed ds;
 
 //------------------------------------------------------------------------------
-// Method process: sc_uint_wide (test_bit_range_access.cpp:55:5) 
+// Method process: sc_uint_wide (test_bit_range_access.cpp:74:5) 
 
 always_comb 
-begin : sc_uint_wide     // test_bit_range_access.cpp:55:5
+begin : sc_uint_wide     // test_bit_range_access.cpp:74:5
     logic b;
     logic k;
-    logic [1:0] x_1;
     k = 0;
-    b = k;
-    x_1 = k;
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_uint_ctor (test_bit_range_access.cpp:64:5) 
+// Method process: sc_uint_ctor_bit (test_bit_range_access.cpp:83:5) 
 
 always_comb 
-begin : sc_uint_ctor     // test_bit_range_access.cpp:64:5
+begin : sc_uint_ctor_bit     // test_bit_range_access.cpp:83:5
     logic [2:0] i;
+    logic [2:0] ii;
     logic [1:0] j;
     logic k;
+    logic [1:0] y_1;
+    logic z;
     logic b;
     i = 1;
+    ii = 2;
     j = i;
     k = i;
+    y_1 = 0;
+    z = 0;
     b = |i;
-    b = i;
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    b = 1'(i);
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    i = 1;
     b = i[0];
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    b = 1'(k);
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    k = 1;
     b = k;
-    b = k;
-    b = inp;
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    b = 1'(inp);
     b = 1'(inp[1]);
+    b = |ii;
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    b = ii[0];
+    assert (!b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    b = 1'(ii);
+    assert (!b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    b = |2'(ii);
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    b = 1'(ii);
+    assert (!b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    i = 1;
+    y_1 = 1'(i);
+    assert (y_1 == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    i = 1;
+    y_1 = i[0];
+    assert (y_1 == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    k = 1;
+    y_1 = 1'(k);
+    assert (y_1 == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    k = 1;
+    y_1 = k;
+    assert (y_1 == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    y_1 = ii[0];
+    assert (y_1 == 0) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    y_1 = ii[1];
+    assert (y_1 == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    y_1 = 1'(ii);
+    assert (y_1 == 0) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    y_1 = 2'(ii);
+    assert (y_1 == 2) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    y_1 = 1'(ii);
+    assert (y_1 == 0) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    i = 1;
+    z = 1'(i);
+    assert (z == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    i = 1;
+    z = i[0];
+    assert (z == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    k = 1;
+    z = 1'(k);
+    assert (z == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    k = 1;
+    z = k;
+    assert (z == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    z = ii;
+    assert (z == 0) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    k = ii;
+    assert (k == 0) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: signal_array_part_sel (test_bit_range_access.cpp:82:5) 
+// Method process: sc_uint_ctor_range (test_bit_range_access.cpp:175:5) 
 
 always_comb 
-begin : signal_array_part_sel     // test_bit_range_access.cpp:82:5
-    logic b;
-    logic [4:0] x_1;
-    b = ssig[1][2];
-    x_1 = ssig[1][4 : 3];
-end
-
-//------------------------------------------------------------------------------
-// Method process: sc_uint_to_bool (test_bit_range_access.cpp:89:5) 
-
-always_comb 
-begin : sc_uint_to_bool     // test_bit_range_access.cpp:89:5
-    logic [1:0] i;
+begin : sc_uint_ctor_range     // test_bit_range_access.cpp:175:5
+    logic [2:0] i;
+    logic [2:0] ii;
+    logic k;
+    logic [1:0] y_1;
+    logic z;
     logic b;
     i = 1;
-    b = as;
-    sig = |i;
-    sig = as;
-    sig = as;
+    ii = 2;
+    k = i;
+    y_1 = 0;
+    z = 0;
+    b = |i;
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    b = 1'(i);
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    i = 1;
+    b = i[0 : 0];
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    b = 1'(k);
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    k = 1;
+    b = k;
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    b = 1'(inp);
+    b = 1'(inp[1 : 1]);
+    b = |ii;
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    b = ii[0 : 0];
+    assert (!b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    b = 1'(ii);
+    assert (!b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    b = |2'(ii);
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    b = ii[0 : 0];
+    assert (!b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    b = ii[1 : 1];
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    b = |ii[1 : 0];
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    b = 1'(ii);
+    assert (!b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    i = 1;
+    y_1 = 1'(i);
+    assert (y_1 == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    i = 1;
+    y_1 = i[0 : 0];
+    assert (y_1 == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    k = 1;
+    y_1 = 1'(k);
+    assert (y_1 == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    k = 1;
+    y_1 = k;
+    assert (y_1 == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    y_1 = ii[0 : 0];
+    assert (y_1 == 0) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    y_1 = ii[1 : 1];
+    assert (y_1 == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    y_1 = ii[1 : 0];
+    assert (y_1 == 2) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    y_1 = 1'(ii);
+    assert (y_1 == 0) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    y_1 = 2'(ii);
+    assert (y_1 == 2) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    y_1 = ii[0 : 0];
+    assert (y_1 == 0) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    y_1 = ii[1 : 1];
+    assert (y_1 == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    y_1 = ii[1 : 0];
+    assert (y_1 == 2) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    ii = 2;
+    y_1 = 1'(ii);
+    assert (y_1 == 0) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    i = 1;
+    z = 1'(i);
+    assert (z == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    i = 1;
+    z = i[0 : 0];
+    assert (z == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    k = 1;
+    z = 1'(k);
+    assert (z == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    k = 1;
+    z = k;
+    assert (z == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    z = ii;
+    assert (z == 0) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    k = ii;
+    assert (k == 0) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: int_to_bool (test_bit_range_access.cpp:100:5) 
+// Method process: signal_array_part_sel (test_bit_range_access.cpp:288:5) 
 
 always_comb 
-begin : int_to_bool     // test_bit_range_access.cpp:100:5
+begin : signal_array_part_sel     // test_bit_range_access.cpp:288:5
+    logic b;
+    logic [4:0] x_1;
+    integer i;
+    b = ssig[1][2];
+    x_1 = ssig[1][4 : 3];
+    i = inp;
+    x_1 = ssig[i][i +: 2];
+end
+
+//------------------------------------------------------------------------------
+// Method process: to_int (test_bit_range_access.cpp:298:5) 
+
+always_comb 
+begin : to_int     // test_bit_range_access.cpp:298:5
+    integer a;
+    logic [38:0] u;
+    logic signed [40:0] i;
+    logic [46:0] bu;
+    logic signed [66:0] bi;
+    logic signed [89:0] z;
+    a = -3'sd3;
+    u = ('h11 <<< 32) + 1;
+    i = ((-7'sh22) <<< 32) - 'h2;
+    bu = 'h23;
+    bi = 'h104;
+    z = 0;
+    z = u;
+    assert (z == ('h11 <<< 32) + 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    z = 32'(u);
+    assert (z == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    z = 32'(u);
+    assert (z == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    z = 64'(u);
+    assert (z == ('h11 <<< 32) + 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    z = i;
+    assert (z == ((-7'sh22) <<< 32) - 'h2) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    z = 32'(i);
+    assert (z == -3'sh2) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    z = 64'(i);
+    assert (z == ((-7'sh22) <<< 32) - 'h2) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    z = signed'({1'b0, 32'(u)}) + signed'({1'b0, 64'(u)}) + signed'({1'b0, 64'(u)});
+    z = 32'(u) + 64'(u) + 64'(u);
+    z = 32'(i) + 64'(i) + 64'(i);
+    z = signed'({1'b0, 32'(i) + 64'(i)}) + 64'(i);
+    z = signed'({1'b0, 32'(bu)}) + signed'({1'b0, 64'(bu)}) + signed'({1'b0, 64'(bu)});
+    z = 32'(bu) + 64'(bu) + 64'(bu);
+    z = 32'(bi) + 64'(bi) + 64'(bi);
+    z = signed'({1'b0, 32'(bi) + 64'(bi)}) + 64'(bi);
+end
+
+//------------------------------------------------------------------------------
+// Method process: to_int_bit_range (test_bit_range_access.cpp:342:5) 
+
+always_comb 
+begin : to_int_bit_range     // test_bit_range_access.cpp:342:5
+    logic [44:0] u;
+    logic signed [40:0] i;
+    logic [46:0] bu;
+    logic signed [66:0] bi;
+    logic signed [89:0] z;
+    u = ('h12 <<< 32) + 1;
+    i = ((-7'sh22) <<< 32) - 'h2;
+    bu = 'h23;
+    bi = 'h104;
+    z = 0;
+    z = u[37 : 0];
+    assert (z == ('h12 <<< 32) + 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    u = ('h12 <<< 32) + 1;
+    z = 32'(u[37 : 0]);
+    assert (z == 1) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    u = ('h12 <<< 32) + 1;
+    z = 32'(u[37 : 1]);
+    assert (z == 0) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+end
+
+//------------------------------------------------------------------------------
+// Method process: sc_uint_to_bool (test_bit_range_access.cpp:364:5) 
+
+always_comb 
+begin : sc_uint_to_bool     // test_bit_range_access.cpp:364:5
+    logic [1:0] i;
+    logic signed [4:0] j;
+    logic [16:0] bi;
+    logic b;
+    i = 1;
+    j = 1;
+    bi = 32'(inp);
+    b = as;
+    b = |j;
+    b = |j[3 : 1];
+    assert (!b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    j = 2;
+    b = j[1];
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    j = 4;
+    b = j[2];
+    assert (b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    j = 4;
+    b = j[1];
+    assert (!b) else $error("Assertion failed at test_bit_range_access.cpp:71:24>");
+    sig = |i;
+    sig = |32'(bi);
+    sig = as;
+    sig = as;
+    sig = |i[1 : 0];
+    sig = |j[3 : 1];
+    sig = j[4];
+    sig = bi[16];
+    sig = |32'(bi[3 : 1]);
+end
+
+//------------------------------------------------------------------------------
+// Method process: int_to_bool (test_bit_range_access.cpp:398:5) 
+
+always_comb 
+begin : int_to_bool     // test_bit_range_access.cpp:398:5
     integer i;
     logic b;
     logic [1:0] x_1;
@@ -133,10 +370,10 @@ begin : int_to_bool     // test_bit_range_access.cpp:100:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: zero_zero_range (test_bit_range_access.cpp:132:5) 
+// Method process: zero_zero_range (test_bit_range_access.cpp:430:5) 
 
 always_comb 
-begin : zero_zero_range     // test_bit_range_access.cpp:132:5
+begin : zero_zero_range     // test_bit_range_access.cpp:430:5
     logic a;
     logic aa;
     logic ab;
@@ -159,10 +396,10 @@ begin : zero_zero_range     // test_bit_range_access.cpp:132:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: zero_zero_range_big (test_bit_range_access.cpp:148:5) 
+// Method process: zero_zero_range_big (test_bit_range_access.cpp:446:5) 
 
 always_comb 
-begin : zero_zero_range_big     // test_bit_range_access.cpp:148:5
+begin : zero_zero_range_big     // test_bit_range_access.cpp:446:5
     logic c;
     logic cc;
     logic ab;
@@ -180,15 +417,15 @@ begin : zero_zero_range_big     // test_bit_range_access.cpp:148:5
     d = 0;
     dd = d;
     d = 1;
-    i = ds;
-    i = ds + 1;
+    i = 32'(ds);
+    i = signed'({1'b0, 64'(ds)}) + 1;
 end
 
 //------------------------------------------------------------------------------
-// Method process: zero_zero_bit (test_bit_range_access.cpp:164:5) 
+// Method process: zero_zero_bit (test_bit_range_access.cpp:462:5) 
 
 always_comb 
-begin : zero_zero_bit     // test_bit_range_access.cpp:164:5
+begin : zero_zero_bit     // test_bit_range_access.cpp:462:5
     logic a;
     logic aa;
     logic ab;
@@ -203,10 +440,10 @@ begin : zero_zero_bit     // test_bit_range_access.cpp:164:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: zero_zero_bit_big (test_bit_range_access.cpp:174:5) 
+// Method process: zero_zero_bit_big (test_bit_range_access.cpp:472:5) 
 
 always_comb 
-begin : zero_zero_bit_big     // test_bit_range_access.cpp:174:5
+begin : zero_zero_bit_big     // test_bit_range_access.cpp:472:5
     logic c;
     logic cc;
     logic ab;
@@ -221,7 +458,7 @@ begin : zero_zero_bit_big     // test_bit_range_access.cpp:174:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: bit_range_sel (test_bit_range_access.cpp:184:5) 
+// Method process: bit_range_sel (test_bit_range_access.cpp:482:5) 
 
 // Process-local variables
 logic signed [7:0] x;
@@ -230,7 +467,7 @@ logic [7:0] ux;
 logic [7:0] uy;
 
 always_comb 
-begin : bit_range_sel     // test_bit_range_access.cpp:184:5
+begin : bit_range_sel     // test_bit_range_access.cpp:482:5
     x[1] = y[0];
     ux[1] = uy[0];
     x[3 : 2] = y[2 : 1];
@@ -240,10 +477,10 @@ begin : bit_range_sel     // test_bit_range_access.cpp:184:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: bit_range_array (test_bit_range_access.cpp:198:5) 
+// Method process: bit_range_array (test_bit_range_access.cpp:496:5) 
 
 always_comb 
-begin : bit_range_array     // test_bit_range_access.cpp:198:5
+begin : bit_range_array     // test_bit_range_access.cpp:496:5
     logic [3:0] uarr[3];
     logic [64:0] barr[3];
     logic b;

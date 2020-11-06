@@ -44,7 +44,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Circ_buf (test_bhv_fifo.cpp:93:5)
+// Module: Circ_buf (test_bhv_fifo.cpp:100:5)
 //
 module Circ_buf // "b_mod.a_mod"
 (
@@ -62,7 +62,7 @@ module Circ_buf // "b_mod.a_mod"
 logic [31:0] buffer[4];
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fifo_rw (test_bhv_fifo.cpp:39:5) 
+// Clocked THREAD: fifo_rw (test_bhv_fifo.cpp:46:5) 
 
 // Thread-local variables
 logic full_next;
@@ -77,7 +77,7 @@ logic [1:0] headp;
 logic [1:0] headp_next;
 
 // Next-state combinational logic
-always_comb begin : fifo_rw_comb     // test_bhv_fifo.cpp:39:5
+always_comb begin : fifo_rw_comb     // test_bhv_fifo.cpp:46:5
     fifo_rw_func;
 end
 function void fifo_rw_func;

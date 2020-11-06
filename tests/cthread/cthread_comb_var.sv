@@ -19,7 +19,7 @@ logic arstn;
 logic signed [31:0] out;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_var_not_changed (test_cthread_comb_var.cpp:89:5) 
+// Clocked THREAD: comb_var_not_changed (test_cthread_comb_var.cpp:96:5) 
 
 // Thread-local variables
 logic [2:0] popIndx;
@@ -29,7 +29,7 @@ logic [1:0] arr_next[2];
 logic signed [31:0] out_next;
 
 // Next-state combinational logic
-always_comb begin : comb_var_not_changed_comb     // test_cthread_comb_var.cpp:89:5
+always_comb begin : comb_var_not_changed_comb     // test_cthread_comb_var.cpp:96:5
     comb_var_not_changed_func;
 end
 function void comb_var_not_changed_func;
@@ -53,7 +53,7 @@ begin : comb_var_not_changed_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_var_not_changed1 (test_cthread_comb_var.cpp:100:5) 
+// Clocked THREAD: comb_var_not_changed1 (test_cthread_comb_var.cpp:107:5) 
 
 // Thread-local variables
 logic [2:0] popIndx;
@@ -63,7 +63,7 @@ logic [1:0] arr_next0[2];
 logic signed [31:0] out_next0;
 
 // Next-state combinational logic
-always_comb begin : comb_var_not_changed1_comb     // test_cthread_comb_var.cpp:100:5
+always_comb begin : comb_var_not_changed1_comb     // test_cthread_comb_var.cpp:107:5
     comb_var_not_changed1_func;
 end
 function void comb_var_not_changed1_func;
@@ -87,13 +87,13 @@ begin : comb_var_not_changed1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_var_in_reset0 (test_cthread_comb_var.cpp:112:5) 
+// Clocked THREAD: comb_var_in_reset0 (test_cthread_comb_var.cpp:119:5) 
 
 // Thread-local variables
 logic [2:0] a;
 
 // Next-state combinational logic
-always_comb begin : comb_var_in_reset0_comb     // test_cthread_comb_var.cpp:112:5
+always_comb begin : comb_var_in_reset0_comb     // test_cthread_comb_var.cpp:119:5
     comb_var_in_reset0_func;
 end
 function void comb_var_in_reset0_func;
@@ -112,7 +112,7 @@ begin : comb_var_in_reset0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_var_in_reset0a (test_cthread_comb_var.cpp:125:5) 
+// Clocked THREAD: comb_var_in_reset0a (test_cthread_comb_var.cpp:132:5) 
 
 // Thread-local variables
 logic [2:0] a;
@@ -120,7 +120,7 @@ logic [1:0] comb_var_in_reset0a_PROC_STATE;
 logic [1:0] comb_var_in_reset0a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : comb_var_in_reset0a_comb     // test_cthread_comb_var.cpp:125:5
+always_comb begin : comb_var_in_reset0a_comb     // test_cthread_comb_var.cpp:132:5
     comb_var_in_reset0a_func;
 end
 function void comb_var_in_reset0a_func;
@@ -129,15 +129,15 @@ function void comb_var_in_reset0a_func;
     case (comb_var_in_reset0a_PROC_STATE)
         0: begin
             a = 3;
-            comb_var_in_reset0a_PROC_STATE_next = 1; return;    // test_cthread_comb_var.cpp:132:13;
+            comb_var_in_reset0a_PROC_STATE_next = 1; return;    // test_cthread_comb_var.cpp:139:13;
         end
         1: begin
             a = 4;
-            comb_var_in_reset0a_PROC_STATE_next = 2; return;    // test_cthread_comb_var.cpp:135:13;
+            comb_var_in_reset0a_PROC_STATE_next = 2; return;    // test_cthread_comb_var.cpp:142:13;
         end
         2: begin
             a = 3;
-            comb_var_in_reset0a_PROC_STATE_next = 1; return;    // test_cthread_comb_var.cpp:132:13;
+            comb_var_in_reset0a_PROC_STATE_next = 1; return;    // test_cthread_comb_var.cpp:139:13;
         end
     endcase
 endfunction
@@ -148,7 +148,7 @@ begin : comb_var_in_reset0a_ff
     if ( ~arstn ) begin
         logic [2:0] a;
         a = 0;
-        comb_var_in_reset0a_PROC_STATE <= 0;    // test_cthread_comb_var.cpp:128:9;
+        comb_var_in_reset0a_PROC_STATE <= 0;    // test_cthread_comb_var.cpp:135:9;
     end
     else begin
         comb_var_in_reset0a_PROC_STATE <= comb_var_in_reset0a_PROC_STATE_next;
@@ -156,13 +156,13 @@ begin : comb_var_in_reset0a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_var_in_reset1 (test_cthread_comb_var.cpp:140:5) 
+// Clocked THREAD: comb_var_in_reset1 (test_cthread_comb_var.cpp:147:5) 
 
 // Thread-local variables
 logic [3:0] b;
 
 // Next-state combinational logic
-always_comb begin : comb_var_in_reset1_comb     // test_cthread_comb_var.cpp:140:5
+always_comb begin : comb_var_in_reset1_comb     // test_cthread_comb_var.cpp:147:5
     comb_var_in_reset1_func;
 end
 function void comb_var_in_reset1_func;
@@ -181,7 +181,7 @@ begin : comb_var_in_reset1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_var_in_reset1a (test_cthread_comb_var.cpp:152:5) 
+// Clocked THREAD: comb_var_in_reset1a (test_cthread_comb_var.cpp:159:5) 
 
 // Thread-local variables
 logic [3:0] b;
@@ -189,7 +189,7 @@ logic comb_var_in_reset1a_PROC_STATE;
 logic comb_var_in_reset1a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : comb_var_in_reset1a_comb     // test_cthread_comb_var.cpp:152:5
+always_comb begin : comb_var_in_reset1a_comb     // test_cthread_comb_var.cpp:159:5
     comb_var_in_reset1a_func;
 end
 function void comb_var_in_reset1a_func;
@@ -198,11 +198,11 @@ function void comb_var_in_reset1a_func;
     case (comb_var_in_reset1a_PROC_STATE)
         0: begin
             b = 3;
-            comb_var_in_reset1a_PROC_STATE_next = 1; return;    // test_cthread_comb_var.cpp:160:13;
+            comb_var_in_reset1a_PROC_STATE_next = 1; return;    // test_cthread_comb_var.cpp:167:13;
         end
         1: begin
             b = 4;
-            comb_var_in_reset1a_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:157:13;
+            comb_var_in_reset1a_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:164:13;
         end
     endcase
 endfunction
@@ -213,7 +213,7 @@ begin : comb_var_in_reset1a_ff
     if ( ~arstn ) begin
         logic [3:0] b;
         b = 0;
-        comb_var_in_reset1a_PROC_STATE <= 0;    // test_cthread_comb_var.cpp:157:13;
+        comb_var_in_reset1a_PROC_STATE <= 0;    // test_cthread_comb_var.cpp:164:13;
     end
     else begin
         comb_var_in_reset1a_PROC_STATE <= comb_var_in_reset1a_PROC_STATE_next;
@@ -221,7 +221,7 @@ begin : comb_var_in_reset1a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_var_in_reset1b (test_cthread_comb_var.cpp:167:5) 
+// Clocked THREAD: comb_var_in_reset1b (test_cthread_comb_var.cpp:174:5) 
 
 // Thread-local variables
 logic [3:0] b;
@@ -229,7 +229,7 @@ logic comb_var_in_reset1b_PROC_STATE;
 logic comb_var_in_reset1b_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : comb_var_in_reset1b_comb     // test_cthread_comb_var.cpp:167:5
+always_comb begin : comb_var_in_reset1b_comb     // test_cthread_comb_var.cpp:174:5
     comb_var_in_reset1b_func;
 end
 function void comb_var_in_reset1b_func;
@@ -238,10 +238,10 @@ function void comb_var_in_reset1b_func;
     case (comb_var_in_reset1b_PROC_STATE)
         0: begin
             b = 3;
-            comb_var_in_reset1b_PROC_STATE_next = 1; return;    // test_cthread_comb_var.cpp:175:13;
+            comb_var_in_reset1b_PROC_STATE_next = 1; return;    // test_cthread_comb_var.cpp:182:13;
         end
         1: begin
-            comb_var_in_reset1b_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:172:13;
+            comb_var_in_reset1b_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:179:13;
         end
     endcase
 endfunction
@@ -252,7 +252,7 @@ begin : comb_var_in_reset1b_ff
     if ( ~arstn ) begin
         logic [3:0] b;
         b = 0;
-        comb_var_in_reset1b_PROC_STATE <= 0;    // test_cthread_comb_var.cpp:172:13;
+        comb_var_in_reset1b_PROC_STATE <= 0;    // test_cthread_comb_var.cpp:179:13;
     end
     else begin
         comb_var_in_reset1b_PROC_STATE <= comb_var_in_reset1b_PROC_STATE_next;
@@ -260,13 +260,13 @@ begin : comb_var_in_reset1b_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_var_in_reset2 (test_cthread_comb_var.cpp:180:5) 
+// Clocked THREAD: comb_var_in_reset2 (test_cthread_comb_var.cpp:187:5) 
 
 // Thread-local variables
 logic [4:0] c;
 
 // Next-state combinational logic
-always_comb begin : comb_var_in_reset2_comb     // test_cthread_comb_var.cpp:180:5
+always_comb begin : comb_var_in_reset2_comb     // test_cthread_comb_var.cpp:187:5
     comb_var_in_reset2_func;
 end
 function void comb_var_in_reset2_func;
@@ -285,7 +285,7 @@ begin : comb_var_in_reset2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_var_in_reset2a (test_cthread_comb_var.cpp:190:5) 
+// Clocked THREAD: comb_var_in_reset2a (test_cthread_comb_var.cpp:197:5) 
 
 // Thread-local variables
 logic [4:0] c;
@@ -293,7 +293,7 @@ logic comb_var_in_reset2a_PROC_STATE;
 logic comb_var_in_reset2a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : comb_var_in_reset2a_comb     // test_cthread_comb_var.cpp:190:5
+always_comb begin : comb_var_in_reset2a_comb     // test_cthread_comb_var.cpp:197:5
     comb_var_in_reset2a_func;
 end
 function void comb_var_in_reset2a_func;
@@ -302,11 +302,11 @@ function void comb_var_in_reset2a_func;
     case (comb_var_in_reset2a_PROC_STATE)
         0: begin
             c = 4;
-            comb_var_in_reset2a_PROC_STATE_next = 1; return;    // test_cthread_comb_var.cpp:197:13;
+            comb_var_in_reset2a_PROC_STATE_next = 1; return;    // test_cthread_comb_var.cpp:204:13;
         end
         1: begin
             c = 3;
-            comb_var_in_reset2a_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:194:13;
+            comb_var_in_reset2a_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:201:13;
         end
     endcase
 endfunction
@@ -317,7 +317,7 @@ begin : comb_var_in_reset2a_ff
     if ( ~arstn ) begin
         logic [4:0] c;
         c = 3;
-        comb_var_in_reset2a_PROC_STATE <= 0;    // test_cthread_comb_var.cpp:194:13;
+        comb_var_in_reset2a_PROC_STATE <= 0;    // test_cthread_comb_var.cpp:201:13;
     end
     else begin
         comb_var_in_reset2a_PROC_STATE <= comb_var_in_reset2a_PROC_STATE_next;
@@ -325,7 +325,7 @@ begin : comb_var_in_reset2a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_var_in_reset3 (test_cthread_comb_var.cpp:202:5) 
+// Clocked THREAD: comb_var_in_reset3 (test_cthread_comb_var.cpp:209:5) 
 
 // Thread-local variables
 logic [5:0] d;
@@ -333,7 +333,7 @@ logic comb_var_in_reset3_PROC_STATE;
 logic comb_var_in_reset3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : comb_var_in_reset3_comb     // test_cthread_comb_var.cpp:202:5
+always_comb begin : comb_var_in_reset3_comb     // test_cthread_comb_var.cpp:209:5
     comb_var_in_reset3_func;
 end
 function void comb_var_in_reset3_func;
@@ -342,11 +342,11 @@ function void comb_var_in_reset3_func;
     case (comb_var_in_reset3_PROC_STATE)
         default : begin
             d = 3;
-            comb_var_in_reset3_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:206:13;
+            comb_var_in_reset3_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:213:13;
         end
         0: begin
             d = 3;
-            comb_var_in_reset3_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:206:13;
+            comb_var_in_reset3_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:213:13;
         end
     endcase
 endfunction
@@ -360,7 +360,7 @@ begin : comb_var_in_reset3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: comb_var_in_reset3a (test_cthread_comb_var.cpp:212:5) 
+// Clocked THREAD: comb_var_in_reset3a (test_cthread_comb_var.cpp:219:5) 
 
 // Thread-local variables
 logic [5:0] d;
@@ -368,7 +368,7 @@ logic comb_var_in_reset3a_PROC_STATE;
 logic comb_var_in_reset3a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : comb_var_in_reset3a_comb     // test_cthread_comb_var.cpp:212:5
+always_comb begin : comb_var_in_reset3a_comb     // test_cthread_comb_var.cpp:219:5
     comb_var_in_reset3a_func;
 end
 function void comb_var_in_reset3a_func;
@@ -377,15 +377,15 @@ function void comb_var_in_reset3a_func;
     case (comb_var_in_reset3a_PROC_STATE)
         default : begin
             d = 3;
-            comb_var_in_reset3a_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:216:13;
+            comb_var_in_reset3a_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:223:13;
         end
         0: begin
             d = 4;
-            comb_var_in_reset3a_PROC_STATE_next = 1; return;    // test_cthread_comb_var.cpp:219:13;
+            comb_var_in_reset3a_PROC_STATE_next = 1; return;    // test_cthread_comb_var.cpp:226:13;
         end
         1: begin
             d = 3;
-            comb_var_in_reset3a_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:216:13;
+            comb_var_in_reset3a_PROC_STATE_next = 0; return;    // test_cthread_comb_var.cpp:223:13;
         end
     endcase
 endfunction
@@ -399,10 +399,10 @@ begin : comb_var_in_reset3a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_comb_var_in_reset (test_cthread_comb_var.cpp:223:5) 
+// Clocked THREAD: loc_comb_var_in_reset (test_cthread_comb_var.cpp:230:5) 
 
 // Next-state combinational logic
-always_comb begin : loc_comb_var_in_reset_comb     // test_cthread_comb_var.cpp:223:5
+always_comb begin : loc_comb_var_in_reset_comb     // test_cthread_comb_var.cpp:230:5
     loc_comb_var_in_reset_func;
 end
 function void loc_comb_var_in_reset_func;
@@ -422,10 +422,10 @@ begin : loc_comb_var_in_reset_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: readonly_var_in_reset (test_cthread_comb_var.cpp:235:5) 
+// Clocked THREAD: readonly_var_in_reset (test_cthread_comb_var.cpp:242:5) 
 
 // Next-state combinational logic
-always_comb begin : readonly_var_in_reset_comb     // test_cthread_comb_var.cpp:235:5
+always_comb begin : readonly_var_in_reset_comb     // test_cthread_comb_var.cpp:242:5
     readonly_var_in_reset_func;
 end
 function void readonly_var_in_reset_func;
@@ -445,14 +445,14 @@ begin : readonly_var_in_reset_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: readonly_var_in_reset2 (test_cthread_comb_var.cpp:247:5) 
+// Clocked THREAD: readonly_var_in_reset2 (test_cthread_comb_var.cpp:254:5) 
 
 // Thread-local variables
 logic [7:0] f;
 logic [7:0] f_next;
 
 // Next-state combinational logic
-always_comb begin : readonly_var_in_reset2_comb     // test_cthread_comb_var.cpp:247:5
+always_comb begin : readonly_var_in_reset2_comb     // test_cthread_comb_var.cpp:254:5
     readonly_var_in_reset2_func;
 end
 function void readonly_var_in_reset2_func;

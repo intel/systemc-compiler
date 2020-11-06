@@ -19,7 +19,7 @@ logic nrst;
 logic [3:0] s;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: var1 (test_cthread_read_defined_2.cpp:39:5) 
+// Clocked THREAD: var1 (test_cthread_read_defined_2.cpp:46:5) 
 
 // Thread-local variables
 logic [41:0] d;
@@ -35,7 +35,7 @@ logic [1:0] var1_PROC_STATE;
 logic [1:0] var1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : var1_comb     // test_cthread_read_defined_2.cpp:39:5
+always_comb begin : var1_comb     // test_cthread_read_defined_2.cpp:46:5
     var1_func;
 end
 function void var1_func;
@@ -47,27 +47,27 @@ function void var1_func;
     
     case (var1_PROC_STATE)
         0: begin
-            l_next = d_next + signed'({1'b0, a_next});
+            l_next = 32'(d_next) + signed'({1'b0, a_next});
             if (l_next < e_next)
             begin
-                var1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_2.cpp:59:17;
+                var1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_2.cpp:66:17;
             end
-            var1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_2.cpp:62:13;
+            var1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_2.cpp:69:13;
         end
         1: begin
             if (l_next < e_next)
             begin
-                var1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_2.cpp:59:17;
+                var1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_2.cpp:66:17;
             end
-            var1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_2.cpp:62:13;
+            var1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_2.cpp:69:13;
         end
         2: begin
-            l_next = d_next + signed'({1'b0, a_next});
+            l_next = 32'(d_next) + signed'({1'b0, a_next});
             if (l_next < e_next)
             begin
-                var1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_2.cpp:59:17;
+                var1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_2.cpp:66:17;
             end
-            var1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_2.cpp:62:13;
+            var1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_2.cpp:69:13;
         end
     endcase
 endfunction
@@ -82,7 +82,7 @@ begin : var1_ff
         begin
             c = a;
         end
-        var1_PROC_STATE <= 0;    // test_cthread_read_defined_2.cpp:48:9;
+        var1_PROC_STATE <= 0;    // test_cthread_read_defined_2.cpp:55:9;
     end
     else begin
         d <= d_next;
@@ -94,7 +94,7 @@ begin : var1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: arr1 (test_cthread_read_defined_2.cpp:66:5) 
+// Clocked THREAD: arr1 (test_cthread_read_defined_2.cpp:73:5) 
 
 // Thread-local variables
 logic [3:0] arra[4];
@@ -109,7 +109,7 @@ logic [1:0] arr1_PROC_STATE;
 logic [1:0] arr1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : arr1_comb     // test_cthread_read_defined_2.cpp:66:5
+always_comb begin : arr1_comb     // test_cthread_read_defined_2.cpp:73:5
     arr1_func;
 end
 function void arr1_func;
@@ -125,17 +125,17 @@ function void arr1_func;
             begin
                 arrb_next[s][s + 1] = |arra_next[2];
             end
-            arr1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_2.cpp:83:13;
+            arr1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_2.cpp:90:13;
         end
         1: begin
             i_1 = arra_next[s];
             do
             begin
                 i_1--;
-                arrc_next[i_1 + 1][0] = arrb_next[i_1][i_1] ? s : 1;
+                arrc_next[i_1 + 1][0] = arrb_next[i_1][i_1] ? 32'(s) : 1;
             end
             while (i_1 > 0 && |arrc_next[i_1][0]);
-            arr1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_2.cpp:92:13;
+            arr1_PROC_STATE_next = 2; return;    // test_cthread_read_defined_2.cpp:99:13;
         end
         2: begin
             arre[0] = 1;
@@ -143,7 +143,7 @@ function void arr1_func;
             begin
                 arrb_next[s][s + 1] = |arra_next[2];
             end
-            arr1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_2.cpp:83:13;
+            arr1_PROC_STATE_next = 1; return;    // test_cthread_read_defined_2.cpp:90:13;
         end
     endcase
 endfunction
@@ -158,7 +158,7 @@ begin : arr1_ff
             arra[i] <= i;
             arrd[i] = 0;
         end
-        arr1_PROC_STATE <= 0;    // test_cthread_read_defined_2.cpp:74:9;
+        arr1_PROC_STATE <= 0;    // test_cthread_read_defined_2.cpp:81:9;
     end
     else begin
         arra <= arra_next;
@@ -169,10 +169,10 @@ begin : arr1_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: for_stmt1 (test_cthread_read_defined_2.cpp:99:5) 
+// Method process: for_stmt1 (test_cthread_read_defined_2.cpp:106:5) 
 
 always_comb 
-begin : for_stmt1     // test_cthread_read_defined_2.cpp:99:5
+begin : for_stmt1     // test_cthread_read_defined_2.cpp:106:5
     integer ii;
     integer jj;
     integer lo;
@@ -188,10 +188,10 @@ begin : for_stmt1     // test_cthread_read_defined_2.cpp:99:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: while_stmt1 (test_cthread_read_defined_2.cpp:112:5) 
+// Method process: while_stmt1 (test_cthread_read_defined_2.cpp:119:5) 
 
 always_comb 
-begin : while_stmt1     // test_cthread_read_defined_2.cpp:112:5
+begin : while_stmt1     // test_cthread_read_defined_2.cpp:119:5
     integer lo;
     integer hi;
     integer i;

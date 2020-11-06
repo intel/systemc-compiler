@@ -36,7 +36,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cthread_const_prop.cpp:164:5)
+// Module: A (test_cthread_const_prop.cpp:171:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -50,14 +50,19 @@ module A // "b_mod.a_mod"
 logic [1:0] rr_first_indx;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: pointer_compare (test_cthread_const_prop.cpp:42:5) 
+// Clocked THREAD: pointer_compare (test_cthread_const_prop.cpp:49:5) 
 
 // Next-state combinational logic
-always_comb begin : pointer_compare_comb     // test_cthread_const_prop.cpp:42:5
+always_comb begin : pointer_compare_comb     // test_cthread_const_prop.cpp:49:5
     pointer_compare_func;
 end
 function void pointer_compare_func;
+    integer i;
     logic b2;
+    if (1)
+    begin
+        i = 1;
+    end
     b2 = 1;
 endfunction
 
@@ -71,14 +76,19 @@ begin : pointer_compare_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: pointer_compare2 (test_cthread_const_prop.cpp:58:5) 
+// Clocked THREAD: pointer_compare2 (test_cthread_const_prop.cpp:65:5) 
 
 // Next-state combinational logic
-always_comb begin : pointer_compare2_comb     // test_cthread_const_prop.cpp:58:5
+always_comb begin : pointer_compare2_comb     // test_cthread_const_prop.cpp:65:5
     pointer_compare2_func;
 end
 function void pointer_compare2_func;
+    integer i;
     logic b2;
+    if (1)
+    begin
+        i = 1;
+    end
     b2 = 1;
 endfunction
 
@@ -92,14 +102,14 @@ begin : pointer_compare2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fifoSyncProc (test_cthread_const_prop.cpp:80:5) 
+// Clocked THREAD: fifoSyncProc (test_cthread_const_prop.cpp:87:5) 
 
 // Thread-local variables
 logic [1:0] popIndx;
 logic [1:0] popIndx_next;
 
 // Next-state combinational logic
-always_comb begin : fifoSyncProc_comb     // test_cthread_const_prop.cpp:80:5
+always_comb begin : fifoSyncProc_comb     // test_cthread_const_prop.cpp:87:5
     fifoSyncProc_func;
 end
 function void fifoSyncProc_func;
@@ -127,13 +137,13 @@ begin : fifoSyncProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: priorityProc (test_cthread_const_prop.cpp:102:5) 
+// Clocked THREAD: priorityProc (test_cthread_const_prop.cpp:109:5) 
 
 // Thread-local variables
 logic [1:0] rr_first_indx_next;
 
 // Next-state combinational logic
-always_comb begin : priorityProc_comb     // test_cthread_const_prop.cpp:102:5
+always_comb begin : priorityProc_comb     // test_cthread_const_prop.cpp:109:5
     priorityProc_func;
 end
 function void priorityProc_func;
@@ -159,13 +169,13 @@ begin : priorityProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: nested_loops (test_cthread_const_prop.cpp:130:5) 
+// Method process: nested_loops (test_cthread_const_prop.cpp:137:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 
 always_comb 
-begin : nested_loops     // test_cthread_const_prop.cpp:130:5
+begin : nested_loops     // test_cthread_const_prop.cpp:137:5
     integer arr[5];
     integer unsigned ll;
     for (integer i = 0; i < 5; i++)

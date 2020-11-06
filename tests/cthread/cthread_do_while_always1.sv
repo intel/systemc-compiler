@@ -20,7 +20,7 @@ logic signed [31:0] out;
 logic signed [31:0] in;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: dowhile_forever (test_do_while_always1.cpp:30:5) 
+// Clocked THREAD: dowhile_forever (test_do_while_always1.cpp:37:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
@@ -30,7 +30,7 @@ logic dowhile_forever_PROC_STATE;
 logic dowhile_forever_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : dowhile_forever_comb     // test_do_while_always1.cpp:30:5
+always_comb begin : dowhile_forever_comb     // test_do_while_always1.cpp:37:5
     dowhile_forever_func;
 end
 function void dowhile_forever_func;
@@ -42,19 +42,19 @@ function void dowhile_forever_func;
         0: begin
             i_next = 0;
             out_next = 1;
-            dowhile_forever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:40:17;
+            dowhile_forever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:47:17;
         end
         1: begin
             i_next++;
             if (i_next < 3)
             begin
                 out_next = 1;
-                dowhile_forever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:40:17;
+                dowhile_forever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:47:17;
             end
             out_next = 2;
             i_next = 0;
             out_next = 1;
-            dowhile_forever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:40:17;
+            dowhile_forever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:47:17;
         end
     endcase
 endfunction
@@ -64,7 +64,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : dowhile_forever_ff
     if ( ~arstn ) begin
         out <= 0;
-        dowhile_forever_PROC_STATE <= 0;    // test_do_while_always1.cpp:33:9;
+        dowhile_forever_PROC_STATE <= 0;    // test_do_while_always1.cpp:40:9;
     end
     else begin
         out <= out_next;
@@ -74,7 +74,7 @@ begin : dowhile_forever_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: for_ever (test_do_while_always1.cpp:50:5) 
+// Clocked THREAD: for_ever (test_do_while_always1.cpp:57:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next0;
@@ -86,7 +86,7 @@ logic [1:0] for_ever_PROC_STATE;
 logic [1:0] for_ever_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : for_ever_comb     // test_do_while_always1.cpp:50:5
+always_comb begin : for_ever_comb     // test_do_while_always1.cpp:57:5
     for_ever_func;
 end
 function void for_ever_func;
@@ -105,7 +105,7 @@ function void for_ever_func;
             begin
                 out_next0 = j_next;
             end
-            for_ever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:66:21;
+            for_ever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:73:21;
         end
         1: begin
             j_next++;
@@ -115,7 +115,7 @@ function void for_ever_func;
                 begin
                     out_next0 = j_next;
                 end
-                for_ever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:66:21;
+                for_ever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:73:21;
             end
             if (i_next0 < 3)
             begin
@@ -126,10 +126,10 @@ function void for_ever_func;
                 begin
                     out_next0 = j_next;
                 end
-                for_ever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:66:21;
+                for_ever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:73:21;
             end
             out_next0 = 3;
-            for_ever_PROC_STATE_next = 2; return;    // test_do_while_always1.cpp:70:13;
+            for_ever_PROC_STATE_next = 2; return;    // test_do_while_always1.cpp:77:13;
         end
         2: begin
             i_next0 = 0;
@@ -140,7 +140,7 @@ function void for_ever_func;
             begin
                 out_next0 = j_next;
             end
-            for_ever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:66:21;
+            for_ever_PROC_STATE_next = 1; return;    // test_do_while_always1.cpp:73:21;
         end
     endcase
 endfunction
@@ -150,7 +150,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : for_ever_ff
     if ( ~arstn ) begin
         out <= 0;
-        for_ever_PROC_STATE <= 0;    // test_do_while_always1.cpp:53:9;
+        for_ever_PROC_STATE <= 0;    // test_do_while_always1.cpp:60:9;
     end
     else begin
         out <= out_next0;

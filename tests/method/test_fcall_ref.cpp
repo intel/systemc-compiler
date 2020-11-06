@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 
 using namespace sc_core;
@@ -185,7 +192,7 @@ public:
     
 // ----------------------------------------------------------------------------
     // Method with @sc_int reference parameter
-    // BUG from SMEM KVG -- fixed
+    // BUG from real design -- fixed
     void scint_reference() 
     {
         sc_uint<3> x = 1;
@@ -366,3 +373,4 @@ int sc_main(int argc, char *argv[]) {
     sc_start();
     return 0;
 }
+

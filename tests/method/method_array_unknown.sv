@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_unknown.cpp:219:5)
+// Module: A (test_array_unknown.cpp:226:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -38,13 +38,13 @@ logic ch[2][2];
 logic signed [31:0] a;
 
 //------------------------------------------------------------------------------
-// Method process: array_init (test_array_unknown.cpp:60:5) 
+// Method process: array_init (test_array_unknown.cpp:67:5) 
 
 // Process-local variables
 logic signed [31:0] n[2][2];
 
 always_comb 
-begin : array_init     // test_array_unknown.cpp:60:5
+begin : array_init     // test_array_unknown.cpp:67:5
     for (integer i = 0; i < 2; i++)
     begin
         for (integer j = 0; j < 2; j++)
@@ -55,22 +55,22 @@ begin : array_init     // test_array_unknown.cpp:60:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: multi_array_of_channel_pointers (test_array_unknown.cpp:72:5) 
+// Method process: multi_array_of_channel_pointers (test_array_unknown.cpp:79:5) 
 
 always_comb 
-begin : multi_array_of_channel_pointers     // test_array_unknown.cpp:72:5
+begin : multi_array_of_channel_pointers     // test_array_unknown.cpp:79:5
     logic b;
     b = ch[1][0];
 end
 
 //------------------------------------------------------------------------------
-// Method process: write_unknown_index1 (test_array_unknown.cpp:77:5) 
+// Method process: write_unknown_index1 (test_array_unknown.cpp:84:5) 
 
 // Process-local variables
 logic signed [31:0] m[3];
 
 always_comb 
-begin : write_unknown_index1     // test_array_unknown.cpp:77:5
+begin : write_unknown_index1     // test_array_unknown.cpp:84:5
     m[0] = 1;
     m[1] = 2;
     m[2] = 3;
@@ -78,10 +78,10 @@ begin : write_unknown_index1     // test_array_unknown.cpp:77:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: write_unknown_index2 (test_array_unknown.cpp:88:5) 
+// Method process: write_unknown_index2 (test_array_unknown.cpp:95:5) 
 
 always_comb 
-begin : write_unknown_index2     // test_array_unknown.cpp:88:5
+begin : write_unknown_index2     // test_array_unknown.cpp:95:5
     integer n_1[2][2];
     n_1[0][0] = 0;
     n_1[0][1] = 1;
@@ -91,10 +91,10 @@ begin : write_unknown_index2     // test_array_unknown.cpp:88:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: write_unknown_index3 (test_array_unknown.cpp:101:5) 
+// Method process: write_unknown_index3 (test_array_unknown.cpp:108:5) 
 
 always_comb 
-begin : write_unknown_index3     // test_array_unknown.cpp:101:5
+begin : write_unknown_index3     // test_array_unknown.cpp:108:5
     integer n_1[2][2];
     n_1[0][0] = 0;
     n_1[0][1] = 1;
@@ -104,23 +104,23 @@ begin : write_unknown_index3     // test_array_unknown.cpp:101:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: write_unknown_index_sc_type (test_array_unknown.cpp:114:5) 
+// Method process: write_unknown_index_sc_type (test_array_unknown.cpp:121:5) 
 
 always_comb 
-begin : write_unknown_index_sc_type     // test_array_unknown.cpp:114:5
+begin : write_unknown_index_sc_type     // test_array_unknown.cpp:121:5
     logic signed [2:0] k[3];
     k[0] = 0; k[1] = 0; k[2] = 0;
     k[a] = 1;
 end
 
 //------------------------------------------------------------------------------
-// Method process: pointer_unknown_index1 (test_array_unknown.cpp:125:5) 
+// Method process: pointer_unknown_index1 (test_array_unknown.cpp:132:5) 
 
 // Process-local variables
 logic signed [31:0] mm[3];
 
 always_comb 
-begin : pointer_unknown_index1     // test_array_unknown.cpp:125:5
+begin : pointer_unknown_index1     // test_array_unknown.cpp:132:5
     mm[0] = 1;
     mm[1] = 2;
     mm[2] = 3;
@@ -128,13 +128,13 @@ begin : pointer_unknown_index1     // test_array_unknown.cpp:125:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: pointer_unknown_index_sc_type (test_array_unknown.cpp:136:5) 
+// Method process: pointer_unknown_index_sc_type (test_array_unknown.cpp:143:5) 
 
 // Process-local variables
 logic [2:0] kk[3];
 
 always_comb 
-begin : pointer_unknown_index_sc_type     // test_array_unknown.cpp:136:5
+begin : pointer_unknown_index_sc_type     // test_array_unknown.cpp:143:5
     kk[0] = 1;
     kk[1] = 2;
     kk[2] = 3;
@@ -142,13 +142,13 @@ begin : pointer_unknown_index_sc_type     // test_array_unknown.cpp:136:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: unary_array_unknown1 (test_array_unknown.cpp:147:5) 
+// Method process: unary_array_unknown1 (test_array_unknown.cpp:154:5) 
 
 // Process-local variables
 logic signed [31:0] m[3];
 
 always_comb 
-begin : unary_array_unknown1     // test_array_unknown.cpp:147:5
+begin : unary_array_unknown1     // test_array_unknown.cpp:154:5
     m[0] = 1;
     m[1] = 2;
     m[2] = 3;
@@ -156,13 +156,13 @@ begin : unary_array_unknown1     // test_array_unknown.cpp:147:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: unary_array_unknown2 (test_array_unknown.cpp:158:5) 
+// Method process: unary_array_unknown2 (test_array_unknown.cpp:165:5) 
 
 // Process-local variables
 logic signed [31:0] m[3];
 
 always_comb 
-begin : unary_array_unknown2     // test_array_unknown.cpp:158:5
+begin : unary_array_unknown2     // test_array_unknown.cpp:165:5
     m[0] = 1;
     m[1] = 2;
     m[2] = 3;
@@ -170,10 +170,10 @@ begin : unary_array_unknown2     // test_array_unknown.cpp:158:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: unary_array_unknown_sc_type (test_array_unknown.cpp:169:5) 
+// Method process: unary_array_unknown_sc_type (test_array_unknown.cpp:176:5) 
 
 always_comb 
-begin : unary_array_unknown_sc_type     // test_array_unknown.cpp:169:5
+begin : unary_array_unknown_sc_type     // test_array_unknown.cpp:176:5
     logic [2:0] k[3];
     k[0] = 0; k[1] = 0; k[2] = 0;
     k[0] = 1;
@@ -183,13 +183,13 @@ begin : unary_array_unknown_sc_type     // test_array_unknown.cpp:169:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: comp_assign_array_unknown1 (test_array_unknown.cpp:181:5) 
+// Method process: comp_assign_array_unknown1 (test_array_unknown.cpp:188:5) 
 
 // Process-local variables
 logic signed [31:0] m[3];
 
 always_comb 
-begin : comp_assign_array_unknown1     // test_array_unknown.cpp:181:5
+begin : comp_assign_array_unknown1     // test_array_unknown.cpp:188:5
     m[0] = 1;
     m[1] = 2;
     m[2] = 3;
@@ -197,13 +197,13 @@ begin : comp_assign_array_unknown1     // test_array_unknown.cpp:181:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: comp_assign_array_unknown2 (test_array_unknown.cpp:192:5) 
+// Method process: comp_assign_array_unknown2 (test_array_unknown.cpp:199:5) 
 
 // Process-local variables
 logic signed [31:0] n[2][2];
 
 always_comb 
-begin : comp_assign_array_unknown2     // test_array_unknown.cpp:192:5
+begin : comp_assign_array_unknown2     // test_array_unknown.cpp:199:5
     n[0][0] = 0;
     n[0][1] = 1;
     n[1][0] = 2;
@@ -212,13 +212,13 @@ begin : comp_assign_array_unknown2     // test_array_unknown.cpp:192:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: comp_assign_array_unknown3 (test_array_unknown.cpp:204:6) 
+// Method process: comp_assign_array_unknown3 (test_array_unknown.cpp:211:6) 
 
 // Process-local variables
 logic signed [31:0] n[2][2];
 
 always_comb 
-begin : comp_assign_array_unknown3     // test_array_unknown.cpp:204:6
+begin : comp_assign_array_unknown3     // test_array_unknown.cpp:211:6
     n[0][0] = 0;
     n[0][1] = 1;
     n[1][0] = 2;

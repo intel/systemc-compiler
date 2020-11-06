@@ -20,10 +20,10 @@ logic signed [31:0] enabled;
 logic signed [31:0] reset;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: for_stmt_no_wait (test_cthread_for.cpp:60:5) 
+// Clocked THREAD: for_stmt_no_wait (test_cthread_for.cpp:67:5) 
 
 // Next-state combinational logic
-always_comb begin : for_stmt_no_wait_comb     // test_cthread_for.cpp:60:5
+always_comb begin : for_stmt_no_wait_comb     // test_cthread_for.cpp:67:5
     for_stmt_no_wait_func;
 end
 function void for_stmt_no_wait_func;
@@ -47,7 +47,7 @@ begin : for_stmt_no_wait_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: for_stmt_wait0 (test_cthread_for.cpp:76:5) 
+// Clocked THREAD: for_stmt_wait0 (test_cthread_for.cpp:83:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -56,7 +56,7 @@ logic [1:0] for_stmt_wait0_PROC_STATE;
 logic [1:0] for_stmt_wait0_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : for_stmt_wait0_comb     // test_cthread_for.cpp:76:5
+always_comb begin : for_stmt_wait0_comb     // test_cthread_for.cpp:83:5
     for_stmt_wait0_func;
 end
 function void for_stmt_wait0_func;
@@ -67,23 +67,23 @@ function void for_stmt_wait0_func;
     case (for_stmt_wait0_PROC_STATE)
         0: begin
             k = 1;
-            for_stmt_wait0_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:83:13;
+            for_stmt_wait0_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:90:13;
         end
         1: begin
             i_next = 0;
             k = 2;
-            for_stmt_wait0_PROC_STATE_next = 2; return;    // test_cthread_for.cpp:87:17;
+            for_stmt_wait0_PROC_STATE_next = 2; return;    // test_cthread_for.cpp:94:17;
         end
         2: begin
             i_next++;
             if (i_next < 2)
             begin
                 k = 2;
-                for_stmt_wait0_PROC_STATE_next = 2; return;    // test_cthread_for.cpp:87:17;
+                for_stmt_wait0_PROC_STATE_next = 2; return;    // test_cthread_for.cpp:94:17;
             end
             k = 3;
             k = 1;
-            for_stmt_wait0_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:83:13;
+            for_stmt_wait0_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:90:13;
         end
     endcase
 endfunction
@@ -94,7 +94,7 @@ begin : for_stmt_wait0_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        for_stmt_wait0_PROC_STATE <= 0;    // test_cthread_for.cpp:79:9;
+        for_stmt_wait0_PROC_STATE <= 0;    // test_cthread_for.cpp:86:9;
     end
     else begin
         i <= i_next;
@@ -103,7 +103,7 @@ begin : for_stmt_wait0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: for_stmt_wait1 (test_cthread_for.cpp:93:5) 
+// Clocked THREAD: for_stmt_wait1 (test_cthread_for.cpp:100:5) 
 
 // Thread-local variables
 logic signed [31:0] i0;
@@ -112,7 +112,7 @@ logic for_stmt_wait1_PROC_STATE;
 logic for_stmt_wait1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : for_stmt_wait1_comb     // test_cthread_for.cpp:93:5
+always_comb begin : for_stmt_wait1_comb     // test_cthread_for.cpp:100:5
     for_stmt_wait1_func;
 end
 function void for_stmt_wait1_func;
@@ -124,19 +124,19 @@ function void for_stmt_wait1_func;
         0: begin
             i_next0 = 0;
             k = 1;
-            for_stmt_wait1_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:101:17;
+            for_stmt_wait1_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:108:17;
         end
         1: begin
             i_next0++;
             if (i_next0 < 2)
             begin
                 k = 1;
-                for_stmt_wait1_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:101:17;
+                for_stmt_wait1_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:108:17;
             end
             k = 2;
             i_next0 = 0;
             k = 1;
-            for_stmt_wait1_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:101:17;
+            for_stmt_wait1_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:108:17;
         end
     endcase
 endfunction
@@ -147,7 +147,7 @@ begin : for_stmt_wait1_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        for_stmt_wait1_PROC_STATE <= 0;    // test_cthread_for.cpp:96:9;
+        for_stmt_wait1_PROC_STATE <= 0;    // test_cthread_for.cpp:103:9;
     end
     else begin
         i0 <= i_next0;
@@ -156,7 +156,7 @@ begin : for_stmt_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: for_stmt_wait2 (test_cthread_for.cpp:107:5) 
+// Clocked THREAD: for_stmt_wait2 (test_cthread_for.cpp:114:5) 
 
 // Thread-local variables
 logic signed [31:0] i1;
@@ -165,7 +165,7 @@ logic [1:0] for_stmt_wait2_PROC_STATE;
 logic [1:0] for_stmt_wait2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : for_stmt_wait2_comb     // test_cthread_for.cpp:107:5
+always_comb begin : for_stmt_wait2_comb     // test_cthread_for.cpp:114:5
     for_stmt_wait2_func;
 end
 function void for_stmt_wait2_func;
@@ -177,23 +177,23 @@ function void for_stmt_wait2_func;
         0: begin
             i_next1 = 0;
             k = 1;
-            for_stmt_wait2_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:115:17;
+            for_stmt_wait2_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:122:17;
         end
         1: begin
             i_next1++;
             if (i_next1 < 2)
             begin
                 k = 1;
-                for_stmt_wait2_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:115:17;
+                for_stmt_wait2_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:122:17;
             end
             k = 2;
-            for_stmt_wait2_PROC_STATE_next = 2; return;    // test_cthread_for.cpp:118:13;
+            for_stmt_wait2_PROC_STATE_next = 2; return;    // test_cthread_for.cpp:125:13;
         end
         2: begin
             k = 3;
             i_next1 = 0;
             k = 1;
-            for_stmt_wait2_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:115:17;
+            for_stmt_wait2_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:122:17;
         end
     endcase
 endfunction
@@ -204,7 +204,7 @@ begin : for_stmt_wait2_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        for_stmt_wait2_PROC_STATE <= 0;    // test_cthread_for.cpp:110:9;
+        for_stmt_wait2_PROC_STATE <= 0;    // test_cthread_for.cpp:117:9;
     end
     else begin
         i1 <= i_next1;
@@ -213,10 +213,10 @@ begin : for_stmt_wait2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: for_stmt_wait_noiter (test_cthread_for.cpp:125:5) 
+// Clocked THREAD: for_stmt_wait_noiter (test_cthread_for.cpp:132:5) 
 
 // Next-state combinational logic
-always_comb begin : for_stmt_wait_noiter_comb     // test_cthread_for.cpp:125:5
+always_comb begin : for_stmt_wait_noiter_comb     // test_cthread_for.cpp:132:5
     for_stmt_wait_noiter_func;
 end
 function void for_stmt_wait_noiter_func;
@@ -239,14 +239,14 @@ begin : for_stmt_wait_noiter_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread_break (test_cthread_for.cpp:48:5) 
+// Clocked THREAD: thread_break (test_cthread_for.cpp:55:5) 
 
 // Thread-local variables
 logic [1:0] thread_break_PROC_STATE;
 logic [1:0] thread_break_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread_break_comb     // test_cthread_for.cpp:48:5
+always_comb begin : thread_break_comb     // test_cthread_for.cpp:55:5
     thread_break_func;
 end
 function void thread_break_func;
@@ -254,7 +254,7 @@ function void thread_break_func;
     
     case (thread_break_PROC_STATE)
         0: begin
-            thread_break_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:51:13;
+            thread_break_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:58:13;
         end
         1: begin
             if (!(|enabled))
@@ -262,12 +262,12 @@ function void thread_break_func;
                 if (|reset)
                 begin
                     // break begin
-                    thread_break_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:51:13;
+                    thread_break_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:58:13;
                     // break end
                 end
-                thread_break_PROC_STATE_next = 2; return;    // test_cthread_for.cpp:54:17;
+                thread_break_PROC_STATE_next = 2; return;    // test_cthread_for.cpp:61:17;
             end
-            thread_break_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:51:13;
+            thread_break_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:58:13;
         end
         2: begin
             if (!(|enabled))
@@ -275,12 +275,12 @@ function void thread_break_func;
                 if (|reset)
                 begin
                     // break begin
-                    thread_break_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:51:13;
+                    thread_break_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:58:13;
                     // break end
                 end
-                thread_break_PROC_STATE_next = 2; return;    // test_cthread_for.cpp:54:17;
+                thread_break_PROC_STATE_next = 2; return;    // test_cthread_for.cpp:61:17;
             end
-            thread_break_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:51:13;
+            thread_break_PROC_STATE_next = 1; return;    // test_cthread_for.cpp:58:13;
         end
     endcase
 endfunction
@@ -289,7 +289,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : thread_break_ff
     if ( ~arstn ) begin
-        thread_break_PROC_STATE <= 0;    // test_cthread_for.cpp:49:9;
+        thread_break_PROC_STATE <= 0;    // test_cthread_for.cpp:56:9;
     end
     else begin
         thread_break_PROC_STATE <= thread_break_PROC_STATE_next;

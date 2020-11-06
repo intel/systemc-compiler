@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_module_typedef.cpp:28:5)
+// Module: A (test_module_typedef.cpp:35:5)
 //
 module A // "top.a"
 (
@@ -46,7 +46,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: B (test_module_typedef.cpp:29:5)
+// Module: B (test_module_typedef.cpp:36:5)
 //
 module B // "top.b"
 (

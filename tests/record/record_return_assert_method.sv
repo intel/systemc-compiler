@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_return_assert_method.cpp:72:5)
+// Module: A (test_return_assert_method.cpp:79:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -36,30 +36,30 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: record_assert (test_return_assert_method.cpp:30:5) 
+// Method process: record_assert (test_return_assert_method.cpp:37:5) 
 
 always_comb 
-begin : record_assert     // test_return_assert_method.cpp:30:5
+begin : record_assert     // test_return_assert_method.cpp:37:5
     logic s_a;
     integer s_b;
     s_b = 1;
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_sct_assert (test_return_assert_method.cpp:37:5) 
+// Method process: record_sct_assert (test_return_assert_method.cpp:44:5) 
 
 always_comb 
-begin : record_sct_assert     // test_return_assert_method.cpp:37:5
+begin : record_sct_assert     // test_return_assert_method.cpp:44:5
     logic s_a;
     integer s_b;
     s_b = 2;
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_sct_assert_fcall (test_return_assert_method.cpp:51:5) 
+// Method process: record_sct_assert_fcall (test_return_assert_method.cpp:58:5) 
 
 always_comb 
-begin : record_sct_assert_fcall     // test_return_assert_method.cpp:51:5
+begin : record_sct_assert_fcall     // test_return_assert_method.cpp:58:5
     logic val;
     logic r_a;
     integer r_b;

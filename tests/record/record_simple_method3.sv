@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_simple_method3.cpp:155:5)
+// Module: A (test_simple_method3.cpp:162:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -37,13 +37,13 @@ module A // "b_mod.a_mod"
 logic [1:0] sig;
 
 //------------------------------------------------------------------------------
-// Method process: record_meth0 (test_simple_method3.cpp:55:5) 
+// Method process: record_meth0 (test_simple_method3.cpp:62:5) 
 
 // Process-local variables
 logic s_a[2];
 
 always_comb 
-begin : record_meth0     // test_simple_method3.cpp:55:5
+begin : record_meth0     // test_simple_method3.cpp:62:5
     logic par;
     logic [1:0] i;
     par = 0;
@@ -62,13 +62,13 @@ begin : record_meth0     // test_simple_method3.cpp:55:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_meth1 (test_simple_method3.cpp:70:5) 
+// Method process: record_meth1 (test_simple_method3.cpp:77:5) 
 
 // Process-local variables
 logic s_a[2];
 
 always_comb 
-begin : record_meth1     // test_simple_method3.cpp:70:5
+begin : record_meth1     // test_simple_method3.cpp:77:5
     logic par;
     logic TMP_0;
     logic b;
@@ -94,13 +94,13 @@ begin : record_meth1     // test_simple_method3.cpp:70:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_meth2 (test_simple_method3.cpp:88:5) 
+// Method process: record_meth2 (test_simple_method3.cpp:95:5) 
 
 // Process-local variables
 logic s_a[2];
 
 always_comb 
-begin : record_meth2     // test_simple_method3.cpp:88:5
+begin : record_meth2     // test_simple_method3.cpp:95:5
     logic b;
     logic par;
     b = 0;
@@ -115,13 +115,13 @@ begin : record_meth2     // test_simple_method3.cpp:88:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_meth2a (test_simple_method3.cpp:103:5) 
+// Method process: record_meth2a (test_simple_method3.cpp:110:5) 
 
 // Process-local variables
 logic s_a[2];
 
 always_comb 
-begin : record_meth2a     // test_simple_method3.cpp:103:5
+begin : record_meth2a     // test_simple_method3.cpp:110:5
     logic b;
     logic par;
     logic TMP_0;
@@ -140,13 +140,13 @@ begin : record_meth2a     // test_simple_method3.cpp:103:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_meth3 (test_simple_method3.cpp:113:5) 
+// Method process: record_meth3 (test_simple_method3.cpp:120:5) 
 
 // Process-local variables
 logic s_a[2];
 
 always_comb 
-begin : record_meth3     // test_simple_method3.cpp:113:5
+begin : record_meth3     // test_simple_method3.cpp:120:5
     logic TMP_0;
     logic par;
     logic l;
@@ -169,13 +169,13 @@ begin : record_meth3     // test_simple_method3.cpp:113:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_multi_calls (test_simple_method3.cpp:134:5) 
+// Method process: record_multi_calls (test_simple_method3.cpp:141:5) 
 
 // Process-local variables
 logic s_a[2];
 
 always_comb 
-begin : record_multi_calls     // test_simple_method3.cpp:134:5
+begin : record_multi_calls     // test_simple_method3.cpp:141:5
     logic [1:0] i;
     logic TMP_0;
     logic par;

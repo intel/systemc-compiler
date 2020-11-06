@@ -19,13 +19,13 @@ logic nrst;
 logic [31:0] indx;
 
 //------------------------------------------------------------------------------
-// Method process: array_unknown_ref (test_fcall_ref_arr_unkwn.cpp:41:5) 
+// Method process: array_unknown_ref (test_fcall_ref_arr_unkwn.cpp:48:5) 
 
 // Process-local variables
 logic signed [31:0] gindx;
 
 always_comb 
-begin : array_unknown_ref     // test_fcall_ref_arr_unkwn.cpp:41:5
+begin : array_unknown_ref     // test_fcall_ref_arr_unkwn.cpp:48:5
     logic larr[3];
     logic TMP_0;
     logic b;
@@ -45,14 +45,14 @@ begin : array_unknown_ref     // test_fcall_ref_arr_unkwn.cpp:41:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: array_unknown_ptr (test_fcall_ref_arr_unkwn.cpp:57:5) 
+// Method process: array_unknown_ptr (test_fcall_ref_arr_unkwn.cpp:64:5) 
 
 // Process-local variables
 logic signed [31:0] mindx;
 logic parr[3];
 
 always_comb 
-begin : array_unknown_ptr     // test_fcall_ref_arr_unkwn.cpp:57:5
+begin : array_unknown_ptr     // test_fcall_ref_arr_unkwn.cpp:64:5
     logic TMP_0;
     logic b;
     logic TMP_2;
@@ -70,7 +70,7 @@ begin : array_unknown_ptr     // test_fcall_ref_arr_unkwn.cpp:57:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: array_ref_wait (test_fcall_ref_arr_unkwn.cpp:70:5) 
+// Clocked THREAD: array_ref_wait (test_fcall_ref_arr_unkwn.cpp:77:5) 
 
 // Thread-local variables
 logic arr[3];
@@ -79,7 +79,7 @@ logic [1:0] array_ref_wait_PROC_STATE;
 logic [1:0] array_ref_wait_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : array_ref_wait_comb     // test_fcall_ref_arr_unkwn.cpp:70:5
+always_comb begin : array_ref_wait_comb     // test_fcall_ref_arr_unkwn.cpp:77:5
     array_ref_wait_func;
 end
 function void array_ref_wait_func;
@@ -92,7 +92,7 @@ function void array_ref_wait_func;
     case (array_ref_wait_PROC_STATE)
         0: begin
             // Call ref_wait() begin
-            array_ref_wait_PROC_STATE_next = 1; return;    // test_fcall_ref_arr_unkwn.cpp:66:9;
+            array_ref_wait_PROC_STATE_next = 1; return;    // test_fcall_ref_arr_unkwn.cpp:73:9;
             // Call ref_wait() end
         end
         1: begin
@@ -100,11 +100,11 @@ function void array_ref_wait_func;
             TMP_0 = arr_next[indx];
             // Call ref_wait() end
             b = TMP_0;
-            array_ref_wait_PROC_STATE_next = 2; return;    // test_fcall_ref_arr_unkwn.cpp:77:13;
+            array_ref_wait_PROC_STATE_next = 2; return;    // test_fcall_ref_arr_unkwn.cpp:84:13;
         end
         2: begin
             // Call ref_wait() begin
-            array_ref_wait_PROC_STATE_next = 1; return;    // test_fcall_ref_arr_unkwn.cpp:66:9;
+            array_ref_wait_PROC_STATE_next = 1; return;    // test_fcall_ref_arr_unkwn.cpp:73:9;
             // Call ref_wait() end
         end
     endcase
@@ -114,7 +114,7 @@ endfunction
 always_ff @(posedge clk or negedge nrst) 
 begin : array_ref_wait_ff
     if ( ~nrst ) begin
-        array_ref_wait_PROC_STATE <= 0;    // test_fcall_ref_arr_unkwn.cpp:73:9;
+        array_ref_wait_PROC_STATE <= 0;    // test_fcall_ref_arr_unkwn.cpp:80:9;
     end
     else begin
         arr <= arr_next;

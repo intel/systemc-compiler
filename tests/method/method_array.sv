@@ -51,7 +51,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array.cpp:295:5)
+// Module: A (test_array.cpp:302:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -80,14 +80,14 @@ logic signed [31:0] sig_p2[3][3];
 logic signed [3:0] sig_p2a[3][3];
 
 //------------------------------------------------------------------------------
-// Method process: mem_array (test_array.cpp:93:5) 
+// Method process: mem_array (test_array.cpp:100:5) 
 
 // Process-local variables
 logic signed [31:0] m[3];
 logic signed [31:0] n[3][3];
 
 always_comb 
-begin : mem_array     // test_array.cpp:93:5
+begin : mem_array     // test_array.cpp:100:5
     integer i;
     i = m[0];
     m[0] = i;
@@ -106,10 +106,10 @@ begin : mem_array     // test_array.cpp:93:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: var_array (test_array.cpp:110:5) 
+// Method process: var_array (test_array.cpp:117:5) 
 
 always_comb 
-begin : var_array     // test_array.cpp:110:5
+begin : var_array     // test_array.cpp:117:5
     integer ln[2][3];
     integer lm[3];
     integer i;
@@ -125,10 +125,10 @@ begin : var_array     // test_array.cpp:110:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: in_port_array (test_array.cpp:123:5) 
+// Method process: in_port_array (test_array.cpp:130:5) 
 
 always_comb 
-begin : in_port_array     // test_array.cpp:123:5
+begin : in_port_array     // test_array.cpp:130:5
     integer i;
     integer j;
     logic f;
@@ -144,10 +144,10 @@ begin : in_port_array     // test_array.cpp:123:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: out_port_array (test_array.cpp:139:5) 
+// Method process: out_port_array (test_array.cpp:146:5) 
 
 always_comb 
-begin : out_port_array     // test_array.cpp:139:5
+begin : out_port_array     // test_array.cpp:146:5
     integer i;
     integer j;
     j = 0;
@@ -170,10 +170,10 @@ begin : out_port_array     // test_array.cpp:139:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: signal_array_part_sel (test_array.cpp:168:5) 
+// Method process: signal_array_part_sel (test_array.cpp:175:5) 
 
 always_comb 
-begin : signal_array_part_sel     // test_array.cpp:168:5
+begin : signal_array_part_sel     // test_array.cpp:175:5
     integer i;
     integer j;
     logic [4:0] x;
@@ -193,10 +193,10 @@ begin : signal_array_part_sel     // test_array.cpp:168:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: signal_array (test_array.cpp:190:5) 
+// Method process: signal_array (test_array.cpp:197:5) 
 
 always_comb 
-begin : signal_array     // test_array.cpp:190:5
+begin : signal_array     // test_array.cpp:197:5
     integer i;
     integer j;
     j = 0;
@@ -219,10 +219,10 @@ begin : signal_array     // test_array.cpp:190:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: port_pointer_array (test_array.cpp:219:5) 
+// Method process: port_pointer_array (test_array.cpp:226:5) 
 
 always_comb 
-begin : port_pointer_array     // test_array.cpp:219:5
+begin : port_pointer_array     // test_array.cpp:226:5
     integer i;
     i = in_ports_p2[1][2];
     i = in_ports_p1[1];
@@ -238,10 +238,10 @@ begin : port_pointer_array     // test_array.cpp:219:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sig_pointer_array (test_array.cpp:238:5) 
+// Method process: sig_pointer_array (test_array.cpp:245:5) 
 
 always_comb 
-begin : sig_pointer_array     // test_array.cpp:238:5
+begin : sig_pointer_array     // test_array.cpp:245:5
     integer i;
     integer j;
     i = sig_p1[1];
@@ -263,10 +263,10 @@ begin : sig_pointer_array     // test_array.cpp:238:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: array_init (test_array.cpp:267:5) 
+// Method process: array_init (test_array.cpp:274:5) 
 
 always_comb 
-begin : array_init     // test_array.cpp:267:5
+begin : array_init     // test_array.cpp:274:5
     integer y1[3];
     integer y2[3];
     logic [2:0] x1[3];
@@ -281,10 +281,10 @@ begin : array_init     // test_array.cpp:267:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: chan_array_range (test_array.cpp:78:5) 
+// Method process: chan_array_range (test_array.cpp:85:5) 
 
 always_comb 
-begin : chan_array_range     // test_array.cpp:78:5
+begin : chan_array_range     // test_array.cpp:85:5
     integer i;
     logic b;
     logic [2:0] offset;
@@ -293,10 +293,10 @@ begin : chan_array_range     // test_array.cpp:78:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: chan_array_double_used (test_array.cpp:87:5) 
+// Method process: chan_array_double_used (test_array.cpp:94:5) 
 
 always_comb 
-begin : chan_array_double_used     // test_array.cpp:87:5
+begin : chan_array_double_used     // test_array.cpp:94:5
     logic b;
     b = sig1b[0] ? 0 : sig1b[0];
 end

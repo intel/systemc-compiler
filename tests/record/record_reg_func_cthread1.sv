@@ -18,10 +18,10 @@ module A // "a"
 logic rstn;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: record_reg (test_reg_func_cthread1.cpp:30:5) 
+// Clocked THREAD: record_reg (test_reg_func_cthread1.cpp:37:5) 
 
 // Next-state combinational logic
-always_comb begin : record_reg_comb     // test_reg_func_cthread1.cpp:30:5
+always_comb begin : record_reg_comb     // test_reg_func_cthread1.cpp:37:5
     record_reg_func;
 end
 function void record_reg_func;

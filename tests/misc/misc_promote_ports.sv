@@ -40,7 +40,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: inner (test_promote_ports.cpp:57:5)
+// Module: inner (test_promote_ports.cpp:64:5)
 //
 module inner // "tb_inst.top0.inner0"
 (
@@ -79,7 +79,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: bottom (test_promote_ports.cpp:40:5)
+// Module: bottom (test_promote_ports.cpp:47:5)
 //
 module bottom // "tb_inst.top0.inner0.bot0"
 (
@@ -93,7 +93,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: bottom2 (test_promote_ports.cpp:41:5)
+// Module: bottom2 (test_promote_ports.cpp:48:5)
 //
 module bottom2 // "tb_inst.top0.inner0.bot2"
 (

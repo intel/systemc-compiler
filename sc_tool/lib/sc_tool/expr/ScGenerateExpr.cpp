@@ -52,6 +52,78 @@ ScGenerateExpr::ScGenerateExpr(
         updated = state->initConstRadix(parseValue);
         
     } while (updated);
+    
+    {
+        auto typeInfo = getIntTraits(astCtx.CharTy);  
+        SCT_TOOL_ASSERT(typeInfo, "No type info found");
+        if (typeInfo->first != 8) {
+            ScDiag::reportScDiag(ScDiag::CPP_NONSTD_TYPE_WIDTH) << "char";
+        }
+    }
+    {
+        auto typeInfo = getIntTraits(astCtx.UnsignedCharTy);  
+        SCT_TOOL_ASSERT(typeInfo, "No type info found");
+        if (typeInfo->first != 8) {
+            ScDiag::reportScDiag(ScDiag::CPP_NONSTD_TYPE_WIDTH) << "char";
+        }
+    }
+    {
+        auto typeInfo = getIntTraits(astCtx.ShortTy);  
+        SCT_TOOL_ASSERT(typeInfo, "No type info found");
+        if (typeInfo->first != 16) {
+            ScDiag::reportScDiag(ScDiag::CPP_NONSTD_TYPE_WIDTH) << "char";
+        }
+    }
+    {
+        auto typeInfo = getIntTraits(astCtx.UnsignedShortTy);  
+        SCT_TOOL_ASSERT(typeInfo, "No type info found");
+        if (typeInfo->first != 16) {
+            ScDiag::reportScDiag(ScDiag::CPP_NONSTD_TYPE_WIDTH) << "char";
+        }
+    }
+    {
+        auto typeInfo = getIntTraits(astCtx.IntTy);  
+        SCT_TOOL_ASSERT(typeInfo, "No type info found");
+        if (typeInfo->first != 32) {
+            ScDiag::reportScDiag(ScDiag::CPP_NONSTD_TYPE_WIDTH) << "int";
+        }
+    }
+    {
+        auto typeInfo = getIntTraits(astCtx.UnsignedIntTy);  
+        SCT_TOOL_ASSERT(typeInfo, "No type info found");
+        if (typeInfo->first != 32) {
+            ScDiag::reportScDiag(ScDiag::CPP_NONSTD_TYPE_WIDTH) << "unsigned";
+        }
+    }
+    {
+        auto typeInfo = getIntTraits(astCtx.LongTy);  
+        SCT_TOOL_ASSERT(typeInfo, "No type info found");
+        if (typeInfo->first != 32 && typeInfo->first != 64) {
+            ScDiag::reportScDiag(ScDiag::CPP_NONSTD_TYPE_WIDTH) << "long";
+        }
+    }
+    {
+        auto typeInfo = getIntTraits(astCtx.UnsignedLongTy);  
+        SCT_TOOL_ASSERT(typeInfo, "No type info found");
+        if (typeInfo->first != 32 && typeInfo->first != 64) {
+            ScDiag::reportScDiag(ScDiag::CPP_NONSTD_TYPE_WIDTH) << "unsigned long";
+        }
+    }
+    {
+        auto typeInfo = getIntTraits(astCtx.LongLongTy);  
+        SCT_TOOL_ASSERT(typeInfo, "No type info found");
+        if (typeInfo->first != 64) {
+            ScDiag::reportScDiag(ScDiag::CPP_NONSTD_TYPE_WIDTH) << "long long";
+        }
+    }
+    {
+        auto typeInfo = getIntTraits(astCtx.UnsignedLongLongTy);  
+        SCT_TOOL_ASSERT(typeInfo, "No type info found");
+        if (typeInfo->first != 64) {
+            ScDiag::reportScDiag(ScDiag::CPP_NONSTD_TYPE_WIDTH) 
+                    << "unsigned long long";
+        }
+    }     
 }
 
 // ---------------------------------------------------------------------------
@@ -550,7 +622,7 @@ std::vector<SValue> ScGenerateExpr::getRecVector(const SValue& val)
 }
 
 // Put any member expression specified in @val for @stmt 
-void ScGenerateExpr::putMemberExpr(const Stmt* stmt, const SValue& val, 
+void ScGenerateExpr::putMemberExpr(const Expr* expr, const SValue& val, 
                                    const string& refRecarrIndxStr) 
 {
     // Get parent record value
@@ -579,10 +651,10 @@ void ScGenerateExpr::putMemberExpr(const Stmt* stmt, const SValue& val,
     
     if (cval) {
         // Put channels to provide different read/write names
-        codeWriter->putChannelExpr(stmt, cval, recvecs, elemOfMifArr, 
+        codeWriter->putChannelExpr(expr, cval, recvecs, elemOfMifArr, 
                                    elemOfRecArr);
     } else {
-        codeWriter->putValueExpr(stmt, val, recvecs, elemOfMifArr, 
+        codeWriter->putValueExpr(expr, val, recvecs, elemOfMifArr, 
                                  elemOfRecArr, refRecarrIndxStr);
     }
 }
@@ -590,12 +662,12 @@ void ScGenerateExpr::putMemberExpr(const Stmt* stmt, const SValue& val,
 
 // Put any pointer variable de-referenced string, including pointer parameter
 // Used everywhere pointer de-referenced or pointer method called
-void ScGenerateExpr::putPtrDerefExpr(const Stmt* stmt, 
+void ScGenerateExpr::putPtrDerefExpr(const Expr* expr, 
                                      const SValue& rvar,
                                      const SValue& rval, 
                                      const SValue& val)
 {
-    if (!codeWriter->putLocalPtrValueExpr(stmt, rval)) {
+    if (!codeWriter->putLocalPtrValueExpr(expr, rval)) {
         //cout << "putPtrDerefExpr rvar " << rvar << ", rval " << rval << ", val " << val << endl;
 
         SValue rrval;
@@ -620,7 +692,7 @@ void ScGenerateExpr::putPtrDerefExpr(const Stmt* stmt,
 
         if (!rrval.isUnknown()) {
             // Put expression into code writer
-            putMemberExpr(stmt, rrval, "");
+            putMemberExpr(expr, rrval, "");
         }
     }
 }
@@ -656,6 +728,8 @@ void ScGenerateExpr::parseExpr(DeclRefExpr* expr, SValue& val)
     
     refRecarrIndx = "";
     
+    // Non-integer expression/variable replaced by integer, type cast required
+    bool replacedByValue = false;    
     // Do de-reference for reference and pointer type 
     if (val.isReference()) {
         // Try to put local reference
@@ -687,11 +761,18 @@ void ScGenerateExpr::parseExpr(DeclRefExpr* expr, SValue& val)
         // Non-reference and non-pointer
         // Try to evaluate expression as integer constant
         SValue ival;
-        if (evaluateConstInt(expr, ival, true)) val = ival;
+        if (evaluateConstInt(expr, ival, true)) {
+            if (!val.isInteger()) replacedByValue = true;
+            val = ival;
+        }
     }
     
     // Local variable declared w/o record prefix, no @recvecs and no @tval used
     codeWriter->putValueExpr(expr, val);
+    // Add type cast for replaced integer, required for concatenation        
+    if (replacedByValue) {
+        codeWriter->setReplacedCastWidth(expr, expr->getType());
+    }
 }
 
 // Any access of member variable
@@ -714,6 +795,8 @@ void ScGenerateExpr::parseExpr(MemberExpr* expr, SValue& val)
         codeWriter->resetKeepArrayIndices();
     }
     
+    // Non-integer expression/variable replaced by integer, type cast required
+    bool replacedByValue = false;    
     // Do de-reference for reference type 
     if (val.isReference()) {
         // Try to put local reference
@@ -733,11 +816,18 @@ void ScGenerateExpr::parseExpr(MemberExpr* expr, SValue& val)
         // Non-reference and non-pointer
         // Try to evaluate expression as integer constant
         SValue ival;
-        if (evaluateConstInt(expr, ival, true)) val = ival;
+        if (evaluateConstInt(expr, ival, true)) {
+            if (!val.isInteger()) replacedByValue = true;
+            val = ival;
+        }
     }
     
     // Put expression into code writer
     putMemberExpr(expr, val, refRecarrIndx);
+    // Add type cast for replaced integer, required for concatenation        
+    if (replacedByValue) {
+        codeWriter->setReplacedCastWidth(expr, expr->getType());
+    }
     // Clear indices suffix after use
     refRecarrIndx = "";
     
@@ -815,6 +905,7 @@ void ScGenerateExpr::parseExpr(ImplicitCastExpr* expr, SValue& val)
         
         // Set/reset sign cast for literals and expressions
         // Skip boolean type conversion as it considered as unsigned
+        // No special rule for @enum required, unsigned @enum casted to @int
         if (!isBool && isOrigSigned != isSigned) { 
             codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
                                                      CastSign::UCAST);
@@ -1110,7 +1201,7 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
         auto recType = getUserDefinedClassFromArray(type);
         
         // Array declaration w/o initialization
-        codeWriter->putArrayDecl(val, type, arrSizes);
+        codeWriter->putArrayDecl(stmt, val, type, arrSizes);
         
         if (iexpr) {
             // Only one-dimensional array initialization supported now
@@ -1278,7 +1369,7 @@ void ScGenerateExpr::parseArrayFieldDecl(ValueDecl* decl, const SValue& lfvar,
     }
     
     // Put field declaration to @localDeclVerilog, @nullptr no initialization
-    codeWriter->putArrayDecl(lfvar, type, allSizes);
+    codeWriter->putArrayDecl(nullptr, lfvar, type, allSizes);
 }
 
 // Parse statement and run @chooseExprMethod for each operand
@@ -1448,8 +1539,8 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
             }
 
         } else 
-        if (opcode == BO_GT  || opcode == BO_LT  || opcode == BO_GE || 
-            opcode == BO_LE  || opcode == BO_EQ  || opcode == BO_NE) 
+        if (opcode == BO_GT || opcode == BO_LT || opcode == BO_GE || 
+            opcode == BO_LE || opcode == BO_EQ || opcode == BO_NE) 
         {
             // Comparison allowed for pointers, but evaluated into constant
             if (lhsPointer || rhsPointer) {
@@ -2130,7 +2221,7 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& val)
             chooseExprMethod(indxExpr, rval);
             codeWriter->setSkipSignCast(skipSignCastOrig);
             
-            codeWriter->putBitSelectExpr(expr, thisExpr, indxExpr);            
+            codeWriter->putBitSelectExpr(expr, tval, thisExpr, indxExpr);            
             
         } else 
         if (fname == "range" || fname == "operator()") {
@@ -2150,7 +2241,7 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& val)
             bool useDelta = evaluateRangeExpr(hiExpr, loExpr);
             codeWriter->setSkipSignCast(skipSignCastOrig);
             
-            codeWriter->putPartSelectExpr(expr, thisExpr, hiExpr, loExpr, useDelta);
+            codeWriter->putPartSelectExpr(expr, tval, thisExpr, hiExpr, loExpr, useDelta);
             
         } else 
         if (fname == "and_reduce" || fname == "or_reduce" || 
@@ -2169,9 +2260,22 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& val)
         } else 
         if (fname.find("to_i") != string::npos ||
             fname.find("to_u") != string::npos ||
-            fname.find("to_long") != string::npos || 
-            fname.find("to_double") != string::npos) {
+            fname.find("to_long") != string::npos) {
             // Type conversion
+            QualType type = expr->getType();
+            codeWriter->putTypeCast(thisExpr, expr, type);
+
+            bool isSigned = isSignedType(type);
+            bool isOrigSigned = isSignedType(thisType);
+
+            // Set/reset sign cast for literals and expressions
+            if (isOrigSigned != isSigned) { 
+                codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
+                                                         CastSign::UCAST);
+            }
+        } else
+        if (fname.find("to_bool") != string::npos) {
+            // No type cast required for to_bool as it applied for @bit_ref only
             codeWriter->copyTerm(thisExpr, expr);
             
         } else
@@ -2447,7 +2551,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             codeWriter->setSkipSignCast(skipSignCastOrig);
             
             // Put bit access expression as array index access
-            codeWriter->putBitSelectExpr(expr, lexpr, rexpr);
+            codeWriter->putBitSelectExpr(expr, lval, lexpr, rexpr);
 
         } else 
         if (opcode == OO_Call) {  // "()"
@@ -2468,7 +2572,8 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             bool useDelta = evaluateRangeExpr(args[1], args[2]);
             codeWriter->setSkipSignCast(skipSignCastOrig);
 
-            codeWriter->putPartSelectExpr(expr, lexpr, args[1], args[2], useDelta);
+            codeWriter->putPartSelectExpr(expr, lval, lexpr, args[1], args[2], 
+                                          useDelta);
             
         } else 
         // "," which is @concat() here    

@@ -20,10 +20,10 @@ module A // "a_mod"
 localparam logic arr[3] = '{ 1, 1, 0 };
 
 //------------------------------------------------------------------------------
-// Method process: array_method (test_const_array.cpp:28:5) 
+// Method process: array_method (test_const_array.cpp:35:5) 
 
 always_comb 
-begin : array_method     // test_const_array.cpp:28:5
+begin : array_method     // test_const_array.cpp:35:5
     logic larr[3];
     logic b1;
     logic b2;

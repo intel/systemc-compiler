@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 //
 // Created by ripopov on 3/13/18.
 //
@@ -131,7 +138,7 @@ public:
         sct_assert_read(n, false);
     }
 
-    // BUG in HS SMEM
+    // BUG in real design
     // No register generated for variable used in right part of binary &&/||
     void variable_read_in_binaryop() {
         bool closeWaLine = 0;
@@ -151,7 +158,7 @@ public:
         }
     }
     
-    // BUG from SMEM tiny in fullAccessPort.h:640
+    // BUG from real design in fullAccessPort.h:640
     void smem_if_binary_const() {
         bool b = 0;
         wait();
@@ -502,4 +509,5 @@ int sc_main(int argc, char *argv[])
     sc_start(100, SC_NS);
     return 0;
 }
+
 

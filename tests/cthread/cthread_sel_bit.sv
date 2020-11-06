@@ -11,17 +11,73 @@
 //
 module top // "top_inst"
 (
+    input logic clk
 );
 
 // SystemC signals
-logic clk;
 logic arstn;
 logic signed [31:0] in;
 logic in2;
 logic signed [31:0] out;
+logic [3:0] s;
+logic sb;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: bit_select_lhs1 (test_cthread_sel_bit.cpp:52:5) 
+// Clocked THREAD: bit_select_use_def (test_cthread_sel_bit.cpp:68:5) 
+
+// Thread-local variables
+logic [4:0] z;
+logic [4:0] z_next;
+
+// Next-state combinational logic
+always_comb begin : bit_select_use_def_comb     // test_cthread_sel_bit.cpp:68:5
+    bit_select_use_def_func;
+end
+function void bit_select_use_def_func;
+    z_next = z;
+    z_next[1] = 1;
+endfunction
+
+// Syncrhonous register update
+always_ff @(posedge clk or negedge arstn) 
+begin : bit_select_use_def_ff
+    if ( ~arstn ) begin
+        z <= 0;
+    end
+    else begin
+        z <= z_next;
+    end
+end
+
+//------------------------------------------------------------------------------
+// Clocked THREAD: bit_select_use_def0 (test_cthread_sel_bit.cpp:68:5) 
+
+// Thread-local variables
+logic [4:0] z0;
+logic [4:0] z_next0;
+
+// Next-state combinational logic
+always_comb begin : bit_select_use_def0_comb     // test_cthread_sel_bit.cpp:68:5
+    bit_select_use_def0_func;
+end
+function void bit_select_use_def0_func;
+    z_next0 = z0;
+    z_next0[1] = 1;
+endfunction
+
+// Syncrhonous register update
+always_ff @(posedge clk or negedge arstn) 
+begin : bit_select_use_def0_ff
+    if ( ~arstn ) begin
+        z0 <= 0;
+    end
+    else begin
+        z0 <= z_next0;
+    end
+end
+
+//------------------------------------------------------------------------------
+// Clocked THREAD: bit_select_lhs1 (test_cthread_sel_bit.cpp:82:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
@@ -31,7 +87,7 @@ logic [2:0] a;
 logic [2:0] a_next;
 
 // Next-state combinational logic
-always_comb begin : bit_select_lhs1_comb     // test_cthread_sel_bit.cpp:52:5
+always_comb begin : bit_select_lhs1_comb     // test_cthread_sel_bit.cpp:82:5
     bit_select_lhs1_func;
 end
 function void bit_select_lhs1_func;
@@ -59,7 +115,7 @@ begin : bit_select_lhs1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: bit_select_lhs1a (test_cthread_sel_bit.cpp:69:5) 
+// Clocked THREAD: bit_select_lhs1a (test_cthread_sel_bit.cpp:99:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next0;
@@ -67,7 +123,7 @@ logic [2:0] x0;
 logic [2:0] x_next0;
 
 // Next-state combinational logic
-always_comb begin : bit_select_lhs1a_comb     // test_cthread_sel_bit.cpp:69:5
+always_comb begin : bit_select_lhs1a_comb     // test_cthread_sel_bit.cpp:99:5
     bit_select_lhs1a_func;
 end
 function void bit_select_lhs1a_func;
@@ -93,7 +149,7 @@ begin : bit_select_lhs1a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: bit_select_lhs2 (test_cthread_sel_bit.cpp:84:5) 
+// Clocked THREAD: bit_select_lhs2 (test_cthread_sel_bit.cpp:114:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next1;
@@ -101,7 +157,7 @@ logic [3:0] b;
 logic [3:0] b_next;
 
 // Next-state combinational logic
-always_comb begin : bit_select_lhs2_comb     // test_cthread_sel_bit.cpp:84:5
+always_comb begin : bit_select_lhs2_comb     // test_cthread_sel_bit.cpp:114:5
     bit_select_lhs2_func;
 end
 function void bit_select_lhs2_func;
@@ -124,13 +180,13 @@ begin : bit_select_lhs2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: bit_select_lhs3 (test_cthread_sel_bit.cpp:97:5) 
+// Clocked THREAD: bit_select_lhs3 (test_cthread_sel_bit.cpp:127:5) 
 
 // Thread-local variables
 logic [4:0] c;
 
 // Next-state combinational logic
-always_comb begin : bit_select_lhs3_comb     // test_cthread_sel_bit.cpp:97:5
+always_comb begin : bit_select_lhs3_comb     // test_cthread_sel_bit.cpp:127:5
     bit_select_lhs3_func;
 end
 function void bit_select_lhs3_func;
@@ -150,14 +206,14 @@ begin : bit_select_lhs3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: bit_select_lhs4 (test_cthread_sel_bit.cpp:110:5) 
+// Clocked THREAD: bit_select_lhs4 (test_cthread_sel_bit.cpp:140:5) 
 
 // Thread-local variables
 logic [5:0] d;
 logic [5:0] d_next;
 
 // Next-state combinational logic
-always_comb begin : bit_select_lhs4_comb     // test_cthread_sel_bit.cpp:110:5
+always_comb begin : bit_select_lhs4_comb     // test_cthread_sel_bit.cpp:140:5
     bit_select_lhs4_func;
 end
 function void bit_select_lhs4_func;
@@ -176,7 +232,7 @@ begin : bit_select_lhs4_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: bit_select_lhs4a (test_cthread_sel_bit.cpp:121:5) 
+// Clocked THREAD: bit_select_lhs4a (test_cthread_sel_bit.cpp:151:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next2;
@@ -184,7 +240,7 @@ logic [6:0] e;
 logic [6:0] e_next;
 
 // Next-state combinational logic
-always_comb begin : bit_select_lhs4a_comb     // test_cthread_sel_bit.cpp:121:5
+always_comb begin : bit_select_lhs4a_comb     // test_cthread_sel_bit.cpp:151:5
     bit_select_lhs4a_func;
 end
 function void bit_select_lhs4a_func;
@@ -206,10 +262,120 @@ begin : bit_select_lhs4a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: bit_select_lhs_misc (test_cthread_sel_bit.cpp:133:5) 
+// Clocked THREAD: bit_select_logic (test_cthread_sel_bit.cpp:163:5) 
+
+// Thread-local variables
+logic signed [31:0] j;
+logic signed [31:0] j_next;
+logic [6:0] x1;
+logic [6:0] x_next1;
 
 // Next-state combinational logic
-always_comb begin : bit_select_lhs_misc_comb     // test_cthread_sel_bit.cpp:133:5
+always_comb begin : bit_select_logic_comb     // test_cthread_sel_bit.cpp:163:5
+    bit_select_logic_func;
+end
+function void bit_select_logic_func;
+    integer k;
+    logic b_1;
+    j_next = j;
+    x_next1 = x1;
+    k = 0;
+    x_next1[j_next] = 1;
+    if (x_next1[j_next])
+    begin
+        k = 1;
+    end
+    if (x_next1[j_next + 1])
+    begin
+        k = 2;
+    end
+    if (x_next1[1] || j_next == 1)
+    begin
+        if (x_next1[j_next] && j_next == 2)
+        begin
+            k = 3;
+        end
+        k = 4;
+    end
+    b_1 = x_next1[1] || x_next1[2] && x_next1[3] || !x_next1[4];
+    b_1 = x_next1[1] || 1 && b_1 && !(0 || x_next1[5] || x_next1[6]);
+endfunction
+
+// Syncrhonous register update
+always_ff @(posedge clk or negedge arstn) 
+begin : bit_select_logic_ff
+    if ( ~arstn ) begin
+        j <= s;
+        x1 <= 0;
+    end
+    else begin
+        j <= j_next;
+        x1 <= x_next1;
+    end
+end
+
+//------------------------------------------------------------------------------
+// Clocked THREAD: bit_select_comp_logic (test_cthread_sel_bit.cpp:188:5) 
+
+// Thread-local variables
+logic [2:0] x2;
+logic [2:0] x_next2;
+
+// Next-state combinational logic
+always_comb begin : bit_select_comp_logic_comb     // test_cthread_sel_bit.cpp:188:5
+    bit_select_comp_logic_func;
+end
+function void bit_select_comp_logic_func;
+    integer k;
+    logic b_1;
+    x_next2 = x2;
+    k = 0;
+    if (1 && x_next2[1])
+    begin
+        k = 1;
+    end
+    if (1)
+    begin
+        k = 2;
+    end
+    if (0 || x_next2[4])
+    begin
+        k = 4;
+    end
+    if (0 || 1 && x_next2[5] || 0)
+    begin
+        k = 5;
+    end
+    if (1)
+    begin
+        k = 6;
+    end
+    b_1 = 1 && x_next2[1];
+    b_1 = 1;
+    b_1 = 0;
+    b_1 = 0 || x_next2[4];
+    b_1 = 1 && 0 || x_next2[5];
+endfunction
+
+// Syncrhonous register update
+always_ff @(posedge clk or negedge arstn) 
+begin : bit_select_comp_logic_ff
+    if ( ~arstn ) begin
+        integer j;
+        j = s;
+        x2 <= 0;
+        x2[1] = sb;
+    end
+    else begin
+        x2 <= x_next2;
+    end
+end
+
+//------------------------------------------------------------------------------
+// Clocked THREAD: bit_select_lhs_misc (test_cthread_sel_bit.cpp:215:5) 
+
+// Next-state combinational logic
+always_comb begin : bit_select_lhs_misc_comb     // test_cthread_sel_bit.cpp:215:5
     bit_select_lhs_misc_func;
 end
 function void bit_select_lhs_misc_func;

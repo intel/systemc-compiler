@@ -35,7 +35,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: Child (test_var_multiple_use.cpp:54:5)
+// Module: Child (test_var_multiple_use.cpp:61:5)
 //
 module Child // "top.child"
 (
@@ -49,13 +49,13 @@ module Child // "top.child"
 logic signed [31:0] s;
 
 //------------------------------------------------------------------------------
-// Method process: methA (test_var_multiple_use.cpp:31:5) 
+// Method process: methA (test_var_multiple_use.cpp:38:5) 
 
 // Process-local variables
 logic [2:0] v;
 
 always_comb 
-begin : methA     // test_var_multiple_use.cpp:31:5
+begin : methA     // test_var_multiple_use.cpp:38:5
     if (|in)
     begin
         v = 5;
@@ -64,21 +64,21 @@ begin : methA     // test_var_multiple_use.cpp:31:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: methB (test_var_multiple_use.cpp:37:5) 
+// Method process: methB (test_var_multiple_use.cpp:44:5) 
 
 // Process-local variables
 logic [2:0] v;
 
 always_comb 
-begin : methB     // test_var_multiple_use.cpp:37:5
+begin : methB     // test_var_multiple_use.cpp:44:5
     out = in + signed'({1'b0, v});
 end
 
 //------------------------------------------------------------------------------
-// Method process: methC (test_var_multiple_use.cpp:41:5) 
+// Method process: methC (test_var_multiple_use.cpp:48:5) 
 
 always_comb 
-begin : methC     // test_var_multiple_use.cpp:41:5
+begin : methC     // test_var_multiple_use.cpp:48:5
     if (|in)
     begin
         out = 0;

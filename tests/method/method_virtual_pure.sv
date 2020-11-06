@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: C (test_virtual_pure.cpp:71:5)
+// Module: C (test_virtual_pure.cpp:78:5)
 //
 module C // "b_mod.c_mod"
 (
@@ -43,13 +43,13 @@ module C // "b_mod.c_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: virt_call (test_virtual_pure.cpp:36:5) 
+// Clocked THREAD: virt_call (test_virtual_pure.cpp:43:5) 
 
 // Thread-local variables
 logic signed [31:0] m;
 
 // Next-state combinational logic
-always_comb begin : virt_call_comb     // test_virtual_pure.cpp:36:5
+always_comb begin : virt_call_comb     // test_virtual_pure.cpp:43:5
     virt_call_func;
 end
 function void virt_call_func;

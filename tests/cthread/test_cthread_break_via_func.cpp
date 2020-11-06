@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "sct_assert.h"
 #include "systemc.h"
 
@@ -56,7 +63,7 @@ public:
         }
     }
 
-    // @break in function, BUG in KVG SMEM -- ...
+    // @break in function, BUG in real design
     void break_via_func1() 
     {
         wait(); 

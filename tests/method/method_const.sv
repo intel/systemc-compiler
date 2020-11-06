@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_const.cpp:547:5)
+// Module: A (test_const.cpp:554:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -44,10 +44,10 @@ localparam logic [31:0] ARR[5] = '{ 'd1, 'd2, 'd3, 'd4, 'd5 };
 localparam logic signed [31:0] ARR0[4] = '{ 'd1, 'd2, 'd3, 'd4 };
 
 //------------------------------------------------------------------------------
-// Method process: std_min_max (test_const.cpp:135:5) 
+// Method process: std_min_max (test_const.cpp:142:5) 
 
 always_comb 
-begin : std_min_max     // test_const.cpp:135:5
+begin : std_min_max     // test_const.cpp:142:5
     logic [2:0] d;
     d = 0;
     d = a[3 : 2];
@@ -56,10 +56,10 @@ begin : std_min_max     // test_const.cpp:135:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: long_literal (test_const.cpp:162:5) 
+// Method process: long_literal (test_const.cpp:169:5) 
 
 always_comb 
-begin : long_literal     // test_const.cpp:162:5
+begin : long_literal     // test_const.cpp:169:5
     logic signed [63:0] v1;
     logic signed [63:0] v2;
     logic signed [63:0] v3;
@@ -126,10 +126,10 @@ begin : long_literal     // test_const.cpp:162:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: long_literal2 (test_const.cpp:183:5) 
+// Method process: long_literal2 (test_const.cpp:190:5) 
 
 always_comb 
-begin : long_literal2     // test_const.cpp:183:5
+begin : long_literal2     // test_const.cpp:190:5
     logic signed [63:0] par1;
     logic signed [31:0] par1_1;
     par1 = 'h80000000;
@@ -139,10 +139,10 @@ begin : long_literal2     // test_const.cpp:183:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: signed_long_literal (test_const.cpp:191:5) 
+// Method process: signed_long_literal (test_const.cpp:198:5) 
 
 always_comb 
-begin : signed_long_literal     // test_const.cpp:191:5
+begin : signed_long_literal     // test_const.cpp:198:5
     logic signed [63:0] v1;
     logic signed [63:0] v2;
     logic signed [63:0] v3;
@@ -180,19 +180,19 @@ begin : signed_long_literal     // test_const.cpp:191:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: smem_if_loop_const (test_const.cpp:217:5) 
+// Method process: smem_if_loop_const (test_const.cpp:224:5) 
 
 always_comb 
-begin : smem_if_loop_const     // test_const.cpp:217:5
+begin : smem_if_loop_const     // test_const.cpp:224:5
     integer k_1;
     k_1 = 0;
 end
 
 //------------------------------------------------------------------------------
-// Method process: cout_test (test_const.cpp:233:5) 
+// Method process: cout_test (test_const.cpp:240:5) 
 
 always_comb 
-begin : cout_test     // test_const.cpp:233:5
+begin : cout_test     // test_const.cpp:240:5
     logic TMP_0;
     logic val;
     val = 1;
@@ -202,10 +202,10 @@ begin : cout_test     // test_const.cpp:233:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: template1 (test_const.cpp:239:5) 
+// Method process: template1 (test_const.cpp:246:5) 
 
 always_comb 
-begin : template1     // test_const.cpp:239:5
+begin : template1     // test_const.cpp:246:5
     integer i;
     i = 3;
     i = 1;
@@ -214,10 +214,10 @@ begin : template1     // test_const.cpp:239:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const1 (test_const.cpp:248:5) 
+// Method process: const1 (test_const.cpp:255:5) 
 
 always_comb 
-begin : const1     // test_const.cpp:248:5
+begin : const1     // test_const.cpp:255:5
     integer i;
     i = 1;
     i = 2 + 3;
@@ -226,10 +226,10 @@ begin : const1     // test_const.cpp:248:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const2 (test_const.cpp:266:5) 
+// Method process: const2 (test_const.cpp:273:5) 
 
 always_comb 
-begin : const2     // test_const.cpp:266:5
+begin : const2     // test_const.cpp:273:5
     logic b;
     integer i;
     b = 1;
@@ -241,10 +241,10 @@ begin : const2     // test_const.cpp:266:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_array (test_const.cpp:290:5) 
+// Method process: const_array (test_const.cpp:297:5) 
 
 always_comb 
-begin : const_array     // test_const.cpp:290:5
+begin : const_array     // test_const.cpp:297:5
     integer m[3];
     integer A[3];
     integer i;
@@ -258,10 +258,10 @@ begin : const_array     // test_const.cpp:290:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sign_const (test_const.cpp:304:5) 
+// Method process: sign_const (test_const.cpp:311:5) 
 
 always_comb 
-begin : sign_const     // test_const.cpp:304:5
+begin : sign_const     // test_const.cpp:311:5
     integer i;
     integer unsigned j;
     logic [2:0] y;
@@ -284,10 +284,10 @@ begin : sign_const     // test_const.cpp:304:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_stmt_const (test_const.cpp:334:5) 
+// Method process: cond_stmt_const (test_const.cpp:341:5) 
 
 always_comb 
-begin : cond_stmt_const     // test_const.cpp:334:5
+begin : cond_stmt_const     // test_const.cpp:341:5
     logic b5;
     logic b6;
     logic b7;
@@ -299,10 +299,10 @@ begin : cond_stmt_const     // test_const.cpp:334:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: int_const_expr (test_const.cpp:344:5) 
+// Method process: int_const_expr (test_const.cpp:351:5) 
 
 always_comb 
-begin : int_const_expr     // test_const.cpp:344:5
+begin : int_const_expr     // test_const.cpp:351:5
     integer unsigned u2;
     integer unsigned u3;
     logic signed [4:0] x4;
@@ -312,10 +312,10 @@ begin : int_const_expr     // test_const.cpp:344:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: switch_const (test_const.cpp:368:5) 
+// Method process: switch_const (test_const.cpp:375:5) 
 
 always_comb 
-begin : switch_const     // test_const.cpp:368:5
+begin : switch_const     // test_const.cpp:375:5
     integer k_1;
     k_1 = 0;
     case (4)
@@ -330,10 +330,10 @@ begin : switch_const     // test_const.cpp:368:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_const (test_const.cpp:387:5) 
+// Method process: cond_const (test_const.cpp:394:5) 
 
 always_comb 
-begin : cond_const     // test_const.cpp:387:5
+begin : cond_const     // test_const.cpp:394:5
     integer a_1;
     logic b1;
     logic b2;
@@ -345,10 +345,10 @@ begin : cond_const     // test_const.cpp:387:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: loop_const (test_const.cpp:395:5) 
+// Method process: loop_const (test_const.cpp:402:5) 
 
 always_comb 
-begin : loop_const     // test_const.cpp:395:5
+begin : loop_const     // test_const.cpp:402:5
     integer k_1;
     integer i;
     integer j;
@@ -372,10 +372,10 @@ begin : loop_const     // test_const.cpp:395:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_const (test_const.cpp:276:5) 
+// Method process: sc_type_const (test_const.cpp:283:5) 
 
 always_comb 
-begin : sc_type_const     // test_const.cpp:276:5
+begin : sc_type_const     // test_const.cpp:283:5
     logic signed [7:0] x2;
     logic signed [15:0] y2;
     x2 = 2;
@@ -383,22 +383,22 @@ begin : sc_type_const     // test_const.cpp:276:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: local_static_const (test_const.cpp:431:5) 
+// Method process: local_static_const (test_const.cpp:438:5) 
 
 always_comb 
-begin : local_static_const     // test_const.cpp:431:5
+begin : local_static_const     // test_const.cpp:438:5
     integer i;
     i = 5 + 1;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: local_static_const1 (test_const.cpp:439:5) 
+// Clocked THREAD: local_static_const1 (test_const.cpp:446:5) 
 
 // Thread-local constants
 logic [31:0] CONST_E;
 
 // Next-state combinational logic
-always_comb begin : local_static_const1_comb     // test_const.cpp:439:5
+always_comb begin : local_static_const1_comb     // test_const.cpp:446:5
     local_static_const1_func;
 end
 function void local_static_const1_func;
@@ -420,10 +420,10 @@ begin : local_static_const1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: local_static_const2 (test_const.cpp:451:5) 
+// Clocked THREAD: local_static_const2 (test_const.cpp:458:5) 
 
 // Next-state combinational logic
-always_comb begin : local_static_const2_comb     // test_const.cpp:451:5
+always_comb begin : local_static_const2_comb     // test_const.cpp:458:5
     local_static_const2_func;
 end
 function void local_static_const2_func;
@@ -443,10 +443,10 @@ begin : local_static_const2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: local_static_const3 (test_const.cpp:474:5) 
+// Clocked THREAD: local_static_const3 (test_const.cpp:481:5) 
 
 // Next-state combinational logic
-always_comb begin : local_static_const3_comb     // test_const.cpp:474:5
+always_comb begin : local_static_const3_comb     // test_const.cpp:481:5
     local_static_const3_func;
 end
 function void local_static_const3_func;
@@ -480,22 +480,22 @@ begin : local_static_const3_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: neg_literal (test_const.cpp:484:5) 
+// Method process: neg_literal (test_const.cpp:491:5) 
 
 always_comb 
-begin : neg_literal     // test_const.cpp:484:5
+begin : neg_literal     // test_const.cpp:491:5
     logic signed [127:0] i;
     i = -5'sd10;
 end
 
 //------------------------------------------------------------------------------
-// Method process: binary_const_pointers (test_const.cpp:489:5) 
+// Method process: binary_const_pointers (test_const.cpp:496:5) 
 
 // Process-local variables
 logic signed [31:0] p2;
 
 always_comb 
-begin : binary_const_pointers     // test_const.cpp:489:5
+begin : binary_const_pointers     // test_const.cpp:496:5
     logic b1;
     logic b2;
     logic b3;
@@ -509,13 +509,13 @@ begin : binary_const_pointers     // test_const.cpp:489:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: pointer_to_const (test_const.cpp:504:5) 
+// Method process: pointer_to_const (test_const.cpp:511:5) 
 
 // Process-local variables
 logic signed [31:0] c5;
 
 always_comb 
-begin : pointer_to_const     // test_const.cpp:504:5
+begin : pointer_to_const     // test_const.cpp:511:5
     integer j;
     j = 1 + 43 + c5;
     j = 1;
@@ -525,10 +525,10 @@ begin : pointer_to_const     // test_const.cpp:504:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_func_call (test_const.cpp:519:5) 
+// Method process: const_func_call (test_const.cpp:526:5) 
 
 always_comb 
-begin : const_func_call     // test_const.cpp:519:5
+begin : const_func_call     // test_const.cpp:526:5
     integer unsigned TMP_0;
     integer unsigned val;
     integer unsigned u1;
@@ -542,10 +542,10 @@ begin : const_func_call     // test_const.cpp:519:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_int_func (test_const.cpp:526:5) 
+// Method process: sc_int_func (test_const.cpp:533:5) 
 
 always_comb 
-begin : sc_int_func     // test_const.cpp:526:5
+begin : sc_int_func     // test_const.cpp:533:5
     integer i;
     i = 32'sd15;
 end

@@ -25,10 +25,10 @@ logic [7:0] ra;
 logic [7:0] rb;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_var_reset (test_sig_access_reset.cpp:39:6) 
+// Clocked THREAD: loc_var_reset (test_sig_access_reset.cpp:46:6) 
 
 // Next-state combinational logic
-always_comb begin : loc_var_reset_comb     // test_sig_access_reset.cpp:39:6
+always_comb begin : loc_var_reset_comb     // test_sig_access_reset.cpp:46:6
     loc_var_reset_func;
 end
 function void loc_var_reset_func;
@@ -52,10 +52,10 @@ begin : loc_var_reset_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: loc_var_body (test_sig_access_reset.cpp:53:5) 
+// Clocked THREAD: loc_var_body (test_sig_access_reset.cpp:60:5) 
 
 // Next-state combinational logic
-always_comb begin : loc_var_body_comb     // test_sig_access_reset.cpp:53:5
+always_comb begin : loc_var_body_comb     // test_sig_access_reset.cpp:60:5
     loc_var_body_func;
 end
 function void loc_var_body_func;
@@ -77,10 +77,10 @@ begin : loc_var_body_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: sig_thread (test_sig_access_reset.cpp:64:5) 
+// Clocked THREAD: sig_thread (test_sig_access_reset.cpp:71:5) 
 
 // Next-state combinational logic
-always_comb begin : sig_thread_comb     // test_sig_access_reset.cpp:64:5
+always_comb begin : sig_thread_comb     // test_sig_access_reset.cpp:71:5
     sig_thread_func;
 end
 function void sig_thread_func;
@@ -101,7 +101,7 @@ begin : sig_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: assert_sig (test_sig_access_reset.cpp:75:5) 
+// Clocked THREAD: assert_sig (test_sig_access_reset.cpp:82:5) 
 
 // Thread-local variables
 logic tb_next;
@@ -110,7 +110,7 @@ logic assert_sig_PROC_STATE;
 logic assert_sig_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : assert_sig_comb     // test_sig_access_reset.cpp:75:5
+always_comb begin : assert_sig_comb     // test_sig_access_reset.cpp:82:5
     assert_sig_func;
 end
 function void assert_sig_func;
@@ -120,10 +120,10 @@ function void assert_sig_func;
     
     case (assert_sig_PROC_STATE)
         0: begin
-            assert_sig_PROC_STATE_next = 1; return;    // test_sig_access_reset.cpp:84:13;
+            assert_sig_PROC_STATE_next = 1; return;    // test_sig_access_reset.cpp:91:13;
         end
         1: begin
-            assert_sig_PROC_STATE_next = 1; return;    // test_sig_access_reset.cpp:84:13;
+            assert_sig_PROC_STATE_next = 1; return;    // test_sig_access_reset.cpp:91:13;
         end
     endcase
 endfunction
@@ -134,7 +134,7 @@ begin : assert_sig_ff
     if (rst ) begin
         tb <= 0;
         rb <= 0;
-        assert_sig_PROC_STATE <= 0;    // test_sig_access_reset.cpp:80:9;
+        assert_sig_PROC_STATE <= 0;    // test_sig_access_reset.cpp:87:9;
     end
     else begin
         tb <= tb_next;
@@ -142,18 +142,18 @@ begin : assert_sig_ff
         assert_sig_PROC_STATE <= assert_sig_PROC_STATE_next;
 
     `ifndef INTEL_SVA_OFF
-        sctAssertLine81 : assert property ( ta |-> |ra );
+        sctAssertLine88 : assert property ( ta |-> |ra );
     `endif // INTEL_SVA_OFF
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine78 : assert property ( t |-> |r );
-    sctAssertLine79 : assert property ( tb |-> |rb );
+    sctAssertLine85 : assert property ( t |-> |r );
+    sctAssertLine86 : assert property ( tb |-> |rb );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: assert_global (test_sig_access_reset.cpp:95:5) 
+// Clocked THREAD: assert_global (test_sig_access_reset.cpp:102:5) 
 
 // Thread-local variables
 logic [7:0] c;
@@ -169,7 +169,7 @@ logic assert_global_PROC_STATE;
 logic assert_global_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : assert_global_comb     // test_sig_access_reset.cpp:95:5
+always_comb begin : assert_global_comb     // test_sig_access_reset.cpp:102:5
     assert_global_func;
 end
 function void assert_global_func;
@@ -181,10 +181,10 @@ function void assert_global_func;
     
     case (assert_global_PROC_STATE)
         0: begin
-            assert_global_PROC_STATE_next = 1; return;    // test_sig_access_reset.cpp:103:13;
+            assert_global_PROC_STATE_next = 1; return;    // test_sig_access_reset.cpp:110:13;
         end
         1: begin
-            assert_global_PROC_STATE_next = 1; return;    // test_sig_access_reset.cpp:103:13;
+            assert_global_PROC_STATE_next = 1; return;    // test_sig_access_reset.cpp:110:13;
         end
     endcase
 endfunction
@@ -197,7 +197,7 @@ begin : assert_global_ff
         a <= 0;
         c <= 1;
         mm = 2;
-        assert_global_PROC_STATE <= 0;    // test_sig_access_reset.cpp:99:9;
+        assert_global_PROC_STATE <= 0;    // test_sig_access_reset.cpp:106:9;
     end
     else begin
         c <= c_next;
@@ -207,17 +207,17 @@ begin : assert_global_ff
         assert_global_PROC_STATE <= assert_global_PROC_STATE_next;
 
     `ifndef INTEL_SVA_OFF
-        sctAssertLine100 : assert property ( |b_next |-> d_next == 1 );
+        sctAssertLine107 : assert property ( |b_next |-> d_next == 1 );
     `endif // INTEL_SVA_OFF
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine98 : assert property ( a_next |-> |c_next );
+    sctAssertLine105 : assert property ( a_next |-> |c_next );
 `endif // INTEL_SVA_OFF
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: assert_local (test_sig_access_reset.cpp:108:5) 
+// Clocked THREAD: assert_local (test_sig_access_reset.cpp:115:5) 
 
 // Thread-local variables
 logic signed [7:0] h;
@@ -232,7 +232,7 @@ logic assert_local_PROC_STATE;
 logic assert_local_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : assert_local_comb     // test_sig_access_reset.cpp:108:5
+always_comb begin : assert_local_comb     // test_sig_access_reset.cpp:115:5
     assert_local_func;
 end
 function void assert_local_func;
@@ -244,10 +244,10 @@ function void assert_local_func;
     
     case (assert_local_PROC_STATE)
         0: begin
-            assert_local_PROC_STATE_next = 1; return;    // test_sig_access_reset.cpp:121:13;
+            assert_local_PROC_STATE_next = 1; return;    // test_sig_access_reset.cpp:128:13;
         end
         1: begin
-            assert_local_PROC_STATE_next = 1; return;    // test_sig_access_reset.cpp:121:13;
+            assert_local_PROC_STATE_next = 1; return;    // test_sig_access_reset.cpp:128:13;
         end
     endcase
 endfunction
@@ -260,7 +260,7 @@ begin : assert_local_ff
         g <= 0;
         h <= 0;
         nn = 0;
-        assert_local_PROC_STATE <= 0;    // test_sig_access_reset.cpp:117:9;
+        assert_local_PROC_STATE <= 0;    // test_sig_access_reset.cpp:124:9;
     end
     else begin
         h <= h_next;
@@ -270,12 +270,12 @@ begin : assert_local_ff
         assert_local_PROC_STATE <= assert_local_PROC_STATE_next;
 
     `ifndef INTEL_SVA_OFF
-        sctAssertLine118 : assert property ( |f_next |-> |g_next );
+        sctAssertLine125 : assert property ( |f_next |-> |g_next );
     `endif // INTEL_SVA_OFF
     end
 
 `ifndef INTEL_SVA_OFF
-    sctAssertLine116 : assert property ( e_next |-> h_next == 1 );
+    sctAssertLine123 : assert property ( e_next |-> h_next == 1 );
 `endif // INTEL_SVA_OFF
 end
 

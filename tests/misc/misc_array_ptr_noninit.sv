@@ -17,10 +17,10 @@ module A // "a_mod"
 logic [3:0] s[3];
 
 //------------------------------------------------------------------------------
-// Method process: methProc (test_array_ptr_noninit.cpp:28:5) 
+// Method process: methProc (test_array_ptr_noninit.cpp:35:5) 
 
 always_comb 
-begin : methProc     // test_array_ptr_noninit.cpp:28:5
+begin : methProc     // test_array_ptr_noninit.cpp:35:5
     logic l;
     l = 0;
     for (integer i = 0; i < 3; i++)

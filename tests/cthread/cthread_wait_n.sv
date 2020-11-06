@@ -20,7 +20,7 @@ logic a;
 logic [2:0] cntr_name_conflict_WAIT_N_COUNTER_next;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: wait_n_reset_decl (test_cthread_wait_n.cpp:73:5) 
+// Clocked THREAD: wait_n_reset_decl (test_cthread_wait_n.cpp:80:5) 
 
 // Thread-local variables
 logic [1:0] wait_n_reset_decl_WAIT_N_COUNTER;
@@ -29,7 +29,7 @@ logic wait_n_reset_decl_PROC_STATE;
 logic wait_n_reset_decl_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : wait_n_reset_decl_comb     // test_cthread_wait_n.cpp:73:5
+always_comb begin : wait_n_reset_decl_comb     // test_cthread_wait_n.cpp:80:5
     wait_n_reset_decl_func;
 end
 function void wait_n_reset_decl_func;
@@ -39,15 +39,15 @@ function void wait_n_reset_decl_func;
     case (wait_n_reset_decl_PROC_STATE)
         0: begin
             wait_n_reset_decl_WAIT_N_COUNTER_next = 2;
-            wait_n_reset_decl_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:80:13;
+            wait_n_reset_decl_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:87:13;
         end
         1: begin
             if (wait_n_reset_decl_WAIT_N_COUNTER != 1) begin
                 wait_n_reset_decl_WAIT_N_COUNTER_next = wait_n_reset_decl_WAIT_N_COUNTER - 1;
-                wait_n_reset_decl_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:80:13;
+                wait_n_reset_decl_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:87:13;
             end;
             wait_n_reset_decl_WAIT_N_COUNTER_next = 2;
-            wait_n_reset_decl_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:80:13;
+            wait_n_reset_decl_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:87:13;
         end
     endcase
 endfunction
@@ -60,7 +60,7 @@ begin : wait_n_reset_decl_ff
         integer unsigned i;
         k = 1;
         i = k + 1;
-        wait_n_reset_decl_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:77:9;
+        wait_n_reset_decl_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:84:9;
         wait_n_reset_decl_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -70,7 +70,7 @@ begin : wait_n_reset_decl_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: one_wait_n (test_cthread_wait_n.cpp:84:5) 
+// Clocked THREAD: one_wait_n (test_cthread_wait_n.cpp:91:5) 
 
 // Thread-local variables
 logic [1:0] one_wait_n_WAIT_N_COUNTER;
@@ -81,7 +81,7 @@ logic [1:0] one_wait_n_PROC_STATE;
 logic [1:0] one_wait_n_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : one_wait_n_comb     // test_cthread_wait_n.cpp:84:5
+always_comb begin : one_wait_n_comb     // test_cthread_wait_n.cpp:91:5
     one_wait_n_func;
 end
 function void one_wait_n_func;
@@ -91,19 +91,19 @@ function void one_wait_n_func;
     
     case (one_wait_n_PROC_STATE)
         0: begin
-            one_wait_n_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:88:13;
+            one_wait_n_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:95:13;
         end
         1: begin
             i_next++;
             one_wait_n_WAIT_N_COUNTER_next = 2;
-            one_wait_n_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:90:13;
+            one_wait_n_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:97:13;
         end
         2: begin
             if (one_wait_n_WAIT_N_COUNTER != 1) begin
                 one_wait_n_WAIT_N_COUNTER_next = one_wait_n_WAIT_N_COUNTER - 1;
-                one_wait_n_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:90:13;
+                one_wait_n_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:97:13;
             end;
-            one_wait_n_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:88:13;
+            one_wait_n_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:95:13;
         end
     endcase
 endfunction
@@ -113,7 +113,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : one_wait_n_ff
     if ( ~rstn ) begin
         i <= 0;
-        one_wait_n_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:86:9;
+        one_wait_n_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:93:9;
         one_wait_n_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -124,7 +124,7 @@ begin : one_wait_n_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread0 (test_cthread_wait_n.cpp:94:5) 
+// Clocked THREAD: thread0 (test_cthread_wait_n.cpp:101:5) 
 
 // Thread-local variables
 logic [1:0] thread0_WAIT_N_COUNTER;
@@ -133,7 +133,7 @@ logic [1:0] thread0_PROC_STATE;
 logic [1:0] thread0_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread0_comb     // test_cthread_wait_n.cpp:94:5
+always_comb begin : thread0_comb     // test_cthread_wait_n.cpp:101:5
     thread0_func;
 end
 function void thread0_func;
@@ -143,30 +143,30 @@ function void thread0_func;
     case (thread0_PROC_STATE)
         0: begin
             thread0_WAIT_N_COUNTER_next = 1;
-            thread0_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:97:13;
+            thread0_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:104:13;
         end
         1: begin
             if (thread0_WAIT_N_COUNTER != 1) begin
                 thread0_WAIT_N_COUNTER_next = thread0_WAIT_N_COUNTER - 1;
-                thread0_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:97:13;
+                thread0_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:104:13;
             end;
             thread0_WAIT_N_COUNTER_next = 2;
-            thread0_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:98:13;
+            thread0_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:105:13;
         end
         2: begin
             if (thread0_WAIT_N_COUNTER != 1) begin
                 thread0_WAIT_N_COUNTER_next = thread0_WAIT_N_COUNTER - 1;
-                thread0_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:98:13;
+                thread0_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:105:13;
             end;
             thread0_WAIT_N_COUNTER_next = 3;
-            thread0_PROC_STATE_next = 3; return;    // test_cthread_wait_n.cpp:99:13;
+            thread0_PROC_STATE_next = 3; return;    // test_cthread_wait_n.cpp:106:13;
         end
         3: begin
             if (thread0_WAIT_N_COUNTER != 1) begin
                 thread0_WAIT_N_COUNTER_next = thread0_WAIT_N_COUNTER - 1;
-                thread0_PROC_STATE_next = 3; return;    // test_cthread_wait_n.cpp:99:13;
+                thread0_PROC_STATE_next = 3; return;    // test_cthread_wait_n.cpp:106:13;
             end;
-            thread0_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:96:13;
+            thread0_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:103:13;
         end
     endcase
 endfunction
@@ -175,7 +175,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : thread0_ff
     if ( ~rstn ) begin
-        thread0_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:96:13;
+        thread0_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:103:13;
         thread0_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -185,7 +185,7 @@ begin : thread0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread1 (test_cthread_wait_n.cpp:105:5) 
+// Clocked THREAD: thread1 (test_cthread_wait_n.cpp:112:5) 
 
 // Thread-local variables
 logic [1:0] thread1_WAIT_N_COUNTER;
@@ -194,7 +194,7 @@ logic thread1_PROC_STATE;
 logic thread1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread1_comb     // test_cthread_wait_n.cpp:105:5
+always_comb begin : thread1_comb     // test_cthread_wait_n.cpp:112:5
     thread1_func;
 end
 function void thread1_func;
@@ -205,10 +205,10 @@ function void thread1_func;
         0: begin
             if (thread1_WAIT_N_COUNTER != 1) begin
                 thread1_WAIT_N_COUNTER_next = thread1_WAIT_N_COUNTER - 1;
-                thread1_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:107:13;
+                thread1_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:114:13;
             end;
             thread1_WAIT_N_COUNTER_next = 3;
-            thread1_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:107:13;
+            thread1_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:114:13;
         end
     endcase
 endfunction
@@ -218,7 +218,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : thread1_ff
     if ( ~rstn ) begin
         thread1_WAIT_N_COUNTER <= 3;
-        thread1_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:107:13;
+        thread1_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:114:13;
         thread1_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -228,7 +228,7 @@ begin : thread1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread1a (test_cthread_wait_n.cpp:111:5) 
+// Clocked THREAD: thread1a (test_cthread_wait_n.cpp:118:5) 
 
 // Thread-local variables
 logic [1:0] thread1a_WAIT_N_COUNTER;
@@ -237,7 +237,7 @@ logic thread1a_PROC_STATE;
 logic thread1a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread1a_comb     // test_cthread_wait_n.cpp:111:5
+always_comb begin : thread1a_comb     // test_cthread_wait_n.cpp:118:5
     thread1a_func;
 end
 function void thread1a_func;
@@ -247,15 +247,15 @@ function void thread1a_func;
     case (thread1a_PROC_STATE)
         0: begin
             thread1a_WAIT_N_COUNTER_next = 3;
-            thread1a_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:114:13;
+            thread1a_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:121:13;
         end
         1: begin
             if (thread1a_WAIT_N_COUNTER != 1) begin
                 thread1a_WAIT_N_COUNTER_next = thread1a_WAIT_N_COUNTER - 1;
-                thread1a_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:114:13;
+                thread1a_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:121:13;
             end;
             thread1a_WAIT_N_COUNTER_next = 3;
-            thread1a_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:114:13;
+            thread1a_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:121:13;
         end
     endcase
 endfunction
@@ -264,7 +264,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : thread1a_ff
     if ( ~rstn ) begin
-        thread1a_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:112:9;
+        thread1a_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:119:9;
         thread1a_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -274,7 +274,7 @@ begin : thread1a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread1b (test_cthread_wait_n.cpp:118:5) 
+// Clocked THREAD: thread1b (test_cthread_wait_n.cpp:125:5) 
 
 // Thread-local variables
 logic [1:0] thread1b_WAIT_N_COUNTER;
@@ -283,7 +283,7 @@ logic thread1b_PROC_STATE;
 logic thread1b_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread1b_comb     // test_cthread_wait_n.cpp:118:5
+always_comb begin : thread1b_comb     // test_cthread_wait_n.cpp:125:5
     thread1b_func;
 end
 function void thread1b_func;
@@ -295,16 +295,16 @@ function void thread1b_func;
         0: begin
             i = 0;
             thread1b_WAIT_N_COUNTER_next = 3;
-            thread1b_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:122:13;
+            thread1b_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:129:13;
         end
         1: begin
             if (thread1b_WAIT_N_COUNTER != 1) begin
                 thread1b_WAIT_N_COUNTER_next = thread1b_WAIT_N_COUNTER - 1;
-                thread1b_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:122:13;
+                thread1b_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:129:13;
             end;
             i = 0;
             thread1b_WAIT_N_COUNTER_next = 3;
-            thread1b_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:122:13;
+            thread1b_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:129:13;
         end
     endcase
 endfunction
@@ -313,7 +313,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : thread1b_ff
     if ( ~rstn ) begin
-        thread1b_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:119:9;
+        thread1b_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:126:9;
         thread1b_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -323,7 +323,7 @@ begin : thread1b_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread1c (test_cthread_wait_n.cpp:126:5) 
+// Clocked THREAD: thread1c (test_cthread_wait_n.cpp:133:5) 
 
 // Thread-local variables
 logic [1:0] thread1c_WAIT_N_COUNTER;
@@ -332,7 +332,7 @@ logic thread1c_PROC_STATE;
 logic thread1c_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread1c_comb     // test_cthread_wait_n.cpp:126:5
+always_comb begin : thread1c_comb     // test_cthread_wait_n.cpp:133:5
     thread1c_func;
 end
 function void thread1c_func;
@@ -343,16 +343,16 @@ function void thread1c_func;
     case (thread1c_PROC_STATE)
         0: begin
             thread1c_WAIT_N_COUNTER_next = 3;
-            thread1c_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:129:13;
+            thread1c_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:136:13;
         end
         1: begin
             if (thread1c_WAIT_N_COUNTER != 1) begin
                 thread1c_WAIT_N_COUNTER_next = thread1c_WAIT_N_COUNTER - 1;
-                thread1c_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:129:13;
+                thread1c_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:136:13;
             end;
             i = 0;
             thread1c_WAIT_N_COUNTER_next = 3;
-            thread1c_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:129:13;
+            thread1c_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:136:13;
         end
     endcase
 endfunction
@@ -361,7 +361,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : thread1c_ff
     if ( ~rstn ) begin
-        thread1c_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:127:9;
+        thread1c_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:134:9;
         thread1c_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -371,7 +371,7 @@ begin : thread1c_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread1d (test_cthread_wait_n.cpp:134:5) 
+// Clocked THREAD: thread1d (test_cthread_wait_n.cpp:141:5) 
 
 // Thread-local variables
 logic [1:0] thread1d_WAIT_N_COUNTER;
@@ -380,7 +380,7 @@ logic thread1d_PROC_STATE;
 logic thread1d_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread1d_comb     // test_cthread_wait_n.cpp:134:5
+always_comb begin : thread1d_comb     // test_cthread_wait_n.cpp:141:5
     thread1d_func;
 end
 function void thread1d_func;
@@ -390,15 +390,15 @@ function void thread1d_func;
     case (thread1d_PROC_STATE)
         0: begin
             thread1d_WAIT_N_COUNTER_next = 3;
-            thread1d_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:138:13;
+            thread1d_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:145:13;
         end
         1: begin
             if (thread1d_WAIT_N_COUNTER != 1) begin
                 thread1d_WAIT_N_COUNTER_next = thread1d_WAIT_N_COUNTER - 1;
-                thread1d_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:138:13;
+                thread1d_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:145:13;
             end;
             thread1d_WAIT_N_COUNTER_next = 3;
-            thread1d_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:138:13;
+            thread1d_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:145:13;
         end
     endcase
 endfunction
@@ -409,7 +409,7 @@ begin : thread1d_ff
     if ( ~rstn ) begin
         integer i;
         i = 1;
-        thread1d_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:136:9;
+        thread1d_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:143:9;
         thread1d_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -419,7 +419,7 @@ begin : thread1d_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread2 (test_cthread_wait_n.cpp:142:5) 
+// Clocked THREAD: thread2 (test_cthread_wait_n.cpp:149:5) 
 
 // Thread-local variables
 logic [2:0] thread2_WAIT_N_COUNTER;
@@ -428,7 +428,7 @@ logic thread2_PROC_STATE;
 logic thread2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread2_comb     // test_cthread_wait_n.cpp:142:5
+always_comb begin : thread2_comb     // test_cthread_wait_n.cpp:149:5
     thread2_func;
 end
 function void thread2_func;
@@ -439,18 +439,18 @@ function void thread2_func;
         0: begin
             if (thread2_WAIT_N_COUNTER != 1) begin
                 thread2_WAIT_N_COUNTER_next = thread2_WAIT_N_COUNTER - 1;
-                thread2_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:144:13;
+                thread2_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:151:13;
             end;
             thread2_WAIT_N_COUNTER_next = 1 + 1 + 1;
-            thread2_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:145:13;
+            thread2_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:152:13;
         end
         1: begin
             if (thread2_WAIT_N_COUNTER != 1) begin
                 thread2_WAIT_N_COUNTER_next = thread2_WAIT_N_COUNTER - 1;
-                thread2_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:145:13;
+                thread2_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:152:13;
             end;
             thread2_WAIT_N_COUNTER_next = 2 * 2;
-            thread2_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:144:13;
+            thread2_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:151:13;
         end
     endcase
 endfunction
@@ -460,7 +460,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : thread2_ff
     if ( ~rstn ) begin
         thread2_WAIT_N_COUNTER <= 2 * 2;
-        thread2_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:144:13;
+        thread2_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:151:13;
         thread2_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -470,7 +470,7 @@ begin : thread2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread3 (test_cthread_wait_n.cpp:149:5) 
+// Clocked THREAD: thread3 (test_cthread_wait_n.cpp:156:5) 
 
 // Thread-local variables
 logic [1:0] thread3_WAIT_N_COUNTER;
@@ -481,7 +481,7 @@ logic [1:0] thread3_PROC_STATE;
 logic [1:0] thread3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread3_comb     // test_cthread_wait_n.cpp:149:5
+always_comb begin : thread3_comb     // test_cthread_wait_n.cpp:156:5
     thread3_func;
 end
 function void thread3_func;
@@ -493,22 +493,22 @@ function void thread3_func;
         0: begin
             n_next = 2;
             thread3_WAIT_N_COUNTER_next = n_next;
-            thread3_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:156:13;
+            thread3_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:163:13;
         end
         1: begin
             if (thread3_WAIT_N_COUNTER != 1) begin
                 thread3_WAIT_N_COUNTER_next = thread3_WAIT_N_COUNTER - 1;
-                thread3_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:156:13;
+                thread3_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:163:13;
             end;
             thread3_WAIT_N_COUNTER_next = n_next + 1;
-            thread3_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:157:13;
+            thread3_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:164:13;
         end
         2: begin
             if (thread3_WAIT_N_COUNTER != 1) begin
                 thread3_WAIT_N_COUNTER_next = thread3_WAIT_N_COUNTER - 1;
-                thread3_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:157:13;
+                thread3_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:164:13;
             end;
-            thread3_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:154:13;
+            thread3_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:161:13;
         end
     endcase
 endfunction
@@ -517,7 +517,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : thread3_ff
     if ( ~rstn ) begin
-        thread3_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:154:13;
+        thread3_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:161:13;
         thread3_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -528,7 +528,7 @@ begin : thread3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: thread4_no_waitn (test_cthread_wait_n.cpp:161:5) 
+// Clocked THREAD: thread4_no_waitn (test_cthread_wait_n.cpp:168:5) 
 
 // Thread-local variables
 logic [63:0] i0;
@@ -537,7 +537,7 @@ logic thread4_no_waitn_PROC_STATE;
 logic thread4_no_waitn_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : thread4_no_waitn_comb     // test_cthread_wait_n.cpp:161:5
+always_comb begin : thread4_no_waitn_comb     // test_cthread_wait_n.cpp:168:5
     thread4_no_waitn_func;
 end
 function void thread4_no_waitn_func;
@@ -547,15 +547,15 @@ function void thread4_no_waitn_func;
     case (thread4_no_waitn_PROC_STATE)
         0: begin
             i_next0 = 0;
-            thread4_no_waitn_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:165:17;
+            thread4_no_waitn_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:172:17;
         end
         1: begin
             ++i_next0;
             if (i_next0 < 3)
             begin
-                thread4_no_waitn_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:165:17;
+                thread4_no_waitn_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:172:17;
             end
-            thread4_no_waitn_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:163:13;
+            thread4_no_waitn_PROC_STATE_next = 0; return;    // test_cthread_wait_n.cpp:170:13;
         end
     endcase
 endfunction
@@ -564,7 +564,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : thread4_no_waitn_ff
     if ( ~rstn ) begin
-        thread4_no_waitn_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:163:13;
+        thread4_no_waitn_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:170:13;
     end
     else begin
         i0 <= i_next0;
@@ -573,7 +573,7 @@ begin : thread4_no_waitn_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: wait_n_const (test_cthread_wait_n.cpp:170:5) 
+// Clocked THREAD: wait_n_const (test_cthread_wait_n.cpp:177:5) 
 
 // Thread-local variables
 logic [1:0] wait_n_const_WAIT_N_COUNTER;
@@ -584,7 +584,7 @@ logic wait_n_const_PROC_STATE_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : wait_n_const_comb     // test_cthread_wait_n.cpp:170:5
+always_comb begin : wait_n_const_comb     // test_cthread_wait_n.cpp:177:5
     wait_n_const_func;
 end
 function void wait_n_const_func;
@@ -594,15 +594,15 @@ function void wait_n_const_func;
     case (wait_n_const_PROC_STATE)
         0: begin
             wait_n_const_WAIT_N_COUNTER_next = 2;
-            wait_n_const_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:175:13;
+            wait_n_const_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:182:13;
         end
         1: begin
             if (wait_n_const_WAIT_N_COUNTER != 1) begin
                 wait_n_const_WAIT_N_COUNTER_next = wait_n_const_WAIT_N_COUNTER - 1;
-                wait_n_const_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:175:13;
+                wait_n_const_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:182:13;
             end;
             wait_n_const_WAIT_N_COUNTER_next = 2;
-            wait_n_const_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:175:13;
+            wait_n_const_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:182:13;
         end
     endcase
 endfunction
@@ -611,7 +611,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : wait_n_const_ff
     if ( ~rstn ) begin
-        wait_n_const_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:172:9;
+        wait_n_const_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:179:9;
         wait_n_const_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -621,7 +621,7 @@ begin : wait_n_const_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: wait_n_var (test_cthread_wait_n.cpp:179:5) 
+// Clocked THREAD: wait_n_var (test_cthread_wait_n.cpp:186:5) 
 
 // Thread-local variables
 logic [1:0] wait_n_var_WAIT_N_COUNTER;
@@ -630,7 +630,7 @@ logic wait_n_var_PROC_STATE;
 logic wait_n_var_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : wait_n_var_comb     // test_cthread_wait_n.cpp:179:5
+always_comb begin : wait_n_var_comb     // test_cthread_wait_n.cpp:186:5
     wait_n_var_func;
 end
 function void wait_n_var_func;
@@ -642,16 +642,16 @@ function void wait_n_var_func;
         0: begin
             n = 2;
             wait_n_var_WAIT_N_COUNTER_next = n;
-            wait_n_var_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:185:13;
+            wait_n_var_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:192:13;
         end
         1: begin
             if (wait_n_var_WAIT_N_COUNTER != 1) begin
                 wait_n_var_WAIT_N_COUNTER_next = wait_n_var_WAIT_N_COUNTER - 1;
-                wait_n_var_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:185:13;
+                wait_n_var_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:192:13;
             end;
             n = 2;
             wait_n_var_WAIT_N_COUNTER_next = n;
-            wait_n_var_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:185:13;
+            wait_n_var_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:192:13;
         end
     endcase
 endfunction
@@ -662,7 +662,7 @@ begin : wait_n_var_ff
     if ( ~rstn ) begin
         integer unsigned n;
         n = 0;
-        wait_n_var_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:181:9;
+        wait_n_var_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:188:9;
         wait_n_var_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -672,7 +672,7 @@ begin : wait_n_var_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: wait_n_calc (test_cthread_wait_n.cpp:189:5) 
+// Clocked THREAD: wait_n_calc (test_cthread_wait_n.cpp:196:5) 
 
 // Thread-local variables
 logic [2:0] wait_n_calc_WAIT_N_COUNTER;
@@ -683,7 +683,7 @@ logic [1:0] wait_n_calc_PROC_STATE;
 logic [1:0] wait_n_calc_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : wait_n_calc_comb     // test_cthread_wait_n.cpp:189:5
+always_comb begin : wait_n_calc_comb     // test_cthread_wait_n.cpp:196:5
     wait_n_calc_func;
 end
 function void wait_n_calc_func;
@@ -696,26 +696,26 @@ function void wait_n_calc_func;
         0: begin
             n_next0 = 2;
             wait_n_calc_WAIT_N_COUNTER_next = n_next0 - 1;
-            wait_n_calc_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:196:13;
+            wait_n_calc_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:203:13;
         end
         1: begin
             if (wait_n_calc_WAIT_N_COUNTER != 1) begin
                 wait_n_calc_WAIT_N_COUNTER_next = wait_n_calc_WAIT_N_COUNTER - 1;
-                wait_n_calc_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:196:13;
+                wait_n_calc_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:203:13;
             end;
             n_next0++;
             m = 1;
             wait_n_calc_WAIT_N_COUNTER_next = n_next0 + m;
-            wait_n_calc_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:199:13;
+            wait_n_calc_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:206:13;
         end
         2: begin
             if (wait_n_calc_WAIT_N_COUNTER != 1) begin
                 wait_n_calc_WAIT_N_COUNTER_next = wait_n_calc_WAIT_N_COUNTER - 1;
-                wait_n_calc_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:199:13;
+                wait_n_calc_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:206:13;
             end;
             n_next0 = 2;
             wait_n_calc_WAIT_N_COUNTER_next = n_next0 - 1;
-            wait_n_calc_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:196:13;
+            wait_n_calc_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:203:13;
         end
     endcase
 endfunction
@@ -724,7 +724,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : wait_n_calc_ff
     if ( ~rstn ) begin
-        wait_n_calc_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:192:9;
+        wait_n_calc_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:199:9;
         wait_n_calc_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -735,7 +735,7 @@ begin : wait_n_calc_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: wait_n_calc_if (test_cthread_wait_n.cpp:204:5) 
+// Clocked THREAD: wait_n_calc_if (test_cthread_wait_n.cpp:211:5) 
 
 // Thread-local variables
 logic [1:0] wait_n_calc_if_WAIT_N_COUNTER;
@@ -744,7 +744,7 @@ logic [1:0] wait_n_calc_if_PROC_STATE;
 logic [1:0] wait_n_calc_if_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : wait_n_calc_if_comb     // test_cthread_wait_n.cpp:204:5
+always_comb begin : wait_n_calc_if_comb     // test_cthread_wait_n.cpp:211:5
     wait_n_calc_if_func;
 end
 function void wait_n_calc_if_func;
@@ -758,25 +758,25 @@ function void wait_n_calc_if_func;
             if (a)
             begin
                 wait_n_calc_if_WAIT_N_COUNTER_next = n++;
-                wait_n_calc_if_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:211:27;
+                wait_n_calc_if_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:218:27;
             end
-            wait_n_calc_if_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:213:13;
+            wait_n_calc_if_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:220:13;
         end
         1: begin
             if (wait_n_calc_if_WAIT_N_COUNTER != 1) begin
                 wait_n_calc_if_WAIT_N_COUNTER_next = wait_n_calc_if_WAIT_N_COUNTER - 1;
-                wait_n_calc_if_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:211:27;
+                wait_n_calc_if_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:218:27;
             end;
-            wait_n_calc_if_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:213:13;
+            wait_n_calc_if_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:220:13;
         end
         2: begin
             n = 2;
             if (a)
             begin
                 wait_n_calc_if_WAIT_N_COUNTER_next = n++;
-                wait_n_calc_if_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:211:27;
+                wait_n_calc_if_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:218:27;
             end
-            wait_n_calc_if_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:213:13;
+            wait_n_calc_if_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:220:13;
         end
     endcase
 endfunction
@@ -785,7 +785,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : wait_n_calc_if_ff
     if ( ~rstn ) begin
-        wait_n_calc_if_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:207:9;
+        wait_n_calc_if_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:214:9;
         wait_n_calc_if_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -795,7 +795,7 @@ begin : wait_n_calc_if_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: wait_n_calc_for (test_cthread_wait_n.cpp:218:5) 
+// Clocked THREAD: wait_n_calc_for (test_cthread_wait_n.cpp:225:5) 
 
 // Thread-local variables
 logic [1:0] wait_n_calc_for_WAIT_N_COUNTER;
@@ -808,7 +808,7 @@ logic wait_n_calc_for_PROC_STATE;
 logic wait_n_calc_for_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : wait_n_calc_for_comb     // test_cthread_wait_n.cpp:218:5
+always_comb begin : wait_n_calc_for_comb     // test_cthread_wait_n.cpp:225:5
     wait_n_calc_for_func;
 end
 function void wait_n_calc_for_func;
@@ -821,22 +821,22 @@ function void wait_n_calc_for_func;
         0: begin
             i_next1 = 0;
             wait_n_calc_for_WAIT_N_COUNTER_next = n_next1;
-            wait_n_calc_for_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:225:17;
+            wait_n_calc_for_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:232:17;
         end
         1: begin
             if (wait_n_calc_for_WAIT_N_COUNTER != 1) begin
                 wait_n_calc_for_WAIT_N_COUNTER_next = wait_n_calc_for_WAIT_N_COUNTER - 1;
-                wait_n_calc_for_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:225:17;
+                wait_n_calc_for_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:232:17;
             end;
             i_next1++;
             if (i_next1 < 2)
             begin
                 wait_n_calc_for_WAIT_N_COUNTER_next = n_next1;
-                wait_n_calc_for_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:225:17;
+                wait_n_calc_for_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:232:17;
             end
             i_next1 = 0;
             wait_n_calc_for_WAIT_N_COUNTER_next = n_next1;
-            wait_n_calc_for_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:225:17;
+            wait_n_calc_for_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:232:17;
         end
     endcase
 endfunction
@@ -846,7 +846,7 @@ always_ff @(posedge clk or negedge rstn)
 begin : wait_n_calc_for_ff
     if ( ~rstn ) begin
         n2 <= 3;
-        wait_n_calc_for_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:221:9;
+        wait_n_calc_for_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:228:9;
         wait_n_calc_for_WAIT_N_COUNTER <= 0;
     end
     else begin
@@ -858,14 +858,14 @@ begin : wait_n_calc_for_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: three_wait (test_cthread_wait_n.cpp:230:5) 
+// Clocked THREAD: three_wait (test_cthread_wait_n.cpp:237:5) 
 
 // Thread-local variables
 logic [1:0] three_wait_PROC_STATE;
 logic [1:0] three_wait_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : three_wait_comb     // test_cthread_wait_n.cpp:230:5
+always_comb begin : three_wait_comb     // test_cthread_wait_n.cpp:237:5
     three_wait_func;
 end
 function void three_wait_func;
@@ -873,16 +873,16 @@ function void three_wait_func;
     
     case (three_wait_PROC_STATE)
         0: begin
-            three_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:235:13;
+            three_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:242:13;
         end
         1: begin
-            three_wait_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:236:13;
+            three_wait_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:243:13;
         end
         2: begin
-            three_wait_PROC_STATE_next = 3; return;    // test_cthread_wait_n.cpp:237:13;
+            three_wait_PROC_STATE_next = 3; return;    // test_cthread_wait_n.cpp:244:13;
         end
         3: begin
-            three_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:235:13;
+            three_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:242:13;
         end
     endcase
 endfunction
@@ -891,7 +891,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : three_wait_ff
     if ( ~rstn ) begin
-        three_wait_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:232:9;
+        three_wait_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:239:9;
     end
     else begin
         three_wait_PROC_STATE <= three_wait_PROC_STATE_next;
@@ -899,14 +899,14 @@ begin : three_wait_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: four_wait (test_cthread_wait_n.cpp:242:5) 
+// Clocked THREAD: four_wait (test_cthread_wait_n.cpp:249:5) 
 
 // Thread-local variables
 logic [2:0] four_wait_PROC_STATE;
 logic [2:0] four_wait_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : four_wait_comb     // test_cthread_wait_n.cpp:242:5
+always_comb begin : four_wait_comb     // test_cthread_wait_n.cpp:249:5
     four_wait_func;
 end
 function void four_wait_func;
@@ -914,19 +914,19 @@ function void four_wait_func;
     
     case (four_wait_PROC_STATE)
         0: begin
-            four_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:247:13;
+            four_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:254:13;
         end
         1: begin
-            four_wait_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:248:13;
+            four_wait_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:255:13;
         end
         2: begin
-            four_wait_PROC_STATE_next = 3; return;    // test_cthread_wait_n.cpp:249:13;
+            four_wait_PROC_STATE_next = 3; return;    // test_cthread_wait_n.cpp:256:13;
         end
         3: begin
-            four_wait_PROC_STATE_next = 4; return;    // test_cthread_wait_n.cpp:250:13;
+            four_wait_PROC_STATE_next = 4; return;    // test_cthread_wait_n.cpp:257:13;
         end
         4: begin
-            four_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:247:13;
+            four_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:254:13;
         end
     endcase
 endfunction
@@ -935,7 +935,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : four_wait_ff
     if ( ~rstn ) begin
-        four_wait_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:244:9;
+        four_wait_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:251:9;
     end
     else begin
         four_wait_PROC_STATE <= four_wait_PROC_STATE_next;
@@ -943,7 +943,7 @@ begin : four_wait_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: cntr_name_conflict (test_cthread_wait_n.cpp:257:5) 
+// Clocked THREAD: cntr_name_conflict (test_cthread_wait_n.cpp:264:5) 
 
 // Thread-local variables
 logic [1:0] cntr_name_conflict_WAIT_N_COUNTER0;
@@ -955,7 +955,7 @@ logic cntr_name_conflict_PROC_STATE;
 logic cntr_name_conflict_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : cntr_name_conflict_comb     // test_cthread_wait_n.cpp:257:5
+always_comb begin : cntr_name_conflict_comb     // test_cthread_wait_n.cpp:264:5
     cntr_name_conflict_func;
 end
 function void cntr_name_conflict_func;
@@ -969,17 +969,17 @@ function void cntr_name_conflict_func;
             cntr_name_conflict_WAIT_N_COUNTER_next1 = !cntr_name_conflict_WAIT_N_COUNTER_next1;
             cntr_name_conflict_WAIT_N_COUNTER_next_next = cntr_name_conflict_WAIT_N_COUNTER_next1;
             cntr_name_conflict_WAIT_N_COUNTER_next0 = 3;
-            cntr_name_conflict_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:266:13;
+            cntr_name_conflict_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:273:13;
         end
         1: begin
             if (cntr_name_conflict_WAIT_N_COUNTER0 != 1) begin
                 cntr_name_conflict_WAIT_N_COUNTER_next0 = cntr_name_conflict_WAIT_N_COUNTER0 - 1;
-                cntr_name_conflict_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:266:13;
+                cntr_name_conflict_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:273:13;
             end;
             cntr_name_conflict_WAIT_N_COUNTER_next1 = !cntr_name_conflict_WAIT_N_COUNTER_next1;
             cntr_name_conflict_WAIT_N_COUNTER_next_next = cntr_name_conflict_WAIT_N_COUNTER_next1;
             cntr_name_conflict_WAIT_N_COUNTER_next0 = 3;
-            cntr_name_conflict_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:266:13;
+            cntr_name_conflict_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:273:13;
         end
     endcase
 endfunction
@@ -990,7 +990,7 @@ begin : cntr_name_conflict_ff
     if ( ~rstn ) begin
         cntr_name_conflict_WAIT_N_COUNTER <= 0;
         cntr_name_conflict_WAIT_N_COUNTER_next <= cntr_name_conflict_WAIT_N_COUNTER;
-        cntr_name_conflict_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:261:9;
+        cntr_name_conflict_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:268:9;
         cntr_name_conflict_WAIT_N_COUNTER0 <= 0;
     end
     else begin
@@ -1002,7 +1002,7 @@ begin : cntr_name_conflict_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_wait (test_cthread_wait_n.cpp:270:5) 
+// Clocked THREAD: while_wait (test_cthread_wait_n.cpp:277:5) 
 
 // Thread-local variables
 logic [1:0] while_wait_WAIT_N_COUNTER;
@@ -1011,7 +1011,7 @@ logic [1:0] while_wait_PROC_STATE;
 logic [1:0] while_wait_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_wait_comb     // test_cthread_wait_n.cpp:270:5
+always_comb begin : while_wait_comb     // test_cthread_wait_n.cpp:277:5
     while_wait_func;
 end
 function void while_wait_func;
@@ -1023,29 +1023,29 @@ function void while_wait_func;
             if (a)
             begin
                 while_wait_WAIT_N_COUNTER_next = 3;
-                while_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:275:23;
+                while_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:282:23;
             end
-            while_wait_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:276:13;
+            while_wait_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:283:13;
         end
         1: begin
             if (while_wait_WAIT_N_COUNTER != 1) begin
                 while_wait_WAIT_N_COUNTER_next = while_wait_WAIT_N_COUNTER - 1;
-                while_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:275:23;
+                while_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:282:23;
             end;
             if (a)
             begin
                 while_wait_WAIT_N_COUNTER_next = 3;
-                while_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:275:23;
+                while_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:282:23;
             end
-            while_wait_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:276:13;
+            while_wait_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:283:13;
         end
         2: begin
             if (a)
             begin
                 while_wait_WAIT_N_COUNTER_next = 3;
-                while_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:275:23;
+                while_wait_PROC_STATE_next = 1; return;    // test_cthread_wait_n.cpp:282:23;
             end
-            while_wait_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:276:13;
+            while_wait_PROC_STATE_next = 2; return;    // test_cthread_wait_n.cpp:283:13;
         end
     endcase
 endfunction
@@ -1054,7 +1054,7 @@ endfunction
 always_ff @(posedge clk or negedge rstn) 
 begin : while_wait_ff
     if ( ~rstn ) begin
-        while_wait_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:272:9;
+        while_wait_PROC_STATE <= 0;    // test_cthread_wait_n.cpp:279:9;
         while_wait_WAIT_N_COUNTER <= 0;
     end
     else begin

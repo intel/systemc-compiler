@@ -46,7 +46,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_module_port_array.cpp:50:5)
+// Module: A (test_module_port_array.cpp:57:5)
 //
 module A // "b_mod.a"
 (
@@ -64,10 +64,10 @@ logic t[1];
 assign t[0] = t0;
 
 //------------------------------------------------------------------------------
-// Method process: meth (test_module_port_array.cpp:17:5) 
+// Method process: meth (test_module_port_array.cpp:24:5) 
 
 always_comb 
-begin : meth     // test_module_port_array.cpp:17:5
+begin : meth     // test_module_port_array.cpp:24:5
     logic b;
     b = (t[0] ^ r ^ q[1] | w[0]);
 end
@@ -78,7 +78,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: C (test_module_port_array.cpp:51:5)
+// Module: C (test_module_port_array.cpp:58:5)
 //
 module C // "b_mod.c"
 (
@@ -98,10 +98,10 @@ assign w = ws;
 assign q = qs;
 
 //------------------------------------------------------------------------------
-// Method process: meth (test_module_port_array.cpp:35:5) 
+// Method process: meth (test_module_port_array.cpp:42:5) 
 
 always_comb 
-begin : meth     // test_module_port_array.cpp:35:5
+begin : meth     // test_module_port_array.cpp:42:5
     rs = 1;
     ws[0] = 0;
     for (integer i = 0; i < 2; i++)

@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cast.cpp:256:5)
+// Module: A (test_cast.cpp:291:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -47,25 +47,25 @@ module A // "b_mod.a_mod"
 logic [3:0] s;
 
 //------------------------------------------------------------------------------
-// Method process: cond_const (test_cast.cpp:39:5) 
+// Method process: cond_const (test_cast.cpp:48:5) 
 
 always_comb 
-begin : cond_const     // test_cast.cpp:39:5
+begin : cond_const     // test_cast.cpp:48:5
     logic b_1;
     logic [7:0] c_1;
     b_1 = 1;
-    assert (b_1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (b_1) else $error("Assertion failed at test_cast.cpp:46:24>");
     b_1 = 1;
     c_1 = 2;
-    assert (c_1 == 2) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (c_1 == 2) else $error("Assertion failed at test_cast.cpp:46:24>");
     c_1 = 8'd2;
 end
 
 //------------------------------------------------------------------------------
-// Method process: bool_cast (test_cast.cpp:51:5) 
+// Method process: bool_cast (test_cast.cpp:60:5) 
 
 always_comb 
-begin : bool_cast     // test_cast.cpp:51:5
+begin : bool_cast     // test_cast.cpp:60:5
     logic b_1;
     integer i;
     b_1 = 1;
@@ -76,62 +76,62 @@ begin : bool_cast     // test_cast.cpp:51:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_bool_type_cast (test_cast.cpp:62:5) 
+// Method process: const_bool_type_cast (test_cast.cpp:71:5) 
 
 always_comb 
-begin : const_bool_type_cast     // test_cast.cpp:62:5
+begin : const_bool_type_cast     // test_cast.cpp:71:5
     logic b_1;
     logic [7:0] c_1;
     integer unsigned i;
     c_1 = 2;
     b_1 = |c_1;
-    assert (b_1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (b_1) else $error("Assertion failed at test_cast.cpp:46:24>");
     b_1 = 1;
-    assert (b_1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (b_1) else $error("Assertion failed at test_cast.cpp:46:24>");
     c_1 = 0;
     b_1 = |c_1;
-    assert (!b_1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (!b_1) else $error("Assertion failed at test_cast.cpp:46:24>");
     i = 65536;
     b_1 = |i;
-    assert (b_1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (b_1) else $error("Assertion failed at test_cast.cpp:46:24>");
     b_1 = 1;
-    assert (b_1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (b_1) else $error("Assertion failed at test_cast.cpp:46:24>");
     i = 0;
     b_1 = |i;
-    assert (!b_1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (!b_1) else $error("Assertion failed at test_cast.cpp:46:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_cpp_type_cast (test_cast.cpp:92:5) 
+// Method process: const_cpp_type_cast (test_cast.cpp:101:5) 
 
 always_comb 
-begin : const_cpp_type_cast     // test_cast.cpp:92:5
+begin : const_cpp_type_cast     // test_cast.cpp:101:5
     logic [7:0] c_1;
     logic [15:0] s_1;
     integer unsigned i;
     logic [63:0] l;
     c_1 = 1;
-    assert (c_1 == 1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (c_1 == 1) else $error("Assertion failed at test_cast.cpp:46:24>");
     s_1 = 257;
     c_1 = s_1;
-    assert (c_1 == 1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (c_1 == 1) else $error("Assertion failed at test_cast.cpp:46:24>");
     l = 64'd1 <<< 32;
-    assert (l == 33'h100000000) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (l == 33'h100000000) else $error("Assertion failed at test_cast.cpp:46:24>");
     i = l + 1;
-    assert (i == 1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (i == 1) else $error("Assertion failed at test_cast.cpp:46:24>");
     i = 1;
-    assert (i == 1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (i == 1) else $error("Assertion failed at test_cast.cpp:46:24>");
     i = 1;
-    assert (i == 1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (i == 1) else $error("Assertion failed at test_cast.cpp:46:24>");
     i = signed'({1'b0, 8'(s_1)}) + 1;
-    assert (i == 2) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (i == 2) else $error("Assertion failed at test_cast.cpp:46:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: var_cpp_type_cast (test_cast.cpp:118:5) 
+// Method process: var_cpp_type_cast (test_cast.cpp:127:5) 
 
 always_comb 
-begin : var_cpp_type_cast     // test_cast.cpp:118:5
+begin : var_cpp_type_cast     // test_cast.cpp:127:5
     logic [7:0] c_1;
     logic [15:0] s_1;
     integer unsigned i;
@@ -140,51 +140,81 @@ begin : var_cpp_type_cast     // test_cast.cpp:118:5
     i = l;
     s_1 = i;
     c_1 = s_1;
-    assert (l == 'hAAAABBBBCCCCDDEE) else $error("Assertion failed at test_cast.cpp:37:24>");
-    assert (i == 'hCCCCDDEE) else $error("Assertion failed at test_cast.cpp:37:24>");
-    assert (s_1 == 'hDDEE) else $error("Assertion failed at test_cast.cpp:37:24>");
-    assert (c_1 == 'hEE) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (l == 'hAAAABBBBCCCCDDEE) else $error("Assertion failed at test_cast.cpp:46:24>");
+    assert (i == 'hCCCCDDEE) else $error("Assertion failed at test_cast.cpp:46:24>");
+    assert (s_1 == 'hDDEE) else $error("Assertion failed at test_cast.cpp:46:24>");
+    assert (c_1 == 'hEE) else $error("Assertion failed at test_cast.cpp:46:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_cpp_ref_impl_cast (test_cast.cpp:136:5) 
+// Method process: const_cpp_ref_impl_cast (test_cast.cpp:145:5) 
 
 always_comb 
-begin : const_cpp_ref_impl_cast     // test_cast.cpp:136:5
+begin : const_cpp_ref_impl_cast     // test_cast.cpp:145:5
     integer unsigned i;
     logic [15:0] s_1;
     logic [7:0] c_1;
     i = 65537;
     s_1 = 257;
     c_1 = s_1;
-    assert (c_1 == 1) else $error("Assertion failed at test_cast.cpp:37:24>");
-    assert (s_1 == 257) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (c_1 == 1) else $error("Assertion failed at test_cast.cpp:46:24>");
+    assert (s_1 == 257) else $error("Assertion failed at test_cast.cpp:46:24>");
     c_1 = signed'({1'b0, s_1}) + 1;
-    assert (c_1 == 2) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (c_1 == 2) else $error("Assertion failed at test_cast.cpp:46:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_cpp_ref_expl_cast (test_cast.cpp:149:5) 
+// Method process: const_cpp_ref_expl_cast (test_cast.cpp:158:5) 
 
 always_comb 
-begin : const_cpp_ref_expl_cast     // test_cast.cpp:149:5
+begin : const_cpp_ref_expl_cast     // test_cast.cpp:158:5
     integer unsigned i;
     logic [15:0] s_1;
     integer unsigned j;
     i = 65537;
     s_1 = 257;
     j = 8'(s_1);
-    assert (j == 1) else $error("Assertion failed at test_cast.cpp:37:24>");
-    assert (s_1 == 257) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (j == 1) else $error("Assertion failed at test_cast.cpp:46:24>");
+    assert (s_1 == 257) else $error("Assertion failed at test_cast.cpp:46:24>");
     j = signed'({1'b0, 8'(s_1)}) + 1;
-    assert (j == 2) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (j == 2) else $error("Assertion failed at test_cast.cpp:46:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: const_sc_type_cast (test_cast.cpp:163:5) 
+// Method process: var_cpp_expl_cast (test_cast.cpp:171:5) 
 
 always_comb 
-begin : const_sc_type_cast     // test_cast.cpp:163:5
+begin : var_cpp_expl_cast     // test_cast.cpp:171:5
+    integer unsigned u;
+    logic [15:0] s_1;
+    logic [32:0] ux;
+    logic [3:0] bu;
+    logic signed [3:0] ix;
+    logic signed [3:0] bi;
+    integer i;
+    ux = 33'h1C0000000;
+    bu = 0;
+    ix = 0;
+    bi = 0;
+    i = 32'(ux);
+    assert (i == 'hC0000000) else $error("Assertion failed at test_cast.cpp:46:24>");
+    i = signed'({1'b0, 32'(ux)}) + 1;
+    assert (i == 'hC0000001) else $error("Assertion failed at test_cast.cpp:46:24>");
+    i = signed'(32'(s_1)) + 1;
+    i = signed'(32'(u)) + 1;
+    i = signed'(32'(ux)) + signed'({1'b0, 32'(ux)}) + signed'({1'b0, 32'(bu)});
+    i = 32'(ux);
+    i = 32'(bu);
+    i = 32'(ix) + 32'(ix) + 32'(bi);
+    i = 32'(ix);
+    i = 32'(bi);
+end
+
+//------------------------------------------------------------------------------
+// Method process: const_sc_type_cast (test_cast.cpp:198:5) 
+
+always_comb 
+begin : const_sc_type_cast     // test_cast.cpp:198:5
     logic [3:0] x;
     logic [2:0] y;
     logic signed [4:0] sx;
@@ -194,33 +224,33 @@ begin : const_sc_type_cast     // test_cast.cpp:163:5
     logic signed [4:0] sz;
     x = 12;
     y = x;
-    assert (y == 4) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (y == 4) else $error("Assertion failed at test_cast.cpp:46:24>");
     sx = -4'sd7;
     sy = sx;
-    assert (sy == 1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (sy == 1) else $error("Assertion failed at test_cast.cpp:46:24>");
     z = 3'(x);
-    assert (z == 4) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (z == 4) else $error("Assertion failed at test_cast.cpp:46:24>");
     z = 3'(x + 1);
-    assert (z == 5) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (z == 5) else $error("Assertion failed at test_cast.cpp:46:24>");
     z = 3'd13;
-    assert (z == 5) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (z == 5) else $error("Assertion failed at test_cast.cpp:46:24>");
     z = 2'd15;
-    assert (z == 3) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (z == 3) else $error("Assertion failed at test_cast.cpp:46:24>");
     i = 14;
     z = 2'(i);
-    assert (z == 2) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (z == 2) else $error("Assertion failed at test_cast.cpp:46:24>");
     sz = 0;
     sz = 3'(sx);
-    assert (sz == 1) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (sz == 1) else $error("Assertion failed at test_cast.cpp:46:24>");
     sz = -3'sd13;
-    assert (sz == 3) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (sz == 3) else $error("Assertion failed at test_cast.cpp:46:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: var_sc_type_cast (test_cast.cpp:199:5) 
+// Method process: var_sc_type_cast (test_cast.cpp:234:5) 
 
 always_comb 
-begin : var_sc_type_cast     // test_cast.cpp:199:5
+begin : var_sc_type_cast     // test_cast.cpp:234:5
     logic [7:0] u1;
     logic [15:0] u2;
     logic [31:0] b1;
@@ -234,28 +264,28 @@ begin : var_sc_type_cast     // test_cast.cpp:199:5
     i = 'hAAAABBCD;
     l = 'hAAAABBBBCCCCDDEE;
     u1 = i;
-    assert (u1 == 'hCD) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (u1 == 'hCD) else $error("Assertion failed at test_cast.cpp:46:24>");
     u1 = l;
-    assert (u1 == 'hEE) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (u1 == 'hEE) else $error("Assertion failed at test_cast.cpp:46:24>");
     u2 = i;
-    assert (u2 == 'hBBCD) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (u2 == 'hBBCD) else $error("Assertion failed at test_cast.cpp:46:24>");
     u2 = l;
-    assert (u2 == 'hDDEE) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (u2 == 'hDDEE) else $error("Assertion failed at test_cast.cpp:46:24>");
     b1 = i;
-    assert (b1 == 'hAAAABBCD) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (b1 == 'hAAAABBCD) else $error("Assertion failed at test_cast.cpp:46:24>");
     b1 = l;
-    assert (b1 == 'hCCCCDDEE) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (b1 == 'hCCCCDDEE) else $error("Assertion failed at test_cast.cpp:46:24>");
     b2 = i;
-    assert (b2 == 'hAAAABBCD) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (b2 == 'hAAAABBCD) else $error("Assertion failed at test_cast.cpp:46:24>");
     b2 = l;
-    assert (b2 == 'hBBBBCCCCDDEE) else $error("Assertion failed at test_cast.cpp:37:24>");
+    assert (b2 == 'hBBBBCCCCDDEE) else $error("Assertion failed at test_cast.cpp:46:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: multi_sc_type_cast (test_cast.cpp:229:5) 
+// Method process: multi_sc_type_cast (test_cast.cpp:264:5) 
 
 always_comb 
-begin : multi_sc_type_cast     // test_cast.cpp:229:5
+begin : multi_sc_type_cast     // test_cast.cpp:264:5
     logic [3:0] x;
     logic [7:0] y;
     logic [15:0] z;

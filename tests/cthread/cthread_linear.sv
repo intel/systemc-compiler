@@ -19,7 +19,7 @@ logic arstn;
 logic signed [31:0] out;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test_simple_thread2 (test_cthread_linear.cpp:37:5) 
+// Clocked THREAD: test_simple_thread2 (test_cthread_linear.cpp:44:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
@@ -29,7 +29,7 @@ logic [1:0] test_simple_thread2_PROC_STATE;
 logic [1:0] test_simple_thread2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_simple_thread2_comb     // test_cthread_linear.cpp:37:5
+always_comb begin : test_simple_thread2_comb     // test_cthread_linear.cpp:44:5
     test_simple_thread2_func;
 end
 function void test_simple_thread2_func;
@@ -40,16 +40,16 @@ function void test_simple_thread2_func;
     case (test_simple_thread2_PROC_STATE)
         0: begin
             out_next = 1 + i_next;
-            test_simple_thread2_PROC_STATE_next = 1; return;    // test_cthread_linear.cpp:45:13;
+            test_simple_thread2_PROC_STATE_next = 1; return;    // test_cthread_linear.cpp:52:13;
         end
         1: begin
             out_next = 2;
             i_next++;
-            test_simple_thread2_PROC_STATE_next = 2; return;    // test_cthread_linear.cpp:48:13;
+            test_simple_thread2_PROC_STATE_next = 2; return;    // test_cthread_linear.cpp:55:13;
         end
         2: begin
             out_next = 1 + i_next;
-            test_simple_thread2_PROC_STATE_next = 1; return;    // test_cthread_linear.cpp:45:13;
+            test_simple_thread2_PROC_STATE_next = 1; return;    // test_cthread_linear.cpp:52:13;
         end
     endcase
 endfunction
@@ -60,7 +60,7 @@ begin : test_simple_thread2_ff
     if ( ~arstn ) begin
         i <= 0;
         out <= 0;
-        test_simple_thread2_PROC_STATE <= 0;    // test_cthread_linear.cpp:41:9;
+        test_simple_thread2_PROC_STATE <= 0;    // test_cthread_linear.cpp:48:9;
     end
     else begin
         out <= out_next;

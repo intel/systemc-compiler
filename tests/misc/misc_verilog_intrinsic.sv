@@ -30,7 +30,7 @@ endmodule
 
 //==============================================================================
 //
-// Verilog intrinsic for module: my_module (test_verilog_intrinsic.cpp:27:5)
+// Verilog intrinsic for module: my_module (test_verilog_intrinsic.cpp:34:5)
 //
 module my_module(input in);
    // Some verilog code

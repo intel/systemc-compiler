@@ -21,19 +21,19 @@ logic minst_clk;
 assign minst_clk = clk;
 
 //------------------------------------------------------------------------------
-// Method process: minst_meth (test_read_notdef_var.cpp:26:5) 
+// Method process: minst_meth (test_read_notdef_var.cpp:33:5) 
 
 // Process-local variables
 logic minst_v;
 
 always_comb 
-begin : minst_meth     // test_read_notdef_var.cpp:26:5
+begin : minst_meth     // test_read_notdef_var.cpp:33:5
     logic b;
     b = minst_v;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thread (test_read_notdef_var.cpp:30:5) 
+// Clocked THREAD: minst_thread (test_read_notdef_var.cpp:37:5) 
 
 // Thread-local variables
 logic minst_vv;
@@ -44,7 +44,7 @@ logic thread_PROC_STATE;
 logic thread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : minst_thread_comb     // test_read_notdef_var.cpp:30:5
+always_comb begin : minst_thread_comb     // test_read_notdef_var.cpp:37:5
     minst_thread_func;
 end
 function void minst_thread_func;
@@ -56,12 +56,12 @@ function void minst_thread_func;
     case (thread_PROC_STATE)
         0: begin
             c_next = minst_vv_next;
-            thread_PROC_STATE_next = 1; return;    // test_read_notdef_var.cpp:36:13;
+            thread_PROC_STATE_next = 1; return;    // test_read_notdef_var.cpp:43:13;
         end
         1: begin
             d = c_next;
             c_next = minst_vv_next;
-            thread_PROC_STATE_next = 1; return;    // test_read_notdef_var.cpp:36:13;
+            thread_PROC_STATE_next = 1; return;    // test_read_notdef_var.cpp:43:13;
         end
     endcase
 endfunction
@@ -70,7 +70,7 @@ endfunction
 always_ff @(posedge minst_clk or posedge minst_rst) 
 begin : minst_thread_ff
     if (minst_rst ) begin
-        thread_PROC_STATE <= 0;    // test_read_notdef_var.cpp:32:9;
+        thread_PROC_STATE <= 0;    // test_read_notdef_var.cpp:39:9;
     end
     else begin
         minst_vv <= minst_vv_next;

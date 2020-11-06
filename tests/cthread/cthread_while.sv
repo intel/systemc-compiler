@@ -20,7 +20,7 @@ logic signed [31:0] in;
 logic signed [31:0] out;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_wait0 (test_while.cpp:64:5) 
+// Clocked THREAD: while_with_wait0 (test_while.cpp:71:5) 
 
 // Thread-local variables
 logic signed [31:0] i;
@@ -29,7 +29,7 @@ logic while_with_wait0_PROC_STATE;
 logic while_with_wait0_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_wait0_comb     // test_while.cpp:64:5
+always_comb begin : while_with_wait0_comb     // test_while.cpp:71:5
     while_with_wait0_func;
 end
 function void while_with_wait0_func;
@@ -39,16 +39,16 @@ function void while_with_wait0_func;
     case (while_with_wait0_PROC_STATE)
         0: begin
             i_next = 0;
-            while_with_wait0_PROC_STATE_next = 1; return;    // test_while.cpp:72:17;
+            while_with_wait0_PROC_STATE_next = 1; return;    // test_while.cpp:79:17;
         end
         1: begin
             i_next++;
             if (i_next < 3)
             begin
-                while_with_wait0_PROC_STATE_next = 1; return;    // test_while.cpp:72:17;
+                while_with_wait0_PROC_STATE_next = 1; return;    // test_while.cpp:79:17;
             end
             i_next = 0;
-            while_with_wait0_PROC_STATE_next = 1; return;    // test_while.cpp:72:17;
+            while_with_wait0_PROC_STATE_next = 1; return;    // test_while.cpp:79:17;
         end
     endcase
 endfunction
@@ -57,7 +57,7 @@ endfunction
 always_ff @(posedge clk or negedge arstn) 
 begin : while_with_wait0_ff
     if ( ~arstn ) begin
-        while_with_wait0_PROC_STATE <= 0;    // test_while.cpp:66:9;
+        while_with_wait0_PROC_STATE <= 0;    // test_while.cpp:73:9;
     end
     else begin
         i <= i_next;
@@ -66,7 +66,7 @@ begin : while_with_wait0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_wait0a (test_while.cpp:79:5) 
+// Clocked THREAD: while_with_wait0a (test_while.cpp:86:5) 
 
 // Thread-local variables
 logic signed [31:0] i0;
@@ -75,7 +75,7 @@ logic [1:0] while_with_wait0a_PROC_STATE;
 logic [1:0] while_with_wait0a_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_wait0a_comb     // test_while.cpp:79:5
+always_comb begin : while_with_wait0a_comb     // test_while.cpp:86:5
     while_with_wait0a_func;
 end
 function void while_with_wait0a_func;
@@ -86,24 +86,24 @@ function void while_with_wait0a_func;
         0: begin
             if (i_next0 < 3)
             begin
-                while_with_wait0a_PROC_STATE_next = 1; return;    // test_while.cpp:86:17;
+                while_with_wait0a_PROC_STATE_next = 1; return;    // test_while.cpp:93:17;
             end
-            while_with_wait0a_PROC_STATE_next = 2; return;    // test_while.cpp:89:13;
+            while_with_wait0a_PROC_STATE_next = 2; return;    // test_while.cpp:96:13;
         end
         1: begin
             i_next0++;
             if (i_next0 < 3)
             begin
-                while_with_wait0a_PROC_STATE_next = 1; return;    // test_while.cpp:86:17;
+                while_with_wait0a_PROC_STATE_next = 1; return;    // test_while.cpp:93:17;
             end
-            while_with_wait0a_PROC_STATE_next = 2; return;    // test_while.cpp:89:13;
+            while_with_wait0a_PROC_STATE_next = 2; return;    // test_while.cpp:96:13;
         end
         2: begin
             if (i_next0 < 3)
             begin
-                while_with_wait0a_PROC_STATE_next = 1; return;    // test_while.cpp:86:17;
+                while_with_wait0a_PROC_STATE_next = 1; return;    // test_while.cpp:93:17;
             end
-            while_with_wait0a_PROC_STATE_next = 2; return;    // test_while.cpp:89:13;
+            while_with_wait0a_PROC_STATE_next = 2; return;    // test_while.cpp:96:13;
         end
     endcase
 endfunction
@@ -113,7 +113,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : while_with_wait0a_ff
     if ( ~arstn ) begin
         i0 <= 0;
-        while_with_wait0a_PROC_STATE <= 0;    // test_while.cpp:82:9;
+        while_with_wait0a_PROC_STATE <= 0;    // test_while.cpp:89:9;
     end
     else begin
         i0 <= i_next0;
@@ -122,7 +122,7 @@ begin : while_with_wait0a_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_wait1 (test_while.cpp:94:5) 
+// Clocked THREAD: while_with_wait1 (test_while.cpp:101:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
@@ -132,7 +132,7 @@ logic [1:0] while_with_wait1_PROC_STATE;
 logic [1:0] while_with_wait1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_wait1_comb     // test_while.cpp:94:5
+always_comb begin : while_with_wait1_comb     // test_while.cpp:101:5
     while_with_wait1_func;
 end
 function void while_with_wait1_func;
@@ -145,23 +145,23 @@ function void while_with_wait1_func;
             i_next1 = 0;
             i_next1++;
             out_next = 1;
-            while_with_wait1_PROC_STATE_next = 1; return;    // test_while.cpp:105:17;
+            while_with_wait1_PROC_STATE_next = 1; return;    // test_while.cpp:112:17;
         end
         1: begin
             if (i_next1 < 3)
             begin
                 i_next1++;
                 out_next = 1;
-                while_with_wait1_PROC_STATE_next = 1; return;    // test_while.cpp:105:17;
+                while_with_wait1_PROC_STATE_next = 1; return;    // test_while.cpp:112:17;
             end
             out_next = 2;
-            while_with_wait1_PROC_STATE_next = 2; return;    // test_while.cpp:108:13;
+            while_with_wait1_PROC_STATE_next = 2; return;    // test_while.cpp:115:13;
         end
         2: begin
             i_next1 = 0;
             i_next1++;
             out_next = 1;
-            while_with_wait1_PROC_STATE_next = 1; return;    // test_while.cpp:105:17;
+            while_with_wait1_PROC_STATE_next = 1; return;    // test_while.cpp:112:17;
         end
     endcase
 endfunction
@@ -171,7 +171,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : while_with_wait1_ff
     if ( ~arstn ) begin
         out <= 0;
-        while_with_wait1_PROC_STATE <= 0;    // test_while.cpp:97:9;
+        while_with_wait1_PROC_STATE <= 0;    // test_while.cpp:104:9;
     end
     else begin
         out <= out_next;
@@ -181,7 +181,7 @@ begin : while_with_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_wait2 (test_while.cpp:113:5) 
+// Clocked THREAD: while_with_wait2 (test_while.cpp:120:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next0;
@@ -191,7 +191,7 @@ logic [1:0] while_with_wait2_PROC_STATE;
 logic [1:0] while_with_wait2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_wait2_comb     // test_while.cpp:113:5
+always_comb begin : while_with_wait2_comb     // test_while.cpp:120:5
     while_with_wait2_func;
 end
 function void while_with_wait2_func;
@@ -204,38 +204,38 @@ function void while_with_wait2_func;
             i_next2 = 0;
             i_next2++;
             out_next0 = 1;
-            while_with_wait2_PROC_STATE_next = 1; return;    // test_while.cpp:124:17;
+            while_with_wait2_PROC_STATE_next = 1; return;    // test_while.cpp:131:17;
         end
         1: begin
             if (in > 1)
             begin
                 out_next0 = 2;
-                while_with_wait2_PROC_STATE_next = 2; return;    // test_while.cpp:128:21;
+                while_with_wait2_PROC_STATE_next = 2; return;    // test_while.cpp:135:21;
             end
             if (i_next2 < 3)
             begin
                 i_next2++;
                 out_next0 = 1;
-                while_with_wait2_PROC_STATE_next = 1; return;    // test_while.cpp:124:17;
+                while_with_wait2_PROC_STATE_next = 1; return;    // test_while.cpp:131:17;
             end
             out_next0 = 3;
-            while_with_wait2_PROC_STATE_next = 3; return;    // test_while.cpp:132:13;
+            while_with_wait2_PROC_STATE_next = 3; return;    // test_while.cpp:139:13;
         end
         2: begin
             if (i_next2 < 3)
             begin
                 i_next2++;
                 out_next0 = 1;
-                while_with_wait2_PROC_STATE_next = 1; return;    // test_while.cpp:124:17;
+                while_with_wait2_PROC_STATE_next = 1; return;    // test_while.cpp:131:17;
             end
             out_next0 = 3;
-            while_with_wait2_PROC_STATE_next = 3; return;    // test_while.cpp:132:13;
+            while_with_wait2_PROC_STATE_next = 3; return;    // test_while.cpp:139:13;
         end
         3: begin
             i_next2 = 0;
             i_next2++;
             out_next0 = 1;
-            while_with_wait2_PROC_STATE_next = 1; return;    // test_while.cpp:124:17;
+            while_with_wait2_PROC_STATE_next = 1; return;    // test_while.cpp:131:17;
         end
     endcase
 endfunction
@@ -245,7 +245,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : while_with_wait2_ff
     if ( ~arstn ) begin
         out <= 0;
-        while_with_wait2_PROC_STATE <= 0;    // test_while.cpp:116:9;
+        while_with_wait2_PROC_STATE <= 0;    // test_while.cpp:123:9;
     end
     else begin
         out <= out_next0;
@@ -255,7 +255,7 @@ begin : while_with_wait2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_for (test_while.cpp:137:5) 
+// Clocked THREAD: while_with_for (test_while.cpp:144:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next1;
@@ -267,7 +267,7 @@ logic [1:0] while_with_for_PROC_STATE;
 logic [1:0] while_with_for_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_for_comb     // test_while.cpp:137:5
+always_comb begin : while_with_for_comb     // test_while.cpp:144:5
     while_with_for_func;
 end
 function void while_with_for_func;
@@ -286,7 +286,7 @@ function void while_with_for_func;
             begin
                 out_next1 = j_next;
             end
-            while_with_for_PROC_STATE_next = 1; return;    // test_while.cpp:153:21;
+            while_with_for_PROC_STATE_next = 1; return;    // test_while.cpp:160:21;
         end
         1: begin
             j_next++;
@@ -296,7 +296,7 @@ function void while_with_for_func;
                 begin
                     out_next1 = j_next;
                 end
-                while_with_for_PROC_STATE_next = 1; return;    // test_while.cpp:153:21;
+                while_with_for_PROC_STATE_next = 1; return;    // test_while.cpp:160:21;
             end
             if (i_next3 < 3)
             begin
@@ -307,10 +307,10 @@ function void while_with_for_func;
                 begin
                     out_next1 = j_next;
                 end
-                while_with_for_PROC_STATE_next = 1; return;    // test_while.cpp:153:21;
+                while_with_for_PROC_STATE_next = 1; return;    // test_while.cpp:160:21;
             end
             out_next1 = 3;
-            while_with_for_PROC_STATE_next = 2; return;    // test_while.cpp:157:13;
+            while_with_for_PROC_STATE_next = 2; return;    // test_while.cpp:164:13;
         end
         2: begin
             i_next3 = 0;
@@ -321,7 +321,7 @@ function void while_with_for_func;
             begin
                 out_next1 = j_next;
             end
-            while_with_for_PROC_STATE_next = 1; return;    // test_while.cpp:153:21;
+            while_with_for_PROC_STATE_next = 1; return;    // test_while.cpp:160:21;
         end
     endcase
 endfunction
@@ -331,7 +331,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : while_with_for_ff
     if ( ~arstn ) begin
         out <= 0;
-        while_with_for_PROC_STATE <= 0;    // test_while.cpp:140:9;
+        while_with_for_PROC_STATE <= 0;    // test_while.cpp:147:9;
     end
     else begin
         out <= out_next1;
@@ -342,7 +342,7 @@ begin : while_with_for_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_signal_cond (test_while.cpp:162:5) 
+// Clocked THREAD: while_with_signal_cond (test_while.cpp:169:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next2;
@@ -350,7 +350,7 @@ logic [1:0] while_with_signal_cond_PROC_STATE;
 logic [1:0] while_with_signal_cond_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_signal_cond_comb     // test_while.cpp:162:5
+always_comb begin : while_with_signal_cond_comb     // test_while.cpp:169:5
     while_with_signal_cond_func;
 end
 function void while_with_signal_cond_func;
@@ -362,28 +362,28 @@ function void while_with_signal_cond_func;
             if (|in)
             begin
                 out_next2 = 1;
-                while_with_signal_cond_PROC_STATE_next = 1; return;    // test_while.cpp:171:17;
+                while_with_signal_cond_PROC_STATE_next = 1; return;    // test_while.cpp:178:17;
             end
             out_next2 = 2;
-            while_with_signal_cond_PROC_STATE_next = 2; return;    // test_while.cpp:175:13;
+            while_with_signal_cond_PROC_STATE_next = 2; return;    // test_while.cpp:182:13;
         end
         1: begin
             if (|in)
             begin
                 out_next2 = 1;
-                while_with_signal_cond_PROC_STATE_next = 1; return;    // test_while.cpp:171:17;
+                while_with_signal_cond_PROC_STATE_next = 1; return;    // test_while.cpp:178:17;
             end
             out_next2 = 2;
-            while_with_signal_cond_PROC_STATE_next = 2; return;    // test_while.cpp:175:13;
+            while_with_signal_cond_PROC_STATE_next = 2; return;    // test_while.cpp:182:13;
         end
         2: begin
             if (|in)
             begin
                 out_next2 = 1;
-                while_with_signal_cond_PROC_STATE_next = 1; return;    // test_while.cpp:171:17;
+                while_with_signal_cond_PROC_STATE_next = 1; return;    // test_while.cpp:178:17;
             end
             out_next2 = 2;
-            while_with_signal_cond_PROC_STATE_next = 2; return;    // test_while.cpp:175:13;
+            while_with_signal_cond_PROC_STATE_next = 2; return;    // test_while.cpp:182:13;
         end
     endcase
 endfunction
@@ -393,7 +393,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : while_with_signal_cond_ff
     if ( ~arstn ) begin
         out <= 0;
-        while_with_signal_cond_PROC_STATE <= 0;    // test_while.cpp:165:9;
+        while_with_signal_cond_PROC_STATE <= 0;    // test_while.cpp:172:9;
     end
     else begin
         out <= out_next2;
@@ -402,7 +402,7 @@ begin : while_with_signal_cond_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_binary_oper (test_while.cpp:180:5) 
+// Clocked THREAD: while_with_binary_oper (test_while.cpp:187:5) 
 
 // Thread-local variables
 logic b1;
@@ -413,7 +413,7 @@ logic [1:0] while_with_binary_oper_PROC_STATE;
 logic [1:0] while_with_binary_oper_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_binary_oper_comb     // test_while.cpp:180:5
+always_comb begin : while_with_binary_oper_comb     // test_while.cpp:187:5
     while_with_binary_oper_func;
 end
 function void while_with_binary_oper_func;
@@ -427,26 +427,26 @@ function void while_with_binary_oper_func;
             if (b1_next || b2_next)
             begin
                 k = 1;
-                while_with_binary_oper_PROC_STATE_next = 1; return;    // test_while.cpp:189:17;
+                while_with_binary_oper_PROC_STATE_next = 1; return;    // test_while.cpp:196:17;
             end
-            while_with_binary_oper_PROC_STATE_next = 2; return;    // test_while.cpp:192:13;
+            while_with_binary_oper_PROC_STATE_next = 2; return;    // test_while.cpp:199:13;
         end
         1: begin
             k = 2;
             if (b1_next || b2_next)
             begin
                 k = 1;
-                while_with_binary_oper_PROC_STATE_next = 1; return;    // test_while.cpp:189:17;
+                while_with_binary_oper_PROC_STATE_next = 1; return;    // test_while.cpp:196:17;
             end
-            while_with_binary_oper_PROC_STATE_next = 2; return;    // test_while.cpp:192:13;
+            while_with_binary_oper_PROC_STATE_next = 2; return;    // test_while.cpp:199:13;
         end
         2: begin
             if (b1_next || b2_next)
             begin
                 k = 1;
-                while_with_binary_oper_PROC_STATE_next = 1; return;    // test_while.cpp:189:17;
+                while_with_binary_oper_PROC_STATE_next = 1; return;    // test_while.cpp:196:17;
             end
-            while_with_binary_oper_PROC_STATE_next = 2; return;    // test_while.cpp:192:13;
+            while_with_binary_oper_PROC_STATE_next = 2; return;    // test_while.cpp:199:13;
         end
     endcase
 endfunction
@@ -457,7 +457,7 @@ begin : while_with_binary_oper_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        while_with_binary_oper_PROC_STATE <= 0;    // test_while.cpp:184:9;
+        while_with_binary_oper_PROC_STATE <= 0;    // test_while.cpp:191:9;
     end
     else begin
         b1 <= b1_next;
@@ -467,7 +467,7 @@ begin : while_with_binary_oper_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_binary_oper1 (test_while.cpp:196:5) 
+// Clocked THREAD: while_with_binary_oper1 (test_while.cpp:203:5) 
 
 // Thread-local variables
 logic b10;
@@ -478,7 +478,7 @@ logic [1:0] while_with_binary_oper1_PROC_STATE;
 logic [1:0] while_with_binary_oper1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_binary_oper1_comb     // test_while.cpp:196:5
+always_comb begin : while_with_binary_oper1_comb     // test_while.cpp:203:5
     while_with_binary_oper1_func;
 end
 function void while_with_binary_oper1_func;
@@ -492,26 +492,26 @@ function void while_with_binary_oper1_func;
             if (b1_next0 && b2_next0)
             begin
                 k = 1;
-                while_with_binary_oper1_PROC_STATE_next = 1; return;    // test_while.cpp:205:17;
+                while_with_binary_oper1_PROC_STATE_next = 1; return;    // test_while.cpp:212:17;
             end
-            while_with_binary_oper1_PROC_STATE_next = 2; return;    // test_while.cpp:208:13;
+            while_with_binary_oper1_PROC_STATE_next = 2; return;    // test_while.cpp:215:13;
         end
         1: begin
             k = 2;
             if (b1_next0 && b2_next0)
             begin
                 k = 1;
-                while_with_binary_oper1_PROC_STATE_next = 1; return;    // test_while.cpp:205:17;
+                while_with_binary_oper1_PROC_STATE_next = 1; return;    // test_while.cpp:212:17;
             end
-            while_with_binary_oper1_PROC_STATE_next = 2; return;    // test_while.cpp:208:13;
+            while_with_binary_oper1_PROC_STATE_next = 2; return;    // test_while.cpp:215:13;
         end
         2: begin
             if (b1_next0 && b2_next0)
             begin
                 k = 1;
-                while_with_binary_oper1_PROC_STATE_next = 1; return;    // test_while.cpp:205:17;
+                while_with_binary_oper1_PROC_STATE_next = 1; return;    // test_while.cpp:212:17;
             end
-            while_with_binary_oper1_PROC_STATE_next = 2; return;    // test_while.cpp:208:13;
+            while_with_binary_oper1_PROC_STATE_next = 2; return;    // test_while.cpp:215:13;
         end
     endcase
 endfunction
@@ -522,7 +522,7 @@ begin : while_with_binary_oper1_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        while_with_binary_oper1_PROC_STATE <= 0;    // test_while.cpp:200:9;
+        while_with_binary_oper1_PROC_STATE <= 0;    // test_while.cpp:207:9;
     end
     else begin
         b10 <= b1_next0;
@@ -532,7 +532,7 @@ begin : while_with_binary_oper1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_binary_oper2 (test_while.cpp:213:5) 
+// Clocked THREAD: while_with_binary_oper2 (test_while.cpp:220:5) 
 
 // Thread-local variables
 logic b11;
@@ -545,7 +545,7 @@ logic [1:0] while_with_binary_oper2_PROC_STATE;
 logic [1:0] while_with_binary_oper2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_binary_oper2_comb     // test_while.cpp:213:5
+always_comb begin : while_with_binary_oper2_comb     // test_while.cpp:220:5
     while_with_binary_oper2_func;
 end
 function void while_with_binary_oper2_func;
@@ -560,26 +560,26 @@ function void while_with_binary_oper2_func;
             if ((b1_next1 || b2_next1) && b3_next)
             begin
                 k = 1;
-                while_with_binary_oper2_PROC_STATE_next = 1; return;    // test_while.cpp:222:17;
+                while_with_binary_oper2_PROC_STATE_next = 1; return;    // test_while.cpp:229:17;
             end
-            while_with_binary_oper2_PROC_STATE_next = 2; return;    // test_while.cpp:225:13;
+            while_with_binary_oper2_PROC_STATE_next = 2; return;    // test_while.cpp:232:13;
         end
         1: begin
             k = 2;
             if ((b1_next1 || b2_next1) && b3_next)
             begin
                 k = 1;
-                while_with_binary_oper2_PROC_STATE_next = 1; return;    // test_while.cpp:222:17;
+                while_with_binary_oper2_PROC_STATE_next = 1; return;    // test_while.cpp:229:17;
             end
-            while_with_binary_oper2_PROC_STATE_next = 2; return;    // test_while.cpp:225:13;
+            while_with_binary_oper2_PROC_STATE_next = 2; return;    // test_while.cpp:232:13;
         end
         2: begin
             if ((b1_next1 || b2_next1) && b3_next)
             begin
                 k = 1;
-                while_with_binary_oper2_PROC_STATE_next = 1; return;    // test_while.cpp:222:17;
+                while_with_binary_oper2_PROC_STATE_next = 1; return;    // test_while.cpp:229:17;
             end
-            while_with_binary_oper2_PROC_STATE_next = 2; return;    // test_while.cpp:225:13;
+            while_with_binary_oper2_PROC_STATE_next = 2; return;    // test_while.cpp:232:13;
         end
     endcase
 endfunction
@@ -590,7 +590,7 @@ begin : while_with_binary_oper2_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        while_with_binary_oper2_PROC_STATE <= 0;    // test_while.cpp:217:9;
+        while_with_binary_oper2_PROC_STATE <= 0;    // test_while.cpp:224:9;
     end
     else begin
         b11 <= b1_next1;
@@ -601,7 +601,7 @@ begin : while_with_binary_oper2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: while_with_binary_oper3 (test_while.cpp:229:5) 
+// Clocked THREAD: while_with_binary_oper3 (test_while.cpp:236:5) 
 
 // Thread-local variables
 logic b12;
@@ -614,7 +614,7 @@ logic [1:0] while_with_binary_oper3_PROC_STATE;
 logic [1:0] while_with_binary_oper3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : while_with_binary_oper3_comb     // test_while.cpp:229:5
+always_comb begin : while_with_binary_oper3_comb     // test_while.cpp:236:5
     while_with_binary_oper3_func;
 end
 function void while_with_binary_oper3_func;
@@ -629,26 +629,26 @@ function void while_with_binary_oper3_func;
             if ((b1_next2 && b2_next2) || b3_next0)
             begin
                 k = 1;
-                while_with_binary_oper3_PROC_STATE_next = 1; return;    // test_while.cpp:238:17;
+                while_with_binary_oper3_PROC_STATE_next = 1; return;    // test_while.cpp:245:17;
             end
-            while_with_binary_oper3_PROC_STATE_next = 2; return;    // test_while.cpp:241:13;
+            while_with_binary_oper3_PROC_STATE_next = 2; return;    // test_while.cpp:248:13;
         end
         1: begin
             k = 2;
             if ((b1_next2 && b2_next2) || b3_next0)
             begin
                 k = 1;
-                while_with_binary_oper3_PROC_STATE_next = 1; return;    // test_while.cpp:238:17;
+                while_with_binary_oper3_PROC_STATE_next = 1; return;    // test_while.cpp:245:17;
             end
-            while_with_binary_oper3_PROC_STATE_next = 2; return;    // test_while.cpp:241:13;
+            while_with_binary_oper3_PROC_STATE_next = 2; return;    // test_while.cpp:248:13;
         end
         2: begin
             if ((b1_next2 && b2_next2) || b3_next0)
             begin
                 k = 1;
-                while_with_binary_oper3_PROC_STATE_next = 1; return;    // test_while.cpp:238:17;
+                while_with_binary_oper3_PROC_STATE_next = 1; return;    // test_while.cpp:245:17;
             end
-            while_with_binary_oper3_PROC_STATE_next = 2; return;    // test_while.cpp:241:13;
+            while_with_binary_oper3_PROC_STATE_next = 2; return;    // test_while.cpp:248:13;
         end
     endcase
 endfunction
@@ -659,7 +659,7 @@ begin : while_with_binary_oper3_ff
     if ( ~arstn ) begin
         integer k;
         k = 0;
-        while_with_binary_oper3_PROC_STATE <= 0;    // test_while.cpp:233:9;
+        while_with_binary_oper3_PROC_STATE <= 0;    // test_while.cpp:240:9;
     end
     else begin
         b12 <= b1_next2;

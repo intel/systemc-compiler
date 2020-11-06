@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <systemc.h>
 
 // Verilog key words in local variables
@@ -64,4 +71,5 @@ int sc_main(int argc, char **argv) {
 
     return 0;
 }
+
 

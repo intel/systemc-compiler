@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_verilog_keyword.cpp:48:5)
+// Module: A (test_verilog_keyword.cpp:55:5)
 //
 module A // "tb_inst.a"
 (
@@ -45,16 +45,16 @@ logic rst;
 logic wire_v;
 
 //------------------------------------------------------------------------------
-// Method process: methodProc (test_verilog_keyword.cpp:26:5) 
+// Method process: methodProc (test_verilog_keyword.cpp:33:5) 
 
 always_comb 
-begin : methodProc     // test_verilog_keyword.cpp:26:5
+begin : methodProc     // test_verilog_keyword.cpp:33:5
     logic reg_v;
     reg_v = wire_v;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: threadProc (test_verilog_keyword.cpp:30:5) 
+// Clocked THREAD: threadProc (test_verilog_keyword.cpp:37:5) 
 
 // Thread-local variables
 logic [3:0] output_v_next;
@@ -62,7 +62,7 @@ logic [3:0] small_v;
 logic [3:0] small_v_next;
 
 // Next-state combinational logic
-always_comb begin : threadProc_comb     // test_verilog_keyword.cpp:30:5
+always_comb begin : threadProc_comb     // test_verilog_keyword.cpp:37:5
     threadProc_func;
 end
 function void threadProc_func;
@@ -98,7 +98,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: library_v (test_verilog_keyword.cpp:16:5)
+// Module: library_v (test_verilog_keyword.cpp:23:5)
 //
 module library_v // "tb_inst.a.l"
 (

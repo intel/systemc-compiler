@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_read_defined.cpp:69:5)
+// Module: A (test_read_defined.cpp:76:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -43,10 +43,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: rec_decl (test_read_defined.cpp:34:5) 
+// Method process: rec_decl (test_read_defined.cpp:41:5) 
 
 always_comb 
-begin : rec_decl     // test_read_defined.cpp:34:5
+begin : rec_decl     // test_read_defined.cpp:41:5
     logic [2:0] x;
     logic [2:0] val;
     logic [2:0] r_a;
@@ -56,10 +56,10 @@ begin : rec_decl     // test_read_defined.cpp:34:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_assign (test_read_defined.cpp:42:5) 
+// Method process: rec_assign (test_read_defined.cpp:49:5) 
 
 always_comb 
-begin : rec_assign     // test_read_defined.cpp:42:5
+begin : rec_assign     // test_read_defined.cpp:49:5
     logic [2:0] val;
     logic [2:0] r_a;
     logic [2:0] x;

@@ -46,7 +46,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_decoder.cpp:205:5)
+// Module: A (test_decoder.cpp:212:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -62,10 +62,10 @@ module A // "b_mod.a_mod"
 );
 
 //------------------------------------------------------------------------------
-// Method process: encoder_ifelse (test_decoder.cpp:37:5) 
+// Method process: encoder_ifelse (test_decoder.cpp:44:5) 
 
 always_comb 
-begin : encoder_ifelse     // test_decoder.cpp:37:5
+begin : encoder_ifelse     // test_decoder.cpp:44:5
     binary_dout = 0;
     if (enable)
     begin
@@ -133,10 +133,10 @@ begin : encoder_ifelse     // test_decoder.cpp:37:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: encoder_case (test_decoder.cpp:74:5) 
+// Method process: encoder_case (test_decoder.cpp:81:5) 
 
 always_comb 
-begin : encoder_case     // test_decoder.cpp:74:5
+begin : encoder_case     // test_decoder.cpp:81:5
     binary_case_dout = 0;
     if (enable)
     begin
@@ -191,10 +191,10 @@ begin : encoder_case     // test_decoder.cpp:74:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: priority_ifelse (test_decoder.cpp:97:5) 
+// Method process: priority_ifelse (test_decoder.cpp:104:5) 
 
 always_comb 
-begin : priority_ifelse     // test_decoder.cpp:97:5
+begin : priority_ifelse     // test_decoder.cpp:104:5
     binary_prior_dout = 0;
     if (enable)
     begin
@@ -281,18 +281,18 @@ begin : priority_ifelse     // test_decoder.cpp:97:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: priority_assign (test_decoder.cpp:136:5) 
+// Method process: priority_assign (test_decoder.cpp:143:5) 
 
 always_comb 
-begin : priority_assign     // test_decoder.cpp:136:5
+begin : priority_assign     // test_decoder.cpp:143:5
     binary_prior_assign_dout = (!enable) ? 0 : (data_in[0] ? 0 : data_in[1] ? 1 : data_in[2] ? 2 : data_in[3] ? 3 : data_in[4] ? 4 : data_in[5] ? 5 : data_in[6] ? 6 : data_in[7] ? 7 : data_in[8] ? 8 : data_in[9] ? 9 : data_in[10] ? 10 : data_in[11] ? 11 : data_in[12] ? 12 : data_in[13] ? 13 : data_in[14] ? 14 : 15);
 end
 
 //------------------------------------------------------------------------------
-// Method process: decoder_case (test_decoder.cpp:155:5) 
+// Method process: decoder_case (test_decoder.cpp:162:5) 
 
 always_comb 
-begin : decoder_case     // test_decoder.cpp:155:5
+begin : decoder_case     // test_decoder.cpp:162:5
     binary_decoder_case_dout = 0;
     if (enable)
     begin
@@ -350,10 +350,10 @@ begin : decoder_case     // test_decoder.cpp:155:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: decoder_assign (test_decoder.cpp:178:5) 
+// Method process: decoder_assign (test_decoder.cpp:185:5) 
 
 always_comb 
-begin : decoder_assign     // test_decoder.cpp:178:5
+begin : decoder_assign     // test_decoder.cpp:185:5
     binary_decoder_assign_dout = enable ? (1 <<< bdata_in) : 'b0;
 end
 

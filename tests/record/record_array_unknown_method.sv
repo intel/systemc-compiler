@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_unknown_method.cpp:147:5)
+// Module: A (test_array_unknown_method.cpp:154:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -37,29 +37,29 @@ module A // "b_mod.a_mod"
 logic signed [31:0] sig;
 
 //------------------------------------------------------------------------------
-// Method process: simple_array1 (test_array_unknown_method.cpp:41:5) 
+// Method process: simple_array1 (test_array_unknown_method.cpp:48:5) 
 
 // Process-local variables
 logic b[3];
 
 always_comb 
-begin : simple_array1     // test_array_unknown_method.cpp:41:5
+begin : simple_array1     // test_array_unknown_method.cpp:48:5
     integer i;
     b[1] = 1;
-    assert (b[1]) else $error("Assertion failed at test_array_unknown_method.cpp:45:9");
+    assert (b[1]) else $error("Assertion failed at test_array_unknown_method.cpp:52:9");
     i = sig;
     b[i] = 0;
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_array1 (test_array_unknown_method.cpp:54:5) 
+// Method process: record_array1 (test_array_unknown_method.cpp:61:5) 
 
 // Process-local variables
 logic r_a[3];
 logic signed [31:0] r_b[3];
 
 always_comb 
-begin : record_array1     // test_array_unknown_method.cpp:54:5
+begin : record_array1     // test_array_unknown_method.cpp:61:5
     integer i;
     r_a[1] = 1;
     r_a[0] = 0;
@@ -68,14 +68,14 @@ begin : record_array1     // test_array_unknown_method.cpp:54:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_array2 (test_array_unknown_method.cpp:69:5) 
+// Method process: record_array2 (test_array_unknown_method.cpp:76:5) 
 
 // Process-local variables
 logic rr_a[3][2];
 logic signed [31:0] rr_b[3][2];
 
 always_comb 
-begin : record_array2     // test_array_unknown_method.cpp:69:5
+begin : record_array2     // test_array_unknown_method.cpp:76:5
     integer i;
     rr_a[1][1] = 1;
     i = sig;

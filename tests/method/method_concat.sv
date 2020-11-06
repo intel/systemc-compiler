@@ -44,7 +44,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_concat.cpp:179:5)
+// Module: A (test_concat.cpp:186:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -69,10 +69,10 @@ logic [31:0] s4;
 logic signed [63:0] s5;
 
 //------------------------------------------------------------------------------
-// Method process: concat_cpp (test_concat.cpp:67:5) 
+// Method process: concat_cpp (test_concat.cpp:74:5) 
 
 always_comb 
-begin : concat_cpp     // test_concat.cpp:67:5
+begin : concat_cpp     // test_concat.cpp:74:5
     logic b;
     logic c;
     integer i;
@@ -119,10 +119,10 @@ begin : concat_cpp     // test_concat.cpp:67:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: concat_compl (test_concat.cpp:109:5) 
+// Method process: concat_compl (test_concat.cpp:116:5) 
 
 always_comb 
-begin : concat_compl     // test_concat.cpp:109:5
+begin : concat_compl     // test_concat.cpp:116:5
     logic b;
     logic c;
     integer i;
@@ -146,7 +146,7 @@ begin : concat_compl     // test_concat.cpp:109:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: bit_range_sel (test_concat.cpp:127:5) 
+// Method process: bit_range_sel (test_concat.cpp:134:5) 
 
 // Process-local variables
 logic signed [3:0] t;
@@ -159,7 +159,7 @@ logic [7:0] x1;
 logic [7:0] x2;
 
 always_comb 
-begin : bit_range_sel     // test_concat.cpp:127:5
+begin : bit_range_sel     // test_concat.cpp:134:5
     t = 1;
     x = 2;
     tb = 1;
@@ -172,14 +172,14 @@ begin : bit_range_sel     // test_concat.cpp:127:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: bit_range_sel2 (test_concat.cpp:143:5) 
+// Method process: bit_range_sel2 (test_concat.cpp:150:5) 
 
 // Process-local variables
 logic signed [3:0] t;
 logic signed [3:0] x;
 
 always_comb 
-begin : bit_range_sel2     // test_concat.cpp:143:5
+begin : bit_range_sel2     // test_concat.cpp:150:5
     logic [7:0] a;
     t = 1;
     x = 2;
@@ -189,7 +189,7 @@ begin : bit_range_sel2     // test_concat.cpp:143:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: bit_range_sel3 (test_concat.cpp:154:5) 
+// Method process: bit_range_sel3 (test_concat.cpp:161:5) 
 
 // Process-local variables
 logic signed [3:0] t;
@@ -198,7 +198,7 @@ logic signed [3:0] tb;
 logic signed [3:0] xb;
 
 always_comb 
-begin : bit_range_sel3     // test_concat.cpp:154:5
+begin : bit_range_sel3     // test_concat.cpp:161:5
     t = 1;
     x = 2;
     tb = 1;

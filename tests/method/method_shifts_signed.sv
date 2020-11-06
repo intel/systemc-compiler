@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_shifts_signed.cpp:97:5)
+// Module: A (test_shifts_signed.cpp:104:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -43,10 +43,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: shift_right_neg (test_shifts_signed.cpp:51:5) 
+// Method process: shift_right_neg (test_shifts_signed.cpp:58:5) 
 
 always_comb 
-begin : shift_right_neg     // test_shifts_signed.cpp:51:5
+begin : shift_right_neg     // test_shifts_signed.cpp:58:5
     logic signed [31:0] par1;
     logic signed [31:0] par2;
     logic signed [63:0] par3;
@@ -74,7 +74,7 @@ begin : shift_right_neg     // test_shifts_signed.cpp:51:5
     B = par2;
     C = par3;
     shift_r1 = A >>> B;
-    assert (shift_r1 == C) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_r1 == C) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_right_neg_fns() end
     par1 = 32'd0; par2 = 32'd33; par3 = 64'd0;
     // Call shift_right_neg_fns() begin
@@ -82,7 +82,7 @@ begin : shift_right_neg     // test_shifts_signed.cpp:51:5
     B = par2;
     C = par3;
     shift_r1 = A >>> B;
-    assert (shift_r1 == C) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_r1 == C) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_right_neg_fns() end
     par1 = -32'sd1; par2 = 32'd10; par3 = -64'sd1;
     // Call shift_right_neg_fns() begin
@@ -90,7 +90,7 @@ begin : shift_right_neg     // test_shifts_signed.cpp:51:5
     B = par2;
     C = par3;
     shift_r1 = A >>> B;
-    assert (shift_r1 == C) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_r1 == C) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_right_neg_fns() end
     par1 = -32'sh80000000; par2 = 32'd31; par3 = -64'sd1;
     // Call shift_right_neg_fns() begin
@@ -98,7 +98,7 @@ begin : shift_right_neg     // test_shifts_signed.cpp:51:5
     B = par2;
     C = par3;
     shift_r1 = A >>> B;
-    assert (shift_r1 == C) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_r1 == C) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_right_neg_fns() end
     par1_1 = -20'sd55; par2_1 = 32'd0; par3_1 = -64'sd55;
     // Call shift_right_neg_fns() begin
@@ -106,7 +106,7 @@ begin : shift_right_neg     // test_shifts_signed.cpp:51:5
     B_1 = par2_1;
     C_1 = par3_1;
     shift_r1_1 = A_1 >>> B_1;
-    assert (shift_r1_1 == C_1) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_r1_1 == C_1) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_right_neg_fns() end
     par1 = 32'd0; par2 = 32'd0; par3 = 64'd0;
     // Call shift_right_neg_fns() begin
@@ -114,7 +114,7 @@ begin : shift_right_neg     // test_shifts_signed.cpp:51:5
     B = par2;
     C = par3;
     shift_r1 = A >>> B;
-    assert (shift_r1 == C) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_r1 == C) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_right_neg_fns() end
     par1_2 = -63'sd10; par2_2 = 64'd31; par3_2 = -64'sd1;
     // Call shift_right_neg_fns() begin
@@ -122,15 +122,15 @@ begin : shift_right_neg     // test_shifts_signed.cpp:51:5
     B_2 = par2_2;
     C_2 = par3_2;
     shift_r1_2 = A_2 >>> B_2;
-    assert (shift_r1_2 == C_2) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_r1_2 == C_2) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_right_neg_fns() end
 end
 
 //------------------------------------------------------------------------------
-// Method process: shift_left_neg (test_shifts_signed.cpp:71:5) 
+// Method process: shift_left_neg (test_shifts_signed.cpp:78:5) 
 
 always_comb 
-begin : shift_left_neg     // test_shifts_signed.cpp:71:5
+begin : shift_left_neg     // test_shifts_signed.cpp:78:5
     logic signed [31:0] par1;
     logic signed [31:0] par2;
     logic signed [63:0] par3;
@@ -158,7 +158,7 @@ begin : shift_left_neg     // test_shifts_signed.cpp:71:5
     B = par2;
     C = par3;
     shift_l1 = A <<< B;
-    assert (shift_l1 == C) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_l1 == C) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_left_neg_fns() end
     par1 = -32'sd30; par2 = 32'd8; par3 = -64'sd7680;
     // Call shift_left_neg_fns() begin
@@ -166,7 +166,7 @@ begin : shift_left_neg     // test_shifts_signed.cpp:71:5
     B = par2;
     C = par3;
     shift_l1 = A <<< B;
-    assert (shift_l1 == C) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_l1 == C) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_left_neg_fns() end
     par1 = 32'd0; par2 = 32'd33; par3 = 64'd0;
     // Call shift_left_neg_fns() begin
@@ -174,7 +174,7 @@ begin : shift_left_neg     // test_shifts_signed.cpp:71:5
     B = par2;
     C = par3;
     shift_l1 = A <<< B;
-    assert (shift_l1 == C) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_l1 == C) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_left_neg_fns() end
     par1 = -32'sd1; par2 = 32'd10; par3 = -64'sd1024;
     // Call shift_left_neg_fns() begin
@@ -182,7 +182,7 @@ begin : shift_left_neg     // test_shifts_signed.cpp:71:5
     B = par2;
     C = par3;
     shift_l1 = A <<< B;
-    assert (shift_l1 == C) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_l1 == C) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_left_neg_fns() end
     par1 = -32'sh80000000; par2 = 32'd31; par3 = -64'sh4000000000000000;
     // Call shift_left_neg_fns() begin
@@ -190,7 +190,7 @@ begin : shift_left_neg     // test_shifts_signed.cpp:71:5
     B = par2;
     C = par3;
     shift_l1 = A <<< B;
-    assert (shift_l1 == C) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_l1 == C) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_left_neg_fns() end
     par1_1 = -20'sd55; par2_1 = 32'd0; par3_1 = -64'sd55;
     // Call shift_left_neg_fns() begin
@@ -198,7 +198,7 @@ begin : shift_left_neg     // test_shifts_signed.cpp:71:5
     B_1 = par2_1;
     C_1 = par3_1;
     shift_l1_1 = A_1 <<< B_1;
-    assert (shift_l1_1 == C_1) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_l1_1 == C_1) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_left_neg_fns() end
     par1 = 32'd0; par2 = 32'd0; par3 = 64'd0;
     // Call shift_left_neg_fns() begin
@@ -206,7 +206,7 @@ begin : shift_left_neg     // test_shifts_signed.cpp:71:5
     B = par2;
     C = par3;
     shift_l1 = A <<< B;
-    assert (shift_l1 == C) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_l1 == C) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_left_neg_fns() end
     par1_2 = -32'sd1; par2_2 = 32'd10; par3_2 = -64'sd1024;
     // Call shift_left_neg_fns() begin
@@ -214,7 +214,7 @@ begin : shift_left_neg     // test_shifts_signed.cpp:71:5
     B_2 = par2_2;
     C_2 = par3_2;
     shift_l1_2 = A_2 <<< B_2;
-    assert (shift_l1_2 == C_2) else $error("Assertion failed at test_shifts_signed.cpp:23:24>");
+    assert (shift_l1_2 == C_2) else $error("Assertion failed at test_shifts_signed.cpp:30:24>");
     // Call shift_left_neg_fns() end
 end
 

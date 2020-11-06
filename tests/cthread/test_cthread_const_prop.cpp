@@ -1,9 +1,16 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include <sct_assert.h>
 
 using namespace sc_core;
 
-// Constant propagation in threads
+// Constant propagation special cases
 class A : public sc_module
 {
 public:
@@ -44,7 +51,7 @@ public:
         while (true) {
             const bool b1 = (p == nullptr);
             if (b1) {
-                int i;
+                int i = 1;
             }
             sct_assert_const(b1);
 
@@ -60,7 +67,7 @@ public:
         while (true) {
             const bool b1 = (q != nullptr);
             if (b1) {
-                int i;
+                int i = 1;
             }
             sct_assert_const(b1);
 
@@ -72,7 +79,7 @@ public:
     }    
     
     //----------------------------------------------------------------------
-    // Bug in SMEM Repeater module, CPA stop analysis after first iteration
+    // Bug in real design module, CPA stop analysis after first iteration
     // as popIndx not changed, so @state is stable -- fixed
     static const unsigned FIFO_LENGTH = 2;
     sc_uint<2> popIndx;
@@ -95,7 +102,7 @@ public:
     }
     
     //----------------------------------------------------------------------
-    // Bug in DPX SMEM -- fixed
+    // Bug in real design -- fixed
     sc_signal<sc_uint<2>> rr_first_indx{"rr_first_indx"};
     const unsigned PORT_NUM = 2;
     
@@ -177,3 +184,4 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+

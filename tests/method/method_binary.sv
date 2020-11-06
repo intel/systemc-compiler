@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_binary.cpp:532:5)
+// Module: A (test_binary.cpp:589:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -50,10 +50,10 @@ logic [31:0] s;
 logic [65:0] sig;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: syncProc (test_binary.cpp:61:5) 
+// Clocked THREAD: syncProc (test_binary.cpp:69:5) 
 
 // Next-state combinational logic
-always_comb begin : syncProc_comb     // test_binary.cpp:61:5
+always_comb begin : syncProc_comb     // test_binary.cpp:69:5
     syncProc_func;
 end
 function void syncProc_func;
@@ -70,10 +70,62 @@ begin : syncProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: comma (test_binary.cpp:82:5) 
+// Method process: enumOperation (test_binary.cpp:93:5) 
 
 always_comb 
-begin : comma     // test_binary.cpp:82:5
+begin : enumOperation     // test_binary.cpp:93:5
+    logic [1:0] uvar;
+    logic signed [2:0] ivar;
+    logic b_1;
+    integer i;
+    logic [3:0] x;
+    logic signed [3:0] y;
+    integer unsigned u;
+    logic [16:0] bu;
+    logic signed [23:0] bi;
+    logic signed [32:0] z;
+    uvar = 1;
+    ivar = -3'sd2;
+    b_1 = 0;
+    i = 11;
+    x = 1;
+    y = -2'sd1;
+    u = 1;
+    bu = 1;
+    bi = -3'sd2;
+    z = 0;
+    i = b_1 + signed'({1'b0, uvar});
+    i = signed'({1'b0, x}) + ivar;
+    assert (i == -2'sd1) else $error("Assertion failed at test_binary.cpp:59:24>");
+    i = x + uvar;
+    assert (i == 2) else $error("Assertion failed at test_binary.cpp:59:24>");
+    i = (-3'sd2) + signed'({1'b0, uvar});
+    assert (i == -2'sd1) else $error("Assertion failed at test_binary.cpp:59:24>");
+    i = -3'sd2;
+    i = i + signed'({1'b0, uvar});
+    assert (i == -2'sd1) else $error("Assertion failed at test_binary.cpp:59:24>");
+    i = -3'sd2;
+    i = i + ivar;
+    assert (i == -4'sd4) else $error("Assertion failed at test_binary.cpp:59:24>");
+    i = u + uvar;
+    assert (i == 2) else $error("Assertion failed at test_binary.cpp:59:24>");
+    i = signed'({1'b0, u}) + ivar;
+    assert (i == -2'sd1) else $error("Assertion failed at test_binary.cpp:59:24>");
+    z = signed'({1'b0, bu}) + signed'({1'b0, uvar});
+    assert (z == 2) else $error("Assertion failed at test_binary.cpp:59:24>");
+    z = signed'({1'b0, bu}) + ivar;
+    assert (z == -2'sd1) else $error("Assertion failed at test_binary.cpp:59:24>");
+    z = bi + signed'({1'b0, uvar});
+    assert (z == -2'sd1) else $error("Assertion failed at test_binary.cpp:59:24>");
+    z = bi + ivar;
+    assert (z == -4'sd4) else $error("Assertion failed at test_binary.cpp:59:24>");
+end
+
+//------------------------------------------------------------------------------
+// Method process: comma (test_binary.cpp:139:5) 
+
+always_comb 
+begin : comma     // test_binary.cpp:139:5
     integer i;
     integer j;
     integer k_1;
@@ -90,29 +142,29 @@ begin : comma     // test_binary.cpp:82:5
     // Call f() end
     j = TMP_0;
     k_1 = j++;
-    assert (j == 3) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (j == 3) else $error("Assertion failed at test_binary.cpp:59:24>");
     i_2 = 2;
     // Call g() begin
     j = j + i_2;
     // Call g() end
     k_1 = j;
-    assert (j == 5) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (j == 5) else $error("Assertion failed at test_binary.cpp:59:24>");
     i = 0;
     i = 1;
     k_1 = i + 1;
-    assert (i == 1) else $error("Assertion failed at test_binary.cpp:51:24>");
-    assert (k_1 == 2) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (i == 1) else $error("Assertion failed at test_binary.cpp:59:24>");
+    assert (k_1 == 2) else $error("Assertion failed at test_binary.cpp:59:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: shift (test_binary.cpp:99:5) 
+// Method process: shift (test_binary.cpp:156:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 logic signed [31:0] m;
 
 always_comb 
-begin : shift     // test_binary.cpp:99:5
+begin : shift     // test_binary.cpp:156:5
     integer unsigned i;
     logic [3:0] x;
     logic [7:0] y;
@@ -129,10 +181,10 @@ begin : shift     // test_binary.cpp:99:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_shift (test_binary.cpp:113:5) 
+// Method process: sc_type_shift (test_binary.cpp:170:5) 
 
 always_comb 
-begin : sc_type_shift     // test_binary.cpp:113:5
+begin : sc_type_shift     // test_binary.cpp:170:5
     logic [36:0] i;
     logic [38:0] j;
     logic [71:0] x;
@@ -142,11 +194,11 @@ begin : sc_type_shift     // test_binary.cpp:113:5
     j = i <<< 2;
     x = 70'(i) <<< 68;
     x = x <<< 70;
-    assert (x == 0) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (x == 0) else $error("Assertion failed at test_binary.cpp:59:24>");
     y = 130'(i) >>> 71;
-    assert (y == 0) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (y == 0) else $error("Assertion failed at test_binary.cpp:59:24>");
     y = x >>> 67;
-    assert (y == 0) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (y == 0) else $error("Assertion failed at test_binary.cpp:59:24>");
     y = x >>> i;
     y = x <<< 32'(j - 1);
     ii = 42;
@@ -155,21 +207,21 @@ begin : sc_type_shift     // test_binary.cpp:113:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: compound_assign (test_binary.cpp:133:5) 
+// Method process: compound_assign (test_binary.cpp:190:5) 
 
 // Process-local variables
 logic signed [31:0] m;
 logic signed [31:0] k;
 
 always_comb 
-begin : compound_assign     // test_binary.cpp:133:5
+begin : compound_assign     // test_binary.cpp:190:5
     integer i;
     i = 1;
     i = i + 1;
     m = 1;
-    assert (i == 2) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (i == 2) else $error("Assertion failed at test_binary.cpp:59:24>");
     i = i - m;
-    assert (i == 1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (i == 1) else $error("Assertion failed at test_binary.cpp:59:24>");
     i = i * k;
     i = i / i;
     i = i % (k + m);
@@ -179,10 +231,10 @@ begin : compound_assign     // test_binary.cpp:133:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: compound_assign_brackets (test_binary.cpp:149:5) 
+// Method process: compound_assign_brackets (test_binary.cpp:206:5) 
 
 always_comb 
-begin : compound_assign_brackets     // test_binary.cpp:149:5
+begin : compound_assign_brackets     // test_binary.cpp:206:5
     integer i;
     integer e;
     integer d;
@@ -190,23 +242,23 @@ begin : compound_assign_brackets     // test_binary.cpp:149:5
     d = -3'sd3;
     i = 1;
     i = i * (e + d);
-    assert (i == -2'sd1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (i == -2'sd1) else $error("Assertion failed at test_binary.cpp:59:24>");
     i = 12;
     i = i / (e - d * 2 + i - 10);
-    assert (i == 1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (i == 1) else $error("Assertion failed at test_binary.cpp:59:24>");
     i = 5;
     i = i % (1 + 1);
-    assert (i == 1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (i == 1) else $error("Assertion failed at test_binary.cpp:59:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_compound_assign (test_binary.cpp:167:5) 
+// Method process: sc_compound_assign (test_binary.cpp:224:5) 
 
 // Process-local variables
 logic signed [31:0] k;
 
 always_comb 
-begin : sc_compound_assign     // test_binary.cpp:167:5
+begin : sc_compound_assign     // test_binary.cpp:224:5
     logic [2:0] u;
     logic signed [3:0] i;
     logic signed [3:0] m2;
@@ -214,13 +266,13 @@ begin : sc_compound_assign     // test_binary.cpp:167:5
     i = -3'sd2;
     m2 = 1;
     i = i + 1;
-    assert (i == -2'sd1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (i == -2'sd1) else $error("Assertion failed at test_binary.cpp:59:24>");
     i = i - m2;
-    assert (i == -3'sd2) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (i == -3'sd2) else $error("Assertion failed at test_binary.cpp:59:24>");
     i = i * 1;
-    assert (i == -3'sd2) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (i == -3'sd2) else $error("Assertion failed at test_binary.cpp:59:24>");
     i = i / signed'({1'b0, u});
-    assert (i == 0) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (i == 0) else $error("Assertion failed at test_binary.cpp:59:24>");
     u = u % k;
     u = u | 2;
     u = u & 3;
@@ -230,10 +282,10 @@ begin : sc_compound_assign     // test_binary.cpp:167:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_main (test_binary.cpp:218:5) 
+// Method process: sc_type_main (test_binary.cpp:275:5) 
 
 always_comb 
-begin : sc_type_main     // test_binary.cpp:218:5
+begin : sc_type_main     // test_binary.cpp:275:5
     logic [2:0] x;
     logic signed [3:0] y;
     logic signed [32:0] bx;
@@ -247,36 +299,36 @@ begin : sc_type_main     // test_binary.cpp:218:5
     z = 0;
     bz = 0;
     z = signed'({1'b0, x}) + y;
-    assert (z == 6) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 6) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = signed'({1'b0, 3 * x}) + y * 2 + 2 * 3;
-    assert (z == 19) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 19) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = signed'({1'b0, x + 3}) + y + 0;
-    assert (z == 9) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 9) else $error("Assertion failed at test_binary.cpp:59:24>");
     bz = 5'(signed'({1'b0, x - 1}) + y) / bx;
-    assert (bz == 1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (bz == 1) else $error("Assertion failed at test_binary.cpp:59:24>");
     bz = 34'(signed'({1'b0, x}) / y + bx) / signed'({1'b0, bux});
-    assert (bz == 0) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (bz == 0) else $error("Assertion failed at test_binary.cpp:59:24>");
     bz = signed'({1'b0, x}) * (signed'({1'b0, bux}) + 1) + y / bx;
-    assert (bz == 9) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (bz == 9) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = (y >>> 1) + (bx >>> x);
-    assert (z == 4) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 4) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = (y <<< (4'(x + 1) >>> 1)) * signed'({1'b0, bux});
-    assert (z == 70) else $error("Assertion failed at test_binary.cpp:51:24>");
-    z = (signed'({1'b0, x}) * y) <<< (bux >>> 1);
-    assert (z == 40) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 70) else $error("Assertion failed at test_binary.cpp:59:24>");
+    z = (signed'({1'b0, x}) * y) <<< (32'(bux) >>> 1);
+    assert (z == 40) else $error("Assertion failed at test_binary.cpp:59:24>");
     bz = (signed'({1'b0, x}) + y) - signed'({1'b0, (++bux)});
-    assert (bz == -3'sd2) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (bz == -3'sd2) else $error("Assertion failed at test_binary.cpp:59:24>");
     bz = (y % 2) * (14 % bx + 1);
-    assert (bz == 3) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (bz == 3) else $error("Assertion failed at test_binary.cpp:59:24>");
     bz = 9'((y % bx) * signed'({1'b0, (x + 10)})) / signed'({1'b0, bux});
-    assert (bz == 1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (bz == 1) else $error("Assertion failed at test_binary.cpp:59:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_main_neg (test_binary.cpp:188:5) 
+// Method process: sc_type_main_neg (test_binary.cpp:245:5) 
 
 always_comb 
-begin : sc_type_main_neg     // test_binary.cpp:188:5
+begin : sc_type_main_neg     // test_binary.cpp:245:5
     logic [4:0] x;
     logic signed [4:0] y;
     logic signed [32:0] bx;
@@ -291,17 +343,17 @@ begin : sc_type_main_neg     // test_binary.cpp:188:5
     z = 0;
     z = signed'({1'b0, (-3'sd3) - x}) + y;
     z = signed'({1'b0, x}) * y;
-    assert (z == -4'sd5) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == -4'sd5) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = y / signed'({1'b0, (x + 1)});
     bz = 7'(signed'({1'b0, x}) + y - 1) / bx;
     bz = 7'(signed'({1'b0, x - 1}) + y) / bx;
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_main_signed (test_binary.cpp:265:5) 
+// Method process: sc_type_main_signed (test_binary.cpp:322:5) 
 
 always_comb 
-begin : sc_type_main_signed     // test_binary.cpp:265:5
+begin : sc_type_main_signed     // test_binary.cpp:322:5
     logic signed [2:0] x;
     logic signed [3:0] y;
     logic signed [32:0] bx;
@@ -315,30 +367,30 @@ begin : sc_type_main_signed     // test_binary.cpp:265:5
     z = 0;
     bz = 0;
     z = x + y;
-    assert (z == 6) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 6) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = 3 * x + y * 2 + 2 * 3;
-    assert (z == 19) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 19) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = x + 3 + y + 0;
-    assert (z == 9) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 9) else $error("Assertion failed at test_binary.cpp:59:24>");
     bz = 5'(x - 1 + y) / bx;
-    assert (bz == 1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (bz == 1) else $error("Assertion failed at test_binary.cpp:59:24>");
     bz = 34'(x / y + bx) / by;
-    assert (bz == 0) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (bz == 0) else $error("Assertion failed at test_binary.cpp:59:24>");
     bz = x * (by + 1) + y / bx;
-    assert (bz == 9) else $error("Assertion failed at test_binary.cpp:51:24>");
-    bz = (x * y) <<< (by >>> 1);
-    assert (bz == 40) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (bz == 9) else $error("Assertion failed at test_binary.cpp:59:24>");
+    bz = (x * y) <<< (32'(by) >>> 1);
+    assert (bz == 40) else $error("Assertion failed at test_binary.cpp:59:24>");
     bz = (x + y) - (++by);
-    assert (bz == -3'sd2) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (bz == -3'sd2) else $error("Assertion failed at test_binary.cpp:59:24>");
     bz = 9'((y % bx) * (x + 10)) / by;
-    assert (bz == 1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (bz == 1) else $error("Assertion failed at test_binary.cpp:59:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_logic_bitwise (test_binary.cpp:302:5) 
+// Method process: sc_type_logic_bitwise (test_binary.cpp:359:5) 
 
 always_comb 
-begin : sc_type_logic_bitwise     // test_binary.cpp:302:5
+begin : sc_type_logic_bitwise     // test_binary.cpp:359:5
     integer i;
     integer unsigned uu;
     logic [4:0] x;
@@ -355,36 +407,36 @@ begin : sc_type_logic_bitwise     // test_binary.cpp:302:5
     by = 5;
     z = 0;
     z = i | signed'({1'b0, uu});
-    assert (z == 11) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 11) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = i & signed'({1'b0, uu});
-    assert (z == 2) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 2) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = i ^ signed'({1'b0, uu});
-    assert (z == 9) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 9) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = signed'({1'b0, x}) | signed'({1'b0, uu + bx}) & by;
-    assert (z == 2) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 2) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = signed'({1'b0, (x ^ (uu + 1))}) + (y | signed'({1'b0, bx}) | by);
-    assert (z == 13) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 13) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = signed'({1'b0, (x & 11)}) * (10 | (2 * i));
-    assert (z == 60) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 60) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = |x && |y;
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = |x && !(|y);
-    assert (!b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (!b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = 1;
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = 1;
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = 0 || |(x - 1);
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
-    b_1 = !(|i) || |(y + bx) && 1;
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
+    b_1 = !(|i) || |(y + signed'({1'b0, 32'(bx)})) && 1;
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_type_comp (test_binary.cpp:345:5) 
+// Method process: sc_type_comp (test_binary.cpp:402:5) 
 
 always_comb 
-begin : sc_type_comp     // test_binary.cpp:345:5
+begin : sc_type_comp     // test_binary.cpp:402:5
     integer i;
     integer unsigned uu;
     logic [4:0] x;
@@ -399,32 +451,32 @@ begin : sc_type_comp     // test_binary.cpp:345:5
     bx = 7;
     by = 5;
     b_1 = x > y;
-    assert (!b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (!b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = x != y;
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = x != 1 && bx != i;
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = x == y - 1;
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = 0 == y - signed'({1'b0, uu});
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = x == 2 && bx == uu + 4;
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = x <= y;
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = x <= y && bx > by && 1;
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = x < y;
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
     b_1 = x < (y + 1) && 1;
-    assert (b_1) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (b_1) else $error("Assertion failed at test_binary.cpp:59:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: large_types (test_binary.cpp:380:5) 
+// Method process: large_types (test_binary.cpp:437:5) 
 
 always_comb 
-begin : large_types     // test_binary.cpp:380:5
+begin : large_types     // test_binary.cpp:437:5
     logic signed [127:0] i;
     logic [127:0] j;
     logic signed [99:0] x;
@@ -433,27 +485,27 @@ begin : large_types     // test_binary.cpp:380:5
     i = -5'sd10;
     j = 10;
     i = 140 / j;
-    assert (i == 14) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (i == 14) else $error("Assertion failed at test_binary.cpp:59:24>");
     i = j <<< 2;
-    assert (i == 40) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (i == 40) else $error("Assertion failed at test_binary.cpp:59:24>");
     x = -5'sd11;
     y = 11;
     z = 0;
     z = x + signed'({1'b0, y});
-    assert (z == 0) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == 0) else $error("Assertion failed at test_binary.cpp:59:24>");
     z = x * signed'({1'b0, y});
-    assert (z == -8'sd121) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (z == -8'sd121) else $error("Assertion failed at test_binary.cpp:59:24>");
     x = signed'({1'b0, y}) * 2;
-    assert (x == 22) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (x == 22) else $error("Assertion failed at test_binary.cpp:59:24>");
     y = x <<< 50;
-    assert (y == 'h58000000000000) else $error("Assertion failed at test_binary.cpp:51:24>");
+    assert (y == 'h58000000000000) else $error("Assertion failed at test_binary.cpp:59:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_relational_ops (test_binary.cpp:408:5) 
+// Method process: sc_relational_ops (test_binary.cpp:465:5) 
 
 always_comb 
-begin : sc_relational_ops     // test_binary.cpp:408:5
+begin : sc_relational_ops     // test_binary.cpp:465:5
     integer unsigned rel_a;
     integer unsigned rel_b;
     logic [31:0] rel_c;
@@ -481,13 +533,13 @@ begin : sc_relational_ops     // test_binary.cpp:408:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_fp_bitwise_fns (test_binary.cpp:483:5) 
+// Method process: sc_fp_bitwise_fns (test_binary.cpp:540:5) 
 
 // Process-local variables
 logic signed [31:0] iter;
 
 always_comb 
-begin : sc_fp_bitwise_fns     // test_binary.cpp:483:5
+begin : sc_fp_bitwise_fns     // test_binary.cpp:540:5
     logic [9:0] par1;
     logic [11:0] par2;
     logic [21:0] par3;

@@ -16,10 +16,10 @@ module test // "t_inst"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: array_return (test_array_return.cpp:24:5) 
+// Method process: array_return (test_array_return.cpp:31:5) 
 
 always_comb 
-begin : array_return     // test_array_return.cpp:24:5
+begin : array_return     // test_array_return.cpp:31:5
     integer c[3];
     integer TMP_0;
     // Call arr_ret1() begin

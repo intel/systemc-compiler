@@ -36,7 +36,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cthread_simple2.cpp:117:5)
+// Module: A (test_cthread_simple2.cpp:124:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -50,10 +50,10 @@ module A // "b_mod.a_mod"
 logic c;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: read_only_reg (test_cthread_simple2.cpp:40:5) 
+// Clocked THREAD: read_only_reg (test_cthread_simple2.cpp:47:5) 
 
 // Next-state combinational logic
-always_comb begin : read_only_reg_comb     // test_cthread_simple2.cpp:40:5
+always_comb begin : read_only_reg_comb     // test_cthread_simple2.cpp:47:5
     read_only_reg_func;
 end
 function void read_only_reg_func;
@@ -71,7 +71,7 @@ begin : read_only_reg_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple1 (test_cthread_simple2.cpp:50:5) 
+// Clocked THREAD: simple1 (test_cthread_simple2.cpp:57:5) 
 
 // Thread-local variables
 logic signed [31:0] m;
@@ -80,7 +80,7 @@ logic simple1_PROC_STATE;
 logic simple1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : simple1_comb     // test_cthread_simple2.cpp:50:5
+always_comb begin : simple1_comb     // test_cthread_simple2.cpp:57:5
     simple1_func;
 end
 function void simple1_func;
@@ -92,17 +92,17 @@ function void simple1_func;
         default : begin
             m_next = 1;
             i = 0;
-            simple1_PROC_STATE_next = 0; return;    // test_cthread_simple2.cpp:54:9;
+            simple1_PROC_STATE_next = 0; return;    // test_cthread_simple2.cpp:61:9;
         end
         0: begin
             i = m_next + 1;
             m_next = i;
-            simple1_PROC_STATE_next = 1; return;    // test_cthread_simple2.cpp:59:13;
+            simple1_PROC_STATE_next = 1; return;    // test_cthread_simple2.cpp:66:13;
         end
         1: begin
             i = m_next + 1;
             m_next = i;
-            simple1_PROC_STATE_next = 1; return;    // test_cthread_simple2.cpp:59:13;
+            simple1_PROC_STATE_next = 1; return;    // test_cthread_simple2.cpp:66:13;
         end
     endcase
 endfunction
@@ -117,14 +117,14 @@ begin : simple1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple2 (test_cthread_simple2.cpp:63:5) 
+// Clocked THREAD: simple2 (test_cthread_simple2.cpp:70:5) 
 
 // Thread-local variables
 logic signed [31:0] x;
 logic signed [31:0] x_next;
 
 // Next-state combinational logic
-always_comb begin : simple2_comb     // test_cthread_simple2.cpp:63:5
+always_comb begin : simple2_comb     // test_cthread_simple2.cpp:70:5
     simple2_func;
 end
 function void simple2_func;
@@ -146,7 +146,7 @@ begin : simple2_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple3 (test_cthread_simple2.cpp:75:5) 
+// Clocked THREAD: simple3 (test_cthread_simple2.cpp:82:5) 
 
 // Thread-local variables
 logic b_next;
@@ -155,7 +155,7 @@ logic [1:0] simple3_PROC_STATE;
 logic [1:0] simple3_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : simple3_comb     // test_cthread_simple2.cpp:75:5
+always_comb begin : simple3_comb     // test_cthread_simple2.cpp:82:5
     simple3_func;
 end
 function void simple3_func;
@@ -166,15 +166,15 @@ function void simple3_func;
     case (simple3_PROC_STATE)
         0: begin
             c_next = |(a + b);
-            simple3_PROC_STATE_next = 1; return;    // test_cthread_simple2.cpp:82:13;
+            simple3_PROC_STATE_next = 1; return;    // test_cthread_simple2.cpp:89:13;
         end
         1: begin
             b_next = c;
-            simple3_PROC_STATE_next = 2; return;    // test_cthread_simple2.cpp:84:13;
+            simple3_PROC_STATE_next = 2; return;    // test_cthread_simple2.cpp:91:13;
         end
         2: begin
             c_next = |(a + b);
-            simple3_PROC_STATE_next = 1; return;    // test_cthread_simple2.cpp:82:13;
+            simple3_PROC_STATE_next = 1; return;    // test_cthread_simple2.cpp:89:13;
         end
     endcase
 endfunction
@@ -184,7 +184,7 @@ always_ff @(posedge clk or negedge nrst)
 begin : simple3_ff
     if ( ~nrst ) begin
         b <= 1;
-        simple3_PROC_STATE <= 0;    // test_cthread_simple2.cpp:78:9;
+        simple3_PROC_STATE <= 0;    // test_cthread_simple2.cpp:85:9;
     end
     else begin
         b <= b_next;
@@ -194,7 +194,7 @@ begin : simple3_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: simple_pres (test_cthread_simple2.cpp:88:5) 
+// Clocked THREAD: simple_pres (test_cthread_simple2.cpp:95:5) 
 
 // Thread-local variables
 logic b_next0;
@@ -204,7 +204,7 @@ logic [1:0] simple_pres_PROC_STATE;
 logic [1:0] simple_pres_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : simple_pres_comb     // test_cthread_simple2.cpp:88:5
+always_comb begin : simple_pres_comb     // test_cthread_simple2.cpp:95:5
     simple_pres_func;
 end
 function void simple_pres_func;
@@ -215,15 +215,15 @@ function void simple_pres_func;
     case (simple_pres_PROC_STATE)
         0: begin
             b_next0 = |(a + i_next);
-            simple_pres_PROC_STATE_next = 1; return;    // test_cthread_simple2.cpp:96:13;
+            simple_pres_PROC_STATE_next = 1; return;    // test_cthread_simple2.cpp:103:13;
         end
         1: begin
             i_next = b;
-            simple_pres_PROC_STATE_next = 2; return;    // test_cthread_simple2.cpp:98:13;
+            simple_pres_PROC_STATE_next = 2; return;    // test_cthread_simple2.cpp:105:13;
         end
         2: begin
             b_next0 = |(a + i_next);
-            simple_pres_PROC_STATE_next = 1; return;    // test_cthread_simple2.cpp:96:13;
+            simple_pres_PROC_STATE_next = 1; return;    // test_cthread_simple2.cpp:103:13;
         end
     endcase
 endfunction
@@ -234,7 +234,7 @@ begin : simple_pres_ff
     if ( ~nrst ) begin
         b <= 0;
         i <= 1;
-        simple_pres_PROC_STATE <= 0;    // test_cthread_simple2.cpp:92:9;
+        simple_pres_PROC_STATE <= 0;    // test_cthread_simple2.cpp:99:9;
     end
     else begin
         b <= b_next0;

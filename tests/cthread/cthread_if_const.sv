@@ -25,7 +25,7 @@ logic signed [31:0] s3;
 logic signed [31:0] s4;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const1 (test_if_const.cpp:34:5) 
+// Clocked THREAD: const1 (test_if_const.cpp:41:5) 
 
 // Thread-local variables
 logic signed [31:0] s1_next;
@@ -33,7 +33,7 @@ logic signed [31:0] s1_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const1_comb     // test_if_const.cpp:34:5
+always_comb begin : const1_comb     // test_if_const.cpp:41:5
     const1_func;
 end
 function void const1_func;
@@ -80,7 +80,7 @@ begin : const1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: const_wait1 (test_if_const.cpp:70:5) 
+// Clocked THREAD: const_wait1 (test_if_const.cpp:77:5) 
 
 // Thread-local variables
 logic signed [31:0] s4_next;
@@ -90,7 +90,7 @@ logic [2:0] const_wait1_PROC_STATE_next;
 // Thread-local constants
 
 // Next-state combinational logic
-always_comb begin : const_wait1_comb     // test_if_const.cpp:70:5
+always_comb begin : const_wait1_comb     // test_if_const.cpp:77:5
     const_wait1_func;
 end
 function void const_wait1_func;
@@ -102,56 +102,56 @@ function void const_wait1_func;
             if (s || 0)
             begin
                 s4_next = 1;
-                const_wait1_PROC_STATE_next = 1; return;    // test_if_const.cpp:81:17;
+                const_wait1_PROC_STATE_next = 1; return;    // test_if_const.cpp:88:17;
             end
             if (0 || s == 1)
             begin
                 s4_next = 3;
-                const_wait1_PROC_STATE_next = 2; return;    // test_if_const.cpp:89:17;
+                const_wait1_PROC_STATE_next = 2; return;    // test_if_const.cpp:96:17;
             end
-            const_wait1_PROC_STATE_next = 3; return;    // test_if_const.cpp:92:13;
+            const_wait1_PROC_STATE_next = 3; return;    // test_if_const.cpp:99:13;
         end
         1: begin
             if (0 || s == 1)
             begin
                 s4_next = 3;
-                const_wait1_PROC_STATE_next = 2; return;    // test_if_const.cpp:89:17;
+                const_wait1_PROC_STATE_next = 2; return;    // test_if_const.cpp:96:17;
             end
-            const_wait1_PROC_STATE_next = 3; return;    // test_if_const.cpp:92:13;
+            const_wait1_PROC_STATE_next = 3; return;    // test_if_const.cpp:99:13;
         end
         2: begin
-            const_wait1_PROC_STATE_next = 3; return;    // test_if_const.cpp:92:13;
+            const_wait1_PROC_STATE_next = 3; return;    // test_if_const.cpp:99:13;
         end
         3: begin
             if ((|s1 || !(|s2 && 1) && s3 < 3))
             begin
                 s4_next = 5;
-                const_wait1_PROC_STATE_next = 4; return;    // test_if_const.cpp:100:17;
+                const_wait1_PROC_STATE_next = 4; return;    // test_if_const.cpp:107:17;
             end
             if (s || 0)
             begin
                 s4_next = 1;
-                const_wait1_PROC_STATE_next = 1; return;    // test_if_const.cpp:81:17;
+                const_wait1_PROC_STATE_next = 1; return;    // test_if_const.cpp:88:17;
             end
             if (0 || s == 1)
             begin
                 s4_next = 3;
-                const_wait1_PROC_STATE_next = 2; return;    // test_if_const.cpp:89:17;
+                const_wait1_PROC_STATE_next = 2; return;    // test_if_const.cpp:96:17;
             end
-            const_wait1_PROC_STATE_next = 3; return;    // test_if_const.cpp:92:13;
+            const_wait1_PROC_STATE_next = 3; return;    // test_if_const.cpp:99:13;
         end
         4: begin
             if (s || 0)
             begin
                 s4_next = 1;
-                const_wait1_PROC_STATE_next = 1; return;    // test_if_const.cpp:81:17;
+                const_wait1_PROC_STATE_next = 1; return;    // test_if_const.cpp:88:17;
             end
             if (0 || s == 1)
             begin
                 s4_next = 3;
-                const_wait1_PROC_STATE_next = 2; return;    // test_if_const.cpp:89:17;
+                const_wait1_PROC_STATE_next = 2; return;    // test_if_const.cpp:96:17;
             end
-            const_wait1_PROC_STATE_next = 3; return;    // test_if_const.cpp:92:13;
+            const_wait1_PROC_STATE_next = 3; return;    // test_if_const.cpp:99:13;
         end
     endcase
 endfunction
@@ -161,7 +161,7 @@ always_ff @(posedge clk or negedge arstn)
 begin : const_wait1_ff
     if ( ~arstn ) begin
         s4 <= 0;
-        const_wait1_PROC_STATE <= 0;    // test_if_const.cpp:75:9;
+        const_wait1_PROC_STATE <= 0;    // test_if_const.cpp:82:9;
     end
     else begin
         s4 <= s4_next;
@@ -170,13 +170,13 @@ begin : const_wait1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: compl_if (test_if_const.cpp:111:5) 
+// Clocked THREAD: compl_if (test_if_const.cpp:118:5) 
 
 // Thread-local variables
 logic signed [31:0] out_next;
 
 // Next-state combinational logic
-always_comb begin : compl_if_comb     // test_if_const.cpp:111:5
+always_comb begin : compl_if_comb     // test_if_const.cpp:118:5
     compl_if_func;
 end
 function void compl_if_func;

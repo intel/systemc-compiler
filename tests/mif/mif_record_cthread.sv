@@ -26,7 +26,7 @@ assign minst_clk = clk;
 assign ninst_clk = clk;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_localRecThread (test_record_cthread.cpp:31:5) 
+// Clocked THREAD: minst_localRecThread (test_record_cthread.cpp:38:5) 
 
 // Thread-local variables
 logic t_a;
@@ -37,7 +37,7 @@ logic localRecThread_PROC_STATE;
 logic localRecThread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : minst_localRecThread_comb     // test_record_cthread.cpp:31:5
+always_comb begin : minst_localRecThread_comb     // test_record_cthread.cpp:38:5
     minst_localRecThread_func;
 end
 function void minst_localRecThread_func;
@@ -53,14 +53,14 @@ function void minst_localRecThread_func;
             tt_a = minst_s;
             tt_b = tt_a ? t_b_next : 4'd0;
             i = t_b_next + tt_b;
-            localRecThread_PROC_STATE_next = 1; return;    // test_record_cthread.cpp:42:13;
+            localRecThread_PROC_STATE_next = 1; return;    // test_record_cthread.cpp:49:13;
         end
         1: begin
             t_b_next = t_b_next + 1;
             tt_a = minst_s;
             tt_b = tt_a ? t_b_next : 4'd0;
             i = t_b_next + tt_b;
-            localRecThread_PROC_STATE_next = 1; return;    // test_record_cthread.cpp:42:13;
+            localRecThread_PROC_STATE_next = 1; return;    // test_record_cthread.cpp:49:13;
         end
     endcase
 endfunction
@@ -75,7 +75,7 @@ begin : minst_localRecThread_ff
         tt_b = 0;
         t_a <= 0;
         t_b <= 1;
-        localRecThread_PROC_STATE <= 0;    // test_record_cthread.cpp:36:9;
+        localRecThread_PROC_STATE <= 0;    // test_record_cthread.cpp:43:9;
     end
     else begin
         t_a <= t_a_next;
@@ -85,7 +85,7 @@ begin : minst_localRecThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_localRecArrThread (test_record_cthread.cpp:49:5) 
+// Clocked THREAD: minst_localRecArrThread (test_record_cthread.cpp:56:5) 
 
 // Thread-local variables
 logic v_a[2];
@@ -94,7 +94,7 @@ logic [3:0] v_b[2];
 logic [3:0] v_b_next[2];
 
 // Next-state combinational logic
-always_comb begin : minst_localRecArrThread_comb     // test_record_cthread.cpp:49:5
+always_comb begin : minst_localRecArrThread_comb     // test_record_cthread.cpp:56:5
     minst_localRecArrThread_func;
 end
 function void minst_localRecArrThread_func;
@@ -130,7 +130,7 @@ begin : minst_localRecArrThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_memRecThread (test_record_cthread.cpp:76:5) 
+// Clocked THREAD: minst_memRecThread (test_record_cthread.cpp:83:5) 
 
 // Thread-local variables
 logic minst_r_a;
@@ -143,7 +143,7 @@ logic memRecThread_PROC_STATE;
 logic memRecThread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : minst_memRecThread_comb     // test_record_cthread.cpp:76:5
+always_comb begin : minst_memRecThread_comb     // test_record_cthread.cpp:83:5
     minst_memRecThread_func;
 end
 function void minst_memRecThread_func;
@@ -157,14 +157,14 @@ function void minst_memRecThread_func;
             minst_rr_a = minst_s;
             minst_rr_b = minst_rr_a ? minst_r_b_next : 4'd0;
             i = minst_r_b_next + minst_rr_b;
-            memRecThread_PROC_STATE_next = 1; return;    // test_record_cthread.cpp:85:13;
+            memRecThread_PROC_STATE_next = 1; return;    // test_record_cthread.cpp:92:13;
         end
         1: begin
             minst_r_b_next = minst_r_b_next + 1;
             minst_rr_a = minst_s;
             minst_rr_b = minst_rr_a ? minst_r_b_next : 4'd0;
             i = minst_r_b_next + minst_rr_b;
-            memRecThread_PROC_STATE_next = 1; return;    // test_record_cthread.cpp:85:13;
+            memRecThread_PROC_STATE_next = 1; return;    // test_record_cthread.cpp:92:13;
         end
     endcase
 endfunction
@@ -175,7 +175,7 @@ begin : minst_memRecThread_ff
     if ( ~minst_nrst ) begin
         minst_r_a <= 0;
         minst_r_b <= 1;
-        memRecThread_PROC_STATE <= 0;    // test_record_cthread.cpp:79:9;
+        memRecThread_PROC_STATE <= 0;    // test_record_cthread.cpp:86:9;
     end
     else begin
         minst_r_a <= minst_r_a_next;
@@ -185,7 +185,7 @@ begin : minst_memRecThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_memRecArrThread (test_record_cthread.cpp:95:5) 
+// Clocked THREAD: minst_memRecArrThread (test_record_cthread.cpp:102:5) 
 
 // Thread-local variables
 logic minst_w_a[2];
@@ -196,7 +196,7 @@ logic minst_ww_a[4];
 logic [3:0] minst_ww_b[4];
 
 // Next-state combinational logic
-always_comb begin : minst_memRecArrThread_comb     // test_record_cthread.cpp:95:5
+always_comb begin : minst_memRecArrThread_comb     // test_record_cthread.cpp:102:5
     minst_memRecArrThread_func;
 end
 function void minst_memRecArrThread_func;
@@ -230,7 +230,7 @@ begin : minst_memRecArrThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: ninst_localRecThread (test_record_cthread.cpp:31:5) 
+// Clocked THREAD: ninst_localRecThread (test_record_cthread.cpp:38:5) 
 
 // Thread-local variables
 logic t_a0;
@@ -241,7 +241,7 @@ logic localRecThread_PROC_STATE0;
 logic localRecThread_PROC_STATE_next0;
 
 // Next-state combinational logic
-always_comb begin : ninst_localRecThread_comb     // test_record_cthread.cpp:31:5
+always_comb begin : ninst_localRecThread_comb     // test_record_cthread.cpp:38:5
     ninst_localRecThread_func;
 end
 function void ninst_localRecThread_func;
@@ -257,14 +257,14 @@ function void ninst_localRecThread_func;
             tt_a = ninst_s;
             tt_b = tt_a ? t_b_next0 : 4'd0;
             i = t_b_next0 + tt_b;
-            localRecThread_PROC_STATE_next0 = 1; return;    // test_record_cthread.cpp:42:13;
+            localRecThread_PROC_STATE_next0 = 1; return;    // test_record_cthread.cpp:49:13;
         end
         1: begin
             t_b_next0 = t_b_next0 + 1;
             tt_a = ninst_s;
             tt_b = tt_a ? t_b_next0 : 4'd0;
             i = t_b_next0 + tt_b;
-            localRecThread_PROC_STATE_next0 = 1; return;    // test_record_cthread.cpp:42:13;
+            localRecThread_PROC_STATE_next0 = 1; return;    // test_record_cthread.cpp:49:13;
         end
     endcase
 endfunction
@@ -279,7 +279,7 @@ begin : ninst_localRecThread_ff
         tt_b = 0;
         t_a0 <= 0;
         t_b0 <= 1;
-        localRecThread_PROC_STATE0 <= 0;    // test_record_cthread.cpp:36:9;
+        localRecThread_PROC_STATE0 <= 0;    // test_record_cthread.cpp:43:9;
     end
     else begin
         t_a0 <= t_a_next0;
@@ -289,7 +289,7 @@ begin : ninst_localRecThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: ninst_localRecArrThread (test_record_cthread.cpp:49:5) 
+// Clocked THREAD: ninst_localRecArrThread (test_record_cthread.cpp:56:5) 
 
 // Thread-local variables
 logic v_a0[2];
@@ -298,7 +298,7 @@ logic [3:0] v_b0[2];
 logic [3:0] v_b_next0[2];
 
 // Next-state combinational logic
-always_comb begin : ninst_localRecArrThread_comb     // test_record_cthread.cpp:49:5
+always_comb begin : ninst_localRecArrThread_comb     // test_record_cthread.cpp:56:5
     ninst_localRecArrThread_func;
 end
 function void ninst_localRecArrThread_func;
@@ -334,7 +334,7 @@ begin : ninst_localRecArrThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: ninst_memRecThread (test_record_cthread.cpp:76:5) 
+// Clocked THREAD: ninst_memRecThread (test_record_cthread.cpp:83:5) 
 
 // Thread-local variables
 logic ninst_r_a;
@@ -347,7 +347,7 @@ logic memRecThread_PROC_STATE0;
 logic memRecThread_PROC_STATE_next0;
 
 // Next-state combinational logic
-always_comb begin : ninst_memRecThread_comb     // test_record_cthread.cpp:76:5
+always_comb begin : ninst_memRecThread_comb     // test_record_cthread.cpp:83:5
     ninst_memRecThread_func;
 end
 function void ninst_memRecThread_func;
@@ -361,14 +361,14 @@ function void ninst_memRecThread_func;
             ninst_rr_a = ninst_s;
             ninst_rr_b = ninst_rr_a ? ninst_r_b_next : 4'd0;
             i = ninst_r_b_next + ninst_rr_b;
-            memRecThread_PROC_STATE_next0 = 1; return;    // test_record_cthread.cpp:85:13;
+            memRecThread_PROC_STATE_next0 = 1; return;    // test_record_cthread.cpp:92:13;
         end
         1: begin
             ninst_r_b_next = ninst_r_b_next + 1;
             ninst_rr_a = ninst_s;
             ninst_rr_b = ninst_rr_a ? ninst_r_b_next : 4'd0;
             i = ninst_r_b_next + ninst_rr_b;
-            memRecThread_PROC_STATE_next0 = 1; return;    // test_record_cthread.cpp:85:13;
+            memRecThread_PROC_STATE_next0 = 1; return;    // test_record_cthread.cpp:92:13;
         end
     endcase
 endfunction
@@ -379,7 +379,7 @@ begin : ninst_memRecThread_ff
     if ( ~ninst_nrst ) begin
         ninst_r_a <= 0;
         ninst_r_b <= 1;
-        memRecThread_PROC_STATE0 <= 0;    // test_record_cthread.cpp:79:9;
+        memRecThread_PROC_STATE0 <= 0;    // test_record_cthread.cpp:86:9;
     end
     else begin
         ninst_r_a <= ninst_r_a_next;
@@ -389,7 +389,7 @@ begin : ninst_memRecThread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: ninst_memRecArrThread (test_record_cthread.cpp:95:5) 
+// Clocked THREAD: ninst_memRecArrThread (test_record_cthread.cpp:102:5) 
 
 // Thread-local variables
 logic ninst_w_a[2];
@@ -400,7 +400,7 @@ logic ninst_ww_a[4];
 logic [3:0] ninst_ww_b[4];
 
 // Next-state combinational logic
-always_comb begin : ninst_memRecArrThread_comb     // test_record_cthread.cpp:95:5
+always_comb begin : ninst_memRecArrThread_comb     // test_record_cthread.cpp:102:5
     ninst_memRecArrThread_func;
 end
 function void ninst_memRecArrThread_func;

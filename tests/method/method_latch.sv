@@ -32,7 +32,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_latch.cpp:48:5)
+// Module: A (test_latch.cpp:55:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -41,10 +41,10 @@ module A // "b_mod.a_mod"
 );
 
 //------------------------------------------------------------------------------
-// Method process: latch1 (test_latch.cpp:21:5) 
+// Method process: latch1 (test_latch.cpp:28:5) 
 
 always_comb 
-begin : latch1     // test_latch.cpp:21:5
+begin : latch1     // test_latch.cpp:28:5
     if (a)
     begin
         if (1)
@@ -57,10 +57,10 @@ begin : latch1     // test_latch.cpp:21:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: latch2 (test_latch.cpp:33:5) 
+// Method process: latch2 (test_latch.cpp:40:5) 
 
 always_latch 
-begin : latch2     // test_latch.cpp:33:5
+begin : latch2     // test_latch.cpp:40:5
     if (a)
     begin
         b = 1;

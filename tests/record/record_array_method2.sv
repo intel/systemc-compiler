@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_array_method2.cpp:108:5)
+// Module: A (test_array_method2.cpp:115:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -36,7 +36,7 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: rec_mod_arr1 (test_array_method2.cpp:37:5) 
+// Method process: rec_mod_arr1 (test_array_method2.cpp:44:5) 
 
 // Process-local variables
 logic marr1_a[2];
@@ -45,7 +45,7 @@ logic marr2_a[2][3];
 logic signed [31:0] marr2_b[2][3];
 
 always_comb 
-begin : rec_mod_arr1     // test_array_method2.cpp:37:5
+begin : rec_mod_arr1     // test_array_method2.cpp:44:5
     integer c;
     marr1_a[1] = 0;
     marr2_a[1][2] = !marr1_a[1];
@@ -53,13 +53,13 @@ begin : rec_mod_arr1     // test_array_method2.cpp:37:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: rec_mod_inner0 (test_array_method2.cpp:73:5) 
+// Method process: rec_mod_inner0 (test_array_method2.cpp:80:5) 
 
 // Process-local variables
 logic oo_r_a;
 
 always_comb 
-begin : rec_mod_inner0     // test_array_method2.cpp:73:5
+begin : rec_mod_inner0     // test_array_method2.cpp:80:5
     logic b;
     oo_r_a = 1;
     b = !oo_r_a;

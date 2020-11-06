@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include "systemc.h"
 #include <sct_assert.h>
 #include <iostream>
@@ -108,7 +115,7 @@ public:
         //SC_METHOD(code_after_return); -- not passed yet
     }
     
-    // @cout with channel access -- BUG in Tiny SMEM fixed
+    // @cout with channel access -- BUG in real design fixed
     void read_channel_in_cout() 
     {
         cout << b.read() << p->read() << s1[0].read() << endl;
@@ -452,3 +459,4 @@ int sc_main(int argc, char *argv[]) {
     sc_start();
     return 0;
 }
+

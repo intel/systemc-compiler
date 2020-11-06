@@ -23,20 +23,20 @@ logic minst_clk;
 assign minst_clk = clk;
 
 //------------------------------------------------------------------------------
-// Method process: minst_meth (test_modular_iface2.cpp:34:5) 
+// Method process: minst_meth (test_modular_iface2.cpp:41:5) 
 
 // Process-local variables
 logic minst_v[2];
 
 always_comb 
-begin : minst_meth     // test_modular_iface2.cpp:34:5
+begin : minst_meth     // test_modular_iface2.cpp:41:5
     logic b;
     minst_v[1] = 0;
     b = minst_s[1] || minst_r[1] || minst_v[1];
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_thread (test_modular_iface2.cpp:39:5) 
+// Clocked THREAD: minst_thread (test_modular_iface2.cpp:46:5) 
 
 // Thread-local variables
 logic minst_vv[2];
@@ -47,7 +47,7 @@ logic thread_PROC_STATE;
 logic thread_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : minst_thread_comb     // test_modular_iface2.cpp:39:5
+always_comb begin : minst_thread_comb     // test_modular_iface2.cpp:46:5
     minst_thread_func;
 end
 function void minst_thread_func;
@@ -59,12 +59,12 @@ function void minst_thread_func;
     case (thread_PROC_STATE)
         0: begin
             c_next = minst_s[1] || minst_r[1] || minst_vv_next[1];
-            thread_PROC_STATE_next = 1; return;    // test_modular_iface2.cpp:46:13;
+            thread_PROC_STATE_next = 1; return;    // test_modular_iface2.cpp:53:13;
         end
         1: begin
             d = c_next;
             c_next = minst_s[1] || minst_r[1] || minst_vv_next[1];
-            thread_PROC_STATE_next = 1; return;    // test_modular_iface2.cpp:46:13;
+            thread_PROC_STATE_next = 1; return;    // test_modular_iface2.cpp:53:13;
         end
     endcase
 endfunction
@@ -74,7 +74,7 @@ always_ff @(posedge minst_clk or posedge minst_rst)
 begin : minst_thread_ff
     if (minst_rst ) begin
         minst_vv[1] <= 0;
-        thread_PROC_STATE <= 0;    // test_modular_iface2.cpp:42:9;
+        thread_PROC_STATE <= 0;    // test_modular_iface2.cpp:49:9;
     end
     else begin
         minst_vv <= minst_vv_next;

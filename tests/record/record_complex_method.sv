@@ -27,7 +27,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_complex_method.cpp:434:5)
+// Module: A (test_complex_method.cpp:441:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -36,10 +36,10 @@ module A // "b_mod.a_mod"
 // SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: record_name_coll (test_complex_method.cpp:69:5) 
+// Method process: record_name_coll (test_complex_method.cpp:76:5) 
 
 always_comb 
-begin : record_name_coll     // test_complex_method.cpp:69:5
+begin : record_name_coll     // test_complex_method.cpp:76:5
     logic r_a;
     integer r_b;
     logic TMP_0_a;
@@ -55,10 +55,10 @@ begin : record_name_coll     // test_complex_method.cpp:69:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_local_complex (test_complex_method.cpp:117:5) 
+// Method process: record_local_complex (test_complex_method.cpp:124:5) 
 
 always_comb 
-begin : record_local_complex     // test_complex_method.cpp:117:5
+begin : record_local_complex     // test_complex_method.cpp:124:5
     integer r1_x;
     logic signed [1:0] r1_y;
     logic [15:0] r1_var16;
@@ -108,10 +108,10 @@ begin : record_local_complex     // test_complex_method.cpp:117:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_local_complex2 (test_complex_method.cpp:168:5) 
+// Method process: record_local_complex2 (test_complex_method.cpp:175:5) 
 
 always_comb 
-begin : record_local_complex2     // test_complex_method.cpp:168:5
+begin : record_local_complex2     // test_complex_method.cpp:175:5
     integer x_;
     integer y_;
     integer c_x;
@@ -178,10 +178,10 @@ begin : record_local_complex2     // test_complex_method.cpp:168:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall1 (test_complex_method.cpp:224:5) 
+// Method process: record_fcall1 (test_complex_method.cpp:231:5) 
 
 always_comb 
-begin : record_fcall1     // test_complex_method.cpp:224:5
+begin : record_fcall1     // test_complex_method.cpp:231:5
     logic s_a;
     integer s_b;
     logic b;
@@ -197,10 +197,10 @@ begin : record_fcall1     // test_complex_method.cpp:224:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall2 (test_complex_method.cpp:235:5) 
+// Method process: record_fcall2 (test_complex_method.cpp:242:5) 
 
 always_comb 
-begin : record_fcall2     // test_complex_method.cpp:235:5
+begin : record_fcall2     // test_complex_method.cpp:242:5
     logic s_a;
     integer s_b;
     logic par_a;
@@ -215,14 +215,14 @@ begin : record_fcall2     // test_complex_method.cpp:235:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_fcall3 (test_complex_method.cpp:263:5) 
+// Method process: record_fcall3 (test_complex_method.cpp:270:5) 
 
 // Process-local variables
 logic rec_a;
 logic signed [31:0] rec_b;
 
 always_comb 
-begin : record_fcall3     // test_complex_method.cpp:263:5
+begin : record_fcall3     // test_complex_method.cpp:270:5
     integer rec_a_1;
     logic s_a;
     integer s_b;
@@ -261,20 +261,20 @@ begin : record_fcall3     // test_complex_method.cpp:263:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_in_bracket (test_complex_method.cpp:312:5) 
+// Method process: record_in_bracket (test_complex_method.cpp:319:5) 
 
 always_comb 
-begin : record_in_bracket     // test_complex_method.cpp:312:5
+begin : record_in_bracket     // test_complex_method.cpp:319:5
     logic s_a;
     integer s_b;
     s_b = 1;
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_return1 (test_complex_method.cpp:318:5) 
+// Method process: record_return1 (test_complex_method.cpp:325:5) 
 
 always_comb 
-begin : record_return1     // test_complex_method.cpp:318:5
+begin : record_return1     // test_complex_method.cpp:325:5
     logic r_a;
     integer r_b;
     logic TMP_0_a;
@@ -300,10 +300,10 @@ begin : record_return1     // test_complex_method.cpp:318:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: record_assign1 (test_complex_method.cpp:331:5) 
+// Method process: record_assign1 (test_complex_method.cpp:338:5) 
 
 always_comb 
-begin : record_assign1     // test_complex_method.cpp:331:5
+begin : record_assign1     // test_complex_method.cpp:338:5
     logic r_a;
     integer r_b;
     logic s_a;

@@ -29,26 +29,26 @@ assign minst_rst[0] = rst;
 assign minst_rst[1] = rst;
 
 //------------------------------------------------------------------------------
-// Method process: minst_mif_meth (test_mif_array_with_ptr.cpp:35:5) 
+// Method process: minst_mif_meth (test_mif_array_with_ptr.cpp:42:5) 
 
 // Process-local variables
 logic [3:0] minst_v[2];
 logic [3:0] minst_vp[2];
 
 always_comb 
-begin : minst_mif_meth     // test_mif_array_with_ptr.cpp:35:5
+begin : minst_mif_meth     // test_mif_array_with_ptr.cpp:42:5
     minst_v[0] = minst_s[0];
     minst_vp[0] = 3;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_mif_thread (test_mif_array_with_ptr.cpp:40:5) 
+// Clocked THREAD: minst_mif_thread (test_mif_array_with_ptr.cpp:47:5) 
 
 // Thread-local variables
 logic signed [31:0] minst_p_next[2];
 
 // Next-state combinational logic
-always_comb begin : minst_mif_thread_comb     // test_mif_array_with_ptr.cpp:40:5
+always_comb begin : minst_mif_thread_comb     // test_mif_array_with_ptr.cpp:47:5
     minst_mif_thread_func;
 end
 function void minst_mif_thread_func;
@@ -68,19 +68,19 @@ begin : minst_mif_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst_mif_meth0 (test_mif_array_with_ptr.cpp:35:5) 
+// Method process: minst_mif_meth0 (test_mif_array_with_ptr.cpp:42:5) 
 
 always_comb 
-begin : minst_mif_meth0     // test_mif_array_with_ptr.cpp:35:5
+begin : minst_mif_meth0     // test_mif_array_with_ptr.cpp:42:5
     minst_v[1] = minst_s[1];
     minst_vp[1] = 3;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst_mif_thread0 (test_mif_array_with_ptr.cpp:40:5) 
+// Clocked THREAD: minst_mif_thread0 (test_mif_array_with_ptr.cpp:47:5) 
 
 // Next-state combinational logic
-always_comb begin : minst_mif_thread0_comb     // test_mif_array_with_ptr.cpp:40:5
+always_comb begin : minst_mif_thread0_comb     // test_mif_array_with_ptr.cpp:47:5
     minst_mif_thread0_func;
 end
 function void minst_mif_thread0_func;
@@ -100,14 +100,14 @@ begin : minst_mif_thread0_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: top_method (test_mif_array_with_ptr.cpp:73:5) 
+// Method process: top_method (test_mif_array_with_ptr.cpp:80:5) 
 
 // Process-local variables
 logic [4:0] minst_vvp[2];
 logic [3:0] minst_vv[2];
 
 always_comb 
-begin : top_method     // test_mif_array_with_ptr.cpp:73:5
+begin : top_method     // test_mif_array_with_ptr.cpp:80:5
     integer i;
     logic [3:0] a;
     i = t;
@@ -121,13 +121,13 @@ begin : top_method     // test_mif_array_with_ptr.cpp:73:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: top_thread (test_mif_array_with_ptr.cpp:89:5) 
+// Clocked THREAD: top_thread (test_mif_array_with_ptr.cpp:96:5) 
 
 // Thread-local variables
 logic signed [31:0] minst_pp_next[2];
 
 // Next-state combinational logic
-always_comb begin : top_thread_comb     // test_mif_array_with_ptr.cpp:89:5
+always_comb begin : top_thread_comb     // test_mif_array_with_ptr.cpp:96:5
     top_thread_func;
 end
 function void top_thread_func;

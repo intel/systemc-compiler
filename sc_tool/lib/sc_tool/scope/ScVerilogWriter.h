@@ -70,10 +70,11 @@ struct TermInfo
     size_t      exprWidth;      // Used to avoid index in partial select and 
                                 // for type extension in some binary operations
     size_t      minCastWidth;   // From explicit cast, minimal width to narrow value
-    size_t      lastCastWidth;  // From explicit cast, last cast for concatenation 
+    size_t      lastCastWidth;  // From explicit cast/extend width/replace variable, 
+                                // last cast for concatenation, applied depends on
+                                // @explCast for @getExprWidth or make literal only 
     bool        explCast;       // Explicit cast, used to apply SACAST and skip
                                 // NOCAST -> SCAST transformation
-    //bool        extnType;       // Extend type width
     CastSign    castSign;       // From implicit/explicit casts, signedness for
                                 // literals/variables/expressions 
     ExprSign    exprSign;       // Signed/unsigned expression (unary/binary) flag
@@ -317,7 +318,8 @@ protected:
                                             const clang::Stmt* stmt, 
                                             bool skipCast = false, 
                                             bool addNegBrackets = false,
-                                            bool doSignCast = false);
+                                            bool doSignCast = false,
+                                            bool doConcat = false);
     
     /// Put/replace string into @terms
     void putString(const clang::Stmt* stmt, 
@@ -359,8 +361,9 @@ public:
     bool isIncrWidth(const clang::Stmt* stmt) const;
 
     /// Get expression data width from @exprWidth 
+    /// \param doConcat -- get expression width for concatenation
     /// \return @exprWidth for given statement or 0 if width unknown
-    size_t getExprWidth(const clang::Stmt* stmt);
+    size_t getExprWidth(const clang::Stmt* stmt, bool doConcat = false);
     
     /// Get minimal width to avoid part/bit selection outside of variable width
     /// \return @exprWidth for given statement or 0 if width unknown
@@ -397,7 +400,13 @@ public:
     void putTypeCast(const clang::Stmt* srcStmt, const clang::Stmt* stmt,
                      const clang::QualType& type);
 
-    /// Extend type width with type cast to given width for stmt
+    /// Set cast width for variables/expressions replaced by value,
+    /// used in concatenation
+    void setReplacedCastWidth(const clang::Stmt* stmt, 
+                              const clang::QualType& type);
+
+    /// Extend type width for arithmetic operation  argument self-determined in SV,
+    /// this is type cast to given @width
     void extendTypeWidth(const clang::Stmt* stmt, const size_t width);
     
     /// Used for literals
@@ -414,7 +423,8 @@ public:
                     bool replaceConstEnable = false);
 
     /// Array declaration statement w/o initialization 
-    void putArrayDecl(const SValue& val, const clang::QualType& type, 
+    void putArrayDecl(const clang::Stmt* stmt, const SValue& val, 
+                      const clang::QualType& type, 
                       const std::vector<std::size_t>& arrSizes);
     
     /// Put string of @init statement to use instead of the reference variable
@@ -518,7 +528,7 @@ public:
     
     /// Constant and variable based range part-select
     /// \param useDelta -- use "+:" if true, or ":" if false 
-    void putPartSelectExpr(const clang::Stmt* stmt,
+    void putPartSelectExpr(const clang::Stmt* stmt, const SValue& val,
                            const clang::Expr* base,
                            const clang::Expr* hindx, 
                            const clang::Expr* lindx,
@@ -527,7 +537,7 @@ public:
     /// Constant and variable based bit part-select
     /// @param base  -- base expression 
     /// @param index -- index expression 
-    void putBitSelectExpr(const clang::Stmt* stmt, 
+    void putBitSelectExpr(const clang::Stmt* stmt, const SValue& val,
                           const clang::Expr* base,
                           const clang::Expr* index);
     
@@ -656,6 +666,27 @@ public:
         return notReplacedVars;
     }
     
+    /// Get initializer statement for constant/variables locally declared
+    inline std::unordered_map<SValue, 
+           std::unordered_set<const clang::Stmt*>> getVarAssignStmts() {
+        return varAssignStmts;
+    }
+    
+    /// Register assignment statement, for declared variables only
+    /// \param val -- variable/constant value
+    /// \param stmt -- initializer statement for the variable/constant, may be null 
+    inline void putVarAssignStmt(const SValue& val, const clang::Stmt* stmt) {
+        if (stmt) {
+            auto i = varAssignStmts.find(val);
+            if (i == varAssignStmts.end()) {
+                varAssignStmts.emplace(val, std::unordered_set<
+                                       const clang::Stmt*>({stmt}));
+            } else {
+                i->second.insert(stmt);
+            }
+        }
+    }
+    
     //=========================================================================
     /// Store this state in finish of analysis at wait()
     ScVerilogWriterContext serialize() {
@@ -734,8 +765,13 @@ protected:
     std::unordered_map<std::pair<SValue, bool>, unsigned> varIndex;
     /// Declaration for local variables
     std::vector< std::pair<SValue, std::string> > localDeclVerilog;
-    /// Variables and constants not replaced by integer values
+    /// Variables and constants not replaced by integer values, 
+    /// in future any objects which name is used in generated code
     std::unordered_set<SValue> notReplacedVars;
+    /// Variable assignment statements, used to remove variable initialization 
+    /// for removed variables/constants, currently for local variables only
+    std::unordered_map<SValue, std::unordered_set<
+                       const clang::Stmt*>> varAssignStmts;
     /// Member combinational variables assigned/used in reset section, 
     /// stored to add local declaration in reset section to distinguish it
     /// from module declaration to avoid multiple process variable modification

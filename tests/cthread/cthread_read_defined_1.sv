@@ -36,7 +36,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cthread_read_defined_1.cpp:197:5)
+// Module: A (test_cthread_read_defined_1.cpp:204:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -50,111 +50,111 @@ module A // "b_mod.a_mod"
 logic [3:0] s;
 
 //------------------------------------------------------------------------------
-// Method process: if_complex_stmt1 (test_cthread_read_defined_1.cpp:42:5) 
+// Method process: if_complex_stmt1 (test_cthread_read_defined_1.cpp:49:5) 
 
 always_comb 
-begin : if_complex_stmt1     // test_cthread_read_defined_1.cpp:42:5
+begin : if_complex_stmt1     // test_cthread_read_defined_1.cpp:49:5
     integer i;
     integer j;
     i = a;
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_complex_stmt2 (test_cthread_read_defined_1.cpp:52:5) 
+// Method process: if_complex_stmt2 (test_cthread_read_defined_1.cpp:59:5) 
 
 always_comb 
-begin : if_complex_stmt2     // test_cthread_read_defined_1.cpp:52:5
+begin : if_complex_stmt2     // test_cthread_read_defined_1.cpp:59:5
     integer i;
     integer j;
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_complex_stmt3 (test_cthread_read_defined_1.cpp:61:5) 
+// Method process: if_complex_stmt3 (test_cthread_read_defined_1.cpp:68:5) 
 
 always_comb 
-begin : if_complex_stmt3     // test_cthread_read_defined_1.cpp:61:5
+begin : if_complex_stmt3     // test_cthread_read_defined_1.cpp:68:5
     integer i;
     integer j;
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_complex_const1 (test_cthread_read_defined_1.cpp:70:5) 
+// Method process: if_complex_const1 (test_cthread_read_defined_1.cpp:77:5) 
 
 always_comb 
-begin : if_complex_const1     // test_cthread_read_defined_1.cpp:70:5
+begin : if_complex_const1     // test_cthread_read_defined_1.cpp:77:5
     integer i;
     integer j;
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_complex_const2 (test_cthread_read_defined_1.cpp:79:5) 
+// Method process: if_complex_const2 (test_cthread_read_defined_1.cpp:86:5) 
 
 always_comb 
-begin : if_complex_const2     // test_cthread_read_defined_1.cpp:79:5
+begin : if_complex_const2     // test_cthread_read_defined_1.cpp:86:5
     integer i;
     integer j;
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_complex_const3 (test_cthread_read_defined_1.cpp:88:5) 
+// Method process: if_complex_const3 (test_cthread_read_defined_1.cpp:95:5) 
 
 always_comb 
-begin : if_complex_const3     // test_cthread_read_defined_1.cpp:88:5
+begin : if_complex_const3     // test_cthread_read_defined_1.cpp:95:5
     integer i;
     integer j;
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_complex_const4 (test_cthread_read_defined_1.cpp:97:5) 
+// Method process: if_complex_const4 (test_cthread_read_defined_1.cpp:104:5) 
 
 always_comb 
-begin : if_complex_const4     // test_cthread_read_defined_1.cpp:97:5
+begin : if_complex_const4     // test_cthread_read_defined_1.cpp:104:5
     integer i;
     integer j;
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_complex_par1 (test_cthread_read_defined_1.cpp:106:5) 
+// Method process: if_complex_par1 (test_cthread_read_defined_1.cpp:113:5) 
 
 always_comb 
-begin : if_complex_par1     // test_cthread_read_defined_1.cpp:106:5
+begin : if_complex_par1     // test_cthread_read_defined_1.cpp:113:5
     integer i;
     integer j;
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_complex_par2 (test_cthread_read_defined_1.cpp:115:5) 
+// Method process: if_complex_par2 (test_cthread_read_defined_1.cpp:122:5) 
 
 always_comb 
-begin : if_complex_par2     // test_cthread_read_defined_1.cpp:115:5
+begin : if_complex_par2     // test_cthread_read_defined_1.cpp:122:5
     integer i;
     integer j;
     integer k;
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_complex_assign1 (test_cthread_read_defined_1.cpp:125:5) 
+// Method process: if_complex_assign1 (test_cthread_read_defined_1.cpp:132:5) 
 
 always_comb 
-begin : if_complex_assign1     // test_cthread_read_defined_1.cpp:125:5
+begin : if_complex_assign1     // test_cthread_read_defined_1.cpp:132:5
     integer i;
     integer j;
 end
 
 //------------------------------------------------------------------------------
-// Method process: if_complex_assign2 (test_cthread_read_defined_1.cpp:133:5) 
+// Method process: if_complex_assign2 (test_cthread_read_defined_1.cpp:140:5) 
 
 always_comb 
-begin : if_complex_assign2     // test_cthread_read_defined_1.cpp:133:5
+begin : if_complex_assign2     // test_cthread_read_defined_1.cpp:140:5
     integer i;
     integer j;
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_oper1 (test_cthread_read_defined_1.cpp:143:5) 
+// Method process: cond_oper1 (test_cthread_read_defined_1.cpp:150:5) 
 
 always_comb 
-begin : cond_oper1     // test_cthread_read_defined_1.cpp:143:5
+begin : cond_oper1     // test_cthread_read_defined_1.cpp:150:5
     integer i;
     integer j;
     integer c;
@@ -162,10 +162,10 @@ begin : cond_oper1     // test_cthread_read_defined_1.cpp:143:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_oper2 (test_cthread_read_defined_1.cpp:151:5) 
+// Method process: cond_oper2 (test_cthread_read_defined_1.cpp:158:5) 
 
 always_comb 
-begin : cond_oper2     // test_cthread_read_defined_1.cpp:151:5
+begin : cond_oper2     // test_cthread_read_defined_1.cpp:158:5
     integer i;
     integer j;
     integer k;
@@ -175,10 +175,10 @@ begin : cond_oper2     // test_cthread_read_defined_1.cpp:151:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_oper3 (test_cthread_read_defined_1.cpp:161:5) 
+// Method process: cond_oper3 (test_cthread_read_defined_1.cpp:168:5) 
 
 always_comb 
-begin : cond_oper3     // test_cthread_read_defined_1.cpp:161:5
+begin : cond_oper3     // test_cthread_read_defined_1.cpp:168:5
     integer i;
     integer j;
     integer k;
@@ -187,10 +187,10 @@ begin : cond_oper3     // test_cthread_read_defined_1.cpp:161:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_oper4 (test_cthread_read_defined_1.cpp:170:5) 
+// Method process: cond_oper4 (test_cthread_read_defined_1.cpp:177:5) 
 
 always_comb 
-begin : cond_oper4     // test_cthread_read_defined_1.cpp:170:5
+begin : cond_oper4     // test_cthread_read_defined_1.cpp:177:5
     integer i;
     integer j;
     integer k;
@@ -199,10 +199,10 @@ begin : cond_oper4     // test_cthread_read_defined_1.cpp:170:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cond_oper5 (test_cthread_read_defined_1.cpp:179:5) 
+// Method process: cond_oper5 (test_cthread_read_defined_1.cpp:186:5) 
 
 always_comb 
-begin : cond_oper5     // test_cthread_read_defined_1.cpp:179:5
+begin : cond_oper5     // test_cthread_read_defined_1.cpp:186:5
     integer i;
     integer j;
     integer k;

@@ -35,7 +35,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_cthread_for_if.cpp:93:5)
+// Module: A (test_cthread_for_if.cpp:100:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -51,7 +51,7 @@ logic [2:0] sleep_time;
 logic [2:0] wakeup_time;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: for_in_if1 (test_cthread_for_if.cpp:32:5) 
+// Clocked THREAD: for_in_if1 (test_cthread_for_if.cpp:39:5) 
 
 // Thread-local variables
 logic [31:0] i;
@@ -62,7 +62,7 @@ logic [1:0] for_in_if1_PROC_STATE;
 logic [1:0] for_in_if1_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : for_in_if1_comb     // test_cthread_for_if.cpp:32:5
+always_comb begin : for_in_if1_comb     // test_cthread_for_if.cpp:39:5
     for_in_if1_func;
 end
 function void for_in_if1_func;
@@ -79,22 +79,22 @@ function void for_in_if1_func;
                 i_next = 0;
                 if (i_next < sleepTime_next)
                 begin
-                    for_in_if1_PROC_STATE_next = 1; return;    // test_cthread_for_if.cpp:43:21;
+                    for_in_if1_PROC_STATE_next = 1; return;    // test_cthread_for_if.cpp:50:21;
                 end
                 k = 1;
             end
             k = 2;
-            for_in_if1_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:49:13;
+            for_in_if1_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:56:13;
         end
         1: begin
             i_next++;
             if (i_next < sleepTime_next)
             begin
-                for_in_if1_PROC_STATE_next = 1; return;    // test_cthread_for_if.cpp:43:21;
+                for_in_if1_PROC_STATE_next = 1; return;    // test_cthread_for_if.cpp:50:21;
             end
             k = 1;
             k = 2;
-            for_in_if1_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:49:13;
+            for_in_if1_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:56:13;
         end
         2: begin
             sleepTime_next = sleep_time;
@@ -103,12 +103,12 @@ function void for_in_if1_func;
                 i_next = 0;
                 if (i_next < sleepTime_next)
                 begin
-                    for_in_if1_PROC_STATE_next = 1; return;    // test_cthread_for_if.cpp:43:21;
+                    for_in_if1_PROC_STATE_next = 1; return;    // test_cthread_for_if.cpp:50:21;
                 end
                 k = 1;
             end
             k = 2;
-            for_in_if1_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:49:13;
+            for_in_if1_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:56:13;
         end
     endcase
 endfunction
@@ -119,7 +119,7 @@ begin : for_in_if1_ff
     if (rst ) begin
         integer k;
         k = 0;
-        for_in_if1_PROC_STATE <= 0;    // test_cthread_for_if.cpp:36:9;
+        for_in_if1_PROC_STATE <= 0;    // test_cthread_for_if.cpp:43:9;
     end
     else begin
         i <= i_next;
@@ -129,7 +129,7 @@ begin : for_in_if1_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: for_in_if2 (test_cthread_for_if.cpp:54:5) 
+// Clocked THREAD: for_in_if2 (test_cthread_for_if.cpp:61:5) 
 
 // Thread-local variables
 logic [31:0] i0;
@@ -145,7 +145,7 @@ logic [1:0] for_in_if2_PROC_STATE;
 logic [1:0] for_in_if2_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : for_in_if2_comb     // test_cthread_for_if.cpp:54:5
+always_comb begin : for_in_if2_comb     // test_cthread_for_if.cpp:61:5
     for_in_if2_func;
 end
 function void for_in_if2_func;
@@ -164,7 +164,7 @@ function void for_in_if2_func;
             i_next0 = 0;
             if (i_next0 < wakeupTime_next)
             begin
-                for_in_if2_PROC_STATE_next = 1; return;    // test_cthread_for_if.cpp:64:17;
+                for_in_if2_PROC_STATE_next = 1; return;    // test_cthread_for_if.cpp:71:17;
             end
             if (sleep_enable)
             begin
@@ -180,18 +180,18 @@ function void for_in_if2_func;
                 i_next1 = 0;
                 if (i_next1 < sleepTime_next0)
                 begin
-                    for_in_if2_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:76:21;
+                    for_in_if2_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:83:21;
                 end
                 k = 1;
             end
             k = 2;
-            for_in_if2_PROC_STATE_next = 3; return;    // test_cthread_for_if.cpp:82:13;
+            for_in_if2_PROC_STATE_next = 3; return;    // test_cthread_for_if.cpp:89:13;
         end
         1: begin
             i_next0++;
             if (i_next0 < wakeupTime_next)
             begin
-                for_in_if2_PROC_STATE_next = 1; return;    // test_cthread_for_if.cpp:64:17;
+                for_in_if2_PROC_STATE_next = 1; return;    // test_cthread_for_if.cpp:71:17;
             end
             if (sleep_enable)
             begin
@@ -207,29 +207,29 @@ function void for_in_if2_func;
                 i_next1 = 0;
                 if (i_next1 < sleepTime_next0)
                 begin
-                    for_in_if2_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:76:21;
+                    for_in_if2_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:83:21;
                 end
                 k = 1;
             end
             k = 2;
-            for_in_if2_PROC_STATE_next = 3; return;    // test_cthread_for_if.cpp:82:13;
+            for_in_if2_PROC_STATE_next = 3; return;    // test_cthread_for_if.cpp:89:13;
         end
         2: begin
             i_next1++;
             if (i_next1 < sleepTime_next0)
             begin
-                for_in_if2_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:76:21;
+                for_in_if2_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:83:21;
             end
             k = 1;
             k = 2;
-            for_in_if2_PROC_STATE_next = 3; return;    // test_cthread_for_if.cpp:82:13;
+            for_in_if2_PROC_STATE_next = 3; return;    // test_cthread_for_if.cpp:89:13;
         end
         3: begin
             wakeupTime_next = wakeup_time;
             i_next0 = 0;
             if (i_next0 < wakeupTime_next)
             begin
-                for_in_if2_PROC_STATE_next = 1; return;    // test_cthread_for_if.cpp:64:17;
+                for_in_if2_PROC_STATE_next = 1; return;    // test_cthread_for_if.cpp:71:17;
             end
             if (sleep_enable)
             begin
@@ -245,12 +245,12 @@ function void for_in_if2_func;
                 i_next1 = 0;
                 if (i_next1 < sleepTime_next0)
                 begin
-                    for_in_if2_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:76:21;
+                    for_in_if2_PROC_STATE_next = 2; return;    // test_cthread_for_if.cpp:83:21;
                 end
                 k = 1;
             end
             k = 2;
-            for_in_if2_PROC_STATE_next = 3; return;    // test_cthread_for_if.cpp:82:13;
+            for_in_if2_PROC_STATE_next = 3; return;    // test_cthread_for_if.cpp:89:13;
         end
     endcase
 endfunction
@@ -261,7 +261,7 @@ begin : for_in_if2_ff
     if (rst ) begin
         integer k;
         k = 0;
-        for_in_if2_PROC_STATE <= 0;    // test_cthread_for_if.cpp:57:9;
+        for_in_if2_PROC_STATE <= 0;    // test_cthread_for_if.cpp:64:9;
     end
     else begin
         i0 <= i_next0;

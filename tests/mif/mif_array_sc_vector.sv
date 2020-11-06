@@ -34,13 +34,13 @@ assign p_req[1][1] = req[1];
 assign p_req[1][2] = req[2];
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: p_threadProc (test_array_sc_vector.cpp:21:5) 
+// Clocked THREAD: p_threadProc (test_array_sc_vector.cpp:28:5) 
 
 // Thread-local variables
 logic [15:0] p_data_next[2][3];
 
 // Next-state combinational logic
-always_comb begin : p_threadProc_comb     // test_array_sc_vector.cpp:21:5
+always_comb begin : p_threadProc_comb     // test_array_sc_vector.cpp:28:5
     p_threadProc_func;
 end
 function void p_threadProc_func;
@@ -66,10 +66,10 @@ begin : p_threadProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: p_threadProc0 (test_array_sc_vector.cpp:21:5) 
+// Clocked THREAD: p_threadProc0 (test_array_sc_vector.cpp:28:5) 
 
 // Next-state combinational logic
-always_comb begin : p_threadProc0_comb     // test_array_sc_vector.cpp:21:5
+always_comb begin : p_threadProc0_comb     // test_array_sc_vector.cpp:28:5
     p_threadProc0_func;
 end
 function void p_threadProc0_func;
@@ -95,10 +95,10 @@ begin : p_threadProc0_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: mainProc (test_array_sc_vector.cpp:65:5) 
+// Clocked THREAD: mainProc (test_array_sc_vector.cpp:72:5) 
 
 // Next-state combinational logic
-always_comb begin : mainProc_comb     // test_array_sc_vector.cpp:65:5
+always_comb begin : mainProc_comb     // test_array_sc_vector.cpp:72:5
     mainProc_func;
 end
 function void mainProc_func;

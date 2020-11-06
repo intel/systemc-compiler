@@ -1,3 +1,10 @@
+/******************************************************************************
+* Copyright (c) 2020, Intel Corporation. All rights reserved.
+* 
+* SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+* 
+*****************************************************************************/
+
 #include <systemc.h>
 
 // Single and multiple returns in function, including return in if and switch
@@ -203,3 +210,4 @@ int sc_main(int argc, char **argv) {
     sc_start();
     return 0;
 }
+

@@ -18,10 +18,10 @@ module A // "a_mod"
 logic [2:0] s;
 
 //------------------------------------------------------------------------------
-// Method process: literSignedWarning (test_const_liter_compound.cpp:44:5) 
+// Method process: literSignedWarning (test_const_liter_compound.cpp:51:5) 
 
 always_comb 
-begin : literSignedWarning     // test_const_liter_compound.cpp:44:5
+begin : literSignedWarning     // test_const_liter_compound.cpp:51:5
     logic [2:0] a;
     integer i;
     logic b;
@@ -38,10 +38,10 @@ begin : literSignedWarning     // test_const_liter_compound.cpp:44:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: extra_signed_remove (test_const_liter_compound.cpp:64:5) 
+// Method process: extra_signed_remove (test_const_liter_compound.cpp:71:5) 
 
 always_comb 
-begin : extra_signed_remove     // test_const_liter_compound.cpp:64:5
+begin : extra_signed_remove     // test_const_liter_compound.cpp:71:5
     logic [7:0] e;
     logic [4:0] ee;
     logic [3:0] dd;
@@ -53,7 +53,7 @@ begin : extra_signed_remove     // test_const_liter_compound.cpp:64:5
     integer j;
     e = 257;
     e = e + 1;
-    assert (e == 2) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (e == 2) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     e = e - 1;
     e = e * 1;
     e = e & 1;
@@ -61,35 +61,35 @@ begin : extra_signed_remove     // test_const_liter_compound.cpp:64:5
     ee = 0;
     dd = 14;
     ee = dd * 3;
-    assert (ee == 10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (ee == 10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     ee = dd + 42;
-    assert (ee == 24) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (ee == 24) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     ee = dd <<< 2;
-    assert (ee == 24) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (ee == 24) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     ee = dd - 4;
-    assert (ee == 10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (ee == 10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     c = -4'sd5;
     u = 1;
     u = signed'({1'b0, u}) + c;
-    assert (u == 'hFFFFFFFC) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (u == 'hFFFFFFFC) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     w = -7'sd42;
     w = w + u;
-    assert (w == -7'sd46) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (w == -7'sd46) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     ww = -7'sd42;
     uu = 5;
     ww = ww + uu;
-    assert (ww == -7'sd37) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (ww == -7'sd37) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     j = j + (-7'sd42);
-    assert (1) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (1) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     j = j + (-7'sd42);
-    assert (1) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (1) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_overflow_oper64 (test_const_liter_compound.cpp:111:5) 
+// Method process: liter_overflow_oper64 (test_const_liter_compound.cpp:118:5) 
 
 always_comb 
-begin : liter_overflow_oper64     // test_const_liter_compound.cpp:111:5
+begin : liter_overflow_oper64     // test_const_liter_compound.cpp:118:5
     logic [64:0] A;
     logic [69:0] B;
     logic signed [127:0] RES;
@@ -105,33 +105,33 @@ begin : liter_overflow_oper64     // test_const_liter_compound.cpp:111:5
     c = 0;
     c = 101;
     c = c + UI;
-    assert (c == 521) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (c == 521) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     c = c / signed'({1'b0, C});
-    assert (c == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (c == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     c = UI;
     c = c | signed'({1'b0, C});
-    assert (c == 493) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (c == 493) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     c = 42;
     c = c >>> 2;
-    assert (c == 'hA) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (c == 'hA) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     c = -8'sd101;
     c = c - UI;
-    assert (c == -11'sd521) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (c == -11'sd521) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     c = c + UI;
-    assert (c == -8'sd101) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (c == -8'sd101) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     UI = 41;
     c = c + UI;
-    assert (c == -7'sd60) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (c == -7'sd60) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     d = 71;
     d = signed'({1'b0, d}) + c;
-    assert (d == 11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (d == 11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
 end
 
 //------------------------------------------------------------------------------
-// Method process: liter_extend_oper (test_const_liter_compound.cpp:228:5) 
+// Method process: liter_extend_oper (test_const_liter_compound.cpp:235:5) 
 
 always_comb 
-begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
+begin : liter_extend_oper     // test_const_liter_compound.cpp:235:5
     logic isSigned;
     logic signed [7:0] a;
     logic signed [15:0] b;
@@ -230,21 +230,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a = 'h11;
     b = 'h22;
     b = b + a;
-    assert (b == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b = b - a;
-    assert (b == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b = b * 2;
-    assert (b == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b = b / a;
-    assert (b == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b = b <<< (9'(a - 'hF));
-    assert (b == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b = b + (2 * a);
-    assert (b == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b = b >>> 1;
-    assert (b == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b = b ^ 'h10;
-    assert (b == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     if (1)
     begin
@@ -252,25 +252,25 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
         a_1 = -6'sh11;
         b_1 = -7'sh22;
         b_1 = b_1 + a_1;
-        assert (b_1 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_1 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_1 = b_1 - a_1;
-        assert (b_1 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_1 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_1 = b_1 - (-6'sh11);
-        assert (b_1 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_1 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_1 = b_1 * 2;
-        assert (b_1 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_1 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_1 = b_1 + (-a_1);
-        assert (b_1 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_1 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_1 = b_1 / (-2'sd1);
-        assert (b_1 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_1 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_1 = b_1 <<< 2;
-        assert (b_1 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_1 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_1 = b_1 >>> 1;
-        assert (b_1 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_1 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_1 = b_1 & 'h20;
-        assert (b_1 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_1 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_1 = b_1 | 'h2;
-        assert (b_1 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_1 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         // Call neg_compound() end
     end
     // Call run_opers() end
@@ -280,21 +280,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_2 = 'h11;
     b_2 = 'h22;
     b_2 = b_2 + a_2;
-    assert (b_2 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_2 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_2 = b_2 - a_2;
-    assert (b_2 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_2 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_2 = b_2 * 2;
-    assert (b_2 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_2 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_2 = b_2 / a_2;
-    assert (b_2 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_2 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_2 = b_2 <<< (9'(a_2 - 'hF));
-    assert (b_2 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_2 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_2 = b_2 + (2 * a_2);
-    assert (b_2 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_2 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_2 = b_2 >>> 1;
-    assert (b_2 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_2 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_2 = b_2 ^ 'h10;
-    assert (b_2 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_2 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_2 = 0;
@@ -303,21 +303,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_3 = 'h11;
     b_3 = 'h22;
     b_3 = b_3 + a_3;
-    assert (b_3 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_3 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_3 = b_3 - a_3;
-    assert (b_3 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_3 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_3 = b_3 * 2;
-    assert (b_3 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_3 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_3 = b_3 / a_3;
-    assert (b_3 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_3 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_3 = b_3 <<< (25'(a_3 - 'hF));
-    assert (b_3 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_3 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_3 = b_3 + (2 * a_3);
-    assert (b_3 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_3 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_3 = b_3 >>> 1;
-    assert (b_3 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_3 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_3 = b_3 ^ 'h10;
-    assert (b_3 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_3 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_3 = 0;
@@ -326,21 +326,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_4 = 'h11;
     b_4 = 'h22;
     b_4 = b_4 + a_4;
-    assert (b_4 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_4 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_4 = b_4 - a_4;
-    assert (b_4 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_4 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_4 = signed'({1'b0, b_4}) * 2;
-    assert (b_4 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_4 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_4 = b_4 / a_4;
-    assert (b_4 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_4 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_4 = b_4 <<< (12'(signed'({1'b0, a_4}) - 'hF));
-    assert (b_4 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_4 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_4 = signed'({1'b0, b_4}) + (2 * signed'({1'b0, a_4}));
-    assert (b_4 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_4 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_4 = b_4 >>> 1;
-    assert (b_4 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_4 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_4 = signed'({1'b0, b_4}) ^ 'h10;
-    assert (b_4 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_4 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_4 = 0;
@@ -349,21 +349,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_5 = 'h11;
     b_5 = 'h22;
     b_5 = b_5 + a_5;
-    assert (b_5 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_5 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_5 = b_5 - a_5;
-    assert (b_5 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_5 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_5 = signed'({1'b0, b_5}) * 2;
-    assert (b_5 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_5 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_5 = b_5 / a_5;
-    assert (b_5 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_5 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_5 = b_5 <<< (32'(signed'({1'b0, a_5}) - 'hF));
-    assert (b_5 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_5 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_5 = signed'({1'b0, b_5}) + (2 * signed'({1'b0, a_5}));
-    assert (b_5 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_5 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_5 = b_5 >>> 1;
-    assert (b_5 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_5 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_5 = signed'({1'b0, b_5}) ^ 'h10;
-    assert (b_5 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_5 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_5 = 0;
@@ -372,21 +372,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_6 = 'h11;
     b_6 = 'h22;
     b_6 = b_6 + a_6;
-    assert (b_6 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_6 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_6 = b_6 - a_6;
-    assert (b_6 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_6 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_6 = signed'({1'b0, b_6}) * 2;
-    assert (b_6 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_6 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_6 = b_6 / a_6;
-    assert (b_6 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_6 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_6 = b_6 <<< (32'(signed'({1'b0, a_6}) - 'hF));
-    assert (b_6 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_6 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_6 = signed'({1'b0, b_6}) + (2 * signed'({1'b0, a_6}));
-    assert (b_6 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_6 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_6 = b_6 >>> 1;
-    assert (b_6 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_6 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_6 = signed'({1'b0, b_6}) ^ 'h10;
-    assert (b_6 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_6 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_6 = 1;
@@ -395,21 +395,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_7 = 'h11;
     b_7 = 'h22;
     b_7 = b_7 + a_7;
-    assert (b_7 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_7 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_7 = b_7 - a_7;
-    assert (b_7 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_7 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_7 = b_7 * 2;
-    assert (b_7 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_7 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_7 = b_7 / a_7;
-    assert (b_7 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_7 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_7 = b_7 <<< (9'(a_7 - 'hF));
-    assert (b_7 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_7 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_7 = b_7 + (2 * a_7);
-    assert (b_7 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_7 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_7 = b_7 >>> 1;
-    assert (b_7 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_7 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_7 = b_7 ^ 'h10;
-    assert (b_7 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_7 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     if (1)
     begin
@@ -417,25 +417,25 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
         a_8 = -6'sh11;
         b_8 = -7'sh22;
         b_8 = b_8 + a_8;
-        assert (b_8 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_8 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_8 = b_8 - a_8;
-        assert (b_8 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_8 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_8 = b_8 - (-6'sh11);
-        assert (b_8 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_8 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_8 = b_8 * 2;
-        assert (b_8 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_8 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_8 = b_8 + (-a_8);
-        assert (b_8 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_8 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_8 = b_8 / (-2'sd1);
-        assert (b_8 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_8 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_8 = b_8 <<< 2;
-        assert (b_8 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_8 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_8 = b_8 >>> 1;
-        assert (b_8 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_8 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_8 = b_8 & 'h20;
-        assert (b_8 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_8 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_8 = b_8 | 'h2;
-        assert (b_8 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_8 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         // Call neg_compound() end
     end
     // Call run_opers() end
@@ -445,21 +445,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_9 = 'h11;
     b_9 = 'h22;
     b_9 = b_9 + a_9;
-    assert (b_9 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_9 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_9 = b_9 - a_9;
-    assert (b_9 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_9 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_9 = b_9 * 2;
-    assert (b_9 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_9 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_9 = b_9 / a_9;
-    assert (b_9 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_9 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_9 = b_9 <<< (32'(a_9 - 'hF));
-    assert (b_9 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_9 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_9 = b_9 + (2 * a_9);
-    assert (b_9 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_9 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_9 = b_9 >>> 1;
-    assert (b_9 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_9 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_9 = b_9 ^ 'h10;
-    assert (b_9 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_9 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     if (1)
     begin
@@ -467,25 +467,25 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
         a_10 = -6'sh11;
         b_10 = -7'sh22;
         b_10 = b_10 + a_10;
-        assert (b_10 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_10 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_10 = b_10 - a_10;
-        assert (b_10 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_10 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_10 = b_10 - (-6'sh11);
-        assert (b_10 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_10 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_10 = b_10 * 2;
-        assert (b_10 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_10 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_10 = b_10 + (-a_10);
-        assert (b_10 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_10 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_10 = b_10 / (-2'sd1);
-        assert (b_10 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_10 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_10 = b_10 <<< 2;
-        assert (b_10 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_10 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_10 = b_10 >>> 1;
-        assert (b_10 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_10 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_10 = b_10 & 'h20;
-        assert (b_10 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_10 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_10 = b_10 | 'h2;
-        assert (b_10 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_10 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         // Call neg_compound() end
     end
     // Call run_opers() end
@@ -495,21 +495,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_11 = 'h11;
     b_11 = 'h22;
     b_11 = b_11 + a_11;
-    assert (b_11 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_11 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_11 = b_11 - a_11;
-    assert (b_11 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_11 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_11 = b_11 * 2;
-    assert (b_11 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_11 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_11 = b_11 / a_11;
-    assert (b_11 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_11 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_11 = b_11 <<< (32'(a_11 - 'hF));
-    assert (b_11 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_11 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_11 = b_11 + (2 * a_11);
-    assert (b_11 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_11 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_11 = b_11 >>> 1;
-    assert (b_11 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_11 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_11 = b_11 ^ 'h10;
-    assert (b_11 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_11 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     if (1)
     begin
@@ -517,25 +517,25 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
         a_12 = -6'sh11;
         b_12 = -7'sh22;
         b_12 = b_12 + a_12;
-        assert (b_12 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_12 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_12 = b_12 - a_12;
-        assert (b_12 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_12 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_12 = b_12 - (-6'sh11);
-        assert (b_12 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_12 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_12 = b_12 * 2;
-        assert (b_12 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_12 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_12 = b_12 + (-a_12);
-        assert (b_12 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_12 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_12 = b_12 / (-2'sd1);
-        assert (b_12 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_12 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_12 = b_12 <<< 2;
-        assert (b_12 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_12 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_12 = b_12 >>> 1;
-        assert (b_12 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_12 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_12 = b_12 & 'h20;
-        assert (b_12 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_12 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_12 = b_12 | 'h2;
-        assert (b_12 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_12 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         // Call neg_compound() end
     end
     // Call run_opers() end
@@ -545,21 +545,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_13 = 'h11;
     b_13 = 'h22;
     b_13 = b_13 + a_13;
-    assert (b_13 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_13 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_13 = b_13 - a_13;
-    assert (b_13 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_13 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_13 = b_13 * 2;
-    assert (b_13 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_13 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_13 = b_13 / a_13;
-    assert (b_13 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_13 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_13 = b_13 <<< (32'(a_13 - 'hF));
-    assert (b_13 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_13 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_13 = b_13 + (2 * a_13);
-    assert (b_13 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_13 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_13 = b_13 >>> 1;
-    assert (b_13 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_13 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_13 = b_13 ^ 'h10;
-    assert (b_13 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_13 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     if (1)
     begin
@@ -567,25 +567,25 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
         a_14 = -6'sh11;
         b_14 = -7'sh22;
         b_14 = b_14 + a_14;
-        assert (b_14 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_14 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_14 = b_14 - a_14;
-        assert (b_14 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_14 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_14 = b_14 - (-6'sh11);
-        assert (b_14 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_14 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_14 = b_14 * 2;
-        assert (b_14 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_14 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_14 = b_14 + (-a_14);
-        assert (b_14 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_14 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_14 = b_14 / (-2'sd1);
-        assert (b_14 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_14 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_14 = b_14 <<< 2;
-        assert (b_14 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_14 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_14 = b_14 >>> 1;
-        assert (b_14 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_14 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_14 = b_14 & 'h20;
-        assert (b_14 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_14 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_14 = b_14 | 'h2;
-        assert (b_14 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_14 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         // Call neg_compound() end
     end
     // Call run_opers() end
@@ -595,21 +595,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_15 = 'h11;
     b_15 = 'h22;
     b_15 = b_15 + a_15;
-    assert (b_15 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_15 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_15 = b_15 - a_15;
-    assert (b_15 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_15 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_15 = b_15 * 2;
-    assert (b_15 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_15 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_15 = b_15 / a_15;
-    assert (b_15 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_15 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_15 = b_15 << (32'(a_15 - 'hF));
-    assert (b_15 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_15 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_15 = b_15 + (2 * a_15);
-    assert (b_15 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_15 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_15 = b_15 >> 1;
-    assert (b_15 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_15 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_15 = b_15 ^ 'h10;
-    assert (b_15 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_15 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     if (1)
     begin
@@ -617,25 +617,25 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
         a_16 = -6'sh11;
         b_16 = -7'sh22;
         b_16 = b_16 + a_16;
-        assert (b_16 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_16 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_16 = b_16 - a_16;
-        assert (b_16 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_16 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_16 = b_16 - (-6'sh11);
-        assert (b_16 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_16 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_16 = b_16 * 2;
-        assert (b_16 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_16 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_16 = b_16 + (-a_16);
-        assert (b_16 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_16 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_16 = b_16 / (-2'sd1);
-        assert (b_16 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_16 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_16 = b_16 << 2;
-        assert (b_16 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_16 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_16 = b_16 >> 1;
-        assert (b_16 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_16 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_16 = b_16 & 'h20;
-        assert (b_16 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_16 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_16 = b_16 | 'h2;
-        assert (b_16 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_16 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         // Call neg_compound() end
     end
     // Call run_opers() end
@@ -645,21 +645,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_17 = 'h11;
     b_17 = 'h22;
     b_17 = b_17 + a_17;
-    assert (b_17 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_17 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_17 = b_17 - a_17;
-    assert (b_17 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_17 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_17 = b_17 * 2;
-    assert (b_17 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_17 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_17 = b_17 / a_17;
-    assert (b_17 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_17 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_17 = b_17 << (17'(a_17 - 'hF));
-    assert (b_17 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_17 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_17 = b_17 + (2 * a_17);
-    assert (b_17 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_17 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_17 = b_17 >> 1;
-    assert (b_17 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_17 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_17 = b_17 ^ 'h10;
-    assert (b_17 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_17 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_12 = 1;
@@ -668,21 +668,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_18 = 'h11;
     b_18 = 'h22;
     b_18 = b_18 + a_18;
-    assert (b_18 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_18 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_18 = b_18 - a_18;
-    assert (b_18 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_18 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_18 = b_18 * 2;
-    assert (b_18 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_18 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_18 = b_18 / a_18;
-    assert (b_18 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_18 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_18 = b_18 << (32'(a_18 - 'hF));
-    assert (b_18 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_18 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_18 = b_18 + (2 * a_18);
-    assert (b_18 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_18 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_18 = b_18 >> 1;
-    assert (b_18 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_18 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_18 = b_18 ^ 'h10;
-    assert (b_18 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_18 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     if (1)
     begin
@@ -690,25 +690,25 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
         a_19 = -6'sh11;
         b_19 = -7'sh22;
         b_19 = b_19 + a_19;
-        assert (b_19 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_19 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_19 = b_19 - a_19;
-        assert (b_19 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_19 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_19 = b_19 - (-6'sh11);
-        assert (b_19 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_19 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_19 = b_19 * 2;
-        assert (b_19 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_19 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_19 = b_19 + (-a_19);
-        assert (b_19 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_19 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_19 = b_19 / (-2'sd1);
-        assert (b_19 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_19 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_19 = b_19 << 2;
-        assert (b_19 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_19 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_19 = b_19 >> 1;
-        assert (b_19 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_19 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_19 = b_19 & 'h20;
-        assert (b_19 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_19 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_19 = b_19 | 'h2;
-        assert (b_19 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_19 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         // Call neg_compound() end
     end
     // Call run_opers() end
@@ -718,21 +718,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_20 = 'h11;
     b_20 = 'h22;
     b_20 = b_20 + a_20;
-    assert (b_20 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_20 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_20 = b_20 - a_20;
-    assert (b_20 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_20 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_20 = b_20 * 2;
-    assert (b_20 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_20 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_20 = b_20 / a_20;
-    assert (b_20 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_20 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_20 = b_20 << (17'(a_20 - 'hF));
-    assert (b_20 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_20 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_20 = b_20 + (2 * a_20);
-    assert (b_20 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_20 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_20 = b_20 >> 1;
-    assert (b_20 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_20 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_20 = b_20 ^ 'h10;
-    assert (b_20 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_20 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_14 = 0;
@@ -741,21 +741,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_21 = 'h11;
     b_21 = 'h22;
     b_21 = b_21 + a_21;
-    assert (b_21 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_21 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_21 = b_21 - a_21;
-    assert (b_21 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_21 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_21 = b_21 * 2;
-    assert (b_21 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_21 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_21 = b_21 / a_21;
-    assert (b_21 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_21 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_21 = b_21 <<< (32'(a_21 - 'hF));
-    assert (b_21 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_21 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_21 = b_21 + (2 * a_21);
-    assert (b_21 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_21 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_21 = b_21 >>> 1;
-    assert (b_21 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_21 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_21 = b_21 ^ 'h10;
-    assert (b_21 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_21 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_15 = 0;
@@ -764,21 +764,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_22 = 'h11;
     b_22 = 'h22;
     b_22 = b_22 + a_22;
-    assert (b_22 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_22 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_22 = b_22 - a_22;
-    assert (b_22 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_22 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_22 = b_22 * 2;
-    assert (b_22 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_22 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_22 = b_22 / a_22;
-    assert (b_22 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_22 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_22 = b_22 <<< (32'(a_22 - 'hF));
-    assert (b_22 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_22 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_22 = b_22 + (2 * a_22);
-    assert (b_22 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_22 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_22 = b_22 >>> 1;
-    assert (b_22 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_22 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_22 = b_22 ^ 'h10;
-    assert (b_22 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_22 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_16 = 0;
@@ -787,21 +787,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_23 = 'h11;
     b_23 = 'h22;
     b_23 = b_23 + a_23;
-    assert (b_23 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_23 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_23 = b_23 - a_23;
-    assert (b_23 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_23 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_23 = b_23 * 2;
-    assert (b_23 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_23 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_23 = b_23 / a_23;
-    assert (b_23 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_23 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_23 = b_23 <<< (32'(a_23 - 'hF));
-    assert (b_23 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_23 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_23 = b_23 + (2 * a_23);
-    assert (b_23 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_23 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_23 = b_23 >>> 1;
-    assert (b_23 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_23 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_23 = b_23 ^ 'h10;
-    assert (b_23 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_23 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_17 = 1;
@@ -810,21 +810,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_24 = 'h11;
     b_24 = 'h22;
     b_24 = b_24 + a_24;
-    assert (b_24 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_24 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_24 = b_24 - a_24;
-    assert (b_24 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_24 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_24 = b_24 * 2;
-    assert (b_24 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_24 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_24 = b_24 / a_24;
-    assert (b_24 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_24 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_24 = b_24 <<< (32'(a_24 - 'hF));
-    assert (b_24 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_24 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_24 = b_24 + (2 * a_24);
-    assert (b_24 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_24 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_24 = b_24 >>> 1;
-    assert (b_24 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_24 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_24 = b_24 ^ 'h10;
-    assert (b_24 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_24 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     if (1)
     begin
@@ -832,25 +832,25 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
         a_25 = -6'sh11;
         b_25 = -7'sh22;
         b_25 = b_25 + a_25;
-        assert (b_25 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_25 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_25 = b_25 - a_25;
-        assert (b_25 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_25 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_25 = b_25 - (-6'sh11);
-        assert (b_25 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_25 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_25 = b_25 * 2;
-        assert (b_25 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_25 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_25 = b_25 + (-a_25);
-        assert (b_25 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_25 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_25 = b_25 / (-2'sd1);
-        assert (b_25 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_25 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_25 = b_25 <<< 2;
-        assert (b_25 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_25 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_25 = b_25 >>> 1;
-        assert (b_25 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_25 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_25 = b_25 & 'h20;
-        assert (b_25 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_25 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_25 = b_25 | 'h2;
-        assert (b_25 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_25 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         // Call neg_compound() end
     end
     // Call run_opers() end
@@ -860,21 +860,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_26 = 'h11;
     b_26 = 'h22;
     b_26 = b_26 + a_26;
-    assert (b_26 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_26 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_26 = b_26 - a_26;
-    assert (b_26 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_26 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_26 = b_26 * 2;
-    assert (b_26 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_26 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_26 = b_26 / a_26;
-    assert (b_26 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_26 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_26 = b_26 <<< (32'(a_26 - 'hF));
-    assert (b_26 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_26 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_26 = b_26 + (2 * a_26);
-    assert (b_26 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_26 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_26 = b_26 >>> 1;
-    assert (b_26 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_26 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_26 = b_26 ^ 'h10;
-    assert (b_26 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_26 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_19 = 0;
@@ -883,21 +883,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_27 = 'h11;
     b_27 = 'h22;
     b_27 = signed'({1'b0, b_27}) + a_27;
-    assert (b_27 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_27 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_27 = signed'({1'b0, b_27}) - a_27;
-    assert (b_27 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_27 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_27 = signed'({1'b0, b_27}) * 2;
-    assert (b_27 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_27 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_27 = signed'({1'b0, b_27}) / a_27;
-    assert (b_27 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_27 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_27 = b_27 <<< (32'(a_27 - 'hF));
-    assert (b_27 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_27 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_27 = signed'({1'b0, b_27}) + (2 * a_27);
-    assert (b_27 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_27 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_27 = b_27 >>> 1;
-    assert (b_27 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_27 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_27 = signed'({1'b0, b_27}) ^ 'h10;
-    assert (b_27 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_27 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_20 = 1;
@@ -906,21 +906,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_28 = 'h11;
     b_28 = 'h22;
     b_28 = b_28 + a_28;
-    assert (b_28 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_28 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_28 = b_28 - a_28;
-    assert (b_28 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_28 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_28 = b_28 * 2;
-    assert (b_28 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_28 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_28 = b_28 / a_28;
-    assert (b_28 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_28 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_28 = b_28 <<< (32'(a_28 - 'hF));
-    assert (b_28 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_28 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_28 = b_28 + (2 * a_28);
-    assert (b_28 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_28 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_28 = b_28 >>> 1;
-    assert (b_28 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_28 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_28 = b_28 ^ 'h10;
-    assert (b_28 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_28 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     if (1)
     begin
@@ -928,25 +928,25 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
         a_29 = -6'sh11;
         b_29 = -7'sh22;
         b_29 = b_29 + a_29;
-        assert (b_29 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_29 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_29 = b_29 - a_29;
-        assert (b_29 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_29 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_29 = b_29 - (-6'sh11);
-        assert (b_29 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_29 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_29 = b_29 * 2;
-        assert (b_29 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_29 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_29 = b_29 + (-a_29);
-        assert (b_29 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_29 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_29 = b_29 / (-2'sd1);
-        assert (b_29 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_29 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_29 = b_29 <<< 2;
-        assert (b_29 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_29 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_29 = b_29 >>> 1;
-        assert (b_29 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_29 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_29 = b_29 & 'h20;
-        assert (b_29 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_29 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_29 = b_29 | 'h2;
-        assert (b_29 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_29 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         // Call neg_compound() end
     end
     // Call run_opers() end
@@ -956,21 +956,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_30 = 'h11;
     b_30 = 'h22;
     b_30 = b_30 + a_30;
-    assert (b_30 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_30 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_30 = b_30 - a_30;
-    assert (b_30 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_30 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_30 = signed'({1'b0, b_30}) * 2;
-    assert (b_30 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_30 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_30 = b_30 / a_30;
-    assert (b_30 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_30 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_30 = b_30 <<< (32'(a_30 - 'hF));
-    assert (b_30 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_30 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_30 = b_30 + (2 * a_30);
-    assert (b_30 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_30 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_30 = b_30 >>> 1;
-    assert (b_30 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_30 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_30 = signed'({1'b0, b_30}) ^ 'h10;
-    assert (b_30 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_30 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
     isSigned_22 = 1;
@@ -979,21 +979,21 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_31 = 'h11;
     b_31 = 'h22;
     b_31 = b_31 + a_31;
-    assert (b_31 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_31 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_31 = b_31 - a_31;
-    assert (b_31 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_31 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_31 = b_31 * 2;
-    assert (b_31 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_31 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_31 = b_31 / a_31;
-    assert (b_31 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_31 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_31 = b_31 <<< (32'(a_31 - 'hF));
-    assert (b_31 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_31 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_31 = b_31 + (2 * a_31);
-    assert (b_31 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_31 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_31 = b_31 >>> 1;
-    assert (b_31 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_31 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_31 = b_31 ^ 'h10;
-    assert (b_31 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_31 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     if (1)
     begin
@@ -1001,25 +1001,25 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
         a_32 = -6'sh11;
         b_32 = -7'sh22;
         b_32 = b_32 + a_32;
-        assert (b_32 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_32 == -7'sh33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_32 = b_32 - a_32;
-        assert (b_32 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_32 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_32 = b_32 - (-6'sh11);
-        assert (b_32 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_32 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_32 = b_32 * 2;
-        assert (b_32 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_32 == -7'sh22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_32 = b_32 + (-a_32);
-        assert (b_32 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_32 == -6'sh11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_32 = b_32 / (-2'sd1);
-        assert (b_32 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_32 == 'h11) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_32 = b_32 <<< 2;
-        assert (b_32 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_32 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_32 = b_32 >>> 1;
-        assert (b_32 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_32 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_32 = b_32 & 'h20;
-        assert (b_32 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_32 == 'h20) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         b_32 = b_32 | 'h2;
-        assert (b_32 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+        assert (b_32 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
         // Call neg_compound() end
     end
     // Call run_opers() end
@@ -1029,44 +1029,44 @@ begin : liter_extend_oper     // test_const_liter_compound.cpp:228:5
     a_33 = 'h11;
     b_33 = 'h22;
     b_33 = signed'({1'b0, b_33}) + a_33;
-    assert (b_33 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_33 == 'h33) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_33 = signed'({1'b0, b_33}) - a_33;
-    assert (b_33 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_33 == 'h22) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_33 = signed'({1'b0, b_33}) * 2;
-    assert (b_33 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_33 == 'h44) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_33 = signed'({1'b0, b_33}) / a_33;
-    assert (b_33 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_33 == 4) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_33 = b_33 <<< (32'(a_33 - 'hF));
-    assert (b_33 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_33 == 'h10) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_33 = signed'({1'b0, b_33}) + (2 * a_33);
-    assert (b_33 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_33 == 'h32) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_33 = b_33 >>> 1;
-    assert (b_33 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_33 == 'h19) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     b_33 = signed'({1'b0, b_33}) ^ 'h10;
-    assert (b_33 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (b_33 == 'h9) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     // Call pos_compound() end
     // Call run_opers() end
 end
 
 //------------------------------------------------------------------------------
-// Method process: short_operations (test_const_liter_compound.cpp:265:5) 
+// Method process: short_operations (test_const_liter_compound.cpp:272:5) 
 
 always_comb 
-begin : short_operations     // test_const_liter_compound.cpp:265:5
+begin : short_operations     // test_const_liter_compound.cpp:272:5
     logic signed [15:0] l;
     logic signed [7:0] c;
     l = 1;
     l = l + 1;
-    assert (l == 2) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (l == 2) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     l = l - 3;
-    assert (l == -2'sd1) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (l == -2'sd1) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     l = l * (-6'sd31);
-    assert (l == 31) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (l == 31) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     c = 23;
     c = c * (-3'sd2);
-    assert (c == -7'sd46) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (c == -7'sd46) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
     c = c + 20;
-    assert (c == -6'sd26) else $error("Assertion failed at test_const_liter_compound.cpp:42:24>");
+    assert (c == -6'sd26) else $error("Assertion failed at test_const_liter_compound.cpp:49:24>");
 end
 
 endmodule

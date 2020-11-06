@@ -18,7 +18,7 @@ module testbench // "tb"
 logic nrst;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: test (test_vendor_memory_sem.cpp:119:5) 
+// Clocked THREAD: test (test_vendor_memory_sem.cpp:126:5) 
 
 // Thread-local variables
 logic [3:0] test_WAIT_N_COUNTER;
@@ -28,7 +28,7 @@ logic test_PROC_STATE;
 logic test_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : test_comb     // test_vendor_memory_sem.cpp:119:5
+always_comb begin : test_comb     // test_vendor_memory_sem.cpp:126:5
     test_func;
 end
 function void test_func;
@@ -40,21 +40,21 @@ function void test_func;
         default : begin
             nrst_next = 0;
             test_WAIT_N_COUNTER_next = 5;
-            test_PROC_STATE_next = 0; return;    // test_vendor_memory_sem.cpp:121:9;
+            test_PROC_STATE_next = 0; return;    // test_vendor_memory_sem.cpp:128:9;
         end
         0: begin
             if (test_WAIT_N_COUNTER != 1) begin
                 test_WAIT_N_COUNTER_next = test_WAIT_N_COUNTER - 1;
-                test_PROC_STATE_next = 0; return;    // test_vendor_memory_sem.cpp:121:9;
+                test_PROC_STATE_next = 0; return;    // test_vendor_memory_sem.cpp:128:9;
             end;
             nrst_next = 1;
             test_WAIT_N_COUNTER_next = 10;
-            test_PROC_STATE_next = 1; return;    // test_vendor_memory_sem.cpp:124:9;
+            test_PROC_STATE_next = 1; return;    // test_vendor_memory_sem.cpp:131:9;
         end
         1: begin
             if (test_WAIT_N_COUNTER != 1) begin
                 test_WAIT_N_COUNTER_next = test_WAIT_N_COUNTER - 1;
-                test_PROC_STATE_next = 1; return;    // test_vendor_memory_sem.cpp:124:9;
+                test_PROC_STATE_next = 1; return;    // test_vendor_memory_sem.cpp:131:9;
             end;
         end
     endcase
@@ -85,7 +85,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: module_with_memory (test_vendor_memory_sem.cpp:110:5)
+// Module: module_with_memory (test_vendor_memory_sem.cpp:117:5)
 //
 module module_with_memory // "tb.mod_mem"
 (
@@ -104,7 +104,7 @@ assign mem_clk = clk;
 assign mem_nrst = nrst;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: proc (test_vendor_memory_sem.cpp:91:5) 
+// Clocked THREAD: proc (test_vendor_memory_sem.cpp:98:5) 
 
 // Thread-local variables
 logic mem_req_next_next;
@@ -112,7 +112,7 @@ logic [1:0] proc_PROC_STATE;
 logic [1:0] proc_PROC_STATE_next;
 
 // Next-state combinational logic
-always_comb begin : proc_comb     // test_vendor_memory_sem.cpp:91:5
+always_comb begin : proc_comb     // test_vendor_memory_sem.cpp:98:5
     proc_func;
 end
 function void proc_func;
@@ -126,7 +126,7 @@ function void proc_func;
             // Call read_req() begin
             mem_req = mem_nrst ? 1 : 0;
             // Call read_req() end
-            proc_PROC_STATE_next = 1; return;    // test_vendor_memory_sem.cpp:97:13;
+            proc_PROC_STATE_next = 1; return;    // test_vendor_memory_sem.cpp:104:13;
         end
         1: begin
             // Call read_resp() begin
@@ -136,13 +136,13 @@ function void proc_func;
             mem_req = 0;
             mem_req_next_next = 1;
             // Call clear_req() end
-            proc_PROC_STATE_next = 2; return;    // test_vendor_memory_sem.cpp:101:13;
+            proc_PROC_STATE_next = 2; return;    // test_vendor_memory_sem.cpp:108:13;
         end
         2: begin
             // Call read_req() begin
             mem_req = mem_nrst ? 1 : 0;
             // Call read_req() end
-            proc_PROC_STATE_next = 1; return;    // test_vendor_memory_sem.cpp:97:13;
+            proc_PROC_STATE_next = 1; return;    // test_vendor_memory_sem.cpp:104:13;
         end
     endcase
 endfunction
@@ -154,7 +154,7 @@ begin : proc_ff
         // Call clear_req() begin
         mem_req_next <= 1;
         // Call clear_req() end
-        proc_PROC_STATE <= 0;    // test_vendor_memory_sem.cpp:93:9;
+        proc_PROC_STATE <= 0;    // test_vendor_memory_sem.cpp:100:9;
     end
     else begin
         mem_req_next <= mem_req_next_next;

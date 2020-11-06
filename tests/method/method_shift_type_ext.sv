@@ -34,7 +34,7 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (test_shift_type_ext.cpp:432:5)
+// Module: A (test_shift_type_ext.cpp:439:5)
 //
 module A // "b_mod.a_mod"
 (
@@ -58,7 +58,7 @@ logic [31:0] ch0;
 logic [13:0] ch1;
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_array_binary (test_shift_type_ext.cpp:88:5) 
+// Method process: sc_shift_type_extension_array_binary (test_shift_type_ext.cpp:95:5) 
 
 // Process-local variables
 logic [3:0] arr[3];
@@ -66,7 +66,7 @@ logic [3:0] arrp[3];
 logic [3:0] arr2d[3][2];
 
 always_comb 
-begin : sc_shift_type_extension_array_binary     // test_shift_type_ext.cpp:88:5
+begin : sc_shift_type_extension_array_binary     // test_shift_type_ext.cpp:95:5
     integer i;
     integer unsigned j;
     logic [15:0] x;
@@ -102,10 +102,10 @@ begin : sc_shift_type_extension_array_binary     // test_shift_type_ext.cpp:88:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_binary (test_shift_type_ext.cpp:134:5) 
+// Method process: sc_shift_type_extension_binary (test_shift_type_ext.cpp:141:5) 
 
 always_comb 
-begin : sc_shift_type_extension_binary     // test_shift_type_ext.cpp:134:5
+begin : sc_shift_type_extension_binary     // test_shift_type_ext.cpp:141:5
     logic [7:0] a_1;
     logic [7:0] b_1;
     logic [7:0] c_1;
@@ -144,10 +144,10 @@ begin : sc_shift_type_extension_binary     // test_shift_type_ext.cpp:134:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_big_binary (test_shift_type_ext.cpp:178:5) 
+// Method process: sc_shift_type_extension_big_binary (test_shift_type_ext.cpp:185:5) 
 
 always_comb 
-begin : sc_shift_type_extension_big_binary     // test_shift_type_ext.cpp:178:5
+begin : sc_shift_type_extension_big_binary     // test_shift_type_ext.cpp:185:5
     logic [65:0] x;
     logic [65:0] y;
     logic [65:0] z;
@@ -172,10 +172,10 @@ begin : sc_shift_type_extension_big_binary     // test_shift_type_ext.cpp:178:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_unary (test_shift_type_ext.cpp:202:5) 
+// Method process: sc_shift_type_extension_unary (test_shift_type_ext.cpp:209:5) 
 
 always_comb 
-begin : sc_shift_type_extension_unary     // test_shift_type_ext.cpp:202:5
+begin : sc_shift_type_extension_unary     // test_shift_type_ext.cpp:209:5
     logic [7:0] a_1;
     logic [7:0] b_1;
     logic [7:0] c_1;
@@ -206,10 +206,10 @@ begin : sc_shift_type_extension_unary     // test_shift_type_ext.cpp:202:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_channel (test_shift_type_ext.cpp:229:5) 
+// Method process: sc_shift_type_extension_channel (test_shift_type_ext.cpp:236:5) 
 
 always_comb 
-begin : sc_shift_type_extension_channel     // test_shift_type_ext.cpp:229:5
+begin : sc_shift_type_extension_channel     // test_shift_type_ext.cpp:236:5
     logic [7:0] a_1;
     logic [65:0] x;
     a_1 = 0;
@@ -220,13 +220,13 @@ begin : sc_shift_type_extension_channel     // test_shift_type_ext.cpp:229:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_ref_ptr (test_shift_type_ext.cpp:241:5) 
+// Method process: sc_shift_type_extension_ref_ptr (test_shift_type_ext.cpp:248:5) 
 
 // Process-local variables
 logic [7:0] pa;
 
 always_comb 
-begin : sc_shift_type_extension_ref_ptr     // test_shift_type_ext.cpp:241:5
+begin : sc_shift_type_extension_ref_ptr     // test_shift_type_ext.cpp:248:5
     logic [7:0] a_1;
     logic [7:0] b_1;
     logic [15:0] c_1;
@@ -242,10 +242,10 @@ begin : sc_shift_type_extension_ref_ptr     // test_shift_type_ext.cpp:241:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_part_select (test_shift_type_ext.cpp:258:5) 
+// Method process: sc_shift_type_extension_part_select (test_shift_type_ext.cpp:265:5) 
 
 always_comb 
-begin : sc_shift_type_extension_part_select     // test_shift_type_ext.cpp:258:5
+begin : sc_shift_type_extension_part_select     // test_shift_type_ext.cpp:265:5
     logic [7:0] a_1;
     logic [7:0] b_1;
     logic [15:0] c_1;
@@ -259,10 +259,10 @@ begin : sc_shift_type_extension_part_select     // test_shift_type_ext.cpp:258:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_cast (test_shift_type_ext.cpp:271:5) 
+// Method process: sc_shift_type_extension_cast (test_shift_type_ext.cpp:278:5) 
 
 always_comb 
-begin : sc_shift_type_extension_cast     // test_shift_type_ext.cpp:271:5
+begin : sc_shift_type_extension_cast     // test_shift_type_ext.cpp:278:5
     logic [7:0] a_1;
     logic [7:0] b_1;
     logic [15:0] c_1;
@@ -276,10 +276,10 @@ begin : sc_shift_type_extension_cast     // test_shift_type_ext.cpp:271:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_cond (test_shift_type_ext.cpp:282:5) 
+// Method process: sc_shift_type_extension_cond (test_shift_type_ext.cpp:289:5) 
 
 always_comb 
-begin : sc_shift_type_extension_cond     // test_shift_type_ext.cpp:282:5
+begin : sc_shift_type_extension_cond     // test_shift_type_ext.cpp:289:5
     logic cond;
     logic [7:0] a_1;
     logic [15:0] c_1;
@@ -292,10 +292,10 @@ begin : sc_shift_type_extension_cond     // test_shift_type_ext.cpp:282:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_concat (test_shift_type_ext.cpp:292:5) 
+// Method process: sc_shift_type_extension_concat (test_shift_type_ext.cpp:299:5) 
 
 always_comb 
-begin : sc_shift_type_extension_concat     // test_shift_type_ext.cpp:292:5
+begin : sc_shift_type_extension_concat     // test_shift_type_ext.cpp:299:5
     logic cond;
     logic [7:0] a_1;
     logic [7:0] b_1;
@@ -308,10 +308,10 @@ begin : sc_shift_type_extension_concat     // test_shift_type_ext.cpp:292:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_comma (test_shift_type_ext.cpp:302:5) 
+// Method process: sc_shift_type_extension_comma (test_shift_type_ext.cpp:309:5) 
 
 always_comb 
-begin : sc_shift_type_extension_comma     // test_shift_type_ext.cpp:302:5
+begin : sc_shift_type_extension_comma     // test_shift_type_ext.cpp:309:5
     logic signed [7:0] a_1;
     integer b_1;
     integer c_1;
@@ -329,10 +329,10 @@ begin : sc_shift_type_extension_comma     // test_shift_type_ext.cpp:302:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension_fcall (test_shift_type_ext.cpp:318:5) 
+// Method process: sc_shift_type_extension_fcall (test_shift_type_ext.cpp:325:5) 
 
 always_comb 
-begin : sc_shift_type_extension_fcall     // test_shift_type_ext.cpp:318:5
+begin : sc_shift_type_extension_fcall     // test_shift_type_ext.cpp:325:5
     logic cond;
     logic [7:0] a_1;
     logic [15:0] c_1;
@@ -350,10 +350,10 @@ begin : sc_shift_type_extension_fcall     // test_shift_type_ext.cpp:318:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: sc_shift_type_extension (test_shift_type_ext.cpp:329:5) 
+// Method process: sc_shift_type_extension (test_shift_type_ext.cpp:336:5) 
 
 always_comb 
-begin : sc_shift_type_extension     // test_shift_type_ext.cpp:329:5
+begin : sc_shift_type_extension     // test_shift_type_ext.cpp:336:5
     logic [7:0] a_1;
     logic [7:0] b_1;
     logic [7:0] c_1;
@@ -379,10 +379,10 @@ begin : sc_shift_type_extension     // test_shift_type_ext.cpp:329:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: cpp_shift_type_extension (test_shift_type_ext.cpp:350:5) 
+// Method process: cpp_shift_type_extension (test_shift_type_ext.cpp:357:5) 
 
 always_comb 
-begin : cpp_shift_type_extension     // test_shift_type_ext.cpp:350:5
+begin : cpp_shift_type_extension     // test_shift_type_ext.cpp:357:5
     integer a_1;
     integer unsigned b_1;
     integer unsigned c_1;
@@ -404,10 +404,10 @@ begin : cpp_shift_type_extension     // test_shift_type_ext.cpp:350:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: chan_shift_type_extension (test_shift_type_ext.cpp:373:5) 
+// Method process: chan_shift_type_extension (test_shift_type_ext.cpp:380:5) 
 
 always_comb 
-begin : chan_shift_type_extension     // test_shift_type_ext.cpp:373:5
+begin : chan_shift_type_extension     // test_shift_type_ext.cpp:380:5
     integer a_1;
     integer unsigned b_1;
     logic signed [76:0] d;
@@ -420,10 +420,10 @@ begin : chan_shift_type_extension     // test_shift_type_ext.cpp:373:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: div_type_extension (test_shift_type_ext.cpp:382:5) 
+// Method process: div_type_extension (test_shift_type_ext.cpp:389:5) 
 
 always_comb 
-begin : div_type_extension     // test_shift_type_ext.cpp:382:5
+begin : div_type_extension     // test_shift_type_ext.cpp:389:5
     integer f;
     integer unsigned g;
     logic signed [63:0] h;
@@ -445,10 +445,10 @@ begin : div_type_extension     // test_shift_type_ext.cpp:382:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: compound_type_extension (test_shift_type_ext.cpp:403:5) 
+// Method process: compound_type_extension (test_shift_type_ext.cpp:410:5) 
 
 always_comb 
-begin : compound_type_extension     // test_shift_type_ext.cpp:403:5
+begin : compound_type_extension     // test_shift_type_ext.cpp:410:5
     integer f;
     integer unsigned g;
     logic signed [63:0] h;

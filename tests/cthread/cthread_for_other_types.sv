@@ -18,10 +18,10 @@ logic clk;
 logic arstn;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: for_stmt_other_types_fns (test_cthread_for_other_types.cpp:66:5) 
+// Clocked THREAD: for_stmt_other_types_fns (test_cthread_for_other_types.cpp:73:5) 
 
 // Next-state combinational logic
-always_comb begin : for_stmt_other_types_fns_comb     // test_cthread_for_other_types.cpp:66:5
+always_comb begin : for_stmt_other_types_fns_comb     // test_cthread_for_other_types.cpp:73:5
     for_stmt_other_types_fns_func;
 end
 function void for_stmt_other_types_fns_func;
@@ -91,7 +91,7 @@ function void for_stmt_other_types_fns_func;
     k = 0;
     for (i = 0; i < 2; i++)
     begin
-        k = i;
+        k = 32'(i);
     end
     // Call for_stmt_no_wait() end
     par1_1 = 20'd0;
@@ -100,7 +100,7 @@ function void for_stmt_other_types_fns_func;
     k_1 = 0;
     for (i_1 = 0; i_1 < 2; i_1++)
     begin
-        k_1 = i_1;
+        k_1 = 32'(i_1);
     end
     // Call for_stmt_no_wait() end
     par1_2 = 40'd0;
@@ -109,7 +109,7 @@ function void for_stmt_other_types_fns_func;
     k_2 = 0;
     for (i_2 = 0; i_2 < 2; i_2++)
     begin
-        k_2 = i_2;
+        k_2 = 32'(i_2);
     end
     // Call for_stmt_no_wait() end
     par1_3 = 55'd0;
@@ -118,7 +118,7 @@ function void for_stmt_other_types_fns_func;
     k_3 = 0;
     for (i_3 = 0; i_3 < 2; i_3++)
     begin
-        k_3 = i_3;
+        k_3 = 32'(i_3);
     end
     // Call for_stmt_no_wait() end
     par1_4 = 15'd0;
@@ -128,7 +128,7 @@ function void for_stmt_other_types_fns_func;
     k_4 = 1;
     for (i_4 = 0; i_4 < 2; i_4++)
     begin
-        k_4 = i_4 + 2;
+        k_4 = signed'({1'b0, 32'(i_4)}) + 2;
     end
     k_4 = 3;
     // Call for_stmt_wait0() end
@@ -139,7 +139,7 @@ function void for_stmt_other_types_fns_func;
     k_5 = 1;
     for (i_5 = 0; i_5 < 2; i_5++)
     begin
-        k_5 = i_5 + 2;
+        k_5 = 32'(i_5) + 2;
     end
     k_5 = 3;
     // Call for_stmt_wait0() end
@@ -150,7 +150,7 @@ function void for_stmt_other_types_fns_func;
     k_6 = 1;
     for (i_6 = 0; i_6 < 2; i_6++)
     begin
-        k_6 = i_6 + 2;
+        k_6 = 32'(i_6) + 2;
     end
     k_6 = 3;
     // Call for_stmt_wait0() end
@@ -161,7 +161,7 @@ function void for_stmt_other_types_fns_func;
     k_7 = 1;
     for (i_7 = 0; i_7 < 2; i_7++)
     begin
-        k_7 = i_7 + 2;
+        k_7 = signed'({1'b0, 32'(i_7)}) + 2;
     end
     k_7 = 3;
     // Call for_stmt_wait0() end
