@@ -50,7 +50,7 @@ cd $ICSC_HOME
 # Build Tests using ISCC
 (
     source $ICSC_HOME/setenv.sh
-    mkdir build && cd build
+    mkdir build -p && cd build
     cmake ../                          # prepare Makefiles 
     cd icsc/examples                   # build examples only, 
                                        # comment this line to build all tests
