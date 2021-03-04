@@ -37,13 +37,9 @@ public:
 
         SC_METHOD(while_break1);
         sensitive << a;
-        SC_METHOD(while_break2);
-        sensitive << a << b << c << si;
 
         SC_METHOD(do_while_break1);
         sensitive << a;
-        SC_METHOD(do_while_break2);
-        sensitive << a << b;
     }
     
     // Conditional break in for loop
@@ -167,23 +163,6 @@ public:
     }
     
     
-    void while_break2() 
-    {
-        int k;
-        while (a.read()) {
-            if (b.read()) break;
-            k = 1;
-        }
-        sct_assert_level(0);
-
-        while (a.read() && !b.read()) {
-            if (c.read() || si == 1) break;
-            k = 2;
-        }
-        sct_assert_level(0);
-    }
-    
-    
 // ---------------------------------------------------------------------------
 
     // Conditional break in do/while loop
@@ -206,23 +185,7 @@ public:
         } while (i > 0);
     }  
     
-    void do_while_break2() 
-    {
-        int k;
-        do {
-            if (b.read()) break;
-            k = 1;
-        } while (a.read());
-        sct_assert_level(0);
-
-        int i = 0;
-        do {
-            if (i > 3) break;
-            i++;
-        } while (a.read() && !b.read());
-        sct_assert_level(0);
-    }
-    
+  
 };
 
 class B_top : public sc_module 

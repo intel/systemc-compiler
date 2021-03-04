@@ -273,16 +273,29 @@ void ScElabModuleBuilder::traverseModule(ModuleMIFView modView)
         curVerMod->setSvaProperties(getSvaProperties(modView));
     }
 
+    curVerMod->setCommentName(name);  // Module name w/o prefix      
+    curVerMod->setComment(modView.getName()); // Hierarchical name
+
     if (intrinsic) {
+        // Intrinsic with or w/o implementation, including memory
         curVerMod->setVerilogIntrinsic(*intrinsic);
         curVerMod->setName(name);
         
+    } else 
+    if (memory) {
+        // Memory module with implementation 
+        std::string uniqueName = modNameGen.getUniqueName(name);
+        if (uniqueName != name) {
+            ScDiag::reportScDiag(recordDecl->getBeginLoc(),
+                                ScDiag::SYNTH_MEMORY_NON_UNIQUE) << name;
+        }
+        curVerMod->setName(uniqueName);
+       
     } else {
-        curVerMod->setName(modNameGen.getUniqueName(name));
+        // Normal module with implementation
+        std::string uniqueName = modNameGen.getUniqueName(modulePrefix + name);
+        curVerMod->setName(uniqueName);
     }
-
-    // Add module name comments
-    curVerMod->setComment(modView.getName());
 
     for (auto memberView : modView.getAllMembers()) {
         SCT_TOOL_ASSERT (nameStack.empty(), "Name stack is not empty");

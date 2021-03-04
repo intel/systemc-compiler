@@ -7,8 +7,7 @@
 
 #include <systemc.h>
 
-// Test for wait(n) where @n is not constant, changed at next loop iteration
-// This test should fail
+// wait(N) where N is not constant, changed at next loop iteration, failed
 SC_MODULE(test_mod) {
 
     sc_signal<bool> clk{"clk"};

@@ -37,9 +37,11 @@ public:
     int                 k;
     sc_uint<3>          n;
     int*                q;
+    int*                q1;
     int*                q2;
     bool*               r;
     sc_uint<3>*         s;
+    sc_uint<3>*         s1;
     sc_uint<3>*         s2;
     
     sc_signal<sc_uint<4>>  sig;
@@ -48,9 +50,11 @@ public:
     {
         p = new sc_out<bool>("p");
         q = sc_new<int>();
+        q1 = sc_new<int>();
         q2 = &m;
         r = sc_new<bool>();
         s = sc_new<sc_uint<3>>();
+        s1 = sc_new<sc_uint<3>>();
         s2 = &n;
         
         SC_METHOD(const_reference); 
@@ -281,7 +285,7 @@ public:
         *q = i;
         i = ptr2(q, r);
         
-        i = ptr3(s);
+        i = ptr3(s1);
         
         //bool b = port_ptr(p);
     }
@@ -292,8 +296,8 @@ public:
         *q2 = 1;
         ptr4(q2);
         
-        *q = 1;
-        ptr4(q);
+        *q1 = 1;
+        ptr4(q1);
     }    
 
     // Pointer parameter used in inner call

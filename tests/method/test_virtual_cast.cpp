@@ -13,13 +13,11 @@ using namespace sc_core;
 
 struct A : public sc_module
 {
-    char                 m;
-
     A(const sc_module_name& name) : sc_module(name)
     {}
     
     void f() {
-        m += 1;
+        char m = 1;
     }
 };
 
@@ -27,7 +25,6 @@ struct A : public sc_module
 class C : public A 
 {
 public:
-    short                 m;
     sc_signal<bool> dummy{"dummy"};
 
     SC_HAS_PROCESS(C);
@@ -36,7 +33,7 @@ public:
     }
     
     void f() {
-        m += 2;
+        short m = 2;
     }
 
     void proc_func() {
@@ -49,7 +46,6 @@ public:
 class D : public C 
 {
 public:
-    int                 m;
     sc_signal<bool> dummy{"dummy"};
 
     SC_HAS_PROCESS(D);
@@ -58,7 +54,7 @@ public:
     }
 
     void f() {
-        m += 3;
+        int m = 3;
     }
 
     void proc_func() {

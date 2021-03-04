@@ -303,6 +303,8 @@ public:
     /// Get Clang type
     virtual clang::QualType getType() const;
     
+    void setType(clang::QualType type_);
+    
     uint64_t getId() const {return id;}
     
     bool isOwner() const {return (owner == ObjectOwner::ooTrue);}

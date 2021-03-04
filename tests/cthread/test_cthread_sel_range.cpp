@@ -73,11 +73,9 @@ public:
         while (true) { 
             z(2,1) = 1;
             sct_assert_defined(z, false);
-            sct_assert_unknown(z);
 
             z(4,0) = 1;
             sct_assert_defined(z, false);
-            sct_assert_unknown(z);
             wait();
         }
     }

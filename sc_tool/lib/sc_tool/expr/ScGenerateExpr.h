@@ -68,8 +68,8 @@ protected:
     /// with constants only, no @keepConstVariables/@calcPartSelectArg checked
     /// \param val        -- integer if returned true or 
     ///                      some other evaluated value else
-    /// \return true if expression is evaluated as constant integer
-    bool evaluateConstIntNoCheck(clang::Expr* expr, SValue& val);
+    /// \return <result, integer value of result>
+    std::pair<SValue, SValue>  evaluateConstIntNoCheck(clang::Expr* expr);
 
     /// Parse and evaluate one expression/statement as constant integer
     /// returns NO_VALUE for expression with references
@@ -77,10 +77,15 @@ protected:
     ///                      some other evaluated value else
     /// \param checkConst -- get value for variable if it is constant only
     ///                      used in ScTraverseProc, not used in ScTraverseConst
-    /// \return true if expression is evaluated to an constant value
-    bool evaluateConstInt(clang::Expr* expr, SValue& val, 
-                          bool checkConst = true) override;
+    /// \return <result, integer value of result>
+    std::pair<SValue, SValue> evaluateConstInt(clang::Expr* expr, 
+                                               bool checkConst = true) override;
 
+    /// The same as previous one, just return integer value only
+    /// \return <integer value of result>
+    SValue evaluateConstInt(clang::Expr* expr, const SValue& val, 
+                            bool checkConst = true) override;
+    
     /// Evaluate variable dependent range (@hexpr, @lexpr) expression and put 
     /// evaluated values to generate part-selection code
     /// \return if part-selection with variables is required (true) or 
@@ -93,7 +98,7 @@ protected:
     /// Parse SCT_ASSERT in module scope and put assertion string into codeWriter
     /// \return statement for which assertion string is stored
     const clang::Stmt* parseSvaDecl(const clang::FieldDecl* fdecl);
-
+    
     /// Generate function parameter assignments
     void prepareCallParams(clang::Expr* expr, const SValue& funcModval, 
                            const clang::FunctionDecl* callFuncDecl) override;
@@ -139,8 +144,8 @@ protected:
     void parseExpr(clang::DeclRefExpr* expr, SValue& val) override;
 
     /// Used for implicit type cast and LValue to RValue cast
-    void parseExpr(clang::ImplicitCastExpr* expr, SValue& val) override;
-    void parseExpr(clang::ExplicitCastExpr* expr, SValue& val) override;
+    void parseExpr(clang::ImplicitCastExpr* expr, SValue& rval, SValue& val) override;
+    void parseExpr(clang::ExplicitCastExpr* expr, SValue& rval, SValue& val) override;
     
     /// Parenthesized expression, i.e. expression in "()"
     void parseExpr(clang::ParenExpr* expr, SValue& val) override;
@@ -210,7 +215,8 @@ protected:
     void parseOperatorCall(clang::CXXOperatorCallExpr* expr, SValue& val) override;
 
     /// Member function call expression
-    void parseMemberCall(clang::CXXMemberCallExpr* expr, SValue& val) override;
+    void parseMemberCall(clang::CXXMemberCallExpr* expr, SValue& tval,
+                         SValue& val) override;
   
     /// Function call expression
     void parseCall(clang::CallExpr* expr, SValue& val) override;

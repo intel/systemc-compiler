@@ -73,7 +73,6 @@ public:
         while (true) { 
             z[1] = 1;
             sct_assert_defined(z, false);
-            sct_assert_unknown(z);
             wait();
         }
     }
@@ -196,16 +195,9 @@ public:
             int k = 0;
             if (true && x[1]) k = 1;
             if (true || x[2]) k = 2;
-            if (false && x[3]) k = 3;
-            if (false || x[4]) k = 4;
-            if (false || true && x[5] || false) k = 5;
-            if (false || true && x[6] || true) k = 6;
             
             bool b = true && x[1];
             b = true || x[2];
-            b = false && x[3];
-            b = false || x[4];
-            b = true && false || x[5];
             
             wait();
         }

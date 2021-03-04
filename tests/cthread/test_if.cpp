@@ -5,13 +5,10 @@
 * 
 *****************************************************************************/
 
-//
-// Created by ripopov on 3/13/18.
-//
-
 #include <systemc.h>
 #include <sct_assert.h>
 
+// if general cases
 class top : sc_module
 {
 public:
@@ -37,6 +34,9 @@ public:
         sensitive << in;
 
         SC_METHOD(tmp3);
+        sensitive << in;
+        
+        SC_METHOD(empty_if);
         sensitive << in;
 
         SC_THREAD(variable_read_in_binaryop);
@@ -108,7 +108,7 @@ public:
         bool b2 = in;
         
         if (b1 && b2) {
-            int i;
+            int i = 1;
         }
     }
     
@@ -117,7 +117,7 @@ public:
         bool b2 = in;
         
         if (b1 && int(b2)) {
-            int i;
+            int i = 1;
         }
     }
     
@@ -125,9 +125,15 @@ public:
         bool b1 = in;
         int i = 0;
         
-        if (b1 && i++) {
+        if (b1 && i++) {        // This IF removed
+            int i = 1;  
         }
+        sct_assert_const(i == 1);
         
+        i = 0;
+        if (b1 && ++i) {
+            int i = 2;
+        }
         sct_assert_const(i == 1);
     }
     
@@ -138,6 +144,27 @@ public:
         sct_assert_read(n, false);
     }
 
+    // Empty IFs removed
+    sc_signal<int> s1;
+    void empty_if() {
+        bool b1 = in;
+        int i = 0;
+        
+        if (b1) {
+            int j;
+        }
+        
+        if (i++) {      // Condition with side-effect, see #224
+            int k;
+        }
+
+        if (b1 && in.read()) {
+        }
+        s1 = i;
+    }
+    
+// ---------------------------------------------------------------------------    
+    
     // BUG in real design
     // No register generated for variable used in right part of binary &&/||
     void variable_read_in_binaryop() {
@@ -147,13 +174,14 @@ public:
         while (true) {
             bool updateLine = in;
             
+            // No IF generated as condition is always false
             if (!updateLine && closeWaLine) {
                 closeWaLine = 0;
             }
             
-            /*if (in) {
-                closeWaLine = 1;
-            }*/
+//            if (in) {
+//                closeWaLine = 1;
+//            }
             wait();
         }
     }
@@ -345,7 +373,7 @@ public:
             
             if (in.read()) {
                 k = 1;
-                wait();  // 2
+                wait();  // 1
             }
 
             for (int i = 0; i < 3; i++) {
@@ -354,10 +382,10 @@ public:
 
             if (in.read()) {
                 k = 2;
-                wait();  // 3
+                wait();  // 2
             }
             
-            wait();  // 4
+            wait();  // 3
             k = 3;
         }
     }
@@ -408,10 +436,10 @@ public:
             for (int i = 0; i < 3; i++) {   // B6
                 if (in.read()) {            // B5
                     k = 1;                  // B4
-                    wait();  // 2
+                    wait();  // 1
                 }
                 
-                wait(); // 3                // B3
+                wait(); // 2                // B3
             }                               // B2
         }                                   // B1
     }
@@ -427,14 +455,14 @@ public:
                 for (int j = 0; j < 3; j++) {
                     if (in.read()) {
                         k = 1;
-                        wait();  // 2
+                        wait();  // 1
                     }
 
-                    wait(); // 3
+                    wait(); // 2
                 }
             }
             
-            wait();  // 4
+            wait();  // 3
         }
     }
     
@@ -448,7 +476,7 @@ public:
             for (int i = 0; i < 3; i++) {
                 if (in.read()) {
                     k = 1;
-                    wait();  // 2
+                    wait();  // 1
                 }
             
                 for (int j = 0; j < 3; j++) {
@@ -456,12 +484,12 @@ public:
                         k = 2;
                     } else {
                         k = 3;
-                        wait(); // 4
+                        wait(); // 2
                     }
                     wait(); // 3
                 }
                 
-                wait(); // 5
+                wait(); // 4
             }
         }
     }

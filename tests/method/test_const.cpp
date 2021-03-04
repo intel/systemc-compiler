@@ -86,6 +86,9 @@ public:
         p4 = &c4;
         p5 = &c5;
 
+        SC_METHOD(const_init);
+        sensitive << a;
+        
         SC_METHOD(std_min_max);
         sensitive << a;
 
@@ -112,7 +115,9 @@ public:
         SC_METHOD(switch_const); sensitive << dummy;
         SC_METHOD(cond_const); sensitive << dummy;
         SC_METHOD(loop_const); sensitive << dummy;
-        
+        SC_METHOD(loop_const_init);
+        sensitive << a;
+
         SC_METHOD(sc_type_const); sensitive << dummy;
         
         SC_METHOD(local_static_const); sensitive << dummy;
@@ -137,6 +142,32 @@ public:
         SC_METHOD(const_func_call); sensitive << dummy;
         SC_METHOD(sc_int_func); sensitive << dummy;
     }
+    
+    #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
+
+    // Constant initialization with function with side-effects
+    int m1 = 0;
+    
+    int getInit() {
+        return m1++;
+    }
+    
+    int getInit2() {
+        m1++;
+        return 1;
+    }
+    
+    void const_init() 
+    {
+        const int i = getInit();
+        const int j = getInit();
+
+        const int k = getInit2();
+        int z = i + j + k;
+        CHECK(k == 1);
+    }
+    
+// ----------------------------------------------------------------------------
     
     // Check std::max and std::min functions
     void std_min_max() {
@@ -431,6 +462,15 @@ public:
         
         while (CONST_B > CONST_C) {
             k = 5;
+        }
+    }
+    
+     // Constant in loop conditions
+    void loop_const_init() {
+        int k = 0;
+        int j = 0;
+        for (j = 1; j < 1; j++) {
+            k++;
         }
     }
     

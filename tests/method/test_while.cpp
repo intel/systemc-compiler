@@ -24,38 +24,36 @@ public:
     int                 n;
     int*                q;
 
-    sc_signal<bool> dummy{"dummy"};
+    sc_signal<bool> s{"s"};
 
     SC_CTOR(A) {
-        SC_METHOD(while_stmt_empty); sensitive << dummy;
-        SC_METHOD(while_stmt1); sensitive << dummy;
-        SC_METHOD(while_stmt2); sensitive << dummy;
-        SC_METHOD(while_stmt3); sensitive << dummy;
-        SC_METHOD(while_stmt4); sensitive << dummy;
-        SC_METHOD(while_stmt5); sensitive << dummy;
-        SC_METHOD(while_stmt6); sensitive << dummy;
-        SC_METHOD(while_stmt7); sensitive << dummy;
-        SC_METHOD(while_const); sensitive << dummy;
-        
+        SC_METHOD(while_stmt_empty); sensitive << s;
+        SC_METHOD(while_stmt1); sensitive << s;
+        SC_METHOD(while_stmt2); sensitive << s;
+        SC_METHOD(while_stmt3); sensitive << s;
+        SC_METHOD(while_stmt4); sensitive << s;
+        SC_METHOD(while_stmt5); sensitive << s;
+        SC_METHOD(while_stmt6); sensitive << s;
+        SC_METHOD(while_stmt7); sensitive << s;
+
+        SC_METHOD(while_const); sensitive << s;
         SC_METHOD(while_sc_type); sensitive << a;
     }
     
     // Empty While
     void while_stmt_empty() {
         int i = 0;
-        while (i < 2) {
-            k = i;
-            i++;
+        while (i++ < 2) {
         }
         sct_assert_level(0);
     }
 
     // Simple while
     void while_stmt1() {
-        k = 0; 
+        int k = 0; 
         int i = 0;
         while (i < 2) {
-            k = k + 1; 
+            int k = k + 1; 
             i++;
         }
         sct_assert_level(0);
@@ -81,8 +79,8 @@ public:
     // While with several inputs from outside
     void while_stmt3() {
         int i = 0;
-        int j = 1; k = 0;
-        if (m > 0) {
+        int j = 1; int k = 0;
+        if (s) {
             j = 2;
         } else {
             j = 3;
@@ -97,8 +95,8 @@ public:
     // While with several inputs from outside
     void while_stmt4() {
         int i = 0;
-        int j = 1; k = 0;
-        if (m > 0) {
+        int j = 1; int k = 0;
+        if (s) {
             j = 2;
         }
         while (i < 2) {   // 2 inputs whilem outside
@@ -111,7 +109,7 @@ public:
     
     // While with inner while
     void while_stmt5() {
-        k = 0;
+        int k = 0;
         int i = 0;
         while (i < 2) {   
             int j = 0; 
@@ -126,9 +124,9 @@ public:
     
     // While in IF branch
     void while_stmt6() {
-        k = 0;
+        int k = 0;
         int i = 0;
-        if (m > 0) {
+        if (s) {
             while (i < 2) {   
                 k = k + 1; i++;
             }
@@ -140,38 +138,41 @@ public:
 
     // While with some index calculations
     void while_stmt7() {
-        k = 0; n = 0;
+        int k = 0; int n = 0; int mm = 0;
         int i = 0;
         while (i < 3) {   
             k = k + i; 
             i++;
-            n = m++;
+            n = mm++;
         }
     }     
+    
+// ---------------------------------------------------------------------------
 
     // While with false and true constant condition
     void while_const() {
-        k = 0;
+        int k = 0;
         while (false) {
             k = k + 1;
         }
         b.write(k+1);
         
-        k = 1;
-//        while (true) {
-//            k = k + 1;
-//        }
+        k = 10;
+        while (k < 10) {
+            k = k + 1;
+        }
         b.write(k+2);
     }
     
     void while_sc_type() {
-        k = 0; 
+        k = 1; 
         sc_uint<3> i = 0;
         while (i < 2) {
-            k = k + 1; 
+            k = k + 2; 
             i++;
         }
-        sct_assert_const(k == 2);
+        sct_assert_const(i == 2);
+        sct_assert_const(k == 5);
     }
 
     

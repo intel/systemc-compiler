@@ -25,6 +25,7 @@ public:
     SC_HAS_PROCESS(A);
 
     sc_signal<bool> dummy{"dummy"};
+    sc_signal<int> s{"s"};
 
     A(const sc_module_name& name) : C(name) {
         SC_METHOD(func_in_if1); sensitive << dummy;
@@ -37,6 +38,11 @@ public:
 
         SC_METHOD(chan_array_in_if1); sensitive << dummy;
         SC_METHOD(chan_array_in_if2); sensitive << dummy;
+        
+        SC_METHOD(mem_array_in_if); sensitive << s;
+        SC_METHOD(loc_array_in_if); sensitive << s;
+        SC_METHOD(decl_array_in_if1); sensitive << s;
+        SC_METHOD(decl_array_in_if2); sensitive << s;
     }
     
     static const unsigned BLOCK_NUM = 3;
@@ -46,9 +52,8 @@ public:
     sc_signal<sc_uint<SLEEP_COUNTER_WIDTH> > sleep_idle_cntr[BLOCK_NUM];
     sc_signal<bool>         ms_pwrin_nenable[BLOCK_NUM];
     
-    bool k;
-    
     bool f() {
+        bool k;
         return k;
     }
 
@@ -113,6 +118,7 @@ public:
     }
     
     // Access channel array in base module in IF condition
+    
     // BUG in real design -- fixed
     void chan_array_in_if2() 
     {
@@ -121,6 +127,61 @@ public:
                 sleep_idle_cntr[i] = 0;
             }    
         }
+    }
+    
+    sc_uint<34> arr[5];
+    bool arr2[4][3];
+    void mem_array_in_if() 
+    {
+        int k = 0;
+        for (int i = 0; i < 4; i++) {
+            if (arr[i] == s.read() && arr2[i][k]) {
+                k++;
+            }    
+        }
+    }
+    
+    void loc_array_in_if() 
+    {
+        sc_bigint<10> larr[3] ={1, 2, 3};
+        unsigned larr2[1][4];
+        
+        if (larr[s.read()] == larr2[s.read()][1]) {
+            int k = 1;
+        }    
+    }
+    
+    void decl_array_in_if1() 
+    {
+        if (s.read()) {
+            sc_int<10> larr[3] = {1, 2, 3};
+            int larr2[3][3];
+
+            larr2[s.read()][s.read()] = larr[1];
+            
+            if (s.read() == 3) {
+                larr[0] = 0;
+            }
+        }    
+    }
+    
+    void decl_array_in_if2() 
+    {
+        int a = 0;
+        if (s.read()) {
+            sc_int<10> ll[3];
+            ll[1] = 1;
+            a += ll[s.read()];
+            
+            if (s.read() == 1) {
+                sc_int<10> ll[3];
+                
+                ll[1] = 2;
+                a += ll[s.read()];
+            }
+
+            a += ll[s.read()+1];
+        }    
     }
 
  };

@@ -18,6 +18,7 @@ public:
 
     int m;
     int k = 2;
+    int kk = 2;
     int n = 3;
     
     static const unsigned CONST_A = N;
@@ -29,7 +30,7 @@ public:
     static constexpr unsigned CEXPR_C = CEXPR_A + CEXPR_B;
     
     int& r1 = n;
-    const int& r2 = k;
+    const int& r2 = kk;
     sc_uint<7> f;
     sc_uint<7>& r3 = f;
 
@@ -78,7 +79,7 @@ public:
         // Reference as RValue
         i = r1 + r2;
         int j = b;
-        j = b + c * a;
+        j = b + c * a + i;
     }    
     
     // reference for SC data type
@@ -158,7 +159,7 @@ public:
         sc_uint<4> a;
         const sc_uint<4> &b = a;
         a = 1;
-        m = b.range(3,1);
+        int m = b.range(3,1);
         
         sc_uint<3> arr[5];
         const sc_uint<3> &c = arr[2];
@@ -173,6 +174,7 @@ public:
     void const_reference3()
     {
         sc_uint<3> arr[3];
+        int m = s.read();
         const sc_uint<3>& a = arr[s.read()];
         const sc_uint<3>& b = arr[s.read()+1];
         const sc_uint<3>& c = arr[m];
@@ -218,7 +220,7 @@ public:
     const int il3[3] = {1, n, k+1};
 
     void init_list() {
-        m = 1;
+        int m = 1;
         int il4[2] = {0, m};
     }
     

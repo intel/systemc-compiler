@@ -26,30 +26,30 @@ public:
     int                 j;
     int*                q;
 
-    sc_signal<bool> dummy{"dummy"};
+    sc_signal<bool> s{"s"};
 
     SC_CTOR(A) : j(1) {
         SC_METHOD(if_const_and_signal); sensitive << s1 << s2;
         
-        SC_METHOD(if_empty1); sensitive << dummy;
-        SC_METHOD(if_empty2); sensitive << dummy;
-        SC_METHOD(if_empty3); sensitive << dummy;
-        SC_METHOD(if_empty4); sensitive << a;
-        SC_METHOD(if_stmt1); sensitive << a << b;
-        SC_METHOD(if_stmt2); sensitive << dummy;
-        SC_METHOD(if_stmt2a); sensitive << dummy;
+        SC_METHOD(if_empty1); sensitive << s;
+        SC_METHOD(if_empty2); sensitive << s;
+        SC_METHOD(if_empty3); sensitive << s;
+        SC_METHOD(if_empty4); sensitive << a << s;
+        SC_METHOD(if_stmt1); sensitive << a << b << s;
+        SC_METHOD(if_stmt2); sensitive << s;
+        SC_METHOD(if_stmt2a); sensitive << s;
         SC_METHOD(if_stmt3);
-        sensitive << a;
+        sensitive << a << s;
         SC_METHOD(if_stmt4);
-        sensitive << a << b;
+        sensitive << a << b << s;
         SC_METHOD(if_stmt5);
-        sensitive << a;
-        SC_METHOD(if_compl_cond1); sensitive << dummy;
-        SC_METHOD(if_compl_cond2); sensitive << dummy;
-        SC_METHOD(if_compl_cond3); sensitive << dummy;
-        SC_METHOD(if_compl_cond4); sensitive << dummy;
+        sensitive << a << s;
+        SC_METHOD(if_compl_cond1); sensitive << s;
+        SC_METHOD(if_compl_cond2); sensitive << s;
+        SC_METHOD(if_compl_cond3); sensitive << s;
+        SC_METHOD(if_compl_cond4); sensitive << s;
         
-        SC_METHOD(if_const); sensitive << dummy;
+        SC_METHOD(if_const); sensitive << s;
     }
     
 
@@ -92,7 +92,7 @@ public:
 
     // IF with empty then branch
     void if_empty2() {
-        int i;
+        int i; int n = s.read();
         if (n > 0) {
         } else {
             i = 3;
@@ -103,6 +103,7 @@ public:
     
     // IF with both empty branches
     void if_empty3() {
+        int n = s.read();
         if (n > 0) {
         } else {
         }
@@ -112,6 +113,7 @@ public:
 
     // Several IF`s with empty branches
     void if_empty4() {
+        int n = s.read();
         if (n > 0) {
             if (n > 1) {
                 m = 1;
@@ -144,6 +146,8 @@ public:
     // Inner IF`s
     void if_stmt2() {
         int i;
+        int m = s.read();
+        int n = s.read();
         if (m > 0) {
             i = 1;
             if (n > 0) {
@@ -164,7 +168,8 @@ public:
     void if_stmt2a() 
     {
         int k = 0;              // B7
-        
+        int m = s.read();
+        int n = s.read();
         if (m > 0) {        
             k = 1;              // B6
 
@@ -186,6 +191,8 @@ public:
     // Double inner IF`s
     void if_stmt3() {
         int i;
+        int n = s.read();
+        int k = s.read();
         if (a.read()) {
             i = 1;
             if (n > a.read()) {
@@ -217,6 +224,9 @@ public:
     // Sequential IF and general statements
     void if_stmt5() {
         int i;
+        int m = s.read();
+        int k = s.read();
+        int n = s.read();
         if (m > 0) {
             i = 1;
             i = 2;
@@ -237,6 +247,8 @@ public:
     // Complex condition in IF statement with ||
     void if_compl_cond1() {
         int i;
+        int k = s.read();
+        int m = s.read();
         if (m == 1 || k == 1) {
             i = 1;
         } else {
@@ -259,6 +271,8 @@ public:
     // Complex condition in IF statement with &&
     void if_compl_cond2() {
         int i;
+        int k = s.read();
+        int m = s.read();
         if (m == 1 && k == 1) {
             i = 1;
         } else {
@@ -281,6 +295,8 @@ public:
     // Complex condition in IF statement with && and ||
     void if_compl_cond3() {
         int i;
+        int k = s.read();
+        int m = s.read();
         if (m == 1 && k == 2 || k < m) {
             i = 1;
         } else {
@@ -303,6 +319,8 @@ public:
     // Complex condition in IF statement with && and || and ()
     void if_compl_cond4() {
         int i;
+        int k = s.read();
+        int m = s.read();
         if (m == 1 && (k == 2 || k < m)) {
             i = 1;
         } else {
@@ -325,6 +343,8 @@ public:
     // IF with one of block reachable
     void if_const() {
         int i;
+        int k = s.read();
+        int m = s.read();
         if (false) {
             i = k;
         } else {

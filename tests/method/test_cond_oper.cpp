@@ -24,31 +24,31 @@ public:
     int                 j;
     int*                q;
 
-    sc_signal<bool> dummy{"dummy"};
+    sc_signal<bool> s{"s"};
     SC_CTOR(A) : j(1) 
     {
         SC_METHOD(dead_cond_error); sensitive << s0;
         
         SC_METHOD(cond_oper_for_channels);
-        sensitive << s1 << s2;
+        sensitive << s1 << s2 << s;
         
-        SC_METHOD(logic_expr1); sensitive << dummy;
-        SC_METHOD(logic_expr2); sensitive << dummy;
-        SC_METHOD(logic_expr3); sensitive << dummy;
-        SC_METHOD(logic_expr4); sensitive << dummy;
+        SC_METHOD(logic_expr1); sensitive << s;
+        SC_METHOD(logic_expr2); sensitive << s;
+        SC_METHOD(logic_expr3); sensitive << s;
+        SC_METHOD(logic_expr4); sensitive << s;
 
-        SC_METHOD(cond_oper_compl); sensitive << dummy;
-        SC_METHOD(cond_oper1); sensitive << dummy;
-        SC_METHOD(cond_oper2); sensitive << dummy;
+        SC_METHOD(cond_oper_compl); sensitive << s;
+        SC_METHOD(cond_oper1); sensitive << s;
+        SC_METHOD(cond_oper2); sensitive << s;
         // TODO; Fix me, #142
-        //SC_METHOD(cond_oper3); sensitive << dummy;
+        //SC_METHOD(cond_oper3); sensitive << s;
         
-//        SC_METHOD(cond_oper4); sensitive << dummy;
-//        SC_METHOD(cond_oper5); sensitive << dummy;
-//        SC_METHOD(cond_oper6); sensitive << dummy;
+//        SC_METHOD(cond_oper4); sensitive << s;
+//        SC_METHOD(cond_oper5); sensitive << s;
+//        SC_METHOD(cond_oper6); sensitive << s;
         
-        SC_METHOD(cond_oper_const); sensitive << dummy;
-        SC_METHOD(cond_oper_fcall); sensitive << dummy;
+        SC_METHOD(cond_oper_const); sensitive << s;
+        SC_METHOD(cond_oper_fcall); sensitive << s;
     }
     
     sc_signal<bool>  s0;
@@ -68,6 +68,8 @@ public:
     void cond_oper_for_channels()
     {
         bool b;
+        int m = s.read();
+        int k = s.read();
         b = (k) ? s1 : s2;
         b = k ? s1 : s2;
     }
@@ -75,6 +77,8 @@ public:
     
     // Logic expression with ||
     void logic_expr1() {
+        int m = s.read();
+        int k = s.read();
         bool l0 = !(m==k);
         bool l1 = m == 1 || k == 1;
         bool l2 = (m > 1 || k < 1);
@@ -84,6 +88,8 @@ public:
 
     // Logic expression with ||, && and mixed
     void logic_expr2() {
+        int m = s.read();
+        int k = s.read();
         bool l1 = m == 1 && k == 1;
         bool l2 = (m > 1 && k < 1);
         bool l3 = m != k && k != 1;
@@ -92,6 +98,8 @@ public:
 
     // Logic expression with || and && mixed
     void logic_expr3() {
+        int m = s.read();
+        int k = s.read();
         bool l1 = m == 1 && k == 1 || k < m;
         bool l2 = m > 1 || k < 1 && k != 1;
         bool l3 = m != k && k != 1 || !(m < k) && k < 1;
@@ -100,6 +108,8 @@ public:
 
     // Logic expression with || and && mixed with ()
     void logic_expr4() {
+        int m = s.read();
+        int k = s.read();
         bool l1 = m == 1 && (k == 1 || (k < m));
         bool l2 = (m > 1 || k < 1) && k != 1;
         bool l3 = m != k && ((k != 1 || !(m < k)) && k < 1);
@@ -109,6 +119,8 @@ public:
     // Condition operator with complex condition
     void cond_oper_compl() {
         int i;
+        int m = s.read();
+        int k = s.read();
         i = (m + 1) ? m + 1 : m + 2;
         i = (m + 1 > k -1) ? 1 : 2;
     }
@@ -116,6 +128,8 @@ public:
     // Condition operator in assignment
     void cond_oper1() {
         int i;
+        int m = s.read();
+        int k = s.read();
         i = (m == 1) ? 1 : 2;
         i = (m > k) ? m+1 : k+1;
         i = (m < k || m == 1) ? m++ : ++k;
@@ -127,6 +141,8 @@ public:
     // Condition operator in IF branches
     void cond_oper2() {
         int i;
+        int m = s.read();
+        int k = s.read();
         if (m > 1) {
             i = (m == 1) ? m : k;
         } else {
@@ -146,6 +162,8 @@ public:
     // Condition operator in IF condition
     void cond_oper3() {
         int i;
+        int m = s.read();
+        int k = s.read();
         if (((m == 1) ? m : k) > 1) {
             i = 1;
         } else {
@@ -165,6 +183,8 @@ public:
     
     // Condition operator in loop with continue
     void cond_oper4() {
+        int m = s.read();
+        int k = s.read();
         for (int i = 0; i < 2; i++) {
             i = (m == 1) ? m : k;
         }
@@ -199,6 +219,8 @@ public:
     
     // Condition operator in loop with break
     void cond_oper5() {
+        int m = s.read();
+        int k = s.read();
         for (int i = 0; i < 2; i++) {
             if (m > k) {
                 i = (m == 1) ? m : k;
@@ -230,6 +252,8 @@ public:
     // Condition operator in loop with break exit only
     void cond_oper6() {
         int i;
+        int m = s.read();
+        int k = s.read();
         for (; ; ) {
             if (m > k) {
                 i = (m == 1) ? m : k;
@@ -261,6 +285,8 @@ public:
     // Condition operator with one of block reachable
     void cond_oper_const() {
         int i;
+        int m = s.read();
+        int k = s.read();
         i = (false) ? m : k;
         i = (true) ? m : k;
         i = (false || k == m) ? m : k;

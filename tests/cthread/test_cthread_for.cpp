@@ -5,16 +5,14 @@
 * 
 *****************************************************************************/
 
-//
-// Created by ripopov on 3/13/18.
-//
-
+#include "sct_assert.h"
 #include <systemc.h>
 
+// for loop with and w/o wait() general cases
 class top : sc_module
 {
 public:
-    sc_clock clk{"clk", 10, SC_NS};
+    sc_in_clk clk;
     sc_signal<bool> arstn{"arstn", 1};
     sc_signal<int> in{"in"};
     sc_signal<int> out{"out"};
@@ -22,49 +20,39 @@ public:
     SC_HAS_PROCESS(top);
     top(sc_module_name)
     {
-        SC_THREAD(for_stmt_no_wait);
-        sensitive << clk.posedge_event();
-        async_reset_signal_is(arstn, false);
-
-        SC_THREAD(for_stmt_wait0);
-        sensitive << clk.posedge_event();
-        async_reset_signal_is(arstn, false);
-
-        SC_THREAD(for_stmt_wait1);
-        sensitive << clk.posedge_event();
-        async_reset_signal_is(arstn, false);
-
-        SC_THREAD(for_stmt_wait2);
-        sensitive << clk.posedge_event();
-        async_reset_signal_is(arstn, false);
-
-        SC_THREAD(for_stmt_wait_noiter);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(for_stmt_no_wait1, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(thread_break);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(for_stmt_no_wait2, clk.pos());
+        async_reset_signal_is(arstn, false);
+        
+        SC_CTHREAD(for_stmt_no_wait3, clk.pos());
+        async_reset_signal_is(arstn, false);
+        
+        SC_CTHREAD(for_stmt_no_wait4, clk.pos());
+        async_reset_signal_is(arstn, false);
+
+        
+        SC_CTHREAD(for_stmt_wait0, clk.pos());
+        async_reset_signal_is(arstn, false);
+        
+        SC_CTHREAD(for_stmt_wait1, clk.pos());
+        async_reset_signal_is(arstn, false);
+        
+        SC_CTHREAD(for_stmt_wait2, clk.pos());
+        async_reset_signal_is(arstn, false);
+        
+        SC_CTHREAD(for_stmt_wait3, clk.pos());
+        async_reset_signal_is(arstn, false);
+
+        SC_CTHREAD(for_stmt_wait4, clk.pos());
+        async_reset_signal_is(arstn, false);
+
+        SC_CTHREAD(for_stmt_wait_noiter, clk.pos());
         async_reset_signal_is(arstn, false);
     }
 
-    // ------------------------------------------------------------------------
-    // For DAC paper
-    sc_signal<int> enabled{"enabled"};
-    sc_signal<int> reset{"reset"};
-    
-    void thread_break() {
-        wait();          // STATE 0
-        while (true) {
-            wait();      // STATE 1
-            while (!enabled) {
-                if (reset) break;
-                wait();  // STATE 2
-            }
-        }
-    }
-
-    // ------------------------------------------------------------------------
-    void for_stmt_no_wait()
+    void for_stmt_no_wait1()
     {
         int k = 0;
         wait();
@@ -79,6 +67,74 @@ public:
             wait();
         }
     }
+    
+    void for_stmt_no_wait2()
+    {
+        wait();
+        
+        while (true) {
+            
+            int k = 0;
+            for (int i = 0; i < 4; i++) {
+                k--;
+            }
+            sct_assert_const(k == -4);
+            
+            wait();
+
+            for (int i = 0; i < 10; i++) {
+                if (in) {
+                    for (int j = 0; j < 4; j++) {
+                        k++;
+                    }
+                }
+            }
+        }
+    }
+    
+    // No wait() for with break
+    void for_stmt_no_wait3()
+    {
+        wait();
+        
+        while (true) {
+            
+            int k = 11;
+            for (int i = 0; i < 4; i++) {
+                if (in.read() != k) {
+                    break;
+                }
+                k *= 2;
+            }
+            wait();
+        }
+    }
+    
+    // No wait() for with continue
+    void for_stmt_no_wait4()
+    {
+        int n = 1;
+        unsigned m = 0;
+        wait();
+        
+        while (true) {
+            
+            for (int i = 0; i < 4; i++) {
+                if (in.read()) {
+                    n += 1;
+                } else {
+                    continue;
+                }
+                m += n;
+            }
+            
+            wait();
+            
+            m = 0;
+        }
+    }
+    
+// ----------------------------------------------------------------------------
     
     void for_stmt_wait0()
     {
@@ -128,6 +184,45 @@ public:
         }
     }
     
+    // Double loops with break
+    void for_stmt_wait3()
+    {
+        int k = 0;
+        wait();
+        
+        while (true) {
+            for (int i = 0; i < 2; i++) {
+                k = 1;
+                for (int j = 0; j < 3; j++) {
+                    k = 2;
+                    wait();     // 1
+                }
+                if (in) break;
+            }
+            k = 3;
+            wait();             // 2
+        }
+    }
+    
+    // Double loops with continue
+    void for_stmt_wait4()
+    {
+        int k = 0;
+        wait();
+        
+        while (true) {
+            for (int i = 0; i < 2; i++) {
+                wait();
+                
+                if (in.read() == 42) continue;
+
+                for (int j = 0; j < 3; j++) {
+                    k++;
+                }
+            }
+        }
+    }
+    
     // For with wait() no iteration
     void for_stmt_wait_noiter()
     {
@@ -144,11 +239,15 @@ public:
             wait();
         }
     }
+
 };
 
 int sc_main(int argc, char *argv[])
 {
+    sc_clock clk{"clk", 10, SC_NS};
     top top_inst{"top_inst"};
+    top_inst.clk(clk);
+    
     sc_start(100, SC_NS);
     return 0;
 }

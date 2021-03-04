@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 #include "sc_tool/cfg/ScTraverseConst.h"
+#include "sc_tool/expr/ScParseExprValue.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "sc_tool/utils/CheckCppInheritance.h"
 #include "sc_tool/utils/DebugOptions.h"
@@ -15,7 +16,6 @@
 #include "sc_tool/utils/CppTypeTraits.h"
 
 #include "clang/AST/Decl.h"
-#include "sc_tool/expr/ScParseExprValue.h"
 #include <memory>
 
 namespace sc {
@@ -25,26 +25,131 @@ using namespace clang;
 using namespace llvm;
 
 // ---------------------------------------------------------------------------
-// Auxiliary functions
-
-// Extract counter variable value for given FOR initialization sub-statement
-// \return variable value or NO_VALUE
-SValue ScTraverseConst::extractCounterVar(const Stmt* stmt) 
+// Creates constant value in global state if necessary
+SValue ScTraverseConst::parseGlobalConstant(const SValue& val)
 {
-    if (auto declStmt = dyn_cast<const DeclStmt>(stmt)) {
-        SCT_TOOL_ASSERT (declStmt->isSingleDecl(), 
-                         "Declaration group not supported");
-        auto decl = dyn_cast<ValueDecl>(declStmt->getSingleDecl());
-        SCT_TOOL_ASSERT (decl, "No ValueDecl in DeclStmt");
+    //cout << "parseGlobalConstant val " << val << endl;
+    if (val.getVariable().getParent() || 
+        elabDB == nullptr || globalState == nullptr ) {
+        // Do nothing
         
-        SValue var(decl, modval); 
-        return var;
+    } else
+    if (!globalState->getElabObject(val)) {
+        auto currentModule = *state->getElabObject(dynmodval);
+        auto valDecl = const_cast<clang::ValueDecl*>(val.getVariable().getDecl());
+        auto varDecl = dyn_cast<clang::VarDecl>(valDecl);
+
+        // @exprEval used in createStaticVariable() to evaulate 
+        // initializer expressions as constant
+        auto newElabObj = elabDB->createStaticVariable(currentModule, varDecl);
+
+        if (elabDB->hasVerilogModule(currentModule)) {
+            auto* verilogMod = elabDB->getVerilogModule(currentModule);
+            verilogMod->addConstDataVariable(newElabObj, 
+                                             *(newElabObj.getFieldName()));
+            //cout << " Module : variable added" << endl;
+        } else {
+            // Current module is MIF
+            //cout << " MIF " << endl;
+        }
+
+        // Parse and put initializer into global state, check no such value 
+        // in state to avoid replace constant/static array elements
+        if (!globalState->getValue(val)) {
+            globExprEval.parseValueDecl(valDecl, NO_VALUE, nullptr, false);
+        }
+
+        // Put the same initializer into current state, to use it in the process
+        // For next analyzed processes it is taken from @globalState
+        if (!state->getValue(val)) {
+            parseValueDecl(valDecl, NO_VALUE, nullptr, false);
+        }
+        
+        globalState->putElabObject(val, newElabObj);
     }
+
+    // Returned value not used
     return NO_VALUE;
 }
 
+// Register variables accessed in and after reset section, 
+// check read-not-defined is empty in reset
+void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt) 
+{
+    if (isResetSection) {
+        // Extract variables defined in reset section to create
+        // declaration in module scope if it is constant
+        SCT_TOOL_ASSERT (resetDefinedConsts.empty(), 
+                         "resetDefinedValues is not empty");
+        for (const auto& val : state->getDefArrayValues()) {
+            if (val.isVariable() && ScState::isConstVarOrLocRec(val)) {
+                resetDefinedConsts.insert(val);
+            }
+        }
+        // Register variables accessed in CTHREAD reset 
+        if (!isCombProcess) {
+            //cout << "---- getDefArrayValues " << endl;
+            for (const auto& val : state->getDefArrayValues()) {
+                if (val.isVariable() || val.isTmpVariable()) {
+                    inResetAccessVars.insert(val);
+                    //cout << "   " << val << endl;
+                }
+            }
+            //cout << "---- getReadValues " << endl;
+            for (const auto& val : state->getReadValues()) {
+                if (val.isVariable() || val.isTmpVariable()) {
+                    inResetAccessVars.insert(val);
+                    //cout << "   " << val << endl;
+                }
+            }
+        }
+
+        // Read-not-defined not valid at reset section,
+        // get ReadNotDefined excluding read in SVA
+        for (const auto& val : state->getReadNotDefinedValues(false)) {
+            if (!val.isVariable()) continue;
+            // Skip record field as copy constructor leads to 
+            // read all the fields even if not really used
+            if (ScState::isRecField(val)) continue;
+
+            QualType type = val.getType();
+
+            if (isScChannel(type, true) || isScChannelArray(type, true) ||
+                ScState::isConstVarOrLocRec(val)) continue;
+
+            ScDiag::reportScDiag(stmt->getBeginLoc(),
+                    ScDiag::CPP_READ_NOTDEF_VAR_RESET) << val.asString(false);
+        }
+
+    } else {
+        // Register variables accessed after CTHREAD reset
+        if (!isCombProcess) {
+            for (const auto& val : state->getDefArrayValues()) {
+                if (val.isVariable() || val.isTmpVariable()) {
+                    afterResetAccessVars.insert(val);
+                }
+            }
+            for (const auto& val : state->getReadValues()) {
+                if (val.isVariable() || val.isTmpVariable()) {
+                    afterResetAccessVars.insert(val);
+                }
+            }
+        }
+    }
+    
+    // Register SVA used variables to create register for them
+    for (const auto& val : state->getSvaReadValues()) {
+        if (val.isVariable() || val.isTmpVariable()) {
+            inSvaAccessVars.insert(val);
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Auxiliary functions
+
 // Evaluate terminator condition if it is compile time constant
-void ScTraverseConst::evaluateTermCond(const Stmt* stmt, SValue& val) 
+void ScTraverseConst::evaluateTermCond(Stmt* stmt, SValue& val) 
 {
     // Initialization section FOR loop analyzed before the FOR terminator 
     // Get condition for terminator, LSH for binary &&/||
@@ -52,55 +157,32 @@ void ScTraverseConst::evaluateTermCond(const Stmt* stmt, SValue& val)
     
     // Consider only integer value in condition as pointer is casted to bool
     if (cond) {
-        evaluateConstInt(const_cast<Expr*>(cond), val, false);
+        // Check if loop condition does not have compound statement or comma
+        if (isa<ForStmt>(stmt) || isa<WhileStmt>(stmt) || isa<DoStmt>(stmt)) {
+            bool error = false;
+            if (isa<CompoundStmt>(cond)) error = true;
+            if (auto binstmt = dyn_cast<const BinaryOperator>(cond)) {
+                BinaryOperatorKind opcode = binstmt->getOpcode();
+                if (opcode == BO_Comma) error = true;
+            }
+
+            if (error) {
+                ScDiag::reportScDiag(cond->getBeginLoc(),
+                                     ScDiag::CPP_LOOP_COMPOUND_COND);
+            }
+        }
+
+        //cout << "Condition #" << hex << stmt << dec << endl;
+        //cond->dumpColor();
+        auto condvals = evaluateConstInt(const_cast<Expr*>(cond), false);
+        state->readFromValue(condvals.first);
+        val = condvals.second;
         
-        // Get condition variable to add Read property to @state
-        // Required for single variable, for expression it added in the 
-        // correspondent Binary/Unary statement
-        SValue cval = evalSubExpr(const_cast<Expr*>(cond));
-        state->readFromValue(cval);
-    }
-    
-    // Set FOR counter variable to NO_VALUE if condition is unknown
-    if (val.isUnknown()) {
-        if (auto forstmt = dyn_cast<const ForStmt>(stmt)) {
-            if (auto expr = forstmt->getInc()) {
-                
-                if (auto unrstmt = dyn_cast<UnaryOperator>(expr)) {
-                    expr = unrstmt->getSubExpr();
-                    
-                } else {
-                    if (auto cleanups = dyn_cast<ExprWithCleanups>(expr)) {
-                        expr = cleanups->getSubExpr();
-                    }
-                    if (auto bindtmp = dyn_cast<CXXBindTemporaryExpr>(expr)) {
-                        expr = bindtmp->getSubExpr();
-                    }
-                    if (auto opcall = dyn_cast<CXXOperatorCallExpr>(expr)) {
-                        auto args = opcall->getArgs();
-                        SCT_TOOL_ASSERT (opcall->getNumArgs(), 
-                                         "Operator without arguments");
-                        expr = const_cast<Expr*>(args[0]);
-                    }
-                    if (auto castexpr = dyn_cast<CastExpr>(expr)) {
-                        expr = castexpr->getSubExpr();
-                    }
-                }   
-                
-                if (auto decl = dyn_cast<DeclRefExpr>(expr)) {
-                    // Counter variable
-                    SValue lval(decl->getDecl(), modval);
-                    SValue rval = getValueFromState(lval);
-                    state->putValue(lval, NO_VALUE);
-                    
-                    if (DebugOptions::isEnabled(DebugComponent::doConstTerm)) {
-                        cout << "FOR loop replace counter " << lval.asString() 
-                         << " = " << rval.asString() << " to NO_VALUE" << endl;
-                    }
-                }
-                
-            } else {
-                // Empty increment, do nothing
+        // Store condition to avoid double parsing, required for &&/|| and ?
+        if (isa<ConditionalOperator>(stmt) || isa<BinaryOperator>(stmt)) {
+            auto i = condStoredValue.emplace(stmt, condvals.first);
+            if (!i.second) {
+                i.first->second = condvals.first;
             }
         }
     }
@@ -123,7 +205,7 @@ llvm::Optional<unsigned> ScTraverseConst::evaluateIterNumber(const Stmt* stmt)
                 } else 
                 if (auto intLiter = dyn_cast<IntegerLiteral>(binoper->getLHS())) {
                     ScParseExpr::parseExpr(intLiter, rval);
-                    }
+                }
                 if (rval.isInteger()) {
                     unsigned iterNumber = rval.getInteger().getZExtValue();
                     return iterNumber;
@@ -135,6 +217,7 @@ llvm::Optional<unsigned> ScTraverseConst::evaluateIterNumber(const Stmt* stmt)
 }
 
 // Check if this loop needs compare state with last iteration state
+// \param iterNumber -- number of iterations, 0 if unknown
 // \param iterCntr -- number of analyzed iteration
 bool ScTraverseConst::isCompareState(const Stmt* stmt, unsigned maxIterNumber, 
                                      unsigned iterNumber, unsigned iterCntr) 
@@ -147,6 +230,7 @@ bool ScTraverseConst::isCompareState(const Stmt* stmt, unsigned maxIterNumber,
     if (iterNumber && iterNumber < maxIterNumber-1) {
         // Loop with known and not too big iteration number 
         bool result = (iterCntr == iterNumber+1 || iterCntr >= maxIterNumber);
+        
         if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
             cout << "CompareState fixed iteration loop " << iterCntr << "/" 
                  << iterNumber << ", need to compare " << result << endl;
@@ -158,6 +242,7 @@ bool ScTraverseConst::isCompareState(const Stmt* stmt, unsigned maxIterNumber,
         bool result = (iterCntr == COMPARE_STATE_ITER1 || 
                        iterCntr == COMPARE_STATE_ITER2 || 
                        iterCntr >= maxIterNumber);
+        
         if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
             cout << "CompareState unknown/big iteration loop, iterCntr " 
                  << iterCntr << " need to compare " << result << endl;
@@ -168,28 +253,6 @@ bool ScTraverseConst::isCompareState(const Stmt* stmt, unsigned maxIterNumber,
     return false;
 }
 
-// Check then/else branches are empty
-bool ScTraverseConst::checkIfBranchEmpty(const Stmt* branch) 
-{
-    if (branch) {
-        if (const CompoundStmt* cmpd = dyn_cast<const CompoundStmt>(branch)) {
-            return (cmpd->body_empty());
-        } else 
-        if (isa<const BreakStmt>(branch)) {
-            return false;
-        } else
-        if (isa<const ContinueStmt>(branch)) {
-            return false;
-        }
-        if (isa<const ConditionalOperator>(branch)) {
-            return false;
-        }
-        // All other statements
-        return false;
-    }
-    return true;
-}
-
 // Prepare next block analysis
 void ScTraverseConst::prepareNextBlock(AdjBlock& nextBlock, 
                                        vector<ConstScopeInfo>& scopeInfos) 
@@ -197,82 +260,33 @@ void ScTraverseConst::prepareNextBlock(AdjBlock& nextBlock,
     // Taken block must have any predecessor
     SCT_TOOL_ASSERT (!scopeInfos.empty(), "No predecessor for next block");
     
-    // Update predecessor scopes and return loop stack for the next block    
-    loopStack = getLoopStack<ConstLoopStack>(scopeInfos);
-
-    // Check for switch case block
-    Stmt* lblStmt = nextBlock.getCfgBlock() ? 
-                    nextBlock.getCfgBlock()->getLabel() : nullptr;
-    bool switchCase = lblStmt && isa<SwitchCase>(lblStmt);
-    
-    unsigned currLoopLevel = (loopStack.size()) ? loopStack.back().level : 0;
-    // If there is input from @continue, use current loop level+1, 
-    // +1 as it is inside of the loop and level for FOR/WHILE is decreased below
-    // TODO: fix me, remove +1
-    auto levelPair = calcNextLevel(scopeInfos, currLoopLevel+1, emptyCaseBlocks, 
-                                   switchCase);
-    //~TODO
-    unsigned nextLevel = levelPair.first;
-    unsigned upLevel = levelPair.second;
-    
-    // Block with FOR/WHILE terminator has @level, and the loop body @level+1
-    // Block with DO..WHILE terminator and and the loop body have @level+1
-    // Update block level for FOR/WHILE and DO..WHILE loop
-    CFGBlock* cfgBlock = nextBlock.getCfgBlock();
-    const Stmt* term = (cfgBlock->getTerminator().getStmt()) ? 
-                        cfgBlock->getTerminator().getStmt() : nullptr;
-    // Decrease FOR/WHILE loop entry from the loop body
-    if (term && (isa<const ForStmt>(term) || isa<const WhileStmt>(term))) {
-        bool loopVisited = loopStack.isCurrLoop(term);
-        if (loopVisited) {
-            nextLevel -= 1;
-        }
-    }
-    // Increase DO entry block level 
-    if (auto doterm = getDoWhileTerm(nextBlock)) {
-        bool loopVisited = loopStack.isCurrLoop(doterm);
-        if (!loopVisited) {
-            nextLevel += 1;
-        }
-    }
-
-    // Erase local variables in Phi functions
-    if (upLevel) {
-        state->removeValuesByLevel(nextLevel);
-    }
-    
     // Set previous and new current block
     prevBlock = block;
     block = nextBlock;
-    level = nextLevel;
-
-    // Join dead code flags by AND form all inputs 
-    deadCode = true;
-    deadCond = true;
-    for (auto&& si : scopeInfos) {
-        deadCode = deadCode && si.deadCode;
-        deadCond = deadCond && si.deadCond;
-    }
-    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-        cout << "  dead code/dead cond " << deadCode << "/" << deadCond 
-             << " level " << level << endl;
+    
+    // Loop stacks should be same from all inputs
+    loopStack = scopeInfos.front().loopStack;
+    for (const auto& si : scopeInfos) {
+        // This error happens for return in loop, use not fatal error to 
+        // report it correctly in TraverseProc
+        if (si.loopStack != loopStack) {
+            SCT_INTERNAL_ERROR_NOLOC ("Different loop stacks in predecessors");
+        }
     }
     
+    // Join visited loops by OR
     if (!isCombProcess) {
-        // Join visited loops by OR
         visitedLoops.clear();
-        for (auto&& si : scopeInfos) {
-            if (!si.deadCode) {
-                visitedLoops.insert(si.visitedLoops.begin(), 
-                                    si.visitedLoops.end());
-            }
+        for (const auto& si : scopeInfos) {
+            visitedLoops.insert(si.visitedLoops.begin(), 
+                                si.visitedLoops.end());
         }
-        // Remove loop exit statements
-        for (auto&& si : scopeInfos) {
-            if (si.loopExit) {
-                visitedLoops.erase(si.loopExit);
-            }
-        }
+    }
+    
+    // Join dead code flags by AND form all inputs 
+    deadCond = true;
+    for (const auto& si : scopeInfos) {
+        deadCond = deadCond && si.deadCond;
     }
     
     // Join states
@@ -299,9 +313,8 @@ void ScTraverseConst::prepareCallContext(Expr* expr,
 //         << retVal << endl;
 
     // Store return value for the call expression to replace where it used
-    if (calledFuncs.count(expr) == 0) {
-        calledFuncs.emplace(expr, retVal);
-    } else {
+    auto i = calledFuncs.emplace(expr, retVal);
+    if (!i.second) {
         cout << hex << expr << dec << endl;
         SCT_TOOL_ASSERT (false, "Second meet of function call");
     }
@@ -310,8 +323,7 @@ void ScTraverseConst::prepareCallContext(Expr* expr,
     lastContext = std::make_shared<ConstFuncContext>(
                             CfgCursor(funcDecl, nullptr, 0), 
                             returnValue, modval, recval,
-                            delayed, loopStack, calledFuncs, level, deadCode, 
-                            stmtStoredValue);
+                            delayed, loopStack, calledFuncs);
     
     // Set module, dynamic module and return value for called function
     modval = funcModval;
@@ -383,8 +395,8 @@ void ScTraverseConst::parseCall(CallExpr* expr, SValue& val)
     string fname = funcDecl->getNameAsString();
     auto nsname = getNamespaceAsStr(funcDecl);
 
-    if (nsname && *nsname == "sc_core" && fname == "wait") {
-        waitCall = parseWaitArg(expr);
+    if (fname == "__assert" || fname == "__assert_fail") {
+        // Do nothing, implemented in ScParseExprValue
         
     } else     
     if (fname == "sct_assert_level") {
@@ -406,24 +418,15 @@ void ScTraverseConst::parseCall(CallExpr* expr, SValue& val)
         val = NO_VALUE; // No value returned from assert
 
     } else
-    if (fname == "sct_assert") {
-        // Do nothing
-        
-    } else 
-    if (fname == "sct_assert_const" || fname == "__assert" || 
-        fname == "__assert_fail" || 
-        (nsname && (*nsname == "sc_core" || *nsname == "sc_dt"))) {
-        // Do nothing, implemented in ScParseExprValue
-        
-    } else 
-    if (fname == "sct_assert_defined" || fname == "sct_assert_register" ||
-        fname == "sct_assert_read" || fname == "sct_assert_latch") {
-        // Do nothing, implemented in ScParseExprValue
-        
+    if (nsname && *nsname == "sc_core") {
+        if (fname == "wait") {
+            waitCall = parseWaitArg(expr);
+        } else {
+           // Do nothing, implemented in ScParseExprValue 
+        }
     } else     
-    if (fname == "sct_assert_in_proc_func" || 
-        fname == "sct_assert_in_proc_start") {
-        // Do nothing
+    if (nsname && *nsname == "sc_dt") {
+        // Do nothing, implemented in ScParseExprValue
         
     } else 
     if (((nsname && *nsname == "std") || isLinkageDecl(funcDecl)) &&
@@ -442,6 +445,8 @@ void ScTraverseConst::parseCall(CallExpr* expr, SValue& val)
                  << expr->getSourceRange().getBegin().printToString(sm) << ") |" << endl;
             cout << "-------------------------------------" << endl;
         }
+        
+        SCT_TOOL_ASSERT (isUserCallExpr(expr), "Incorrect user defined function");
 
         // Generate function parameter assignments
         prepareCallParams(expr, modval, funcDecl);
@@ -453,12 +458,14 @@ void ScTraverseConst::parseCall(CallExpr* expr, SValue& val)
 }
 
 // Member function call expression
-void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& val) 
+void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval, 
+                                      SValue& val) 
 {
-    ScParseExprValue::parseMemberCall(expr, val);
+    // @this value for user function
+    ScParseExprValue::parseMemberCall(expr, tval, val);
     // Return value passed in @val
     SValue retVal = val;
-
+        
     // Get method
     FunctionDecl* funcDecl = expr->getMethodDecl()->getAsFunction();
     string fname = funcDecl->getNameAsString();
@@ -466,29 +473,23 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& val)
     // Get @this expression and its type
     Expr* thisExpr = expr->getImplicitObjectArgument();
     QualType thisType = thisExpr->getType();
-    bool isScCoreObject = isAnyScCoreObject(thisType);
     
-    if (isScCoreObject && 
-        (fname == "print" || fname == "dump" || fname == "kind")) {
-        // Do nothing 
-        //cout << "ScTraverseConst::parseMemberCall ignore function " << fname << endl;
-        
-    } else
     if ( isAnyScIntegerRef(thisType, true) ) {
-        // Do nothing yet
+        // Do nothing, all logic implemented in ScParseExprValue
         
     } else 
     if ( isScChannel(thisType) ) {
         // Do nothing, all logic implemented in ScParseExprValue
         
-    } else 
-    if (isScCoreObject && fname == "wait" ) {
-        // SC wait call
-        waitCall = parseWaitArg(expr);
-        
     } else
-    if (isScCoreObject && fname == "name" ) {
-        // Do nothing for specific @sc_core functions
+    if ( isAnyScCoreObject(thisType) ) {
+        if (fname == "wait" ) {
+            // SC wait call
+            waitCall = parseWaitArg(expr);
+            
+        } else {
+            // Do nothing for other @sc_core methods
+        }
         
     } else {
         // General method call
@@ -496,14 +497,12 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& val)
             cout << "-------------------------------------" << endl;
             cout << "| Build CFG for METHOD FUNCTION : " << fname << " (" 
                  << expr->getSourceRange().getBegin().printToString(sm) 
-                 << ") |" << endl;
+                 << " retVal " << retVal << ") |" << endl;
             cout << "-------------------------------------" << endl;
         }
-
-        // Get value for @this
-        SValue tval;
-        chooseExprMethod(thisExpr, tval);
         
+        SCT_TOOL_ASSERT (isUserCallExpr(expr), "Incorrect user defined method");
+
         // Get record from variable/dynamic object
         SValue ttval = getRecordFromState(tval, ArrayUnkwnMode::amFirstElement);
         
@@ -585,34 +584,20 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& val)
 // Remove sub-statements from generator
 void ScTraverseConst::chooseExprMethod(Stmt* stmt, SValue& val)
 {
-    //cout << "--- chooseExprMethod " << hex << (unsigned long)stmt << dec << endl;
+    //cout << "--- chooseExprMethod " << hex << stmt << dec << endl;
     // Constructor call for local record considered as function call
     bool anyFuncCall = isa<CallExpr>(stmt) || isa<CXXConstructExpr>(stmt);
-
+    
     if (anyFuncCall && calledFuncs.count(stmt)) {
+        // Get return value from already analyzed user defined functions
         val = calledFuncs.at(stmt);
+        
         if (DebugOptions::isEnabled(DebugComponent::doConstStmt)) {
             cout << "Get RET value " << val.asString() << " for stmt #" << hex << stmt << dec  << endl;
         }
-
     } else {
-        // Store sub-statement value to avoid re-calculation, 
-        // required for conditions with side effects
-        if (stmtStoredValue.count(stmt) == 0) {
-            // First time meet @stmt in this function call, parse it
-            ScParseExpr::chooseExprMethod(stmt, val);
-            // Skip record constructor sub-statement without declaration, 
-            // when @recval unknown, required to store @parseRecordCtor result
-            bool skipRecCtor = isa<CXXConstructExpr>(stmt) && val.isUnknown();
-            
-            if (!skipRecCtor) {
-                stmtStoredValue.emplace(stmt, val);
-            }
-
-        } else {
-            // @stmt has been already analyzed
-            val = stmtStoredValue.at(stmt);
-        }
+        // Normal statement analysis
+        ScParseExpr::chooseExprMethod(stmt, val);
     }
 }
 
@@ -625,8 +610,9 @@ void ScTraverseConst::initContext()
     SCT_TOOL_ASSERT (delayed.empty(), "@delayed is not empty");
     SCT_TOOL_ASSERT (loopStack.empty(), "@loopStack is not empty");
     SCT_TOOL_ASSERT (calledFuncs.empty(), "@calledFuncs is not empty");
-    SCT_TOOL_ASSERT (stmtStoredValue.empty(), "@stmtStoredValue is not empty");
     SCT_TOOL_ASSERT (termConds.empty(), "@termCondResults is not empty");
+    SCT_TOOL_ASSERT (liveStmts.empty(), "@liveStmts is not empty");
+    SCT_TOOL_ASSERT (liveTerms.empty(), "@liveTerms is not empty");
     SCT_TOOL_ASSERT (funcDecl, "Function declaration and context stack not set");
 
     cfg = cfgFabric->get(funcDecl);
@@ -635,7 +621,6 @@ void ScTraverseConst::initContext()
     level = 0;
     elemIndx = 0;
     exitBlockId = cfg->getExit().getBlockID();
-    deadCode = false;
     deadCond = false;
     funcCall = false;
     
@@ -692,9 +677,7 @@ void ScTraverseConst::restoreContext()
     returnValue = context.returnValue;
     funcDecl = context.callPoint.getFuncDecl();
     calledFuncs = context.calledFuncs;
-    stmtStoredValue = context.stmtStoredValue;
     delayed = context.delayed;
-    level = context.level;
         
     cfg = cfgFabric->get(funcDecl);
     SCT_TOOL_ASSERT (cfg, "No CFG at restore context");
@@ -708,9 +691,6 @@ void ScTraverseConst::restoreContext()
     // Erase local variables of called function 
     state->removeValuesByLevel(level);
     
-    // @deadCode not changed
-    SCT_TOOL_ASSERT (!deadCode, "@deadCode in restore context");
-    
     if (DebugOptions::isEnabled(DebugComponent::doConstFuncCall)) {
         cout << "---------- restoreContext ------------" << endl;
         cout << "Level is " << level << ", modval " << modval << endl;
@@ -723,148 +703,6 @@ void ScTraverseConst::restoreContext()
         for (auto& i : calledFuncs) {
             cout << "   " << i.second.asString() << endl;
         }*/
-    }
-}
-
-// Creates constant value in global state if necessary
-SValue ScTraverseConst::parseGlobalConstant(const SValue &sVar)
-{
-    SValue res;
-
-    if (res = state->getValue(sVar), res) {
-        return res;
-    }
-    
-    if (sVar.getVariable().getParent()) {
-        // Member/local variable
-        SValue constVal = ScParseExpr::parseGlobalConstant(sVar);
-        return constVal;
-    }
-
-    if (elabDB == nullptr || globalState == nullptr ) {
-        return ScParseExpr::parseGlobalConstant(sVar);
-    }
-
-    // Create new global variable
-    SValue constVal = NO_VALUE;
-    llvm::Optional<sc_elab::ObjectView> newElabObj;
-
-    if (!globalState->getElabObject(sVar)) 
-    {
-        sc_elab::ModuleMIFView currentModule = *state->getElabObject(dynmodval);
-        auto* varDecl = dyn_cast<clang::VarDecl>(sVar.getVariable().getDecl());
-        // @exprEval used in createStaticVariable() to parse initializer
-        ScParseExprValue exprEval{astCtx, state, modval};
-        
-        newElabObj = elabDB->createStaticVariable(currentModule, varDecl, exprEval);
-        SCT_TOOL_ASSERT (newElabObj, "No static variable");
-
-        if (elabDB->hasVerilogModule(currentModule)) {
-            auto* verilogMod = elabDB->getVerilogModule(currentModule);
-            verilogMod->addConstDataVariable(*newElabObj, 
-                                             *(newElabObj->getFieldName()));
-        } else {
-            // Global/namespace constant or variable, may be need to register
-        }
-
-        // Parse and put initializer into global state
-        auto valDecl = const_cast<clang::ValueDecl*>(sVar.getVariable().getDecl());
-        ScParseExprValue globExprEval{astCtx, globalState, modval};
-        globExprEval.parseValueDecl(valDecl, NO_VALUE, nullptr, false);
-
-        // Put the same initializer into current state, to use it in the process
-        // For next analyzed processes it is taken from @globalState
-        exprEval.parseValueDecl(valDecl, NO_VALUE, nullptr, false);
-        constVal = state->getValue(sVar);
-
-        globalState->putElabObject(sVar, *newElabObj);
-        
-    } else {
-        newElabObj = *globalState->getElabObject(sVar);
-        constVal = globalState->getValue(sVar);
-    }
-
-    if (newElabObj) {
-        state->putValue(sVar, constVal);
-        // Put constant name into @state->extrValNames inside
-        if (!state->getElabObject(sVar)) {
-            state->putElabObject(sVar,*newElabObj);
-        }
-    }
-
-    return constVal;
-}
-
-// Register variables accessed in and after reset section, 
-// check read-not-defined is empty in reset
-void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt) 
-{
-    if (isResetSection) {
-        // Extract variables defined in reset section to create
-        // declaration in module scope if it is constant
-        SCT_TOOL_ASSERT (resetDefinedConsts.empty(), 
-                         "resetDefinedValues is not empty");
-        for (const auto& val : state->getDefArrayValues()) {
-            if (val.isVariable() && ScState::isConstVarOrLocRec(val)) {
-                resetDefinedConsts.insert(val);
-            }
-        }
-        // Register variables accessed in CTHREAD reset 
-        if (!isCombProcess) {
-            //cout << "---- getDefArrayValues " << endl;
-            for (const auto& val : state->getDefArrayValues()) {
-                if (val.isVariable() || val.isTmpVariable()) {
-                    inResetAccessVars.insert(val);
-                    //cout << "   " << val << endl;
-                }
-            }
-            //cout << "---- getReadValues " << endl;
-            for (const auto& val : state->getReadValues()) {
-                if (val.isVariable() || val.isTmpVariable()) {
-                    inResetAccessVars.insert(val);
-                    //cout << "   " << val << endl;
-                }
-            }
-        }
-
-        // Read-not-defined not valid at reset section,
-        // get ReadNotDefined excluding read in SVA
-        for (const auto& val : state->getReadNotDefinedValues(false)) {
-            if (!val.isVariable()) continue;
-            // Skip record field as copy constructor leads to 
-            // read all the fields even if not really used
-            if (ScState::isRecField(val)) continue;
-
-            QualType type = val.getType();
-
-            if (isScChannel(type, true) || isScChannelArray(type, true) ||
-                ScState::isConstVarOrLocRec(val)) continue;
-
-            ScDiag::reportScDiag(stmt->getBeginLoc(),
-                    ScDiag::CPP_READ_NOTDEF_VAR_RESET) << val.asString(false);
-        }
-
-    } else {
-        // Register variables accessed after CTHREAD reset
-        if (!isCombProcess) {
-            for (const auto& val : state->getDefArrayValues()) {
-                if (val.isVariable() || val.isTmpVariable()) {
-                    afterResetAccessVars.insert(val);
-                }
-            }
-            for (const auto& val : state->getReadValues()) {
-                if (val.isVariable() || val.isTmpVariable()) {
-                    afterResetAccessVars.insert(val);
-                }
-            }
-        }
-    }
-    
-    // Register SVA used variables to create register for them
-    for (const auto& val : state->getSvaReadValues()) {
-        if (val.isVariable() || val.isTmpVariable()) {
-            inSvaAccessVars.insert(val);
-        }
     }
 }
 
@@ -884,156 +722,200 @@ void ScTraverseConst::run()
     
     // Initialize analysis context
     initContext();
-
+    
     // Skip function call
     bool skipOneElement = false;
     // Is reset section analyzed 
     bool isResetSection = !isCombProcess && hasReset;
     
+    // Fill statement levels for entry function
+    stmtInfo.run(funcDecl, 0);
+    //stmtInfo.printBreaks();
+
     while (true)
     {
         Stmt* currStmt = nullptr;
-        // Unreachable block can be not dead code after &&/|| condition        
-        // Do not generate statement for dead code block
-        if (!deadCode && !deadCond) {
+        
+        // Do not analyze statement for dead condition blocks, required for
+        // complex conditions with side effects
+        if (!deadCond) {
+            if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
+                cout << "Analyze Block B" << block.getCfgBlockID() << endl;
+            }            
             //cout << "elemId = " << elemIndx << ", block size = " << block.getCfgBlock()->size() << endl;
             SCT_TOOL_ASSERT (elemIndx <= block.getCfgBlock()->size(),
                             "Incorrect elmId");
 
-            // Update block level and loop stack for do...while loop enter
+            // Update loop stack for do...while loop enter
             if (auto doterm = getDoWhileTerm(block)) {
                 // Determine loop already visited with checking if 
                 // current (last) loop has the same terminator
                 bool loopVisited = loopStack.isCurrLoop(doterm);
-                if ( !loopVisited ) {
+                
+                if (!loopVisited) {
                     unsigned iterNumber = 0;
                     if (auto in = evaluateIterNumber(doterm)) {
                         iterNumber = in.getValue();
                     }
                     // Add current loop into loop stack, set 1st iteration
-                    // Use level-1 as current block is inside the loop (level+1)
-                    loopStack.pushLoop({doterm, level-1, 1U, state->clone(), 
-                                        iterNumber});
+                    loopStack.pushLoop({doterm, 1U, state->clone(), iterNumber});
 //                    cout << "Push loop stack(1) " << hex << doterm << dec 
-//                          << ", level " << level << ", LS size " << loopStack.size() << endl;
+//                         << ", level " << level << ", LS size " << loopStack.size() << endl;
                 }
             }
             
             // CFG block body analysis, preformed for not dead state only
-            for (size_t i = elemIndx; i < block.getCfgBlock()->size(); ++i)
+            for (unsigned i = elemIndx; i < block.getCfgBlock()->size(); ++i)
             {
                 const CFGElement& elm = block.getCfgBlock()->operator [](i);
-                if (elm.getKind() == CFGElement::Kind::Statement) {
-                    // Get statement 
-                    CFGStmt* s = elm.getAs<CFGStmt>().getPointer();
-                    currStmt = const_cast<Stmt*>(s->getStmt());
-                    
-                    if (DebugOptions::isEnabled(DebugComponent::doConstStmt)) {
-                        cout << endl;
-                        currStmt->dumpColor();
-                        cout << "level " << level << endl;
-                        //state->print();
-                    }
-                    
-                    // If started with restored context, move to the next element, 
-                    // element stored in context was already analyzed
-                    if (skipOneElement) {
-                        if (DebugOptions::isEnabled(DebugComponent::doConstStmt)) {
-                            cout << "SKIP this statement after restore context" << endl;
-                        }
-                        skipOneElement = false;
-                        continue;
-                    }
-                    
-                    // Parse statement and fill state
-                    SValue val;
-                    chooseExprMethod(currStmt, val);
-                    
-                    //state->print();
-                    
-                    // Wait call, store state and continue analysis
-                    if (waitCall > 0) {
-                        auto cursorStack = contextStack.getCursorStack();
-                        
-                        // Add current wait()
-                        cursorStack.push_back(CfgCursor(funcDecl, 
-                                              block.getCfgBlock(), i));
-                        
-                        // Add current function as function with wait()
-                        hasWaitFuncs.insert(funcDecl);
+                SCT_TOOL_ASSERT (elm.getKind() == CFGElement::Kind::Statement,
+                                 "Incorrect element kind");
+                
+                // Get statement 
+                CFGStmt* s = elm.getAs<CFGStmt>().getPointer();
+                currStmt = const_cast<Stmt*>(s->getStmt());
+                //cout << "Stmt #" << hex << currStmt << dec << endl;
+                //currStmt->dumpColor();
+                
+                // Get statement level and check if it is sub-statement
+                bool isStmt; bool upLevel; 
+                if (auto stmtLevel = stmtInfo.getLevel(currStmt)) {
+                    upLevel = *stmtLevel < level;
+                    level = *stmtLevel; 
+                    isStmt = true;
 
-                        // Register variables accessed in and after reset section
-                        registerAccessVar(isResetSection, currStmt);
-                        
-                        if (!isCombProcess) {
-                            // Register all loops as contain @wait(), do not use
-                            // @loopStack here as it is cleaned at function call
-                            for (auto& i : visitedLoops) {
-                                waitInLoops.insert(i);
-                            }
-                            // Clear visited loop in wait()
-                            visitedLoops.clear();
-                        }
-                        
-                        // Get or create new wait state
-                        SCT_TOOL_ASSERT (cthreadStates, 
-                                         "No cthreadStates specified");
-                        auto waitId = cthreadStates->getOrInsertStateID(
-                                            cursorStack, waitCall);
-                        
-                        // Insert or join current state for this @wait()
-                        auto i = waitStates.emplace(waitId, *(state.get()));
-                        if (!i.second) {
-                            i.first->second.join(state.get());
-                        }
-                        
-                        waitCall = 0;
-                        isResetSection = false;
-                        
-                        // Clean ReadDefined after wait()
-                        state->clearReadAndDefinedVals();
-                    }
+                } else 
+                if (auto stmtLevel = stmtInfo.getDeclGroupLevel(currStmt)) {
+                    upLevel = *stmtLevel < level;
+                    level = *stmtLevel;
+                    isStmt = true;
                     
-                    // Run analysis of called function in this traverse process
-                    if (lastContext) {
-                        // Set block and element into context
-                        lastContext->callPoint = CfgCursor(
-                                lastContext->callPoint.getFuncDecl(),
-                                block.getCfgBlock(), i);
+                } else 
+                if (auto stmtLevel = stmtInfo.getSubStmtLevel(currStmt)) {
+                    upLevel = *stmtLevel < level;
+                    level = *stmtLevel;
+                    isStmt = isUserCallExpr(currStmt);
 
-                        // Get(create) CFG for function and setup next block
-                        cfg = cfgFabric->get(funcDecl);
-                        if (!cfg) {
-                            SCT_INTERNAL_ERROR(currStmt->getBeginLoc(), 
-                                               "Function CFG is null");
-                        }
-                        block = AdjBlock(&cfg->getEntry(), true);
-                        prevBlock = block;
-                        exitBlockId = cfg->getExit().getBlockID();
-                        
-                        if (DebugOptions::isEnabled(DebugComponent::doConstFuncCall)) {
-                            cout << "--------------------------------------" << endl;
-                            cfg->dump(LangOptions(), true);
-                            cout << "--------------------------------------" << endl;
-                        }
-                        
-                        // Store and null function context
-                        contextStack.push_back( *(lastContext.get()) );
-                        
-                        // Start called function with empty @delayed and loop stack
-                        delayed.clear();
-                        loopStack.clear();
-                        calledFuncs.clear();
-                        stmtStoredValue.clear();
-                        // Increase level for called function
-                        level += 1;
-                        
-                        lastContext = nullptr;
-                        funcCall = true;
-                        break;
-                    }
                 } else {
-                    SCT_TOOL_ASSERT (false, "Incorrect element kind");
+                    cout << hex << "#" << currStmt << dec << endl;
+                    currStmt->dumpColor();
+                    SCT_INTERNAL_ERROR(currStmt->getBeginLoc(), 
+                                       "No level found for sub-statement");
+                }
+                // Skip sub-statement
+                if (!isStmt) continue;
+                
+                // Erase local variables in Phi functions
+                if (upLevel) {
+                    state->removeValuesByLevel(level);
+                }            
+                
+                // If started with restored context, move to the next element, 
+                // element stored in context was already analyzed
+                if (skipOneElement) {
+                    skipOneElement = false;
+                    continue;
+                }
+
+                if (DebugOptions::isEnabled(DebugComponent::doConstStmt)) {
+                    cout << endl;
+                    currStmt->dumpColor();
+                    cout << "level " << level << endl;
+                    //state->print();
+                }
+
+                // Parse statement and fill state
+                SValue val;
+                chooseExprMethod(currStmt, val);
+                SCT_TOOL_ASSERT (!assignLHS, "Incorrect assign LHS flag");
+
+                // Register statement as live
+                liveStmts.insert(currStmt);
+                
+                //state->print();
+
+                // Wait call, store state and continue analysis
+                if (waitCall > 0) {
+                    auto cursorStack = contextStack.getCursorStack();
+
+                    // Add current wait()
+                    cursorStack.push_back(CfgCursor(funcDecl, 
+                                          block.getCfgBlock(), i));
+
+                    // Add current function as function with wait()
+                    hasWaitFuncs.insert(funcDecl);
+
+                    // Register variables accessed in and after reset section
+                    registerAccessVar(isResetSection, currStmt);
+
+                    if (!isCombProcess) {
+                        // Register all loops as contain @wait(), do not use
+                        // @loopStack here as it is cleaned at function call
+                        for (auto& i : visitedLoops) {
+                            waitInLoops.insert(i);
+                        }
+                        // Clear visited loop in wait()
+                        visitedLoops.clear();
+                    }
+
+                    // Get or create new wait state
+                    SCT_TOOL_ASSERT (cthreadStates, 
+                                     "No cthreadStates specified");
+                    auto waitId = cthreadStates->getOrInsertStateID(
+                                        cursorStack, waitCall);
+
+                    // Insert or join current state for this @wait()
+                    auto i = waitStates.emplace(waitId, *(state.get()));
+                    if (!i.second) {
+                        i.first->second.join(state.get());
+                    }
+
+                    waitCall = 0;
+                    isResetSection = false;
+
+                    // Clean ReadDefined after wait()
+                    state->clearReadAndDefinedVals();
+                }
+
+                // Run analysis of called function in this traverse process
+                if (lastContext) {
+                    // Set block and element into context
+                    lastContext->callPoint = CfgCursor(
+                            lastContext->callPoint.getFuncDecl(),
+                            block.getCfgBlock(), i);
+
+                    // Get(create) CFG for function and setup next block
+                    cfg = cfgFabric->get(funcDecl);
+                    if (!cfg) {
+                        SCT_INTERNAL_ERROR(currStmt->getBeginLoc(), 
+                                           "Function CFG is null");
+                    }
+                    block = AdjBlock(&cfg->getEntry(), true);
+                    prevBlock = block;
+                    exitBlockId = cfg->getExit().getBlockID();
+
+                    if (DebugOptions::isEnabled(DebugComponent::doConstFuncCall)) {
+                        cout << "--------------------------------------" << endl;
+                        cfg->dump(LangOptions(), true);
+                        cout << "--------------------------------------" << endl;
+                    }
+
+                    // Store and null function context
+                    contextStack.push_back( *(lastContext.get()) );
+
+                    // Fill statement levels for current function
+                    stmtInfo.run(funcDecl, level+1);  
+                    // Increase level for called function
+                    level += 1;
+
+                    // Start called function with empty @delayed and loop stack
+                    delayed.clear();
+                    loopStack.clear();
+                    calledFuncs.clear();
+
+                    lastContext = nullptr;
+                    funcCall = true;
+                    break;
                 }
             }
         }
@@ -1044,7 +926,7 @@ void ScTraverseConst::run()
         // Block successors
         vector<pair<AdjBlock, ConstScopeInfo> >  blockSuccs;
         CFGBlock* cfgBlock = block.getCfgBlock();
-        const Stmt* term = (cfgBlock->getTerminator().getStmt()) ? 
+        Stmt* term = (cfgBlock->getTerminator().getStmt()) ? 
                             cfgBlock->getTerminator().getStmt() : nullptr;
         
         if (funcCall) {
@@ -1054,172 +936,162 @@ void ScTraverseConst::run()
             
         } else 
         if (term) {
-            // Erase value at loop entry level, therefore "-1" for DO..WHILE
-            bool doWhile = isa<const DoStmt>(term);
-            state->removeValuesByLevel((doWhile) ? level-1 : level);
-                
-            // Try to calculate condition as compile time
-            SValue termCondValue;
-            if (!deadCode) {
-                // Get FOR-loop counter variable and register it in state
-                if (auto forstmt = dyn_cast<const ForStmt>(term)) {
-                    if (auto init = forstmt->getInit()) {
-                        SValue cval = extractCounterVar(init);
-                        state->regForLoopCounter(cval);
+            // FOR/WHILE loop first iteration, used to get separate condition value
+            bool loopFirstIter = (isa<ForStmt>(term) || isa<WhileStmt>(term)) && 
+                                 !loopStack.isCurrLoop(term);
+            //if (isa<ForStmt>(term) || isa<WhileStmt>(term) || isa<DoStmt>(term)) {
+            //    cout << "loopFirstIter " << loopFirstIter << endl;
+            //}
+            
+            // Set level for loop terminator
+            if (isa<ForStmt>(term) || isa<WhileStmt>(term) || isa<DoStmt>(term)) {
+                if (auto termLevel = stmtInfo.getLevel(term)) {
+                    level = *termLevel;
+                    //cout << "Term #" << term << " level " << level << endl;
+                } else {
+                    SCT_INTERNAL_ERROR(currStmt->getBeginLoc(), 
+                                       "No level found for loop terminator");
+                }
+            }
+            
+            // Evaluate for-loop initializer and increment
+            // FOR loop counter has terminator level, so not removed after loop
+            if (ForStmt* forstmt = dyn_cast<ForStmt>(term)) {
+                if (loopFirstIter) {
+                    // At first iteration evaluate for-loop initializer and
+                    // register internal counter variable
+                    if (Stmt* init = forstmt->getInit()) {
+                        SValue val;
+                        chooseExprMethod(init, val);
+                        
+                        if (auto varDecl = ForLoopVisitor::get().
+                                           getCounterDecl(forstmt)) {
+                            val = SValue(varDecl, modval); 
+                            state->regForLoopCounter(val);
+                        }
+                    }
+                } else {
+                    // At other iterations evaluate for-loop increment
+                    if (Expr* inc = forstmt->getInc()) {
+                        SValue val;
+                        chooseExprMethod(inc, val);
                     }
                 }
+            }
 
-                // Do not calculate condition for dead code as state is dead
-                evaluateTermCond(term, termCondValue);
-                if (DebugOptions::isEnabled(DebugComponent::doConstTerm)) {
-                    cout << "termCondValue " << termCondValue.asString() << endl;
-                }
+            // Try to calculate condition 
+            SValue termCondValue;
+            // Do not calculate condition for dead code as state is dead
+            evaluateTermCond(term, termCondValue);
+            
+            bool trueCond = termCondValue.isInteger() && 
+                            !termCondValue.getInteger().isNullValue();
+            bool falseCond = termCondValue.isInteger() && 
+                             termCondValue.getInteger().isNullValue();
+
+            if (DebugOptions::isEnabled(DebugComponent::doConstTerm)) {
+                //state->print();
+                cout << "termCondValue " << termCondValue << endl;
             }
             
             // Store terminator condition to use in ScTraverseProc, 
             // different results joined to NO_VALUE
-            if (!deadCode) {
-                auto callStack = contextStack.getStmtStack();
+            auto callStack = contextStack.getStmtStack();
+            callStack.push_back(term);
+            // Use call stack with double #term to distinguish first iteration
+            if (loopFirstIter) {
                 callStack.push_back(term);
-                // FOR/WHILE loop first iteration, used to get separate condition value
-                bool loopFirstIter = (isa<const ForStmt>(term) || 
-                        isa<const WhileStmt>(term)) && !loopStack.isCurrLoop(term);
-                // Use call stack with double #term to distinguish first iteration
-                if (loopFirstIter) {
-                    callStack.push_back(term);
-                }
-                auto i = termConds.find(callStack);
+            }
 
-                if (i == termConds.end()) {
-                    termConds.emplace(callStack, termCondValue);
-                } else {
-                    if (i->second != termCondValue) {
-                        i->second = NO_VALUE;
-                    }
+            auto i = termConds.emplace(callStack, termCondValue);
+            if (!i.second) {
+                if (i.first->second != termCondValue) {
+                    i.first->second = NO_VALUE;
                 }
             }
             
-            if (const IfStmt* ifstmt = dyn_cast<const IfStmt>(term)) {
+            // Register terminator as live
+            liveTerms.insert(term);
+            
+            // Remove values at loop entry level
+            if (isa<ForStmt>(term) || isa<WhileStmt>(term) || isa<DoStmt>(term)) {
+                //term->dumpColor();
+                //cout << "Remove value at term by level " << level << endl;
+                state->removeValuesByLevel(level);
+            }
+            
+            // Analyze terminator
+            if (isa<IfStmt>(term)) {
                 if (DebugOptions::isEnabled(DebugComponent::doConstTerm)) {
-                    if (!deadCode) term->dumpColor();
+                    term->dumpColor();
                 }
-                
-                bool deadThen = termCondValue.isInteger() && 
-                                termCondValue.getInteger().isNullValue();
-                bool deadElse = termCondValue.isInteger() && 
-                                !termCondValue.getInteger().isNullValue();
                 
                 // Two successor blocks
                 SCT_TOOL_ASSERT (cfgBlock->succ_size() == 2, 
                                  "No two successors in IF");
                 CFGBlock::succ_iterator iter = cfgBlock->succ_begin();
-                // Then block always exists even if it is empty
                 AdjBlock thenBlock(*iter);
-                // If Else branch is empty, Else block is next IF block
                 AdjBlock elseBlock(*(++iter));
-                SCT_TOOL_ASSERT (thenBlock != elseBlock, 
-                                 "The same then and else blocks in IF");
 
-                // If Else branch is empty, Else block is next IF block
-                bool elseIsEmpty = checkIfBranchEmpty(ifstmt->getElse()); 
-
-                // Check if the next block is loop input (has loop terminator) 
-                // and current block is loop body input/outside input
-                bool thenLoopInputBody = checkLoopInputFromBody(block, thenBlock);
-                bool thenLoopInputOut  = checkLoopInputFromOut(block, thenBlock);
-                bool elseLoopInputBody = checkLoopInputFromBody(block, elseBlock);
-                bool elseLoopInputOut  = checkLoopInputFromOut(block, elseBlock);
-                if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                    cout << "   thenBlock flags " << thenLoopInputBody << ", " << thenLoopInputOut << endl;
-                    cout << "   elseBlock flags " << elseLoopInputBody << ", " << elseLoopInputOut << endl;
-                    cout << "IF dead " << deadCode << " then/else " <<(deadCode || deadThen) << (deadCode || deadElse) << endl;
+                if (!falseCond) {
+                    ConstScopeInfo thenES(state, block, loopStack, visitedLoops);
+                    blockSuccs.push_back({thenBlock, thenES});
                 }
-                
-                // Normal non-empty branch block has +1 level
-                ConstScopeInfo thenES((deadThen) ? make_shared<ScState>(true) : 
-                                      state, level+1, block, 
-                                      thenLoopInputBody, thenLoopInputOut, 
-                                      loopStack, deadCode || deadThen,
-                                      visitedLoops);
-                // If Else branch is empty, next block has level up even if 
-                // there is no @Phi function, so set level up flag
-                ConstScopeInfo elseES((deadElse) ? make_shared<ScState>(true) : 
-                                      (deadThen) ? state : shared_ptr<ScState>(
-                                                   state->clone()), level+1, 
-                                      block, elseLoopInputBody, elseLoopInputOut, 
-                                      loopStack, deadCode || deadElse, 
-                                      visitedLoops, nullptr, elseIsEmpty);
-                // Store ready to analysis block last, to get it first
-                blockSuccs.push_back({elseBlock, elseES});
-                blockSuccs.push_back({thenBlock, thenES});
+                if (!trueCond) {
+                    ConstScopeInfo elseES((falseCond) ? state : 
+                                          shared_ptr<ScState>(state->clone()), 
+                                          block, loopStack, visitedLoops);
+                    blockSuccs.push_back({elseBlock, elseES});
+                }
 
             } else
-            if (const SwitchStmt* swstmt = dyn_cast<const SwitchStmt>(term))
+            if (SwitchStmt* swstmt = dyn_cast<SwitchStmt>(term))
             {
                 if (DebugOptions::isEnabled(DebugComponent::doConstTerm)) {
-                    if (!deadCode) term->dumpColor();
+                    term->dumpColor();
                 }
 
-                // Add current switch into loop stack, no state stored
-                loopStack.pushLoop({term, level, 1U, nullptr, 0});
-                
                 // Switch cases loop, skip first case as it belongs to @default
                 const SwitchCase* swcase = swstmt->getSwitchCaseList();
                 bool hasDefault = false;
                 bool emptyDefault = false;
+                SwitchCase* defcase = nullptr;
+                
                 if (swcase && isa<const DefaultStmt>(swcase) ) {
                     hasDefault = true;
                     emptyDefault = isDefaultEmpty(swcase);
+                    defcase = const_cast<SwitchCase*>(swcase);
                     swcase = swcase->getNextSwitchCase();
                 }
                         
                 // Cases with their blocks, reordered in direct order
                 auto cases = getSwitchCaseBlocks(swcase, cfgBlock);
                 
-//                cout << "cases : " << endl;
-//                for (auto entry : cases) {
-//                    cout << "   " << hex << entry.first << dec << " block #"
-//                         << entry.second.getCfgBlockID() << endl;
-//                    //entry.first->dumpColor();
-//                }
-
                 bool allEmptyCases = true; // All cases including default are empty
                 bool constCase = false; // One case chosen by constant condition
+                bool prevEmptyCase = false; // Previous case is empty 
                 bool clone = false; // Clone @state after first case
                 
                 // Cases loop
                 for (auto entry : cases) {
-                    const SwitchCase* swcase = entry.first;
+                    SwitchCase* swcase = const_cast<SwitchCase*>(entry.first);
                     AdjBlock caseBlock = entry.second;
                     SCT_TOOL_ASSERT (caseBlock.getCfgBlock(), "No switch case block");
                     
                     bool emptyCase = isCaseEmpty(caseBlock);
-                    if (emptyCase) emptyCaseBlocks.insert(caseBlock);
                     allEmptyCases = allEmptyCases && emptyCase;
                     
-                    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                        cout << "CaseBlock B" << caseBlock.getCfgBlockID() 
-                             << ((caseBlock.isReachable()) ? "" : " unreachable") << endl;
-                        if (!caseBlock.isReachable()) {
-                            cout << "Unreachable block at" << term->getSourceRange().
-                                    getBegin().printToString(sm) << endl;
-                        }
-                    }
-                    
                     SValue caseValue;
-                    if (auto* cstmt = dyn_cast<const CaseStmt>(swcase)) {
+                    if (CaseStmt* cstmt = dyn_cast<CaseStmt>(swcase)) {
                         // Get case expression and store it in generator
-                        Expr* expr = const_cast<Expr*>(cstmt->getLHS());
+                        Expr* expr = cstmt->getLHS();
                         // Evaluate case value
-                        evaluateConstInt(expr, caseValue, false);
+                        caseValue = evaluateConstInt(expr, false).second;
                         
                     } else {
                         SCT_TOOL_ASSERT (false, "Unexpected statement type in switch");
                     }
                     
-                    bool loopInputBody = checkLoopInputFromBody(block, caseBlock);
-                    bool loopInputOut  = checkLoopInputFromOut(block, caseBlock);
-
                     bool deadCase = false;
                     if (termCondValue.isInteger() && caseValue.isInteger()) {
                         deadCase = !APSInt::isSameValue(termCondValue.getInteger(), 
@@ -1227,48 +1099,32 @@ void ScTraverseConst::run()
                         constCase = constCase || !deadCase;
                     }
                     
-                    // Case/default have +1 level, loop stack with this @switch
-                    ConstScopeInfo caseSI((deadCase) ? make_shared<ScState>(true) : 
+                    if (!deadCase) {
+                        ConstScopeInfo caseSI(
                             (clone) ? shared_ptr<ScState>(state->clone()) : state, 
-                            level+1, block, loopInputBody, loopInputOut, 
-                            loopStack, deadCode || deadCase, visitedLoops);
-                    blockSuccs.push_back({caseBlock, caseSI});
-                    clone = clone || !deadCase;
-                    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                        cout << "    block level " << caseSI.level << ", flags " << loopInputBody << ", " << loopInputOut << endl;
+                            block, loopStack, visitedLoops);
+                        blockSuccs.push_back({caseBlock, caseSI});
+                        clone = true;
+
+                        if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
+                            cout << "CaseBlock B" << caseBlock.getCfgBlockID() << endl;
+                        }
+                    }
+                    
+                    // Register live case
+                    if (!deadCase || prevEmptyCase) {
+                        liveTerms.insert(swcase);
+                        prevEmptyCase = emptyCase;
+                    } else {
+                        prevEmptyCase = false;
                     }
                 }
 
                 // Last successor block is default or after switch block
                 AdjBlock succBlock(*cfgBlock->succ_rbegin());
                 
-                if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                    cout << "Switch Default/Succ Block B" << succBlock.getCfgBlockID() << ((succBlock.isReachable()) ? "" : " is unreachable") << endl;
-                    if (!succBlock.isReachable()) {
-                        cout << "Unreachable block at" << term->getSourceRange().getBegin().printToString(sm) << endl;
-                    }
-                }
-                
-                // Write switch code only if there are several branches
-                bool writeSwitch = (cfgBlock->succ_size() > 1);
-                
-                unsigned nextLevel; 
-                const Stmt* loopExit;
-
-                if (hasDefault) {
-                    // Default scope level +1 if there are case scopes
-                    nextLevel = level + ((writeSwitch && !emptyDefault) ? 1 : 0);
-                    allEmptyCases = allEmptyCases && emptyDefault;
-                    loopExit = emptyDefault ? term : nullptr;
-                    if (emptyDefault) emptyCaseBlocks.insert(succBlock);
-                    
-                } else {
-                    // No default scope, add next block successor
-                    nextLevel = level;
-                    loopExit = term;
-                }
-                
                 // Report all empty cases, not supported in @calcNextLevel()
+                allEmptyCases = allEmptyCases && hasDefault && emptyDefault;
                 if (allEmptyCases) {
                     ScDiag::reportScDiag(swstmt->getBeginLoc(),
                                          ScDiag::SYNTH_SWITCH_ALL_EMPTY_CASE);
@@ -1276,139 +1132,94 @@ void ScTraverseConst::run()
                     SCT_INTERNAL_FATAL_NOLOC ("Empty switch without break not supported");
                 }
                 
-                bool loopInputBody = checkLoopInputFromBody(block, succBlock);
-                bool loopInputOut  = checkLoopInputFromOut(block, succBlock);
-                
-                // Set loop exit to avoid level up in taking @switch next block
                 bool deadDefault = hasDefault && 
                                    (constCase || !succBlock.isReachable());
-                ConstScopeInfo switchSI((deadDefault) ? make_shared<ScState>(true) : 
+                if (!deadDefault) {
+                    ConstScopeInfo switchSI(
                         (clone) ? shared_ptr<ScState>(state->clone()) : state, 
-                        nextLevel, block, loopInputBody, loopInputOut, loopStack, 
-                        deadCode || deadDefault, visitedLoops, loopExit);
-                blockSuccs.push_back({succBlock, switchSI});
-                if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                    cout << "    block level " << switchSI.level << ", flags " 
-                         << loopInputBody << ", " << loopInputOut << endl;
+                        block, loopStack, visitedLoops);
+                    blockSuccs.push_back({succBlock, switchSI});
+                    
+                    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
+                        cout << "Switch Default B" << succBlock.getCfgBlockID() << endl;
+                    }
                 }
 
+                // Register live default
+                if (!deadDefault || prevEmptyCase) {
+                    liveTerms.insert(const_cast<SwitchCase*>(defcase));
+                }
             } else 
-            if (const BinaryOperator* binstmt = dyn_cast<const BinaryOperator>(term))
+            if (BinaryOperator* binstmt = dyn_cast<BinaryOperator>(term))
             {
                 if (DebugOptions::isEnabled(DebugComponent::doConstTerm)) {
-                    if (!deadCode) term->dumpColor();
+                    term->dumpColor();
                 }
 
                 BinaryOperatorKind opcode = binstmt->getOpcode();
                 SCT_TOOL_ASSERT (opcode == BO_LOr || opcode == BO_LAnd, 
                                  "Incorrect terminator statement");
 
-                // Then branch leads to right part of &&\||, else branch leads 
-                // to whole expression 
-                bool deadThen = opcode == BO_LAnd && termCondValue.isInteger() &&  
-                                termCondValue.getInteger().isNullValue();
-                bool deadElse = opcode == BO_LOr && termCondValue.isInteger() && 
-                                !termCondValue.getInteger().isNullValue();
-                
                 // Two successor blocks
                 SCT_TOOL_ASSERT (cfgBlock->succ_size() == 2,
                                  "No two successors in ||/&&");
                 CFGBlock::succ_iterator iter = cfgBlock->succ_begin();
                 AdjBlock thenBlock(*iter);
                 AdjBlock elseBlock(*(++iter));
-                if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                    cout << "&&/|| ThenBlock B" << thenBlock.getCfgBlockID() << ((thenBlock.isReachable()) ? "" : " is unreachable") << endl;
-                    cout << "&&/|| ElseBlock B" << elseBlock.getCfgBlockID() << ((elseBlock.isReachable()) ? "" : " is unreachable") << endl;
-                    cout << "&&/|| dead code " << deadCode << " dead cond " << (deadCode || deadThen) << (deadCode || deadElse) << endl;
-                }
-                
-                // Check if the next block is loop input (has loop terminator) 
-                // and current block is loop body input/outside input
-                bool thenLoopInputBody = checkLoopInputFromBody(block, thenBlock);
-                bool thenLoopInputOut  = checkLoopInputFromOut(block, thenBlock);
-                bool elseLoopInputBody = checkLoopInputFromBody(block, elseBlock);
-                bool elseLoopInputOut  = checkLoopInputFromOut(block, elseBlock);
                 
                 // Only path to final IF/Loop/? statement is taken, 
                 // if this path is dead it is detected at the final statement
                 // @deadThen/Else not consider @deadCond required for complex conditions
                 if (opcode == BO_LOr) {
-                    ConstScopeInfo elseSI(state, level, block,
-                                          elseLoopInputBody, elseLoopInputOut, 
-                                          loopStack, deadCode, visitedLoops,
-                                          nullptr, false, deadElse);
+                    ConstScopeInfo elseSI(state, block,
+                                          loopStack, visitedLoops, trueCond);
                     blockSuccs.push_back({elseBlock, elseSI});
-                    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                        cout << "&&/|| elseBlock level " << elseSI.level << ", flags " << elseLoopInputBody << ", " << elseLoopInputOut << endl;
-                    }
                 }
                 if (opcode == BO_LAnd) {
-                    ConstScopeInfo thenSI(state, level, block,
-                                          thenLoopInputBody, thenLoopInputOut, 
-                                          loopStack, deadCode, visitedLoops,
-                                          nullptr, false, deadThen);
+                    ConstScopeInfo thenSI(state, block,
+                                          loopStack, visitedLoops, falseCond);
                     blockSuccs.push_back({thenBlock, thenSI});
-                    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                        cout << "&&/|| thenBlock level " << thenSI.level << ", flags " << thenLoopInputBody << ", " << thenLoopInputOut << endl;
-                    }
                 }
                 
             } else
-            if ( isa<const ConditionalOperator>(term) )
+            if ( isa<ConditionalOperator>(term) )
             {
                 if (DebugOptions::isEnabled(DebugComponent::doConstTerm)) {
-                    if (!deadCode) term->dumpColor();
+                    term->dumpColor();
                 }
 
-                bool deadThen = termCondValue.isInteger() && 
-                                termCondValue.getInteger().isNullValue();
-                bool deadElse = termCondValue.isInteger() && 
-                                !termCondValue.getInteger().isNullValue();
-                
                 // Two argument blocks    
                 SCT_TOOL_ASSERT (cfgBlock->succ_size() == 2,
                                  "No two successors in cond operator");
                 CFGBlock::succ_iterator iter = cfgBlock->succ_begin();
                 AdjBlock argBlock1(*iter);
                 AdjBlock argBlock2(*(++iter));
-                // Block in conditional operator can be unreachable
-                if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                    //cout << "? ArgBlock1 B" << argBlock1.getCfgBlockID() << ((argBlock1.isReachable()) ? "" : " is unreachable") << endl;
-                    //cout << "? ArgBlock2 B" << argBlock2.getCfgBlockID() << ((argBlock2.isReachable()) ? "" : " is unreachable") << endl;
-                    //cout << "? dead " << deadCode << (deadCode || deadThen) << (deadCode || deadElse) << endl;
-                }
                 
-                // Arguments have +1 level to return the same level for ? body 
-                // No loop terminator possible in argument blocks
-                ConstScopeInfo argSI1((deadThen) ? make_shared<ScState>(true) : 
-                                       state, level+1, block, false, false, 
-                                       loopStack, deadCode || deadThen,
-                                       visitedLoops);
-                ConstScopeInfo argSI2((deadElse) ? make_shared<ScState>(true) : 
-                                      (deadThen) ? state : shared_ptr<ScState>(
-                                                   state->clone()), 
-                                      level+1, block, false, false, loopStack, 
-                                      deadCode || deadElse, visitedLoops);
-                blockSuccs.push_back({argBlock1, argSI1});
-                blockSuccs.push_back({argBlock2, argSI2});
-                if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                    cout << " block1 level " << argSI1.level << endl;
-                    cout << " block2 level " << argSI2.level << endl;
+                if (!falseCond) {
+                    ConstScopeInfo argSI1(state, block, loopStack, visitedLoops);
+                    blockSuccs.push_back({argBlock1, argSI1});
+                }
+                if (!trueCond) {
+                    ConstScopeInfo argSI2((falseCond) ? state : 
+                                           shared_ptr<ScState>(state->clone()), 
+                                           block, loopStack, visitedLoops);
+                    blockSuccs.push_back({argBlock2, argSI2});
                 }
 
             } else                 
-            if (isa<const ForStmt>(term) || isa<const WhileStmt>(term) ||
-                isa<const DoStmt>(term))
+            if (isa<ForStmt>(term) || isa<WhileStmt>(term) || isa<DoStmt>(term))
             {
                 if (DebugOptions::isEnabled(DebugComponent::doConstTerm)) {
-                    if (!deadCode) term->dumpColor();
+                    term->dumpColor();
                 }
+                //cout << "Loop "<< hex << term << dec << " termCondValue " << termCondValue << endl;
+                //state->print();
                 
                 // Determine loop already visited with checking if 
                 // current (last) loop has the same terminator
-                bool loopVisited = doWhile || loopStack.isCurrLoop(term);
+                bool loopVisited = isa<DoStmt>(term) || loopStack.isCurrLoop(term);
                 
-                if (!isCombProcess && !deadCode) {
+                if (!isCombProcess) {
                     if (waitInLoops.count(term) && visitedLoops.count(term)) {
                         ScDiag::reportScDiag(term->getBeginLoc(), 
                                              ScDiag::SYNTH_WAIT_LOOP_FALLTHROUGH);
@@ -1426,26 +1237,10 @@ void ScTraverseConst::run()
                 AdjBlock bodyBlock(*iter);
                 AdjBlock exitBlock(*(++iter));
 
-                bool exitLoopInputBody = checkLoopInputFromBody(block, exitBlock);
-                bool exitLoopInputOut  = checkLoopInputFromOut(block, exitBlock);
-                bool enterLoopInputBody = (bodyBlock.getCfgBlock()) ? 
-                            checkLoopInputFromBody(block, bodyBlock) : false;
-                bool enterLoopInputOut  = (bodyBlock.getCfgBlock()) ? 
-                            checkLoopInputFromOut(block, bodyBlock) : false;
-
-                // Next block level
-                // Block with FOR/WHILE has @level, and the loop body @level+1
-                // Block with DO..WHILE and and the loop body have @level
-                unsigned nextLevel = (doWhile) ? level : level+1;
-                
                 // Stop loop analysis and go to exit block if iteration exceeded
                 bool maxIterFlag = false;
                 // Stop loop analysis if state is not changed at last iteration
                 bool stableState = false;
-                
-                if (DebugOptions::isEnabled(DebugComponent::doConstTerm)) {
-                    cout << "Loop terminator, level " << level << endl;
-                }
                 
                 if (loopVisited) {
                     // Maximal iteration number to analyze
@@ -1529,79 +1324,57 @@ void ScTraverseConst::run()
                         iterNumber = in.getValue();
                     }
                     // Store state to compare with last iteration state
-                    loopStack.pushLoop({term, level, 1U, state->clone(), 
-                                        iterNumber});
+                    loopStack.pushLoop({term, 1U, state->clone(), iterNumber});
                 }
                 
-                // Add only one successor for visited loop with false condition,
-                // loop body must be visited to get all break predecessors for
-                // loop exit, terminator condition not evaluated for dead code
-                bool oneSucc = maxIterFlag || stableState ||
-                               (termCondValue.isInteger() && 
-                               (!termCondValue.getInteger().isNullValue() ||
-                                loopVisited)) || (deadCode && loopVisited);
-                bool deadBody = termCondValue.isInteger() &&
-                                termCondValue.getInteger().isNullValue();
-
-                //cout << "Loop oneSucc " << oneSucc << ", loopVisited " << loopVisited 
-                //     << ", deadBody " << deadBody << ", counter " << loopStack.back().counter << endl;
-                
-                // Use @term as loop exit
-                ConstScopeInfo exitSI(state, nextLevel-1, block,
-                                      exitLoopInputBody, exitLoopInputOut, 
-                                      loopStack, deadCode, visitedLoops, term);
-                ConstScopeInfo enterSI((oneSucc) ? state : shared_ptr<ScState>(
-                                       state->clone()), nextLevel, block,
-                                       enterLoopInputBody, enterLoopInputOut, 
-                                       loopStack, deadCode || deadBody,
-                                       visitedLoops);
-                
-                if (oneSucc) {
-                    if (maxIterFlag || stableState || deadCode ||
-                        termCondValue.getInteger().isNullValue()) {
-                        // Go to loop exit, check if exit block exists
-                        if (exitBlock.getCfgBlock()) {
-                            blockSuccs.push_back({exitBlock, exitSI});
-                            if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                                cout << "Push loop exit block B" << exitBlock.getCfgBlockID() << endl;
-                            }
-                        }
-                    } else {
-                        // Enter loop body
-                        blockSuccs.push_back({bodyBlock, enterSI});
-                        if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                            cout << "Push loop body block B" << bodyBlock.getCfgBlockID() << endl;
-                        }
+                bool addBodyBlock = (!maxIterFlag && !stableState) && 
+                                    bodyBlock.getCfgBlock();
+                bool addExitBlock = (maxIterFlag || stableState || !trueCond) && 
+                                    exitBlock.getCfgBlock();      
+                bool clone = false;    
+                if (addBodyBlock && !falseCond) {
+                    ConstScopeInfo enterSI(state, block, loopStack, visitedLoops);
+                    blockSuccs.push_back({bodyBlock, enterSI});
+                    clone = true;
+                    
+                    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
+                        cout << "Push loop body block B" << bodyBlock.getCfgBlockID() << endl;
                     }
-                        
-                } else {
-                    // Loop exit and enter both, check if exit block exists
-                    if (exitBlock.getCfgBlock()) {
-                        blockSuccs.push_back({exitBlock, exitSI});
-                        if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                            cout << "Push loop exit block B" << exitBlock.getCfgBlockID() << endl;
-                        }
-                    }
-                    if (bodyBlock.getCfgBlock()) {
-                        // Body block can be @nullptr
-                        blockSuccs.push_back({bodyBlock, enterSI});
-                        if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                            cout << "Push loop body block B" << bodyBlock.getCfgBlockID() << endl;
-                        }
+                }
+                if (addExitBlock) {
+                    visitedLoops.erase(loopStack.back().stmt);
+                    loopStack.pop_back();
+                    ConstScopeInfo exitSI(clone ? shared_ptr<ScState>(
+                                          state->clone()) : state, 
+                                          block, loopStack, visitedLoops);
+                    blockSuccs.push_back({exitBlock, exitSI});
+                    
+                    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
+                        cout << "Push loop exit block B" << exitBlock.getCfgBlockID() << endl;
                     }
                 }
                 
             } else
-            if ( isa<const BreakStmt>(term) ) {
+            if ( isa<BreakStmt>(term) ) {
                 
                 if (DebugOptions::isEnabled(DebugComponent::doConstTerm)) {
-                    if (!deadCode) term->dumpColor();
+                    term->dumpColor();
                 }
-                SCT_TOOL_ASSERT (!loopStack.empty(),
-                                 "Loop stack is empty in break");
-
-                // Generate @break statement string
-                auto& currLoop = loopStack.back();
+                
+                bool isLoopBreak = !stmtInfo.isSwitchBreak(term);
+                
+                // Remove last loop from stack for loop break
+                if (isLoopBreak) {
+                    SCT_TOOL_ASSERT (!loopStack.empty(), 
+                                     "Loop stack is empty in break");
+                    if (!breakInRemovedLoop) {
+                        bool waitInLoop = findWaitInLoop && 
+                            findWaitInLoop->hasWaitCall(loopStack.back().stmt);
+                        breakInRemovedLoop = waitInLoop;
+                    }
+                    visitedLoops.erase(loopStack.back().stmt);
+                    loopStack.pop_back();
+                }
                 
                 // One successor block
                 SCT_TOOL_ASSERT (cfgBlock->succ_size() == 1, 
@@ -1613,55 +1386,43 @@ void ScTraverseConst::run()
                 }
                 SCT_TOOL_ASSERT (succBlock.isReachable(), 
                                 "No successor reachable in break");
-                // Check if the next block is loop input Phi function and 
-                // current block is loop body input/outside input
-                bool loopInputBody = checkLoopInputFromBody(block, succBlock);
-                bool loopInputOut  = checkLoopInputFromOut(block, succBlock);
- 
-                // Next block is outside of the loop, so it at least one level up
-                // Use loop scope level @currLoop.second here 
+                
                 // Use after wait flag for removed loop as it run in separate analysis
-                ConstScopeInfo si(state, currLoop.level, block, loopInputBody, 
-                                  loopInputOut, loopStack, deadCode, 
-                                  visitedLoops, currLoop.stmt);
+                ConstScopeInfo si(state, block, loopStack, visitedLoops);
                 blockSuccs.push_back({succBlock, si});
-                if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                    cout << "    block level "<< si.level <<", flags " << loopInputBody << ", " << loopInputOut << endl;
-                }
+
             } else
-            if ( isa<const ContinueStmt>(term) ) {
+            if ( isa<ContinueStmt>(term) ) {
                 
                 if (DebugOptions::isEnabled(DebugComponent::doConstTerm)) {
-                    if (!deadCode) term->dumpColor();
+                    term->dumpColor();
                 }
+                
                 SCT_TOOL_ASSERT (!loopStack.empty(), 
                                  " Loop stack is empty in continue");
+                if (!breakInRemovedLoop) {
+                    bool waitInLoop = findWaitInLoop && 
+                            findWaitInLoop->hasWaitCall(loopStack.back().stmt);
+                    breakInRemovedLoop = waitInLoop;
+                }
+                
                 // One successor block
                 SCT_TOOL_ASSERT (cfgBlock->succ_size() == 1,
                                  "No one successor in continue");
                 CFGBlock::succ_iterator iter = cfgBlock->succs().begin();
                 AdjBlock succBlock(*iter);
                 if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                    cout << "Continue Succ Block B" << succBlock.getCfgBlockID() << ((succBlock.isReachable()) ? "" : " is unreachable") << endl;
+                    cout << "Continue Succ Block B" << succBlock.getCfgBlockID() << endl;
                 }
                 SCT_TOOL_ASSERT (succBlock.isReachable(), 
                                  "No successor reachable in continue");
-                // Check if the next block is loop input Phi function and 
-                // current block is loop body input/outside input
-                bool loopInputBody = checkLoopInputFromBody(block, succBlock);
-                bool loopInputOut  = checkLoopInputFromOut(block, succBlock);
  
-                // Next block is inside of the loop, so it at least one level up
                 // Use after wait flag for removed loop as it run in separate analysis
-                ConstScopeInfo si(state, level, block, 
-                                  loopInputBody, loopInputOut, 
-                                  loopStack, deadCode, visitedLoops);
+                ConstScopeInfo si(state, block, loopStack, visitedLoops);
                 blockSuccs.push_back({succBlock, si});
-                if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                    cout << "    block level "<< si.level << ", flags " << loopInputBody << ", " << loopInputOut << endl;
-                }
+
             } else    
-            if ( isa<const GotoStmt>(term) ) {
+            if ( isa<GotoStmt>(term) ) {
                 ScDiag::reportScDiag(term->getSourceRange().getBegin(), 
                                      ScDiag::CPP_GOTO_STMT);
             } else {
@@ -1674,7 +1435,6 @@ void ScTraverseConst::run()
             // except ||/&&/? operators
             if ( !isa<BinaryOperator>(term) && !isa<ConditionalOperator>(term) ) {
                 calledFuncs.clear();
-                stmtStoredValue.clear();
             }
 
         } else {
@@ -1682,25 +1442,14 @@ void ScTraverseConst::run()
             if (cfgBlock->succ_size() == 1) {
                 CFGBlock::succ_iterator iter = cfgBlock->succs().begin();
                 AdjBlock succBlock(*iter);
+                
                 if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
                     cout << "Succ Block B" << succBlock.getCfgBlockID() << ((succBlock.isReachable()) ? "" : " is unreachable") << endl;
                 }
                 SCT_TOOL_ASSERT (succBlock.isReachable(), "No reachable successor");
 
-                // Check if the next block is loop input Phi function and 
-                // current block is loop body input/outside input
-                bool loopInputBody = checkLoopInputFromBody(block, succBlock);
-                bool loopInputOut  = checkLoopInputFromOut(block, succBlock);
-
-                // Level not changed in general block, level up provided
-                // for next block if it has multiple inputs 
-                ConstScopeInfo si(state, level, block,
-                                  loopInputBody, loopInputOut, 
-                                  loopStack, deadCode, visitedLoops);
+                ConstScopeInfo si(state, block, loopStack, visitedLoops);
                 blockSuccs.push_back({succBlock, si});
-                if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                    cout << "    block level " << si.level << ", flags " << loopInputBody << ", " << loopInputOut << endl;
-                }
                 
             } else 
             if (cfgBlock->succ_size() > 1) {
@@ -1727,9 +1476,10 @@ void ScTraverseConst::run()
         }
 
         // Store block successors, @block is unique in this call of @run()
-        for (auto&& bs : blockSuccs) {
+        for (const auto& bs : blockSuccs) {
             bool found = false;
             auto i = delayed.rbegin();
+            unsigned blockID = bs.first.getCfgBlockID();
             
             for (; i != delayed.rend(); ++i) {
                 if (i->first == bs.first) {
@@ -1760,14 +1510,11 @@ void ScTraverseConst::run()
                     break;
                 }
             }
-            // Insert new scope according with its level
+            // Insert new scope according with CFG block ID, higher ID goes first
             if (!found) {
-                // The scope level, block after loop level is less than blocks
-                // in the loop body, so loop body blocks analyzed first
-                unsigned level = bs.second.level + ((bs.second.upLevel) ? 1 : 0);
                 auto j = delayed.begin();
                 for (; j != delayed.end(); ++j) {
-                    if (level < j->second.begin()->level) {
+                    if (blockID < j->first.getCfgBlockID()) {
                         break;
                     }
                 }
@@ -1784,55 +1531,9 @@ void ScTraverseConst::run()
             // Take block from @delayed
             auto i = delayed.rbegin();
             
-            //cout << endl << "------- Choosing next block form delayed, size = " 
-            //     << delayed.size() << endl;
+            // Prepare next block
+            prepareNextBlock(i->first, i->second);
             
-            for (; i != delayed.rend(); ++i) {
-                // Consider possible unreachable block
-                unsigned predSize  = getPredsNumber(i->first);
-                
-                // Loop input from body/outside
-                bool loopInputBody = i->second.begin()->loopInputBody;
-                bool loopInputOut  = i->second.begin()->loopInputOut;
-                
-                //cout << "   B" << i->first.getCfgBlockID()
-                //     << ", preds/inputs " << predSize << "/" << i->second.size()
-                //     << ", flags " << loopInputBody << loopInputOut << endl;
-                    
-                // Check number of ready inputs equals to predecessor number
-                // At loop input from body only one body predecessor ready
-                // At loop input from outside body predecessor not ready
-                if (i->second.size() >= predSize || 
-                    (loopInputBody && i->second.size() >= 1) ||
-                    (loopInputOut && i->second.size() >= predSize-1))
-                {
-                    // Number of ready inputs can exceed predecessor number as
-                    // duplicate predecessor is possible from dead code in THREADs
-                    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                        cout << endl << "Next BLOCK B" << i->first.getCfgBlockID() 
-                             << ", flags "<< loopInputBody << ", " << loopInputOut 
-                            << ", ready inputs " << i->second.size() << ", preds " << predSize << endl;
-                    }
-                    
-                    // Prepare next block
-                    prepareNextBlock(i->first, i->second);
-                    //state->print();
-                    break;
-                }
-            }
-            
-            // Check there is ready block
-            if (i == delayed.rend()) {
-                cout << "Error in analyzed function " << funcDecl->getNameAsString() << endl;
-                if (term) {
-                    cout << term->getSourceRange().getBegin().printToString(sm) << endl;
-                } else 
-                if (currStmt) {
-                    cout << currStmt->getSourceRange().getBegin().printToString(sm) << endl;
-                }
-                SCT_TOOL_ASSERT (false, "No ready block in @delayed");
-            }
-
             // Remove block from @delayed, use ++ as @base() points to next object 
             delayed.erase((++i).base());
 

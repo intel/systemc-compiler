@@ -1,6 +1,9 @@
 add_executable(mif_simple test_simple.cpp)
 svc_target(mif_simple GOLDEN mif_simple.sv)
 
+add_executable(mif_const test_mif_const.cpp)
+svc_target(mif_const GOLDEN mif_const.sv)
+
 add_executable(mif_sc_vector test_sc_vector.cpp)
 svc_target(mif_sc_vector GOLDEN mif_sc_vector.sv)
 

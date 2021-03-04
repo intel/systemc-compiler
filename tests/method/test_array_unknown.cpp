@@ -10,7 +10,7 @@
 
 using namespace sc_core;
 
-// Array access at non-determinable index leads to all elements unknown
+// Array access at non-determinable index, write leads to all elements unknown
 class A : public sc_module {
 public:
     int     m[3];
@@ -32,6 +32,9 @@ public:
             }
         }
         
+        // Not supported in GEN yet, passed in CPA
+        //SC_METHOD(comp_assign_array); sensitive << a;
+
         SC_METHOD(array_init); sensitive << a;
         SC_METHOD(multi_array_of_channel_pointers); sensitive << a;
         
@@ -51,8 +54,7 @@ public:
         SC_METHOD(comp_assign_array_unknown2); sensitive << a;
         SC_METHOD(comp_assign_array_unknown3); sensitive << a;
         
-        // Not supported in GEN yet, passed in CPA
-        //SC_METHOD(comp_assign_array); sensitive << a;
+        SC_METHOD(read_unknown_index); sensitive << a;
     }
     
     void comp_assign_array() 
@@ -66,6 +68,7 @@ public:
     
     void array_init() 
     {
+        int n[2][2];
         for (int i = 0; i < 2; i++) 
             for (int j = 0; j < 2; j++) 
                 n[i][j] = i+j+1;
@@ -83,6 +86,7 @@ public:
     
     void write_unknown_index1() 
     {
+        int m[3];
         m[0] = 1; m[1] = 2; m[2] = 3;
 
         m[a] = 1;
@@ -153,6 +157,7 @@ public:
     
     void unary_array_unknown1() 
     {
+        int m[3];
         m[0] = 1; m[1] = 2; m[2] = 3;
 
         m[a]++;
@@ -164,6 +169,7 @@ public:
 
     void unary_array_unknown2() 
     {
+        int m[3];
         m[0] = 1; m[1] = 2; m[2] = 3;
 
         --m[a];
@@ -187,6 +193,7 @@ public:
 
     void comp_assign_array_unknown1() 
     {
+        int m[3];
         m[0] = 1; m[1] = 2; m[2] = 3;
 
         m[a] += 1;
@@ -198,6 +205,7 @@ public:
 
     void comp_assign_array_unknown2() 
     {
+        int n[2][2];
         n[0][0] = 0; n[0][1] = 1; n[1][0] = 2; n[1][1] = 3;
         
         n[a][1] -= 4;
@@ -208,8 +216,9 @@ public:
         sct_assert_unknown(n[1][1]);
     }
     
-     void comp_assign_array_unknown3() 
+    void comp_assign_array_unknown3() 
     {
+        int n[2][2];
         n[0][0] = 0; n[0][1] = 1; n[1][0] = 2; n[1][1] = 3;
         
         n[1][a] -= 2;
@@ -219,6 +228,24 @@ public:
         sct_assert_unknown(n[1][0]);
         sct_assert_unknown(n[1][1]);
     }    
+     
+    // Check read at unknown index does not clear value
+    void read_unknown_index()
+    {
+        int m[3];
+        m[0] = 1; m[1] = 2; m[2] = 3;
+        
+        int i = m[a];
+        i = m[a.read()+1];
+        
+        if (m[a]) {
+            int k = 1;
+        }
+        
+        sct_assert_const(m[0] == 1);
+        sct_assert_const(m[1] == 2);
+        sct_assert_const(m[2] == 3);
+    }
 };
 
 class B_top : public sc_module {

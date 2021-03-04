@@ -16,7 +16,6 @@ struct A : public sc_module
 {
     sc_in<bool>         clk;
     sc_signal<bool>     nrst;
-
     sc_signal<sc_uint<4>> s;
     sc_signal<int> t;
     
@@ -39,8 +38,7 @@ struct A : public sc_module
     SC_HAS_PROCESS(A);
 
     A(const sc_module_name& name) : 
-        sc_module(name)
-    {
+        sc_module(name) {
         {
             auto& d = const_cast<int&>(D1);
             d = 43;
@@ -103,6 +101,8 @@ struct A : public sc_module
         SC_CTHREAD(const_record_thread, clk.pos());
         async_reset_signal_is(nrst, 0);
         
+        SC_CTHREAD(const_loc_thread, clk.pos());
+        async_reset_signal_is(nrst, 0);
     }
    
 //-----------------------------------------------------------------------------
@@ -289,7 +289,7 @@ struct A : public sc_module
             wait();
             const int L5 = 44;
         }
-    }    
+    }
 
     void const_local_array_method() {
         
@@ -373,6 +373,18 @@ struct A : public sc_module
         }
     }    
     
+    void const_loc_thread() 
+    {
+        const int EE = 22;
+        const int DD = EE+1;
+        wait();
+        
+        while (true) {
+            const int CC = 11;
+            wait();
+            int i = CC + DD;
+        }
+    }    
 };
 
 int sc_main(int argc, char *argv[]) 

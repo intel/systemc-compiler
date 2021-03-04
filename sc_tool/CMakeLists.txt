@@ -34,6 +34,8 @@ add_library(SCTool
         lib/sc_tool/cfg/SValue.cpp
         lib/sc_tool/cfg/ScState.h
         lib/sc_tool/cfg/ScState.cpp
+        lib/sc_tool/cfg/ScStmtInfo.h
+        lib/sc_tool/cfg/ScStmtInfo.cpp
         lib/sc_tool/cfg/ScTraverseCommon.h
         lib/sc_tool/cfg/ScTraverseCommon.cpp
         lib/sc_tool/cfg/ScTraverseProc.h
@@ -97,8 +99,6 @@ add_library(SCTool
 
         lib/sc_tool/utils/CfgFabric.h
         lib/sc_tool/utils/CfgFabric.cpp
-        lib/sc_tool/utils/CfgStmt.h
-        lib/sc_tool/utils/CfgStmt.cpp
         lib/sc_tool/utils/DebugOptions.h
         lib/sc_tool/utils/DebugOptions.cpp
         lib/sc_tool/utils/BitUtils.cpp

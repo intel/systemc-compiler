@@ -27,6 +27,10 @@ public:
 
     SC_CTOR(A) 
     {
+        SC_METHOD(switch_compound1); sensitive << s << t << a;
+        SC_METHOD(switch_compound2); sensitive << s << t << a;
+        SC_METHOD(switch_compound3); sensitive << s << t << a;
+        
         SC_METHOD(switch_if1); sensitive << s << t << a;
         SC_METHOD(switch_if2); sensitive << s << t << a;
         SC_METHOD(switch_if3); sensitive << s << t << a;
@@ -39,6 +43,57 @@ public:
     
     const bool ONE = 1;
     const bool ZERO = 0;
+    
+    
+    void switch_compound1() 
+    {
+        int i = 0;
+        switch (t.read()) {
+            case 1 : {
+                        {
+                            i = 1;
+                        }
+                        {
+                            break;
+                        }
+                     }
+            default: i = 2; break;
+        }
+    }
+    
+    void switch_compound2() 
+    {
+        int i = 0;
+        switch (t.read()) {
+            case 1 : {
+                        {
+                            i = 1;
+                        }
+                        break;
+                     }
+            case 2 : {
+                        {
+                            i = 2;
+                            break;
+                        }
+                     }
+        }
+    }
+    
+    void switch_compound3() 
+    {
+        int i = 0;
+        switch (t.read()) {
+            case 1 : 
+            case 2 : {
+                        i = 2;
+                        break;
+                     }
+            default: break;
+        }
+    }
+    
+// ===========================================================================
     
     // SWITCH with IF after
     void switch_if1() {
@@ -107,6 +162,8 @@ public:
             }
         }
     }
+    
+
     
     // -----------------------------------------------------------------------
 

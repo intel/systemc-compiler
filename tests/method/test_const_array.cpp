@@ -5,14 +5,10 @@
 * 
 *****************************************************************************/
 
-//
-// Created by ripopov on 7/25/18.
-//
-
 #include <systemc.h>
 #include <sct_assert.h>
 
-
+// Member static constant and template parameter arrays
 template <unsigned DOMAIN_NUM>
 struct DOMAIN_PARAMETERS {
     static const unsigned INT_VALS[DOMAIN_NUM];

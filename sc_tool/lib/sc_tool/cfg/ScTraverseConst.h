@@ -17,6 +17,7 @@
 #ifndef SCTRAVERSECONST_H
 #define SCTRAVERSECONST_H
 
+#include "sc_tool/cfg/ScStmtInfo.h"
 #include "sc_tool/expr/ScParseExprValue.h"
 #include "sc_tool/scope/ScScopeGraph.h"
 #include "sc_tool/cthread/ScCThreadStates.h"
@@ -39,15 +40,14 @@ namespace sc {
 struct ConstLoopStackInfo {
     // Loop statement
     const clang::Stmt* stmt;
-    // Scope level
-    unsigned level;
     // Iteration counter, used in constant propagator
     unsigned counter;
     // Last iteration state
     std::shared_ptr<ScState> state;
-    // Iteration number or 0 if unknown
+    // Iteration number or 0 if unknown, 
+    // do not need to consider zero iteration loops
     unsigned iterNumber;
-    
+   
     bool operator ==(const ConstLoopStackInfo& other) {
         return (stmt == other.stmt);
     }
@@ -56,10 +56,10 @@ struct ConstLoopStackInfo {
         return (stmt == other.stmt);
     }
     
-    ConstLoopStackInfo(const clang::Stmt* stmt_, unsigned level_, 
+    ConstLoopStackInfo(const clang::Stmt* stmt_, 
                        unsigned counter_, ScState* state_, 
                        unsigned iterNumber_) :
-        stmt(stmt_), level(level_), counter(counter_), state(state_), 
+        stmt(stmt_), counter(counter_), state(state_), 
         iterNumber(iterNumber_)
     {}
 };
@@ -119,58 +119,33 @@ public:
     }
 };
 
-/// Predecessor @scope, @state and @level values to store in @delayes
+/// Predecessor @scope, @state and others to store in @delayes
 struct ConstScopeInfo 
 {
     std::shared_ptr<ScState> state;
-    unsigned    level; 
     /// Previous block
     AdjBlock prevBlock;
     
-    bool loopInputBody;
-    bool loopInputOut;
     /// Loop statement stack, last loop is most inner
     ConstLoopStack loopStack;
-    // Analysis after wait, break/continue in removed loop or unreachable code,
-    /// used just for Phi-function readiness, no statement generated 
-    /// in the path which is after wait only
-    bool deadCode;
     
     /// Visited loops, used to detect loop with wait() having combinational path
     std::unordered_set<const clang::Stmt*>   visitedLoops;
     
-    /// If the @prevScope is block with loop/break terminator it stored here, 
-    /// otherwise @nullptr is stored
-    const clang::Stmt* loopExit;
-    /// Up scope level for block after @IF with empty branch, that is required
-    /// if another branch contains @break, so there is no @Phi function before
-    bool upLevel;
     /// Dead predecessor should be ignored in preparing next block
     /// Used for &&/|| dead branch leads final IF
     bool deadCond;
     
     ConstScopeInfo(std::shared_ptr<ScState> state_,
-              unsigned level_,    
               const AdjBlock& prevBlock_,
-              bool loopInputBody_,
-              bool loopInputOut_,
               const ConstLoopStack& loopStack_,
-              bool deadCode_,
               const std::unordered_set<const clang::Stmt*>&  visitedLoops_,
-              const clang::Stmt* loopExit_ = nullptr,
-              bool upLevel_ = false,
               bool deadCond_ = false
               ) : 
         state(state_),
-        level(level_),
         prevBlock(prevBlock_),
-        loopInputBody(loopInputBody_),
-        loopInputOut(loopInputOut_),
         loopStack(loopStack_),
-        deadCode(deadCode_),
         visitedLoops(visitedLoops_),
-        loopExit(loopExit_),
-        upLevel(upLevel_),
         deadCond(deadCond_)
     {}
 };
@@ -191,14 +166,7 @@ struct ConstFuncContext {
     ConstLoopStack loopStack;
     /// Function directly called from this function <func expr, return value>
     std::unordered_map<clang::Stmt*, SValue>  calledFuncs;
-    /// Function level, called function has level = level+1
-    unsigned level;
-    /// Dead code flag
-    bool deadCode;
-    /// Parsed statement value stored, used to avoid re-parse sub-expression 
-    /// in complex condition, important for sub-expressions with side effects
-    std::unordered_map<clang::Stmt*, SValue>   stmtStoredValue;
-    
+   
     explicit ConstFuncContext(
                     const CfgCursor& callPoint_,
                     const SValue& returnValue_,
@@ -207,15 +175,12 @@ struct ConstFuncContext {
                     const std::list< std::pair<AdjBlock, 
                           std::vector<ConstScopeInfo> > >& delayed_,
                     const ConstLoopStack& loopStack_,
-                    const std::unordered_map<clang::Stmt*, SValue>& calledFuncs_,
-                    unsigned level_,
-                    bool deadCode_, 
-                    const std::unordered_map<clang::Stmt*, SValue>& storedValue_) :
+                    const std::unordered_map<clang::Stmt*, SValue>& calledFuncs_
+                    ) :
             callPoint(callPoint_), returnValue(returnValue_), 
             modval(modval_), recval(recval_),
             delayed(delayed_), loopStack(loopStack_), 
-            calledFuncs(calledFuncs_), level(level_), deadCode(deadCode_), 
-            stmtStoredValue(storedValue_)
+            calledFuncs(calledFuncs_)
     {}
 };
 
@@ -271,13 +236,16 @@ public:
     explicit ScTraverseConst(const clang::ASTContext& context_, 
                              std::shared_ptr<ScState> state_, 
                              const SValue& modval_,
-                             std::shared_ptr<ScState> globalState = nullptr,
+                             std::shared_ptr<ScState> globalState_ = nullptr,
                              sc_elab::ElabDatabase *elabDB = nullptr,
                              ScCThreadStates* cthreadStates_ = nullptr,
+                             const FindWaitCallVisitor* findWaitInLoop_ = nullptr,
                              bool isCombProcess_ = false) :
         ScParseExprValue(context_, state_, modval_, false),
         cthreadStates(cthreadStates_), 
-        globalState(globalState), 
+        findWaitInLoop(findWaitInLoop_),
+        globalState(globalState_), 
+        globExprEval(astCtx, globalState, modval),
         elabDB(elabDB), 
         dynmodval(modval_),
         isCombProcess(isCombProcess_)
@@ -293,23 +261,24 @@ public:
     }
     
 protected:
-    /// Extract counter variable value for given FOR initialization sub-statement
-    /// \return variable value or NO_VALUE
-    SValue extractCounterVar(const clang::Stmt* stmt);
+    /// Creates constant value in global state if necessary
+    SValue parseGlobalConstant(const SValue& val) override;
+
+    /// Register variables accessed in and after reset section,
+    /// check read-not-defined is empty in reset
+    void registerAccessVar(bool isResetSection, const clang::Stmt* stmt);
     
     /// Evaluate terminator condition if it is compile time constant
-    void evaluateTermCond(const clang::Stmt* stmt, SValue& val);
+    void evaluateTermCond(clang::Stmt* stmt, SValue& val);
     
     /// Evaluate loop iteration number from conditional expression
     llvm::Optional<unsigned> evaluateIterNumber(const clang::Stmt* stmt);
     
     /// Check if this loop needs compare state with last iteration state
+    /// \param iterNumber -- number of iterations, 0 if unknown
     /// \param iterCntr -- number of analyzed iteration
     bool isCompareState(const clang::Stmt* stmt, unsigned maxIterNumber,
                         unsigned iterNumber, unsigned iterCntr);
-    
-    /// Check then/else branches are empty
-    bool checkIfBranchEmpty(const clang::Stmt* branch);
     
     /// Prepare next block analysis
     void prepareNextBlock(AdjBlock& nextBlock, std::vector<ConstScopeInfo>& scopeInfos);
@@ -328,7 +297,8 @@ protected:
     void parseCall(clang::CallExpr* expr, SValue& val) override;
 
     /// Member function call expression
-    void parseMemberCall(clang::CXXMemberCallExpr* expr, SValue& val) override;
+    void parseMemberCall(clang::CXXMemberCallExpr* expr, SValue& tval,
+                         SValue& val) override;
     
     /// Choose and run DFS step in accordance with expression type.
     /// Remove sub-statements from generator
@@ -339,29 +309,31 @@ protected:
     
     /// Restore analysis context with given one
     void restoreContext();
-
-    /// Creates constant value in global state if necessary
-    SValue parseGlobalConstant(const SValue &sVar) override;
-
-    /// Register variables accessed in and after reset section,
-    /// check read-not-defined is empty in reset
-    void registerAccessVar(bool isResetSection, const clang::Stmt* stmt);
-
+    
 public:
     /// Preset CFG for run analysis
     void setFunction(const clang::FunctionDecl* fdecl);
     
-    // Run analysis at function entry, runs once per process
+    /// Run analysis at function entry, runs once per process
     void run();
     
     /// Run for function declaration, the same as @setFunction() and @run()
     void run(const clang::FunctionDecl* fdecl);
     
+    ///
+    const std::unordered_set<clang::Stmt*>& getLiveStmts() const {
+        return liveStmts;        
+    }
+    
+    const std::unordered_set<clang::Stmt*>& getLiveTerms() const {
+        return liveTerms;        
+    }
+    
     /// Get evaluated terminator condition values
     const std::unordered_map<CallStmtStack, SValue>& getTermConds() const {
         return termConds;        
     }
-    
+   
     /// Get values defined in reset section
     const std::unordered_set<SValue>& getResetDefConsts() const {
         return resetDefinedConsts;
@@ -414,6 +386,12 @@ public:
         return mifElmtSuffix;
     }
     
+    /// The CTHREAD has @break or @continue in loop with wait(), 
+    /// no join states into single state 
+    bool isBreakInRemovedLoop() {
+        return breakInRemovedLoop;
+    }
+    
 protected:
     /// Maximal iteration number analyzed for a loop
     unsigned LOOP_MAX_ITER = 16;
@@ -431,6 +409,8 @@ protected:
     
     /// CFG fabric singleton
     CfgFabric* cfgFabric = CfgFabric::getFabric(astCtx);
+    /// Level, sub-statement and other statement information provider
+    ScStmtInfo stmtInfo;
     
     /// Current and previous CFG blocks in analysis
     AdjBlock block;
@@ -469,33 +449,30 @@ protected:
     /// Wait call argument in last statement: 0 for non-wait statement,
     /// 1 for wait(), N for wait(N)
     unsigned waitCall = 0;
-    /// After wait, break/continue in removed loop and unreachable code, 
-    /// no statement generated 
-    /// Used to provide correct order of block analysis
-    bool deadCode = false;
     // Dead condition on path from &&/|| terminator to final IF/Loop/? condition, 
     // used to avoid dead condition generation
     bool deadCond = false;
 
     /// Function call in last statement
     bool funcCall = false;
-    /// Parsed statement value stored, used to avoid re-parse sub-expression 
-    /// in complex condition, important for sub-expressions with side effects
-    std::unordered_map<clang::Stmt*, SValue>   stmtStoredValue;
     
-    /// Empty case blocks, used in @calcNextLevel()
-    std::unordered_set<sc::AdjBlock> emptyCaseBlocks;
-
     /// Context for last called function
     std::shared_ptr<ConstFuncContext> lastContext = nullptr;
     /// Call context stack
     ConstProcContext  contextStack;
     
+    /// Live statements, to print in ScTraverseProc
+    std::unordered_set<clang::Stmt*> liveStmts;
+    /// Live terminators, also includes switch cases/default
+    std::unordered_set<clang::Stmt*> liveTerms;
     /// Evaluated terminator condition values, use in ScTraverseProc
     std::unordered_map<CallStmtStack, SValue> termConds;
 
-    /// THREAD wait states and constant propagation result providers
+    /// CTHREAD wait states and constant propagation result providers
     ScCThreadStates* cthreadStates = nullptr;
+    const FindWaitCallVisitor* findWaitInLoop = nullptr;
+    /// There is a loop with wait() (means removed loop) with @break or @continue
+    bool breakInRemovedLoop = false;
     
     /// Global module-level state, if constant propagation detects usage of
     /// global constant it need to put their values into global state, so they
@@ -505,8 +482,10 @@ protected:
     /// Final state used to get UseDef information
     std::shared_ptr<ScState> finalState = nullptr;
 
+    /// Evaluate global constant to store in global state
+    ScParseExprValue globExprEval;
     /// Elaboration database, used to create detected global variables
-    sc_elab::ElabDatabase *elabDB = nullptr;
+    sc_elab::ElabDatabase* elabDB = nullptr;
     /// Dynamic class module which is current for analyzed process
     SValue dynmodval;
     

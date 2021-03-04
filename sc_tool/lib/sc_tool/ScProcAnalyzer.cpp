@@ -14,6 +14,7 @@
 
 #include "sc_tool/cfg/ScTraverseProc.h"
 #include "sc_tool/cfg/ScTraverseConst.h"
+#include "sc_tool/cfg/ScStmtInfo.h"
 #include "sc_tool/cthread/ScCThreadStates.h"
 #include "utils/CheckCppInheritance.h"
 #include <sc_tool/cthread/ScThreadBuilder.h>
@@ -84,8 +85,8 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
     
     auto start = chrono::system_clock::now();
     auto constState = shared_ptr<ScState>(globalState->clone());
-    ScTraverseConst travConst(astCtx, constState, modval, globalState, 
-                              &elabDB, nullptr, true);
+    ScTraverseConst travConst(astCtx, constState, modval, 
+                              globalState, &elabDB, nullptr, nullptr, true);
     travConst.run(methodDecl);
     const ScState* finalState = travConst.getFinalState();
     
@@ -395,9 +396,11 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
     
     // Clone module state for each process
     auto procState = shared_ptr<ScState>(globalState->clone());
-    ScTraverseProc travProc(astCtx, procState, modval, writer.get(), true,
+    ScTraverseProc travProc(astCtx, procState, modval, writer.get(),
                             nullptr, nullptr, isCombMethod);
     travProc.setTermConds(travConst.getTermConds());
+    travProc.setLiveStmts(travConst.getLiveStmts());
+    travProc.setLiveTerms(travConst.getLiveTerms());
     travProc.run(methodDecl, emptySensitivity);
     
     // Add constants not replaced with integer value, 
@@ -464,11 +467,11 @@ std::string ScProcAnalyzer::analyzeSvaProperties(
     }
     
     //std::cout << "verMod " << verMod.getName() << " modval " << modval << "\n";
-    
+
     // Add CPA to add used variables into Verilog module with @addVarUsedInProc()
     auto constState = shared_ptr<ScState>(globalState->clone());
-    ScTraverseConst travConst(astCtx, constState, modval, globalState, 
-                              &elabDB, nullptr, true);
+    ScTraverseConst travConst(astCtx, constState, modval,  
+                              globalState, &elabDB, nullptr, nullptr, true);
     
     // Add all used variable to state
     for (const FieldDecl* propDecl : properties) {
@@ -547,7 +550,7 @@ std::string ScProcAnalyzer::analyzeSvaProperties(
     
     // Clone module state for each process
     auto procState = shared_ptr<ScState>(globalState->clone());
-    ScTraverseProc travProc(astCtx, procState, modval, writer.get(), true,
+    ScTraverseProc travProc(astCtx, procState, modval, writer.get(),
                             nullptr, nullptr, true);
     
     // Generate all properties

@@ -72,7 +72,7 @@ struct A : public sc_module
     {
         int a = 0;
         
-        for (int i = 0; i < 3; ++i) {
+        for (int i = 0; i < 2; ++i) {
         }
 
         for (int i = 0; i < 3; ++i) {
@@ -83,17 +83,13 @@ struct A : public sc_module
         while (j < 3) {
             ++j;
         }
-        
-        while (s.read()) {}
     }
     
     void empty_loop_thread() 
     {
-        while (s.read()) {}
         wait();
         
         while (true) {
-            while (s.read()) {}
             int a = 0;
             while (s.read()) {wait();}
             wait();

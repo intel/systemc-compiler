@@ -58,7 +58,8 @@ struct AA : public sc_module
         k = C + 1;
         int n = *pc;
         int l; l = *p1;
-        l = pe->to_int() - pf->to_uint64();
+        //TODO: fix me
+        //l = pe->to_int() - pf->to_uint64();
         auto ll = *pe + *pf;
     }
 

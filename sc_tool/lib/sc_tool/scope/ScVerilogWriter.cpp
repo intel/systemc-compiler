@@ -65,7 +65,8 @@ void ScVerilogWriter::updateExtrNames(
                     const unordered_map<SValue, std::string>& valNames) 
 {
     for (const auto& i : valNames) {
-        extrValNames.insert(i);
+        // Only first name for the value is stored, next inserts are ignored
+        extrValNames.insert(i); 
         extrNames.insert(i.second);
     }
 }
@@ -190,66 +191,53 @@ string ScVerilogWriter::getVarDeclVerilog(const QualType& type,
 }
     
 // Get index to provide unique name for local variable
-unsigned ScVerilogWriter::getUniqueNameIndex(const std::string& origVarName, 
-                                             const SValue& val, bool isNext) 
+std::string ScVerilogWriter::getUniqueName(const std::string& origVarName) 
 {
-    //cout << "getUniqueNameIndex for " << origVarName << " val " << val << endl;
-    unsigned index;
-    pair<SValue, bool> viKey(val, isNext);
+    //cout << "getUniqueNameIndex for " << origVarName << " val " << val 
+    //     << " isNext " << isNext << " " << varNameIndex.size() << endl;
     
-    // @val considers difference between variable in base classes
-    if (varIndex.count(viKey) == 0) {
-        // Get next index for the variable original name
-        if (varNameIndex.count(origVarName) == 0) {
-            index = 0;
-            // Check there is any constructed name equals to this original name,
-            // and suffix is numerical
-            size_t i = origVarName.length()-1;
-            bool numSuffix = true;
-            for (; i != 0; i--) {
-                const char c = origVarName.at(i);
-                if (c == NAME_SUFF_SYM) break;
-                numSuffix &= isdigit(c);
+    // Get next index for the variable original name
+    unsigned index;
+    auto ni = varNameIndex.find(origVarName);
+    if (ni == varNameIndex.end()) {
+        index = 0;
+        // Check there is any constructed name equals to this original name,
+        // and suffix is numerical
+        size_t i = origVarName.length()-1;
+        bool numSuffix = true;
+        for (; i != 0; i--) {
+            const char c = origVarName.at(i);
+            if (c == NAME_SUFF_SYM) break;
+            numSuffix = numSuffix && isdigit(c);
+        }
+        // Add index to exclude coincidence
+        if (i != 0 && i != origVarName.length()-1 && numSuffix) {
+            // Get original name without numerical suffix
+            string origVarNameBase = origVarName.substr(0, i);
+
+            if (varNameIndex.find(origVarNameBase) != varNameIndex.end()) {
+                index = 1;
             }
-            // Increment index to exclude coincidence
-            if (i != 0 && i != origVarName.length()-1 && numSuffix) {
-                // Get original name without numerical suffix
-                string origVarNameBase = origVarName.substr(0, i);
-
-                if (varNameIndex.find(origVarNameBase) != varNameIndex.end()) {
-                    index += 1;
-                }
-            }
-        } else {
-            index = varNameIndex.at(origVarName) + 1;
         }
-
-        // Check name is unique with already constructed and external names
-        //cout << "------ Check name is unique with constructed/external names ----" << endl;
-        string nameWithIndex = origVarName + ((index == 0) ? "" : 
-                               NAME_SUFF_SYM + to_string(index));
-        //cout << "Initial name " << s << endl;
-        while (varNameIndex.count(nameWithIndex) || 
-               extrNames.count(nameWithIndex)) {
-            index += 1;
-            nameWithIndex = origVarName + NAME_SUFF_SYM + to_string(index);
-            //cout << "Updated name " << s << endl;
-        }
-        //cout << "----------------------------------------------------" << endl;
-
-        // Store the index
-        if (varNameIndex.count(origVarName) == 0) {
-            varNameIndex.emplace(origVarName, index);
-        } else {
-            varNameIndex.at(origVarName) = index;
-        }
-        varIndex.emplace(viKey, index);
-
     } else {
-        index = varIndex.at(viKey);
+        index = ni->second + 1;
+    }
+
+    // Check name is unique with already constructed and external names
+    string nameWithIndex = origVarName + 
+                           ((index == 0) ? "" : NAME_SUFF_SYM + to_string(index));
+    while (varNameIndex.count(nameWithIndex) || extrNames.count(nameWithIndex)) {
+        index += 1;
+        nameWithIndex = origVarName + NAME_SUFF_SYM + to_string(index);
+    }
+
+    // Store the index
+    auto i = varNameIndex.emplace(origVarName, index);
+    if (!i.second) {
+        i.first->second = index;
     }
     
-    return index;
+    return nameWithIndex;
 }
 
 // Check if variable value is not registered in varTraits and extrValNames 
@@ -270,7 +258,8 @@ std::pair<string, string> ScVerilogWriter::getVarName(const SValue& val)
     SCT_TOOL_ASSERT (val.isVariable() || val.isTmpVariable(),
                      "No variable found");
     if (DebugOptions::isEnabled(DebugComponent::doGenName)) {
-        cout << endl << "getVarName for val " << val << endl;
+        cout << endl << "getVarName for val " << val << hex << " #"
+             << (val.isVariable() ? val.getVariable().getDecl() : 0) << dec << endl;
     }
 
     // Do not manage external name, it should be unique by itself
@@ -343,50 +332,80 @@ std::pair<string, string> ScVerilogWriter::getVarName(const SValue& val)
     }
 
     //cout << "Get local name for " << val << endl;
+    
     if (forLoopInit) {
+        // Loop counter normally overrides same name variables in loop scope
         // Loop variable is combinatorial variable, next suffix is false
         std::pair<SValue, bool> viKey(val, false);
-        
-        // No uniqueness checking for loop variable, it overrides other variables
-        if (varIndex.count(viKey) == 0) {
-            varIndex.emplace(viKey, 0);
+        if (recordValueName.first) {
+            // Get unique name for loop counter in record method as it can 
+            // conflict with the record name or the record array indices
+            // Get unique name with index 
+            string finalName = getUniqueName(origVarName);
+            // Store name with index 
+            auto i = varIndex.emplace(viKey, finalName);
+            if (!i.second) {
+                i.first->second = finalName;
+            }
+
+            if (DebugOptions::isEnabled(DebugComponent::doGenName)) {
+                cout << "   Local loop initializer name " << finalName << endl;
+            }
+            return pair<string, string>(finalName, finalName);
+            
         } else {
-            varIndex.at(viKey) = 0;
+            // No uniqueness checking loop counter, as it overrides other variables
+            // do nothing if @viKey already there
+            auto i = varIndex.emplace(viKey, origVarName);
+            if (!i.second) {
+                SCT_TOOL_ASSERT(i.first->second == origVarName, 
+                                "Incorrect loop variable name index");
+            }
+            // Add loop variable name to avoid same name declaration in loop scope,
+            // do nothing if @origVarName already there
+            varNameIndex.emplace(origVarName, 0);
+
+            if (DebugOptions::isEnabled(DebugComponent::doGenName)) {
+                cout << "   Local loop initializer name " << origVarName << endl;
+            }
+            return pair<string, string>(origVarName, origVarName);
         }
-        if (DebugOptions::isEnabled(DebugComponent::doGenName)) {
-            cout << "   Local loop initializer name " << origVarName << endl;
-        }
-        
-        return pair<string, string>(origVarName, origVarName);
         
     } else {
         // Normal local variable
         // In reset section current name is used, it placed in @always_ff
         bool isNext = isRegister(val) && !isClockThreadReset;
-        
-        // Local record field prefix
-        string recPrefix = ScState::getLocalRecName(val);
-        if (!recPrefix.empty()) recPrefix = recPrefix + "_";
-        origVarName = (isNext) ? (origVarName + NEXT_VAR_SUFFIX) : 
-                                 (recPrefix + origVarName); 
+        // @val considers difference between variable in base classes
+        pair<SValue, bool> viKey(val, isNext);
 
-        // Get index to provide unique name for local variable
-        auto index = getUniqueNameIndex(origVarName, val, isNext);
-
-        string vname = origVarName + ((index == 0) ? "" : 
-                       NAME_SUFF_SYM + to_string(index));
+        string finalName;
+        auto i = varIndex.find(viKey);
+        if (i == varIndex.end()) {
+            // Local record field prefix
+            string recPrefix = ScState::getLocalRecName(val);
+            if (!recPrefix.empty()) recPrefix = recPrefix + NAME_SUFF_SYM;
+            origVarName = (isNext) ? (origVarName + NEXT_VAR_SUFFIX) :
+                                     (recPrefix + origVarName);
+            // Get unique name with index 
+            finalName = getUniqueName(origVarName);
+            // Store name with index 
+            varIndex.emplace(viKey, finalName);
+            
+        } else {
+            finalName = i->second;
+        }
         
         // Add local variable name from empty sensitive METHOD as it is declared
         // in module scope, that provides variable name uniqueness
         if (emptySensitivity) {
-            extrNames.insert(vname);
+            extrNames.insert(finalName);
         }
         
         if (DebugOptions::isEnabled(DebugComponent::doGenName)) {
-            cout << "   Local name " << vname << endl;
+            cout << "   Local name " << finalName << endl;
         }
-        return pair<string, string>(vname, vname);
-    }    
+        return pair<string, string>(finalName, finalName);
+    }
 }
 
 // Get name for ScChannel, used for port/signal
@@ -1312,7 +1331,7 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
             // Skip constant variable if they are replaced with values
             // Possible only for non-reference variable initialized with integer,
             // which is checked in @replaceConstEnable
-            if (keepConstVariables || !replaceConstEnable || 
+            if (!replaceConstByValue || !replaceConstEnable || 
                 (!isConst && !isConstRef))
             {
                 // Constant/variable not replaced by value
@@ -1535,7 +1554,7 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
 //    cout << "putValueExpr for stmt " << hex << stmt << dec << ", val " << val 
 //         << ", elemMifArr " << elemOfMifArr << ", elemRecArr " << elemOfRecArr 
 //         << ", recarrs size " << recarrs.size() << " arraySubIndices.size "
-//         << arraySubIndices.size() << endl;
+//         << arraySubIndices.size() << " refRecarrIndxStr " << refRecarrIndxStr << endl;
 
     if (val.isInteger()) {
         // Integer put for evaluated expressions
@@ -1573,7 +1592,7 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
         } else 
         if (!recarrs.empty()) {
             // Access record/MIF member from module function or access 
-            // record array elememnt
+            // record array element
             // Add record array parameter passed by reference indices
             // Commented to support array record with array member func parameter
             //if (isLocalVariable(val)) {
@@ -2264,7 +2283,6 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
             [&signedExpr](TermInfo& first, const Expr* fexpr, 
                           TermInfo& secnd, const Expr* sexpr) 
             {
-                QualType ftype = fexpr->getType().getCanonicalType();
                 QualType stype = sexpr->getType().getCanonicalType();
                 
                 if (!first.literRadix && first.exprSign != ExprSign::LEXPR &&

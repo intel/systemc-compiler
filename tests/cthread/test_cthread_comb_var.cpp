@@ -17,12 +17,18 @@ public:
     sc_signal<int> out{"out"};
 
     sc_uint<2>  arr[2];
+    sc_uint<2>  arr1[2];
     sc_uint<3>  arr2[3][4];
     
     sc_uint<3>  a;
+    sc_uint<3>  a1;
     sc_uint<4>  b;
+    sc_uint<4>  b1;
+    sc_uint<4>  b2;
     sc_uint<5>  c;
+    sc_uint<5>  c1;
     sc_uint<6>  d;
+    sc_uint<6>  d1;
     
     const sc_uint<7>  e = 42;
     sc_uint<8>  f;
@@ -104,13 +110,14 @@ public:
         }
     }
     
+    sc_uint<3> popIndx2;
     void comb_var_not_changed1()
     {
-        popIndx = 0;
+        popIndx2 = 0;
         
         while (true) {
             wait();
-            out = arr[popIndx];
+            out = arr1[popIndx2];
         }
     }
     
@@ -131,14 +138,14 @@ public:
     // Multiple states
     void comb_var_in_reset0a()
     {
-        a = 0;
+        a1 = 0;
         wait();
         
         while (true) {
-            a = 3;
+            a1 = 3;
             wait();
 
-            a = 4;
+            a1 = 4;
             wait();
         }
     }
@@ -158,14 +165,14 @@ public:
     // Multiple states
     void comb_var_in_reset1a()
     {
-        b = 0;
+        b1 = 0;
 
         while (true) {
             wait();
-            b = 3;
+            b1 = 3;
 
             wait();
-            b = 4;
+            b1 = 4;
         }
     }
 
@@ -173,11 +180,11 @@ public:
     // Multiple states, variable assigned only at some state
     void comb_var_in_reset1b()
     {
-        b = 0;
+        b2 = 0;
 
         while (true) {
             wait();
-            b = 3;
+            b2 = 3;
 
             wait();
         }
@@ -197,10 +204,10 @@ public:
     void comb_var_in_reset2a()
     {
         while (true) { 
-            c = 3;
+            c1 = 3;
             wait();
             
-            c = 4;
+            c1 = 4;
             wait();
         }
     }
@@ -219,10 +226,10 @@ public:
     void comb_var_in_reset3a()
     {
         while (true) { 
-            d = 3;
+            d1 = 3;
             wait();
 
-            d = 4;
+            d1 = 4;
             wait();
         }
     }

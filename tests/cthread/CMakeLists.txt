@@ -43,9 +43,12 @@ add_executable(cthread_sync_async_reset test_cthread_sync_async_reset.cpp)
 svc_target(cthread_sync_async_reset  
            GOLDEN cthread_sync_async_reset.sv)
 
-           
+# Loops
 add_executable(cthread_for test_cthread_for.cpp)
 svc_target(cthread_for GOLDEN cthread_for.sv)
+
+add_executable(cthread_for_fcall_fail test_for_fcall_fail.cpp)
+svc_target(cthread_for_fcall_fail WILL_FAIL)
 
 add_executable(cthread_for_other_types test_cthread_for_other_types.cpp)
 svc_target(cthread_for_other_types GOLDEN cthread_for_other_types.sv)
@@ -53,7 +56,6 @@ svc_target(cthread_for_other_types GOLDEN cthread_for_other_types.sv)
 add_executable(cthread_redundant_code test_cthread_redundant_code.cpp)
 svc_target(cthread_redundant_code GOLDEN cthread_redundant_code.sv)
 
-# Loops
 add_executable(cthread_while test_while.cpp)
 svc_target(cthread_while GOLDEN cthread_while.sv)
 

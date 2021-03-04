@@ -25,7 +25,11 @@ public:
     
     int*                pi;
     int*                pa[3];
+    int*                pb[3];
     sc_uint<3>*         ppa[3][2];
+    sc_uint<3>*         ppb[3][2];
+    sc_uint<3>*         ppc[3][2];
+    sc_uint<3>*         ppd[3][2];
 
     sc_signal<bool>*    pc;
     sc_signal<bool>*    pca[3];
@@ -39,9 +43,13 @@ public:
         
         for (int i = 0; i < 3; i++) {
             pa[i] = sc_new<int>();
+            pb[i] = sc_new<int>();
             pca[i] = new sc_signal<bool>("pca");
             for (int j = 0; j < 2; j++) {
                 ppa[i][j] = sc_new<sc_uint<3>>(); 
+                ppb[i][j] = sc_new<sc_uint<3>>(); 
+                ppc[i][j] = sc_new<sc_uint<3>>(); 
+                ppd[i][j] = sc_new<sc_uint<3>>(); 
                 ppca[i][j] = new sc_signal<bool>("ppca");
             }
         }
@@ -95,9 +103,9 @@ public:
     
     void read_pointer_array_unknown2()
     {
-        sc_uint<3> x = *ppa[1][a];
-        sct_assert_read(ppa);
-        sct_assert_defined(ppa, false);
+        sc_uint<3> x = *ppd[1][a];
+        sct_assert_read(ppd);
+        sct_assert_defined(ppd, false);
 
         bool b = *pca[a];
         sct_assert_read(pca);
@@ -110,9 +118,9 @@ public:
 
     void read_pointer_array_unknown3()
     {
-        sc_uint<3> x = *ppa[0][a];
-        sct_assert_read(ppa);
-        sct_assert_defined(ppa, false);
+        sc_uint<3> x = *ppb[0][a];
+        sct_assert_read(ppb);
+        sct_assert_defined(ppb, false);
 
         bool b = (*pca[a]).read();
         sct_assert_read(pca);
@@ -125,15 +133,15 @@ public:
     
     void define_pointer_array_unknown1()
     {
-        *pa[a] = 1;
-        sct_assert_read(pa, false);
-        sct_assert_defined(pa, false);
+        *pb[a] = 1;
+        sct_assert_read(pb, false);
+        sct_assert_defined(pb, false);
         
         sc_uint<3> x;
-        *ppa[a][0] = x;
-        *ppa[a][a] = x;
-        sct_assert_read(ppa, false);
-        sct_assert_defined(ppa, false);
+        *ppc[a][0] = x;
+        *ppc[a][a] = x;
+        sct_assert_read(ppc, false);
+        sct_assert_defined(ppc, false);
         
         pca[a]->write(1);
         sct_assert_read(pca, false);

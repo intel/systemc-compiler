@@ -13,6 +13,7 @@
 struct SinCosTuple {
     int sin;
     int cos;
+    sc_uint<4> coeff;
     
     SinCosTuple() {}
 };

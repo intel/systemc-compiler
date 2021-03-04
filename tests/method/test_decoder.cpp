@@ -163,22 +163,22 @@ public:
         binary_decoder_case_dout = 0;
         if (enable.read()) {
           switch (bdata_in.read()) {
-            case 0x0 : binary_decoder_case_dout = 0x0001;
-            case 0x1 : binary_decoder_case_dout = 0x0002;
-            case 0x2 : binary_decoder_case_dout = 0x0004;
-            case 0x3 : binary_decoder_case_dout = 0x0008;
-            case 0x4 : binary_decoder_case_dout = 0x0010;
-            case 0x5 : binary_decoder_case_dout = 0x0020;
-            case 0x6 : binary_decoder_case_dout = 0x0040;
-            case 0x7 : binary_decoder_case_dout = 0x0080;
-            case 0x8 : binary_decoder_case_dout = 0x0100;
-            case 0x9 : binary_decoder_case_dout = 0x0200;
-            case 0xA : binary_decoder_case_dout = 0x0400;
-            case 0xB : binary_decoder_case_dout = 0x0800;
-            case 0xC : binary_decoder_case_dout = 0x1000;
-            case 0xD : binary_decoder_case_dout = 0x2000;
-            case 0xE : binary_decoder_case_dout = 0x4000;
-            case 0xF : binary_decoder_case_dout = 0x8000;
+            case 0x0 : binary_decoder_case_dout = 0x0001; break;
+            case 0x1 : binary_decoder_case_dout = 0x0002; break;
+            case 0x2 : binary_decoder_case_dout = 0x0004; break;
+            case 0x3 : binary_decoder_case_dout = 0x0008; break;
+            case 0x4 : binary_decoder_case_dout = 0x0010; break;
+            case 0x5 : binary_decoder_case_dout = 0x0020; break;
+            case 0x6 : binary_decoder_case_dout = 0x0040; break;
+            case 0x7 : binary_decoder_case_dout = 0x0080; break;
+            case 0x8 : binary_decoder_case_dout = 0x0100; break;
+            case 0x9 : binary_decoder_case_dout = 0x0200; break;
+            case 0xA : binary_decoder_case_dout = 0x0400; break;
+            case 0xB : binary_decoder_case_dout = 0x0800; break;
+            case 0xC : binary_decoder_case_dout = 0x1000; break;
+            case 0xD : binary_decoder_case_dout = 0x2000; break;
+            case 0xE : binary_decoder_case_dout = 0x4000; break;
+            case 0xF : binary_decoder_case_dout = 0x8000; break;
           }
         }
     }

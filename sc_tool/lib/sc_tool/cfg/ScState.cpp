@@ -734,7 +734,8 @@ void ScState::getDerefVariable(const SValue& lval, SValue& rval,
         // Constant reference can refer to variable/object or contain RValue
         auto i = tuples.find(lval);
         if (i != tuples.end()) {
-            // If RValue is constant then keep reference, required for UseDef
+            // If RValue is constant/constant array element (even at unknown index)
+            // then keep reference, required for UseDef
             if (i->second.isInteger() || i->second.isUnknown() || 
                 keepConstRef && ScState::isConstVarOrLocRec(i->second)) {
                 rval = lval;
@@ -799,7 +800,7 @@ void ScState::print() const {
              //<< (levels.count(i.first) ? "_L"+to_string(levels.at(i.first)) : "")
              << ", " << i.second << ")"<< endl;
     }
-    cout << "----- defined :" << endl;
+    /*cout << "----- defined :" << endl;
     for (const auto& i : defined) {
         cout << i.asString() << ", "<< endl;
     }
@@ -830,7 +831,7 @@ void ScState::print() const {
     cout << "----- array some elements defined :" << endl;
     for (const auto& i : arraydefined) {
         cout << i.asString() << ", "<< endl;
-    }
+    }*/
 //    cout << "----- derived :" << endl;
 //    for (auto& i : staticState->derived) {
 //        cout << "(" << i.first.asString() << ", " << i.second.asString() << ")"<< endl;
@@ -869,7 +870,8 @@ void ScState::putElabObject(const SValue& sval, sc_elab::ObjectView objView)
 {
     using std::cout; using std::endl;
     //cout<< "putElabObject objView " << objView.getDebugString() << endl;
-    staticState->sVal2ElabMap[sval] = objView;
+    // Only first @objView for the value is stored, next are ignored
+   staticState->sVal2ElabMap.emplace(sval, objView);
     
     if (auto elabObj = objView.getVerilogNameOwner()) {
         // Get Verilog variables created for object, if vector is empty
@@ -1008,6 +1010,7 @@ bool ScState::isObjectOwner(const SValue& val) const
 }
 
 // Get variable (not temporary variable) for the given value recursively
+// For record it also checks derived records
 SValue ScState::getVariableForValue(const SValue& rval) const
 {
     //cout << "getVariableForValue for " << rval.asString() << endl;
@@ -1028,15 +1031,25 @@ SValue ScState::getVariableForValue(const SValue& rval) const
             rrval.getArray().setOffset(0);
         }
         
-        // Recursively find topmost variable
-        for (const auto& i : tuples) {
-            // Check left value is object owner, any object has exact one owner
-            //cout << "i.first " << i.first << endl;
-            
-            if (i.second == rrval && isObjectOwner(i.first)) {
-                return getVariableForValue(i.first);
+        bool hasDerived;
+        do {
+            // Recursively find topmost variable
+            for (const auto& i : tuples) {
+                // Check left value is object owner, any object has exact one owner
+                //cout << "i.first " << i.first << endl;
+
+                if (i.second == rrval && isObjectOwner(i.first)) {
+                    return getVariableForValue(i.first);
+                }
             }
-        }
+            // Try to get derived class value to find variable for it 
+            hasDerived = false;
+            if (rrval.isRecord()) {
+                SValue brval = rrval;
+                hasDerived = getDerivedClass(brval, rrval);
+            }
+        } while (hasDerived);
+
         //cout << "No owner found" << endl;
         return NO_VALUE;
     }
@@ -1312,9 +1325,9 @@ void ScState::readFromValue(SValue lval)
     read.insert(orderVal.begin(), orderVal.end());
 
     if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
-            cout << "   add to read ";
-            for (const auto& oval : orderVal) cout << oval << ", ";
-            cout << endl;
+        cout << "   add to read ";
+        for (const auto& oval : orderVal) cout << oval << ", ";
+        cout << endl;
     }
 }
 
@@ -1363,7 +1376,7 @@ bool ScState::isArray(const SValue& val, bool& unkwIndex) const
     SValue mval = val;
     unkwIndex = false;
 
-    // Checking for channels and channel pointers array
+    // Checking for channels/channel pointers array 
     if (mval.isScChannel()) {
         do {
             bool found = false;
@@ -1399,19 +1412,25 @@ bool ScState::isArray(const SValue& val, bool& unkwIndex) const
 // \param unkwIndex -- unknown index for bottommost array
 // \return bottom array value or NO_VALUE
 SValue ScState::getBottomArrayForAny(const SValue& eval, bool& unkwIndex,
-                                         unsigned crossModule) const
+                                     unsigned crossModule) const
 {
     //cout << "getBottomArrayForAny eval " << eval << endl;
     
     // Get object and variable values into @valStack
     std::vector<SValue> valStack;
     parseValueHierarchy(eval, crossModule, valStack);
+
+    // Get unknown from all arrays
+    unkwIndex = false;
+    for (const SValue& mval : valStack) {
+        if (mval.isArray()) {
+            unkwIndex = unkwIndex || mval.getArray().isUnknown();
+        }
+    }
     
     // Return first (most bottom) array or no value
-    unkwIndex = false;
-    for (SValue mval : valStack) {
+    for (const SValue& mval : valStack) {
         if (mval.isArray()) {
-            unkwIndex = mval.getArray().isUnknown();
             return mval;  // Bottom array
         }
     }

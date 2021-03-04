@@ -41,11 +41,7 @@ public:
     sc_signal<sc_int<32>> o7;
     sc_signal<sc_int<32>> o8;
 
-    sc_int<4> t;
-    sc_bigint<4> tb;
-    sc_int<4> x;
-    sc_bigint<4> xb;
-
+    
     SC_CTOR(A) {
         SC_METHOD(concat_cpp); 
         sensitive<< s1 << s2 << s3 << s4 << s5 << s6;
@@ -95,12 +91,13 @@ public:
         z = (s5.read(), y, s4);
         
         // Non-intended comma, C++ compiler warning
-        z = (b, 1); 
-        z = (b, c);         
-        z = (i, c); 
-        z = (s1, s2);
-        z = (i, s2);
-        z = (s3, s4, s5, y);
+//        z = (b, 1); 
+//        z = (b, c);         
+//        z = (i, c); 
+//        z = (s1, s2);
+//        z = (i++, s2);
+//        z = (i, s2);
+//        z = (s3, s4, s5, y);
         
         // Big types
         bz = concat(by, 11);
@@ -133,10 +130,8 @@ public:
     
     void bit_range_sel() 
     {
-        t = 1;
-        x = 2;
-        tb = 1;
-        xb = 2;
+        sc_bigint<4> tb; sc_bigint<4> xb;
+        sc_int<4> t;  sc_int<4> x;
 
         y1=i1.read();
         y2=i2.read();
@@ -149,8 +144,7 @@ public:
     
     void bit_range_sel2() 
     {
-        t = 1;
-        x = 2;
+        sc_int<4> t;  sc_int<4> x;
 
         sc_uint<8> a = (t, x);
         // Type conversion required, else it is casted to boolean in Clang AST
@@ -160,6 +154,8 @@ public:
 
     void bit_range_sel3() 
     {
+        sc_bigint<4> tb; sc_bigint<4> xb;
+        sc_int<4> t;  sc_int<4> x;
         t = 1;
         x = 2;
         tb = 1;

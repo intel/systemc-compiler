@@ -10,11 +10,11 @@
 
 using namespace sc_core;
 
-// Non-channel array parameters passed to function
+// Non-channel array/array of pointers parameters passed to function
 class A : public sc_module {
 public:
   
-    sc_signal<bool> dummy;
+    sc_signal<int> s;
 
     int* ap[3];
     int** pp;
@@ -27,11 +27,11 @@ public:
             pp[i] = sc_new_array<int>(2);
         }
         
-        SC_METHOD(array_in_func); sensitive << dummy;
-        SC_METHOD(array_2d_in_func); sensitive << dummy;
+        SC_METHOD(array_in_func); sensitive << s;
+        SC_METHOD(array_2d_in_func); sensitive << s;
         
-        SC_METHOD(array_pointers_in_func); sensitive << dummy;
-        SC_METHOD(double_pointers_in_func); sensitive << dummy;
+        SC_METHOD(array_pointers_in_func); sensitive << s;
+        SC_METHOD(double_pointers_in_func); sensitive << s;
     }
    
     // 1D array passed to pointer and array function parameters
@@ -43,6 +43,7 @@ public:
         int i;
         i = par[0];
         sct_assert_const (i == 1);
+        i = par[s.read()];
     }
     
     void arr_func2(int par[]) {
@@ -53,16 +54,7 @@ public:
         int i;
         i = par[0];
         sct_assert_const (i == 1);
-    }
-
-    void arr_sc_func(sc_uint<3> par[]) {
-        sct_assert_const (par[0] == 1);
-        sct_assert_const (par[1] == 2);
-        sct_assert_const (par[2] == 3);
-        
-        sc_uint<3> i;
-        i = par[0];
-        sct_assert_const (i == 1);
+        i = par[s.read()];
     }
 
     void arr_func3(int par[3]) {
@@ -73,8 +65,19 @@ public:
         int i;
         i = par[0];
         sct_assert_const (i == 1);
+        i = par[s.read()];
     }
     
+    void arr_sc_func(sc_uint<3> par[]) {
+        sct_assert_const (par[0] == 1);
+        sct_assert_const (par[1] == 2);
+        sct_assert_const (par[2] == 3);
+        
+        sc_uint<3> i;
+        i = par[0];
+        sct_assert_const (i == 1);
+    }
+
     void array_in_func() {
         int arr[3];
         arr[0] = 1; arr[1] = 2; arr[2] = 3;
@@ -96,6 +99,7 @@ public:
         int i;
         i = par[1][1];
         sct_assert_const (i == 2);
+        i = par[s.read()][s.read()+1];
     }
     
     void arr_2D_func2(int par[][2]) {
@@ -105,6 +109,7 @@ public:
         int i;
         i = par[1][1];
         sct_assert_const (i == 2);
+        i = par[s.read()][s.read()+1];
     }
 
     void array_2d_in_func() {
@@ -122,6 +127,7 @@ public:
         int i;
         i = par[1][1];
         sct_assert_const (i == 2);
+        i = par[s.read()][s.read()+1];
     }
     
     void arr_ptr_func2(int* par[3]) {
@@ -131,6 +137,7 @@ public:
         int i;
         i = par[1][1];
         sct_assert_const (i == 2);
+        i = par[s.read()][s.read()+1];
     }
     
     void array_pointers_in_func() {
@@ -149,6 +156,7 @@ public:
         int i;
         i = par[1][1];
         sct_assert_const (i == 2);
+        i = par[s.read()][s.read()+1];
     }
     
     void double_pointers_in_func() {

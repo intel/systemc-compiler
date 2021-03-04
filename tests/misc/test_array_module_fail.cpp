@@ -7,7 +7,7 @@
 
 #include <systemc.h>
 
-// Cross-hierarchy bind, test fail as access to child module fields is prohibited
+// Cross-hierarchy member access, child module fields access not supported yet
 struct bottom : sc_module {
 
     sc_in<int> *in = nullptr;
@@ -40,8 +40,9 @@ struct top : sc_module {
         sensitive << dummy;
     }
 
-    // Will fail as access to child module fields is prohibited
-    void proc() {
+    // Will fail as access to child module fields is not supported yet
+    void proc() 
+    {
         if (mods[0]->in->read()) {
             mods[1]->sig->write(1);
         } else {

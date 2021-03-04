@@ -8,7 +8,7 @@
 #include <systemc.h>
 #include <string>
 
-// Two intrinsics example
+// Two intrinsics examples
 struct A : public sc_module {
     
     sc_in<bool> in;
@@ -35,7 +35,8 @@ struct B : public sc_module {
     SC_CTOR(B)
     {
         __SC_TOOL_VERILOG_MOD__ = R"(
-module B(input in);
+module B(input in, 
+         output out);
    // Some verilog code for module B
 endmodule
     )";

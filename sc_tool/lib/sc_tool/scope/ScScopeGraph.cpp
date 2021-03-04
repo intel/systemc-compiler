@@ -10,6 +10,7 @@
  */
 
 #include "sc_tool/scope/ScScopeGraph.h"
+#include "sc_tool/cfg/ScTraverseCommon.h"
 #include "sc_tool/utils/StringFormat.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "sc_tool/utils/DebugOptions.h"
@@ -35,7 +36,7 @@ std::unordered_map<const clang::Stmt*, SValue> ScScopeGraph::stmtAssignVars;
 
 //============================================================================
 
-uint64_t CodeScope::id_gen = 0;
+uint64_t CodeScope::id_gen = 1;
 
 // Store general statement in the current scope
 void ScScopeGraph::storeStmt(const Stmt* stmt, const string& s, bool artifIf) {
@@ -44,7 +45,11 @@ void ScScopeGraph::storeStmt(const Stmt* stmt, const string& s, bool artifIf) {
     }
     currScope->push_back({stmt, s});
     //cout << "ScScopeGraph::storeStmt graph #" << hex << this << ", scope #" 
-    //     << currScope.get() << ", stmt " << stmt << " : "<< dec << s << endl;
+    //     << currScope.get() << ", stmt " << stmt << " : "<< dec << s << endl; 
+}
+
+void ScScopeGraph::storeNullStmt(std::shared_ptr<CodeScope> scope) {
+    scope->push_back({nullptr, ""});
 }
 
 // Set statement as belong to METHOD with empty sensitive, 
@@ -55,8 +60,9 @@ void ScScopeGraph::setEmptySensStmt(const Stmt* stmt)
 }
 
 // Set switch case value expression
-void ScScopeGraph::storeCase(shared_ptr<CodeScope> scope, const string& s,
-                             bool empty) 
+/// \param empty -- case is empty (no statements and no break)
+void ScScopeGraph::storeCase(shared_ptr<CodeScope> scope, 
+                             const string& s, bool empty) 
 {
     switchCases.emplace(scope, make_pair(s, empty));
     
@@ -82,75 +88,6 @@ void ScScopeGraph::storeStateAssign(const clang::Stmt* stmt,
                (!singleBlockCThreads ? (isReset ? "" : "; return") : "; break") +
                ((comment.empty()) ? "" : ";    // "+comment);
     currScope->push_back({stmt, s});
-}
-
-//============================================================================
-
-// Remove given statement in the scope predecessors
-void ScScopeGraph::removeStmtInPreds(std::shared_ptr<CodeScope> scope, 
-                                     const Stmt* stmt, const Stmt* loopTerm, 
-                                     unsigned predNum)
-{
-    auto i = scopePreds.find(scope);
-    if (i != scopePreds.end()) {
-        for (auto&& p : i->second) {
-            removeStmt(p, stmt, loopTerm);
-            if (predNum > 0) {
-                removeStmtInPreds(p, stmt, loopTerm, predNum-1);
-            }
-        }
-    }
-}
-
-// Remove @stmt entries from the given scope
-void ScScopeGraph::removeStmt(shared_ptr<CodeScope> scope, const Stmt* stmt, 
-                              const Stmt* loopTerm) 
-{
-    // Do not remove function if it has another current loop statement,
-    // that prevent removing function call in loop condition
-    if (isa<CallExpr>(stmt)) {
-        auto key = pair<const Stmt*, bool>(stmt, false);
-        auto p = innerScopeGraphs.find(key);
-        if (p != innerScopeGraphs.end() && p->second.first != loopTerm) {
-            return;
-        }
-    }
-    
-    //cout << "Remove stmt " << hex << stmt << dec << endl;
-    scope->erase(remove_if(scope->begin(), scope->end(),
-                         [stmt](const pair<const Stmt*, string>& obj)->bool {
-                                    return (obj.first == stmt);
-                                }),
-                                scope->end());
-}
-
-// Remove @stmt entries from current scope and its predecessor scopes
-// up to @REMOVE_STMT_PRED predecessors
-void ScScopeGraph::removeStmt(const Stmt* stmt, const Stmt* loopTerm) 
-{
-    removeStmt(currScope, stmt, loopTerm);
-    removeStmtInPreds(currScope, stmt, loopTerm, REMOVE_STMT_PRED);
-}
-
-// Check if the statement is sub-statement of another statement
-bool ScScopeGraph::isSubStmt(shared_ptr<CodeScope> scope, const Stmt* stmt) 
-{
-    // Do not remove function where analysis started after @wait(), 
-    // @wait() is in this function, so it can be called one more time after 
-    auto key = pair<const Stmt*, bool>(stmt, true);
-    auto p = innerScopeGraphs.find(key);
-    if (p != innerScopeGraphs.end() && scope == firstScope) {
-        return false;
-    }
-    
-    return (subStmts.count(stmt) != 0);
-}
-
-// Mark @stmt as sub-statement to skip it in print
-void ScScopeGraph::addSubStmt(const Stmt* stmt, const Stmt* loopTerm) 
-{
-    //cout << "Remove stmt #" << hex << stmt << dec << endl;
-    subStmts.insert(stmt);
 }
 
 }
@@ -190,8 +127,13 @@ shared_ptr<CodeScope> ScScopeGraph::getCurrScope() {
 // Set/get current block level as maximal of predecessors
 void ScScopeGraph::setCurrLevel(unsigned level) {
     using namespace std;
-    currLevel = level;
-    scopeLevel.emplace(currScope, currLevel);
+
+    currScope->setLevel(level);
+    
+    if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
+        cout << "Scope " << hex << currScope.get() << dec << " set level " << level << endl;
+    }
+    
     if (level > MAX_LEVEL) {
         cout << "Scope " << hex << currScope.get() << dec 
              << " has incorrect level " << level << endl;
@@ -204,21 +146,28 @@ void ScScopeGraph::setCurrLevel(unsigned level) {
     }
 }
 
+// Get original level as used in TraverseProc, no correction by InMainLoop
 unsigned ScScopeGraph::getCurrLevel() {
-    return currLevel;
+    return currScope->getLevel();
 }
 
-// Set level for the given scope @succ
-void ScScopeGraph::setScopeLevel(shared_ptr<CodeScope> succ, unsigned level) {
+// Set level for the given scope 
+void ScScopeGraph::setScopeLevel(shared_ptr<CodeScope> scope, unsigned level) {
     using namespace std;
-    scopeLevel.emplace(succ, level);
+    
+    scope->setLevel(level);
+
+    if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
+        cout << "Scope " << hex << currScope.get() << dec << " set level " << level << endl;
+    }
+    
     if (level > MAX_LEVEL) {
         cout << "Scope " << hex << currScope.get() << dec 
              << " has incorrect level " << level << endl;
-        if (succ->empty()) {
+        if (scope->empty()) {
             SCT_INTERNAL_FATAL_NOLOC("Incorrect scope level");
         } else {
-            SCT_INTERNAL_FATAL(succ->back().first->getBeginLoc(), 
+            SCT_INTERNAL_FATAL(scope->back().first->getBeginLoc(), 
                              "Incorrect scope level");
         }
     }
@@ -276,7 +225,7 @@ void ScScopeGraph::addScopePred(shared_ptr<CodeScope> scope,
 // \corr -- tab number correction, can be negative
 string ScScopeGraph::getTabString(shared_ptr<CodeScope> scope, int corr) {
     // Tab number, can be negative
-    int tabNum = INIT_LEVEL + scopeLevel.at(scope) + corr;
+    int tabNum = scope->getCorrLevel() + corr;
     // One initial tab 
     string result = TAB_SYM;
     for (int i = 0; i < tabNum; i++) {
@@ -287,7 +236,7 @@ string ScScopeGraph::getTabString(shared_ptr<CodeScope> scope, int corr) {
 
 string ScScopeGraph::getTabString(unsigned level) {
     // Tab number, can be negative
-    int tabNum = INIT_LEVEL + level;
+    int tabNum = level;
     // One initial tab 
     string result = TAB_SYM;
     for (int i = 0; i < tabNum; i++) {
@@ -300,11 +249,6 @@ string ScScopeGraph::getTabString(unsigned level) {
 void ScScopeGraph::setName(const string& fname, bool fcall) {
     name = fname;
     funcCall = fcall;
-}
-
-// Set initial level for function scopes
-void ScScopeGraph::setInitLevel(unsigned level) {
-    INIT_LEVEL = level;
 }
 
 // Add scope graph for function call
@@ -320,26 +264,32 @@ void ScScopeGraph::addFCallScope(const Stmt* stmt, const Stmt* loopTerm,
 }
 
 // Print scope statements
+// \param printLevel -- level for output tabs
+// \param noExitByLevel -- no return from this printCurrentScope() by level up 
 PreparedScopes ScScopeGraph::printCurrentScope(ostream &os, 
-                                               shared_ptr<CodeScope> scope, 
-                                               unsigned level, bool skipDoStmt) 
+                                shared_ptr<CodeScope> scope, unsigned level, 
+                                bool noExitByLevel) 
 {
+    // Level for out from this printCurrentScope()
+    unsigned scopeLevel = scope->getCorrLevel();
+    
     if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
-        //cout << "<<< Start scope #" << hex << (unsigned long)scope.get() 
-        //     << " in graph #" << this << dec<< endl;
         cout << "<<< Start scope #" << hex << (unsigned long)scope.get() 
-             << ", " << ((scope->size()) ? scope->at(0).second : "") << dec<< endl;
+             << " in graph #" << this << ", noExitByLevel " << noExitByLevel 
+             << dec << ", " << ((scope->size()) ? scope->at(0).second : "")
+             << " level " << scopeLevel << "/" << level 
+             << ", isMainLoop " << scope->isMainLoop() << endl;
         
-        //if (scopeLevel.at(scope) != level) {
+        //if (scope->level != level) {
         //    cout << "printCurrentScope level = " << level << ", scope level = " 
-        //         << scopeLevel.at(scope) << endl;
+        //         << scope->getCorrLevel() << endl;
         //    assert (false);
         //}
     }
     
     // Analyzed scopes, prepared for their successors
     // Sorted by scope level, started with minimal level
-    PreparedScopes prepared(scopeLevel);
+    PreparedScopes prepared; 
 
     while (true) {
         // Set @scope as visited to do not take from @prepared
@@ -348,9 +298,6 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
         for (auto&& entry : *scope) {
             const Stmt* stmt = entry.first;
             string stmtStr = entry.second;
-            
-            // Skip sub-statements
-            if (isSubStmt(scope, stmt)) continue;
             
             // Skip initialization statements for removed constant/variable
             //cout << "stmt " << hex << stmt << endl;
@@ -364,13 +311,6 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                 }
             }
             
-            // Skip first @do statement in @do..@while body scope
-            if (skipDoStmt) {
-                SCT_TOOL_ASSERT (isa<DoStmt>(stmt), "No DO statement");
-                skipDoStmt = false;
-                continue;
-            }
-            
             if ( stmt && (isa<IfStmt>(stmt) || artifIfStmts.count(stmt)) ) {
                 // Print IF statement string, no ";" after
                 vector<shared_ptr<CodeScope> > succs = scopeSuccs.at(scope);
@@ -379,14 +319,18 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                 // ThenBranch scope
                 std::stringstream ts;
                 shared_ptr<CodeScope> thenScope = succs.at(0);
-                prepared.splice(printCurrentScope(ts, thenScope, level+1));
-                const string& thenStr = ts.str();
+                if (!thenScope->isDead()) {
+                    prepared.splice(printCurrentScope(ts, thenScope, level+1));
+                }
+                const string& thenStr = (!thenScope->isDead()) ? ts.str() : "";
 
                 // ElseBranch scope
                 std::stringstream es;
                 shared_ptr<CodeScope> elseScope = succs.at(1);
-                prepared.splice(printCurrentScope(es, elseScope, level+1));
-                const string& elseStr = es.str();
+                if (!elseScope->isDead()) {
+                    prepared.splice(printCurrentScope(es, elseScope, level+1));
+                }
+                const string& elseStr = (!elseScope->isDead()) ? es.str() : "";
                 
                 if (!thenStr.empty() || !elseStr.empty() || !REMOVE_EMPTY_IF()) {
                 
@@ -405,6 +349,7 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
             } else 
             if ( stmt && isa<SwitchStmt>(stmt) ) {
                 // Print SWITCH statement string, no ";" after
+                //cout << "CASE " << stmtStr << endl;
                 os << getTabString(level) << stmtStr << endl;
                 // Get successors, default case placed last
                 vector<shared_ptr<CodeScope> > succs = scopeSuccs.at(scope);
@@ -412,42 +357,59 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                 
                 // Get code string for all successors
                 for (auto succ : succs) {
-                    if (switchCases.count(succ)) {
-                        //cout << "  " << switchCases.at(succ).first 
-                        //     << " : " << switchCases.at(succ).second << endl;
+                    if (succ->isDead()) continue;
+                    
+                    //cout << "   scope " << hex << succ << dec << endl;
+                    auto i = switchCases.find(succ);
+                    if (i != switchCases.end()) {
                         stringstream ss;
-                        prepared.splice(printCurrentScope(ss, succ, level+1));
+                        // Get string for non-empty case only, empty not analyzed
+                        if (!i->second.second) {
+                            prepared.splice(printCurrentScope(ss, succ, level+1));
+                        }
                         succStr.emplace(succ, std::move(ss));
+                        //cout << "  " << i->second.first  << " : " << i->second.second << endl;
                     }
                 }
-                   
-                for (auto i = succs.begin(); i != succs.end(); i++) {
-                    if (switchCases.count(*i)) {
-                        os << getTabString(level) << switchCases.at(*i).first 
-                           << " : " << BEGIN_SYM << (switchCases.at(*i).second ? 
-                              "  // Empty case without break" : "") << endl;
+                
+                // Print cases
+                for (auto i = succs.begin(); i != succs.end(); ++i) {
+                    if ((*i)->isDead()) continue;
+                    
+                    auto k = switchCases.find(*i);
+                    if (k != switchCases.end()) {
+                        os << getTabString(level) << k->second.first << " : " 
+                           << BEGIN_SYM 
+                           << (k->second.second ? "  // Empty case without break" : "") 
+                           << endl;
 
                         // Get first non-empty case starting with current
                         auto j = i;
                         for (; j != succs.end(); j++) {
-                            if (!switchCases.at(*j).second) break;
-                        }
-                        
-                        if (j == succs.end()) {
-                            ScDiag::reportScDiag(stmt->getBeginLoc(), 
-                                        ScDiag::SYNTH_SWITCH_LAST_EMPTY_CASE);
+                            auto l = switchCases.find(*j);
+                            if (l != switchCases.end()) {
+                                if (!l->second.second) break;
+                            }
                         }
 
-                        os << succStr.at(*j).str();
+                        if (j != succs.end()) {
+                            os << succStr.at(*j).str();
+                        } else {
+                            ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                                 ScDiag::SYNTH_SWITCH_LAST_EMPTY_CASE);
+                        }
                         os << getTabString(level) << END_SYM << endl;
                     }
                 }
                 
+                //cout << "ENDCASE " << stmtStr << endl;
                 os << getTabString(level) << ENDCASE_SYM << endl;
 
             } else 
-            if ( stmt && (isa<ForStmt>(stmt) || isa<WhileStmt>(stmt)) ) {
+            if ( stmt && (isa<ForStmt>(stmt) || isa<WhileStmt>(stmt) || 
+                          isa<DoStmt>(stmt)) ) {
                 // Print loop statement string, no ";" after
+                //cout << "LOOP #" << hex << stmt << dec << endl;
                 vector<shared_ptr<CodeScope> > succs = scopeSuccs.at(scope);
                 SCT_TOOL_ASSERT (succs.size() == 1, "No one successor in loop");
 
@@ -456,37 +418,26 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                 prepared.splice(printCurrentScope(ls, bodyScope, level+1));
                 const string& loopStr = ls.str();
                 
-                if (!loopStr.empty() || !REMOVE_EMPTY_LOOP()) {
-                    os << getTabString(level) << stmtStr << endl;
+                // Do not remove FOR loop with external counter as 
+                // it can be used after the loop
+                if (!loopStr.empty() || !REMOVE_EMPTY_LOOP() ||
+                    hasForExtrCntr(const_cast<Stmt*>(stmt)))
+                {
+                    if (isa<DoStmt>(stmt)) {
+                        os << getTabString(level) << "do" << endl;
+                    } else {
+                        os << getTabString(level) << stmtStr << endl;
+                    }
                     os << getTabString(level) << BEGIN_SYM << endl;
                     
                     os << loopStr;
                     
                     os << getTabString(level) << END_SYM << endl;
+                    if (isa<DoStmt>(stmt)) {
+                        os << getTabString(level) << stmtStr << ";" << endl;
+                    }
                 }
-
-            } else
-            if ( stmt && isa<DoStmt>(stmt) ) {
-                // Print @do statement string, no ";" after
-                // level up as it has body block level
-                std::stringstream ls;
-                // @true -- skip first statement in the scope
-                prepared.splice(printCurrentScope(ls, scope, level+1, true));
-                const string& loopStr = ls.str();
-
-                if (!loopStr.empty() || !REMOVE_EMPTY_LOOP()) {
-                    os << getTabString(level) << "do" << endl;
-                    os << getTabString(level) << BEGIN_SYM << endl;
-
-                    os << loopStr;
-
-                    os << getTabString(level) << END_SYM << endl;
-                    os << getTabString(level) << stmtStr << ";" << endl;
-                }
-                
-                // Skip print the scope other statements, already printed inside
-                // Next scope will be after @DoStmt
-                break;
+                //cout << "ENDLOOP #" << hex << stmt << dec << endl;
 
             } else {
                 // Print statement string, empty string can be for function call
@@ -497,6 +448,9 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                     bool noTabStmt = emptySensStmt.count(stmt);
                     printSplitString(os, stmtStr, noTabStmt ? "" : 
                                      getTabString(level));
+                    if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
+                        cout << "   " << stmtStr << endl;
+                    }
                 }
                 
                 // For function call/break&continue check for function body
@@ -525,9 +479,10 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                         auto fcallScope = innerScopeGraphs.at(key).second;
                         //cout << "Fcall fcallScope" << hex << fcallScope.get() << dec << ", level " << level << endl;
                         std::stringstream fs;
-                        fcallScope->setInitLevel(level + INIT_LEVEL);
-                        fcallScope->printCurrentScope(fs, fcallScope->
-                                                      getFirstScope(), 0);
+                        // Prohibit to exit from @printCurrentScope() by up level, 
+                        // required to level up from wait()/break/continue
+                        fcallScope->printCurrentScope(
+                                fs, fcallScope->getFirstScope(), level, true);
                         fcallScope->clearAfterPrint();
                         const string& funcStr = fs.str();
                         
@@ -558,7 +513,9 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
         }
 
         if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
-            cout << "--- Scope " << hex << (unsigned long)scope.get() << " finished" << dec<< endl;
+            cout << "--- Scope " << hex << (unsigned long)scope.get() << dec
+                 << " finished, level " << scope->getCorrLevel() 
+                 << " empty " << scope->empty()  << endl;
         }    
         // Add this scope as prepared to its successors
         // Not used for non-empty IF branches as they added into @visited before
@@ -566,12 +523,14 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
         if (scopeSuccs.count(scope)) {
             //cout << "Scope " << scope->asString() << endl;
             for (auto&& succ : scopeSuccs.at(scope)) {
+                // Skip dead scope corresponded to dead code
+                if (succ->isDead()) continue;
+                
                 //cout << " succ " << succ->asString() << endl;
                 auto i = prepared.rbegin();
                 for (; i != prepared.rend(); ++i) {
                     if (i->first == succ) {
-                        vector<shared_ptr<CodeScope> >& preds = i->second;
-                        preds.push_back(scope);
+                        i->second.push_back(scope);
                         break;
                     }
                 }
@@ -580,16 +539,16 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                     // Insert successor in according with its scope level 
                     // Level of block after loop is less than level of blocks 
                     // in the loop body, so loop body analyzed first
-                    unsigned succLevel = scopeLevel.at(succ);
+                    //cout << "Scope get level #" << hex << succ << dec << endl;
+                    unsigned succLevel = succ->getCorrLevel();
                     auto j = prepared.begin();
                     for (; j != prepared.end(); ++j) {
-                        if (succLevel < scopeLevel.at(j->first)) {
+                        if (succLevel < j->first->getCorrLevel()) {
                             break;
                         }
                     }
                     // Insert new scope before element pointed by @j
-                    prepared.insert(j, {succ, 
-                                    vector<shared_ptr<CodeScope> >(1, scope)});
+                    prepared.insert(j, {succ, vector<shared_ptr<CodeScope>>(1, scope)});
                 }
             }
         }
@@ -598,8 +557,8 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
         shared_ptr<CodeScope> next = nullptr;
         auto i = prepared.rbegin();
         for (; i != prepared.rend(); ++i) {
-            // Check all next scope predecessors are analyzed and 
-            // scope was not visited before
+            // Check all next scope predecessors are analyzed, required for 
+            // conditional operator and break/continue correct order print
             if (i->second.size() == scopePreds.at(i->first).size() &&
                 visited.count(i->first) == 0) 
             {
@@ -610,16 +569,20 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
 
         // If not all next scope predecessors analyzed or next scope level
         // is less than current level, return from this function
-        if (next == nullptr || scopeLevel.at(next) < level) {
+        if (next == nullptr || !next->empty() && 
+            next->getCorrLevel() < scopeLevel && !noExitByLevel) 
+        {
             if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
                 cout << "--- Scope up, as next " << ((next) ? "level up" : "is null") << endl;
+                if (next) cout << "    next " << hex << (size_t)next.get() << dec << endl;
             }
             return prepared;
         }
         // Go to the next scope
         scope = next;
         if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
-            cout << "--- Next scope " << hex << (unsigned long)scope.get() << dec<< endl;
+            cout << "--- Next scope " << hex << (unsigned long)scope.get() << dec
+                  << " level " << scope->getCorrLevel() << endl;
         }
     }
 }
@@ -631,17 +594,20 @@ void ScScopeGraph::clearAfterPrint()
 
 void ScScopeGraph::printAllScopes(ostream &os) 
 {
-    printCurrentScope(os, getFirstScope(), 0);
+    if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
+        cout << endl << "------------ printAllScopes --------------" << endl;
+    }
+    printCurrentScope(os, getFirstScope(), 0, true);
     clearAfterPrint();
 }
 
-// Clone scope graph at wait()
+// Clone scope graph at break/continue/wait()
 std::unique_ptr<ScScopeGraph> 
-ScScopeGraph::clone(std::shared_ptr<ScScopeGraph> innerGraph) 
+ScScopeGraph::clone(std::shared_ptr<ScScopeGraph> innerGraph, bool inMainLoop) 
 {
-    auto res = std::make_unique<ScScopeGraph>(noreadyBlockAllowed);
+    auto res = std::make_unique<ScScopeGraph>();
 
-    auto scope = make_shared<CodeScope>();
+    auto scope = make_shared<CodeScope>(0, inMainLoop);
     res->firstScope = scope;
     res->currScope = scope;
     res->setCurrLevel(0);

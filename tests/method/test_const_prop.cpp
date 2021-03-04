@@ -21,10 +21,6 @@ public:
 
     sc_signal<bool>     c{"c"};
     
-    int                 m;
-    int                 k;
-    int                 n;
-    
     static const unsigned CTRL_NUM = 0;
     sc_signal<bool>* ctrl_interrupt_sig[CTRL_NUM];
 
@@ -90,21 +86,13 @@ public:
         SC_METHOD(return_const_in_if); sensitive << a;
         
         SC_METHOD(return_const_in_for); sensitive << a;
-        SC_METHOD(return_const_in_for2); sensitive << a;
-        SC_METHOD(return_const_in_for3); sensitive << a;
-          
-        SC_METHOD(return_const_in_while); sensitive << a;
-        SC_METHOD(return_const_in_while2); sensitive << a;
-        // TODO: Fix me, #220
-        //SC_METHOD(return_const_in_dowhile); sensitive << a;
-        //~TODO
-        
     }
     
     //----------------------------------------------------------------------
     // One IF at level 2 and several IF at level 4, no IF with level 3
     // Bug in real design -- fixed
     void complex_if_level() {
+        int k; int m; int n;
         if (k) {
             if (m) {
                 if (n) {
@@ -130,6 +118,7 @@ public:
 
     void mstrResponseMuxProc() 
     {
+        int k; int m; int n;
         int i = a.read();   
         if ( ( (*arr1[i]) &&                // B5 
                (true || !(*arr2[i]))) ||    // B4, B3
@@ -156,6 +145,7 @@ public:
     
     void NoReturnProc() 
     {
+        int k; int m; int n;
         assert (m > k);
         if (a.read()) {
             assert (m > k);
@@ -185,6 +175,7 @@ public:
     
     void double_if1() 
     {
+        int k; int m; int n;
         if (a.read()) {
             if (b.read()) {
                 m = 1;
@@ -205,6 +196,7 @@ public:
     
     void double_if2() 
     {
+        int k; int m; int n;
         if (a.read()) {
             if (b.read()) {
                 m = 1;
@@ -219,6 +211,7 @@ public:
     
     void double_if3() 
     {
+        int k; int m; int n;
         if (a.read()) {
             if (b.read()) {
                 m = 1;
@@ -237,6 +230,7 @@ public:
     
     void double_if4() 
     {
+        int k; int m; int n;
         if (a.read()) {
             if (b.read()) {
                 m = 1;
@@ -267,6 +261,7 @@ public:
     
     void double_if5() 
     {
+        int k; int m; int n;
         if (a.read()) {
             
             if (a.read()) {
@@ -287,6 +282,7 @@ public:
     
     void double_if6() 
     {
+        int k; int m; int n;
         if (a.read()) {
             if (b.read()) {
                 m = 1;  // Min level
@@ -319,6 +315,7 @@ public:
     
     void double_if_for1() 
     {
+        int k; int m; int n;
         if (a.read()) {
             if (b.read()) {
                 for (int i = 0; i < 2; i++) {
@@ -348,6 +345,7 @@ public:
     
     void double_if_for2() 
     {
+        int k; int m; int n;
         if (a.read()) {
             if (b.read()) {
                 for (int i = 0; i < 2; i++) {
@@ -389,6 +387,7 @@ public:
     
     void double_if_while() 
     {
+        int k; int m; int n;
         if (a.read()) {
             int i = 0;
             if (b.read()) {
@@ -432,6 +431,7 @@ public:
     
     void double_if_break() 
     {
+        int k; int m; int n;
         for (int i = 0; i < 2; i++) {
             if (a.read()) {
                 m = 1;
@@ -457,6 +457,7 @@ public:
     
     void seq_if() 
     {
+        int k; int m; int n;   
         if (a.read()) {
             sct_assert_level(1);
             m = 1;
@@ -597,7 +598,7 @@ public:
     void simple_if2() {
         int i;
         i = 1;
-        m = i+1;
+        int m = i+1;
         
         if (a.read()) {
             if (i < 0) { // termCond 0
@@ -633,25 +634,23 @@ public:
     
     // Constant propagation from function
     void f2() {
-        m = 3;
+        int m = 3;
     }
     
     void if_in_func2() {
         f2();
-        
-        sct_assert_const(m == 3);
     }
     
     // Constant propagation to function
     void f3() {
+        int m;
         if (m == 4) {
             int ll = 1;
         }
-        sct_assert_const(m == 4);
     }
     
     void if_in_func3() {
-        m = 4;
+        int m = 4;
         
         f3();
     }
@@ -714,6 +713,7 @@ public:
     // Two binary operators in condition
     void simple_binary1() {
         int i = 1;
+        int m;
        
         if (a.read() && i < 0) {
             m = 2;
@@ -726,7 +726,7 @@ public:
 
     void simple_binary2() {
         int i = 0;
-        m = -1;
+        int m = -1;
        
         if (i == 0 || a.read()) {
             m = 0;
@@ -764,7 +764,7 @@ public:
 
     void simple_binary3() {
         int i = 0;
-       
+        int m;
         if ((i == 0 && i == 1) && a.read()) {
             m = 1;
         }
@@ -790,14 +790,14 @@ public:
     void simple_cond1() {
         int i = 1;
        
-        m = (i < 0) ? 1 : 2;
+        int m = (i < 0) ? 1 : 2;
         
         sct_assert_const(m == 2);
     }
     
     void simple_var() {
-        k = 1;
-        m = a.read();
+        int k = 1;
+        int m = a.read();
         int i = m;
     } 
     
@@ -872,6 +872,7 @@ public:
         sct_assert_const (x==2);
     }
 
+    // Function call in loop not supported
     void return_const_in_for2() {
         int x = 0;
         for (int i = 0; i < getConst(); ++i) {
@@ -908,8 +909,7 @@ public:
         int i = 0;
         do {
             i++;
-        } while (i < getConst());  // #220
-        //sct_assert_const (i == 2);
+        } while (i < getConst()); 
     }
 };
 

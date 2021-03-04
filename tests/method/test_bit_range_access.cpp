@@ -22,9 +22,21 @@ public:
 
     sc_signal<sc_uint<32>> inp;
     sc_signal<sc_uint<32>> outp;
+    
+    sc_signal<bool> s;
 
     SC_CTOR(A) {
         
+        SC_METHOD(bit_range_rhs); 
+        sensitive << inp;
+        
+        SC_METHOD(bit_in_loop); 
+        sensitive << s;
+        
+        // No bit/range passed as reference to function is possible
+        //SC_METHOD(bit_in_fcall); 
+        //sensitive << s;
+
         SC_METHOD(sc_uint_wide); 
         sensitive << as;
 
@@ -70,6 +82,43 @@ public:
     
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
 
+    void bit_range_rhs() 
+    {
+        sc_uint<3> i = 3;
+        bool b;
+        b = i.bit(0);             
+        CHECK(b);
+        
+        b = i.bit(1);
+        CHECK(b);
+    }
+    
+    void bit_in_loop() 
+    {
+        sc_uint<4> xw;
+        xw = 0;
+        for (int i = 0; i < 4; i++) {
+            xw.bit(i) = s.read();
+        }
+        bool xwZero = (xw == 0);
+        sct_assert_unknown(xwZero);    
+    }
+    
+    template<class T>
+    void f(T& b) {
+        b = 1;
+    }
+    
+    void bit_in_fcall() 
+    {
+        sc_uint<4> xw;
+        xw = 0;
+        f(xw.bit(1));       // Not correct
+        
+        bool xwZero = (xw == 0);
+        sct_assert_unknown(xwZero); 
+    }
+
     // Check no outside of variable width part/bit selection
     void sc_uint_wide() 
     {
@@ -78,7 +127,7 @@ public:
         //b = ((sc_uint<2>)k).bit(1);              -- fatal error
         // sc_uint<2> x = ((sc_uint<3>)k).range(2,1);  -- fatal error
     }
-    
+   
     // Check construct @sc_uint with/without typecast with @bit()
     void sc_uint_ctor_bit() 
     {
@@ -94,12 +143,10 @@ public:
         CHECK(b);
         b = ((sc_uint<1>)i).bit(0);             
         CHECK(b);
-        i= 1;  // remove me after #217 fixed
         b = ((sc_uint<2>)i).bit(0); 
         CHECK(b);
         b = ((sc_uint<1>)k).bit(0); 
         CHECK(b);
-        k = 1;  // remove me after #217 fixed
         b = ((sc_uint<2>)k).bit(0);
         CHECK(b);
         b = ((sc_uint<1>)inp.read()).bit(0);    
@@ -109,41 +156,29 @@ public:
         CHECK(b);
         b = ii.bit(0);             
         CHECK(!b);
-        // TODO: it need to recover @ii value after bit(), see #217
-        ii = 2;  // remove me after #217 fixed
-        //~TODO
         b = (sc_uint<1>)ii;             
         CHECK(!b);
-        ii = 2;  // remove me after #217 fixed
         b = (sc_uint<2>)ii;  
         CHECK(b);
-        ii = 2;  // remove me after #217 fixed
         b = ((sc_uint<1>)ii).bit(0);             
         CHECK(!b);
         
         
-        i = 1;  // remove me after #217 fixed
         y = ((sc_uint<1>)i).bit(0);  
         CHECK(y == 1);
-        i = 1;  // remove me after #217 fixed
         y = ((sc_uint<2>)i).bit(0); 
         CHECK(y == 1);
-        k = 1;  // remove me after #217 fixed
         y = ((sc_uint<1>)k).bit(0); 
         CHECK(y == 1);
-        k = 1;  // remove me after #217 fixed
         y = ((sc_uint<2>)k).bit(0);
         CHECK(y == 1);
         //y = ((sc_uint<2>)k).bit(1); -- fatal error reported
         // y = ((sc_uint<1>)k).bit(1); -- fatal error reported
         
-        ii = 2;  // remove me after #217 fixed
         y = ii.bit(0);  
         CHECK(y == 0);
-        ii = 2;  // remove me after #217 fixed
         y = ii.bit(1);  
         CHECK(y == 1);
-        ii = 2;  // remove me after #217 fixed
         y = (sc_uint<1>)ii;  
         CHECK(y == 0);
         y = (sc_uint<2>)ii;  
@@ -151,16 +186,12 @@ public:
         y = ((sc_uint<1>)ii).bit(0);  
         CHECK(y == 0);
 
-        i = 1;  // remove me after #217 fixed
         z = ((sc_uint<1>)i).bit(0);  
         CHECK(z == 1);
-        i = 1;  // remove me after #217 fixed
         z = ((sc_uint<2>)i).bit(0); 
         CHECK(z == 1);
-        k = 1;  // remove me after #217 fixed
         z = ((sc_uint<1>)k).bit(0); 
         CHECK(z == 1);
-        k = 1;  // remove me after #217 fixed
         z = ((sc_uint<2>)k).bit(0);
         CHECK(z == 1);
         
@@ -185,12 +216,10 @@ public:
         CHECK(b);
         b = ((sc_uint<1>)i).range(0,0);             
         CHECK(b);
-        i= 1;  // remove me after #217 fixed
         b = ((sc_uint<2>)i).range(0,0); 
         CHECK(b);
         b = ((sc_uint<1>)k).range(0,0);
         CHECK(b);
-        k = 1;  // remove me after #217 fixed
         b = ((sc_uint<2>)k).range(0,0);
         CHECK(b);
         b = ((sc_uint<1>)inp.read()).range(0,0);    
@@ -200,36 +229,26 @@ public:
         CHECK(b);
         b = ii.range(0,0);
         CHECK(!b);
-        ii = 2;  // remove me after #217 fixed
         b = (sc_uint<1>)ii;             
         CHECK(!b);
-        ii = 2;  // remove me after #217 fixed
         b = (sc_uint<2>)ii;  
         CHECK(b);
-        ii = 2;  // remove me after #217 fixed
         b = ((sc_uint<2>)ii).range(0,0);  
         CHECK(!b);
-        ii = 2;  // remove me after #217 fixed
         b = ((sc_uint<2>)ii).range(1,1);  
         CHECK(b);
-        ii = 2;  // remove me after #217 fixed
         b = ((sc_uint<2>)ii).range(1,0);  
         CHECK(b);
-        ii = 2;  // remove me after #217 fixed
         b = ((sc_uint<1>)ii).range(0,0);
         CHECK(!b);
         
         
-        i = 1;  // remove me after #217 fixed
         y = ((sc_uint<1>)i).range(0,0);
         CHECK(y == 1);
-        i = 1;  // remove me after #217 fixed
         y = ((sc_uint<2>)i).range(0,0);
         CHECK(y == 1);
-        k = 1;  // remove me after #217 fixed
         y = ((sc_uint<1>)k).range(0,0);
         CHECK(y == 1);
-        k = 1;  // remove me after #217 fixed
         y = ((sc_uint<2>)k).range(0,0);
         CHECK(y == 1);
         //y = ((sc_uint<2>)k).range(1, 0); -- fatal error reported
@@ -237,43 +256,31 @@ public:
         //y = ((sc_uint<1>)k).range(1, 1); -- fatal error reported
         //y = ((sc_uint<1>)k).range(1, 0); -- fatal error reported
         
-        ii = 2;  // remove me after #217 fixed
         y = ii.range(0,0);
         CHECK(y == 0);
-        ii = 2;  // remove me after #217 fixed
         y = ii.range(1,1);
         CHECK(y == 1);
-        ii = 2;  // remove me after #217 fixed
         y = ii.range(1,0);
         CHECK(y == 2);
-        ii = 2;  // remove me after #217 fixed
         y = (sc_uint<1>)ii;  
         CHECK(y == 0);
         y = (sc_uint<2>)ii;  
         CHECK(y == 2);
-        ii = 2;  // remove me after #217 fixed
         y = ((sc_uint<2>)ii).range(0,0);  
         CHECK(y == 0);
-        ii = 2;  // remove me after #217 fixed
         y = ((sc_uint<2>)ii).range(1,1);  
         CHECK(y == 1);
-        ii = 2;  // remove me after #217 fixed
         y = ((sc_uint<2>)ii).range(1,0);  
         CHECK(y == 2);
-        ii = 2;  // remove me after #217 fixed
         y = ((sc_uint<1>)ii).range(0,0);
         CHECK(y == 0);
 
-        i = 1;  // remove me after #217 fixed
         z = ((sc_uint<1>)i).range(0,0);
         CHECK(z == 1);
-        i = 1;  // remove me after #217 fixed
         z = ((sc_uint<2>)i).range(0,0);
         CHECK(z == 1);
-        k = 1;  // remove me after #217 fixed
         z = ((sc_uint<1>)k).range(0,0);
         CHECK(z == 1);
-        k = 1;  // remove me after #217 fixed
         z = ((sc_uint<2>)k).range(0,0);
         CHECK(z == 1);
         
@@ -350,11 +357,9 @@ public:
         z = u.range(37,0);
         cout << "z " << z << endl;
         CHECK(z == (0x12UL << 32) + 0x1);
-        u = (0x12UL << 32) + 0x1;  // #217
         z = u.range(37,0).to_int();
         cout << "z " << z << endl;
         CHECK(z == 0x1);
-        u = (0x12UL << 32) + 0x1;  // #217
         z = u.range(37,1).to_int();
         cout << "z " << z << endl;
         CHECK(z == 0);
@@ -370,14 +375,13 @@ public:
         b = j;
         b = j.range(3,1);
         CHECK(!b);
-        j = 2;              // #217
+        j = 2;        
         b = j.bit(1);
         CHECK(b);
         
-        j = 4;              // #217
+        j = 4;        
         b = j.bit(2).to_bool();
         CHECK(b);
-        j = 4;              // #217
         b = j.bit(1).to_bool();
         CHECK(!b);
         

@@ -94,10 +94,12 @@ SC_MODULE(test)
     
     void ff5(sc_uint<4> blockIndx) 
     {
+        bool A;
         do {
             wait();
+            A = f5(blockIndx);
             
-        } while(!f5(blockIndx));
+        } while(!A);
     }
     
     void return_func4() 

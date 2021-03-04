@@ -11,18 +11,20 @@
  */
 
 #include "ScThreadBuilder.h"
-#include <clang/AST/RecursiveASTVisitor.h>
-#include <sc_tool/utils/CheckCppInheritance.h>
-#include <sc_tool/utils/ScTypeTraits.h>
-#include <sc_tool/utils/CppTypeTraits.h>
-#include <sc_tool/cthread/ScCFGAnalysis.h>
-#include <sc_tool/cthread/ScSingleStateThread.h>
-#include <sc_tool/diag/ScToolDiagnostic.h>
-#include <sc_tool/utils/DebugOptions.h>
-#include <sc_tool/ScCommandLine.h>
-#include <sc_tool/utils/BitUtils.h>
+
+#include "sc_tool/cfg/ScTraverseConst.h"
+#include "sc_tool/cfg/ScStmtInfo.h"
+#include "clang/AST/RecursiveASTVisitor.h"
+#include "sc_tool/utils/CheckCppInheritance.h"
+#include "sc_tool/utils/ScTypeTraits.h"
+#include "sc_tool/utils/CppTypeTraits.h"
+#include "sc_tool/cthread/ScCFGAnalysis.h"
+#include "sc_tool/cthread/ScSingleStateThread.h"
+#include "sc_tool/diag/ScToolDiagnostic.h"
+#include "sc_tool/utils/DebugOptions.h"
+#include "sc_tool/ScCommandLine.h"
+#include "sc_tool/utils/BitUtils.h"
 #include "sc_tool/utils/VerilogKeywords.h"
-#include <sc_tool/cfg/ScTraverseConst.h>
 #include <sstream>
 
 using namespace llvm;
@@ -157,7 +159,8 @@ sc_elab::VerilogProcCode ThreadBuilder::run(bool constPropOnly)
     // and it is the same for all wait() the thread is single thread
     // The single state process must have reset
     isSingleState = isSingleStateThread(threadStates) &&
-                    !procView.resets().empty();
+                    !procView.resets().empty() &&
+                    !globalConstProp->isBreakInRemovedLoop();
 
     // Fill verVarTrais and put defined non-channel variables to process 
     // variable storage to be generated before the process
@@ -200,6 +203,7 @@ void ThreadBuilder::runConstProp()
         std::cout << endl << "--------------- THREAD GLOBAL CPA : " 
                   << entryFuncDecl->getNameAsString() << endl;
     }
+    
     // Traverse context stack, used to run TraverseProc
     traverseContextMap[RESET_ID] = vGen->getInitialTraverseProcState();
     // State to fill by CPA
@@ -207,8 +211,10 @@ void ThreadBuilder::runConstProp()
 
     // Run global CPA, used to provide initial state for local CPA
     globalConstProp = std::make_unique<ScTraverseConst>(astCtx,
-                                globalConstPropState, modSval, globalState, 
-                                &elabDB, &threadStates, false);
+                            globalConstPropState, modSval, 
+                            globalState, &elabDB, &threadStates, 
+                            &findWaitVisitor, false);
+    
     bool hasReset = !procView.resets().empty();
     globalConstProp->setHasReset(hasReset);
     
@@ -347,7 +353,7 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
                 bool readOnlyConst = false;
                 if (!isMember) {
                     const SValue& rval = finalState->getValue(sval);
-                    readOnlyConst = !keepConstVariables && rval.isInteger() || 
+                    readOnlyConst = replaceConstByValue && rval.isInteger() || 
                                     isConsVal && globalConstProp->
                                     getResetDefConsts().count(sval);
                 }
@@ -367,6 +373,11 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
                         threadReadOnlyVars.erase(sval);
                     }
                 }
+                // TODO: Uncomment me, #247
+//                assert (!threadRegVars.count(sval));
+//                if (!threadReadOnlyVars.count(sval)) {
+//                    threadReadOnlyVars.insert(sval);
+//                }
 
             } else 
             if (isScChannel(sval.getType()) || isScVector(sval.getType()) ||
@@ -1124,10 +1135,11 @@ void ThreadBuilder::generateThreadLocalVariables()
             
         } else {
             // Process local constants
+            //cout << "Local constant defined in reset " << roVar << endl;
+            // TODO: comment me, #247
             if (globalConstProp->getResetDefConsts().count(roVar)) {
                 // Local constant defined in reset section, 
                 // it needs to be declared in module scope
-                //cout << "Local constant defined in reset " << roVar << endl;
                 if (!roVar.isVariable()) {
                     SCT_INTERNAL_FATAL_NOLOC("Process local constant is not a variable");
                     continue;
@@ -1168,6 +1180,11 @@ void ThreadBuilder::generateThreadLocalVariables()
                 // Variable used values
                 verMod->addVarUsedInProc(procView, verVar, 1, 0);
                 verMod->putValueForVerVar(verVar, roVarZero);
+
+                // TODO: uncomment me, #247
+//                bool definedInReset = globalConstProp->getResetDefConsts().count(roVar);
+//                auto varKind = definedInReset ? VerilogVarTraits::READONLY_CDR : 
+//                                                VerilogVarTraits::READONLY;
                 
                 // Add to verVarTraits, this constant not declared in always blocks
                 globalState->putVerilogTraits(roVar, VerilogVarTraits(
@@ -1178,6 +1195,7 @@ void ThreadBuilder::generateThreadLocalVariables()
                                      true, !isNonZeroElmt, verVar->getName()));
                 
             } else {
+                // TODO: comment me, #247
                 // Other local constant
                 globalState->putVerilogTraits(roVar, 
                             VerilogVarTraits(VerilogVarTraits::READONLY, 

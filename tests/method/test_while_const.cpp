@@ -24,38 +24,40 @@ public:
     int                 n;
     int*                q;
 
-    sc_signal<bool> dummy{"dummy"};
+    sc_signal<int> s{"s"};
 
     SC_CTOR(A) {
-        SC_METHOD(while_with_binary_oper1); sensitive << a;
-        SC_METHOD(while_with_binary_oper1a); sensitive << a;
-        SC_METHOD(while_with_binary_oper1b); sensitive << a;
-        SC_METHOD(while_with_binary_oper1c); sensitive << a;
-        SC_METHOD(while_with_binary_oper1d); sensitive << a;
-        SC_METHOD(while_with_binary_oper1e); sensitive << a;
-        SC_METHOD(while_with_binary_oper1f); sensitive << a;
+        SC_METHOD(while_with_binary_oper1); sensitive << s;
+        SC_METHOD(while_with_binary_oper1a); sensitive << s;
+        SC_METHOD(while_with_binary_oper1b); sensitive << s;
+        SC_METHOD(while_with_binary_oper1c); sensitive << s;
+        SC_METHOD(while_with_binary_oper1d); sensitive << s;
+        SC_METHOD(while_with_binary_oper1e); sensitive << s;
+        SC_METHOD(while_with_binary_oper1f); sensitive << s;
+        SC_METHOD(while_with_binary_oper1g); sensitive << s;
         
-        SC_METHOD(while_with_binary_oper2); sensitive << a;
-        SC_METHOD(while_with_binary_oper2a); sensitive << a;
-        SC_METHOD(while_with_binary_oper2b); sensitive << a;
-        SC_METHOD(while_with_binary_oper2c); sensitive << a;
-        SC_METHOD(while_with_binary_oper2d); sensitive << a;
-        SC_METHOD(while_with_binary_oper2e); sensitive << a;
-        SC_METHOD(while_with_binary_oper2f); sensitive << a;
+        SC_METHOD(while_with_binary_oper2); sensitive << s;
+        SC_METHOD(while_with_binary_oper2a); sensitive << s;
+        SC_METHOD(while_with_binary_oper2b); sensitive << s;
+        SC_METHOD(while_with_binary_oper2c); sensitive << s;
+        SC_METHOD(while_with_binary_oper2d); sensitive << s;
+        SC_METHOD(while_with_binary_oper2e); sensitive << s;
+        SC_METHOD(while_with_binary_oper2f); sensitive << s;
+        SC_METHOD(while_with_binary_oper2g); sensitive << s;
         
-        SC_METHOD(while_with_binary_oper3); sensitive << a;
-        SC_METHOD(while_with_binary_oper4); sensitive << a;
+        SC_METHOD(while_with_binary_oper3); sensitive << s;
+        SC_METHOD(while_with_binary_oper4); sensitive << s;
     }
 
     void while_with_binary_oper1()
     { 
-        bool b1 = 1, b2 = 0;
+        bool b1 = 1, b2 = s.read();
         int k = 0;
         
         while (b1 || b2) { // B5, B4
             k = 1;      // B3
             b1 = 0;
-            b2 = 0;
+            b2 = s.read();
         }               // B2
         sct_assert_level(0);
         k = 2;          // B1
@@ -63,13 +65,13 @@ public:
     
     void while_with_binary_oper1a()
     { 
-        bool b1 = 0, b2 = 1;
+        bool b1 = 0, b2 = s.read();
         int k = 0;
         
         while (b1 || b2) { // B5, B4
             k = 1;      // B3
             b1 = 0;
-            b2 = 0;
+            b2 = s.read();
         }               // B2
         sct_assert_level(0);
         k = 2;          // B1
@@ -138,27 +140,40 @@ public:
         }               
         k = 2;          
     }
+    
+    void while_with_binary_oper1g()
+    { 
+        bool b1 = s.read();
+        int k = 0;
+        
+        while (b1 || false) { 
+            k = 1;      
+        }               
+        k = 2;          
+    }
+    
+// ----------------------------------------------------------------------------    
 
     void while_with_binary_oper2()
     { 
-        bool b1 = 1, b2 = 1;
+        bool b1 = 1, b2 = s.read();
         int k = 0;
         
         while (b1 && b2) { 
             k = 1;      
-            b1 = 0;
+            b1 = s.read();
         }               
         k = 2;          
     }
 
     void while_with_binary_oper2a()
     { 
-        bool b1 = 0, b2 = 1;
+        bool b1 = 0, b2 = s.read();
         int k = 0;
         
         while (b1 && b2) { 
             k = 1;      
-            b1 = 0;
+            b1 = s.read();
         }               
         k = 2;          
     }
@@ -220,6 +235,19 @@ public:
         }               
         k = 2;          
     }
+    
+    void while_with_binary_oper2g()
+    { 
+        bool b1 = s.read();
+        int k = 0;
+        
+        while (b1 && true) { 
+            k = 1;      
+        }               
+        k = 2;          
+    }
+    
+// ---------------------------------------------------------------------------    
     
     void while_with_binary_oper3()
     { 

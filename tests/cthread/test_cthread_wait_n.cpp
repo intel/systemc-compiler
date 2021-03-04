@@ -7,7 +7,7 @@
 
 #include <systemc.h>
 
-// wait(n) tests
+// wait(N) general cases
 SC_MODULE(test_mod) {
     
     sc_signal<bool> clk{"clk"}; 
@@ -25,6 +25,8 @@ SC_MODULE(test_mod) {
         SC_CTHREAD(thread0, clk);
         async_reset_signal_is(rstn, false);
 
+        // TODO: FIx me, #233
+        // thread1_WAIT_N_COUNTER <= 0; in end of reset
         SC_CTHREAD(thread1, clk);
         async_reset_signal_is(rstn, false);
 
@@ -75,6 +77,9 @@ SC_MODULE(test_mod) {
         
         SC_CTHREAD(while_wait, clk);
         async_reset_signal_is(rstn, false);
+        
+        SC_CTHREAD(wait_1, clk);
+        async_reset_signal_is(rstn, false);
     }
     
     void wait_n_reset_decl() 
@@ -110,8 +115,10 @@ SC_MODULE(test_mod) {
     sc_signal<sc_uint<4>> usig{"usig"};
 
     void thread1 () {
+        usig = 0;
         while (1) {
             wait(3); 
+            usig = 1;
         }
     }
     
@@ -284,6 +291,16 @@ SC_MODULE(test_mod) {
         }
     }
     
+
+    void wait_1() 
+    {
+        unsigned nn = 1;
+        wait();     
+
+        while (1) {
+            wait(nn);
+        }
+    }
 
 };
 

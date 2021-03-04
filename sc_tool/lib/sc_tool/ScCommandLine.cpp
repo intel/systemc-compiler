@@ -15,7 +15,7 @@ using namespace llvm;
 
 cl::opt<std::string> verilogFileName (
     "sv_out",
-    cl::desc("Specify SystemVerilog output filename"),
+    cl::desc("Generated SystemVerilog file name"),
     cl::value_desc("filename"),
     cl::cat(ScToolCategory)
     );
@@ -38,11 +38,17 @@ cl::opt<bool> initLocalVars(
     cl::cat(ScToolCategory)
 );
 
-cl::opt<bool> keepConstVariables(
-    "keep_const_variables",
-    cl::desc("No replacing constant variables with values"),
+cl::opt<bool> replaceConstByValue(
+    "replace_const_value",
+    cl::desc("Replace constant with its number value if possible"),
     cl::cat(ScToolCategory)
 );
+
+cl::opt<std::string> modulePrefix (
+    "module_prefix",
+    cl::desc("Module prefix string"),
+    cl::cat(ScToolCategory)
+    );
 
 
 cl::opt<bool> singleBlockCThreads(

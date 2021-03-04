@@ -25,7 +25,7 @@ struct A : public sc_module
     }
     
     virtual void f() {
-        m += 1;
+        int m = 1;
     }
 
     void virt_call() {
@@ -42,7 +42,7 @@ public:
     {}
     
     virtual void f() {
-        m += 2;
+        short m = 2;
         s = 1;
     }
 };
@@ -60,7 +60,7 @@ public:
     }
     
     virtual void f() {
-        m += 3;
+        char m = 3;
         s = 0;
     }
 

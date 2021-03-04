@@ -17,7 +17,10 @@ public:
     sc_signal<int> out{"out"};
 
     sc_uint<2>  arr[2];
-    sc_uint<3>  arr2[3][4];
+    sc_uint<2>  arr1[2];
+    sc_uint<2>  arr2[2];
+    sc_uint<2>  arr3[2];
+    sc_uint<3>  arr4[3][4];
     
     sc_uint<3>  a;
     sc_uint<4>  b;
@@ -83,36 +86,36 @@ public:
     // Read from array -- register array
     void comb_arr_in_reset1()
     {
-        arr[0] = 0;
+        arr1[0] = 0;
         wait();
         
         while (true) {
-            arr[1] = 3;
-            out = arr[0];
+            arr1[1] = 3;
+            out = arr1[0];
             wait();
         }
     }
 
     void comb_arr_in_reset1a()
     {
-        arr[0] = 0; arr[1] = 1;
+        arr2[0] = 0; arr2[1] = 1;
         wait();
         
         while (true) {
             wait();
-            out = arr[1];
+            out = arr2[1];
         }
     }
     
     // Read from array -- register array
     void comb_arr_in_reset2()
     {
-        arr[0] = 0;
+        arr3[0] = 0;
         wait();
         
         while (true) {
-            arr[0] = 3;
-            out = arr[0];
+            arr3[0] = 3;
+            out = arr3[0];
             wait();
         }
     }
@@ -120,11 +123,11 @@ public:
     // No read from 2D array -- combinational array
     void comb_arr_in_reset2D()
     {
-        arr2[0][1] = 0;
+        arr4[0][1] = 0;
         wait();
         
         while (true) {
-            arr2[1][2] = 3;
+            arr4[1][2] = 3;
             wait();
         }
     }

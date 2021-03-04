@@ -62,6 +62,9 @@ protected:
     /// Variable registered as latched by @sct_assert_latch()
     std::unordered_set<SValue>    assertLatches;
     
+    /// Parsed condition value stored to avoid re-parse in &&/|| and ?
+    std::unordered_map<clang::Stmt*, SValue>   condStoredValue;
+
 public:
     explicit ScParseExprValue(const clang::ASTContext& context_,
                               std::shared_ptr<ScState> state_, 
@@ -75,17 +78,25 @@ public:
     
     /// Parse SCT_ASSERT in module scope to fill read value
     void parseSvaDecl(const clang::FieldDecl* fdecl);
-
+    
     /// Set evaluation precision in bit
     void setEvalPrecision(uint32_t val) { EPRECISION = val; }
     
     /// Parse and evaluate one expression/statement as constant integer
     /// \param checkConst -- get value for variable if it is constant only
     ///                      used in ScTraverseProc, not used in ScTraverseConst
-    /// \return true if expression is evaluated to a constant value
-    bool evaluateConstInt(clang::Expr* expr, SValue& val,  
+    /// \return <result, integer value of result>
+    std::pair<SValue, SValue> evaluateConstInt(clang::Expr* expr, 
                           bool checkConst = true) override;
     
+    /// Try to get integer from state, return NO_VALUE if not.
+    SValue evaluateConstInt(clang::Expr* expr, const SValue& val, 
+                            bool checkConst = true) override;
+    
+    /// Check if @val is integer or any kind of RValue 
+    /// (constant, constant array element)
+    bool checkConstRefValue(SValue val);
+
     /// Parse function call or constructor call parameters, 
     /// fill state with parameters with correspondent argument values
     void prepareCallParams(clang::Expr* expr, const SValue& funcModval, 
@@ -135,9 +146,9 @@ protected:
     void parseExpr(clang::ArraySubscriptExpr* expr, SValue& val) override;
     
     /// Used for explicit/implicit type cast and LValue to RValue cast
-    void parseImplExplCast(clang::CastExpr* expr, SValue& val);
-    void parseExpr(clang::ImplicitCastExpr* expr, SValue& val) override;
-    void parseExpr(clang::ExplicitCastExpr* expr, SValue& val) override;
+    void parseImplExplCast(clang::CastExpr* expr, SValue& rval, SValue& val);
+    void parseExpr(clang::ImplicitCastExpr* expr, SValue& rval, SValue& val) override;
+    void parseExpr(clang::ExplicitCastExpr* expr, SValue& rval, SValue& val) override;
     
     /// General binary statements including assignment
     /// Parse statement and run evalSubExpr for each operand
@@ -174,7 +185,10 @@ protected:
 
     /// Member function call expression, used for general function call
     /// This method is override for module/port/signal/clock special methods
-    void parseMemberCall(clang::CXXMemberCallExpr* callExpr, SValue& retVal) override;
+    /// \param tval -- this value for user method
+    /// \param val -- evaluated value/return value for user method
+    void parseMemberCall(clang::CXXMemberCallExpr* callExpr, SValue& tval,
+                         SValue& val) override;
 
     /// Return statement
     void parseReturnStmt(clang::ReturnStmt* stmt, SValue& val) override;

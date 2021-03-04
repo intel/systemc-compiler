@@ -10,7 +10,7 @@
 
 using namespace sc_core;
 
-// Constant propagation in for/whie/do..while loops
+// Constant propagation in for/while/do..while loops
 class A : public sc_module
 {
 public:
@@ -20,6 +20,7 @@ public:
     sc_out<bool>        b{"b"};
 
     sc_signal<bool>     c{"c"};
+    sc_signal<int>      s{"s"};
     
     int                 m;
     int                 k;
@@ -27,6 +28,7 @@ public:
 
     SC_CTOR(A) 
     {
+        SC_METHOD(unknown_cond_loop); sensitive << s;
         SC_METHOD(unstable_loop1); sensitive << a;
         SC_METHOD(unstable_loop2); sensitive << a;
         
@@ -36,19 +38,30 @@ public:
         SC_CTHREAD(simple_for2, clk.pos());
         async_reset_signal_is(nrst, false);
         SC_METHOD(simple_for3); sensitive << a;
+        SC_METHOD(simple_for4); sensitive << a;
      
         SC_METHOD(continue_in_for1); sensitive << a;
         SC_METHOD(continue_in_for2); sensitive << a;
+        SC_METHOD(continue_in_for3); sensitive << a;
 
         SC_METHOD(dowhile_loop); sensitive << a;
         
+    }
+    
+    // FOR loop with non-evaluated condition
+    void unknown_cond_loop() {
+        int m = 0;
+        for (int i = 0; i < s.read(); i++) {
+            m++;
+        }
+        sct_assert_unknown(m);
     }
     
     //----------------------------------------------------------------------
     // Stable loop with unknown iteration number
     void unstable_loop1() {
         // Too many iteration to analyze each, so @k should be unknown
-        k = 0;
+        int k = 0;
         for (int i = 0; i < 100; i++) {
             if (i == 99) {k = 1;}
         }
@@ -57,7 +70,7 @@ public:
 
     void unstable_loop2() {
         // Too many iteration to analyze each, so @b should be unknown
-        k = 0; m = 0;
+        int k = 0; int m = 0;
         bool b = false;
         for (int i = 0; i < 100; i++) {
             b = !b;
@@ -74,7 +87,7 @@ public:
     //----------------------------------------------------------------------
     // Simple FOR with known iteration number
     void simple_for1() {
-        m = 0;
+        int m = 0;
         for (int i = 0; i < 2; i++) {
             m++;
         }
@@ -84,7 +97,7 @@ public:
     
     // Simple FOR with known but big iteration number
     void simple_for1a() {
-        m = 0;
+        int m = 0;
         for (int i = 0; i < 100; i++) {
             m++;
         }
@@ -107,8 +120,8 @@ public:
         wait();          // 0
         
         while (true) {
-            m = 0; 
-            k = a.read();
+            int m = 0; 
+            int k = a.read();
             
             for (int i = 0; i < k; i++) {
                 m = 1; 
@@ -121,7 +134,7 @@ public:
     }
     
     void simple_for3() {
-        m = 0; n = 0;
+        int m = 0; int n = 0;
         for (int i = 0; i < 2; i++) {
             m++;
             for (int j = 0; j < m; j++) {
@@ -133,11 +146,23 @@ public:
         sct_assert_const(n == 3);
     }
 
+    void simple_for4() {
+        int m = 0; int n = 0;
+        for (int i = 0; i < 2; i++) {
+            sct_assert_const(m == i);
+            m++;
+            for (int j = 0; j < 3; j++) {
+                sct_assert_const(n == j+i*3);
+                n++;
+            }
+        }
+    }
+
     // -----------------------------------------------------------------------
     // Conditional @continue in for with wait()
     void continue_in_for1()
     {
-        m = 0;
+        int m = 0;
         for (int i = 0; i < 2 ; i++) { 
             if (a.read()) {  
                 continue;
@@ -149,7 +174,7 @@ public:
     
     void continue_in_for2()
     {
-        m = 0;
+        int m = 0;
         for (int i = 0; i < 2 ; i++) { 
             if (a.read()) {  
                 continue;
@@ -159,6 +184,16 @@ public:
         }       
         sct_assert_unknown(m);
     }    
+    
+    void continue_in_for3()
+    {
+        int m = 0;
+        for (int i = 0; i < 5 ; i++) { 
+            if (i < 3) continue;
+            m++;
+        }       
+        sct_assert_const(m == 2);
+    } 
     
     //---------------------------------------------------------------------------    
     void dowhile_loop()

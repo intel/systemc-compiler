@@ -36,8 +36,11 @@ class B_top : public sc_module {
 public:
     sc_signal<bool>         sig1;
     sc_signal<sc_uint<5> >  sig2;
+    sc_signal<bool>         sig3;
+    sc_signal<sc_uint<5> >  sig4;
     
     A a_mod{"a_mod"};
+    A* p_mod;
 
     SC_CTOR(B_top) {
         // Allocate signal in another module directly
@@ -47,6 +50,13 @@ public:
         
         a_mod.p1->bind(sig1);
         a_mod.p2->bind(sig2);
+        
+        p_mod = new A("p_mod");
+        p_mod->s1 = new sc_signal<int>("s1");
+        p_mod->allocatePort();
+        
+        p_mod->p1->bind(sig3);
+        p_mod->p2->bind(sig4);
     }
 };
 

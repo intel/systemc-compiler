@@ -6,6 +6,7 @@
 *****************************************************************************/
 
 #include "systemc.h"
+#include "sct_assert.h"
 
 using namespace sc_core;
 
@@ -28,6 +29,14 @@ public:
     {
         SC_METHOD(if_side_effect1); sensitive << a;
         SC_METHOD(if_side_effect2); sensitive << a;
+        
+        SC_METHOD(binary_side_effect); sensitive << a;
+        SC_METHOD(binary_side_effect2); sensitive << a;
+        
+        SC_METHOD(cond_side_effect); sensitive << b << c;
+        
+        SC_METHOD(cond_fcall); sensitive << a;
+        SC_METHOD(binary_unary_fcall); sensitive << a;
     }
 
     bool f() {
@@ -51,6 +60,87 @@ public:
             i = m;
         }
         i = 2;
+    }
+    
+    void binary_side_effect() {
+        int i = 0;
+        bool b = a.read() || i++; 
+        sct_assert_const(i == 1);
+        
+        b = a.read() && i++; 
+        sct_assert_const(i == 2);
+        
+        b = true || i++;
+        sct_assert_const(i == 2);
+        
+        b = false || i++;
+        sct_assert_const(i == 3);
+        
+        b = true && i++;
+        sct_assert_const(i == 4);
+        
+        b = false && i++;
+        sct_assert_const(i == 4);
+    }
+    
+    void binary_side_effect2() {
+        int i = 0;
+        bool b = i++ || a.read(); 
+        sct_assert_const(i == 1);
+        
+        b = i++ && a.read(); 
+        sct_assert_const(i == 2);
+        
+        b = true && i++ || a.read(); 
+        sct_assert_const(i == 3);
+
+        b = false && i++ && a.read(); 
+        sct_assert_const(i == 3);
+
+        b = a.read() || i++ && false; 
+        sct_assert_const(i == 4);
+    }
+
+    // Side effect in condition
+    void cond_side_effect()
+    {
+        int i = 3;
+        bool res;
+        res = (i++) ? b : c;
+        sct_assert_const(i == 4);
+        
+        int j = 1;
+        res = (i-- == j--) ? b : c;
+        sct_assert_const(i == 3);
+        sct_assert_const(j == 0);
+    }
+    
+    int g(int par) {
+        return par;
+    }
+    int h(int par) {
+        return (par+1);
+    }
+    void cond_fcall()
+    {
+        int i = 3;
+        int res;
+        res = (g(1)) ? h(1) : h(2);
+        res = (a.read()) ? g(0) : h(0);
+        if (h(1)) {res = 1;}
+        res = 1+h(0);
+        if (h(1) || h(2)) {res = h(3);}
+    }
+    
+    void binary_unary_fcall()
+    {
+        int res;
+        res = h(1) + h(2);
+        res = -h(0);
+        res = (h(1));
+        res = unsigned(h(1));
+        res = a.read() ? h(1) : h(2);
+        res = sc_uint<4>(h(2));
     }
 };
 

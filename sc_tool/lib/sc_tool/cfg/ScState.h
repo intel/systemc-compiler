@@ -184,8 +184,8 @@ protected:
     /// Defined at some paths and not defined at some other paths, latches
     InsertionOrderSet<SValue>    defsomepath;
     
-    /// FOR-loop counter variables, used to prevent their transformation to 
-    /// registers, which is forced for SCT_ASSERT expression arguments
+    /// FOR-loop internal counter variables, used to prevent its transformation to 
+    /// register, which is forced for @SCT_ASSERT expression arguments
     std::unordered_set<SValue> loopCntrVars;
     
     /// Parsing SVA argument mode, consider all read variables as not defined
@@ -253,10 +253,9 @@ public:
                                (fdecl && fdecl->hasInClassInitializer());
                 if (!hasInit) continue;
 
-                SValue ival;
                 Expr* iexpr = vdecl ? vdecl->getInit() : 
                                       fdecl->getInClassInitializer();
-                parseValue.evaluateConstInt(iexpr, ival);
+                SValue ival = parseValue.evaluateConstInt(iexpr).second;
                 //cout << "  ival " << ival << endl;
 
                 if (ival.isInteger() && ival.getRadix() != 10) {
@@ -400,6 +399,7 @@ public:
     bool isObjectOwner(const SValue& val) const;
 
     /// Get variable (not temporary variable) for the given value recursively
+    /// For record it also checks derived records
     SValue getVariableForValue(const SValue& rval) const;
     
     /// Filter Used/Defined values replacing array element with zero element

@@ -17,6 +17,7 @@
 
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "clang/Analysis/CFG.h"
+#include <clang/AST/RecursiveASTVisitor.h>
 #include "clang/AST/Stmt.h"
 #include <iostream>
 #include <unordered_set>
@@ -116,6 +117,72 @@ struct hash<sc::CallStmtStack>
 
 namespace sc {
     
+/// Check if FOR loop uses internally declared counter 
+class ForLoopVisitor : public clang::RecursiveASTVisitor<ForLoopVisitor> 
+{
+protected :
+    clang::VarDecl* initVar = nullptr;
+    clang::VarDecl* incVar = nullptr;
+    
+    static ForLoopVisitor signleton;
+
+    ForLoopVisitor() {}
+    
+public:
+    
+    static ForLoopVisitor& get() {
+        return signleton;
+    }
+    
+    bool VisitStmt(clang::Stmt* stmt) 
+    {
+        using namespace clang;
+        if (!initVar) {
+            if (DeclStmt* declStmt = dyn_cast<DeclStmt>(stmt)) {
+                SCT_TOOL_ASSERT(declStmt->getSingleDecl(), "No single declaration");
+                
+                if (VarDecl* varDecl = dyn_cast<VarDecl>(declStmt->getSingleDecl())) {
+                    initVar = varDecl;
+                }
+            }
+        }
+        if (!incVar) {
+            if (DeclRefExpr* refExpr = dyn_cast<DeclRefExpr>(stmt)) {
+                SCT_TOOL_ASSERT(refExpr->getDecl(), "No single declaration");
+                
+                if (VarDecl* varDecl = dyn_cast<VarDecl>(refExpr->getDecl())) {
+                    incVar = varDecl;
+                }
+            }
+        }
+        return true;
+    }
+
+    /// Return true if the loop uses internal counter or have no increment
+    bool hasInternalCntr(clang::ForStmt* stmt) 
+    {
+        initVar = nullptr; 
+        this->TraverseStmt(stmt->getInit());
+        incVar = nullptr;
+        this->TraverseStmt(stmt->getInc());
+        
+        return (initVar == incVar);
+    }
+    
+    clang::VarDecl* getCounterDecl(clang::ForStmt* stmt) 
+    {
+        initVar = nullptr; 
+        this->TraverseStmt(stmt->getInit());
+        return initVar;
+    }
+};
+
+/// Check if statement is call expression of user defined function/method
+bool isUserCallExpr(clang::Stmt* stmt);
+
+/// Check if the FOR loop has externally declared counter
+bool hasForExtrCntr(clang::Stmt* stmt);
+
 /// Check if the block is loop entry
 /// Return loop statement if this block is loop entry or nullptr
 const clang::Stmt* checkBlockLoopEntry(AdjBlock block);

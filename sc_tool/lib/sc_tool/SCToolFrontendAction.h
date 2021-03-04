@@ -27,6 +27,9 @@ namespace sc {
 class SCElabASTConsumer : public clang::ASTConsumer 
 {
 public:
+    static const std::string TOOL_VERSION;
+    static const std::string TOOL_DATE;
+    
     explicit SCElabASTConsumer() {}
 
     /// This is entry to SVC, called after Clang parses source to AST

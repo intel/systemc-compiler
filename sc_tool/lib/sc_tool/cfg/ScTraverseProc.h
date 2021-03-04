@@ -24,6 +24,7 @@
 #include <sc_tool/cthread/ScFindWaitCallVisitor.h>
 #include "sc_tool/cthread/ScCfgCursor.h"
 #include "sc_tool/cfg/ScTraverseCommon.h"
+#include "sc_tool/cfg/ScStmtInfo.h"
 #include "sc_tool/utils/CfgFabric.h"
 #include "clang/Analysis/CFG.h"
 
@@ -76,6 +77,14 @@ public:
         }
     }
     
+    // Check if last loop equal to given one and pop it
+    void popLoop(const clang::Stmt* stmt) 
+    {
+        if ( isCurrLoop(stmt) ) {   
+            pop_back();
+        }
+    }
+    
     // Check if there is given loop statement in the loop stack
     bool hasLoopStmt(const clang::Stmt* stmt) const {
         for (const auto& i : *this) {
@@ -113,54 +122,24 @@ public:
 /// Predecessor @scope, @state and @level values to store in @delayes
 struct ScopeInfo 
 {
-    unsigned    level;    
-    /// Previous block
-    AdjBlock prevBlock;
-    
     std::shared_ptr<CodeScope>  prevScope;
     std::shared_ptr<CodeScope>  currScope;
     
-    bool loopInputBody;
-    bool loopInputOut;
     /// Loop statement stack, last loop is most inner
     LoopStack loopStack;
-    /// Analysis after wait, break/continue in removed loop or unreachable code,
-    /// used just for Phi-function readiness, no statement generated 
-    /// in the path which is after wait only
-    bool deadCode;
     
-    /// If the @prevScope is block with loop/break terminator it stored here, 
-    /// otherwise @nullptr is stored
-    const clang::Stmt* loopExit;
-    /// Up scope level for block after @IF with empty branch, that is required
-    /// if another branch contains @break, so there is no @Phi function before
-    bool upLevel;
     /// Dead predecessor should be ignored in preparing next block
     /// Used for &&/|| dead branch leads final IF
     bool deadCond;
     
-    ScopeInfo(unsigned level_,
-              const AdjBlock& prevBlock_,
-              std::shared_ptr<CodeScope>  prevScope_,
+    ScopeInfo(std::shared_ptr<CodeScope>  prevScope_,
               std::shared_ptr<CodeScope>  currScope_,
-              bool loopInputBody_,
-              bool loopInputOut_,
               const LoopStack& loopStack_,
-              bool deadCode_,
-              const clang::Stmt* loopExit_ = nullptr,
-              bool upLevel_ = false,
               bool deadCond_ = false
               ) : 
-        level(level_),
-        prevBlock(prevBlock_),
         prevScope(prevScope_),
         currScope(currScope_),
-        loopInputBody(loopInputBody_),
-        loopInputOut(loopInputOut_),
         loopStack(loopStack_),
-        deadCode(deadCode_),
-        loopExit(loopExit_),
-        upLevel(upLevel_),
         deadCond(deadCond_)
     {}
 };
@@ -182,13 +161,11 @@ struct ScFuncContext {
     LoopStack loopStack;
     /// Function directly called from this function <func expr, return value>
     std::unordered_map<clang::Stmt*, SValue>  calledFuncs;
-    /// Level for current function entry, added with block level in function
-    //unsigned funcLevel;
-    /// Dead code flag
-    bool deadCode;
     /// Context stored in break/continue in removed loop analysis run,
     /// do not skip current block element as for function call
     bool breakContext;
+    /// Current function has all the branches stopped at wait() calls, no exit achieved
+    bool noExitFunc;
     
     /// Scope graph printer
     std::shared_ptr<ScScopeGraph> scopeGraph;
@@ -205,23 +182,22 @@ struct ScFuncContext {
                           std::vector<ScopeInfo> > >& delayed_,
                     const LoopStack& loopStack_,
                     const std::unordered_map<clang::Stmt*, SValue>& calledFuncs_,
-                    //unsigned level_,
-                    bool deadCode_, bool breakContext_,
+                    bool breakContext_, bool noExitFunc_,
                     const std::shared_ptr<ScScopeGraph>& scopeGraph_,
                     const ScVerilogWriterContext& codeWriter_) :
             callPoint(callPoint_), returnValue(returnValue_), 
             modval(modval_), recval(recval_),
             delayed(delayed_), loopStack(loopStack_), 
-            calledFuncs(calledFuncs_), /*funcLevel(level_),*/ deadCode(deadCode_), 
-            breakContext(breakContext_), scopeGraph(scopeGraph_),
-            codeWriter(codeWriter_)
+            calledFuncs(calledFuncs_), 
+            breakContext(breakContext_), noExitFunc(noExitFunc_),
+            scopeGraph(scopeGraph_), codeWriter(codeWriter_)
     {}
     
     /// Create copy of @this with allocating new memory to scope graph pointer
-    ScFuncContext clone(std::shared_ptr<ScScopeGraph> innerGraph) 
+    ScFuncContext clone(std::shared_ptr<ScScopeGraph> innerGraph, bool inMainLoop) 
     {
         ScFuncContext res(*this);
-        res.scopeGraph = scopeGraph->clone(innerGraph);
+        res.scopeGraph = scopeGraph->clone(innerGraph, inMainLoop);
         return res;
     }
 };
@@ -272,14 +248,14 @@ public:
     
     /// Create copy of @this with allocating new memory to scope graph pointer
     /// in each function context
-    ScProcContext clone() 
+    ScProcContext clone(bool inMainLoop) 
     {
         ScProcContext res;
         
         // Last graph has no inner graph
         std::shared_ptr<ScScopeGraph> innerGraph = nullptr;
         for (auto i = rbegin(); i != rend(); ++i) {
-            auto funcCtx = i->clone(innerGraph);
+            auto funcCtx = i->clone(innerGraph, inMainLoop);
             res.push_back(funcCtx);
             innerGraph = funcCtx.scopeGraph;
         } 
@@ -299,13 +275,11 @@ public:
                             std::shared_ptr<ScState> state_, 
                             const SValue& modval_,
                             ScVerilogWriter* codeWriter_,
-                            bool noreadyBlockAllowed_ = false,
                             const ScCThreadStates* cthreadStates_ = nullptr,
                             const FindWaitCallVisitor* findWaitInLoop_ = nullptr,
                             bool isCombProcess = false,
                             bool isSingleStateThread = false) :
         ScGenerateExpr(context_, state_, modval_, codeWriter_),
-        noreadyBlockAllowed(noreadyBlockAllowed_),
         cthreadStates(cthreadStates_),
         findWaitInLoop(findWaitInLoop_),
         isCombProcess(isCombProcess),
@@ -317,20 +291,19 @@ public:
     }
     
 protected:
+    static std::shared_ptr<CodeScope> deadScope;
+    
     /// Store statement string
     void storeStmtStr(clang::Stmt* stmt);
     
     /// Store statement string for @nullptr
     void storeStmtStrNull(clang::Stmt* stmt);
     
-    /// Set @noRemoveStmt to do not remove sub-statement in scope graph
-    void setNoRemoveStmt(bool flag);
-    
-    /// Create new code scope
-    std::shared_ptr<CodeScope> createScope();
+    /// Create new code scope with specified level
+    std::shared_ptr<CodeScope> createScope(unsigned level);
     
     /// Get code scope for block or create new one
-    std::shared_ptr<CodeScope> getScopeForBlock(AdjBlock block);
+    std::shared_ptr<CodeScope> getScopeForBlock(AdjBlock block, unsigned level);
     
     /// Generate temporal assertion inside of loop(s) if required
     llvm::Optional<std::string> getSvaInLoopStr(const std::string& svaStr, 
@@ -369,7 +342,8 @@ protected:
     void parseCall(clang::CallExpr* expr, SValue& val) override;
 
     /// Member function call expression
-    void parseMemberCall(clang::CXXMemberCallExpr* expr, SValue& val) override;
+    void parseMemberCall(clang::CXXMemberCallExpr* expr, SValue& tval, 
+                         SValue& val) override;
     
     /// Choose and run DFS step in accordance with expression type.
     /// Remove sub-statements from generator
@@ -422,6 +396,14 @@ public:
     /// Get wait contexts
     std::vector<ScProcContext>& getWaitContexts();
     
+    void setLiveStmts(const std::unordered_set<clang::Stmt*>& stmts) {
+        liveStmts = stmts;
+    }
+    
+    void setLiveTerms(const std::unordered_set<clang::Stmt*>& stmts) {
+        liveTerms = stmts;
+    }
+    
     /// Get evaluated terminator condition values
     void setTermConds(const std::unordered_map<CallStmtStack, SValue>& conds);
     
@@ -434,20 +416,13 @@ public:
     }
     
 protected:
-    /// Analysis of not ready block allowed, required for THREAD analysis
-    bool noreadyBlockAllowed;
-    /// Do not remove sub-statements in chooseExprMethod(), used for removed loops
-    bool noRemoveStmt = false;
-    /// Method with NO sensitivity list, 
-    /// Verilog assignment statement generated for such method
-    bool emptySensitivity = false;
-    
     /// CFG fabric singleton
     CfgFabric* cfgFabric = CfgFabric::getFabric(astCtx);
+    /// Level, sub-statement and other statement information provider
+    ScStmtInfo stmtInfo;
     
-    /// Current and previous CFG blocks in analysis
+    /// Current CFG block in analysis
     AdjBlock block;
-    AdjBlock prevBlock;
     /// Element index in CFG block
     size_t elemIndx; 
     /// Exit from function CFG block ID
@@ -473,26 +448,16 @@ protected:
     InsertionOrderSet<std::string> sctRstAsserts;
     InsertionOrderSet<std::string> sctAsserts;
     
-    /// States stored in @wait() calls, used to start analysis after @wait()
-    /// <waitId, state>
-    //std::unordered_map<WaitID, ScState>  waitStates;
-    
-    /// Wait call in last statement
-    bool waitCall = false;
-    /// After wait, break/continue in removed loop and unreachable code, 
-    /// no statement generated 
-    /// Used to provide correct order of block analysis
-    bool deadCode = false;
     // Dead condition on path from &&/|| terminator to final IF/Loop/? condition, 
     // used to avoid dead condition generation
     bool deadCond = false;
-    
+    /// Wait call in last statement
+    bool noExitFunc = false;
+
+    /// Wait call in last statement
+    bool waitCall = false;
     /// Function call in last statement
     bool funcCall = false;
-    
-    /// Empty case blocks, used in @calcNextLevel()
-    std::unordered_set<sc::AdjBlock> emptyCaseBlocks;
-    
     /// Context for last called function
     std::shared_ptr<ScFuncContext> lastContext = nullptr;
     /// Call context stack
@@ -504,6 +469,10 @@ protected:
     /// Level for current function entry, added with block level in function
     //unsigned funcLevel = 0;
 
+    /// Live statements from ScTraverseConst
+    std::unordered_set<clang::Stmt*> liveStmts;    
+    /// Live terminators, also includes switch cases/default
+    std::unordered_set<clang::Stmt*> liveTerms;
     /// Evaluated terminator condition values, used in ScTraverseProc
     /// To distinguish FOR/WHILE first iteration loop terminator is 
     /// placed into #CallStmtStack twice, and once for other iterations
@@ -512,18 +481,17 @@ protected:
     /// THREAD wait states and constant propagation result providers
     const ScCThreadStates* cthreadStates = nullptr;
     const FindWaitCallVisitor* findWaitInLoop = nullptr;
-    /// Main loop terminator in CTHREAD, used to correct level at its entry
-    //clang::Stmt* mainLoopTerm = nullptr;
-    // Entered into main loop, used to check SVA generation
-    bool inMainLoop = false;
 
     /// Current process is combinatorial
     bool isCombProcess;
+    /// Method with NO sensitivity list, @assign statement generated for such method
+    bool emptySensitivity = false;
     /// Current process has reset signal
     bool hasReset;
-
     /// PROC_STATE is not generated for threads with only a 1 state
     bool isSingleStateThread;
+    /// Entered into main loop of CTHREAD process
+    bool inMainLoop = false;
     
     /// Functions with wait()
     std::unordered_set<const clang::FunctionDecl*>  hasWaitFuncs;

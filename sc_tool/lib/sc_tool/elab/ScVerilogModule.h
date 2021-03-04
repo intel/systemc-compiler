@@ -368,6 +368,7 @@ public:
     const ModuleMIFView getModObj() const { return elabModObj; }
     const std::string& getName() const { return name; }
     void setName(const std::string& newName) { name = newName; }
+    void setCommentName(const std::string& newName) { commentName = newName; }
     const std::string& getComment() const { return comment; }
     void setComment(const std::string &newComment) { comment = newComment; }
     
@@ -605,6 +606,7 @@ public:
     ModuleMIFView elabModObj;
 
     std::string name;
+    std::string commentName;
     std::string comment;
 
     /// Map VerilogVar to SValue

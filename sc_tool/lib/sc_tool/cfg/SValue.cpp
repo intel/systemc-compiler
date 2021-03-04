@@ -524,6 +524,10 @@ clang::QualType SObject::getType() const {
     return type;
 }
 
+void SObject::setType(clang::QualType type_) {
+    type = type_;
+}
+
 string SObject::asString(bool debug) const {
     if (debug) {
         return ("obj_" + to_string(id)+(isOwner()?"(OWNER)":""));

@@ -26,20 +26,48 @@
 
 namespace sc {
 
-// Code scope contains statements in order and they string representations
-struct CodeScope : public std::vector<std::pair<const clang::Stmt*, std::string> >  
+/// Code scope contains statements in order and they string representations
+class CodeScope : public std::vector<std::pair<const clang::Stmt*, std::string> >  
 {
+protected:
     static uint64_t id_gen;
-    // Scope unique ID
+    /// Scope unique ID
     uint64_t id;
+    /// Original level as in TraverseProc, can be decreased by 1 inside ScopeGraph 
+    unsigned level;
+    /// Inside of main loop of CTHREAD process, level decreased by 1 
+    const bool inMainLoop;
     
-    CodeScope() : id(id_gen++)
+public:
+    
+    CodeScope() : 
+        id(0), level(0), inMainLoop(false)
+    {}
+        
+    CodeScope(unsigned level_, bool inMainLoop_) : 
+        id(id_gen++), level(level_), inMainLoop(inMainLoop_)
     {}
     
     void resetId() {
         id_gen = 0;
     }
 
+    void setLevel(unsigned level_) {
+        level = level_;
+    }
+    unsigned getLevel() {
+        return level;
+    }
+    unsigned getCorrLevel() {
+        return ((inMainLoop && level != 0) ? level-1 : level);
+    }
+    bool isMainLoop() {
+        return inMainLoop;
+    }
+    bool isDead() {
+        return (id == 0);
+    }
+    
     std::string asString() {
         return ("S"+std::to_string(id));
     }
@@ -60,16 +88,10 @@ typedef std::pair<std::shared_ptr<CodeScope>,
 /// Sorted by scope level, started with minimal level
 class PreparedScopes : public std::list<ScopeRelation> 
 {
-protected:
-    // Scope levels
-    std::unordered_map<std::shared_ptr<CodeScope>, unsigned>&  scopeLevel;
-    
 public:
     
-    explicit PreparedScopes(std::unordered_map<std::shared_ptr<CodeScope>, 
-                                               unsigned>&  scopeLevel_) : 
-        std::list<ScopeRelation>(),
-        scopeLevel(scopeLevel_)
+    explicit PreparedScopes() : 
+        std::list<ScopeRelation>()
     {}
     
     void addScope(const ScopeRelation& scopeRel)
@@ -84,10 +106,10 @@ public:
         }
         if (i == rend()) {
             // Insert scope according with its level
-            unsigned succLevel = scopeLevel.at(scopeRel.first);
+            unsigned succLevel = scopeRel.first->getCorrLevel();
             auto j = begin();
             for (; j != end(); ++j) {
-                if (succLevel < scopeLevel.at(j->first)) {
+                if (succLevel < j->first->getCorrLevel()) {
                     break;
                 }
             }
@@ -120,15 +142,11 @@ namespace sc {
 /// ...
 class ScScopeGraph {
 public:
-    ScScopeGraph(bool noreadyBlockAllowed_) : 
-        noreadyBlockAllowed(noreadyBlockAllowed_),
+    ScScopeGraph() : 
         lastFuncCall(nullptr),
         firstScope(nullptr),
-        currScope(nullptr),
-        currLevel(0)
-    {
-        //firstScope->resetId();
-    }
+        currScope(nullptr)
+    {}
     
     virtual ~ScScopeGraph() {
     }
@@ -139,48 +157,25 @@ public:
     void storeStmt(const clang::Stmt* stmt, const std::string& s,  
                    bool artifIf = false);
     
+    /// Store null statement to make scope non-empty, required for do..while
+    void storeNullStmt(std::shared_ptr<CodeScope> scope);
+    
     /// Set statement as belong to METHOD with empty sensitive, 
     /// no tabulation used in print this statement
     void setEmptySensStmt(const clang::Stmt* stmt);
 
     /// Store switch case value expression
-    /// \param empty -- case is empty
-    void storeCase(std::shared_ptr<CodeScope> scope, const std::string& s,
-                   bool empty);
+    /// \param empty -- case is empty (no statements and no break)
+    void storeCase(std::shared_ptr<CodeScope> scope, 
+                   const std::string& s, bool empty);
     
     /// Store THREAD state variable assignment next state value
     void storeStateAssign(const clang::Stmt* stmt, 
                           const std::pair<std::string,std::string>& names, 
                           size_t waitId, bool isReset, bool addTab = false,
                           const std::string& comment = "");
-protected:
-    /// Remove given statement in the scope predecessors
-    void removeStmtInPreds(std::shared_ptr<CodeScope> scope, 
-                           const clang::Stmt* stmt, 
-                           const clang::Stmt* loopTerm, unsigned predNum);
-    
-    /// Remove @stmt entries from the given scope
-    void removeStmt(std::shared_ptr<CodeScope> scope, const clang::Stmt* stmt,
-                    const clang::Stmt* loopTerm);
-
-    /// Check if the statement is sub-statement of another statement
-    bool isSubStmt(std::shared_ptr<CodeScope> scope, const clang::Stmt* stmt);
 
 public:
-    /// Check if the statement is sub-statement of another statement in 
-    /// current scope, used to remove sub-statements in @afterAssertStmts
-    bool isSubStmt(const clang::Stmt* stmt) {
-        return isSubStmt(currScope, stmt);
-    }
-
-    /// Mark @stmt as sub-statement to skip it in print
-    void addSubStmt(const clang::Stmt* stmt, const clang::Stmt* loopTerm);
-    
-    /// Remove @stmt entries from current scope and its predecessor scopes
-    void removeStmt(const clang::Stmt* stmt, const clang::Stmt* loopTerm);
-    
-    //=========================================================================
-
     /// Set/get current scope
     void setFirstScope(std::shared_ptr<CodeScope> scope);
     std::shared_ptr<CodeScope> getFirstScope();
@@ -191,10 +186,11 @@ public:
 
     /// Set/get current block level as maximal of predecessors
     void setCurrLevel(unsigned level);
+    /// Get original level as used in TraverseProc, no correction by InMainLoop
     unsigned getCurrLevel();
     
-    /// Set level for the given scope @succ
-    void setScopeLevel(std::shared_ptr<CodeScope> succ, unsigned level);
+    /// Set level for the given scope
+    void setScopeLevel(std::shared_ptr<CodeScope> scope, unsigned level);
 
     /// Add @succ to successors of @currScope
     void addScopeSucc(std::shared_ptr<CodeScope> succ);
@@ -221,9 +217,6 @@ public:
     /// \param funcCall -- real function call, not break/continue
     void setName(const std::string& fname, bool fcall = true);
 
-    /// Set initial level for function scopes
-    void setInitLevel(unsigned level);
-    
     /// Add scope graph for function call
     void addFCallScope(const clang::Stmt* stmt, const clang::Stmt* loopTerm,
                        std::shared_ptr<ScScopeGraph> graph);
@@ -247,11 +240,12 @@ public:
     }
     
     /// Print scope statements and included scopes
-    /// \param skipDoStmt -- skip first stament in the scope, used to increase 
-    ///                      level in artificial DO statement
+    /// \param printLevel -- level for output tabs
+    /// \param noExitByLevel -- no return from this printCurrentScope() by level up 
     PreparedScopes printCurrentScope(std::ostream &os, 
                                      std::shared_ptr<CodeScope> scope, 
-                                     unsigned level, bool skipDoStmt = false);
+                                     unsigned printLevel, 
+                                     bool noExitByLevel = false);
     /// Clear @visited after print to prepare to next print
     void clearAfterPrint();
 
@@ -260,7 +254,8 @@ public:
     
     /// Clone scope graph at @wait()
     /// \param innerGraph -- inner graph for last function call or nullptr
-    std::unique_ptr<ScScopeGraph> clone(std::shared_ptr<ScScopeGraph> innerGraph);
+    std::unique_ptr<ScScopeGraph> clone(std::shared_ptr<ScScopeGraph> innerGraph,
+                                        bool inMainLoop);
     
 protected:
     /// Assignment symbol "=" or "<="
@@ -278,14 +273,9 @@ protected:
     /// Number of recursively passed scope predecessors to remove loop 
     /// sub-statements with @removeStmt()
     const unsigned REMOVE_STMT_PRED = 5;
-    /// Initial level for function scopes, used to increase tabulation
-    unsigned INIT_LEVEL = 0;
     /// Maximal allowed level, restricted to detect level overflow error
     unsigned MAX_LEVEL  = 100;
             
-    /// Analysis of not ready block allowed, required for THREAD analysis
-    bool noreadyBlockAllowed;
-
     /// Scope graph name and function call flag
     std::string name;
     bool funcCall;
@@ -299,9 +289,9 @@ protected:
     // Scope predecessors
     std::unordered_map<std::shared_ptr<CodeScope>, 
                        std::vector<std::shared_ptr<CodeScope>> >  scopePreds;
-    
+
     /// Switch values for case scopes
-    /// <scope, <case value, empty case>>
+    /// <scope, <case string, empty case>>
     std::unordered_map<std::shared_ptr<CodeScope>, 
                        std::pair<std::string, bool>> switchCases;
     /// Function call, break/continue included ScopeGraph`s
@@ -318,16 +308,12 @@ protected:
     std::shared_ptr<CodeScope>  firstScope;
     /// Current scope
     std::shared_ptr<CodeScope>  currScope;
-    unsigned    currLevel;
     
     /// Loop statements which are artificial IF in threads
     std::unordered_set<const clang::Stmt*>  artifIfStmts;
     
     /// Statements belong to METHOD with empty sensitive
     std::unordered_set<const clang::Stmt*>  emptySensStmt;
-    
-    /// Sub-statements to skip in code print
-    std::unordered_set<const clang::Stmt*> subStmts;
     
     /// Variables and constants not replaced by integer values
     static std::unordered_set<SValue> notReplacedVars;

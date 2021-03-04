@@ -7,8 +7,7 @@
 
 #include <systemc.h>
 
-// Test for wait(n) where @n is not constant, changed at next loop iteration
-// This test should fail
+// wait(N) where N is unknown
 SC_MODULE(test_mod) {
 
     sc_signal<bool> clk{"clk"};
@@ -19,14 +18,14 @@ SC_MODULE(test_mod) {
         async_reset_signal_is(rstn, false);
     }
     
+    sc_signal<unsigned> s;
     void wait_n_inf() 
     {
-        sc_uint<10> n = 1;
+        unsigned n = s.read();
         wait();     
 
         while (1) {
             wait(n);
-            n++;
         }
     }
 };

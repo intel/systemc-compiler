@@ -6,9 +6,52 @@
  *****************************************************************************/
 
 #include "sc_tool/cfg/ScTraverseCommon.h"
+#include "sc_tool/utils/ScTypeTraits.h"
+#include "sc_tool/utils/CppTypeTraits.h"
 
 using namespace clang;
 using namespace sc;
+
+// For loop visitor instance
+ForLoopVisitor ForLoopVisitor::signleton;
+
+// Check if statement is call expression of user defined function/method
+bool sc::isUserCallExpr(clang::Stmt* stmt)
+{
+    SCT_TOOL_ASSERT (stmt, "Null statement");
+    
+    if (auto expr = dyn_cast<CallExpr>(stmt)) {
+        // Get function name and type
+        FunctionDecl* funcDecl = expr->getDirectCallee();
+        SCT_TOOL_ASSERT (funcDecl, "No function found for call expression");
+        std::string fname = funcDecl->getNameAsString();
+        auto nsname = getNamespaceAsStr(funcDecl);
+
+        // Functions from @sc_core:: and @sc_dt:: not analyzed, 
+        // some function from @std:: not analyzed
+        if ((fname == "__assert" || fname == "__assert_fail") ||
+            (nsname && (*nsname == "sc_core" || *nsname == "sc_dt")) ||
+            (((nsname && *nsname == "std") || isLinkageDecl(funcDecl)) &&
+               (fname == "printf" || fname == "fprintf" || 
+                fname == "sprintf" || fname == "snprintf" ||
+                fname == "fopen" || fname == "fclose"))) {
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+// Check if the FOR loop has externally declared counter
+bool sc::hasForExtrCntr(clang::Stmt* stmt) 
+{
+    if (stmt == nullptr) return false;
+    
+    if (auto forStmt = dyn_cast<ForStmt>(stmt)) {
+        return !ForLoopVisitor::get().hasInternalCntr(forStmt);
+    }
+    return false;
+}
 
 // Check if the block is loop entry
 // Return loop statement if this block is loop entry or nullptr

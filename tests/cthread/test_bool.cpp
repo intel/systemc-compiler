@@ -24,6 +24,7 @@ public:
     int                 m;
     int                 k;
     int*                p;
+    int*                p2;
     int*                q;
     sc_uint<5>*         px;
 
@@ -35,6 +36,7 @@ public:
     SC_CTOR(A)
     {
         p = sc_new<int>();
+        p2 = sc_new<int>();
         q = nullptr;
         ps = new sc_signal<bool>("ps");
         px = sc_new<sc_uint<5>>();
@@ -73,11 +75,11 @@ public:
         
         while (true) {
             unsigned i;
-            if (!p) {i = 0;}
-            if (p) {i = 1;}
-            if (!p) {i = 0;}
+            if (!p2) {i = 0;}
+            if (p2) {i = 1;}
+            if (!p2) {i = 0;}
             sct_assert_const(i == 1);
-            if (p != nullptr) {i = 2;}
+            if (p2 != nullptr) {i = 2;}
             sct_assert_const(i == 2);
 
             if (q) {i = 0;}

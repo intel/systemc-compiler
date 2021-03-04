@@ -51,7 +51,7 @@ SValue ScParseExpr::parseGlobalConstant(const SValue &val)
     skipRangeVar = true;
     SValue res = parseValueDecl(const_cast<clang::ValueDecl*>(
                                 val.getVariable().getDecl()),
-                                NO_VALUE, nullptr, false);
+                                NO_VALUE, nullptr, false).first;
     skipRangeVar = false;
 
     if (res.isVariable()) {
@@ -284,14 +284,16 @@ void ScParseExpr::setArrayElement(const clang::QualType &type,
 
 // Parse any declaration, used for module fields and local variables.
 // Create variable value for @decl and put its initial value into state
-SValue ScParseExpr::parseValueDecl(clang::ValueDecl* decl,
-                                   const SValue& declModval, 
-                                   clang::Expr* argExpr, bool checkConst, 
-                                   bool removeSubValues)
+std::pair<SValue, std::vector<SValue> > 
+        ScParseExpr::parseValueDecl(clang::ValueDecl* decl,
+                                    const SValue& declModval, 
+                                    clang::Expr* argExpr, bool checkConst, 
+                                    bool removeSubValues)
 {
     using namespace clang;
     using namespace llvm;
     using namespace std;
+    
     // Variable or array variable
     SValue val(decl, declModval);
     state->setValueLevel(val, level);
@@ -315,7 +317,9 @@ SValue ScParseExpr::parseValueDecl(clang::ValueDecl* decl,
     Expr* iexpr = argExpr ? argExpr : (hasInit ? 
                   (varDecl ? varDecl->getInit() : 
                    fieldDecl->getInClassInitializer()) : nullptr);
-    
+    // Initializer values
+    std::vector<SValue> initvals;
+            
     if (type->isArrayType()) {
         // Array value
         SValue aval;
@@ -342,7 +346,7 @@ SValue ScParseExpr::parseValueDecl(clang::ValueDecl* decl,
                 // Set @i-th element in multi-dimensional array
                 // Add local variable and index in array to compare records
                 // No set level required for record value 
-                SValue rval = createRecValue(recDecl, parent, val, i);
+                SValue rval = createRecValue(recDecl, parent, val, true, i);
                 setArrayElement(type, i, aval, rval);
                 
                 if (i == 0) zeroRec = rval;
@@ -366,39 +370,50 @@ SValue ScParseExpr::parseValueDecl(clang::ValueDecl* decl,
             }
                 
         } else
-        if (iexpr && (!checkConst || isConst)) {
+        if (iexpr) {
             // Put values of elements, that also works well for SC data types
             // Remove ExprWithCleanups wrapper
             if (auto cleanExpr = dyn_cast<ExprWithCleanups>(iexpr)) {
                 iexpr = cleanExpr->getSubExpr();
             }
-            
+            // Parse initialization expression
             if (auto init = dyn_cast<InitListExpr>(iexpr)) {
                 for (unsigned i = 0; i < init->getNumInits(); i++) {
-                    // Try to evaluate expression as integer constant
-                    SValue ival;
                     Expr *iiexpr = const_cast<Expr *>(init->getInit(i));
-                    evaluateConstInt(iiexpr, ival, checkConst);
-                    // Set @i-th element in multi-dimensional array
-                    setArrayElement(type, i, aval, ival);
+                    SValue ival = evalSubExpr(iiexpr);
+                    initvals.push_back(ival);
                 }
-            } else 
-            if ( isScIntegerArray(type, false) ) {
-                // Put zero value for @iexpr
-                SValue zval(APSInt(APInt(64, 0), true), 10);
-                auto elmnum = getArrayElementNumber(type);
-                for (unsigned i = 0; i < elmnum; i++) {
-                    // Set @i-th element in multi-dimensional array
-                    setArrayElement(type, i, aval, zval);
+            }
+            
+            if (!checkConst || isConst) {
+                if (auto init = dyn_cast<InitListExpr>(iexpr)) {
+                    for (unsigned i = 0; i < init->getNumInits(); i++) {
+                        // Try to evaluate expression as integer constant
+                        Expr *iiexpr = const_cast<Expr *>(init->getInit(i));
+                        SValue ival = initvals[i];
+                        SValue iival = evaluateConstInt(iiexpr, ival, checkConst);
+
+                        // Set @i-th element in multi-dimensional array
+                        setArrayElement(type, i, aval, iival);
+                    }
+                } else 
+                if ( isScIntegerArray(type, false) ) {
+                    // Put zero value for @iexpr
+                    SValue zval(APSInt(APInt(64, 0), true), 10);
+                    auto elmnum = getArrayElementNumber(type);
+                    for (unsigned i = 0; i < elmnum; i++) {
+                        // Set @i-th element in multi-dimensional array
+                        setArrayElement(type, i, aval, zval);
+                    }
+                } else 
+                if (isa<ArrayInitLoopExpr>(iexpr)) {
+                    // Do nothing here, ArrayInitLoopExpr used for array copy/move
+
+                } else {
+                    SCT_INTERNAL_FATAL(iexpr->getBeginLoc(), 
+                                     string("Unsupported initializer ")+ 
+                                     iexpr->getStmtClassName());
                 }
-            } else 
-            if (isa<ArrayInitLoopExpr>(iexpr)) {
-                // Do nothing here, ArrayInitLoopExpr used for array copy/move
-                
-            } else {
-                SCT_INTERNAL_FATAL(iexpr->getBeginLoc(), 
-                                 string("Unsupported initializer ")+ 
-                                 iexpr->getStmtClassName());
             }
         }
     } else {
@@ -409,12 +424,26 @@ SValue ScParseExpr::parseValueDecl(clang::ValueDecl* decl,
                         isConstQualified() : type.isConstQualified();
         bool isRecord = isUserDefinedClass(type);
 
+        // Enable record constructor processing in @evalSubExpr
+        if (!isRef && !isPtr && isRecord) {
+            locrecvar = val;
+        }
+
+        // Parse initializer
+        SValue ival; SValue iival;
+        if (iexpr) {
+            ival = evalSubExpr(iexpr);
+            iival = evaluateConstInt(iexpr, ival, checkConst);
+            initvals.push_back(ival);
+        }
+        
         if (isRef) {
             // It needs to put reference value into state
             if (iexpr) {
                 // Do not evaluate constant reference as it can be used in
                 // range/bit selection expression, even if @ival is unknown @NO_VALUE
-                SValue ival = evalSubExpr(const_cast<Expr*>(iexpr));
+//                SValue ival = evalSubExpr(iexpr);
+//                initvals.push_back(ival);
 
                 // Reference can be to array element or dynamic object
                 // Channels can be for constant reference parameter
@@ -428,14 +457,14 @@ SValue ScParseExpr::parseValueDecl(clang::ValueDecl* decl,
 
                 // Initializer value dereference required as @putValue() 
                 // run with @deReference = false
-                SValue iival;
-                state->getDerefVariable(ival, iival);
+                SValue irval;
+                state->getDerefVariable(ival, irval);
                 // Put variable for reference
-                state->putValue(val, iival, false);
+                state->putValue(val, irval, false);
                 
                 // Check argument is array element at unknown index
                 bool unkwIndex;
-                bool isArr = state->isArray(iival, unkwIndex);
+                bool isArr = state->isArray(irval, unkwIndex);
                 if (isArr && unkwIndex) {
                     ScDiag::reportScDiag(argExpr->getBeginLoc(), 
                                          ScDiag::SYNTH_ARRAY_ELM_REFERENCE);
@@ -449,26 +478,29 @@ SValue ScParseExpr::parseValueDecl(clang::ValueDecl* decl,
         if (isPtr) {
             if (iexpr) {
                 // It needs to put pointer value into state
-                SValue ival;
-                if (evaluateConstInt(iexpr, ival, checkConst)) {
+//                SValue ival = evalSubExpr(iexpr);
+//                SValue iival = evaluateConstInt(iexpr, ival, checkConst);
+//                initvals.push_back(ival);
+            
+                if (iival.isInteger()) {
                     // Got integer constant for pointer
-                    if (!ival.getInteger().isNullValue()) {
+                    if (!iival.getInteger().isNullValue()) {
                         ScDiag::reportScDiag(argExpr->getBeginLoc(),
                                              ScDiag::SYNTH_POINTER_NONZERO_INIT)
                                              << val.asString();
                     }
                 } else {
-                    ival = evalSubExpr(const_cast<Expr*>(iexpr));
+                    iival = ival;
                 }
 
                 // Put pointer value, it needs to get value from @ival here
                 // Use @amArrayUnknown for channel pointer array element at 
                 // unknown index initialized/passed to function
-                assignValueInState(val, ival, ArrayUnkwnMode::amArrayUnknown);
+                assignValueInState(val, iival, ArrayUnkwnMode::amArrayUnknown);
                 
                 // Check argument is array element at unknown index
                 bool unkwIndex;
-                bool isArr = state->isArray(ival, unkwIndex);
+                bool isArr = state->isArray(iival, unkwIndex);
                 if (isArr && unkwIndex) {
                     ScDiag::reportScDiag(argExpr->getBeginLoc(), 
                                          ScDiag::SYNTH_ARRAY_ELM_REFERENCE);
@@ -483,28 +515,27 @@ SValue ScParseExpr::parseValueDecl(clang::ValueDecl* decl,
             // User defined class non-module
             //cout << "-------- iexpr for record " << iexpr << " val " << val << endl;
             // Enable record constructor processing
-            locrecvar = val;
+//            locrecvar = val;
             
             // Process record constructor, where fields are created and declared
             // Do not evaluate value for inner record as two ctors not supported
             if (iexpr) {
-                SValue ival = evalSubExpr(const_cast<Expr*>(iexpr));
-                //cout << "Record value is " << ival << endl;
-
+//                SValue ival = evalSubExpr(iexpr);
+//                initvals.push_back(ival);
                 // Put record for record variable, value from @parseRecordCtor replaced
                 assignValueInState(val, ival);
             }
             
         } else 
         if ((!checkConst || isConst) && iexpr) {
-            // Try to evaluate expression as integer constant
-            // Not applied to reference
-            SValue ival;
-            evaluateConstInt(iexpr, ival, checkConst);
-
+            // Try to evaluate expression as constant, not applied to reference
+//            SValue ival = evalSubExpr(iexpr);
+//            SValue iival = evaluateConstInt(iexpr, ival, checkConst);
+//            initvals.push_back(ival);
+            
             // Check builtin, enumeration or SC integer type
             if (isAnyInteger(decl->getType())) {
-                assignValueInState(val, ival);
+                assignValueInState(val, iival);
                 
             } else {
                 ScDiag::reportScDiag(decl->getBeginLoc(),
@@ -513,7 +544,7 @@ SValue ScParseExpr::parseValueDecl(clang::ValueDecl* decl,
             }
         }
     }
-    return val;
+    return make_pair(val, initvals);
 }
 
 void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
@@ -552,10 +583,12 @@ void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
         parseExpr(expr, val);
     }
     else if (auto expr = dyn_cast<ImplicitCastExpr>(stmt)) {
-        parseExpr(expr, val);
+        SValue rval;
+        parseExpr(expr, rval, val);
     }
     else if (auto expr = dyn_cast<ExplicitCastExpr>(stmt)) {
-        parseExpr(expr, val);
+        SValue rval;
+        parseExpr(expr, rval, val);
     }
     else if (auto expr = dyn_cast<ParenExpr>(stmt)) {
         parseExpr(expr, val);
@@ -573,7 +606,8 @@ void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
         parseOperatorCall(expr, val);
     }
     else if (auto expr = dyn_cast<CXXMemberCallExpr>(stmt)) {
-        parseMemberCall(expr, val);
+        SValue tval;
+        parseMemberCall(expr, tval, val);
     }
     else if (auto expr = dyn_cast<CallExpr>(stmt)) {
         parseCall(expr, val);
@@ -735,7 +769,7 @@ void ScParseExpr::parseExpr(clang::DeclRefExpr* expr, SValue& val)
 // Used for arrays of record elements
 SValue ScParseExpr::createRecValue(const clang::CXXRecordDecl* recDecl, 
                                    const SValue& parent, const SValue& var, 
-                                   size_t index) 
+                                   bool parseFields, size_t index) 
 {
     using namespace clang;
     //cout << "createRecValue for var " << var << " index " << index << endl;
@@ -744,7 +778,7 @@ SValue ScParseExpr::createRecValue(const clang::CXXRecordDecl* recDecl,
     for (auto base : recDecl->bases()) {
         auto type = base.getType();
         SValue bval = createRecValue(type->getAsCXXRecordDecl(), parent, var, 
-                                     index);
+                                     parseFields, index);
         bases.push_back(bval);
     }
 
@@ -756,8 +790,10 @@ SValue ScParseExpr::createRecValue(const clang::CXXRecordDecl* recDecl,
     SValue lastRecval(recval); recval = currec;
 
     // Fill field values into state, required for array member of record array
-    for (auto fieldDecl : recDecl->fields()) {
-        parseValueDecl(fieldDecl, currec, nullptr);
+    if (parseFields) {
+        for (auto fieldDecl : recDecl->fields()) {
+            parseValueDecl(fieldDecl, currec, nullptr);
+        }
     }
     
     // Restore current module before parse constructor call
@@ -830,9 +866,9 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
     // Create value for this record and put it into record variable,
     // required to have variable for record in state, replaced in parseValueDecl
     SValue currec = createRecValue(expr->getBestDynamicClassType(), 
-                                   parent, currecvar);
+                                   parent, currecvar, false);
     state->putValue(currecvar, currec);
-    //cout << "curmodvar " << curmodvar << ", curmod " << curmod << endl;
+    //cout << "currecvar " << currecvar << ", currec " << currec << endl;
     
     // Prepare constructor parameters before initialization list because 
     // they can be used there, parameters declared in previous module
@@ -895,11 +931,9 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
             //cout << "-------- non-record member" << endl;
             
             // Do not remove @stmt as it`s used to store expression in scope graph
-            setNoRemoveStmt(true);
             SValue val;
             // Field is initialized with @init
             parseDeclStmt(stmt, fieldDecl, val, init);
-            setNoRemoveStmt(false);
 
             storeStmtStr(stmt);
         }
@@ -966,13 +1000,14 @@ void ScParseExpr::parseExpr(clang::MemberExpr *expr, SValue &val)
     //     << ", val = "  << val << endl;
 }
 
-void ScParseExpr::parseExpr(clang::ImplicitCastExpr *expr, SValue &val)
+void ScParseExpr::parseExpr(clang::ImplicitCastExpr *expr, SValue& rval, SValue &val)
 {
     using namespace clang;
     using namespace std;
     
     // Parse sub-expression
-    val = evalSubExpr(expr->getSubExpr());
+    rval = evalSubExpr(expr->getSubExpr());
+    val = rval;
     auto castKind = expr->getCastKind();
 
     if (castKind == CK_DerivedToBase || castKind == CK_UncheckedDerivedToBase) {
@@ -1056,9 +1091,10 @@ void ScParseExpr::parseExpr(clang::ImplicitCastExpr *expr, SValue &val)
     }
 }
 
-void ScParseExpr::parseExpr(clang::ExplicitCastExpr* expr, SValue& val)
+void ScParseExpr::parseExpr(clang::ExplicitCastExpr* expr, SValue& rval, SValue& val)
 {
-    val = evalSubExpr(expr->getSubExpr());
+    rval = evalSubExpr(expr->getSubExpr());
+    val = rval;
 }
 
 void ScParseExpr::parseExpr(clang::ParenExpr* expr, SValue& val)

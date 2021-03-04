@@ -22,6 +22,15 @@ namespace sc {
 using namespace clang;
 using namespace std;
 
+// Is constant or constant reference type
+bool isConstOrConstRef(QualType type) 
+{
+    return (!type.isNull() && 
+            (type.getTypePtr()->isReferenceType() ?
+             type.getNonReferenceType().isConstQualified() : 
+             type.isConstQualified()));
+}
+
 // Check if the type is reference type
 bool isReference(QualType type) 
 {
@@ -472,27 +481,6 @@ CXXConstructExpr* getCXXCtorExprArg(Expr* expr)
     return dyn_cast<CXXConstructExpr>(expr);
 }
 
-// Check if constructor expression is copy constructor
-bool isCXXCopyCtor(clang::CXXConstructExpr* expr) 
-{
-    //return (expr && expr->getConstructor()->isCopyConstructor());
-    
-    // Check it has one argument and has the same type as this record
-    if (expr->getNumArgs() == 1) {
-        auto arg = expr->getArg(0);
-        if (expr->getType().isNull()) return false;
-
-        if (auto recDecl = arg->getType()->getAsCXXRecordDecl()) {
-            //recDecl->getTypeForDecl()->getUnqualifiedDesugaredType()->dump();
-            //expr->getType().getTypePtr()->getUnqualifiedDesugaredType()->dump();
-            // @getUnqualifiedDesugaredType required for move constructor
-            return (recDecl->getTypeForDecl()->getUnqualifiedDesugaredType() == 
-                    expr->getType().getTypePtr()->getUnqualifiedDesugaredType());
-        }
-    }
-    return false;
-}
-
 llvm::Optional<std::string> getNamespaceAsStr(const clang::Decl *decl)
 {
     const auto *declCtx = decl->getDeclContext();
@@ -515,11 +503,18 @@ bool isLinkageDecl(const clang::Decl* decl)
 
 clang::Expr* removeExprCleanups(clang::Expr* expr) 
 {
-    clang::Expr* res = expr;
-    while (auto expr = dyn_cast<ExprWithCleanups>(res)) {
-        res = expr->getSubExpr();
+    while (auto cuExpr = dyn_cast<ExprWithCleanups>(expr)) {
+        expr = cuExpr->getSubExpr();
     }
-    return res;
+    return expr;
+}
+
+clang::Stmt* removeExprCleanups(clang::Stmt* stmt) 
+{
+    while (auto cuExpr = dyn_cast<ExprWithCleanups>(stmt)) {
+        stmt = cuExpr->getSubExpr();
+    }
+    return stmt;
 }
 
 // Check if expression contains a sub-expression of boolean type

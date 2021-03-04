@@ -43,6 +43,12 @@ struct top : sc_module
         mods[1]->in(sig[2]);
         mods[1]->out->bind(sig[3]);
         
+        // Add and remove module
+        auto mod2 = new bottom("mods2"); 
+        mods.push_back(mod2);
+        mods.erase((mods.rbegin()+1).base());
+        delete mod2;
+        
         SC_METHOD(proc);
         sensitive << sig[1] << sig[3];
     }

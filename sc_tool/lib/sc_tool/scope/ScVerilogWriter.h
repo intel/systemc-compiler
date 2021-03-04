@@ -240,8 +240,7 @@ protected:
                                   const clang::Stmt* init = nullptr);
     
     /// Get index to provide unique name for local variable
-    unsigned getUniqueNameIndex(const std::string& origVarName, 
-                                const SValue& val, bool isNext);
+    std::string getUniqueName(const std::string& origVarName);
 
     // Check if variable value is not registered in varTraits and extrValNames 
     bool isLocalVariable(const SValue& val);
@@ -602,6 +601,16 @@ public:
     /// Remove statement from terms
     void clearStmt(const clang::Stmt* stmt);
     
+    void printTerms() {
+        using namespace std;
+        cout << "Terms -----------------" << hex << endl;
+        for (auto i : terms) {
+            cout << "  " << i.first << endl;
+        }
+        cout << dec;
+    }
+
+    
     /// Get string for @stmt, which may be sub-expression
     /// \return expression string to read
     llvm::Optional<std::string> getStmtString(const clang::Stmt* stmt);
@@ -762,7 +771,7 @@ protected:
     /// Variable name index, <variable name, last used index> 
     std::unordered_map<std::string, unsigned> varNameIndex;
     /// Variable value name dictionary, <<variable, is next>, name index> 
-    std::unordered_map<std::pair<SValue, bool>, unsigned> varIndex;
+    std::unordered_map<std::pair<SValue, bool>, std::string> varIndex;
     /// Declaration for local variables
     std::vector< std::pair<SValue, std::string> > localDeclVerilog;
     /// Variables and constants not replaced by integer values, 

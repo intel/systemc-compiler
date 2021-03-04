@@ -21,7 +21,8 @@ extern llvm::cl::opt<std::string>   verilogFileName;
 extern llvm::cl::opt<bool>          noSvaGenerate;
 extern llvm::cl::opt<bool>          noRemoveExtraCode;
 extern llvm::cl::opt<bool>          initLocalVars;
-extern llvm::cl::opt<bool>          keepConstVariables;
+extern llvm::cl::opt<bool>          replaceConstByValue;
+extern llvm::cl::opt<std::string>   modulePrefix;
 
 // Planned to remove
 extern llvm::cl::opt<bool>          noProcessAnalysis;
@@ -66,7 +67,7 @@ inline bool REMOVE_EMPTY_LOOP() {
 
 // Remove constant declaration 
 inline bool REMOVE_CONST_DECL() {
-    return (!keepConstVariables && 
+    return (replaceConstByValue && 
             (ENABLE_REMOVE_EXTRA_CODE & codeRemoveOpt::crRemoveConst));
 }
 

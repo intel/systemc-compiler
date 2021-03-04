@@ -7,9 +7,6 @@
 
 #######################################################################
 # HTR NEW TESTS
-add_executable(method_const_static_mem test_const_static_mem.cpp)
-svc_target(method_const_static_mem GOLDEN method_const_static_mem.sv)
-
 add_executable(method_stdouts_prints test_stdouts_prints.cpp)
 svc_target(method_stdouts_prints GOLDEN method_stdouts_prints.sv)
 
@@ -17,6 +14,15 @@ add_executable(method_trace test_trace.cpp)
 svc_target(method_trace)
 
 #######################################################################
+
+add_executable(method_level1 test_level1.cpp)
+svc_target(method_level1 GOLDEN method_level1.sv)
+
+add_executable(method_level2 test_level2.cpp)
+svc_target(method_level2 GOLDEN method_level2.sv)
+
+add_executable(method_level_error test_level_error.cpp)
+svc_target(method_level_error GOLDEN method_level_error.sv)
 
 add_executable(method_break test_break.cpp)
 svc_target(method_break GOLDEN method_break.sv)
@@ -42,8 +48,11 @@ svc_target(method_dowhile_other GOLDEN method_dowhile_other.sv)
 add_executable(method_for test_for.cpp)
 svc_target(method_for GOLDEN method_for.sv)
 
-add_executable(method_for_fcall test_for_fcall.cpp)
-svc_target(method_for_fcall GOLDEN method_for_fcall.sv)
+add_executable(method_for_fcall_fail test_for_fcall_fail.cpp)
+svc_target(method_for_fcall_fail WILL_FAIL)
+
+add_executable(method_while_fcall_fail test_while_fcall_fail.cpp)
+svc_target(method_while_fcall_fail WILL_FAIL)
 
 add_executable(method_const test_const.cpp)
 svc_target(method_const GOLDEN method_const.sv)
@@ -71,6 +80,13 @@ svc_target(method_const_compl_cond GOLDEN method_const_compl_cond.sv)
 
 add_executable(method_const_fail test_const_fail.cpp)
 svc_target(method_const_fail WILL_FAIL)
+
+add_executable(method_const_static_mem test_const_static_mem.cpp)
+svc_target(method_const_static_mem GOLDEN method_const_static_mem.sv)
+
+## Uncomment me after #223
+#add_executable(method_sc_int_const_array test_sc_int_const_array.cpp)
+#svc_target(method_sc_int_const_array)
 
 # Function call
 add_executable(method_fcall test_fcall.cpp)
@@ -233,9 +249,6 @@ svc_target(method_const_array GOLDEN method_const_array.sv)
 add_executable(method_pointers test_pointers.cpp)
 svc_target(method_pointers GOLDEN method_pointers.sv)
 
-#add_executable(method_sc_int_const_array test_sc_int_const_array.cpp)
-#sctool_target(method_sc_int_const_array)
-
 add_executable(method_array test_array.cpp)
 svc_target(method_array GOLDEN method_array.sv)
 
@@ -390,6 +403,9 @@ svc_target(method_forloop_other_types GOLDEN method_forloop_other_types.sv)
 add_executable(method_explicit_specialz_templ test_explicit_specialz_templ.cpp)
 svc_target(method_explicit_specialz_templ GOLDEN method_explicit_specialz_templ.sv)
 
+add_executable(method_loop_cond_fail test_loop_cond_fail.cpp)
+svc_target(method_loop_cond_fail WILL_FAIL)
+
 
 #6) Record Pointer - more tests
 #7) Check if channel of record is supported / required to be supported
@@ -426,5 +442,3 @@ svc_target(method_bit_range_access GOLDEN method_bit_range_access.sv)
 add_executable(method_bit_range_fail test_bit_range_fail.cpp)
 svc_target(method_bit_range_fail WILL_FAIL)
 
-add_executable(method_level_error test_level_error.cpp)
-svc_target(method_level_error GOLDEN method_level_error.sv)

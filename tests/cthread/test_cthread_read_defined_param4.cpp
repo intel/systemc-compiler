@@ -86,8 +86,7 @@ public:
         SC_CTHREAD(ptr_ch_thread1, clk.pos());
         async_reset_signal_is(nrst, 0);
     }
-
-    
+   
 // ------------------------------------------------------------------------
     // Array element passed via constant reference
     
@@ -97,11 +96,12 @@ public:
         return l;
     }
     
+    const unsigned E = 1;
     void const_ref_call() {
         unsigned j = 0;
+        j = cmref(E);
         j = cmref(ARR[s.read()]) + cmref(ARR[1]);
-    }    
-    
+    }        
     
     unsigned cref(const unsigned& par) {
         unsigned l;

@@ -7,8 +7,7 @@
 
 #include <systemc.h>
 
-// Simple port promotion example
-
+// Simple port promotion example, used for UG
 SC_MODULE(Child) {
     sc_in_clk   clk{"clk"};
 
@@ -16,6 +15,11 @@ SC_MODULE(Child) {
     sc_out<sc_int<16>> out{"out"};
 
     SC_CTOR(Child) {
+        SC_METHOD(proc); sensitive << in;
+    }
+    
+    void proc() {
+        out = in.read() + 1;
     }
 };
 

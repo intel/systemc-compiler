@@ -23,6 +23,9 @@ namespace sc
 /// Evaluation precision 
 const uint32_t EPRECISION = 64;
 
+/// Is constant or constant reference type
+bool isConstOrConstRef(clang::QualType type);
+
 /// Check if the type is reference type
 bool isReference(clang::QualType type);
 
@@ -122,9 +125,6 @@ void adjustIntegers(llvm::APSInt val1, llvm::APSInt val2, llvm::APSInt &res1,
 /// Try to get get CXXConstructExpr from given expression
 clang::CXXConstructExpr* getCXXCtorExprArg(clang::Expr* expr);
 
-/// Check if constructor expression is copy constructor
-bool isCXXCopyCtor(clang::CXXConstructExpr* expr);
-
 /// Get namespace name string from declaration or none
 llvm::Optional<std::string> getNamespaceAsStr(const clang::Decl *decl);
 
@@ -134,6 +134,7 @@ bool isLinkageDecl(const clang::Decl* decl);
 
 /// Remove @ExprWithCleanups from @expr 
 clang::Expr* removeExprCleanups(clang::Expr* expr);
+clang::Stmt* removeExprCleanups(clang::Stmt* stmt);
 
 /// Check if expression contains a sub-expression of boolean type
 bool isBoolArgument(const clang::Expr* expr);

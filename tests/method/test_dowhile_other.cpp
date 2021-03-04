@@ -42,7 +42,7 @@ public:
 
     // sc_int type
     void do_while_sc_int_type() {
-        k = 0;
+        int k = 0;
         sc_int<3> i = 0;
         sc_int<4> j = 0;
         do {
@@ -57,6 +57,7 @@ public:
     void do_while_sc_uint_type() {
 		sc_uint<5> i = 0;
 		sc_uint<6> j = 0;
+                int k = a.read();
 		do {
 			i++;
 			j++;
@@ -67,6 +68,7 @@ public:
     void do_while_sc_bigint_type() {
 		sc_bigint<5> i = 0;
 		sc_bigint<6> j = 0;
+                int k = a.read();
 		do {
 			i++;
 			j++;
@@ -77,6 +79,7 @@ public:
     void do_while_sc_biguint_type() {
 		sc_biguint<7> i = 0;
 		sc_biguint<8> j = 0;
+                int k = a.read();
 		do {
 			i++;
 			j++;
@@ -87,6 +90,7 @@ public:
     void do_while_long_type() {
 		long i = 0;
 		long j = 0;
+                int k = a.read();
 		do {
 			i++;
 			j++;
@@ -97,6 +101,7 @@ public:
     void do_while_ulong_type() {
 		unsigned long i = 0;
 		unsigned long j = 0;
+                int k = a.read();
 		do {
 			i++;
 			j++;
@@ -107,6 +112,7 @@ public:
     void do_while_short_type() {
 		short i = 0;
 		short j = 0;
+                int k = a.read();
 		do {
 			i++;
 			j++;
@@ -117,6 +123,7 @@ public:
     void do_while_ushort_type() {
 		unsigned short i = 0;
 		unsigned short j = 0;
+                int k = a.read();
 		do {
 			i++;
 			j++;
@@ -134,6 +141,7 @@ public:
 		sc_uint<20> p = 5;
 		sc_bigint<32> q = 6;
 		sc_biguint<63> r = 18;
+                int k = a.read();
 
 		do {
 			i++;

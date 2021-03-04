@@ -9,7 +9,7 @@
 
 using namespace sc_core;
 
-// Local variables in method process body analysis
+// Local an member array of data types, signals and ports
 class A : public sc_module {
 public:
     int                 m[3];
@@ -54,6 +54,9 @@ public:
             }    
         }    
 
+        SC_METHOD(chan_array_range); sensitive<< dummy;
+        SC_METHOD(chan_array_double_used); sensitive << dummy;
+
         SC_METHOD(mem_array); sensitive<< dummy;
         SC_METHOD(var_array); sensitive<< dummy;
         SC_METHOD(in_port_array); sensitive<< dummy;
@@ -64,23 +67,10 @@ public:
         SC_METHOD(sig_pointer_array); sensitive<< dummy;
 
         SC_METHOD(array_init); sensitive<< dummy;
-        SC_METHOD(chan_array_range); sensitive<< dummy;
-        SC_METHOD(chan_array_double_used); sensitive << dummy;
-        
-        // SIGFAULT 
-        //SC_METHOD(array_record); sensitive << dummy;
+        SC_METHOD(array_record); sensitive << sig;
     }
     
-    // Array of records
-    struct Pair {int x; int y;};
-    Pair pa[2][2];
-    sc_signal<int> sig;
 
-    void array_record() 
-    {
-        pa[sig][sig].x = 0;
-    }
-    
     // Channel array range -- BUG in real design in cache module fixed
     void chan_array_range()
     {
@@ -281,6 +271,17 @@ public:
         int k1 = y2[1];
         int k2 = x2[1];
     }     
+    
+    // Array of records
+    struct Pair {int x; int y;};
+    Pair pa[2][2];
+    sc_signal<int> sig;
+
+    void array_record() 
+    {
+        pa[sig][sig].x = 0;
+    }
+    
 };
 
 class B_top : public sc_module {

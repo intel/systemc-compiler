@@ -22,6 +22,12 @@ public:
 
         SC_METHOD(latch2); 
         sensitive << a;
+
+        SC_METHOD(no_latch1); 
+        sensitive << a;
+
+        SC_METHOD(no_latch2); 
+        sensitive << a;
     }
     
     // Bug in real design @full_access_port_base.popRespProc()
@@ -44,6 +50,20 @@ public:
         }
         // Suppress latch error message
         sct_assert_latch(b);
+    }
+    
+    void no_latch1() 
+    {
+        if (true || a) {
+            b = 1;
+        }
+    }
+
+    void no_latch2() 
+    {
+        if (a || true) {
+            b = 1;
+        }
     }
 };
 

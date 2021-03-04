@@ -5,13 +5,9 @@
 * 
 *****************************************************************************/
 
-//
-// Created by ripopov on 8/13/18.
-//
-
 #include <systemc.h>
 
-
+// Port promotion through multiple modules
 SC_MODULE(bottom) {
     sc_in_clk   clkin{"clkin"};
 

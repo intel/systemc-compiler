@@ -357,7 +357,7 @@ void VerilogModule::serializeToStream(llvm::raw_ostream &os) const
     
     os << "\n//==============================================================================\n";
     os << "//\n";
-    os << "// Module: " << name << " (" << modLoc << ")\n";
+    os << "// Module: " << commentName << " (" << modLoc << ")\n";
     os << "//\n";
     os << "module " << name << " // \"" << comment << "\"\n";
     os << "(";

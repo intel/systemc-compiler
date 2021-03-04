@@ -57,8 +57,8 @@ public:
         wait();
 
         for (int j = 0; j < 2; j++) {
-            SCT_ASSERT_LOOP(sarr[j], SCT_TIME(N), sarr[j+1], i);
-            SCT_ASSERT_LOOP(sarr[j], SCT_TIME(M, N+2), sarr_d[1], i);
+            SCT_ASSERT_LOOP(sarr[j], SCT_TIME(N), sarr[j+1], j);
+            SCT_ASSERT_LOOP(sarr[j], SCT_TIME(M, N+2), sarr_d[1], j);
         }
         
         while (true) {

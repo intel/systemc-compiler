@@ -9,8 +9,7 @@
 
 using namespace sc_core;
 
-// Array and pointer single/multi-dimensional array accesses from CTHREAD
-// Including accesses at unknown index
+// Array and pointer single/multi-dimensional member/local arrays
 class A : public sc_module {
 public:
     sc_in_clk clk{"clk"};

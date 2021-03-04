@@ -21,6 +21,7 @@ struct Child : public sc_module
     sc_out<int>             out;
     sc_signal<int>          s;
     sc_uint<3>              v;
+    sc_uint<3>              v2;
     const int               c;
 
     SC_CTOR(Child) : c(11)
@@ -50,7 +51,7 @@ struct Child : public sc_module
         wait();
         
         while (true) {
-            int i = v + in.read() + s.read();
+            int i = v2 + in.read() + s.read();
             wait(2);
         }
     }

@@ -20,6 +20,10 @@ public:
     sc_signal<bool> b{"b"};
     sc_signal<bool> c{"c"};
     int m;
+    int m1;
+    int m2;
+    int m3;
+    int m4;
     int k;
     
     
@@ -70,12 +74,12 @@ public:
         
         while (true) {
             sc_uint<2> check_hiwait_delay = 1;
-            m = check_hiwait_delay;
+            m1 = check_hiwait_delay;
             
             syncWaiting();
             
             wait();
-            k = m;
+            k = m1;
         }
     }
     
@@ -86,13 +90,13 @@ public:
         
         while (true) {
             sc_uint<2> acheck_hiwait_delay = 1;
-            m = acheck_hiwait_delay;
+            m2 = acheck_hiwait_delay;
             
             if (a) {
                 // Register
                 sc_uint<3> acheck_hiwait_delay = 1;
                 wait(); 
-                m = acheck_hiwait_delay; 
+                m2 = acheck_hiwait_delay; 
             }
             
             wait();
@@ -107,13 +111,13 @@ public:
         while (true) {
             sc_uint<2> bcheck_hiwait_delay = 1;
             wait();
-            m = bcheck_hiwait_delay;
+            m3 = bcheck_hiwait_delay;
             
             if (a) {
                 // Register
                 sc_uint<3> bcheck_hiwait_delay = 1;
                 wait();
-                m = bcheck_hiwait_delay; 
+                m3 = bcheck_hiwait_delay; 
             }
             
             wait();
@@ -127,12 +131,12 @@ public:
         
         while (true) {
             sc_uint<2> ccheck_hiwait_delay = 1;
-            m = ccheck_hiwait_delay;
+            m4 = ccheck_hiwait_delay;
             
             if (a) {
                 // Register
                 sc_uint<3> ccheck_hiwait_delay = 1;
-                m = ccheck_hiwait_delay; 
+                m4 = ccheck_hiwait_delay; 
             }
             
             wait();

@@ -31,7 +31,7 @@ protected:
     const clang::SourceManager&   sm;
     const clang::ASTContext& astCtx;
     
-    /// Current block level
+    /// Current block level, block inside CTHREAD main loop starts with 0
     unsigned level = 0;
     /// State singleton for process function analysis
     std::shared_ptr<ScState>  state;
@@ -52,15 +52,11 @@ protected:
     /// only for design elaboration, for constant propagation not used
     bool checkNoValue;
     
-    /// No function call analysis flag, used for analysis of right part of 
-    /// &&\|| where left part is constant
-    bool noFuncCall = false;
-    
-    /// Record copy constructor in function parameter/return and general assignment
-    bool recCopyCtor = false;
-    
     /// Do not add variable in ScParseRangeExpr 
     bool skipRangeVar = false;
+    /// Current expression is LHS which could be modified (assigned), 
+    /// required to clear value at bit/range access
+    bool assignLHS = false;
     
     /// Record variable value from currently analyzed @DeclStmt,
     /// used in record constructor code generation
@@ -132,7 +128,7 @@ public:
     /// \param index -- local element number in single/multi dimensional array
     SValue createRecValue(const clang::CXXRecordDecl* recDecl, 
                           const SValue& parent, const SValue& var, 
-                          size_t index = 0);
+                          bool parseFields, size_t index = 0);
     
     /// Create record value copy and also create tuples for its fields 
     /// with copied values
@@ -146,10 +142,6 @@ public:
     /// \return record value
     SValue parseRecordCtor(clang::CXXConstructExpr* expr, SValue parent,
                            SValue currecvar, bool analyzeRecordCtor);
-    
-    /// Set @noRemoveStmt to do not remove sub-statement in scope graph
-    /// Overridden in @ScGenerateExpr
-    virtual void setNoRemoveStmt(bool flag) {};
     
     /// Store statement string for @stmt
     virtual void storeStmtStr(clang::Stmt* stmt) {};
@@ -194,7 +186,8 @@ public:
     /// \param checkConst -- get only constant variables in expression and 
     ///                      put value to state for constant variable only
     /// \return declared value
-    SValue parseValueDecl(clang::ValueDecl* decl,
+    std::pair<SValue, std::vector<SValue> >  
+            parseValueDecl(clang::ValueDecl* decl,
                           const SValue& declModval, 
                           clang::Expr* argExpr = nullptr,
                           bool checkConst = true, 
@@ -217,10 +210,18 @@ protected:
     /// Overridden in inheritors
     /// \param checkConst -- get value for variable if it is constant only
     ///                      used in ScTraverseProc, not used in ScTraverseConst
-    /// \return true if expression is evaluated to a constant value
-    virtual bool evaluateConstInt(clang::Expr* expr, SValue& val, 
-                                  bool checkConst = true) {
-        return false;
+    // \return <result, integer value of result>
+    virtual std::pair<SValue, SValue>   
+    evaluateConstInt(clang::Expr* expr, bool checkConst = true) {
+        return std::make_pair(NO_VALUE, NO_VALUE);
+    }
+    
+    /// Try to get integer from state.
+    /// If no value, ScGenerateExpr tries to evaluate it with local instance of 
+    /// parseValueExpr.
+    virtual SValue evaluateConstInt(clang::Expr* expr, const SValue& val, 
+                            bool checkConst = true) {
+        return NO_VALUE;
     }
 
     /// Parse function call or constructor call parameters, 
@@ -259,12 +260,8 @@ protected:
     virtual void parseExpr(clang::MemberExpr* expr, SValue& val);
 
     /// Used for implicit type cast and LValue to RValue cast.
-    /// For class cast to base type it returns variable/variable pointer
-    /// to the base class record value
-    virtual void parseExpr(clang::ImplicitCastExpr* expr, SValue& val);
-
-    /// Used for explicit type cast and LValue to RValue cast
-    virtual void parseExpr(clang::ExplicitCastExpr* expr, SValue& val);
+    virtual void parseExpr(clang::ImplicitCastExpr* expr, SValue& rval, SValue& val);
+    virtual void parseExpr(clang::ExplicitCastExpr* expr, SValue& rval, SValue& val);
 
     /// Parethesized expression, i.e. expression in "()"
     virtual void parseExpr(clang::ParenExpr* expr, SValue& val);
@@ -331,7 +328,8 @@ protected:
                                    SValue& val) {}
 
     /// Member function call expression
-    virtual void parseMemberCall(clang::CXXMemberCallExpr* expr, SValue& val) {}
+    virtual void parseMemberCall(clang::CXXMemberCallExpr* expr,
+                                 SValue& tval, SValue& val) {}
 
     /// Return statement
     virtual void parseReturnStmt(clang::ReturnStmt* stmt, SValue& val) {}

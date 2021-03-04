@@ -75,12 +75,29 @@ public:
     Simple rr[3][2];
     void record_array2() 
     {
+        rr[0][0].a = true;
         rr[1][1].a = true;
+        sct_assert_const (rr[0][0].a);
         sct_assert_const (rr[1][1].a);
         
+        rr[0][1].b = 42;
+        rr[2][0].b = 43;
+        rr[2][1].b = 44;
+        sct_assert_const (rr[0][1].b == 42);
+        sct_assert_const (rr[2][0].b == 43);
+        sct_assert_const (rr[2][1].b == 44);
+        
         int i = sig.read();
-        rr[i][i].a = false;
+        
+        rr[i][0].a = false;
+        sct_assert_unknown (rr[0][0].a);
         sct_assert_unknown (rr[1][1].a);
+        
+        sct_assert_const (rr[2][0].b == 43);
+        rr[0][i].b = 0;
+        sct_assert_unknown (rr[0][1].b);
+        sct_assert_unknown (rr[2][0].b);
+        sct_assert_unknown (rr[2][1].b);
     }
     
 //-----------------------------------------------------------------------------

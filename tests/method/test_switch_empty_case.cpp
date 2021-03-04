@@ -36,7 +36,7 @@ public:
         SC_METHOD(switch_for_after_empty); sensitive << s;
         SC_METHOD(switch_for_after_empty2); sensitive << s;
 
-        SC_METHOD(switch_empty_case1); sensitive << dummy;
+        SC_METHOD(switch_empty_case1); sensitive << s;
         SC_METHOD(switch_empty_case_if1); sensitive << s;
         SC_METHOD(switch_empty_case_if2); sensitive << s << t;
         SC_METHOD(switch_empty_case_if2a); sensitive << s << t;
@@ -48,12 +48,17 @@ public:
     
         SC_METHOD(switch_empty_fcall1); sensitive << s;
         SC_METHOD(switch_empty_fcall2); sensitive << s << t;
+
+        SC_METHOD(switch_empty_case); sensitive << s;
+        SC_METHOD(switch_break_only); sensitive << s;
+        
     }
     
     // BUG from real design accelerators, #123
     void switch_if_after_empty() {
         int i = 0; 
         
+        int m = s.read();
         switch (m) {                        // B2
             case 1: //i = 1; break;         // @B4
             case 2:                         // @B6
@@ -70,6 +75,7 @@ public:
      void switch_if_after_empty2() {
         int i = 0; 
         
+        int m = s.read();
         switch (m) {
             case 1: 
             case 2: 
@@ -86,6 +92,7 @@ public:
     void switch_for_after_empty() {
         int i = 0; 
         
+        int m = s.read();
         switch (m) {
             case 1:  
             case 2: 
@@ -100,7 +107,7 @@ public:
     
     void switch_for_after_empty2() {
         int i = 0; 
-        
+        int m = s.read();
         switch (m) {
             case 0:
             case 2: for (int j = 0; j < 3; ++j) {}
@@ -113,7 +120,7 @@ public:
     // SWITCH with empty case
     void switch_empty_case1() {
         int i = 0; 
-        
+        int m = s.read();
         switch (m) {
             case 1: 
             case 2: i = 2; break;            
@@ -125,7 +132,7 @@ public:
     
     void switch_empty_case_if1() {
         int i = 0; 
-        
+        int m = s.read();
         switch (m) {
             case 0: 
             case 1: 
@@ -193,7 +200,7 @@ public:
     
     void switch_empty_case3() {
         int i = 0; 
-        
+        int m = s.read();
         switch (m) {
             case 0: 
             case 1: 
@@ -211,7 +218,7 @@ public:
     
     void switch_empty_case4() {
         int i = 0; 
-        
+        int m = s.read();
         switch (m) {
             case 1: 
             case 2: i = 2;
@@ -225,7 +232,7 @@ public:
     
     void switch_empty_case4a() {
         int i; 
-        
+        int m = s.read();
         switch (m) {
             case 1: 
             case 2: i = 2;
@@ -250,8 +257,10 @@ public:
     int f(int val) {
         return (val+1);
     }
-    void switch_empty_fcall1() {
-        int i; 
+
+    void switch_empty_fcall1() 
+    {
+        int i = 0;
         switch (s.read()) {
             case 1 : 
             case 2 : 
@@ -260,18 +269,34 @@ public:
                 break;
             default: break;
         }
-        i = 0;
+        sct_assert_level(0);
     }    
   
     void switch_empty_fcall2() {
-        int i; 
+        int i; int k;
         switch (s.read()) {
             case 1 : 
             case 2 : k = 2; break;
             default: k = f(t.read());break;
         }
         i = 0;
-    }    
+    }  
+    
+    void switch_empty_case() 
+    {
+        switch (s.read()) {
+            case 1: break;
+        }
+    }
+    
+    void switch_break_only() 
+    {
+        switch (s.read()) {
+            break;
+        }
+        sct_assert_level(0);
+        sct_assert_read(s);
+    }
 };
 
 struct dut : sc_core::sc_module {

@@ -20,12 +20,12 @@ struct D_if : public sc_interface
     D_if() {}
     
     virtual void g() {
-        n++;
+        sc_uint<1> n = 1;
     }
     virtual int g(int i) {return 0;};
     
     void f() {
-        k++;
+        sc_uint<4> k = 2;
     }
 };
 
@@ -38,16 +38,16 @@ struct E : public sc_module, public D_if
     }
     
     virtual void g() {
-        n--;
+        sc_uint<2> n = 1;
     }
     virtual int g(int i) {
-        n -= i;
+        sc_uint<3> n = i;
         return n;
     }
 
     // Non-virtual function hide D_if::f()
     void f() {
-        k--;
+        sc_uint<4> k = 3;
     }
 };
 
@@ -75,7 +75,6 @@ struct A : public sc_module
         
         n = 1;
         int j = e->g(n);
-        e->k = j + e->n;
     }
     
     void proc_d() {

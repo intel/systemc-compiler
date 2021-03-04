@@ -33,8 +33,8 @@ public:
         SC_METHOD(increment2); sensitive << a;
         SC_METHOD(plus1); sensitive << a;
         SC_METHOD(not1); sensitive << a << b;
-
         SC_METHOD(unary_in_subscript); sensitive << a << b;
+        SC_METHOD(unary_bug); sensitive << a << b;
     }
     
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
@@ -239,6 +239,13 @@ public:
     }
 
     
+    void unary_bug() 
+    {
+        int arr1[4] = {1,2,3,4};
+        int i = 0; 
+        int j = arr1[++i];
+        sct_assert_const(i == 1);
+    }
 };
 
 

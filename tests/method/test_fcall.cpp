@@ -139,7 +139,7 @@ public:
     }
     
     void f4const(const int& i) {
-        m = i + 1;
+        int m = i + 1;
     }
     
     int f5(int arr_par[3]) {
@@ -194,6 +194,7 @@ public:
     }
     
     void f10(int& val) {
+        int m;
         if (val) {
             m = 1;
             return;
@@ -335,11 +336,11 @@ public:
     
     // Included function with non-zero scope level 
     void g3() {
-        k = 3;
+        int k = 3;
     }
     
     void g2() {
-        k = 2;
+        int k = 2;
         g3();
     }
     
@@ -349,12 +350,12 @@ public:
         } else {
             g3();
         }
-        k = 4;
+        int k = 4;
     }
     
     void included_funcs1() 
     {
-        k = 1;
+        int k = 1;
         if (a) {
             g2();
         }
@@ -363,7 +364,7 @@ public:
     
     void included_funcs2() 
     {
-        k = 1;
+        int k = 1;
         g1();
     } 
 

@@ -10,7 +10,7 @@
 
 using namespace sc_core;
 
-// FOR statement in method process body analysis
+// for statement general cases
 class A : public sc_module 
 {
 public:
@@ -25,7 +25,8 @@ public:
     int*                q;
     
     SC_CTOR(A) {
-        SC_METHOD(requestProc); sensitive << a;
+        SC_METHOD(requestProc); 
+        sensitive << a;
         
         SC_METHOD(for_stmt_empty);
         sensitive << a;
@@ -35,6 +36,8 @@ public:
         sensitive << a;
         SC_METHOD(for_stmt3);
         sensitive << a;
+        SC_METHOD(for_stmt3a);
+        sensitive << a;
         SC_METHOD(for_stmt4);
         sensitive << a;
         SC_METHOD(for_stmt5);
@@ -43,13 +46,16 @@ public:
         sensitive << a;
         SC_METHOD(for_stmt7);
         sensitive << a;
-        // Not supported yet
-        //SC_METHOD(for_multi_counter);
-        //sensitive << a;
-        
+        SC_METHOD(for_stmt8);
+        sensitive << a;
         SC_METHOD(sc_type_for);
         sensitive << a;
+        SC_METHOD(for_false);
+        sensitive << a;
         
+        // Not supported yet
+//        SC_METHOD(for_multi_counter);
+//        sensitive << a;
 //        SC_METHOD(for_const);
 //        SC_METHOD(for_const2);
     }
@@ -70,7 +76,7 @@ public:
         }
     }
     
-    // Empty for
+    // Empty for removed
     void for_stmt_empty() {
         for (int i = 0; i < 2; i++) {}
     }
@@ -80,9 +86,8 @@ public:
         int j = a.read();
         for (int i = 0; i < 2; i++) {
             int l = a.read();
-            b.write(l);
         }
-        b.write(j);
+        int k = 0;
     }
 
     // Simple @for with ports and local variable in body
@@ -111,7 +116,22 @@ public:
             } else {
                 j = 3;
             }
-            b.write(j);
+        }
+        sct_assert_level(0);
+        j = 4;
+    }
+    
+    void for_stmt3a() {
+        int j = 1;
+        for (int i = 0; i < 5; i++) {
+            if (i > 3) {
+                j = 2;
+            } else {
+                j = 3;
+                if (i > 2) {
+                    j = 4;
+                }
+            }
         }
         sct_assert_level(0);
         j = 4;
@@ -120,8 +140,8 @@ public:
     // For with several inputs from outside
     void for_stmt4() {
         int i = 0;
-        int j = 1; k = 0;
-        if (m > 0) {
+        int j = 1; int k = 0;
+        if (a.read()) {
             j = 2;
         } else {
             j = 3;
@@ -131,13 +151,12 @@ public:
             sct_assert_level(1);
         }
         sct_assert_level(0);
-        b.write(k+j);
     }    
 
     // For with several inputs from outside
     void for_stmt5() {
         int i = 0;
-        int j = 1; k = 0;
+        int j = 1; int k = 0;
         if (m > 0) {
             j = 2;
         }
@@ -150,7 +169,7 @@ public:
     
     // For with inner for loops
     void for_stmt6() {
-        k = 0;
+        int k = 0;
         for (int i = 0; i < 2; i++) {   
             for (int j = 0; j < 3; j++) {
                 k = k + 1;
@@ -158,21 +177,65 @@ public:
             }
         }
         sct_assert_level(0);
-        b.write(k);
     }
 
     // For with duplicate variable names
     void for_stmt7() {
         int i = 1;
-        k = 0;
+        int k = 0;
         for (int i = 0; i < 2; i++) {   
             for (int j = 0; j < 3; j++) {
                 k = k + i;
             }
         }
         sct_assert_level(0);
-        b.write(k+i);
     }
+
+    // 3D loop
+    sc_signal<sc_uint<8>> s2;
+    void for_stmt8() {
+        s2 = 0;
+        for (int i = 0; i < 2; i++) {   
+            for (int j = 0; j < 3; j++) {
+                if (a.read()) {
+                    for (int k = 0; k < 3; k++) {
+                        s2 = k+1;
+                    }
+                }
+                sct_assert_level(2);
+                for (int k = 0; k < 3; k++) {
+                    if (a.read()) {
+                        s2 = k+2;
+                    }
+                }
+            }
+            sct_assert_level(1);
+        }
+        sct_assert_level(0);
+    }
+    
+// ----------------------------------------------------------------------------
+
+    void sc_type_for() 
+    {
+        int a[8];
+        for (sc_uint<4> i = 0; i < 8; i++) {
+            a[i] = i;
+        }
+    
+    }
+    
+     // For with false and true constant condition
+    void for_false() {
+        k = 0;
+        for (int i = 0; false; i++) {
+            k = k + 1;
+        }
+        sct_assert_level(0);
+    }
+
+
+// ----------------------------------------------------------------------------
     
     // For with multiple variables
     void for_multi_counter() 
@@ -183,47 +246,33 @@ public:
         }    
     }
 
-    
-    void sc_type_for() 
-    {
-        int a[8];
-        for (sc_uint<4> i = 0; i < 8; i++) {
-            a[i] = i;
-        }
-    
-    }
-
     // For with false and true constant condition
     void for_const() {
-        k = 0;
+        int k = 0;
         for (int i = 0; false; i++) {
             k = k + 1;
         }
-        b.write(k+1);
         
         k = 1;
         for (int i = 0; true; i++) {
             k = k + 1;
         }
         sct_assert_level(0);
-        b.write(k+2);
     }
 
     // For with false and true constant condition
     void for_const2() {
-        k = 0;
+        int k = 0;
         int i;
         for (i = 0; false; i++) {
             k = k + 1;
         }
-        b.write(i+1);
         
         k = 1;
         for (i = 0; true; i++) {
             k = k + 1;
         }
         sct_assert_level(0);
-        b.write(i+2);
     }
 };
 

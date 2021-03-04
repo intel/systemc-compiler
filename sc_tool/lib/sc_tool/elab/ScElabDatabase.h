@@ -66,8 +66,7 @@ public:
     void uniquifyVerilogModules();
 
     sc_elab::ObjectView createStaticVariable(RecordView parent,
-                                             const clang::VarDecl *varDecl,
-                                             sc::ScParseExprValue& parseValue);
+                                             const clang::VarDecl *varDecl);
  
     void dump() const;
 
@@ -101,6 +100,10 @@ private:
     clang::ASTContext &astCtx;
     // All modules and modular IFs
     mutable std::vector<ModuleMIFView> modules;
+    
+    // @parseValue used to evaluate complicated initializers 
+    // Use common state provides constant evaluated from other constants
+    sc::ScParseExprValue parseValue;
 
     // Generated Verilog modules in specific representation
     std::list<VerilogModule> verilogMods;

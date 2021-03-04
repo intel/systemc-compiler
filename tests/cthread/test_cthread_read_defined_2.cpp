@@ -86,7 +86,7 @@ public:
             }
             sct_assert_array_defined(arrb);
             sct_assert_read(arra);
-            
+
             wait();
             
             int i = arra[s.read()];

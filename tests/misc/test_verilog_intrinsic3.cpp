@@ -8,6 +8,8 @@
 #include <systemc.h>
 #include <string>
 
+// Empty intrinsic and register examples
+
 // Intrinsic without Verilog text
 struct empty_intrinsic: sc_module {
     sc_in<bool> clk{"clk"};

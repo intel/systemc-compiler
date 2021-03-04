@@ -500,13 +500,13 @@ public:
             switch (in.read()) {
             case 0: 
             case 1:
-                wait();     // 2
+                wait();     // 1
                 out = 2;
-                wait();     // 3
+                wait();     // 2
                 break;
 
             default:
-                wait();     // 1
+                wait();     // 3
                 break;
             }
 

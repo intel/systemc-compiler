@@ -38,6 +38,9 @@ struct Top : public sc_module
         SC_CTHREAD(intArrThread, clk.pos());
         async_reset_signal_is(rst, 0);
 
+        SC_CTHREAD(intArrThread2, clk.pos());
+        async_reset_signal_is(rst, 0);
+
         SC_CTHREAD(intPtrArrThread, clk.pos());
         async_reset_signal_is(rst, 0);
 
@@ -120,6 +123,7 @@ struct Top : public sc_module
     void intArrThread() 
     {
         initIntArr(arr, marr);
+        sc_uint<4> x = marr[1][1];
         wait();
         
         while(true) {
@@ -128,6 +132,28 @@ struct Top : public sc_module
             wait();
             
             intMultArrFunc(arr, marr, 1);
+        }
+    }
+    
+    sc_uint<4>      narr[3];         // register
+    sc_uint<4>      nnarr[3][3];     // comb
+    sc_signal<sc_uint<4>> ns;
+    
+    // Array and multi-dimensional array registers, reset value used after reset
+    void intArrThread2() 
+    {
+        ns = 0;
+        initIntArr(narr, nnarr);
+        wait();
+        
+        while(true) {
+            
+            int j = ns.read();
+            ns = nnarr[0][j];
+            wait();
+            
+            intMultArrFunc(narr, nnarr, 1);
+            ns = narr[j];
         }
     }
     
@@ -140,7 +166,7 @@ struct Top : public sc_module
     sc_uint<4>*     pi;             // register
     sc_uint<4>*     marrp[3];       // register
     
-    // Pointer and array registers
+    // Pointer and pointer array registers
     void intPtrArrThread() 
     {
         wait();

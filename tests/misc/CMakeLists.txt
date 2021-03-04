@@ -12,6 +12,7 @@ set(COMMON_TEST $ENV{ICSC_HOME}/svc/components/common/test)
 #    ${COMMON_HOME}/sctcommon
 #)
 
+## Verilog intrinsics
 add_executable(misc_verilog_intrinsic test_verilog_intrinsic.cpp)
 svc_target(misc_verilog_intrinsic GOLDEN misc_verilog_intrinsic.sv)
 
@@ -24,13 +25,24 @@ svc_target(misc_verilog_intrinsic3 GOLDEN misc_verilog_intrinsic3.sv)
 add_executable(misc_verilog_intrinsic_fail test_verilog_intrinsic_fail.cpp)
 svc_target(misc_verilog_intrinsic_fail WILL_FAIL)
 
+## Port promotion
 add_executable(misc_promote_ports test_promote_ports.cpp)
-svc_target(misc_promote_ports ELAB_TOP tb_inst.top0 GOLDEN misc_promote_ports.sv)
+svc_target(misc_promote_ports ELAB_TOP tb_inst.top0 
+           GOLDEN misc_promote_ports.sv)
 
 # Run the same test with another @ELAB_TOP
 add_executable(misc_promote_ports_2 test_promote_ports.cpp)
 svc_target(misc_promote_ports_2 ELAB_TOP tb_inst.top0.inner0 
            GOLDEN misc_promote_ports_2.sv)
+
+add_executable(misc_promote_port_types test_promote_port_types.cpp)
+svc_target(misc_promote_port_types GOLDEN misc_promote_port_types.sv)
+
+# Example for UG
+add_executable(misc_promote_ports_simple test_promote_ports_simple.cpp)
+svc_target(misc_promote_ports_simple ELAB_TOP tb_inst.top_mod 
+           GOLDEN misc_promote_ports_simple.sv)
+
 
 add_executable(misc_reference_met test_reference_met.cpp)
 svc_target(misc_reference_met)
@@ -73,7 +85,10 @@ svc_target(misc_const_array GOLDEN misc_const_array.sv)
 
 ## sct_comb_signal and memory
 add_executable(misc_vendor_memory test_vendor_memory.cpp)
-svc_target(misc_vendor_memory GOLDEN misc_vendor_memory.sv)
+svc_target(misc_vendor_memory GOLDEN misc_vendor_memory.sv MODULE_PREFIX MPREF_)
+
+add_executable(misc_vendor_memory_fail test_vendor_memory_fail.cpp)
+svc_target(misc_vendor_memory_fail WILL_FAIL)
 
 add_executable(misc_comb_signal test_comb_signal.cpp)
 svc_target(misc_comb_signal ELAB_TOP tb.mod
@@ -121,6 +136,15 @@ svc_target(misc_const_radix GOLDEN misc_const_radix.sv)
 add_executable(misc_const_remove test_const_remove.cpp)
 svc_target(misc_const_remove GOLDEN misc_const_remove.sv)
 
+add_executable(misc_const_keep_var1 test_const_keep_var1.cpp)
+svc_target(misc_const_keep_var1 GOLDEN misc_const_keep_var1.sv)
+
+add_executable(misc_const_keep_var2 test_const_keep_var2.cpp)
+svc_target(misc_const_keep_var2 GOLDEN misc_const_keep_var2.sv)
+
+add_executable(misc_const_keep_var3 test_const_keep_var3.cpp)
+svc_target(misc_const_keep_var3 GOLDEN misc_const_keep_var3.sv)
+
 add_executable(misc_const_pointer test_const_pointer.cpp)
 svc_target(misc_const_pointer GOLDEN misc_const_pointer.sv)
 
@@ -136,6 +160,9 @@ svc_target(misc_array_to_pointer GOLDEN misc_array_to_pointer.sv)
 
 add_executable(misc_pointer_warning test_pointer_warning.cpp)
 svc_target(misc_pointer_warning GOLDEN misc_pointer_warning.sv)
+
+add_executable(misc_pointer_null_arr test_pointer_null_arr.cpp)
+svc_target(misc_pointer_null_arr GOLDEN misc_pointer_null_arr.sv)
 
 add_executable(misc_pointer_null_fail test_pointer_null_fail.cpp)
 svc_target(misc_pointer_null_fail ELAB_TOP b_mod.a_mod WILL_FAIL)
@@ -243,11 +270,6 @@ target_compile_definitions(misc_sva_generate_proc_off PUBLIC -DSCT_ASSERT_OFF)
 svc_target(misc_sva_generate_proc_off GOLDEN misc_sva_generate_proc_off.sv 
            ELAB_TOP test_top.a_mod)
 
-# Example for UG
-add_executable(misc_promote_ports_simple test_promote_ports_simple.cpp)
-svc_target(misc_promote_ports_simple ELAB_TOP tb_inst.top_mod 
-           GOLDEN misc_promote_ports_simple.sv)
-
 add_executable(misc_module_binds_simple test_module_binds_simple.cpp)
 svc_target(misc_module_binds_simple ELAB_TOP tb_inst.top_mod 
            GOLDEN misc_module_binds_simple.sv)
@@ -266,6 +288,9 @@ svc_target(misc_const_enum_namespace ELAB_TOP tb_inst.top_mod
 add_executable(misc_const_global test_const_global.cpp)
 svc_target(misc_const_global ELAB_TOP tb_inst.top_mod 
            GOLDEN misc_const_global.sv)
+
+add_executable(misc_constexpr test_constexpr.cpp)
+svc_target(misc_constexpr GOLDEN misc_constexpr.sv)
 
 # Inner records not supported yet
 #add_executable(misc_reg_array_target test_reg_array_target.cpp)
@@ -322,3 +347,5 @@ svc_target(misc_neg_range_fail WILL_FAIL)
 add_executable(misc_init_local_var test_init_local_var.cpp)
 svc_target(misc_init_local_var GOLDEN misc_init_local_var.sv INIT_LOCAL_VARS)
 
+add_executable(misc_module_prefix test_module_prefix.cpp)
+svc_target(misc_module_prefix GOLDEN misc_module_prefix.sv MODULE_PREFIX MPREF_)

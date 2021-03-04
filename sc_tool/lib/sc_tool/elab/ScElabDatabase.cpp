@@ -32,7 +32,9 @@ namespace sc_elab {
 ElabDatabase::ElabDatabase(sc_elab::SCDesign &scDesign,
                            sc_elab::ElabTypeManager &typeManager,
                            clang::ASTContext &astCtx)
-    : designDB(scDesign), typeManager(typeManager), astCtx(astCtx) {
+    : designDB(scDesign), typeManager(typeManager), astCtx(astCtx),
+      parseValue(astCtx, std::make_shared<ScState>(), NO_VALUE)
+    {
 
     std::vector<RecordView> records;
 
@@ -44,11 +46,6 @@ ElabDatabase::ElabDatabase(sc_elab::SCDesign &scDesign,
         }
     }
     
-    // @parseValue used to evaluate complicated initializers 
-    // Use common state provides constant evaluated from other constants
-    ScState state; SValue modval;
-    ScParseExprValue parseValue(astCtx, std::make_shared<ScState>(state), modval);
-    
     for (auto &record : records) {
         // static data members are not stored in elaborator state
         // so we need to grab them from clang AST
@@ -56,14 +53,14 @@ ElabDatabase::ElabDatabase(sc_elab::SCDesign &scDesign,
 
         for (clang::Decl* decl: cxxRecordDecl->decls())
             if(clang::VarDecl *varDecl = llvm::dyn_cast<clang::VarDecl>(decl) )
-                if (varDecl->isStaticDataMember())
-                    createStaticVariable(record, varDecl, parseValue);
+                if (varDecl->isStaticDataMember()) {
+                    createStaticVariable(record, varDecl);
+                }
     }
 }
 
 ObjectView ElabDatabase::createStaticVariable(RecordView parent, 
-                                              const VarDecl *varDecl,
-                                              ScParseExprValue& parseValue) 
+                                              const VarDecl *varDecl) 
 {
     using std::cout; using std::endl;
     QualType varType = varDecl->getType();
@@ -74,6 +71,10 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
     sc_elab::Object* parentObj = designDB.mutable_objects(parent.getID());
     parentObj->mutable_record()->add_member_ids(newObj->id());
 
+    if (isUserDefinedClass(varType)) {
+        SCT_INTERNAL_FATAL (varDecl->getBeginLoc(), 
+                            "Static record is not supported yet");
+    } else 
     if (varType->isArrayType()) 
     {
         if (!varType->isConstantArrayType()) {
@@ -104,13 +105,10 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
 
                 for (unsigned i = 0; i < initListExpr->getNumInits(); ++i) {
                     auto expr = initListExpr->getInit(i);
-                    
-                    SValue val;
-                    parseValue.evaluateConstInt(expr, val, true);
-                    SValue rval = parseValue.getIntOrUnkwn(val);
+                    SValue val = parseValue.evaluateConstInt(expr, false).second;
 
-                    if (rval.isInteger()) {
-                        intVals.push_back(rval.getInteger());
+                    if (val.isInteger()) {
+                        intVals.push_back(val.getInteger());
                     } else {
                         SCT_INTERNAL_FATAL (varDecl->getBeginLoc(), 
                             "Can not get integer for static array initializer");
@@ -147,12 +145,10 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
             intVal = evalResult.Val.getInt();
 
         } else {
-            SValue val;
-            parseValue.evaluateConstInt(initExpr, val, true);
-            SValue rval = parseValue.getIntOrUnkwn(val);
+            SValue val = parseValue.evaluateConstInt(initExpr, false).second;
             
-            if (rval.isInteger()) {
-                intVal = rval.getInteger();
+            if (val.isInteger()) {
+                intVal = val.getInteger();
             } else {
                 SCT_INTERNAL_FATAL (varDecl->getBeginLoc(), 
                     "Can not get integer for static constant initializer");

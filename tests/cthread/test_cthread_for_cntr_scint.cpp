@@ -5,12 +5,9 @@
 * 
 *****************************************************************************/
 
-//
-// Created by ripopov on 3/13/18.
-//
-
 #include <systemc.h>
 
+// for loop with SC integer counter
 class top : sc_module
 {
 public:
@@ -38,11 +35,11 @@ public:
         wait();
         
         while (true) {
-            wait();         // 2
+            wait();         // 1
             
             sc_uint<TIME_CNTR_WIDTH> wakeupTime = wakeup_time;
             for (sc_uint<TIME_CNTR_WIDTH> i = 0; i < wakeupTime; i++) {
-                wait();     // 3
+                wait();     // 2
             }
             
         }
@@ -53,11 +50,11 @@ public:
         wait();
         
         while (true) {
-            wait();         // 2
+            wait();         // 1
             
             unsigned wakeupTime = wakeup_time.read();
-            for (unsigned i = 0; i < wakeupTime; i++) {
-                wait();     // 3
+            for (sc_int<TIME_CNTR_WIDTH> i = 0; i < wakeupTime; i++) {
+                wait();     // 2
             }
             
         }

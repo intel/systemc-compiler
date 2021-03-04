@@ -157,11 +157,12 @@ public:
         unsigned i;
         sc_uint<4> x;
         sc_uint<8> y;
+        int m = 3;
         i = m << 2;
         sc_uint<12> ii = concat(x, y) << 2;
         i = a.read() >> 3;
         s = i << m;
-        k = a.read() << s.read();
+        int k = a.read() << s.read();
         k++;
         b.write(s.read() >> k);
     }
@@ -188,6 +189,7 @@ public:
     
     // Compound assignments
     void compound_assign() {
+        int k = 2;
         int i = 1;
         i += 1;
         m = 1;

@@ -65,7 +65,7 @@ public:
     // While with several inputs from outside
     void do_while3() {
         int i = 0;
-        int j = 1; k = 0;
+        int j = 1; int k = 0; int m = dummy.read();
         if (m > 0) {
             j = 2;
         } else {
@@ -82,7 +82,7 @@ public:
     // While with several inputs from outside
     void do_while4() {
         int i = 0;
-        int j = 1; k = 0;
+        int j = 1; int k = 0; int m = dummy.read();
         if (m > 0) {
             j = 2;
         }
@@ -97,7 +97,7 @@ public:
     
     // While with inner while
     void do_while5() {
-        k = 0;
+        int k = 0; int m = dummy.read();
         int i = 0;
         do {   
             int j = 0; 
@@ -112,7 +112,7 @@ public:
     
     // While in IF branch
     void do_while6() {
-        k = 0;
+        int k = 0; int m = dummy.read();
         int i = 0;
         if (m > 0) {
             do {   
@@ -127,7 +127,7 @@ public:
     
     // While no iteration
     void do_while_const() {
-        k = 0;
+        int k = 0; 
         
         do {   
             k = 2;
@@ -143,7 +143,7 @@ public:
     }
     
     void do_while_fcall() {
-        k = 0;
+        int k = 0;
         do {   
             k = f(k);
         } while (k < 3);

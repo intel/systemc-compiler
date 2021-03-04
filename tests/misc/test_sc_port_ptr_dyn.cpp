@@ -73,6 +73,7 @@ struct Dut : public DutBase
     {
         Dut* parent;
         T l1;
+        T l2;
         sc_signal<T> s2;
 
         explicit Target (sc_module_name name, Dut* parent_) : 
@@ -91,7 +92,7 @@ struct Dut : public DutBase
         } 
         
         T h() {
-            return (l1 + s2.read());
+            return (l2 + s2.read());
         } 
     };
 

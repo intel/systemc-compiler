@@ -36,8 +36,17 @@ public:
     SinCos scr;
     
     SC_CTOR(A) {
+        SC_METHOD(record_meth);
+        sensitive << rstn;
+        
         SC_CTHREAD(record_return, clk.pos());
         async_reset_signal_is(rstn, false);
+    }
+    
+    void record_meth() {
+        SinCosTuple r;
+        sct_assert_const(r.sin == 1);
+        sct_assert_const(r.cos == 2);
     }
     
     void record_return() {
@@ -46,6 +55,7 @@ public:
         
         while (true) {
             SinCosTuple r = scr.convert_sin_cos();
+            sct_assert_const(r.sin == 1);
             sct_assert_const(r.cos == 2);
             wait();
         }

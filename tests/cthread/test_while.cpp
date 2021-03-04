@@ -5,12 +5,9 @@
 * 
 *****************************************************************************/
 
-//
-// Created by ripopov on 3/13/18.
-//
-
 #include <systemc.h>
 
+// while general cases and binary condition
 class top : sc_module
 {
 public:
@@ -30,6 +27,10 @@ public:
         sensitive << clk.posedge_event();
         async_reset_signal_is(arstn, false);
           
+        SC_THREAD(while_with_wait0b);
+        sensitive << clk.posedge_event();
+        async_reset_signal_is(arstn, false);
+
         SC_THREAD(while_with_wait1);
         sensitive << clk.posedge_event();
         async_reset_signal_is(arstn, false);
@@ -97,6 +98,20 @@ public:
         }   
     }
     
+    void while_with_wait0b()
+    {
+        int i = 0;  
+        wait();
+        
+        while (1) { 
+            while (i < s.read()) {
+                wait();     
+                i++;
+            }
+            wait();
+        }   
+    }
+    
     // @while with wait
     void while_with_wait1()
     {
@@ -128,15 +143,15 @@ public:
             while (i < 3) {
                 i++;
                 out = 1;
-                wait();     // 2
+                wait();     // 1
                 
                 if (in.read() > 1) {
                     out = 2;
-                    wait();  // 3
+                    wait();  // 2
                 }
             }
             out = 3;
-            wait();     // 4
+            wait();     // 3
         }
     }
     
@@ -157,11 +172,11 @@ public:
                     if (in.read() > 1) {
                         out = j;
                     }
-                    wait();  // 2
+                    wait();  // 1
                 }
             }
             out = 3;
-            wait();     // 3
+            wait();     // 2
         }
     }
 

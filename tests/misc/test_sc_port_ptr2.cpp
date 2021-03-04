@@ -37,7 +37,7 @@ struct A: public sc_module, sc_interface
 
     void methProcA()
     {
-        sc_uint<4> i = getvar();
+        sc_uint<4> i = 0;
         i++;
         var2 = i;
         var3 = i + var2;

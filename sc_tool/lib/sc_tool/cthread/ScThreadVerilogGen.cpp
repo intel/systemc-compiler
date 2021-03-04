@@ -60,6 +60,8 @@ ScThreadVerilogGen::generateCodeForPath(const ScProcContext& traverseContext,
         
         travProc.setFunction(threadDecl);
         travProc.setTermConds(constProp.getTermConds());
+        travProc.setLiveStmts(constProp.getLiveStmts());
+        travProc.setLiveTerms(constProp.getLiveTerms());
         
     } else {
         travProc.setContextStack(traverseContext);

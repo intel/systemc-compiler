@@ -21,6 +21,7 @@ struct Child : public sc_module
     sc_out<int>             out;
     sc_signal<int>          s;
     sc_uint<3>              v;
+    sc_uint<3>              vv;
     const int               c;
 
     SC_CTOR(Child) : v(21), c(v % 11)
@@ -42,7 +43,7 @@ struct Child : public sc_module
     }
 
     void methB() {
-        out = in.read() + v;
+        out = in.read() + vv;
     }
 
     void methC() {

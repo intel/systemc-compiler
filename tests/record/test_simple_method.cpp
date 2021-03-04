@@ -10,7 +10,7 @@
 
 using namespace sc_core;
 
-// Record (structure/class) non-module tests
+// Record (structure/class) non-module simple and loop counter name conflict tests
 template <unsigned N>
 class A : public sc_module {
 public:
@@ -30,6 +30,15 @@ public:
         sensitive << dummy;
         
         SC_METHOD(record_local_var2);  
+        sensitive << dummy;
+        
+        SC_METHOD(record_loop_conflict1);
+        sensitive << dummy;
+        
+        SC_METHOD(record_loop_conflict2);
+        sensitive << dummy;
+
+        SC_METHOD(record_loop_conflict3);
         sensitive << dummy;
         
         // Inner records not supported yet
@@ -134,6 +143,74 @@ public:
         sct_assert_defined(c.x);
         
         int a = f(1);
+    }
+
+//-----------------------------------------------------------------------------
+    // Record array access in loop, check name conflict (#244 -- fixed)
+    
+    struct Rec3 {
+        int x[3];
+        
+        int loop() {
+            int res = 0;
+            for (int i = 0; i < 3; i++) {  
+                res += x[i];
+            }
+            return res;
+        }
+    };
+
+    Rec3 rr[3];
+    Rec3 rrr[3];
+    int i_1;
+    
+    void ff1() {
+        for (int i = 0; i < 3; i++) {  
+            int a = i;
+        }
+    }
+    
+    void ff2() {
+        for (int i = 0; i < 3; i++) {  
+            int a = rrr[i].loop();
+        }
+    }
+
+    void record_loop_conflict1() 
+    {
+        Rec3 r[3];
+
+        r[0].loop();
+        
+        ff1();
+
+        for (int i = 0; i < 3; i++) {  
+            int i_2 = r[i].loop();
+        }
+    }
+    
+    void record_loop_conflict2() 
+    {
+        int i;
+        
+        for (int i = 0; i < 3; i++) {  
+            int a = rr[i].loop();
+        }
+        
+        i_1 = 0;
+        for (int i = 0; i < 3; i++) {  
+            i_1 += rr[i].loop();
+        }
+        int i_3 = i_1;
+    }
+    
+    void record_loop_conflict3() 
+    {
+        for (int i = 0; i < 3; i++) {  
+            int i_2 = rrr[i].loop();
+        }
+
+        ff2();
     }
 
 //-----------------------------------------------------------------------------

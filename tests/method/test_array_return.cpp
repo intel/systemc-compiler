@@ -16,8 +16,12 @@ SC_MODULE(test) {
 
     SC_CTOR(test) 
     {
-        SC_METHOD(array_return);
-        sensitive << a;
+        SC_METHOD(const_array_return);
+        sensitive << a << b;
+        
+        // TODO: Fix me, #227
+        SC_METHOD(use_array_return);
+        sensitive << a << b;
 
     }
   
@@ -28,14 +32,44 @@ SC_MODULE(test) {
         return arr;
     }
     
-    void array_return() 
+    const int carr[3] = {4,5,6};
+    const int* arr_ret2() 
+    {
+        const int* p = carr;
+        return p;
+    }
+
+    void const_array_return() 
     {
         int c[3];
         int* d = arr_ret1(c);
-
         sct_assert_const (d[0] == 1);
         sct_assert_const (d[1] == 2);
         sct_assert_const (d[2] == 3);
+        
+        const int* e = arr_ret2();
+        sct_assert_const (e[0] == 4);
+        sct_assert_const (e[1] == 5);
+        sct_assert_const (e[2] == 6);
+    }
+    
+    // Using array returned from function, #227
+    int marr[3];
+    int* arr_ret3() 
+    {
+        int* p = marr;
+        p[b.read()] = 1;
+        return p;
+    }
+    
+    void use_array_return() 
+    {
+        int c[3];
+        int* d = arr_ret1(c);
+        const int* e = arr_ret2();
+        int* f = arr_ret3();
+        
+        int i = d[0] + e[0] + d[0];
     }
 };
 

@@ -78,7 +78,7 @@ public:
         state(new ScState(state_)),
         modWriter(astCtx_.getSourceManager(), false, state->getExtrValNames(),
                   state->getVarTraits(), state->getWaitNVarName()),
-        travProc(astCtx_, state, modval_, &modWriter, true,
+        travProc(astCtx_, state, modval_, &modWriter,
                  &cthreadStates_, &findWait_, false, isSingleStateThread_),
         hasReset(!procView.resets().empty()),
         isSingleStateThread(isSingleStateThread_)

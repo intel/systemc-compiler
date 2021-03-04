@@ -31,10 +31,8 @@ public:
         SC_CTHREAD(continue_in_for_wait3, clk.pos());
         async_reset_signal_is(arst, 0);
         
-        // TODO: Fix me, #207
         SC_CTHREAD(continue_break_exit1, clk.pos());
         async_reset_signal_is(arst, 0);
-        // TODO: Fix me, #207
         SC_CTHREAD(continue_break_exit2, clk.pos());
         async_reset_signal_is(arst, 0);
 
@@ -178,7 +176,7 @@ public:
                 } else {
                     continue;
                 }
-                //sct_assert_level(2);
+                sct_assert_level(2);
             }
             sct_assert_level(1);
             k = 1;
@@ -197,14 +195,14 @@ public:
                 } else {
                     break;
                 }
-                //sct_assert_level(2);
-                wait();
+                sct_assert_level(2);
+                wait();     // 1
                 
                 k = k + 1;
                 if (b.read()) continue;
             }
             sct_assert_level(1);
-            wait();
+            wait();         // 2
             k = 1;
         }
     }  

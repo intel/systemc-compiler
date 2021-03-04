@@ -14,6 +14,7 @@ using namespace sc_core;
 class C : public sc_module {
 public:
     sc_uint<1> m;
+    sc_uint<2> m2;
     
     SC_CTOR(C) {
     }
@@ -26,7 +27,8 @@ public:
     int j;
     int k;
     sc_uint<1> l;
-    sc_uint<2> m;
+    sc_uint<3> m;
+    sc_uint<4> m2;
     
     //C c_mod{"c_mod"};
 
@@ -58,13 +60,13 @@ public:
 
     // Base module variables declaration
     void var2() {
-        C::m = 0;
-        m = 1;
+        C::m2 = 0;
+        m2 = 1;
         {
-            sc_uint<3> m = 2;
-            k = C::m + m;
+            sc_uint<3> m2 = 2;
+            int k = C::m2 + m2;
         }
-        j = C::m + m;
+        j = C::m2 + m2;
     }
 
     // Original and constructed name equivalence

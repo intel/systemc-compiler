@@ -25,6 +25,8 @@ public:
     sc_uint<4>*         pia3[2];
     sc_uint<4>*         piat[2];
     sc_uint<4>*         piaa[2][2];
+    int*                pib[2];
+    int*                pibb[2];
     sc_uint<4>          ia[2];
     sc_uint<4>          ia1[2];
     sc_uint<4>          iat[2];
@@ -34,6 +36,7 @@ public:
     sc_signal<bool>*    pca[2];
     sc_signal<bool>*    pca1[2];
     sc_signal<bool>*    pcat[2];
+    sc_signal<int>*     pcb[2];
     
     SC_CTOR(A)
     {
@@ -48,9 +51,12 @@ public:
             pia2[i] = sc_new<sc_uint<4>>();
             pia3[i] = sc_new<sc_uint<4>>();
             piat[i] = sc_new<sc_uint<4>>();
+            pib[i] = sc_new<int>();
+            pibb[i] = sc_new<int>();
             pca[i] = new sc_signal<bool>("pca");
             pca1[i] = new sc_signal<bool>("pca");
             pcat[i] = new sc_signal<bool>("pca");
+            pcb[i] = new sc_signal<int>("pcb");
             for (int j = 0; j < 2; j++) {
                 piaa[i][j] = sc_new<sc_uint<4>>();
             }
@@ -71,9 +77,8 @@ public:
         SC_METHOD(var_pointer_array_plus); sensitive << a;
         SC_METHOD(pointer_array_param); sensitive << a;
         
-        // Not supported yet, think of
-        //SC_METHOD(read_pointer_array_unknown2); sensitive << a;
-
+        SC_METHOD(read_pointer_array_unknown_b1); sensitive << a;
+        SC_METHOD(read_pointer_array_unknown_b2); sensitive << a;
     }
 
     template <typename VarType>
@@ -201,23 +206,44 @@ public:
 
         f_arr(iaa[1]);
         f_arr_ptr(piaa[1]);
+        f_arr_ptr(piaa[a]);
         
         f_arr_ref(ia1);     
         f_arr_ref(iaa[1]);     
+        f_arr_ref(iaa[a]);     
     }
-    
-// ---------------------------------------------------------------------------
 
-    // Not supported yet, think of
-    void read_pointer_array_unknown2()
-    {
-        pia[a]->operator++();
+// -------------------------------------------------------------------------
+// Multiple parameters
+    
+    template <typename VarType, typename ChanType>
+    void f_ref2(VarType& var, ChanType& chan) {
+        sc_uint<4> z = var + chan.read();
+    }
+
+    
+    template <typename VarType, typename ChanType>
+    void f_ptr2(VarType var, ChanType chan) {
+        sc_uint<4> x = *var + chan->read();
+    }
+
+    void read_pointer_array_unknown_b1() {
+        f_ref2(*pib[a.read()+1], *pcb[a]);
         
-        sct_assert_read(pia);
-        sct_assert_defined(pia);
+        sct_assert_read(pcb);
+        sct_assert_read(pib);
+        sct_assert_defined(pcb, false);
+        sct_assert_defined(pib, false);
     }
     
-    
+    void read_pointer_array_unknown_b2() {
+        f_ptr2(pibb[a.read()-1], pcb[a]);
+        
+        sct_assert_read(pcb);
+        sct_assert_read(pibb);
+        sct_assert_defined(pcb, false);
+        sct_assert_defined(pibb, false);
+    }
 };
 
 class B_top : public sc_module

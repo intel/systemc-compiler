@@ -33,8 +33,11 @@ class B_top : public sc_module {
 public:
     sc_signal<bool>         sig1[3];
     sc_signal<bool>         sig2[3];
+    sc_signal<bool>         sig3[3];
+    sc_signal<bool>         sig4[3];
     
     A a_mod{"a_mod"};
+    A* p_mod;
 
     SC_CTOR(B_top) {
         // Allocate signal in another module directly
@@ -52,6 +55,23 @@ public:
         for (int i = 0; i < 3; i++) {
             a_mod.p1[i]->bind(sig1[i]);
             a_mod.p2[i]->bind(sig2[i]);
+        }
+        
+        p_mod = new A("p_mod");
+        for (int i = 0; i < 3; i++) {
+            p_mod->p1[i] = new sc_in<bool>("p1");
+        }
+
+        p_mod->p2 = sc_new_array<sc_out<bool>*>(3);
+        for (int i = 0; i < 3; i++) {
+            p_mod->p2[i] = new sc_out<bool>("p2");
+        }
+        
+        p_mod->s1 = new sc_signal<int>[3];
+        
+        for (int i = 0; i < 3; i++) {
+            p_mod->p1[i]->bind(sig3[i]);
+            p_mod->p2[i]->bind(sig4[i]);
         }
     }
 };

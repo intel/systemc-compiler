@@ -11,7 +11,7 @@
 
 using namespace sc_core;
 
-// WHILE statement in method process body analysis
+// while statement with various types
 class A : public sc_module
 {
 public:
@@ -51,7 +51,7 @@ public:
             j++;
         }
         cout << "i = " << i << ". j = " << j << ". k = " << k << endl;
-        //sct_assert_const(k == 2);
+        sct_assert_const(k == 2);
     }
     
     // sc_uint type
@@ -64,7 +64,6 @@ public:
                 j++;
         }
         cout << "i = " << i << ". j = " << j << ". k = " << k << endl;
-        //sct_assert_const(k == 2);
     }
     
     void while_sc_bigint_type() {
@@ -76,7 +75,6 @@ public:
                 j++;
         }
         cout << "i = " << i << ". j = " << j << ". k = " << k << endl;
-        //sct_assert_const(k == 2);
     }
     
     void while_sc_biguint_type() {
@@ -88,7 +86,6 @@ public:
                 j++;
         }
         cout << "i = " << i << ". j = " << j << ". k = " << k << endl;
-        //sct_assert_const(k == 2);
     }
     
     void while_long_type() {
@@ -112,7 +109,6 @@ public:
                 j++;
         }
         cout << "i = " << i << ". j = " << j << ". k = " << k << endl;
-        //sct_assert_const(k == 2);
     }
     
     void while_short_type() {
@@ -136,7 +132,6 @@ public:
                 j++;
         }
         cout << "i = " << i << ". j = " << j << ". k = " << k << endl;
-        //sct_assert_const(k == 2);
     }
     
     void while_mixed_type() {
@@ -163,7 +158,6 @@ public:
                 r-=2;
         }
         cout << "i = " << i << ". j = " << j << ". k = " << k << endl;
-        //sct_assert_const(k == 2);
     }
 };
 

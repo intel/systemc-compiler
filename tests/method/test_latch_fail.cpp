@@ -15,16 +15,37 @@ class A : public sc_module {
 public:
     sc_in<bool>     a{"a"};
     sc_out<bool>    b{"b"};
+    sc_signal<sc_uint<4>>  c{"c"};
 
     SC_CTOR(A) {
         SC_METHOD(latch_fail1); 
         sensitive << a;
+
+        SC_METHOD(latch_fail2); 
+        sensitive << a << b;
+
+        SC_METHOD(latch_fail3); 
+        sensitive << b;
     }
     
     void latch_fail1() 
     {
         if (a) {
             b = 1;
+        }
+    }
+    
+    void latch_fail2() 
+    {
+        if (a || b) {
+            c = (a.read()) ? 1 : 2;
+        }
+    }
+    
+    void latch_fail3() 
+    {
+        if (false || b) {
+            c = 42;
         }
     }
 };

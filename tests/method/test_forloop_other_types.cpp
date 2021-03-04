@@ -10,7 +10,7 @@
 #include <iostream>
 using namespace sc_core;
 
-// FOR statement in method process body analysis
+// for statement with SC and special C++ type of loop counter
 class A : public sc_module
 {
 public:

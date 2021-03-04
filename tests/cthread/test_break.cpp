@@ -22,19 +22,14 @@ public:
     SC_HAS_PROCESS(top);
     top(sc_module_name)
     {
-        // TODO: uncomment @sct_assert_level after #207 fixed
-        
-        // TODO: Fix me, #208
-        //SC_CTHREAD(code_after_break, clk.pos());
-        //async_reset_signal_is(arst, 0);
+        SC_CTHREAD(code_after_break, clk.pos());
+        async_reset_signal_is(arst, 0);
 
-        // TODO: Fix me, #207
-        //SC_METHOD(break_level_meth);
-        //sensitive << a;
+        SC_METHOD(break_level_meth);
+        sensitive << a;
         
-        // TODO: Fix me, #207
-        //SC_CTHREAD(break_level, clk.pos());
-        //async_reset_signal_is(arst, 0);
+        SC_CTHREAD(break_level, clk.pos());
+        async_reset_signal_is(arst, 0);
         
         SC_CTHREAD(break_in_for_wait0, clk.pos());
         async_reset_signal_is(arst, 0);
@@ -50,21 +45,17 @@ public:
         SC_CTHREAD(break_exit1, clk.pos());
         async_reset_signal_is(arst, 0);
 
-        // TODO: Fix me, #207
         SC_CTHREAD(break_exit2, clk.pos());
         async_reset_signal_is(arst, 0);
         SC_CTHREAD(break_exit2a, clk.pos());
         async_reset_signal_is(arst, 0);
 
-        // TODO: Fix me, #207
         SC_CTHREAD(break_exit3, clk.pos());
         async_reset_signal_is(arst, 0);
-        // TODO: Fix me, #207
         SC_CTHREAD(break_exit4, clk.pos());
         async_reset_signal_is(arst, 0);
         SC_CTHREAD(break_exit4a, clk.pos());
         async_reset_signal_is(arst, 0);
-        // TODO: Fix me, #207
         SC_CTHREAD(break_exit5, clk.pos());
         async_reset_signal_is(arst, 0);
         
@@ -87,7 +78,7 @@ public:
         async_reset_signal_is(arst, 0);
     }
     
-    // Code after break leads to error, #208
+    // Code after break ignored
     void code_after_break()
     {
         int k = 0;
@@ -101,17 +92,14 @@ public:
                     break;
                     k = 2;  // Code after break leads to error
                 }
-                wait();     // 2
+                wait();     // 1
                 k = 3;
             }
             k = 4;
-            wait();         // 3
+            wait();         // 2
         }
     }
 
-    
-    
-    // TODO: Fix me, #207
     void break_level_meth() 
     {
         int k = 0;
@@ -123,12 +111,11 @@ public:
             }
             
             k = 1;                  // B3
-            sct_assert_level(0);
+            sct_assert_level(1);
         }                           // B2
         k = 2;                      // B1
     }    
     
-    // TODO: Fix me, #207
     void break_level() {
         int k = 0;
         wait();
@@ -331,12 +318,12 @@ public:
                 wait();         // 1
                 
                 if (a.read()) {
-                    //sct_assert_level(3);
+                    sct_assert_level(3);
                 } else {
                     break;
                 }
                 k = k + 1;
-                //sct_assert_level(2);
+                sct_assert_level(2);
             }
             wait();             // 2
             k = 1;
@@ -375,7 +362,7 @@ public:
                 if (a.read()) {
                     k = 1;
                 } else {
-                    //sct_assert_level(3);
+                    sct_assert_level(3);
                     break;
                 }
                 //sct_assert_level(2);
@@ -383,10 +370,10 @@ public:
                 
                 k = k + 1;      
                 if (b.read()) {
-                    //sct_assert_level(3);
+                    sct_assert_level(3);
                     k = 2;
                 }
-                //sct_assert_level(2);
+                sct_assert_level(2);
             }
             sct_assert_level(1);
             wait();                         // 2
@@ -402,11 +389,11 @@ public:
         
         while (1) 
         {
-            wait();
+            wait();         // 0
             for ( ; ; ) {
                 if (a.read()) {
                     k = 1;
-                    //sct_assert_level(3);
+                    sct_assert_level(3);
                 } else {
                     break;
                 }
@@ -415,9 +402,9 @@ public:
                 }
                 for (int i = 0; i < 3; i++) {
                     if (b.read()) break;
-                    //sct_assert_level(3);
+                    sct_assert_level(3);
                 }
-                wait();     // This wait() joined with first one, one state 
+                wait();     // 1
             }
             sct_assert_level(1);
             k = 3;
@@ -430,7 +417,7 @@ public:
         
         while (1) 
         {
-            wait();
+            wait();         // 0
             for ( ; ; ) {
                 if (a.read()) {
                     k = 1;
@@ -439,7 +426,7 @@ public:
                     if (b.read()) break;
                 }
                 k = 2;
-                wait();     // This wait() joined with first one, one state 
+                wait();     // 1
             }
             sct_assert_level(1);
             k = 3;
@@ -459,10 +446,10 @@ public:
                     k = 1;
                 } else {
                     wait();
-                    //sct_assert_level(3);
+                    sct_assert_level(3);
                     if (b.read()) break;
                 }
-                //sct_assert_level(2);
+                sct_assert_level(2);
                 wait();
                 k = 2;
             }

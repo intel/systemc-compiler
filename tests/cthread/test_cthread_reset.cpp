@@ -25,6 +25,9 @@ public:
     SC_HAS_PROCESS(top);
     top(sc_module_name)
     {
+        SC_CTHREAD(incr_in_reset, clk.pos());
+        async_reset_signal_is(arstn, false);
+
         SC_CTHREAD(sct_assert_test, clk.pos());
         async_reset_signal_is(arstn, false);
 
@@ -94,6 +97,41 @@ public:
         async_reset_signal_is(arstn, false);
     }
     
+    // Increment/decrement in reset
+    void incr_in_reset() 
+    {
+        const int C = 42;
+        int i = 1;
+
+        // Warning generated 
+        int j = i;
+        int k = a.read();  // "=" instead of "<=" for local variable
+        
+        // Warning generated 
+        i++;
+        --j;
+        k += 1;
+        
+        // Warning generated 
+        i = j + 1;
+        j = 2*a.read();
+        k = j ? i : i + 1;  // "=" instead of "<=" for local variable
+        
+        // No warnings
+        i = C ? 1 : 2;
+        j = C;
+        k = 1 - C;
+        
+        wait();
+        
+        while (true) {
+            a = i + j;
+            wait();
+        }
+    }
+    
+// ----------------------------------------------------------------------------
+
     bool c;
     void sct_assert_test()
     {

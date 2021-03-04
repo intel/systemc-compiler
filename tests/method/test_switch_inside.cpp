@@ -46,6 +46,7 @@ public:
         SC_METHOD(switch_while1); sensitive << s << t << a;
         SC_METHOD(switch_while2); sensitive << s << t << a;
 
+        SC_METHOD(switch_call0); sensitive << s << t << a;
         SC_METHOD(switch_call1); sensitive << s << t << a;
         SC_METHOD(switch_call2); sensitive << s << t << a;
     }
@@ -81,7 +82,7 @@ public:
     
     void switch_if3() {
         int i;
-        m = s.read();
+        int m = s.read();
         if (s.read() || t.read()) {
             switch (m) {
                 case 1 : 
@@ -127,7 +128,7 @@ public:
             if (t.read()) {
                 switch (s.read()) {
                     case 1  : i = 1; 
-                              if (s.read()) i--;
+                              if (s.read()) i--; break;
                     default : i = 2; break;
                 }
             }
@@ -200,6 +201,7 @@ public:
    
     void switch_for2() {
         int i;
+        int m = s.read();
         for (int j = 0; j < 7; j++) {
             switch (s.read()) {
                 case 1 : i = 1; break;
@@ -216,6 +218,7 @@ public:
 
     void switch_for3() {
         int i;
+        int m = s.read();
         for (int j = 0; j < 3; j++) {
             if (t.read()) {
                 switch (s.read()) {
@@ -235,7 +238,7 @@ public:
     }
     
     void switch_for4() {
-        int i;
+        int i; int m = s.read();
         for (int j = 0; j < 3; j++) {
             if (t.read()) {
                 switch (s.read()) {
@@ -318,6 +321,21 @@ public:
     
     // -----------------------------------------------------------------------
 
+     sc_uint<4> swfunc0(sc_uint<4> val) {
+        sc_uint<4> res;
+        switch (val) {
+            case 1: res = 1; break;
+            case 2: res = 2; break;
+            default : res = f(3);
+        }
+        return res;
+    }
+    
+    void switch_call0() 
+    {
+        int i = swfunc0(1);
+    }
+    
     sc_uint<4> swfunc1(sc_uint<4> val) {
         switch (val) {
             case 1: return 1;
@@ -329,6 +347,7 @@ public:
         }
     }
     
+    // Some dead cases not eliminates as @liveTerms is not context sensitive
     void switch_call1() {
         int i = 0;
         i = swfunc1(0);
@@ -355,12 +374,30 @@ public:
         return l;
     }
 
+    // Some dead cases not eliminates as @liveTerms is not context sensitive
     void switch_call2() {
         int i = 0;
         i = swfunc2(0);
         i = swfunc2(1);
         i = swfunc2(t.read());
     }
+    
+// ==========================================================================
+// C++ prohibits break not in loop or switch
+//    void fb(int& par) {
+//        par = 1;
+//        break;
+//    }
+//    
+//    void call_in_switch1() {
+//        int i = 0;
+//        switch (s.read) {
+//            case 1: fb(i);
+//            default: break;
+//        }
+//        
+//    }
+    
 };
 
 struct dut : sc_core::sc_module {

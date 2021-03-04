@@ -22,6 +22,8 @@ public:
     int                 m;
     int                 k;
     int*                p;
+    int*                p1;
+    int*                p2;
     int*                q;
     sc_uint<5>*         px;
 
@@ -33,6 +35,8 @@ public:
     SC_CTOR(A)
     {
         p = sc_new<int>();
+        p1 = sc_new<int>();
+        p2 = sc_new<int>();
         q = nullptr;
         ps = new sc_signal<bool>("ps");
         px = sc_new<sc_uint<5>>();
@@ -111,19 +115,19 @@ public:
     // Pointer comparison to boolean conversion
     void test_ptr_comp() {
         bool b;
-        b = p;
-        b = !p;
+        b = p1;
+        b = !p1;
         b = q;
         b = !q;
         
-        b = p == nullptr;
-        b = p != nullptr;
+        b = p1 == nullptr;
+        b = p1 != nullptr;
 
-        b = p == q;
-        b = p != q;
+        b = p1 == q;
+        b = p1 != q;
 
-        b = p == p;
-        b = p != p;
+        b = p1 == p1;
+        b = p1 != p1;
         b = q == q;
         b = q != q;
     }
@@ -142,10 +146,10 @@ public:
         b.write(x >= i);
         
         s = x == i;
-        s.write(*p > 0);
+        s.write(*p2 > 0);
         
         *ps = x != 0;
-        ps->write(i == *p);
+        ps->write(i == *p2);
     }
 
     // SC type comparison with boolean

@@ -17,7 +17,11 @@ public:
     int k = 2;
     int n = 3;
     sc_uint<2>*         t;
+    sc_uint<2>*         t1;
+    sc_uint<2>*         t2;
     sc_uint<4>*         u;
+    sc_uint<4>*         u1;
+    sc_uint<4>*         u2;
     
     sc_in<sc_uint<2> >      in1;
     sc_out<sc_uint<2> >     out1;
@@ -41,7 +45,11 @@ public:
 
     SC_CTOR(A) {
         t = sc_new<sc_uint<2>>(0);
+        t1 = sc_new<sc_uint<2>>(0);
+        t2 = sc_new<sc_uint<2>>(0);
         u = sc_new<sc_uint<4>>(0);
+        u1 = sc_new<sc_uint<4>>(0);
+        u2 = sc_new<sc_uint<4>>(0);
         
         SC_METHOD(partial_select_for_type_cast);
         sensitive << in1;
@@ -161,8 +169,8 @@ public:
         i = *t;
         *t = i;
         
-        *t = *u;
-        *u = *t;
+        *t = *u2;
+        *u2 = *t;
 
         *t = b;
         b = *t;
@@ -203,12 +211,12 @@ public:
         sc_uint<2> x; MyUInt4 y;
         
         b = x.bit(0);
-        i = t->bit(1);
-        x = (*t).bit(1);
+        i = t1->bit(1);
+        x = (*t1).bit(1);
         
         x.bit(0) = b;
-        t->bit(1) = i;
-        (*t).bit(1) = x;
+        t1->bit(1) = i;
+        (*t1).bit(1) = x;
         
         for (int j = 0; j < 2; j++) {
             x.bit(j) = i;
@@ -227,7 +235,7 @@ public:
         i = x.range(1, 0);
         i = u->range(3, 0);
         (*u).range(3,0) = i;
-        u->range(3,2) = (*t).range(1, 0);
+        u->range(3,2) = (*t2).range(1, 0);
         y = u->range(3, 0);
 
         i = x(1, 0);
@@ -282,7 +290,7 @@ public:
         bool b = and_reduce(x);
         b = or_reduce(x);
         b = xor_reduce(x) || and_reduce(y);
-        b = nand_reduce(*u) | nor_reduce(x);
+        b = nand_reduce(*u1) | nor_reduce(x);
         
         b = sig1.read().and_reduce();
         b = sig1.read().or_reduce();

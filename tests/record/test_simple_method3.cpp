@@ -74,61 +74,65 @@ public:
     }
     
     // Call method for record array with determinable/non-determinable index
+    Simple ss[2];
     void record_meth1()
     {
-        s[1].setA(true);
-        bool b = s[1].getA();
+        ss[1].setA(true);
+        bool b = ss[1].getA();
         
-        sct_assert_const(s[1].a);
-        sct_assert_unknown(s[0].a);
+        sct_assert_const(ss[1].a);
+        sct_assert_unknown(ss[0].a);
         
         sc_uint<2> i = sig;
-        s[i].setA(true);
-        b = s[i].getA();
+        ss[i].setA(true);
+        b = ss[i].getA();
 
-        sct_assert_unknown(s[1].a);
-        sct_assert_read(s[1].a);
-        sct_assert_array_defined(s[0].a);
+        sct_assert_unknown(ss[1].a);
+        sct_assert_read(ss[1].a);
+        sct_assert_array_defined(ss[0].a);
     }
 
     // Call method for record array in loop
+    Simple rs[2];
     void record_meth2() 
     {
         bool b = false;
         for (int i = 0; i < 2; i++) {
-            s[i].setA(i);
-            b = b && s[i].getA();   // Special case, no function call here
+            rs[i].setA(i);
+            b = b && rs[i].getA();   // Special case, no function call here
         }
 
-        sct_assert_const(!s[0].a);
-        sct_assert_const(s[1].a);
-        sct_assert_read(s[0].a);
-        sct_assert_array_defined(s[0].a);
-        //sct_assert_register(s[0].a);
+        sct_assert_const(!rs[0].a);
+        sct_assert_const(rs[1].a);
+        sct_assert_read(rs[0].a);
+        sct_assert_array_defined(rs[0].a);
+        //sct_assert_register(rs[0].a);
     }
 
+    Simple ts[2];
     void record_meth2a() 
     {
         bool b = false;
         for (int i = 0; i < 2; i++) {
-            s[i].setA(i);
-            b = b || s[i].getA();
+            ts[i].setA(i);
+            b = b || ts[i].getA();
         }
     }
     
     // Call method with local variable
+    Simple xs[2];
     void record_meth3() 
     {
-        bool b = s[1].localVar(1);
-        sct_assert_unknown(s[1].a);
+        bool b = xs[1].localVar(1);
+        sct_assert_unknown(xs[1].a);
         sct_assert_const(b);
         
         sc_uint<2> i = sig;
-        b = s[i].localVar(2);
+        b = xs[i].localVar(2);
         sct_assert_unknown(b);
 
-        sct_assert_read(s[0].a);
-        sct_assert_register(s[0].a);
+        sct_assert_read(xs[0].a);
+        sct_assert_register(xs[0].a);
     }
     
     int f(int par) {
@@ -138,22 +142,23 @@ public:
     }
     
     // Multiple method calls
+    Simple ys[2];
     void record_multi_calls() 
     {
         sc_uint<2> i = sig;
-        bool b = s[i].localVar(true);
+        bool b = ys[i].localVar(true);
         sct_assert_unknown(b);
         
         int j = f(4);
         
-        s[i].setA(i);
+        ys[i].setA(i);
         
-        s[i+1].setA( f(5) );
-        sct_assert_unknown(s[1].a);
+        ys[i+1].setA( f(5) );
+        sct_assert_unknown(ys[1].a);
 
         f(6);
 
-        sct_assert_array_defined(s[0].a);
+        sct_assert_array_defined(ys[0].a);
     }
 };
 

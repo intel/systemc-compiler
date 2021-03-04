@@ -163,6 +163,9 @@ public:
         SC_BIT_WRONG_INDEX          = 191,
         SC_BIT_WRONG_BASE           = 192,
         CPP_NONSTD_TYPE_WIDTH       = 193,
+        SYNTH_MEMORY_NON_UNIQUE     = 194,
+        CPP_LOOP_COMPOUND_COND      = 195,
+        SYNTH_FUNC_CALL_LOOP        = 196,
 
         SC_FATAL_ELAB_TYPES_NS      = 200,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -215,6 +218,9 @@ private:
         idFormatMap[CPP_LOOP_COMPLEX_INCR] =
             {clang::DiagnosticIDs::Error, 
             "Complex increment in FOR loop is not supported"};
+        idFormatMap[CPP_LOOP_COMPOUND_COND] =
+            {clang::DiagnosticIDs::Error, 
+            "Compound condition in loop is not supported"};
         idFormatMap[SYNTH_UNSUPPORTED_OPER] =
             {clang::DiagnosticIDs::Error, 
             "Unsupported to synthesis : %0 (%1)"};
@@ -312,10 +318,10 @@ private:
             "Call wait() in method process prohibited"};
         idFormatMap[SC_WAIT_N_VARIABLE] =
             {clang::DiagnosticIDs::Fatal, 
-            "Call wait(N) where N is non-constant"};
+            "Call wait(N) where N is unknown"};
         idFormatMap[SC_WAIT_N_EMPTY] =
             {clang::DiagnosticIDs::Fatal, 
-            "No counter variable created for wait(N)"};
+            "Call wait(N) with variable parameter"};
         idFormatMap[SC_WAIT_N_NONPOSITIVE] =
             {clang::DiagnosticIDs::Fatal, 
             "Call wait(N) where N is negative or zero"};
@@ -497,8 +503,8 @@ private:
             "Multiple processes drive signal/port : %0"};
 
         idFormatMap[SYNTH_MULT_PROC_ACCESS_VAR] =
-            {clang::DiagnosticIDs::Warning, 
-            "Multiple processes access variable : %0"};
+            {clang::DiagnosticIDs::Error, 
+            "Multiple processes access non-channel variable : %0"};
 
         idFormatMap[SYNTH_USEDEF_IN_SAME_PROC] =
             {clang::DiagnosticIDs::Warning, 
@@ -523,6 +529,10 @@ private:
         idFormatMap[SYNTH_CONST_VAR_MODIFIED] =
             {clang::DiagnosticIDs::Fatal, 
             "Constant variable modified in process code : %0"};
+        
+        idFormatMap[SYNTH_FUNC_CALL_LOOP] =
+            {clang::DiagnosticIDs::Error, 
+            "Function call in loop condition/initialization/increment not supported"};
 
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =
@@ -547,6 +557,9 @@ private:
             {clang::DiagnosticIDs::Error,
             "Unsupported type: %0"};
 
+        idFormatMap[SYNTH_MEMORY_NON_UNIQUE] =
+            {clang::DiagnosticIDs::Error,
+            "Memory module name is not unique: %0"};
         
         idFormatMap[SC_NO_MODULE_NAME] =
             {clang::DiagnosticIDs::Fatal, 
@@ -559,7 +572,7 @@ private:
 
         idFormatMap[SC_ERROR_CPROP_UNROLL_WAIT] =
             {clang::DiagnosticIDs::Error,
-             "Possible comb path through wait loop"};
+             "Possible combinational path through wait loop"};
 
         idFormatMap[SC_ERROR_CPROP_UNROLL_UNKWN] =
             {clang::DiagnosticIDs::Error,

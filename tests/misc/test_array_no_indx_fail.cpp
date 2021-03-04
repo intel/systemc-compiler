@@ -7,7 +7,7 @@
 
 #include <systemc.h>
 
-// Access array without index, error reported by SVC 
+// Access array without index, error reported 
 struct top : sc_module 
 {
     sc_signal<bool> s;

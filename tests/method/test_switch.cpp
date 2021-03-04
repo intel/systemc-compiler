@@ -28,25 +28,25 @@ public:
 
     SC_CTOR(A) 
     {
-        SC_METHOD(switch_empty1); sensitive << dummy;
-        SC_METHOD(switch_empty2); sensitive << dummy;
-        SC_METHOD(switch_const_default); sensitive << dummy;
+        SC_METHOD(switch_empty1); sensitive << s;
+        SC_METHOD(switch_empty2); sensitive << s;
+        SC_METHOD(switch_const_default); sensitive << s;
         
-        SC_METHOD(switch_stmt1); sensitive << dummy;
-        SC_METHOD(switch_stmt2); sensitive << dummy;
-        SC_METHOD(switch_stmt3); sensitive << dummy;
+        SC_METHOD(switch_stmt1); sensitive << s;
+        SC_METHOD(switch_stmt2); sensitive << s;
+        SC_METHOD(switch_stmt3); sensitive << s;
 
-        SC_METHOD(switch_if1); sensitive << dummy;
-        SC_METHOD(switch_if2); sensitive << dummy;
+        SC_METHOD(switch_if1); sensitive << s;
+        SC_METHOD(switch_if2); sensitive << s;
         SC_METHOD(switch_if3); sensitive << s << t;
         SC_METHOD(switch_if3a); sensitive << s << t;
         SC_METHOD(switch_if4); sensitive << s << t;
         SC_METHOD(switch_if4a); sensitive << s << t;
         SC_METHOD(switch_if5); sensitive << s << t;
 
-        SC_METHOD(switch_for1); sensitive << dummy;
+        SC_METHOD(switch_for1); sensitive << s;
         SC_METHOD(switch_for2); sensitive << s << t;
-        SC_METHOD(switch_for3); sensitive << dummy;
+        SC_METHOD(switch_for3); sensitive << s;
         SC_METHOD(switch_for4); sensitive << s << t;
         
         SC_METHOD(switch_for_empty); sensitive << s << t;
@@ -78,7 +78,8 @@ public:
 
     // SWITCH with default branch break only
     void switch_empty2() {
-        int i;
+        int i; 
+        int m = s.read();
         switch (m) {
             default : i = 10; break;
         }
@@ -102,6 +103,7 @@ public:
     // One SWITCH without default
     void switch_stmt1() {
         int i;
+        int m = s.read();
         switch (m) {
             case 1 : i = 1; break;
             case 2 : i = 2; break;
@@ -113,6 +115,7 @@ public:
     // One SWITCH with default
     void switch_stmt2() {
         int i;
+        int m = s.read();
         switch (m) {
             case 1 : i = 1; break;
             case 2 : i = 2; break;
@@ -124,6 +127,7 @@ public:
     // One SWITCH with break in default
     void switch_stmt3() {
         int i;
+        int m = s.read();
         switch (m) {
             case 1 : i = 1; break;
             case 2 : i = 2; break;
@@ -136,7 +140,8 @@ public:
     
     // SWITCH with IF in branches
     void switch_if1() {
-        int i;
+        int i; int k;
+        int m = s.read();
         switch (m) {
             case 1 : i = 1; break;
             case 2 : 
@@ -154,6 +159,7 @@ public:
     // SWITCH with IF in default branch
     void switch_if2() {
         int i;
+        int m = s.read();
         switch (m) {
             case 1 : i = 1; break;
             case 2 : i = 2; break;
@@ -171,6 +177,7 @@ public:
     // SWITCH with multiple IF
     void switch_if3() {
         int i;
+        int m = s.read(); int k;
         switch (m) {
             case 1 : i = 1; break;
             case 2 : 
@@ -194,7 +201,7 @@ public:
     }
     
     void switch_if3a() {
-        int i;
+        int i; int k;
         switch (s.read()) {
             case 1 : 
                     if (t.read() == 0) {
@@ -219,6 +226,7 @@ public:
     const bool ZERO = 0;
     
     void switch_if4() {
+        int k;
         int i = s.read();
         switch (s.read()) {
             case 1 : 
@@ -240,6 +248,7 @@ public:
     }
     
     void switch_if4a() {
+        int k;
         int i = s.read();
         switch (s.read()) {
             case 1 : 
@@ -268,6 +277,7 @@ public:
     }
     
     void switch_if5() {
+        int k;
         int i = s.read();
         switch (s.read()) {
             case 1 : 
@@ -294,6 +304,7 @@ public:
     // SWITCH with FOR in case branch
     void switch_for1() {
         int i;
+        int k; int m = s.read();
         switch (m) {
             case 1 : k = 1; break;
             case 2 : 
@@ -308,6 +319,7 @@ public:
     
     void switch_for2() {
         int i;
+        int k; int m = s.read();
         switch (s.read()) {
             case 1 : 
                 for (int i = 0; i < 3; i++) {
@@ -337,6 +349,7 @@ public:
     bool arr[3];
     void switch_for3() {
         int i;
+        int k; int m = s.read();
         switch (m) {
             case 1 : k = 1; break;
             case 2 : k = 2; break;
@@ -353,6 +366,7 @@ public:
     
     void switch_for4() {
         int i;
+        int k; int m = s.read();
         switch (s.read()) {
             case 1 : k = 1; break;
             case 2 : k = 2; break;
@@ -468,7 +482,8 @@ public:
 
     // SWITCH with FOR and BREAK in case branch
     void switch_break1() {
-        int i;
+        int i; int k;
+        int m = s.read();
         switch (m) {
             case 1 : k = 1; break;
             case 2 : 
@@ -485,6 +500,7 @@ public:
     // SWITCH with WHILE and BREAK in default branch
     void switch_break2() {
         int i;
+        int k; int m = s.read();
         switch (m) {
             case 1 : k = 1; break;
             case 2 :  
@@ -504,6 +520,7 @@ public:
     
     void switch_continue1() {
         int i;
+        int k; int m = s.read();
         switch (m) {
             case 1 : k = 1; break;
             case 2 : 
@@ -519,6 +536,7 @@ public:
     
     void switch_continue2() {
         int i;
+        int k; int m = s.read();
         switch (m) {
             case 1: 
                 for (int i = 0; i < 7; i++) {
@@ -538,6 +556,7 @@ public:
     
     void switch_break_continue() {
         int i;
+        int k; int m = s.read();
         switch (m) {
             case 1: 
                 for (int i = 0; i < 7; i++) {

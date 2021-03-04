@@ -24,6 +24,10 @@ public:
     
     int                 m;
     int                 k;
+    int                 k1;
+    int                 k2;
+    int                 k3;
+    int                 k4;
     int                 n;
     int*                q;
     
@@ -59,7 +63,7 @@ public:
     void g() 
     {
         if (a) {
-            k = 3;
+            int kk = 3;
         }
     }
 
@@ -70,9 +74,9 @@ public:
         
         while (1) {
             
-            k = 1;
+            k1 = 1;
             f();
-            k = 2;
+            k1 = 2;
             sct_assert_level(1);
             
             wait();  // 3
@@ -85,9 +89,9 @@ public:
         
         while (1) {
             
-            k = 1;
+            k2 = 1;
             f();
-            k = 2;
+            k2 = 2;
             g();
             sct_assert_level(1);
 
@@ -101,15 +105,15 @@ public:
         
         while (1) {
             
-            k = 1;
+            k3 = 1;
             if (b.read()) {
                 f();
-                k = 2;
+                k3 = 2;
             }
             
             if (c.read()) {
                 g();
-                k = 4;
+                k3 = 4;
             }
 
             wait();  // 3   
@@ -171,20 +175,20 @@ public:
     // Break from loop followed by function call
     void fcall_break1() 
     {
-        k = 0;
+        k4 = 0;
         wait();
         
         while (true) 
         {
             for (int i = 0; i < 2; i++) {
                 if (a.read()) {
-                    k = 1;
+                    k4 = 1;
                     break;
                 }
                 wait(); // 2
             }
 
-            k = f3(k);
+            k4 = f3(k4);
             wait();     // 3
         }
     }  
