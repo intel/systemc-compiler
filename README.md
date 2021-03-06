@@ -28,4 +28,4 @@ ICSC supports SystemC immediate and temporal assertions translation into SystemV
 
 ## Help
 
-To get help please [submit your question or issue](https://github.com/intel/systemc-compiler/issues)
+To get help please [submit your question or issue](https://github.com/intel/systemc-compiler/issues).
