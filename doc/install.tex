@@ -1,0 +1,269 @@
+\section{Installation and run}\label{section:install}
+
+This section explains building and installation of ICSC on any Linux OS. In the following description Ubuntu 20.04 is used, all operations are given for bash terminal.
+
+ICSC is based on Clang/LLVM tool chain. It uses Google Protobuf library and patched SystemC library. Patched SystemC sources are uploaded into ICSC repository.   
+
+There are two ways to install ICSC: 
+\begin{itemize}
+\item Installation with install.sh script
+\item Manual installation
+\end{itemize}
+
+\subsection{Prepare to installation}
+
+ICSC can be installed on Linux OS with:
+%
+\begin{itemize}
+\item C++ compiler supports C++17 (for gcc it is version 8.0.0 or later)
+\item CMake version 3.12 or later
+\item git to clone ICSC repository
+\end{itemize} 
+%
+
+Initial step before installation is to setup some folder as {\tt\$ICSC\_HOME} and clone ISCS source repository to {\tt\$ICSC\_HOME/icsc}:
+%
+\begin{lstlisting}[language=bash]
+$ export ICSC_HOME=/home/user/my_iscs_folder
+$ git clone https://github.com/intel/systemc-compiler $ICSC_HOME/icsc
+\end{lstlisting}
+
+After clone before installation there is the following folder structure:
+%
+\begin{lstlisting}
+$ICSC_HOME
+  * icsc
+    * cmake           -- CMake files
+    * components      -- assertions, fifo and other library components
+    * designs         -- folder for user designs with an design template
+    * doc             -- user guide latex and pdf files
+    * examples        -- a few illustrative examples
+    * sc_elab         -- elaborator sources
+    * sc_tool         -- ISCS sources
+    * systemc         -- patched SystemC 2.3.3 sources
+    * tests           -- unit tests
+    * .gitmodules     -- not intended to be used here, can be removed
+    * CMakeLists.txt  -- Cmake file for ICSC tool
+    * LICENSE.txt     -- Apache 2.0 WITH LLVM exceptions license
+    * README.md       -- Tool description
+    * install.sh      -- Installation script
+\end{lstlisting}
+
+\subsection{Installation with install.sh script}
+
+The {\tt install.sh} script contains all the stages of manual installation, that includes generating SystemVerilog code for {\tt examples}.
+
+Open bash terminal and run {\tt icsc/install.sh} from {\tt \$ICSC\_HOME} folder:
+%
+\begin{lstlisting}[language=bash]
+$ cd $ICSC_HOME  
+$ icsc/install.sh             # download and install all required components
+$ cd $ICSC_HOME
+$ source setenv.sh            # setup PATH and LD_LIBRARY_PATH
+\end{lstlisting}
+
+Before using the installed tool in a new terminal it needs to run {\tt setenv.sh}:
+\begin{lstlisting}[language=bash]
+$ export ICSC_HOME=/home/user/my_iscs_folder     
+$ cd $ICSC_HOME
+$ source setenv.sh            # setup PATH and LD_LIBRARY_PATH 
+\end{lstlisting}
+
+\subsection{Manual installation}
+
+
+\subsubsection{Building and installing Protobuf}
+
+Download Protobuf version 3.6.1 or later from \url{https://github.com/protocolbuffers/protobuf/releases} into {\tt \$ICSC\_HOME} folder.
+
+\begin{lstlisting}[language=bash]
+$ cd $ICSC_HOME/protobuf-3.13.0
+$ mkdir build && cd build
+$ cmake ../cmake/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DBUILD_SHARED_LIBS=ON
+$ make -j8
+$ make install
+\end{lstlisting}
+
+
+\subsubsection{Building and installing LLVM/Clang}
+
+Download LLVM 7.0.0 and Clang 7.0.0 from \url{https://releases.llvm.org/download.html#7.0.0} into {\tt \$ICSC\_HOME} folder.
+
+\begin{lstlisting}[language=bash]
+$ mv $ICSC_HOME/cfe-7.0.0.src $ICSC_HOME/llvm-7.0.0.src/tools/clang
+$ cd $ICSC_HOME/llvm-7.0.0.src
+$ mkdir build && cd build
+$ cmake ../ -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME
+$ make -j8
+$ make install
+\end{lstlisting}
+
+
+\subsubsection{Building and installing ICSC}
+
+\begin{lstlisting}[language=bash]
+$ cd $ICSC_HOME/icsc
+$ mkdir build && cd build
+$ cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME
+$ make -j8
+$ make install
+\end{lstlisting}
+
+
+\subsection{Folders and files after installation}
+
+After installation there is the following folder structure:
+%
+\begin{lstlisting}
+$ICSC_HOME
+  * bin                 -- binary utilities, can be removed
+  build                 -- build folder, can be removed
+  * icsc                -- ICSC sources
+    * build             -- build folder, can be removed        
+    * cmake             -- CMake files
+    * components        -- assertions, fifo and other library components
+    * designs           -- folder for user designs with an design template
+    * doc               -- user guide latex and pdf files
+    * examples          -- a few illustrative examples 
+    * sc_elab           -- elaborator sources 
+    * sc_tool           -- ISCS sources  
+    * systemc           -- patched SystemC 2.3.3 sources
+    * tests             -- unit tests 
+    * .gitmodules       -- not intended to be used here, can be removed
+    * CMakeLists.txt    -- Cmake file for ICSC tool
+    * LICENSE.txt       -- Apache 2.0 WITH LLVM exceptions license
+    * README.md         -- Tool description
+    * install.sh        -- Installation script
+  * include             -- LLVM/Clang, SystemC and other headers
+  * lib                 -- tool compiled libraries
+  * libexec             -- can be removed
+  * lib64               -- tool compiled libraries
+  * share               -- can be removed  
+  * CMakeLists.txt      -- CMake file for examples, tests and user designs
+  * README              -- build and run examples, tests and used designs description
+  * setenv.sh           -- set environment script for bash terminal  
+\end{lstlisting}
+
+
+\subsection{Run tool for examples and tests}
+
+There are number of examples in {\tt examples} sub-folder:
+%
+\begin{itemize}
+\item {\tt asserts}    -- immediate and temporal SystemC assertions with SVA generation
+\item {\tt counter}    -- simple counter with {\tt SC\_METHOD} and {\tt SC\_CTHREAD} processes
+\item {\tt decoder}    -- configurable FIFO example
+\item {\tt dvcon20}    -- assertion performance evaluation examples
+\item {\tt fsm}        -- finite state machine coding 
+\item {\tt intrinsic}  -- Verilog code intrinsic example
+\item {\tt int\_error}  -- error reporting example, dangling pointer de-reference inside
+\item {\tt latch\_ff}   -- simple latch and flip flop with asynchronous reset
+\end{itemize}
+
+There are number of unit tests in {\tt tests} sub-folder:
+%
+\begin{itemize}
+\item {\tt const\_prop} -- constant propagation analysis tests
+\item {\tt cthread}     -- general tests in {\tt SC\_CTHREAD}
+\item {\tt elab\_only}  -- dynamic elaborator tests
+\item {\tt method}      -- general tests in {\tt SC\_METHOD}
+\item {\tt mif}         -- modular interface tests
+\item {\tt misc}        -- extra tests
+\item {\tt record}      -- local and members of struct and class type
+\item {\tt state}       -- state tests
+\item {\tt uniquify}    -- module uniquification tests
+\end{itemize}
+
+\subsubsection{Generate SV code for one specific example or design}
+%
+\begin{lstlisting}[language=bash]
+$ cd $ICSC_HOME
+$ source setenv.sh                   # setup PATH and LD_LIBRARY_PATH
+$ cd build   
+$ cmake ../                          # prepare Makefiles 
+$ ctest -R counter                   # run SV generation for counter example
+\end{lstlisting}
+
+\subsubsection{Generate SV code for all examples, tests and designs}
+%
+\begin{lstlisting}[language=bash]
+$ cd $ICSC_HOME
+$ source setenv.sh                   # setup PATH and LD_LIBRARY_PATH
+$ cd build   
+$ cmake ../                          # prepare Makefiles 
+$ ctest -j8                          # compile and run SV generation
+\end{lstlisting}
+
+Generated SystemVerilog files are put into {\tt sv\_out} folders. 
+For {\tt counter} example:
+% 
+\begin{lstlisting}[language=bash]
+$ cd examples/counter                # go to counter example folder 
+$ cat sv_out/counter.sv              # see generated SystemVerilog file 
+\end{lstlisting}
+
+\subsubsection{Run SystemC simulation}
+
+SystemC simulation for examples and tests can be run with:
+\begin{lstlisting}[language=bash]
+$ cd $ICSC_HOME
+$ mkdir build && cd build
+$ cmake ../                          # prepare Makefiles 
+$ make counter                       # compile SystemC simulation for counter example
+$ cd examples/counter                # go to counter example folder
+$ ./counter                          # run SystemC simulation 
+\end{lstlisting}
+
+\subsection{Run tool for custom design}
+
+To run ICSC for custom design it needs to create a CMakeList.txt file for the project. SystemVeriog generation is performed with {\tt svc\_target} function call. {\tt svc\_target} is CMake function defined in {\tt \$ICSC\_HOME/lib64/cmake/SVC/svc\_target.cmake}. 
+
+The custom design can be placed into {\tt \$ICSC\_HOME/icsc/designs} folder. 
+There is an empty design template {\tt\$ICSC\_HOME/icsc/designs/template}. This design template contains {\tt example.cpp} and {\tt dut.h} files. 
+In the design template top module is specified as  variable name {\tt dut\_inst} which is instantiated in module {\tt tb}, so full SystemC name {\tt tb.dut\_inst} is provided.
+
+\begin{lstlisting}[language=make,caption=CMakeList.txt file for design template]
+# Design template CMakeList.txt file
+project(mydesign)
+
+# All synthesizable source files must be listed here (not in libraries)
+add_executable(mydesign example.cpp)
+
+# Test source directory
+target_include_directories(mydesign PUBLIC $ENV{ICSC_HOME}/examples/template)
+
+# Add compilation options
+# target_compile_definitions(mydesign PUBLIC -DMYOPTION)
+# target_compile_options(mydesign PUBLIC -Wall)
+
+# Add optional library, do not add SystemC library (it added by svc_target)
+#target_link_libraries(mydesign sometestbenchlibrary)
+
+# svc_target will create @mydesign_sctool executable that runs code generation 
+# and @mydesign that runs general SystemC simulation
+# ELAB_TOP parameter accepts hierarchical name of DUT  
+# (that is SystemC name, returned by sc_object::name() method)
+svc_target(mydesign ELAB_TOP tb.dut_inst)
+\end{lstlisting}
+ 
+
+\subsection{Tool options and defines}\label{section:tool_options}
+
+To run ICSC tool for the custom project it needs to create CMakeList.txt file. SystemVeriog code generation is done with {\tt svc\_target} function. {\tt svc\_target} is CMake function defined in {\tt \$ICSC\_HOME/lib64/cmake/SVC/svc\_target.cmake}.
+
+ICSC has several options, which can be specified as {\tt svc\_target} parameters:
+
+\begin{itemize}
+\item {\tt ELAB\_TOP} – design top module name, it needs to be specified if top module is instantiated outside of {\tt sc\_main()} or if there are more than one modules in {\tt sc\_main()};
+\item {\tt MODULE\_PREFIX} – module prefix string, no prefix if not specified, prefix applied for every module excluding Verilog intrinsic (module with {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_}) and memory modules (modules with {\tt \_\_SC\_TOOL\_MEMORY\_NAME\_\_});
+\item {\tt REPLACE\_CONST\_VALUE} – replace constant with its evaluated value if possible, by default constant variable is used;
+\item {\tt INIT\_LOCAL\_VARS} – initialize non-initialized process local variables with zero to avoid latches, that related to CPP data types only, SC data types always initialized with 0;
+\item {\tt NO\_SVA\_GENERATE} – do not generate SVA from immediate and temporal SystemC assertions, normally SVA are generated;
+\item {\tt NO\_REMOVE\_EXTRA\_CODE} – do not remove unused variable and unused code in generated SV, normally such code is removed to improve readability.
+\end{itemize}
+
+ICSC tool provides {\tt \_\_SC\_TOOL\_\_} define for input SystemC project translation. This define used in temporal assertions and other ICSC library modules to have different behavior for simulation and SV generation. {\tt \_\_SC\_TOOL\_\_} can also be used in project code to hide pieces of code which is not targeted for translation to SystemVerilog.
+
+To completely disable SystemC temporal assertion macro {\tt SCT\_ASSERT\_OFF} can be defined. That allows to hide all assertion specific code to meet SystemC synthesizable standard requirements. {\tt SCT\_ASSERT\_OFF} is required if the SystemC design is passed through a tool which includes its own (not patched) SystemC library.
+
+

@@ -1,0 +1,81 @@
+\input{preamble}
+
+\begin{document}
+
+\title[Intel Compiler for SystemC User Guide]{Intel Compiler for SystemC \\ User Guide}
+\subtitle{version 1.3}
+
+\author{Mikhail Moiseev}
+\affiliation[obeypunctuation=true]{
+	\institution{Intel Corporation}
+}
+
+%\email{mikhail.moiseev at intel.com}
+
+\maketitle
+\pagebreak
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+
+%\listoffigures
+%\listoftables
+
+\pagebreak
+
+%\newif\INTEL
+ 
+\section{Preface}
+
+Intel\textregistered Compiler for SystemC* (ICSC) is open source tool distributed under \href{https://github.com/intel/systemc-compiler/blob/main/LICENSE.txt}{Apache License v2.0 with LLVM Exceptions}. The source codes are available at \href{https://github.com/intel/systemc-compiler}{github.com/intel/systemc-compiler}.
+
+This ICSC User Guide document intended to help user to install and run the tool, prepare SystemC design to be translated into SystemVerilog and understand the result SystemVerilog code. The User Guide document also describes some common cases in hardware design, ICSC extensions and advanced verification features.
+%
+There are two main documents referenced in this User Guide: 
+\begin{itemize}
+\item SystemC LRM -- IEEE Standard for Standard SystemC Language Reference Manual, IEEE Std 1666 2011,
+\item SystemC Synthesizable Subset -- SystemC Synthesizable Subset Version 1.4.7. 
+\end{itemize}
+
+\section{Terminology and abbreviations}
+
+In this document the following terminology is used:
+%
+\begin{itemize}
+\item Module - SystemC module, a C++ class or structure inherits {\tt sc\_module};
+\item Modular interface - SystemC module which inherits {\tt sc\_interface};
+\item Record - C++ class or structure which is not module nor modular interface;
+\item Signal - SystemC {\tt sc\_signal};
+\item Port - SystemC {\tt sc\_in} and {\tt sc\_out};
+\item Channel - signal or port;
+\item Port interface - SystemC {\tt sc\_port<IF>};
+\item SC vector - SystemC {\tt sc\_vector<T>}, container with objects of type {\tt T}.
+\end{itemize}
+%
+In this document the following abbreviations are used:
+%
+\begin{itemize}
+\item ICSC - Intel\textregistered Compiler for SystemC*;
+\item SC - SystemC language;
+\item SV - SystemVerilog language;
+\item SVA - SystemVerilog assertions;
+\end{itemize}
+
+
+\include{overview}
+
+\ifdefined\INTEL
+\include{install_intel}
+\else
+\include{install}
+\fi
+
+\include{prepare}
+
+\include{trans_flow}
+
+\include{extensions}
+
+\include{errors}
+
+\end{document}

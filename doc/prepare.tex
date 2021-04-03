@@ -1,0 +1,853 @@
+\section{Preparing SystemC design}\label{section:prepare}
+
+\subsection{Module hierarchy}\label{section:modules}
+
+SystemC design consists of module and modular interface instances which are organized into a module hierarchy. \emph{Module} is a C++ class or structure which inherits {\tt sc\_module} class. \emph{Modular interface} is a C++ class or structure which inherits {\tt sc\_interface} and {\tt sc\_module} classes. If a class inherits {\tt sc\_interface}, but does not inherit {\tt sc\_module} we call it \emph{pure interface}. Pure interface is not a part of module hierarchy. Each interface and module, except top module, is instantiated inside of \emph{parent module}. Modules and modular interfaces can be instantiated at stack or be dynamically allocated in heap with {\tt operator new}.
+
+The difference between module and modular interface from ICSC viewpoint is that modular interface is flatten into parent module where it is instantiated. That means there is no modular interface instance in generated SystemVerilog, but its fields and processes are instantiated into the parent module. In other words, modular interface is a kind of module which needs to be flatten in its parent module.
+
+The SystemC design may have one or several top module instances in {\tt sc\_main} function or another module, but only one of them will be translated into SystemVerilog. The top module to take by ICSC is specified in {\tt ELAB\_TOP} option of {\tt svc\_target}. If top module instantiated in {\tt sc\_main} function and there is no more modules instantiated, {\tt ELAB\_TOP} option could be omitted.
+ 
+Top module contains child module(s). Every module may inherit another module(s), interface(s) or class(es) according with C++ rules. Multiple inheritance and virtual inheritance is supported by ICSC tool.
+
+Module, interface, class or structure can be template type. Template types, template specialization and instantiation specified by C++ rules. All that is supported by ICSC tool.
+
+In accordance with SystemC LRM, modules/modular interfaces and pointers to them cannot be function parameters, cannot be returned from function, and cannot be used as signal/port template type. 
+
+
+\subsection{Module interconnect}
+
+For inter-module communication signals, ports and port interfaces ({\tt sc\_port<IF>}) can be used. Having explicit pointers/references to another module fields or methods considered as bad programming style and should be avoided. 
+
+Child module input/output ports could be directly connected to corresponded input/output ports of its parent module. Child ports, not connected to any signal/port, are promoted to its parent module and further up to top module. That practically means, unconnected port becomes the same type port of top module in generated SystemVerilog.
+
+% misc_promote_ports_simple.cpp
+\begin{lstlisting}[style=mycpp]
+// SystemC child module port promotion to top module
+SC_MODULE(Child) {
+    sc_in_clk   clk{"clk"};
+    sc_in<sc_int<16>>  in{"in"};       // Not connected
+    sc_out<sc_int<16>> out{"out"};     // Not connected
+    
+    SC_CTOR(Child) {}
+};
+
+SC_MODULE(Top) {
+    sc_in_clk   clk{"clk"};
+    Child child_inst{"child_inst"};
+    
+    SC_CTOR(Top) {
+        child_inst.clk(clk);
+    }
+};
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated
+module Top // "tb_inst.top_mod"
+(
+    input logic clk,
+    input logic signed [15:0] child_instin,   // Port promoted
+    output logic signed [15:0] child_instout  // Port promoted 
+);
+...
+endmodule
+\end{lstlisting}
+%
+Two modules with the same parent module can be connected through:
+\begin{enumerate}
+\item triple of sc\_in<T>, sc\_signal<T>, sc\_out<T> 
+\item pair of sc\_in<T>, sc\_signal<T> 
+\item pair of sc\_out<T>, sc\_signal<T> 
+\end{enumerate}
+%
+In case (1) {\tt sc\_in<T>} port is in module A, {\tt sc\_out<T>} port in module B and {\tt sc\_signal<T>} in their parent module. These input and output ports bound to the signal in the parent module constructor.
+In case (2) {\tt sc\_in<T>} port is in module A, {\tt sc\_signal<T>} in module B. The input port connected to the signal in the parent module constructor. 
+In case (3) {\tt sc\_signal<T>} is in module A, {\tt sc\_out<T> }port in module B. The output port connected to the signal in the parent module constructor. 
+
+%misc_module_binds_simple.cpp
+\begin{lstlisting}[style=mycpp]
+// SystemC child modules connected to each other
+SC_MODULE(Producer) {
+    sc_signal<bool>         req_sig{"req_sig"};
+    sc_out<bool>            resp{"resp"};
+    sc_out<sc_int<16>>      data{"data"};
+    
+    SC_CTOR(Producer) {}
+};
+
+SC_MODULE(Consumer) {
+    sc_in<bool>             req{"req"};
+    sc_signal<bool>         resp_sig{"resp_sig"};
+    sc_in<sc_int<16>>       data{"data"};
+    
+    SC_CTOR(Consumer) {}
+};
+
+SC_MODULE(Parent) {
+    Producer prod{"prod"};
+    Consumer cons{"cons"};
+    
+    sc_signal<sc_int<16>>   data{"data"};
+
+    SC_CTOR(Parent) {
+        cons.req(prod.req_sig);     // in-to-signal  (2)
+        prod.resp(cons.resp_sig);   // out-to-signal (3)       
+        prod.data(data);            // in-to-signal-to-out (1)
+        cons.data(data);
+    }
+};
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated
+module Parent // "tb_inst.top_mod"
+(
+);
+// SystemC signals
+logic signed [15:0] data;
+logic resp;
+logic req;
+
+Producer prod
+(
+  .resp(resp),
+  .data(data),
+  .req_sig(req)
+);
+Consumer cons
+(
+  .resp_sig(resp),
+  .req(req),
+  .data(data)
+);
+...
+endmodule
+\end{lstlisting}
+
+A module process can access its child modular interface instance fields and call methods. That is possible as interface fields and methods are moved to the parent module in generated SystemVerilog. Direct accessing fields of another module considered as bad programming style and should be avoided. 
+
+In general case a module can have pointer to another module or {\tt sc\_port<IF>} connected to another module. It can access field and call methods of the pointee module if both of these modules are flatten in the same module in SystemVerilog. That can be parent and its child instance of modular interface or two child instances of modular interface(s) in the same parent module.
+
+{\tt sc\_port<IF>} is special case of port which provides pure interface IF. {\tt sc\_port<IF>} can be connected to a modular interface, which implements all abstract methods of {\tt IF}. With {\tt sc\_port<IF>} it is possible to call methods of the IF that limits access to connected module. In that access via {\tt sc\_port<IF>} differs from access via modular interface pointer.
+
+Other ways of call of another module methods or access another module fields are prohibited. 
+
+
+\subsection{Module constructor code}
+
+Any module/modular interface must have at least one constructor. Module/modular interface constructor must have {\tt sc\_module\_name} parameter which can be passed to {\tt sc\_module} inheritor or just not used. Module/modular interface constructor can contains arbitrary C++ code. 
+
+Constant fields can be initialized in module constructor initialization list and body, they are generated as {\tt localparam} in SV. Constant of any integral type initialized at elaboration phase should be 64 bit or less (stored in int64 field). Constant more than 64 bit has unknown value after elaboration.
+
+\begin{lstlisting}[style=mycpp]
+// Constant fields initalized in constructor code
+class MyModule : public sc_module {
+    sc_uint<8> a = 0; 
+    const bool b = false;
+    int c[4] = {0,0,0,0};
+    
+    MyModule(const sc_module_name& name, sc_uint<8> aa, int bb) :
+        sc_module(name)
+    {
+        const_cast<sc_uint<8>&>(a) = (bb) ? aa - 1 : aa + 1;
+        const_cast<bool&>(b) = bb;
+        for (int i = 0; i < N; i++) {
+            const_cast<int&>(c[i]) = i;
+        } 
+    }
+}
+MyModule mod("mod", 12, true);
+\end{lstlisting}
+
+Non-constant module fields cannot be initialized in constructor or in place. After elaboration phase non-constant fields have unknown value. They need to be initialized in reset section of a process. 
+
+\subsection{Method process}
+
+Method process created with {\tt SC\_METHOD} is used to describe combinational logic, so it is \emph{combinational method} in terms of SystemC synthesizable standard. 
+
+Method process can be sensitive to one or more signal change event or be no sensitive to any. The method sensitivity list should be static and should include all signals/ports that are read in the method function to avoid unintentional latches. ICSC tool supports latches as described in Section~\ref{section:method_latches}. 
+
+%test_process_simple.cpp
+\begin{lstlisting}[style=mycpp]
+// SystemC method process example
+SC_MODULE(MyModule) {
+    sc_in<bool>     in{"in"};
+    sc_signal<int>  sig{"sig"};
+    sc_out<bool>    out{"out"};
+    
+    SC_CTOR(MyModule) {
+        SC_METHOD(methodProc);
+        sensitive << in << sig;
+    }    
+    void methodProc() {
+    	bool b = in;        // Use in, it need to be in sensitive list
+        if (sig != 0) {     // Use sig, it need to be in sensitive list
+    	    out = b;
+        } else {
+            out = 0;
+        }
+    }
+};
+\end{lstlisting}
+%
+For method process ICSC generates {\tt always\_comb} block as described in~\ref{section:method_gen}.
+
+Method process with empty sensitivity are typically used to assign constant value signal/port initialization. In the SystemVerilog code one or more {\tt assign} statements are generated for such process, see~\ref{section:empty_gen}. 
+
+In such method it is possible to use local variables to store intermediate results. Module variable initialization can be done in such process, but not recommended as can lead to concurrent assignment to the variable. Ternary operator with arbitrary condition is supported here. {\tt if} statement with statically evaluated condition is also supported. Loops and other control flow statements cannot be used here.
+
+Read port/signal in such method is supported, but not recommended as can lead to different behavior in Verilog vs SystemC (in SystemC process not activated if signal is changed). In the Verilog one or more assign statements are generated for method without sensitivity. 
+
+\begin{lstlisting}[style=mycpp]
+// SystemC method process with empty sensitivity
+static const bool COND = true;
+void emptySens()
+{
+    a = 0;
+    if (COND) {
+        b = 1;
+    } else {
+        c = 2;
+    }
+    int i = 1;
+    d = (!COND) ? i : i + 1; 
+}
+\end{lstlisting}
+
+
+\subsection{Clocked thread process}
+
+Clocked thread process created with {\tt SC\_THREAD} and {\tt SC\_CTHREAD} macros are supported.  
+Clocked thread is activated by one edge of clock signal which is specified in constructor: for {\tt SC\_CTHREAD} as second macro parameter, for {\tt SC\_THREAD} in sensitivity list. 
+%
+\begin{lstlisting}[style=mycpp]
+// Clock thread process with clock and reset
+class MyModule : public sc_module 
+{
+    sc_clk_in       clk{"clk"};
+    sc_in<bool>     rst{"rst"};
+    
+	CTOR(MyModule) {
+        SC_CTHREAD(threadProc, clk.pos());
+        async_reset_signal_is(rst, false);
+        
+        SC_THREAD(threadProc);
+        sensitive << clk.pos();
+        async_reset_signal_is(rst, false);
+	}     
+}
+\end{lstlisting}
+%
+Considering SystemC synthesizable subset restrictions on SC\_THREAD process, there is no difference between SC\_THREAD and SC\_CTHREAD processes.
+
+Clocked thread normally has reset section and infinite loop called as \emph{main loop}. Reset section contains local variable declaration, local and module variables initialization, signal and port initialization. In reset section read of any signal/port if prohibited.
+
+The clocked thread main loop can use any loop statements {\tt while}, {\tt for}, {\tt do...while} with \emph{true} loop condition. Main loop can contain multiple {\tt wait()} calls directly or in called functions. The main loop must contain at least one {\tt wait()} call at each path though the loop body. 
+%
+\begin{lstlisting}[style=mycpp]
+// Clock thread with wait() in reset section and main loop
+void threadProc() {
+    // Reset behavior
+    // ...
+    wait();
+    while (true) {        // Main loop
+        // Operational behavior
+        ...
+        wait();
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=mycpp]
+// Clock thread with one common wait() for reset and main loop
+void threadProc() {
+    // Reset behavior
+    // ...
+    while (true) {      // Main loop
+        // Reset and operational behavior
+        wait();
+        // Operational behavior
+        ...
+    }
+}
+\end{lstlisting}
+
+Any other loops in clocked thread may contain or not contain {\tt wait()} calls. If a loop contain a {\tt wait()} call, it must contain at least one {\tt wait()} call at each path through the loop body -- the same requirements as for main loop.
+The same is true for {\tt wait(N)} calls.
+
+There is a simple example of clocked thread. For thread process ICSC generates pair of {\tt always\_comb} and {\tt always\_ff} blocks as described in~\ref{section:thread_gen}.
+
+\begin{lstlisting}[style=mycpp]
+// SystemC simple thread example
+sc_in<unsigned>    a{"a"};
+sc_out<unsigned>   b{"b"};
+ 
+CTOR(MyModule) {
+   SC_CTHREAD(test_cthread, clk.pos());
+   async_reset_signal_is(rst, false);
+}
+ 
+void test_cthread () {
+    unsigned i = 0;
+    b = 0;
+    while (true) {
+        wait();
+        b = i;
+        i = i + a;
+    }
+}
+\end{lstlisting}
+
+\subsection{Clock and reset}
+
+Clocked thread process ({\tt SC\_CTHREAD} and {\tt SC\_THREAD}) is activated by one clock edge. Method process ({\tt SC\_METHOD}) can be sensitive to any change in the signals including clock positive or/and negative edge.
+
+Clocked thread process can have one, several or no reset. Clocked thread cannot have more than one asynchronous reset, but can have multiple synchronous resets. SystemC synthesizable subset does not allow clocked thread without resets and multiple synchronous resets. As soon as no reset clocked threads and clocked thread with multiple synchronous resets are required for some applications that is supported by ICSC tool. 
+
+Method process can be sensitive to all resets required.
+
+\begin{lstlisting}[style=mycpp]
+// Clocked thread with multiple resets
+SC_CTOR(test_reset) {
+   SC_CTHREAD(proc, clk.pos());
+   reset_signal_is(sreset, true);
+   async_reset_signal_is(areset, true);
+   async_reset_signal_is(areset2, false);       
+}
+
+void proc() {
+   enable = 0;
+   wait();
+   while (true) {
+      wait();
+   }
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=mycpp]
+// SystemVerilog generated for clocked thread with multiple resets
+always_ff @(posedge clk or posedge areset or negedge areset2 /*sync sreset*/) 
+begin : proc
+    if (areset || ~areset2 || sreset) begin
+        enable <= 0;        
+    end
+    else begin
+        ...
+    end
+end
+\end{lstlisting}
+
+Clocked process without reset supported with limitations: such process can have only one {\tt wait()} and cannot have any code in reset section.
+
+\begin{lstlisting}[style=mycpp]
+// Clocked thread without reset
+SC_CTOR(test_reset) {
+   SC_CTHREAD(proc, clk.pos());
+}
+
+void proc() {
+   while (true) {
+      int i = 0;
+      wait();
+   }
+}
+\end{lstlisting}
+
+For thread process ICSC generates pair of {\tt always\_comb} and {\tt always\_ff} blocks as described in~\ref{section:noreset}.
+
+\subsection{Data types}
+
+This section describes types can be used in process functions. 
+SystemC integer types {\tt sc\_int}, {\tt sc\_uint}, {\tt sc\_bigint}, {\tt sc\_biguint} are supported. C++ {\tt bool}, {\tt char}, {\tt short}, {\tt integer}, {\tt long integer} and {\tt long long integer} and their unsigned versions are supported. Generated SystemVerilog data types shown in Table~\ref{tab:data_types}.
+
+\begin{table}
+\begin{tabular}{|l|l|l|}
+\hline
+SC/C++ type & SV type  & SC synthesizable subset \\
+\hline
+sc\_uint<N> & logic [N] & \\
+sc\_biguint<N> & logic [N] & \\
+sc\_int<N> & logic signed [N] & \\
+sc\_bigint<N> & logic signed [N] & \\
+bool & logic & \\
+char, signed char & logic signed [8] & \\
+unsigned char & logic [8] & \\
+short & logic signed [16] & \\
+unsigned short & logic [16] & \\
+int & integer & 32bit \\
+unsigned int & integer unsigned & 32bit \\
+long & logic signed [64] & 32/64bit depends on platform \\
+long long & logic signed [64] & 64bit \\
+unsigned long & logic [64] & 32/64bit depends on platform \\
+unsigned long long & logic [64] & 64bit \\
+\_\_uint128\_t & logic [128] & \\
+\_\_int128\_t & logic signed [128] & \\
+\hline
+\end{tabular}
+\caption{Data type conversion}
+\label{tab:data_types}
+\end{table}
+
+Uninitialized local variable of SystemC types (sc\_uint, sc\_biguint, sc\_int, sc\_biguint) has got zero value in generated code as it got this value in the default constructor.
+That means declaration of such variable leads to its initialization by {\tt 0}.
+
+Not supported SystemC data types: {\tt sc\_bv}, {\tt sc\_lv}, {\tt sc\_logic}, {\tt sc\_signed}, {\tt sc\_unsigned}, {\tt sc\_fix}, {\tt sc\_ufix}, {\tt sc\_fixed}, {\tt sc\_ufixed}. 
+Not supported floating point C++ data types: {\tt float}, {\tt double}.
+
+C++ types can be used together with SC types. Signed and unsigned types should never be mixed, as that can lead to unexpected result for operations with negative values. For operations with mix of signed and unsigned arguments of {\tt sc\_int}/{\tt sc\_uint} types SystemC simulation can differ from generated SystemVerilog simulation. See more details in Section~\ref{section:arithmetic_gen}.
+
+
+
+\subsection{Pointers and references}
+
+This section describes operations with pointers and references in process functions. 
+Pointers can be declared as module members and as local variables in functions. Member pointers are normally initialized at elaboration phase and used (de-referenced) in process functions. Local pointers are initialized and used in functions. Local pointers are limited to non-port/non-channel object types. 
+
+\begin{lstlisting}[style=mycpp]
+// Pointer initialization example
+sc_signal<int>      s{"s"};
+sc_signal<int>*     sp;
+sc_signal<int>*     sd;
+int   i;
+int*  q;
+int*  d;
+
+SC_CTOR(MyModule){
+    sp = &s;
+    sd = new sc_signal<int>("sp");   
+    q  = &i;
+    d  = sc_new<int>();
+}
+void someProc() {
+    int* p = d;   // Local pointer assignment in initialization
+    *p = 1;
+    p = q;        // ERROR, no local pointer assignment   
+}
+\end{lstlisting}
+
+In module constructors there is no limitations on pointer/references and {\tt new/delete} usages. In process functions pointer de-reference ({\tt *}) operation is supported. Pointer reference ({\tt \&}) is not supported there. Operator {\tt new/new[]} and operator {\tt delete/delete[]} is not supported. Pointer assignment supported at declaration only, general pointer assignment not supported. Pointer comparison supported, other pointer arithmetic not supported. Pointer can be assigned to boolean variable, as well as, used in comparison and condition. Pointer null value ({\tt nullptr}) considered as {\tt false}, object values as {\tt true}.
+Pointer function parameter supported except pointer to record which is not supported. Return value from function by pointer not supported.
+
+\begin{lstlisting}[style=mycpp]
+// Pointer arithmetic example
+T   a;
+T*  p = nullptr;
+T*  q = &a;
+
+void someProc() {
+    bool b = !p;          // Result is true
+    if (p || p == q) {    // Result is false
+        ...
+    }
+    b = p && (*p == 1);   // De-reference pointer if its not null
+}
+\end{lstlisting}
+
+Reference/constant reference type members and local variables supported. Constant reference can be initialized with variable, literal or constant expression. Reference function parameter supported. Return value from function by reference not supported. 
+%
+\begin{lstlisting}[style=mycpp]
+// Reference example
+template <class T>
+T const_ref(const T& val) {
+   T j = val+1;
+   return j;
+}
+
+void refProc() {
+  int a;
+  int &b = a;             // Local reference
+  b = 1;
+  int i = const_ref(a);   // Parameter passed as reference
+  i = const_ref(1);
+}
+\end{lstlisting}
+
+
+\subsection{Array and SC vector types}
+
+Arrays are supported as module members and function local variables. One-dimensional and multidimensional arrays are supported. Array of modules/modular interfaces and modules/modular interfaces pointers are supported.  In array of module/modular interface base class pointers all elements must be the same class. Array of signals/ports and signal/port pointers are supported. Array of port interfaces ({\tt sc\_port<IF>}) not supported. Array of records and record pointers are supported. In array of base class pointers all elements must be the same class.
+%
+\begin{lstlisting}[style=mycpp]
+static const unsigned N = 5;   
+static const unsigned M = 10;   
+sc_uint<16>  		    a[N];
+sc_in<bool>             in[N];
+sc_out<sc_uint<4>>      out[N][M];
+sc_signal<int>*     	sig[N];
+
+SC_CTOR(myModule) {
+  for (int i = 0; i < N; i++) {
+     char sname[32];
+     sprintf(sname, "sig_%d", i); 
+     sig[i] = new sc_signal<int>(sname);
+  }   
+}
+\end{lstlisting}
+
+Array of any pointers must be homogeneous, all elements created with operator new, but not pointers to existing objects. 
+Array and array of pointers, including array of signals/ports, can be a function parameter. 
+ 
+Signal/port array index cannot be the same signal/port array. Array of record cannot be accessed at index which is the same array element.
+%
+\begin{lstlisting}[style=mycpp]
+sc_in<T> a[N], b[M]; 
+...
+a[a[i]] = 0;       // Not supported 
+a[b[i]] = 0;       // Supported
+a[a[i].m].m = 0;   // Not supported 
+a[b[i].n].m = 0;   // Supported
+\end{lstlisting}
+
+SC vector ({\tt sc\_vector}) supported for signals/ports and modules. SC vector is not supported for modular interface yet. Two-dimensional vector (vector of vectors) also supported. SC vector instances can be instantiated in modules and modular interfaces, including array of modular interfaces. SC vector cannot be passed to or returned from function.
+%
+\begin{lstlisting}[style=mycpp]
+sc_vector<sc_in<bool>>  req{"req"};
+sc_vector<sc_out<bool>> res{"resp", 3};
+sc_vector<sc_vector<sc_signal<int>>> sig2d{"sig2d", 2};
+SC_CTOR(MyModule) {
+  req.init(3);
+  sig2d[0].init(3);
+  sig2d[1].init(3);        
+  ...
+}
+\end{lstlisting}
+
+
+
+\subsection{Record and union types}
+
+This section describes usage of record which are C++ structures or classes which are not modules and modular interfaces. Records intended to represent set of plain data fields. Record can be module member as well as local variables in process functions. 
+
+Records are supported with limitations. Record can have member functions and data type members. Record cannot have another record members, signal/port or module/modular interface members. Record cannot have any pointer or array members. Record cannot have any base classes.
+Record can have constructor, field in-place initialization and initializer list. Record constructor cannot have function calls.
+
+Array of records supported. Array of pointers to record supported.
+
+Record can be passed to function by value as well as by reference/constant reference, such record must have trivial copy constructor. Record can be returned from function by value, such record must have trivial copy constructor.
+%
+\begin{lstlisting}[style=mycpp]
+// Simple record example
+struct Rec1 {
+    int x;
+    sc_int<2> y;
+};
+// Record with constructor
+struct Rec2 {
+    sc_uint<16> a;       
+    bool b;
+    Rec2(int i) : b(i == 42) {
+        a = i + 1;
+    }
+};
+\end{lstlisting}
+
+Code generation rules for record described in Section~\ref{section:record_gen}. 
+
+Union type not supported.
+
+\subsection{Type cast}
+
+This section describes type cast operations can be used in process functions. 
+
+Type cast in C style ((T)x), functional style (T(x)), and static cast supported for right side of assignment statement and function arguments. Type cast for left side of assignment is ignored. Constant type cast ignored. Reinterpret and dynamic type cast not supported. 
+SystemC type conversion to C++ integer methods {\tt to\_int(), to\_uint()}, {\tt to\_long(), to\_ulong(}), {\tt to\_int64(), to\_uint64()} supported. Multiple type narrowing and widening casts supported.
+%
+% method_cast.cpp
+\begin{lstlisting}[style=mycpp]
+int i;
+bool b;
+sc_uint<4> x;
+sc_uint<8> y;
+b = (bool)i; 
+i = x.to_int();
+y = (sc_uint<3>)x;
+y = (sc_uint<6>)((sc_uint<2>)x);
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+b = |i;
+i = 32'(x);
+y = 3'(x);
+y = 6'(2'(x));
+\end{lstlisting}
+
+Type cast to base class supported for function call (T::f()) and member access (T::m).
+
+
+\subsection{Dynamic memory allocation}
+
+Dynamic memory allocation is supported at elaboration phase only, i.e. in module constructors and functions called from there. Dynamic memory allocation not supported in process functions.
+
+Dynamic allocation supported for all types including modules, interfaces, signals and ports. That is also supported for array of pointers to modules, interfaces, signals and ports.
+
+ICSC uses dynamic elaboration that provides arbitrary C++ code support at elaboration phase, but not able to distinguish between pointer to dynamically allocated object and dangling pointer. To solve this problem ICSC uses overriding operators {\tt new} and {\tt new[]}. For modules, interfaces, signals, ports and other inheritors of {\tt sc\_object} operators {\tt new} and {\tt new[]} overridden in the patched SystemC library used by ICSC. 
+
+For dynamic memory allocation for non-{\tt sc\_object} types, like C++ types, there are special functions {\tt sc\_new} and {\tt sc\_new\_array}. {\tt sc\_new} is used for scalar types instead of {\tt new}, {\tt sc\_new\_array} used for arrays instead of {\tt new[]}. {\tt sc\_new} and {\tt sc\_new\_array} declarations:
+%
+\begin{lstlisting}[style=mycpp]
+template<class T, class... Args>
+T* sc_new(Args&&... args);
+ 
+template<class T>
+T* sc_new_array(size_t array_size);
+\end{lstlisting}
+
+Using {\tt sc\_new} and {\tt sc\_new\_array} examples:
+% 
+% misc_module_section.cpp
+\begin{lstlisting}[style=mycpp]
+struct MyRec {
+  int i;
+  MyRec(int i_) : i(i_) {};
+};
+sc_signal<bool>* ap;
+bool* bp;
+sc_uint<8>* vp;
+MyRec* mp;
+sc_in<int>** ports;
+sc_signal<int>* signals;
+   
+SC_MODULE(MyModule) {
+  ap = new sc_signal<bool>("a");     // OK, signal is sc_object
+  bp = new bool;                     // ERROR, non-sc_object
+  bp = sc_new<bool>();               // OK
+  vp = new sc_uint<8>();             // ERROR, non-sc_object
+  vp = sc_new<sc_uint<8>>();         // OK
+  mp = new MyRec(42);                // ERROR, new for non-sc_object
+  mp = sc_new<MyRec>(42);            // OK, using sc_new
+  ports = new sc_in<int>* [10];      // ERROR, new for pointer, non-sc_object 
+  ports = sc_new_array<sc_in<int>*>(10);    // OK, using sc_new_array
+  signals = new sc_signal <int>[10];        // OK, array of sc_objects 
+};
+\end{lstlisting}
+
+
+\subsection{Control flow operators}
+
+All control flow operators are supported. 
+Conditions of {\tt if}, {\tt ?}, {\tt for}, {\tt while}, {\tt do..while} should be expression without side effects. Complex conditions with {\tt ||}, {\tt \&\&}, {\tt !} and brackets supported. If left part of logical expressions with {\tt ||} and {\tt \&\&} evaluated as constant, right part code is not generated. 
+%
+That allows to check pointer is not null and do the pointer de-reference it in the condition expression. {\tt if} and {\tt ?} conditions, including complex conditions, can contain function call without side effects and without {\tt wait()}. {\tt for}, {\tt while}, {\tt do..while} conditions cannot have any function call.
+
+There are two kind of synthesizable loops:
+\begin{enumerate}
+\item loop without {\tt wait()/wait(N)}, for these loops iteration number must be statically determinable,
+\item loop with {\tt wait()/wait(N)}, for these loops iteration number may be unknown.
+\end{enumerate}
+
+
+\subsubsection{if}
+
+{\tt if} statement is translated into SystemVerilog {\tt if}. 
+
+\begin{lstlisting}[style=mycpp]
+// Operator if examples
+if (a || b) {...}
+if (true || a) {...}
+if (false && b) {...}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated for if example
+if (a || b) begin 
+    ... 
+end
+if (1) begin 
+    ... 
+end
+if (0) begin     // Empty if generated
+end
+\end{lstlisting}
+
+\subsubsection{switch}
+
+{\tt switch} statement is translated into SystemVerilog {\tt case}, see Section~\ref{section:switch_gen}.
+{\tt switch} statement can have one or more cases including optional {\tt default} case. Each case must have one and only one final {\tt break} as the last statement of the case. {\tt default} case also must contain final {\tt break}. Another option is empty case or empty {\tt default} case. For empty case the next non-empty case (possibly {\tt default} case) code is copied in the generated SV.
+
+{\tt switch} case code can contain if/loop statements as well as inner switch statements. {\tt switch} case code can contain function calls. {\tt switch} statement in called function can contains {\tt return} statements in the end of all cases. For such {\tt switch} cases final {\tt break} statement not allowed, no mix of {\tt return} and {\tt break} supported.
+
+\begin{lstlisting}[style=mycpp]
+// Operator switch example
+switch (i) {
+case 0: i++; break;
+case 1: i--; break;
+default: i = 0; break;
+}
+\end{lstlisting}
+
+
+{\tt switch} statement in called function can contain {\tt return} statements in the end of all cases. For such {\tt switch} no {\tt break} statements required.
+
+\begin{lstlisting}[style=mycpp]
+// Operator switch in function example
+void f() {
+    ...
+    switch (i) {
+    case 0: i++; return;
+    case 1: i--; return;
+    }
+    return;
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[style=mycpp]
+// Operator switch with empty case
+switch (i) {
+case 0: 
+case 1: k = 1; break;
+default: k = 2; break;
+}
+\end{lstlisting}
+
+
+\subsubsection{for}
+
+{\tt for} statement is translated into SystemVerilog {\tt for} or into {\tt if} see Section~\ref{section:loop_thread}. 
+
+{\tt for} loop can have only one counter variable with optional initialization, condition and increment sections. The variable can be declared in the loop initialization. 
+Initialization section can have simple variable initialization or assignment only, cannot have function call.
+Condition section can have one comparison operator for the loop variable, cannot have function call.
+Increment section can have increment or decrement of the loop variable, cannot have function call. 
+
+Several examples of correct {\tt for} loop is given in the following listing:
+%
+\begin{lstlisting}[style=mycpp]
+// Operator for examples
+const unsigned N = 10;
+for (int i = 0; i < N; i++) {...}
+
+int i = N;
+for (; i != 0; --i) {...}
+
+int j = 0;
+for (; j < N; ) {...}
+\end{lstlisting}
+
+\subsubsection{while}
+
+{\tt while} statement is translated into SystemVerilog {\tt while} or into {\tt if} see Section~\ref{section:loop_thread}.
+{\tt while} condition is an arbitrary expression without function call.
+Several examples of correct {\tt while} loop is given in the following listing:
+%
+\begin{lstlisting}[style=mycpp]
+// Operator while examples
+const unsigned N = 10;
+int i = 0;
+while (i < N) {...}
+
+int j = N;
+int k = 0;
+while (j != 0 && j != k) {...}
+
+// Waiting for enable, this while loop should contain wait() at each path
+while (!enable.read()) {...}
+\end{lstlisting}
+
+\subsubsection{do...while}
+
+{\tt do..while} statement is translated into SystemVerilog {\tt do..while} or into {\tt if} see Section~\ref{section:loop_thread}. 
+{\tt do..while} condition is an arbitrary expression without function call.
+Several examples of correct {\tt do..while} loop is given in the following listing:
+%
+\begin{lstlisting}[style=mycpp]
+// Operator do..while examples
+const unsigned N = 10;
+int i = 0;
+do {
+   ...
+} while (i < N);
+
+int j = N;
+int k = 0;
+do {
+   ...
+} while (j != 0 && j != k);
+\end{lstlisting}
+
+\subsubsection{break}
+
+{\tt break} statement is translated into SystemVerilog {\tt break} or substituted  with code after the loop body, see Section~\ref{section:loop_thread}. 
+
+\subsubsection{continue}
+
+{\tt continue} statement is translated into SystemVerilog {\tt continue} or substituted with code in the loop body, see Section~\ref{section:loop_thread}. 
+
+\subsubsection{goto}
+
+Not supported.
+
+\subsection{Function calls}
+
+This section describes functions and function calls rules. Module/modular interface/record static and non-static functions supported. Global/namespace functions supported. Recursive functions not supported.
+
+Function can have parameters and returned value. Function can have local variable of non-channel type. Local variables can be non-static or constant static. No static non-constant local variables allowed.
+
+Function parameters can be passed by value, by reference reference, and by pointer, including pointer to channel. Constant reference parameter argument can be literal of the corresponding type.
+Function can return result by value only. Return by reference or by  pointer not supported. Function with return type {\tt void} can use {\tt return} statement without argument. 
+%
+% method_fcall.cpp
+\begin{lstlisting}[style=mycpp]
+// No parameters function
+void f1() {
+   m = m + 1;
+}       
+// Parameters passed by value 
+int f2(int i, bool b = false) {
+  return (b) ? i : i+1;
+}    
+// Parameters passed by reference 
+void f3(int& i) {
+  i++;
+}
+// Parameters passed by pointer
+unsigned f4(sc_uint<16>* i) {
+  return (*i+1);
+}
+// Array passed 
+int f5(int arr_par[3]) {
+  int res = 0;
+  for (int i = 0; i < 3; i++) {
+    res += arr_par[i];
+  }
+  return res;
+}
+\end{lstlisting}
+
+Function with multiple {\tt return} supported. Function {\tt return} statement(s) is replaced with function result to variable assignment in SV code.  That leads to a function must have no code after {\tt return}. In particular, {\tt return} statement in loop is not supported.  Function with return type void can have {\tt return} statement(s) without argument. For {\tt return} statement without argument no code is generated.
+%
+% method_fcall.cpp
+\begin{lstlisting}[style=mycpp]
+// Multiple returns
+int f6(int& val) {
+  if (val) {
+     return 1;
+  } else {
+     return 2;
+  }
+}
+// Multiple returns in switch
+unsigned f7(unsigned val) {
+   switch (val) {
+     case 1: return 1;
+     case 2: return 2;
+     default: return 3;
+   }
+}
+\end{lstlisting}
+
+Module member function can access this module fields/functions and child modular interface instance(s) fields/functions. Access to child modular interface instance members allowed through a port interface ({\tt sc\_port<IF>}) or a pointer to the modular interface. The accessed modular interface is flatten in module/modular interface with does access to it, see~\ref{section:modules}.
+
+Virtual functions supported. Function overload and hide function in child class supported.
+
+
+\subsection{Naming restrictions}
+
+Prefixes {\tt sct\_} and {\tt SCT\_} are used for special function and cannot be used in user SystemC code.
+Suffix {\tt \_next} is used for register variables, so it is not recommended to use such suffix for SystemC variables.
+
+ICSC tool provides {\tt \_\_SC\_TOOL\_\_} define for input SystemC project translation. 
+Module/interface field {\tt\_\_SC\_TOOL\_MEMORY\_NAME\_\_} is reserved for vendor memory name. 
+Module/interface field {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_} is reserved for disable module generation in SystemVerilog code. 
+

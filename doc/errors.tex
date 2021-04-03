@@ -1,0 +1,88 @@
+\section{Error messages}\label{section:errors}
+
+
+\subsection{Design correctness checking}
+
+SystemC kernel does some design correctness checks during elaboration and simulation. Additional checks required for process function code to comply it with SystemC synthesizable standard. ICSC reports of incorrect or non-synthesizable statements with clear and expressive error messages that reduces designer efforts.
+
+ICSC checks the following violations:
+%
+\begin{itemize}
+\item Non-channel object read before initialization;
+\item Array out-of-bound access and dangling/null pointer dereference;
+\item Inter-process communication through non-channel objects;
+\item Objects not assigned at all control flow paths in combinational methods, that leads to latch;
+\item Incomplete sensitivity lists for combinational methods;
+\item Loop without {\tt wait()} with infinite or non-determinable iteration number.
+\end{itemize}
+
+
+
+\subsection{Error messages}\label{section:error_msg}
+
+Table~\ref{tab:errors} contains ICSC error messages.
+
+\begin{longtable}{| p{.15\textwidth} | p{.85\textwidth} |} 
+\hline
+ID & Error description \\
+\hline
+SC.1 & Default initializer (CXXDefaultInitExpr) cannot be used in process function \\
+SC.2 & List initializer (InitListExpr) cannot be used in process function \\
+SC.3 & Class constructor (CXXConstructExpr) cannot be used in process function \\
+SC.4 & Operator new (CXXNewExpr) cannot be used in process function \\
+SC.5 & Operator delete (CXXDeleteExpr) cannot be used in process function \\
+SC.6 & Incorrect range, different variables in lo/hi \\
+SC.7 & Incorrect range, low index bigger than high or negative one \\
+SC.8 & Incorrect range, high index out of variable width \\
+SC.9 & Unsupported kind of port \\
+SC.10 & Call wait() in method process prohibited \\
+SC.11 & Call wait(N) where N is non-constant \\
+SC.12 & Call wait(N) where N is negative or zero \\
+SC.13 & Port not bound \\
+SC.14 & Functions with NORETURN attribute not supported \\
+SC.15 & Dangling pointer \\
+SC.16 & Multiple pointers point to object \\
+SC.17 & Unsupported pointer to element of integer array \\
+\hline
+
+CPP.1 & Incorrect referenced object in \& statement  \\
+CPP.2 & Complex initialization in FOR loop is not supported  \\
+CPP.3 & Complex increment in FOR loop is not supported  \\
+CPP.4 & Array out-of-bound  \\
+CPP.5 & Goto statement not supported  \\
+CPP.6 & Unsupported statement  \\
+CPP.7 & For loop without counter initialization \\
+CPP.8 & Pointers to different objects comparison \\
+CPP.9 & No virtual function found in the dynamic class \\
+CPP.10 & Pure virtual function call   \\
+CPP.11 & Uninitialized reference \\
+CPP.12 & User assertion (sct\_assert) failed \\
+CPP.13 & OpaqueValueExpr found, check for C++ compiler error message \\
+\hline
+
+SYNTH.1 & Unsupported to synthesis   \\
+SYNTH.2 & Multidimensional array initialization not supported yet   \\
+SYNTH.3 & Initializer not supported to synthesis \\
+SYNTH.4 & Type is not supported to synthesis \\
+SYNTH.5 & Pointers to dynamically allocated object declared in different modules \\
+SYNTH.6 & Pointer initialization with non-zero integer not supported \\
+SYNTH.7 & Unsupported wait() kind for synthesis \\
+SYNTH.8 & Channel method is not supported \\
+SYNTH.9 & Prohibited statement in SC\_METHOD with empty sensitivity \\
+SYNTH.10 & SC\_METHOD is non-sensitive to variable which read inside \\
+SYNTH.11 & Variable defined at some paths of method process, latch detected \\
+SYNTH.12 & Pointer operation not supported yet \\
+SYNTH.13 & Unsupported return in current loop/switch (incorrect loop stack) \\
+SYNTH.14 & No array or global array object in [] operator \\
+SYNTH.15 & Loop with wait() has potential fallthrough path \\
+SYNTH.16 & Signed and unsigned SC type mixed, negative value casted to unsigned \\
+SYNTH.17 & Unsupported return in current loop/switch (incorrect loop stack) \\
+\hline
+
+SCT.1 & ScTool internal error \\
+
+\hline
+\caption{Error messages}
+\label{tab:errors}
+\end{longtable}
+

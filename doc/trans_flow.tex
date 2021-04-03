@@ -1,0 +1,836 @@
+\section{SystemVerilog generation rules}\label{section:trans_flow}
+
+This section describes how C++/SystemC modules, processes, functions, declarations, statements and expressions are translated into SystemVerilog code.
+For an input SystemC design ICSC generates one output SystemVerilog file with all the modules inside.
+
+
+\subsection{Module generation}\label{section:module_gen}
+
+Module hierarchy generation started with top module and passed through all the child modules. For any module there are multiple SV code sections generated:
+\begin{itemize}
+\item Input and output ports;
+\item Variables generated for SystemC signals;
+\item Local parameters generated for C++ constants;
+\item Assignments generated for SystemC array of channels;
+\item Process variables and always blocks;
+\item Child module instances;
+\item SVA generated for SystemC temporal assertions.
+\end{itemize}
+
+Assignments for SystemC array of channels provides conversion of array elements to individual channels in module interface. That is required if individual array elements bound to different channels. In case array of channels is bound to other same size array of channels, module interface contains array of channels and no assignments required. 
+
+There is an illustrative example for module with all the sections generated:
+%
+\begin{lstlisting}[style=mycpp]
+// Module structure example
+SC_MODULE(MyChild) {...};
+
+SC_MODULE(MyModule) {
+    sc_in_clk               clk{"clk"};
+    sc_in<sc_uint<4>>       a{"a"};
+    sc_out<sc_int<5>>       b{"b"};
+    sc_in<bool>             f[2];    
+    
+    sc_signal<bool>         s{"s"};
+    sc_signal<sc_uint<32>>  t{"t"};
+    
+    MyChild                 m{"m"};    
+    
+    static const bool C = true;
+    static const int  D = 42;
+    
+    SC_CTOR(MyModule) {
+        SC_CTHREAD(threadProc, clk.pos());
+        async_reset_signal_is(rst, 0);
+    }    
+    
+    void proc() {
+       ...
+    }
+};
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// Generated SystemVerilog
+// Input and output ports
+module MyModule // "tb_inst.top_mod"
+(
+    input logic clk,
+    input logic [3:0] a,
+    output logic signed [4:0] b,
+    input logic f0,
+    input logic f1
+);
+
+//------------------------------------------------------------------------------
+// Variables generated for SystemC signals
+logic s;
+logic [31:0] t;
+logic f[2];
+
+//------------------------------------------------------------------------------
+// Local parameters generated for C++ constants
+localparam logic signed C = 'd1;
+localparam logic signed [31:0] D = 'd42;
+
+//------------------------------------------------------------------------------
+// Assignments generated for SystemC array of channels
+assign f[0] = f0;
+assign f[1] = f1;
+
+//------------------------------------------------------------------------------
+// Process variables and always blocks
+// Thread-local variables
+logic [31:0] t_next;
+// Next-state combinational logic
+always_comb begin : threadProc_comb     // test_module_sections.cpp:89:5
+...
+end
+// Syncrhonous register update
+always_ff @(posedge clk or negedge rst) 
+begin : threadProc_ff
+...
+end
+
+//------------------------------------------------------------------------------
+// Child module instances
+MyChild m
+(
+  ...
+);
+
+//------------------------------------------------------------------------------
+// SVA generated for SystemC temporal assertions
+`ifndef INTEL_SVA_OFF
+sctAssertLine55 : assert property (...)
+`endif // INTEL_SVA_OFF
+endmodule
+\end{lstlisting}
+
+\subsection{Variables generation}\label{section:var_gen}
+
+There are several types of variables used in SC process functions: local variables (non-channel only), member non-channel variables, member channel variables. For these types of SC variables different types of SV variables are generated depends on variable usages. 
+
+Non-channel variable can be generated as a register or as a combinational variable. In clocked thread process:
+%
+\begin{itemize}
+\item If non-channel variable defined before read after last {\tt wait()/wait(N)} at every path, it is combinational variable;
+\item If non-channel variable can be read before defined after last {\tt wait()/wait(N)}, it is register variable.
+\end{itemize}
+%
+In method process only combinational variables are generated. That is because a  non-channel variable must be defined before used. 
+
+Channel variable can be generated as an input or a register:
+%
+\begin{itemize}
+\item If channel variable is never assigned, it is an input (no register);
+\item If channel variable is assigned at least once, it is a register.
+\end{itemize}
+%
+If a signal/port register is not initialized in reset section, warning is reported.
+
+Register in generated code consists of two variables: \emph{current value} and \emph{next value}. The current value variable is updated in {\tt always\_ff} block with next value variable. The next value variable is updated in {\tt always\_comb} block with current value variable.
+
+In the following example, local variable {\tt j} there will be {\tt j} and {\tt j\_next} SV variables generated. SV variable {\tt j} stores old value of the variable, assigned at last process activated cycle. {\tt j\_next} stores a new value assigned in the current cycle.
+
+\begin{lstlisting}[style=mycpp]
+sc_out<int>    a;   // Member channel
+sc_signal<int> b;   // Member channel
+int c;              // Member non-channel
+int d;              // Member non-channel
+
+void threadProc() {
+    int j = 0;          
+    a = 0;
+    c = 0;
+    d = 1;
+    wait();
+
+    while (true) {
+        a = j;                  // Channel a is defined
+        int i = 0;              // Local j is defined before use
+        j = b + i;              // Local j is used before define
+        c = b;                  // Non-channel c is defined before use
+        i = a.read() + c + d;   // Local i is not used
+        d = a.read();           // Non-channel d is used before define
+        wait();
+    }
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated
+module MyModule // "tb_inst.top_mod"
+(
+    ...
+    output logic signed [31:0] a
+);
+
+// Thread-local variables
+logic signed [31:0] a_next;
+logic signed [31:0] j;
+logic signed [31:0] j_next;
+logic signed [31:0] d;
+logic signed [31:0] d_next;
+logic signed [31:0] c;
+
+// Next-state combinational logic
+always_comb begin : threadProc_comb     // test_module_sections.cpp:89:5
+    threadProc_func;
+end
+function void threadProc_func;
+    integer i;
+    a_next = a;
+    d_next = d;
+    j_next = j;
+    a_next = j_next;
+    i = 0;
+    j_next = b + i;
+    c = b;
+    i = a + c + d_next;
+    d_next = a;
+endfunction
+
+// Syncrhonous register update
+always_ff @(posedge clk or negedge rst) 
+begin : threadProc_ff
+    if ( ~rst ) begin
+        integer c;
+        j <= 0;
+        a <= 0;
+        c = 0;
+        d <= 1;
+    end
+    else begin
+        a <= a_next;
+        j <= j_next;
+        d <= d_next;
+    end
+end
+\end{lstlisting}
+
+
+\subsection{Constants generation}\label{section:const_gen}
+
+For constants and static constants SV local parameters are generated. There is {\tt KEEP\_CONST\_VARIABLES} option to replace the constants in the code with their values, see~\ref{section:tool_options}. Constant is replaced with its value if the value if there is no reference to the constant. If constant is replaced with its value or not used in the code, no SV local parameter is generated.
+
+\begin{lstlisting}[style=mycpp]
+static const bool C = true;
+static const int D = 42;
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// Generated SystemVerilog
+// C++ constants
+localparam logic signed C = 'd1;
+localparam logic signed [31:0] D = 'd42;
+\end{lstlisting}
+
+\subsection{Method process generation}\label{section:method_gen}
+
+Method process is directly translated into {\tt always\_comb} block. All the local variables of the method are translated into local variables in the {\tt always\_comb} block. 
+
+\begin{lstlisting}[style=mycpp]
+// Method process example
+void methodProc() {
+    bool x;
+    int i;
+    i = a.read();
+    x = i == b.read();
+    sig = (x) ? i : 0;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated for method process example
+always_comb 
+begin : methodProc     // test_module_sections.cpp:110:5
+    logic x;
+    integer i;
+    i = a;
+    x = i == b;
+    sig = x ? i : 0;
+end
+\end{lstlisting}
+
+\subsection{Method process with empty sensitivity}\label{section:empty_gen}
+
+Method process with empty sensitivity are typically used to assign constant value signal/port initialization. In the SystemVerilog code one or more {\tt assign} statements are generated for such process. 
+
+\begin{lstlisting}[style=mycpp]
+// SystemC method process with empty sensitivity
+static const bool COND = true;
+void emptySens()
+{
+    a = 0;
+    if (COND) {
+        b = 1;
+    } else {
+        c = 2;
+    }
+    int i = 1;
+    d = (!COND) ? i : i + 1; 
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated
+assign a = 0;
+assign b = 1;
+assign i = 1;
+assign d = i+1;
+\end{lstlisting}
+
+
+\subsection{Method process with latch(es)}\label{section:method_latches}
+
+Normally ICSC does not allow to have latch in SystemC source, but there are some cases where latch is required. There is ICSC assertion {\tt sct\_assert\_latch} which intended to specify latch in method process, see~\ref{section:assert_special}. It suppresses ICSC error message for latch variable, signal or port. 
+
+Normal method process translated into {\tt always\_comb} block in SystemVerilog. For method with latch {\tt always\_latch} block is generated.
+
+\begin{lstlisting}[style=mycpp]
+// SystemC source for Clock Gate cell
+#include "sct_assert.h"
+void cgProc() {
+    if (!clk_in) {
+        enable = enable_in;
+    }
+    // To prevent error reporting for latch
+    sct_assert_latch(enable);
+}
+void cgOutProc() {
+    clk_out = enable && clk_in;
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated 
+always_latch
+begin : cgProc
+    if (!clk_in) begin
+        enable <= enable_in;
+    end
+end
+\end{lstlisting}
+
+\subsection{Thread process generation}\label{section:thread_gen}
+
+Clocked thread process in SystemC has one or multiple states specified with {\tt wait()}/{\tt wait(N)} calls, therefore it cannot be directly translated into {\tt always\_ff} block. 
+To translate semantics of multi-state thread into a form which is accepted by most SystemVerilog tools, ICSC converts the thread into pair of {\tt always\_comb} and {\tt always\_ff} blocks. {\tt always\_ff} block implements reset and update logic for state register and other registers. {\tt always\_comb} block contains combinational logic that computes the next state. {\tt always\_comb} contains all the logic of the SystemC thread and provides combinational outputs which are stored into registers in the {\tt always\_ff} block. 
+
+Thread states are identified by {\tt wait()} call statements in the SystemC code, so number of states is the number of {\tt wait()} calls, including such in called functions. {\tt wait(N)} calls are discussed in~\ref{section:waitn_gen}. 
+
+For thread process with one state, generated {\tt always\_comb} block has all the after-reset logic.
+
+For thread with multiple states, generated {\tt always\_comb} block has main {\tt case} for thread process states. The main {\tt case} branches correspond to SystemC code that starts from specific {\tt wait()} and finishes in the next {\tt wait()}. Implicit thread states are represented by automatically generated {\tt PROC\_STATE} variable with process name prefix. 
+
+\begin{lstlisting}[style=mycpp]
+// Thread process example
+void multiStateProc() {
+   sc_uint<16> x = 0;
+   sig = 1;              
+   wait();                    // STATE 0
+
+   while (true) {
+      sc_uint<8> y = a.read(); 
+      x = y + 1;
+      wait();                 // STATE 1
+      sig = x;           
+   }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated for thread process example
+// Thread-local variables
+...
+logic multiStateProc_PROC_STATE;
+logic multiStateProc_PROC_STATE_next;
+
+// Next-state combinational logic
+always_comb begin : multiStateProc_comb     // test_module_sections.cpp:122:4
+    multiStateProc_func;
+end
+function void multiStateProc_func;
+    logic [7:0] y;
+    sig_next0 = sig;
+    x_next = x;
+    multiStateProc_PROC_STATE_next = multiStateProc_PROC_STATE;
+    
+    case (multiStateProc_PROC_STATE)
+        0: begin
+            y = a;
+            x_next = y + 1;
+            multiStateProc_PROC_STATE_next = 1; return;  
+        end
+        1: begin
+            sig_next0 = x_next;
+            y = a;
+            x_next = y + 1;
+            multiStateProc_PROC_STATE_next = 1; return; 
+        end
+    endcase
+endfunction
+
+// Syncrhonous register update
+always_ff @(posedge clk or negedge rst) 
+begin : multiStateProc_ff
+    if ( ~rst ) begin
+        x <= 0;
+        sig <= 1;
+        multiStateProc_PROC_STATE <= 0;  // test_module_sections.cpp:125:8;
+    end
+    else begin
+        sig <= sig_next0;
+        x <= x_next;
+        multiStateProc_PROC_STATE <= multiStateProc_PROC_STATE_next;
+    end
+end
+\end{lstlisting}
+
+\subsection{Thread process without reset}\label{section:noreset}
+
+Thread process without reset supported with limitations: such process can have only one {\tt wait()} and cannot have any code in reset section.
+
+\begin{lstlisting}[style=mycpp]
+// Clocked thread without reset
+SC_CTOR(test_reset) {
+   SC_CTHREAD(proc, clk.pos());
+}
+
+void proc() {
+   while (true) {
+      int i = 0;
+      wait();
+   }
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated for clocked thread without reset
+always_comb begin 
+    ...
+    case (PROC_STATE)
+        default : begin
+            i = 0;
+        end
+        0: begin
+            i = 0;
+        end
+    endcase
+endfunction
+
+always_ff @(posedge clk) 
+begin 
+    begin
+        PROC_STATE <= PROC_STATE_next;
+    end
+end
+\end{lstlisting}
+
+\subsection{wait(N) conversion}\label{section:waitn_gen}
+
+For {\tt wait(N)} call auxiliary variable counter is generated. This counter is set at entry to {\tt wait(N)} state and decremented at {\tt wait(N)} state until becomes one.
+There is one counter per thread process, which used for all {\tt wait(N)} calls in the thread. The counter variable has required width.
+
+\begin{lstlisting}[style=mycpp]
+// Clocked thread with wait(N)
+void threadProc () {
+    wait();
+    while (true) {
+       wait(3);
+    }
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// Generated Verilog
+logic [1:0] waitn_WAIT_N_COUNTER;
+logic [1:0] waitn_WAIT_N_COUNTER_next;
+...
+function void waitn_func;
+    waitn_WAIT_N_COUNTER_next = waitn_WAIT_N_COUNTER;
+    waitn_PROC_STATE_next = waitn_PROC_STATE;
+    
+    case (waitn_PROC_STATE)
+        0: begin
+            waitn_WAIT_N_COUNTER_next = 3;
+            waitn_PROC_STATE_next = 1; return;    
+        end
+        1: begin
+            if (waitn_WAIT_N_COUNTER != 1) begin
+                waitn_WAIT_N_COUNTER_next = waitn_WAIT_N_COUNTER - 1;
+                waitn_PROC_STATE_next = 1; return;    
+            end;
+            waitn_WAIT_N_COUNTER_next = 3;
+            waitn_PROC_STATE_next = 1; return;    
+        end
+    endcase
+endfunction
+\end{lstlisting}
+
+\subsection{Loops with wait generation}\label{section:loop_thread}
+
+Loop with {\tt wait()/wait(N)} call cannot be directly translated into SystemVerilog loop. Loop with {\tt wait()/wait(N)} is divided into several states. For such loop statement {\tt if} with loop condition is generated in SV code. If the loop has at least one iteration, the loop first iteration has no check of the loop condition.
+
+\begin{lstlisting}[style=mycpp]
+void loopProc() {
+    enable = 0;
+    wait();                     // STATE 0
+    while (true) {
+        for (int i = 0; i < 3; ++i) {
+            enable = 0;
+            wait();             // STATE 1
+        }
+        enable = 1;
+    }
+} 
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+function void loopProc_func;
+    enable_next = enable; i_next = i;
+    loopProc_PROC_STATE_next = loopProc_PROC_STATE;
+    
+    case (loopProc_PROC_STATE)
+        0: begin
+            i_next = 0;					// No loop condition check
+            enable_next = 0;
+            loopProc_PROC_STATE_next = 1; return; 
+        end
+        1: begin
+            ++i_next;
+            if (i_next < 3)
+            begin
+                enable_next = 0;
+                loopProc_PROC_STATE_next = 1; return; 
+            end
+            enable_next = 1;
+            i_next = 0;
+            enable_next = 0;
+            loopProc_PROC_STATE_next = 1; return;   
+        end
+    endcase
+endfunction
+\end{lstlisting}
+
+If a loop with {\tt wait()/wait(N)} contains {\tt break} or {\tt continue} statements, they are removed and control flow analysis traverses further to the loop exit or the loop entry correspondingly. That means {\tt break} and {\tt continue} statements are replaced with some code up to the next {\tt wait()} call. Example below contains {\tt while} loop with {\tt break}, which is replaced with code marked with {\tt break begin} and {\tt break end} comments.
+
+\begin{lstlisting}[style=mycpp]
+void breakProc() {
+    ready = 0;
+    wait();                     // STATE 0
+    while (true) {
+        wait();                 // STATE 1
+        while (!enable) {
+            if (stop) break;
+            ready = 1;
+            wait();             // STATE 2
+        }
+        ready = 0;
+    }
+}    
+\end{lstlisting}
+
+\begin{lstlisting}[style=myverilog]
+function void breakProc_func;
+    ready_next = ready;
+    breakProc_PROC_STATE_next = breakProc_PROC_STATE;
+    
+    case (breakProc_PROC_STATE)
+        0: begin
+            breakProc_PROC_STATE_next = 1; return;   
+        end
+        1: begin
+            if (!enable)
+            begin
+                if (stop)
+                begin
+                    // break begin
+                    ready_next = 0;
+                    breakProc_PROC_STATE_next = 1;
+                    // break end
+                end
+                ready_next = 1;
+                breakProc_PROC_STATE_next = 2; 
+            end
+            ready_next = 0;
+            breakProc_PROC_STATE_next = 1; return;
+        end
+        2: begin
+            ...
+        end
+    endcase
+endfunction
+\end{lstlisting}
+
+
+\subsection{Switch generation}\label{section:switch_gen}
+
+{\tt switch} statement is translated into SystemVerilog {\tt case}.
+
+\begin{lstlisting}[style=mycpp]
+// Operator switch example
+switch (i) {
+case 0: i++; break;
+case 1: i--; break;
+default: i = 0; break;
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated for switch example
+case (i)
+0 : begin  
+  i++;
+end
+1 : begin
+  i--;
+end
+default : begin
+  i = 0;
+end
+endcase
+\end{lstlisting}
+
+{\tt switch} with default case only is removed, the default case statement translated into SV code.
+%
+\begin{lstlisting}[style=mycpp]
+// Operator switch with default case only
+switch (a) {
+    default: i = 1; break;
+}
+j = 2;
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated for switch with default case only
+i = 1;
+j = 2;
+\end{lstlisting}
+
+Another special case is {\tt swtich} with empty case(s). Empty case does not have break or return at the end is translated into SV code of the first following non-empty case. 
+%
+\begin{lstlisting}[style=mycpp]
+// Operator switch with empty case
+switch (i) {
+case 0: 
+case 1: k = 1; break;
+default: k = 2; break;
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated for switch with empty case
+case (i)
+0 : begin  // Empty case without break
+  k = 1;
+end
+1 : begin
+  k = 1;
+end
+default : begin
+  k = 2;
+end
+endcase
+\end{lstlisting}
+
+
+\subsection{Records generation}\label{section:record_gen}
+
+Records can be used as member and local non-channel variables. Record cannot be used as type parameter of a channel. Record fields are generated in SV code as separate variables. Field variable name in SV code is field name with record variable name prefix.
+
+In the following example there is local record variable with non-empty constructor. Constructor code inserted after record field variables declaration.
+%
+% record_simple_method.cpp
+\begin{lstlisting}[style=mycpp]
+// Local variables record type
+struct Rec1 {
+    int x;
+    sc_int<2> y;       
+    Rec1() : y(1) {
+        x = 2;
+    }
+};
+void record_local_var1() {
+    Rec1 r;
+    r.x = r.y + 2;
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+always_comb 
+begin : record_local_var1     // test_simple_method.cpp:110:5
+    integer r_x;
+    logic signed [1:0] r_y;
+    r_y = 1;
+    // Call Rec1() begin
+    r_x = 2;
+    // Call Rec1() end
+    r_x = r_y + 2;
+end
+\end{lstlisting}
+
+Records can be used in thread processes. In thread process record variable can be register as well as combinational variable. 
+
+% record_reg_cthread1.cpp
+\begin{lstlisting}[style=mycpp]
+// Local/global records assign in initialization
+SinCosTuple grr;
+void record_glob_assign1() {
+    wait();
+    while (true) {
+        grr.cos = 1;
+        SinCosTuple r = grr;
+        wait();
+    }
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// Thread-local variables
+logic signed [31:0] grr_sin;
+logic signed [31:0] grr_sin_next;
+logic signed [31:0] grr_cos;
+logic signed [31:0] grr_cos_next;
+// Next-state combinational logic
+always_comb begin : record_glob_assign1_comb     // test_reg_cthread1.cpp:91:5
+    record_glob_assign1_func;
+end
+function void record_glob_assign1_func;
+    integer r_sin;
+    integer r_cos;
+    grr_cos_next = grr_cos;
+    grr_sin_next = grr_sin;
+    grr_cos_next = 1;
+    r_sin = grr_sin_next; r_cos = grr_cos_next;
+endfunction
+\end{lstlisting}
+
+
+
+
+\subsection{Arithmetical operations}\label{section:arithmetic_gen}
+
+SystemC/C++ type promotion rules differ from each other and from SV rules. For literal and non-literal terms signed-to-unsigned and unsigned-to-signed implicit cast detected and used as base for sign in SV.
+
+\subsubsection{Signed and unsigned literals}
+
+SystemC/C++ literals translated into SV literals with the following rules:
+\begin{itemize}
+\item Zero not casted.
+\item C++ literal has integer type and represented in simple form is signed.
+\item C++ literal with suffix U represented in based form is unsigned.
+\item SC literal represented in based form and is signed or unsigned depends on its type.
+\item All negative literals are signed.
+\end{itemize}
+In binary operators if first argument is signed type non-literal and second is no cast literal, second argument is casted to signed literal.
+
+\subsubsection{Signed and unsigned types}
+
+The following rules based on C++ type promotion rules and SC types operators implementation.
+General idea is non-literal mix of signed and unsigned considered as signed and unsigned operand converted to signed in SV with {\tt signed'}. If signed literal mixed with unsigned non-literal, that considered as unsigned arithmetic, no signed cast in SV.
+
+{\tt enum} types can be signed and unsigned as well. There is implicit cast to {\tt int}, so unsinged {\tt enum} casted to signed, no special rule required.
+There are several rules for non-literals in binary operators (+, -, *, /, \&, \textasciicircum, |, \%):
+%
+\begin{itemize}
+\item If first argument has signed-to-unsigned cast or signed expression and second has no cast and is not signed type or signed expression, second argument is casted to signed.
+\item If first argument of {\tt sc\_bigint} type and second is not signed type or signed expression, second argument is casted to signed.
+\item If first argument of {\tt sc\_biguint} type and second is signed type, first argument is casted to signed.
+\end{itemize}
+%
+Mixing negative signed operand and {\tt unsigned/sc\_uint} operand can provide incorrect result, so warning is reported. This operations work well with {\tt sc\_biguint}.
+
+There is rule for non-literals in unary operators, if argument of {\tt sc\_biguint} type in unary minus, the argument is casted to signed.
+
+\subsubsection{Type cast in assignment}
+
+Explicit type cast can be used to narrow/widen the argument. It translated into SV type cast. Multiple type casts are also possible: internal one narrows value, external one extend type width, which may be required for concatenation. 
+
+Implicit type cast, including SC data type constructor, not translated to SV. SV has implicit narrowing of argument, for example:
+%
+\begin{lstlisting}[style=mycpp]
+sc_uint<3> i;
+sc_uint<2> k = i;
+bool b = k;
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// Generated SystemVerilog
+logic [2:0] i;
+logic [1:0] k;
+logic b;
+k = i;     // All that work fine in ICSC, no warnings
+b = k;     
+\end{lstlisting}
+
+Explicit cast can be combined with signed cast. In this case signed cast extend data width by 1 only if required (signed changed after explicit cast):
+%
+\begin{lstlisting}[style=mycpp]
+sc_int<6> x;
+sc_uint<4> ux;
+z = x + ux;
+z = x + sc_uint<6>(ux);
+z = x + sc_int<7>(ux);
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// Generated SystemVerilog
+z = x + signed'({1'b0, ux});
+z = x + 6'(ux);
+z = x + signed'(7'(ux));
+\end{lstlisting}
+
+\subsubsection{Operator comma}
+
+Operator {\tt ,} is applied to concatenate two SC integers with specified length. For C++ integers and results of operation explicit type conversion is required.
+%
+\begin{lstlisting}[style=mycpp]
+sc_uint<N> i; 
+sc_uint<M> j; 
+sc_uint<N+M> k;
+k = (i, j);                  // OK 
+k = (i, sc_uint<M>(j));      // OK, extra type conversion
+k = (i, i*j);                // Error reported, type conversion required
+k = (i, sc_uint<M>(i*j));    // OK
+\end{lstlisting}
+
+
+
+
+\subsection{Name uniqueness}\label{section:unique_gen}
+
+Name uniqueness in SystemC design must be provided in terms of C++ rules. There is no other rules for names of types, variables or functions. If there is name collision caused by code transformation, it resolved with adding numeric suffix.
+
+\begin{lstlisting}[style=mycpp]
+// Name uniqueness example
+sc_signal<bool> b;     // b
+void uniqProc() {
+    out = b;		
+    bool b;            // b_1
+    {
+        bool b;        // b_2 
+        out = b;
+    }
+    out = b;
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// SystemVerilog generated
+logic b;
+always_comb 
+begin : uniqProc     // test_module_sections.cpp:186:1
+    logic b_1;
+    logic b_2;
+    out = b;
+    out = b_2;
+    out = b_1;
+end
+\end{lstlisting}
+
+Function name for modular interface process has prefix to distinguish it from the parent module processes. If process function name conflict with another name it gets numeric suffix like variables.
+
+
+
