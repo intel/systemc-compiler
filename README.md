@@ -22,9 +22,9 @@ An instruction how to build and run ISCS at **Ubuntu 20.04** is given at [Gettin
 
 ## Documentation 
 
-SystemC/C++ various features supported by ICSC described at [SystemC/C++ supported](https://github.com/intel/systemc-compiler/wiki/SystemC--supported).
+[User guide](https://github.com/intel/systemc-compiler/blob/main/doc/ug.pdf) document describes installation procedure, run tool options, preparation of SystemC design for ICSC, and also tool extensions and advanced verification features.
 
-ICSC supports SystemC immediate and temporal assertions translation into SystemVerilog Assertions (SVA) as described at [Assertions in SystemC](https://github.com/intel/systemc-compiler/wiki/Assertions-in-SystemC).
+SystemC/C++ various features supported by ICSC described at [SystemC/C++ supported](https://github.com/intel/systemc-compiler/wiki/SystemC--supported).
 
 ## Help
 
