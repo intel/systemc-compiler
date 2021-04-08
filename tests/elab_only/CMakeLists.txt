@@ -5,8 +5,8 @@
 # 
 # *****************************************************************************
 
-add_subdirectory(test_apb_dma)
-add_subdirectory(multi_source)
+#add_subdirectory(test_apb_dma)
+#add_subdirectory(multi_source)
 
 add_executable(simple_test simple_test.cpp)
 svc_target(simple_test ELAB_ONLY)
