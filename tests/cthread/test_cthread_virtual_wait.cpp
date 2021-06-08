@@ -14,10 +14,12 @@
 struct base : sc_module {
 
     sc_in_clk clk{"clk"};
+    sc_signal<bool> nrst;
 
     SC_CTOR(base) {
         SC_THREAD(test_thread);
         sensitive << clk.pos();
+        async_reset_signal_is(nrst, true);
     }
 
     virtual void virtual_wait() {

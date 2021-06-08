@@ -65,8 +65,8 @@ SC_MODULE(test_mod) {
         async_reset_signal_is(rstn, false);
         SC_CTHREAD(multistate_thread5, clk);
         async_reset_signal_is(rstn, false);
-        SC_CTHREAD(multistate_thread6, clk);
 
+        
 
     }
 
@@ -182,16 +182,6 @@ SC_MODULE(test_mod) {
             x++;
         }
     }
-
-    void multistate_thread6() {
-        int x = 0;
-        while (1) {
-            x++;
-            wait();
-        }
-    }
-
-
 
 };
 

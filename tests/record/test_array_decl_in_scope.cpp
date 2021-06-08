@@ -41,8 +41,9 @@ public:
         SC_CTHREAD(rec_arr_if_thread_reg, clk.pos());  
         async_reset_signal_is(nrst, 0);
         
-        SC_CTHREAD(rec_arr_if_thread_reg2, clk.pos());  
-        async_reset_signal_is(nrst, 0);
+        // #141
+        //SC_CTHREAD(rec_arr_if_thread_reg2, clk.pos());  
+        //async_reset_signal_is(nrst, 0);
         
         SC_CTHREAD(rec_arr_if_loop_thread, clk.pos());  
         async_reset_signal_is(nrst, 0);

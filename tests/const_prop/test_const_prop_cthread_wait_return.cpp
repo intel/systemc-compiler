@@ -15,10 +15,12 @@
 SC_MODULE(top) {
 
     sc_clock    clk_gen{"clk_gen", 10 , SC_NS};
+    sc_signal<bool> nrst;
 
     SC_CTOR(top) {
         SC_THREAD(test_thread);
         sensitive << clk_gen.posedge_event();
+        async_reset_signal_is(nrst, 0);
     }
 
     void wait_void () {

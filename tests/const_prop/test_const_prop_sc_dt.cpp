@@ -17,12 +17,18 @@ SC_MODULE(top) {
 
     SC_CTOR(top) {
         SC_METHOD(test_ctors_sc_int);
+        sensitive << din;
         SC_METHOD(test_ctors_sc_uint);
+        sensitive << din;
         SC_METHOD(test_ctors_sc_bigint);
+        sensitive << din;
         SC_METHOD(test_ctors_sc_biguint);
-        SC_METHOD(test_bigint_assign)
+        sensitive << din;
+        SC_METHOD(test_bigint_assign);
+        sensitive << din;
     }
 
+    sc_signal<int> din;
 
     void test_ctors_sc_int () {
 

@@ -18,10 +18,10 @@
 #include <sc_tool/elab/ScObjectView.h>
 #include <sc_tool/utils/RawIndentOstream.h>
 #include <sc_tool/utils/InsertionOrderSet.h>
-#include <sc_tool/cthread/ScThreadVerilogGen.h>
 #include <sc_tool/cthread/ScCThreadStates.h>
 #include <sc_tool/elab/ScElabDatabase.h>
 #include <sc_tool/elab/ScVerilogModule.h>
+#include "sc_tool/cfg/ScTraverseProc.h"
 #include <sc_tool/cfg/ScTraverseConst.h>
 #include <sc_tool/cfg/ScState.h>
 #include <clang/AST/DeclCXX.h>
@@ -54,15 +54,24 @@ public:
                   std::shared_ptr<ScState> globalState,
                   const SValue &modval,
                   const SValue &dynmodval
-                  );
+                  ) :
+            sm(astCtx.getSourceManager()),
+            astCtx(astCtx),
+            cfgFab(*CfgFabric::getFabric(astCtx)),
+            entryFuncDecl(procView.getLocation().second),
+            findWaitVisitor(),
+            elabDB(elabDB),
+            globalState(globalState),
+            modSval(modval),
+            dynModSval(dynmodval),
+            threadStates(procView.getLocation().second, astCtx),
+            procView(procView)
+    {}
 
     /**
-     * @param constPropOnly - run constant propagation only,
-     * without Verilog generation
-     *
      * @return generated code
      */
-    sc_elab::VerilogProcCode run(bool constPropOnly);
+    sc_elab::VerilogProcCode run();
 
     const clang::CFG * getCurrentCFG(const CfgCursorStack &callStack,
                                      const SValue & dynModVal);
@@ -76,21 +85,22 @@ public:
     
 private:
     
-    /// Run constant propagation for all states
-    void runConstProp();
-
     /// Run constant propagation for a single state (starting from wait() call)
     void runConstPropForState(WaitID stateID);
 
     /// Analyze UseDef analysis results to create registers
     void analyzeUseDefResults(const ScState *finalState);
 
-    /// Generate Verilog for thread body
-    void runVerilogGeneration();
-
     /// Generate Verilog for a single state
     /// Fill @traverseContextMap and return reachable wait IDs
-    std::set<WaitID> generateVerilogForState(WaitID stateID);
+    void generateVerilogForState(WaitID stateID);
+    
+    /// Generate code for one state
+    std::vector<std::pair<WaitID, ScProcContext>>
+    generateCodePath(ScProcContext traverseContext, WaitID startStateID);
+
+    /// Get process code including declarations and SVA code
+    sc_elab::VerilogProcCode getVerilogCode(bool isSingleState);
 
     /// Generate Verilog module variables for registers discovered in thread
     void generateThreadLocalVariables();
@@ -109,7 +119,7 @@ private:
     const SValue &modSval;
     const SValue &dynModSval;
 
-    // Filled by local CPA, contains call stack for wait`s
+    /// Filled by local CPA, contains call stack for wait`s
     ScCThreadStates threadStates;
 
     /// Registers assigned by thread 
@@ -126,18 +136,16 @@ private:
 
     bool isSingleState;
 
-    std::unordered_map<WaitID, ScProcContext> traverseContextMap;
-
     const sc_elab::ProcessView procView;
 
-    // States to be analyzed, reachable state from previous state
-    std::set<WaitID> scheduledStates;
-    // Previously visited state, CPA start each wait() only once
-    std::set<WaitID> visitedStates;
+    std::unique_ptr<ScTraverseConst> travConst;
+    std::unique_ptr<ScTraverseProc>  travProc;
 
-    std::unique_ptr<ScThreadVerilogGen> vGen;
+    /// State contexts for @travProc
+    std::unordered_map<WaitID, ScProcContext> traverseContextMap;
 
-    std::unique_ptr<ScTraverseConst> globalConstProp;
+    /// Code generated for states
+    std::unordered_map<WaitID, std::string> stateCodeMap;
 
     // Name and next name 
     std::pair<std::string, std::string> waitNRegNames;

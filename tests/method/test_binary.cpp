@@ -39,16 +39,15 @@ public:
         SC_METHOD(comma); sensitive << s << a;
         SC_METHOD(shift); sensitive << s << a;
         SC_METHOD(sc_type_shift); sensitive << dummy;
-        SC_METHOD(compound_assign); sensitive << dummy;
-        SC_METHOD(compound_assign_brackets); sensitive << dummy;
-        SC_METHOD(sc_compound_assign); sensitive << dummy;
-        
+
         SC_METHOD(sc_type_main); sensitive << dummy;
         
         SC_METHOD(sc_type_main_neg); sensitive << dummy;
         SC_METHOD(sc_type_main_signed); sensitive << dummy;
         
         SC_METHOD(sc_type_logic_bitwise); sensitive << dummy;
+        SC_METHOD(logic_bitwise_literal); sensitive << dummy;
+        
         SC_METHOD(sc_type_comp); sensitive << dummy;
         SC_METHOD(large_types); sensitive << dummy;
 
@@ -185,63 +184,6 @@ public:
         int ii = 42;
         y = x << sc_uint<12>(ii);
         y = x << sc_biguint<12>(ii);
-    }
-    
-    // Compound assignments
-    void compound_assign() {
-        int k = 2;
-        int i = 1;
-        i += 1;
-        m = 1;
-        CHECK(i==2);
-        i -= m;
-        CHECK(i==1);
-        i *= k;
-        i /= i;
-        i %= (k+m);
-        i |= 2;
-        i &= 3;
-        i ^= 4+i;
-    }
-    
-    // Test shows brackets required
-    void compound_assign_brackets() 
-    {
-        int i, e, d;
-        e = 2;
-        d = -3;
-        i = 1;
-        
-        i *= e + d;
-        CHECK(i == -1);
-        i = 12;
-        i /= e - d*2 + i - 10;
-        CHECK(i == 1);
-        i = 5;
-        i %= 1 + 1;
-        CHECK(i == 1);
-    }
-
-    // Compound assignments SC types
-    void sc_compound_assign() 
-    {
-        sc_uint<3> u = 3;
-        sc_int<4> i = -2;
-        sc_int<4> m2 = 1;
-        i += 1;
-        CHECK(i==-1);
-        i -= m2;
-        CHECK(i==-2);
-        i *= 1;
-        CHECK(i==-2);
-        i /= u;
-        CHECK(i==0);
-        u %= k;
-        u |= 2;
-        u &= 3;
-        u ^= sc_uint<5>(4);
-        u <<= k;
-        u >>= sc_uint<4>(2+i);
     }
     
     void sc_type_main_neg() 
@@ -399,6 +341,39 @@ public:
         CHECK(b);
         b = !i || (y + bx.to_int()) && true;
         CHECK(b);
+    }
+    
+    // &, |, ^ with literals including >32bit literals
+    void logic_bitwise_literal() 
+    {
+        int i = 0x123; 
+        unsigned uu = 3;
+        long j = 0x12300000005;
+        sc_biguint<100> z;
+
+        z = i | 0x24;
+        CHECK(z == 0x127);
+        z = i & 0x24;
+        CHECK(z == 0x20);
+        z = i ^ 0x24;
+        CHECK(z == 0x107);
+
+        z = j | 0x3;
+        CHECK(z == 0x12300000007);
+        z = j & 0x16;
+        CHECK(z == 0x4);
+        z = j ^ 0x11;
+        CHECK(z == 0x12300000014);
+
+        z = j | 0x4400000002;
+        CHECK(z == 0x16700000007);
+        z = j & 0x4500000004;
+        CHECK(z == 0x100000004);
+
+        z = j | 0x140000000000;
+        CHECK(z == 0x152300000005);
+        z = j & 0x153000000000;
+        CHECK(z == 0x12000000000);
     }
     
     void sc_type_comp() 

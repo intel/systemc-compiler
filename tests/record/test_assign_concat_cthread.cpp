@@ -24,8 +24,9 @@ public:
         SC_CTHREAD(record_assign2, clk.pos());
         async_reset_signal_is(rstn, false);
         
-        SC_CTHREAD(record_assign3, clk.pos());
-        async_reset_signal_is(rstn, false);
+        // #141
+        //SC_CTHREAD(record_assign3, clk.pos());   
+        //async_reset_signal_is(rstn, false);
         
         SC_CTHREAD(record_concat_reg, clk.pos());
         async_reset_signal_is(rstn, false);
@@ -79,7 +80,7 @@ public:
         
         while (true) {
             Simple w = t;
-            t = v;
+            t = v;          // #141, @v is not declared, add it to Use
             
             wait();
         }

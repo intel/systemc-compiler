@@ -20,15 +20,18 @@ svc_target(cthread_simple2 GOLDEN cthread_simple2.sv)
 add_executable(cthread_linear test_cthread_linear.cpp)
 svc_target(cthread_linear GOLDEN cthread_linear.sv)
 
-add_executable(cthread_inner_loops test_cthread_inner_loops.cpp)
-svc_target(cthread_inner_loops GOLDEN cthread_inner_loops.sv)
-
 add_executable(cthread_comb_break test_cthread_comb_break.cpp)
 svc_target(cthread_comb_break GOLDEN cthread_comb_break.sv)
 
 # Reset related tests
 add_executable(cthread_reset test_cthread_reset.cpp)
 svc_target(cthread_reset GOLDEN cthread_reset.sv)
+
+add_executable(cthread_reset_warning test_cthread_reset_warning.cpp)
+svc_target(cthread_reset_warning GOLDEN cthread_reset_warning.sv)
+
+add_executable(cthread_reset_noninit_read test_reset_noninit_read.cpp)
+svc_target(cthread_reset_noninit_read GOLDEN cthread_reset_noninit_read.sv)
 
 add_executable(cthread_reset_after test_cthread_reset_after.cpp)
 svc_target(cthread_reset_after GOLDEN cthread_reset_after.sv)
@@ -40,8 +43,13 @@ add_executable(cthread_mult_resets test_cthread_mult_resets.cpp)
 svc_target(cthread_mult_resets GOLDEN cthread_mult_resets.sv)
 
 add_executable(cthread_sync_async_reset test_cthread_sync_async_reset.cpp)
-svc_target(cthread_sync_async_reset  
-           GOLDEN cthread_sync_async_reset.sv)
+svc_target(cthread_sync_async_reset GOLDEN cthread_sync_async_reset.sv)
+
+add_executable(cthread_fcall_in_reset test_fcall_in_reset.cpp)
+svc_target(cthread_fcall_in_reset GOLDEN cthread_fcall_in_reset.sv)
+
+add_executable(cthread_no_reset_fail test_no_reset_fail.cpp)
+svc_target(cthread_no_reset_fail WILL_FAIL)
 
 # Loops
 add_executable(cthread_for test_cthread_for.cpp)
@@ -52,9 +60,6 @@ svc_target(cthread_for_fcall_fail WILL_FAIL)
 
 add_executable(cthread_for_other_types test_cthread_for_other_types.cpp)
 svc_target(cthread_for_other_types GOLDEN cthread_for_other_types.sv)
-
-add_executable(cthread_redundant_code test_cthread_redundant_code.cpp)
-svc_target(cthread_redundant_code GOLDEN cthread_redundant_code.sv)
 
 add_executable(cthread_while test_while.cpp)
 svc_target(cthread_while GOLDEN cthread_while.sv)
@@ -76,6 +81,33 @@ svc_target(cthread_do_while_always1 GOLDEN cthread_do_while_always1.sv)
            
 add_executable(cthread_do_while_const test_do_while_const.cpp)
 svc_target(cthread_do_while_const GOLDEN cthread_do_while_const.sv)
+
+add_executable(cthread_inner_loops test_cthread_inner_loops.cpp)
+svc_target(cthread_inner_loops GOLDEN cthread_inner_loops.sv)
+
+add_executable(cthread_alive_loop test_cthread_alive_loop.cpp)
+svc_target(cthread_alive_loop GOLDEN cthread_alive_loop.sv)
+
+add_executable(cthread_loop_fail test_cthread_loop_fail.cpp)
+svc_target(cthread_loop_fail WILL_FAIL)
+
+add_executable(cthread_loop_fail2 test_cthread_loop_fail2.cpp)
+svc_target(cthread_loop_fail2 WILL_FAIL)
+
+add_executable(cthread_loop_fail3 test_cthread_loop_fail3.cpp)
+svc_target(cthread_loop_fail3 WILL_FAIL)
+
+add_executable(cthread_loop_fail4 test_cthread_loop_fail4.cpp)
+svc_target(cthread_loop_fail4 WILL_FAIL)
+
+add_executable(cthread_loop_fail5 test_cthread_loop_fail5.cpp)
+svc_target(cthread_loop_fail5 WILL_FAIL)
+
+add_executable(cthread_loop_fail6 test_cthread_loop_fail6.cpp)
+svc_target(cthread_loop_fail6 WILL_FAIL)
+
+add_executable(cthread_loop_fail7 test_cthread_loop_fail7.cpp)
+svc_target(cthread_loop_fail7 WILL_FAIL)
 
 # if
 add_executable(cthread_if test_if.cpp)
@@ -193,24 +225,6 @@ add_executable(cthread_varname test_cthread_varname.cpp)
 svc_target(cthread_varname 
             GOLDEN cthread_varname.sv)
 
-add_executable(cthread_loop_fail test_cthread_loop_fail.cpp)
-svc_target(cthread_loop_fail WILL_FAIL)
-
-add_executable(cthread_loop_fail2 test_cthread_loop_fail2.cpp)
-svc_target(cthread_loop_fail2 WILL_FAIL)
-
-add_executable(cthread_loop_fail3 test_cthread_loop_fail3.cpp)
-svc_target(cthread_loop_fail3 WILL_FAIL)
-
-add_executable(cthread_loop_fail4 test_cthread_loop_fail4.cpp)
-svc_target(cthread_loop_fail4 WILL_FAIL)
-
-add_executable(cthread_loop_fail5 test_cthread_loop_fail5.cpp)
-svc_target(cthread_loop_fail5 WILL_FAIL)
-
-add_executable(cthread_loop_fail6 test_cthread_loop_fail6.cpp)
-svc_target(cthread_loop_fail6 WILL_FAIL)
-
 add_executable(cthread_sel_bit test_cthread_sel_bit.cpp)
 svc_target(cthread_sel_bit 
            GOLDEN cthread_sel_bit.sv)
@@ -281,10 +295,6 @@ add_executable(bhv_fifo test_bhv_fifo.cpp)
 svc_target(bhv_fifo  
            GOLDEN bhv_fifo.sv)
            
-add_executable(cthread_fcall_in_reset test_fcall_in_reset.cpp)
-svc_target(cthread_fcall_in_reset  
-            GOLDEN cthread_fcall_in_reset.sv)
-
 add_executable(cthread_var_reg test_cthread_var_reg.cpp)
 svc_target(cthread_var_reg GOLDEN cthread_var_reg.sv)
 

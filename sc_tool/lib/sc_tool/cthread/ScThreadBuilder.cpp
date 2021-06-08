@@ -12,7 +12,6 @@
 
 #include "ScThreadBuilder.h"
 
-#include "sc_tool/cfg/ScTraverseConst.h"
 #include "sc_tool/cfg/ScStmtInfo.h"
 #include "clang/AST/RecursiveASTVisitor.h"
 #include "sc_tool/utils/CheckCppInheritance.h"
@@ -33,26 +32,6 @@ using namespace sc_elab;
 
 namespace sc
 {
-    
-ThreadBuilder::ThreadBuilder(const clang::ASTContext &astCtx,
-                             sc_elab::ElabDatabase &elabDB,
-                             const sc_elab::ProcessView procView,
-                             std::shared_ptr<ScState> globalState,
-                             const SValue &modval,
-                             const SValue &dynmodval
-                             ) :
-      sm(astCtx.getSourceManager()),
-      astCtx(astCtx),
-      cfgFab(*CfgFabric::getFabric(astCtx)),
-      entryFuncDecl(procView.getLocation().second),
-      findWaitVisitor(),
-      elabDB(elabDB),
-      globalState(globalState),
-      modSval(modval),
-      dynModSval(dynmodval),
-      threadStates(procView.getLocation().second, astCtx),
-      procView(procView)
-{}
 
 const clang::CFG *
 ThreadBuilder::getCurrentCFG(const sc::CfgCursorStack &callStack,
@@ -149,53 +128,11 @@ clang::QualType getLocalArrayDims(const SValue& val, IndexVec& arrayDims)
     return (locVarArray ? mtype : locRecField ? val.getType() : rtype);
 }
 
-sc_elab::VerilogProcCode ThreadBuilder::run(bool constPropOnly)
+sc_elab::VerilogProcCode ThreadBuilder::run()
 {
     using std::cout; using std::endl;
-    // Run CPA
-    runConstProp();
 
-    // Pass over all states, if first statement after wait() is infinite loop
-    // and it is the same for all wait() the thread is single thread
-    // The single state process must have reset
-    isSingleState = isSingleStateThread(threadStates) &&
-                    !procView.resets().empty() &&
-                    !globalConstProp->isBreakInRemovedLoop();
-
-    // Fill verVarTrais and put defined non-channel variables to process 
-    // variable storage to be generated before the process
-    if (!singleBlockCThreads) {
-        generateThreadLocalVariables();
-    }
-    
-    //globalState->print();
-
-    if (!constPropOnly) {
-        // Generate thread case and process body
-        vGen = std::make_unique<ScThreadVerilogGen>(procView, astCtx,
-            threadStates, *globalState, findWaitVisitor, modSval,
-            dynModSval, isSingleState, stateRegNames, waitNRegNames);
-
-        runVerilogGeneration();
-        
-        auto parentModView = procView.getParentModule();
-        auto verMod  = elabDB.getVerilogModule(parentModView);
-        
-        // Add constants not replaced with integer value, 
-        // used to determine required variables
-        for (const SValue& val : vGen->getNotReplacedVars()) {
-            verMod->addNotReplacedVar(val);
-        }
-        
-        return vGen->getVerilogCode();
-    }
-
-    return VerilogProcCode("");
-}
-
-void ThreadBuilder::runConstProp()
-{
-    using namespace std;
+    // Run constant propagation for all states
     if (DebugOptions::isEnabled(DebugComponent::doConstStmt) ||
         DebugOptions::isEnabled(DebugComponent::doConstTerm) ||
         DebugOptions::isEnabled(DebugComponent::doConstLoop) ||
@@ -204,31 +141,39 @@ void ThreadBuilder::runConstProp()
                   << entryFuncDecl->getNameAsString() << endl;
     }
     
-    // Traverse context stack, used to run TraverseProc
-    traverseContextMap[RESET_ID] = vGen->getInitialTraverseProcState();
-    // State to fill by CPA
-    std::shared_ptr<ScState> globalConstPropState(globalState->clone());
 
     // Run global CPA, used to provide initial state for local CPA
-    globalConstProp = std::make_unique<ScTraverseConst>(astCtx,
-                            globalConstPropState, modSval, 
+    std::shared_ptr<ScState> globalStateClone(globalState->clone());
+    travConst = std::make_unique<ScTraverseConst>(astCtx,
+                            globalStateClone, modSval, 
                             globalState, &elabDB, &threadStates, 
                             &findWaitVisitor, false);
     
     bool hasReset = !procView.resets().empty();
-    globalConstProp->setHasReset(hasReset);
+    travConst->setHasReset(hasReset);
+    travConst->run(entryFuncDecl);
     
-    globalConstProp->run(entryFuncDecl);
-
     // Check at least one @wait achieved
-    if (globalConstProp->getWaitStates().empty() && !constPropOnly) {
+    if (travConst->getWaitStates().empty()) {
         ScDiag::reportScDiag(procView.getLocation().second->getBeginLoc(),
                              ScDiag::SC_FATAL_THREAD_NO_STATE);
         SCT_INTERNAL_FATAL_NOLOC ("No states found for thread");
     }
     
+    // Remove unused variable definition statements and their declarations
+    if (REMOVE_UNUSED_VAR_STMTS()) {
+        // Delete unused statements
+        travConst->removeUnusedStmt();
+        // Delete values from UseDef  which related to  unused statement removed 
+        std::unordered_set<SValue> defVals = travConst->getDefinedVals();
+        std::unordered_set<SValue> useVals = travConst->getUsedVals();
+        for (auto& entry : travConst->getWaitStates()) {
+            entry.second.filterUseDef(defVals, useVals);
+        }
+    }
+    
     // Fill UseDef for all states
-    for (const auto& entry : globalConstProp->getWaitStates()) {
+    for (const auto& entry : travConst->getWaitStates()) {
         analyzeUseDefResults(&entry.second);
     }
     
@@ -260,13 +205,269 @@ void ThreadBuilder::runConstProp()
     };
     
     // Report warning for read not initialized in the same cycle where declared
-    for (const auto& entry : globalConstProp->getWaitStates()) {
+    for (const auto& entry : travConst->getWaitStates()) {
         notInitReport(entry.second.getReadNotInitValues());
     }
     // Report warning for read and never initialized in the following cycles 
     notInitReport(threadReadNotDefVars);
     threadReadNotDefVars.clear();
+
+    // Pass over all states, if first statement after wait() is infinite loop
+    // and it is the same for all wait() the thread is single thread
+    // The single state process must have reset
+    auto mainLoopStmt = travConst->getMainLoopStmt();
+    if (!mainLoopStmt) {
+        ScDiag::reportScDiag(entryFuncDecl->getBeginLoc(),
+                             ScDiag::SC_CTHREAD_NO_MAIN_LOOP);
+    }
+    auto tinfo = isSingleStateThread(threadStates, mainLoopStmt);
+    isSingleState = tinfo.first;
+    bool noResetCode = tinfo.second;
+    
+    // Do not see any example with break/continue in removed loop for 
+    // single state CTHREAD, but keep that for safety
+    if (isSingleState && travConst->isBreakInRemovedLoop()) {
+        SCT_INTERNAL_ERROR(procView.getLocation().second->getBeginLoc(),
+                "Break/continue in removed loop for single state CTHREAD");
+    }
+    
+    // Consider multi-states, wait in the middle and code before main loop
+    if (!hasReset && (!noResetCode || travConst->codeBeforeMainLoop())) {
+        ScDiag::reportScDiag(procView.getLocation().second->getBeginLoc(), 
+                             ScDiag::SYNTH_NO_RESET_VIOLATION);
+    }
+
+    // Fill verVarTrais and put defined non-channel variables to process 
+    // variable storage to be generated before the process
+    generateThreadLocalVariables();
+    
+    //globalState->print();
+    
+    auto parentModView = procView.getParentModule();
+    auto verMod  = elabDB.getVerilogModule(parentModView);
+
+    // Name generator with all member names for current module
+    UniqueNamesGenerator& nameGen = verMod->getNameGen();
+
+    std::unique_ptr<ScVerilogWriter> procWriter = std::make_unique<ScVerilogWriter>(
+                astCtx.getSourceManager(), false, globalState->getExtrValNames(),
+                nameGen, globalState->getVarTraits(), globalState->getWaitNVarName());
+    
+    travProc = std::make_unique<ScTraverseProc>(
+                astCtx, std::make_shared<ScState>(*globalState), modSval, 
+                procWriter.get(), &threadStates, &findWaitVisitor, 
+                false, isSingleState);
+
+    travProc->setHasReset(!procView.resets().empty());
+    travProc->setMainLoopStmt(travConst->getMainLoopStmt());
+    travProc->setTermConds(travConst->getTermConds());
+    travProc->setLiveStmts(travConst->getLiveStmts());
+    travProc->setLiveTerms(travConst->getLiveTerms());
+    travProc->setWaitFuncs(travConst->getWaitFuncs());
+    
+    // Traverse context stack, used to run TraverseProc
+    traverseContextMap[RESET_ID] = ScProcContext();
+    generateVerilogForState(RESET_ID);
+
+    for (WaitID i : travConst->getWaitStatesInOrder()) {
+        generateVerilogForState(i);
+        if (isSingleState) break;
+    }
+    
+    // Add constants not replaced with integer value, 
+    // used to determine required variables
+    for (const SValue& val : procWriter->getNotReplacedVars()) {
+        verMod->addNotReplacedVar(val);
+    }
+
+    return getVerilogCode(isSingleState);
 }
+
+// Fill @traverseContextMap and return reachable wait IDs
+void ThreadBuilder::generateVerilogForState(WaitID stateID)
+{
+    SCT_TOOL_ASSERT (traverseContextMap.count(stateID), 
+                     "No context ready for next state code generation");
+    
+    auto startTraverseContext = traverseContextMap.at(stateID);
+    auto waitProcContexts = generateCodePath(startTraverseContext, stateID);
+
+    for (auto &waitCtx : waitProcContexts) {
+        traverseContextMap[waitCtx.first] = waitCtx.second;
+    }
+}
+
+std::vector<std::pair<WaitID, ScProcContext>>
+ThreadBuilder::generateCodePath(ScProcContext traverseContext, 
+                                WaitID startStateID)
+{
+    using namespace std;
+
+    auto threadDecl = threadStates.getEntryFunction();
+    if (traverseContext.empty()) {
+        travProc->setFunction(threadDecl);
+    } else {
+        travProc->setContextStack(traverseContext);
+    }
+    
+    if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
+        cout << "Start at wait #" << startStateID << endl;
+    }
+    
+    if (DebugOptions::isEnabled(DebugComponent::doGenStmt) ||
+        DebugOptions::isEnabled(DebugComponent::doGenTerm) ||
+        DebugOptions::isEnabled(DebugComponent::doGenBlock) ||
+        DebugOptions::isEnabled(DebugComponent::doGenRTL) ||
+        DebugOptions::isEnabled(DebugComponent::doGenCfg)) {
+        cout << endl << "--------------- THREAD GEN : " 
+                        << threadDecl->getNameAsString() << endl;
+        cout << "Run process in module " << modSval << endl;
+    }
+    
+    // Use @ScTraverseConst results if this line commented
+    travProc->run();
+    
+    // Print function RTL
+    std::stringstream ss;
+    travProc->printFunctionBody(ss);
+    std::string generatedCode = ss.str();
+    
+    if (DebugOptions::isEnabled(DebugComponent::doGenRTL)) {
+        cout << "---------------------------------------" << endl;
+        cout << " Function body RTL: " << endl;
+        cout << "---------------------------------------" << endl;
+        travProc->printFunctionBody(cout);
+        cout << "---------------------------------------" << endl;
+    }
+    
+    // Fill wait contexts
+    vector<pair<WaitID, ScProcContext>> waitContexts;
+    if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
+        cout << "Reached wait`s :" << endl;
+    }
+
+    for (auto& ctxStack : travProc->getWaitContexts()) {
+        WaitID waitId = threadStates.getStateID(ctxStack.getCursorStack());
+        waitContexts.push_back( {waitId, ctxStack} );
+        
+        if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
+            cout << "   wait #" << waitId << endl;
+        }
+    }
+    if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
+        cout << endl;
+    }
+
+    if (startStateID == RESET_ID && !procView.resets().empty()) {
+        // Generate local variables of reset section
+        std::stringstream ls;
+        travProc->printResetDeclarations(ls);
+        generatedCode = ls.str() + generatedCode;
+    }
+    
+    SCT_TOOL_ASSERT(stateCodeMap.count(startStateID) == 0, 
+                    "State code already generated");
+    stateCodeMap[startStateID] = generatedCode;
+
+    return waitContexts;
+}
+
+
+sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
+{
+    std::string localVars;
+    std::string caseBody;
+    std::string resetSection;
+
+    {
+        // Generate Local Variables
+        std::stringstream ls;
+        travProc->printLocalDeclarations(ls);
+        
+        // Add wait(n) counter current to next assignment
+        if (threadStates.hasWaitNState()) {
+            ls << "    " << waitNRegNames.second << " = " 
+                         << waitNRegNames.first << ";\n";
+        }
+        localVars = ls.str();
+    }
+
+    {
+        // Generate Reset State
+        std::string verOutStr;
+        llvm::raw_string_ostream verRawOS{verOutStr};
+        RawIndentOstream vout{verRawOS};
+
+        if (!procView.resets().empty()) {
+            vout.pushF("    ");
+            vout << "begin\n";
+            
+            vout << stateCodeMap[RESET_ID];
+
+            // Add wait(n) counter initialization in reset, not required
+            // if WAIT_N counter initialized in reset when first wait is wait(N)
+            if (threadStates.hasWaitNState() && !threadStates.isFirstWaitN()) {
+                vout << "    " << waitNRegNames.first << " <= 0;\n";
+            }
+
+            vout << "end\n";
+        }
+
+        resetSection = verRawOS.str();
+    }
+
+    {
+        // Generate @case(PROC_STATE) ...
+        std::string verOutStr;
+        llvm::raw_string_ostream verRawOS{verOutStr};
+        RawIndentOstream vout{verRawOS};
+
+        if (!isSingleState) {
+            vout.pushF("    ");
+            vout << "    " << stateRegNames.second << " = " 
+                           << stateRegNames.first << ";\n";
+            vout << "\n";
+
+            vout << "case (" << stateRegNames.first << ")\n";
+            vout.pushF("    ");
+        }
+
+        for (size_t waitID = 0; waitID < threadStates.getNumFSMStates(); ++waitID) 
+        {
+            if (!isSingleState) {
+                vout << waitID << ": begin\n";
+            }
+
+            vout << stateCodeMap[waitID];
+
+            if (!isSingleState) {
+                vout << "end\n";
+            }
+        }
+
+        if (!isSingleState) {
+            vout.popF();
+            vout << "endcase\n";
+            vout.popF();
+        }
+
+        caseBody = verRawOS.str();
+    }
+    
+    // Get temporal assertions
+    std::stringstream ss;
+    travProc->printTemporalAsserts(ss, false);
+    std::string tempAsserts = ss.str();
+    std::stringstream ssr;
+    travProc->printTemporalAsserts(ssr, true);
+    std::string tempRstAsserts = ssr.str();
+    
+    //std::cout << "Temporal asserts in proc:\n" << tempAsserts << std::endl;
+
+    return sc_elab::VerilogProcCode(caseBody, localVars, resetSection, 
+                                    tempAsserts, tempRstAsserts);
+}
+
 
 void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
 {
@@ -353,9 +554,9 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
                 bool readOnlyConst = false;
                 if (!isMember) {
                     const SValue& rval = finalState->getValue(sval);
-                    readOnlyConst = replaceConstByValue && rval.isInteger() || 
-                                    isConsVal && globalConstProp->
-                                    getResetDefConsts().count(sval);
+                    readOnlyConst = (replaceConstByValue && rval.isInteger()) || 
+                                    (isConsVal && travConst->
+                                     getResetDefConsts().count(sval));
                 }
                         
                 if (isMember || readOnlyConst) {
@@ -443,19 +644,6 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
                 }
             }
             
-            // Check member constant variables not defined
-            if (sval.isVariable() && sval.getType().isConstQualified()) {
-                const ValueDecl* valDecl = sval.getVariable().getDecl();
-                const DeclContext* declContext = valDecl->getDeclContext();
-                bool isLocalVar = isa<FunctionDecl>(declContext);
-
-                if (!isLocalVar) {
-                    ScDiag::reportScDiag(
-                        procView.getLocation().second->getBeginLoc(),
-                        ScDiag::SYNTH_CONST_VAR_MODIFIED) << sval.asString(false);
-                }
-            }
-            
         } else {
             llvm::outs() << "val " << sval << "\n";
             SCT_TOOL_ASSERT (false, "Unexpected value type");
@@ -501,51 +689,7 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
     }*/
 }
 
-void ThreadBuilder::runVerilogGeneration()
-{
-    using namespace std;
-    // Reused for code generation
-    visitedStates.clear();
-    scheduledStates.clear();
 
-    // Generate reset section
-    auto reachableWaits = generateVerilogForState(RESET_ID);
-    scheduledStates.insert(reachableWaits.begin(), reachableWaits.end());
-
-    while (!scheduledStates.empty()) {
-
-        WaitID waitID = *scheduledStates.begin();
-        scheduledStates.erase(scheduledStates.begin());
-
-        if (visitedStates.count(waitID))
-            continue;
-
-        visitedStates.insert(waitID);
-
-        auto reachableWaits = generateVerilogForState(waitID);
-        scheduledStates.insert(reachableWaits.begin(), reachableWaits.end());
-        
-        if (isSingleState) break;
-    }
-}
-
-// Fill @traverseContextMap and return reachable wait IDs
-std::set<WaitID> ThreadBuilder::generateVerilogForState(WaitID stateID)
-{
-    std::set<WaitID> reachableWaits;
-    
-    if (traverseContextMap.count(stateID)) {
-        auto startTraverseContext = traverseContextMap.at(stateID);
-        auto waitProcContexts = vGen->generateCodePath(startTraverseContext, 
-                                stateID, *(globalConstProp.get()));
-
-        for (auto &waitCtx : waitProcContexts) {
-            reachableWaits.insert(waitCtx.first);
-            traverseContextMap[waitCtx.first] = waitCtx.second;
-        }
-    }
-    return reachableWaits;
-}
 
 void ThreadBuilder::generateThreadLocalVariables()
 {
@@ -556,16 +700,16 @@ void ThreadBuilder::generateThreadLocalVariables()
     auto parentModView = procView.getParentModule();
     auto verMod  = elabDB.getVerilogModule(parentModView);
     std::string procName = *procView.getFieldName();
-
+    
     //cout << "--- proc #" << procView.getID() << " " << procName << " modval " << modSval << endl;
     //clang::CXXMethodDecl* threadDecl = procView.getLocation().second;
     //cout << (threadDecl ? threadDecl->getBeginLoc().printToString(sm) : "") << endl;
     
     // Do not generate variable declarations for non-zero elements of MIF array
-    bool zeroElmntMIF = globalConstProp->isZeroElmtMIF();
-    bool noneZeroElmntMIF = globalConstProp->isNonZeroElmtMIF();
+    bool zeroElmntMIF = travConst->isZeroElmtMIF();
+    bool noneZeroElmntMIF = travConst->isNonZeroElmtMIF();
     std::string mifElemSuffix = (zeroElmntMIF || noneZeroElmntMIF) ?
-                                 globalConstProp->getMifElmtSuffix() : "";
+                                 travConst->getMifElmtSuffix() : "";
     //cout << "Thread is zeroElmntMIF " << zeroElmntMIF << " noneZeroElmntMIF " 
     //     << noneZeroElmntMIF << " nonZeroSuffix " << mifElemSuffix << endl;
     
@@ -615,9 +759,9 @@ void ThreadBuilder::generateThreadLocalVariables()
         if (isUserDefinedClass(regVar.getType())) continue;
         
         // Get access place, access after reset includes access in SVA
-        bool inResetAccess = globalConstProp->isInResetAccessed(regVar);
-        bool afterResetAcess = globalConstProp->isAfterResetAccessed(regVar) ||
-                               globalConstProp->isSvaProcAccessed(regVar);
+        bool inResetAccess = travConst->isInResetAccessed(regVar);
+        bool afterResetAcess = travConst->isAfterResetAccessed(regVar) ||
+                               travConst->isSvaProcAccessed(regVar);
         auto accessPlace = VerilogVarTraits::getAccessPlace(inResetAccess, 
                                                             afterResetAcess);
 
@@ -720,12 +864,12 @@ void ThreadBuilder::generateThreadLocalVariables()
                         // Put suffix to @varTraits to use in @var_next = @var
                         globalState->putVerilogTraits(regVar,
                             VerilogVarTraits(VerilogVarTraits::COMBSIGCLEAR, 
-                            accessPlace, true, isNonZeroElmt,
+                            accessPlace, true, isNonZeroElmt, false,
                             verVar->getName(), llvm::Optional<std::string>(""),
                             mifElemSuffix));
                         globalState->putVerilogTraits(regVarZero,
                             VerilogVarTraits(VerilogVarTraits::COMBSIGCLEAR, 
-                            accessPlace, true, !isNonZeroElmt,
+                            accessPlace, true, !isNonZeroElmt, false,
                             verVar->getName(), llvm::Optional<std::string>(""),
                             mifElemSuffix));
                         first = false;
@@ -785,13 +929,13 @@ void ThreadBuilder::generateThreadLocalVariables()
                         globalState->putVerilogTraits(regVar,
                             VerilogVarTraits(sctCombSignal ?
                             VerilogVarTraits::COMBSIG : VerilogVarTraits::REGISTER, 
-                            accessPlace, true, isNonZeroElmt, verVar->getName(), 
-                            nextVar->getName(), mifElemSuffix));
+                            accessPlace, true, isNonZeroElmt, false,
+                            verVar->getName(), nextVar->getName(), mifElemSuffix));
                         globalState->putVerilogTraits(regVarZero,
                             VerilogVarTraits(sctCombSignal ?
                             VerilogVarTraits::COMBSIG : VerilogVarTraits::REGISTER, 
-                            accessPlace, true, !isNonZeroElmt, verVar->getName(), 
-                            nextVar->getName(), mifElemSuffix));
+                            accessPlace, true, !isNonZeroElmt, false,
+                            verVar->getName(), nextVar->getName(), mifElemSuffix));
                         first = false;
                     }
 
@@ -873,11 +1017,11 @@ void ThreadBuilder::generateThreadLocalVariables()
             // Add to verVarTraits
             globalState->putVerilogTraits(regVar,
                                 VerilogVarTraits(VerilogVarTraits::REGISTER, 
-                                    accessPlace, false, isNonZeroElmt,
+                                    accessPlace, false, isNonZeroElmt, false,
                                     verVar->getName(), verNextVar->getName()));
             globalState->putVerilogTraits(regVarZero,
                                 VerilogVarTraits(VerilogVarTraits::REGISTER, 
-                                    accessPlace, false, !isNonZeroElmt,
+                                    accessPlace, false, !isNonZeroElmt, false, 
                                     verVar->getName(), verNextVar->getName()));
             
             bool isConst = regVar.getType().isConstQualified() || 
@@ -906,8 +1050,8 @@ void ThreadBuilder::generateThreadLocalVariables()
         }
         
         // Get access place
-        bool inResetAccess = globalConstProp->isInResetAccessed(combVar);
-        bool afterResetAcess = globalConstProp->isAfterResetAccessed(combVar);
+        bool inResetAccess = travConst->isInResetAccessed(combVar);
+        bool afterResetAcess = travConst->isAfterResetAccessed(combVar);
         auto accessPlace = VerilogVarTraits::getAccessPlace(inResetAccess, 
                                                             afterResetAcess);
                         
@@ -981,10 +1125,10 @@ void ThreadBuilder::generateThreadLocalVariables()
             if (!verVars.empty()) {
                 globalState->putVerilogTraits(combVar, VerilogVarTraits(
                                 VerilogVarTraits::COMB, accessPlace, true, 
-                                isNonZeroElmt, verVars[0]->getName()));
+                                isNonZeroElmt, false, verVars[0]->getName()));
                 globalState->putVerilogTraits(combVarZero, VerilogVarTraits(
                                 VerilogVarTraits::COMB, accessPlace, true, 
-                                !isNonZeroElmt, verVars[0]->getName()));
+                                !isNonZeroElmt, false, verVars[0]->getName()));
             }
 
             
@@ -1000,11 +1144,11 @@ void ThreadBuilder::generateThreadLocalVariables()
         } else {
             // Local variable, generated in process body
             globalState->putVerilogTraits(combVar, VerilogVarTraits(
-                                          VerilogVarTraits::COMB,
-                                          accessPlace, false, isNonZeroElmt));
+                                          VerilogVarTraits::COMB, accessPlace, 
+                                          false, isNonZeroElmt, false));
             globalState->putVerilogTraits(combVarZero, VerilogVarTraits(
-                                          VerilogVarTraits::COMB,
-                                          accessPlace, false, !isNonZeroElmt));
+                                          VerilogVarTraits::COMB, accessPlace, 
+                                          false, !isNonZeroElmt, false));
         }
     }                                 
 
@@ -1016,8 +1160,8 @@ void ThreadBuilder::generateThreadLocalVariables()
         if (isUserDefinedClass(roVar.getType())) continue;
         
         // Get access place
-        bool inResetAccess = globalConstProp->isInResetAccessed(roVar);
-        bool afterResetAcess = globalConstProp->isAfterResetAccessed(roVar);
+        bool inResetAccess = travConst->isInResetAccessed(roVar);
+        bool afterResetAcess = travConst->isAfterResetAccessed(roVar);
         auto accessPlace = VerilogVarTraits::getAccessPlace(inResetAccess, 
                                                             afterResetAcess);
         
@@ -1116,15 +1260,17 @@ void ThreadBuilder::generateThreadLocalVariables()
             bool isConst = !isChannel && (roVar.getType().isConstQualified()||
                                           isPointerToConst(roVar.getType()));
             bool first = true;
-            for (auto *verVar : verVars) {
+            for (auto* verVar : verVars) {
                 // Add to verVarTraits
                 if (first) {
                     globalState->putVerilogTraits(roVar,
                         VerilogVarTraits(VerilogVarTraits::READONLY, accessPlace,
-                                         true, isNonZeroElmt, verVar->getName()));
+                                         true, isNonZeroElmt, verVar->isConstant(),
+                                         verVar->getName()));
                     globalState->putVerilogTraits(roVarZero,
                         VerilogVarTraits(VerilogVarTraits::READONLY, accessPlace, 
-                                         true, !isNonZeroElmt, verVar->getName()));
+                                         true, !isNonZeroElmt, verVar->isConstant(),
+                                         verVar->getName()));
                     first = false;
                 }
                 
@@ -1137,7 +1283,7 @@ void ThreadBuilder::generateThreadLocalVariables()
             // Process local constants
             //cout << "Local constant defined in reset " << roVar << endl;
             // TODO: comment me, #247
-            if (globalConstProp->getResetDefConsts().count(roVar)) {
+            if (travConst->getResetDefConsts().count(roVar)) {
                 // Local constant defined in reset section, 
                 // it needs to be declared in module scope
                 if (!roVar.isVariable()) {
@@ -1189,20 +1335,20 @@ void ThreadBuilder::generateThreadLocalVariables()
                 // Add to verVarTraits, this constant not declared in always blocks
                 globalState->putVerilogTraits(roVar, VerilogVarTraits(
                                      VerilogVarTraits::READONLY_CDR, accessPlace,
-                                     true, isNonZeroElmt, verVar->getName()));
+                                     true, isNonZeroElmt, false, verVar->getName()));
                 globalState->putVerilogTraits(roVarZero, VerilogVarTraits(
                                      VerilogVarTraits::READONLY_CDR, accessPlace,
-                                     true, !isNonZeroElmt, verVar->getName()));
+                                     true, !isNonZeroElmt, false, verVar->getName()));
                 
             } else {
                 // TODO: comment me, #247
                 // Other local constant
-                globalState->putVerilogTraits(roVar, 
-                            VerilogVarTraits(VerilogVarTraits::READONLY, 
-                                             accessPlace, false, isNonZeroElmt));
-                globalState->putVerilogTraits(roVarZero, 
-                            VerilogVarTraits(VerilogVarTraits::READONLY, 
-                                             accessPlace, false, !isNonZeroElmt));
+                globalState->putVerilogTraits(roVar, VerilogVarTraits(
+                                    VerilogVarTraits::READONLY, accessPlace, 
+                                    false, isNonZeroElmt, false));
+                globalState->putVerilogTraits(roVarZero, VerilogVarTraits(
+                                    VerilogVarTraits::READONLY, accessPlace, 
+                                    false, !isNonZeroElmt, false));
             }
         }
     }

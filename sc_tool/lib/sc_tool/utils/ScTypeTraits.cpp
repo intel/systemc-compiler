@@ -503,7 +503,7 @@ llvm::Optional<size_t> getAnyTypeWidth(clang::QualType type, bool checkPointer,
         }
     }
     
-    if (auto typeInfo = getIntTraits(type, checkPointer)) {
+    if (auto typeInfo = getIntTraits(type, false)) {
         return typeInfo->first;
     }
     

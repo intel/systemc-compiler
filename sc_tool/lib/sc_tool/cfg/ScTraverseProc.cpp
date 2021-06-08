@@ -245,7 +245,7 @@ void ScTraverseProc::prepareCallContext(clang::Expr* expr,
                                      const SValue& retVal) 
 {
     // Store return value for the call expression to replace where it used
-    auto i = calledFuncs.emplace(expr, retVal);
+    auto i = calledFuncs.emplace(expr, make_pair(retVal, NO_VALUE));
     if (!i.second) {
         cout << hex << expr << dec << endl;
         SCT_TOOL_ASSERT (false, "Second meet of function call");
@@ -373,7 +373,7 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         // General method call
         if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
             cout << "-------------------------------------" << endl;
-            cout << "| Build CFG for FUNCTION : " << fname << " (" 
+            cout << "| Build CFG for METHOD : " << fname << " (" 
                  << expr->getSourceRange().getBegin().printToString(sm) << ") |" << endl;
             cout << "-------------------------------------" << endl;
         }
@@ -453,12 +453,19 @@ void ScTraverseProc::chooseExprMethod(Stmt *stmt, SValue &val)
     bool anyFuncCall = isa<CallExpr>(stmt) || isa<CXXConstructExpr>(stmt);
 
     if (anyFuncCall && calledFuncs.count(stmt)) {
-        SValue retVal = calledFuncs.at(stmt);
+        const auto& returns = calledFuncs.at(stmt);
+        val = returns.first;
         //cout << "Get RET value " << retVal << " for stmt #" << hex << stmt << dec  << endl;
 
-        // Restore return value variable as term for this expression
-        if (retVal) codeWriter->putValueExpr(stmt, retVal);
-        val = retVal;
+        // Store return value as term for call statement
+        if (returns.second) {
+            // For function returns pointer use pointed object instead of 
+            // temporary variable
+            codeWriter->putValueExpr(stmt, returns.second);
+        } else 
+        if (val) {
+            codeWriter->putValueExpr(stmt, val);
+        }
 
     } else {
         ScGenerateExpr::chooseExprMethod(stmt, val);
@@ -552,8 +559,6 @@ bool ScTraverseProc::restoreContext(bool funcCallRestore)
 
     modval = context.modval;
     recval = context.recval;
-    returnValue = context.returnValue;
-    funcDecl = context.callPoint.getFuncDecl();
 
     scopeGraph = context.scopeGraph;
     level = scopeGraph->getCurrLevel();
@@ -565,6 +570,17 @@ bool ScTraverseProc::restoreContext(bool funcCallRestore)
         calledFuncs = context.calledFuncs;
         delayed = context.delayed;
         noExitFunc = context.noExitFunc;
+        
+        // Store pointed object returned from function if required
+        if (returnPtrVal) {
+            for (auto& entry : calledFuncs) {
+                if (entry.second.first == returnValue) {
+                    entry.second.second = returnPtrVal;
+                    break;
+                }
+            }
+        }
+        returnPtrVal = NO_VALUE;
         
     } else {
         // Restore in run after @wait() call
@@ -587,6 +603,9 @@ bool ScTraverseProc::restoreContext(bool funcCallRestore)
             i.removed = true;
         }
     }
+
+    returnValue = context.returnValue;
+    funcDecl = context.callPoint.getFuncDecl();
 
     cfg = cfgFabric->get(funcDecl);
     block = AdjBlock(const_cast<CFGBlock*>(context.callPoint.getBlock()), true);
@@ -834,6 +853,14 @@ void ScTraverseProc::run()
                                                 ScDiag::SYNTH_SVA_IN_MAIN_LOOP);
                             }
 
+                        } else 
+                        if (isSctAssert(currStmt)) {
+                            // Immediate assertion in process, @sct_assert
+                            scopeGraph->storeAssertStmt(currStmt, *stmtStr);
+                            if (emptySensitivity) {
+                                scopeGraph->setEmptySensStmt(currStmt);
+                            }
+                        
                         } else {
                             // Normal statement, store it in scope graph
                             scopeGraph->storeStmt(currStmt, *stmtStr);
@@ -1288,6 +1315,10 @@ void ScTraverseProc::run()
                     // Set enter into main loop, used to reduce level by 1
                     // in ScopeGRaph and to check SVA generation
                     if (trueCond) {
+                        if (!inMainLoop && term != mainLoopStmt) {
+                            SCT_INTERNAL_ERROR(term->getBeginLoc(),
+                                    "Incorrect CTHREAD main loop statement");
+                        }
                         inMainLoop = true;
                     }
                     
@@ -1846,10 +1877,5 @@ void ScTraverseProc::setTermConds(const unordered_map<CallStmtStack, SValue>& co
     }
 }
 
-// Current thread has reset signal
-void ScTraverseProc::setHasReset(bool hasReset_)
-{
-    hasReset = hasReset_;
-}
 
 }

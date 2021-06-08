@@ -157,7 +157,6 @@ SC_MODULE(test)
             k = 1;
             if (par) {
                 k = 2;
-                return;
             }
             return;
         } else 

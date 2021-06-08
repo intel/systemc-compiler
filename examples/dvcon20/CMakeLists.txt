@@ -1,6 +1,6 @@
 add_executable(dvcon_simple test_simple.cpp)
-svc_target(dvcon_simple GOLDEN dvcon_simple.sv)
+svc_target(dvcon_simple ELAB_TOP tb.dut GOLDEN dvcon_simple.sv)
 
 add_executable(dvcon_fifo test_fifo.cpp)
-svc_target(dvcon_fifo GOLDEN dvcon_fifo.sv)
+svc_target(dvcon_fifo ELAB_TOP tb.dut GOLDEN dvcon_fifo.sv)
 

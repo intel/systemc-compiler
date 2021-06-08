@@ -95,6 +95,10 @@ public:
 
         SC_METHOD(recursive_ref_const);
         sensitive << sig;
+        
+        SC_METHOD(reference_init_func);
+        sensitive << sig;
+        
     }
     
     void ref(sc_uint<3>& val) {
@@ -117,8 +121,9 @@ public:
         const int j = val;
         if (j) {        // 1
             return 1;
+        } else {
+            return 0;
         }
-        return 0;
     }
     
      // Constant reference parameter
@@ -355,6 +360,44 @@ public:
         int res = rec_ref_const(sig.read());
     }
 
+// ----------------------------------------------------------------------------    
+    // Constant reference initialized with operator or function
+    int f1(int i ) {
+        return (i+1);
+    }
+    
+    int ref_call(int& par__) 
+    {
+        int loc =  par__ + 1;
+        return loc;
+    }
+    
+    int ref_const_call(const int& par__) 
+    {
+        int loc =  par__ + 1;
+        return loc;
+    }
+    
+    int sum(int &xr, int yr)
+    {
+        int sum = xr + yr;
+        yr = sum;
+        xr = sum;
+        return sum;
+    }
+
+    void reference_init_func() {
+        int m = 1;
+        //int n = ref_call(++m);    // #251
+        //int l = sum(++m, n--);
+        
+        ref_const_call(m++);
+        ref_const_call(--m);
+        int x = ref_const_call(f1(m++));
+        
+        // return by reference not supported yet
+    }
+    
 };
 
 class B_top : public sc_module {

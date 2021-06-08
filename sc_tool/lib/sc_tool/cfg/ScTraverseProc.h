@@ -159,8 +159,9 @@ struct ScFuncContext {
     std::list< std::pair<AdjBlock, std::vector<ScopeInfo> > >  delayed;
     // Loop statement stack, last loop is most inner
     LoopStack loopStack;
-    /// Function directly called from this function <func expr, return value>
-    std::unordered_map<clang::Stmt*, SValue>  calledFuncs;
+    /// Function directly called from this function 
+    /// <func expr, <return value, return pointed object>>
+    std::unordered_map<clang::Stmt*, std::pair<SValue, SValue>>  calledFuncs;
     /// Context stored in break/continue in removed loop analysis run,
     /// do not skip current block element as for function call
     bool breakContext;
@@ -181,7 +182,8 @@ struct ScFuncContext {
                     const std::list< std::pair<AdjBlock, 
                           std::vector<ScopeInfo> > >& delayed_,
                     const LoopStack& loopStack_,
-                    const std::unordered_map<clang::Stmt*, SValue>& calledFuncs_,
+                    const std::unordered_map<clang::Stmt*, 
+                          std::pair<SValue, SValue>>& calledFuncs_,
                     bool breakContext_, bool noExitFunc_,
                     const std::shared_ptr<ScScopeGraph>& scopeGraph_,
                     const ScVerilogWriterContext& codeWriter_) :
@@ -286,7 +288,6 @@ public:
         isSingleStateThread(isSingleStateThread)
     {}
 
-    /// @state deleted in @ScTraverse destructor
     virtual ~ScTraverseProc() {
     }
     
@@ -408,11 +409,21 @@ public:
     void setTermConds(const std::unordered_map<CallStmtStack, SValue>& conds);
     
     /// Current process has reset signal
-    void setHasReset(bool hasReset_);
+    void setHasReset(bool hasReset_) {
+        hasReset = hasReset_;
+    }
+    
+    bool getHasReset() {
+        return hasReset;
+    }
     
     /// Set functions with wait()
     void setWaitFuncs(const std::unordered_set<const clang::FunctionDecl*>& funcs) {
         hasWaitFuncs = funcs;
+    }
+    
+    void setMainLoopStmt(const clang::Stmt* stmt) {
+        mainLoopStmt = stmt;
     }
     
 protected:
@@ -441,8 +452,9 @@ protected:
     
     /// Loop statement stack, last loop is most inner
     LoopStack loopStack;
-    /// Function directly called from this function <func expr, return value>
-    std::unordered_map<clang::Stmt*, SValue>  calledFuncs;
+    /// Function directly called from this function 
+    /// <func expr, <return value, return pointed object>>
+    std::unordered_map<clang::Stmt*, std::pair<SValue, SValue>>  calledFuncs;
     
     /// Temporal assert statements for reset section and all others
     InsertionOrderSet<std::string> sctRstAsserts;
@@ -488,6 +500,8 @@ protected:
     bool emptySensitivity = false;
     /// Current process has reset signal
     bool hasReset;
+    /// Main loop terminator for CTHREAD
+    const clang::Stmt* mainLoopStmt = nullptr;
     /// PROC_STATE is not generated for threads with only a 1 state
     bool isSingleStateThread;
     /// Entered into main loop of CTHREAD process

@@ -19,10 +19,12 @@
 #include "utils/CheckCppInheritance.h"
 #include <sc_tool/cthread/ScThreadBuilder.h>
 #include <sc_tool/elab/ScObjectView.h>
+#include <sc_tool/utils/NameGenerator.h>
 #include <sc_tool/utils/CfgFabric.h>
 #include <sc_tool/utils/DebugOptions.h>
 #include <sc_tool/utils/CppTypeTraits.h>
 #include <sc_tool/utils/InsertionOrderSet.h>
+#include <sc_tool/ScCommandLine.h>
 #include <clang/Analysis/CFG.h>
 #include <iostream>
 #include <chrono>
@@ -88,7 +90,8 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
     ScTraverseConst travConst(astCtx, constState, modval, 
                               globalState, &elabDB, nullptr, nullptr, true);
     travConst.run(methodDecl);
-    const ScState* finalState = travConst.getFinalState();
+    
+    ScState* finalState = travConst.getFinalState();
     
     if (DebugOptions::isEnabled(DebugComponent::doConstProfile)) {
         auto end = chrono::system_clock::now();
@@ -98,9 +101,19 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
         cout << "---------------------------------------" << endl;
     }
     
+    // Remove unused variable definition statements and their declarations
+    if (REMOVE_UNUSED_VAR_STMTS()) {
+        // Delete unused statements
+        travConst.removeUnusedStmt();
+        // Delete values from UseDef  which related to  unused statement removed 
+        std::unordered_set<SValue> defVals = travConst.getDefinedVals();
+        std::unordered_set<SValue> useVals = travConst.getUsedVals();
+        finalState->filterUseDef(defVals, useVals);
+    }
+
     // Print state after CPA
     //finalState->print();
-
+    
     // All the variables used in this method process
     unordered_set<SValue> useVals;
     for (const auto& sval : finalState->getReadValues()) {
@@ -111,204 +124,206 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
 //    for (const auto& v : useVals) {
 //        cout << "   " << v << endl;
 //    }
-    
+
     // Do not generate variable declarations for non-zero elements of MIF array
-    if (!singleBlockCThreads && !travConst.isNonZeroElmtMIF()) {
-        //cout << "----- finalState->getReadValues() size " 
-        //     << finalState->getReadValues().size() << endl;
-        
-        // All the variables defined/used in this method process
-        InsertionOrderSet<SValue> useDefVals;
-        for (const auto& sval : finalState->getDefArrayValues()) {
-            useDefVals.insert(sval);
-            
-            // Check member constant variables not defined
-            if (sval.isVariable() && sval.getType().isConstQualified()) {
-                const ValueDecl* valDecl = sval.getVariable().getDecl();
-                const DeclContext* declContext = valDecl->getDeclContext();
-                bool isLocalVar = isa<FunctionDecl>(declContext);
-                
-                if (!isLocalVar) {
-                    ScDiag::reportScDiag(methodDecl->getBeginLoc(), 
-                        ScDiag::SYNTH_CONST_VAR_MODIFIED) << sval.asString(false);
-                }
-            }
+    bool noneZeroElmntMIF = travConst.isNonZeroElmtMIF();
+
+    // All the variables defined/used in this method process
+    InsertionOrderSet<SValue> useDefVals;
+    for (const auto& sval : finalState->getDefArrayValues()) {
+        useDefVals.insert(sval);
+    }
+
+    // Add read values which are not defined to create local variable 
+    // It needs to generate correct code
+    for (const auto& sval : finalState->getReadNotDefinedValues()) {
+        // Skip constants, channels and pointers to channel
+        QualType type = sval.getType();
+        if (type.isConstQualified() || isPointerToConst(type) ||
+            isScChannel(type) || isScVector(type) || 
+            isScChannelArray(type) || isScToolCombSignal(type)) continue;
+
+        // Skip null pointer
+        if (isPointer(type)) {
+            SValue rval = globalState->getValue(sval);
+            if (rval.isInteger() && rval.getInteger().isNullValue())
+                continue;
         }
-        
-        // Add read values which are not defined to create local variable 
-        // It needs to generated correct code
-        for (const auto& sval : finalState->getReadNotDefinedValues()) {
-            // Skip constants, channels and pointers to channel
-            QualType type = sval.getType();
-            if (type.isConstQualified() || isPointerToConst(type) ||
-                isScChannel(type) || isScVector(type) || 
-                isScChannelArray(type) || isScToolCombSignal(type)) continue;
-            
-            // Skip null pointer
-            if (isPointer(type)) {
-                SValue rval = globalState->getValue(sval);
-                if (rval.isInteger() && rval.getInteger().isNullValue())
-                    continue;
-            }
-            
-            if (!useDefVals.count(sval)) {
-                //cout << "RND sval " << sval << endl;
-                useDefVals.insert(sval);
-            }
-        }
-        
-        // Report read not initialized warning
-        for (const auto& sval : finalState->getReadNotInitValues()) {
-            // Skip constants, channels and pointers to channel
-            QualType type = sval.getType();
-            if (type.isConstQualified() || isConstReference(type) || 
-                isPointerToConst(type) ||
-                isScChannel(type) || isScVector(type) || 
-                isScChannelArray(type) || isScToolCombSignal(type)) continue;
-            
-            // Skip null pointer
-            if (isPointer(type)) {
-                SValue rval = globalState->getValue(sval);
-                if (rval.isInteger() && rval.getInteger().isNullValue())
-                    continue;
-            }
-            
+
+        if (!useDefVals.count(sval)) {
             //cout << "RND sval " << sval << endl;
-            std::string varName = sval.isVariable() ? 
-                                  sval.getVariable().asString(false) : "---";
-            // Do not check duplicates
-            ScDiag::reportScDiag(methodDecl->getBeginLoc(), 
-                                 ScDiag::CPP_READ_NOTDEF_VAR, false) << varName;
+            useDefVals.insert(sval);
         }
-        
+    }
+
+    // Report read not initialized warning
+    for (const auto& sval : finalState->getReadNotInitValues()) {
+        // Skip constants, channels and pointers to channel
+        QualType type = sval.getType();
+        if (type.isConstQualified() || isConstReference(type) || 
+            isPointerToConst(type) ||
+            isScChannel(type) || isScVector(type) || 
+            isScChannelArray(type) || isScToolCombSignal(type)) continue;
+
+        // Skip null pointer
+        if (isPointer(type)) {
+            SValue rval = globalState->getValue(sval);
+            if (rval.isInteger() && rval.getInteger().isNullValue())
+                continue;
+        }
+
+        //cout << "RND sval " << sval << endl;
+        std::string varName = sval.isVariable() ? 
+                              sval.getVariable().asString(false) : "---";
+        // Do not check duplicates
+        ScDiag::reportScDiag(methodDecl->getBeginLoc(), 
+                             ScDiag::CPP_READ_NOTDEF_VAR, false) << varName;
+    }
+
 //        cout << "------- useDefVals" << endl;
 //        for (const auto& v : useDefVals) {
 //            cout << "   " << v << endl;
 //        }
-        
-        // Register used values
-        for (SValue val : useVals) {
-            // Replace value to array first element
-            val = finalState->getFirstArrayElementForAny(
-                                        val, ScState::MIF_CROSS_NUM);
-            
-            // Class field must be in this map, no local variables there
-            if (auto elabObj = globalState->getElabObject(val)) {
-                //cout << "ScProcAnalyzer useVal " << val << " elabObj " << elabObj->getDebugString() << endl;
-                // Get first array element for non-first element and dereference 
-                // pointer to get Verilog variable name
-                if (!elabObj) {
-                    SCT_TOOL_ASSERT (false, "No elaboration object for variable");
-                    continue;
+
+    // Register used values
+    for (SValue val : useVals) {
+        // Replace value to array first element
+        SValue zeroVal = finalState->getFirstArrayElementForAny(
+                                    val, ScState::MIF_CROSS_NUM);
+
+        // Class field must be in this map, no local variables there
+        if (auto elabObj = globalState->getElabObject(zeroVal)) {
+            //cout << "ScProcAnalyzer useVal " << val << " elabObj " << elabObj->getDebugString() << endl;
+            // Get first array element for non-first element and dereference 
+            // pointer to get Verilog variable name
+            if (!elabObj) {
+                SCT_TOOL_ASSERT (false, "No elaboration object for variable");
+                continue;
+            }
+            if (auto elabOwner = elabObj->getVerilogNameOwner()) {
+                elabObj = elabOwner;
+            }
+
+            if (elabObj->isChannel()) {
+                while (!zeroVal.isScChannel() && !zeroVal.isUnknown()) {
+                    zeroVal = globalState->getValue(zeroVal);
                 }
-                if (auto elabOwner = elabObj->getVerilogNameOwner()) {
-                    elabObj = elabOwner;
+                SCT_TOOL_ASSERT (zeroVal.isScChannel(), "No channel found");
+            }
+
+            bool isChannel = zeroVal.isScChannel();
+            bool isConst = !isChannel && (zeroVal.getType().isConstQualified()||
+                                          isPointerToConst(zeroVal.getType()));
+            bool isNullPtr = false;
+            bool isDanglPtr = false;
+
+            if (isPointer(val.getType())) {
+                SValue rval = globalState->getValue(val);
+                isNullPtr = rval.isInteger() && 
+                            rval.getInteger().isNullValue();
+                isDanglPtr = rval.isUnknown();
+            }
+
+            auto verVars = verMod->getVerVariables(*elabObj);
+            bool isRecord = elabObj->isRecord();
+
+            // Constant dangling/null pointer and record have no variable
+            if (verVars.empty() && !isNullPtr && !isDanglPtr && !isRecord) {
+                std::string err = "No variable for elaboration object "+
+                                  elabObj->getDebugString() + " (1)";
+                if (zeroVal.isVariable()) {
+                    SCT_INTERNAL_ERROR(zeroVal.getVariable().getDecl()->
+                                       getBeginLoc(), err);
+                } else {
+                    SCT_INTERNAL_ERROR_NOLOC(err);
                 }
-                
-                if (elabObj->isChannel()) {
-                    while (!val.isScChannel() && !val.isUnknown()) {
-                        val = globalState->getValue(val);
-                    }
-                    SCT_TOOL_ASSERT (val.isScChannel(), "No channel found");
-                }
-                
-                bool isChannel = val.isScChannel();
-                bool isConst = !isChannel && (val.getType().isConstQualified()||
-                                              isPointerToConst(val.getType()));
-                bool isNullPtr = false;
-                bool isDanglPtr = false;
-                
-                if (isPointer(val.getType())) {
-                    SValue rval = globalState->getValue(val);
-                    isNullPtr = rval.isInteger() && 
-                                rval.getInteger().isNullValue();
-                    isDanglPtr = rval.isUnknown();
+            }
+
+            // Register used values
+            bool first = true;
+            for (auto* verVar : verVars) {
+                if (first) {
+                    globalState->putVerilogTraits(val, VerilogVarTraits(
+                                         VerilogVarTraits::COMB, 
+                                         VerilogVarTraits::AccessPlace::BOTH,
+                                         true, true, verVar->isConstant()));
+                    globalState->putVerilogTraits(zeroVal, VerilogVarTraits(
+                                         VerilogVarTraits::COMB, 
+                                         VerilogVarTraits::AccessPlace::BOTH,
+                                         true, true, verVar->isConstant()));
+                    first = false;
                 }
 
-                auto verVars = verMod->getVerVariables(*elabObj);
-                bool isRecord = elabObj->isRecord();
-
-                // Constant dangling/null pointer and record have no variable
-                if (verVars.empty() && !isNullPtr && !isDanglPtr && !isRecord) {
-                    std::string err = "No variable for elaboration object "+
-                                      elabObj->getDebugString() + " (1)";
-                    if (val.isVariable()) {
-                        SCT_INTERNAL_ERROR(val.getVariable().getDecl()->
-                                           getBeginLoc(), err);
-                    } else {
-                        SCT_INTERNAL_ERROR_NOLOC(err);
-                    }
-                }
-                
-                // Register used values
-                for (auto* verVar : verVars) {
-                    verMod->addVarUsedInProc(procView, verVar, isConst, isChannel);
-                    verMod->putValueForVerVar(verVar, val);
-                }
-            }            
+                verMod->addVarUsedInProc(procView, verVar, isConst, isChannel);
+                verMod->putValueForVerVar(verVar, zeroVal);
+            }
         }
-        
-        // Create process local variables and register defined values
-        for (SValue val : useDefVals) {
-            // Replace value to array first element
-            val = finalState->getFirstArrayElementForAny(
-                                        val, ScState::MIF_CROSS_NUM);
-            
-            // Class field must be in this map, no local variables there
-            if (auto elabObj = globalState->getElabObject(val)) {
-                //cout << "ScProcAnalyzer defVal " << val << " elabObj " << elabObj->getDebugString() << endl;
-                // Get first array element for non-first element and dereference 
-                // pointer to get Verilog variable name
-                if (!elabObj) {
-                    SCT_TOOL_ASSERT (false, "No elaboration object for variable");
-                    continue;
-                }
-                if (auto elabOwner = elabObj->getVerilogNameOwner()) {
-                    elabObj = elabOwner;
-                }
+    }
 
-                if (elabObj->isChannel()) {
-                    while (!val.isScChannel() && !val.isUnknown()) {
-                        val = globalState->getValue(val);
-                    }
-                    SCT_TOOL_ASSERT (val.isScChannel(), "No channel found");
-                }
-                
-                bool isChannel = val.isScChannel();
-                bool isConst = !isChannel && (val.getType().isConstQualified()||
-                                              isPointerToConst(val.getType()));
-                bool isNullPtr = false;
-                bool isDanglPtr = false;
-                
-                if (isPointer(val.getType())) {
-                    SValue rval = globalState->getValue(val);
-                    isNullPtr = rval.isInteger() && rval.getInteger().isNullValue();
-                    isDanglPtr = rval.isUnknown();
-                }
-                
-                auto verVars = verMod->getVerVariables(*elabObj);
-                bool isRecord = elabObj->isRecord();
+    // Create process local variables and register defined values
+    for (SValue val : useDefVals) {
+        // Replace value to array first element
+        SValue zeroVal = finalState->getFirstArrayElementForAny(
+                                    val, ScState::MIF_CROSS_NUM);
 
-                // Constant dangling/null pointer and record have no variable
-                if (verVars.empty() && !isNullPtr && !isDanglPtr && !isRecord) {
-                    std::string err = "No variable for elaboration object "+
-                                      elabObj->getDebugString() + " (2)";
-                    if (val.isVariable()) {
-                        SCT_INTERNAL_ERROR(val.getVariable().getDecl()->
-                                           getBeginLoc(), err);
-                    } else {
-                        SCT_INTERNAL_ERROR_NOLOC(err);
-                    }
-                }
-                
-                for (auto* verVar : verVars) {
-                    isConst = isConst || verVar->isConstant();
-                    verMod->putValueForVerVar(verVar, val);
-                }
+        // Class field must be in this map, no local variables there
+        if (auto elabObj = globalState->getElabObject(zeroVal)) {
+            //cout << "ScProcAnalyzer defVal " << val << " elabObj " << elabObj->getDebugString() << endl;
+            // Get first array element for non-first element and dereference 
+            // pointer to get Verilog variable name
+            if (!elabObj) {
+                SCT_TOOL_ASSERT (false, "No elaboration object for variable");
+                continue;
+            }
+            if (auto elabOwner = elabObj->getVerilogNameOwner()) {
+                elabObj = elabOwner;
+            }
 
-                // Skip constant variable it is declared as @localparam
-                if (isConst) continue;
-                
+            if (elabObj->isChannel()) {
+                while (!zeroVal.isScChannel() && !zeroVal.isUnknown()) {
+                    zeroVal = globalState->getValue(zeroVal);
+                }
+                SCT_TOOL_ASSERT (zeroVal.isScChannel(), "No channel found");
+            }
+
+            bool isChannel = zeroVal.isScChannel();
+            bool isConst = !isChannel && (zeroVal.getType().isConstQualified()||
+                                          isPointerToConst(zeroVal.getType()));
+            bool isNullPtr = false;
+            bool isDanglPtr = false;
+
+            if (isPointer(val.getType())) {
+                SValue rval = globalState->getValue(val);
+                isNullPtr = rval.isInteger() && rval.getInteger().isNullValue();
+                isDanglPtr = rval.isUnknown();
+            }
+
+            auto verVars = verMod->getVerVariables(*elabObj);
+            bool isRecord = elabObj->isRecord();
+
+            // Constant dangling/null pointer and record have no variable
+            if (verVars.empty() && !isNullPtr && !isDanglPtr && !isRecord) {
+                std::string err = "No variable for elaboration object "+
+                                  elabObj->getDebugString() + " (2)";
+                if (zeroVal.isVariable()) {
+                    SCT_INTERNAL_ERROR(zeroVal.getVariable().getDecl()->
+                                       getBeginLoc(), err);
+                } else {
+                    SCT_INTERNAL_ERROR_NOLOC(err);
+                }
+            }
+
+            for (auto* verVar : verVars) {
+                isConst = isConst || verVar->isConstant();
+                verMod->putValueForVerVar(verVar, zeroVal);
+            }
+
+            // Skip constant variable it is declared as @localparam
+            if (isConst) continue;
+
+            // Declaration of variable at module level
+            // No declaration for non-zero elements of MIF array
+            if (!noneZeroElmntMIF) {
                 if (!elabObj->isChannel()) {
                     // Store the variable to generate before its process
                     for (auto* verVar : verVars) {
@@ -316,14 +331,26 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
                         verMod->convertToProcessLocalVar(verVar, procView);
                     }
                 }
-                
-                // Register defined values
-                for (auto* verVar : verVars) {
-                    verMod->addVarDefinedInProc(procView, verVar, isConst, 
-                                                isChannel); 
+            }
+
+            // Register defined values
+            bool first = true;
+            for (auto* verVar : verVars) {
+                if (first) {
+                    globalState->putVerilogTraits(val, VerilogVarTraits(
+                                         VerilogVarTraits::COMB, 
+                                         VerilogVarTraits::AccessPlace::BOTH,
+                                         true, true, false));
+                    globalState->putVerilogTraits(zeroVal, VerilogVarTraits(
+                                         VerilogVarTraits::COMB, 
+                                         VerilogVarTraits::AccessPlace::BOTH,
+                                         true, true, false));
+                    first = false;
                 }
+                verMod->addVarDefinedInProc(procView, verVar, isConst, isChannel); 
             }
         }
+    }
 //        cout << "----- Used variables: " << procView.procName << endl;
 //        for (const auto& entry : verMod->procUseVars[procView]) {
 //            cout << entry.first->getName() << endl;
@@ -332,9 +359,10 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
 //        for (const auto& entry : verMod->procDefVars[procView]) {
 //            cout << entry.first->getName() << endl;
 //        }
-    }
     
     // Checking method sensitivity list is complete
+    unsigned nonSensFound = 0;
+    std::string nonSensChannels;
     for (const auto& readVal : useVals) {
         // Class field must be in this map, no local variables there
         if (auto readObj = globalState->getElabObject(readVal)) {
@@ -350,13 +378,18 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
             }
             
             if (!found) {
-                ScDiag::reportScDiag(methodDecl->getBeginLoc(), 
-                                     ScDiag::SYNTH_NON_SENSTIV_2USED) << 
-                                     methodDecl->getNameAsString() <<
-                                     readVal.asString(false);
+                if (nonSensFound) nonSensChannels += ", ";
+                nonSensChannels += readVal.asString(false);
+                if (++nonSensFound > 5) break;
             }
         }
     }
+    
+    if (nonSensFound) {
+        ScDiag::reportScDiag(methodDecl->getBeginLoc(), 
+                             ScDiag::SYNTH_NON_SENSTIV_2USED) << 
+                             nonSensChannels;
+    }    
     
     // Checking latches in method
     for (const auto &sval : finalState->getDefSomePathValues()) {
@@ -389,14 +422,16 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
         cout << "Run process in module " << modval << endl;
     }
 
-    // Create writer from module writer to keep variable indices 
-    // Update external names from constant propagator, required for static constants
-    modWriter.updateExtrNames(globalState->getExtrValNames());
-    shared_ptr<ScVerilogWriter> writer(new ScVerilogWriter(modWriter));
+    // Name generator with all member names for current module
+    UniqueNamesGenerator& nameGen = verMod->getNameGen();
+    
+    unique_ptr<ScVerilogWriter> procWriter = std::make_unique<ScVerilogWriter>(
+                    sm, true, globalState->getExtrValNames(), nameGen,
+                    globalState->getVarTraits(), globalState->getWaitNVarName());
     
     // Clone module state for each process
     auto procState = shared_ptr<ScState>(globalState->clone());
-    ScTraverseProc travProc(astCtx, procState, modval, writer.get(),
+    ScTraverseProc travProc(astCtx, procState, modval, procWriter.get(),
                             nullptr, nullptr, isCombMethod);
     travProc.setTermConds(travConst.getTermConds());
     travProc.setLiveStmts(travConst.getLiveStmts());
@@ -405,12 +440,9 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
     
     // Add constants not replaced with integer value, 
     // used to determine required variables
-    for (const SValue& val : writer->getNotReplacedVars()) {
+    for (const SValue& val : procWriter->getNotReplacedVars()) {
         verMod->addNotReplacedVar(val);
     }
-    
-    // Add empty sensitive METHOD local variable names to module writer
-    modWriter.updateExtrNames(writer->getExtrNames());
     
     // Print function RTL
     std::ostringstream os;
@@ -440,14 +472,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeCthreadProcess(
     sc::ThreadBuilder tb{astCtx, elabDB, procView, globalState, 
                          modval, dynmodval};
     
-    return tb.run(false);
-}
-
-void ScProcAnalyzer::analyzeConstProp(const SValue &modval,
-                                      const SValue &dynmodval,
-                                      sc_elab::ProcessView procView) {
-    sc::ThreadBuilder tb{astCtx, elabDB, procView, globalState, modval, dynmodval};
-    tb.run(true);
+    return tb.run();
 }
 
 // Generated SVA property code from module scope SCT_ASSERT
@@ -543,14 +568,16 @@ std::string ScProcAnalyzer::analyzeSvaProperties(
         }
     }
     
-    // Create writer from module writer to keep variable indices 
-    // Update external names from CPA, required for static constants
-    modWriter.updateExtrNames(globalState->getExtrValNames());
-    shared_ptr<ScVerilogWriter> writer(new ScVerilogWriter(modWriter));
+    // Name generator with all member names for current module
+    UniqueNamesGenerator& nameGen = verMod.getNameGen();
+    
+    unique_ptr<ScVerilogWriter> procWriter = std::make_unique<ScVerilogWriter>(
+                    sm, true, globalState->getExtrValNames(), nameGen,
+                    globalState->getVarTraits(), globalState->getWaitNVarName());
     
     // Clone module state for each process
     auto procState = shared_ptr<ScState>(globalState->clone());
-    ScTraverseProc travProc(astCtx, procState, modval, writer.get(),
+    ScTraverseProc travProc(astCtx, procState, modval, procWriter.get(),
                             nullptr, nullptr, true);
     
     // Generate all properties

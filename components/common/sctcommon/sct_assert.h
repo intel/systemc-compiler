@@ -216,6 +216,28 @@ inline void sct_assert_register(T& v, bool b = true) {}
 template <typename T>
 inline void sct_assert_array_defined(T& v, bool b = true) {}
 
+//=============================================================================
+// Assert that FOR/WHILE loop has at least one iteration
+// Used for loop with wait() inside and non-determinable number of iterations 
+// which is placed in another loop without wait()
+// 
+// Usage:
+//    SCT_ALIVE_LOOP(for(...){...});
+//    SCT_ALIVE_LOOP(while(...){...});
+//
+// Usage example (N is non-determinable value):
+//    for (int j = 0; j < M; j++) {
+//       SCT_ALIVE_LOOP(
+//       for (int i = 0; i < N; i++) {
+//           wait();   
+//       });
+//    }
+//
+inline void sct_alive_loop() {}
+
+#define SCT_ALIVE_LOOP(X) {sct_alive_loop(); X}
+
+
 }
 
 #endif /* SCT_ASSERT_H */

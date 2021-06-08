@@ -54,6 +54,8 @@ svc_target(method_for_fcall_fail WILL_FAIL)
 add_executable(method_while_fcall_fail test_while_fcall_fail.cpp)
 svc_target(method_while_fcall_fail WILL_FAIL)
 
+
+## Constants
 add_executable(method_const test_const.cpp)
 svc_target(method_const GOLDEN method_const.sv)
 
@@ -63,9 +65,6 @@ svc_target(method_const_liter GOLDEN method_const_liter.sv)
 add_executable(method_const_liter_compound test_const_liter_compound.cpp)
 svc_target(method_const_liter_compound GOLDEN method_const_liter_compound.sv)
 
-add_executable(method_const_cond_narrow test_const_cond_narrow.cpp)
-svc_target(method_const_cond_narrow GOLDEN method_const_cond_narrow.sv)
-
 add_executable(method_const_binary test_const_binary.cpp)
 svc_target(method_const_binary GOLDEN method_const_binary.sv)
 
@@ -74,9 +73,6 @@ svc_target(method_const_if GOLDEN method_const_if.sv)
 
 add_executable(method_const_if2 test_const_if2.cpp)
 svc_target(method_const_if2 GOLDEN method_const_if2.sv)
-
-add_executable(method_const_compl_cond test_const_compl_cond.cpp)
-svc_target(method_const_compl_cond GOLDEN method_const_compl_cond.sv)
 
 add_executable(method_const_fail test_const_fail.cpp)
 svc_target(method_const_fail WILL_FAIL)
@@ -129,12 +125,6 @@ svc_target(method_virtual_pure GOLDEN method_virtual_pure.sv)
 add_executable(method_if test_if.cpp)
 svc_target(method_if GOLDEN method_if.sv)
 
-add_executable(method_cond_side_effect test_cond_side_effect.cpp)
-svc_target(method_cond_side_effect GOLDEN method_cond_side_effect.sv)
-
-add_executable(method_cond_oper test_cond_oper.cpp)
-svc_target(method_cond_oper GOLDEN method_cond_oper.sv)
-
 add_executable(method_switch test_switch.cpp)
 svc_target(method_switch GOLDEN method_switch.sv)
 
@@ -168,6 +158,9 @@ svc_target(method_var_ref GOLDEN method_var_ref.sv)
 add_executable(method_var_ref_arr_unkwn test_var_ref_arr_unkwn.cpp)
 svc_target(method_var_ref_arr_unkwn GOLDEN method_var_ref_arr_unkwn.sv)
 
+add_executable(method_var_ref_fail test_var_ref_fail.cpp)
+svc_target(method_var_ref_fail WILL_FAIL)
+
 add_executable(method_fcall_ref test_fcall_ref.cpp)
 svc_target(method_fcall_ref GOLDEN method_fcall_ref.sv)
 
@@ -186,8 +179,8 @@ svc_target(method_auto_type GOLDEN method_auto_type.sv)
 add_executable(method_cast test_cast.cpp)
 svc_target(method_cast GOLDEN method_cast.sv)
 
-# Binary operations
 
+## Binary operations
 add_executable(method_binary test_binary.cpp)
 svc_target(method_binary GOLDEN method_binary.sv)
 
@@ -202,6 +195,9 @@ svc_target(method_binary_signed_fail)
 
 add_executable(method_binary_sc_types test_binary_sc_types.cpp)
 svc_target(method_binary_sc_types GOLDEN method_binary_sc_types.sv)
+
+add_executable(method_compound test_compound.cpp)
+svc_target(method_compound GOLDEN method_compound.sv)
 
 add_executable(method_concat test_concat.cpp)
 svc_target(method_concat GOLDEN method_concat.sv)
@@ -227,8 +223,8 @@ svc_target(method_shifts_signed GOLDEN method_shifts_signed.sv)
 add_executable(method_explicit_type_conv test_explicit_type_conv.cpp)
 svc_target(method_explicit_type_conv GOLDEN method_explicit_type_conv.sv)
 
-# Unary operations 
 
+## Unary operations 
 add_executable(method_unary test_unary.cpp)
 svc_target(method_unary GOLDEN method_unary.sv)
 
@@ -252,11 +248,17 @@ svc_target(method_pointers GOLDEN method_pointers.sv)
 add_executable(method_array test_array.cpp)
 svc_target(method_array GOLDEN method_array.sv)
 
+add_executable(method_array_init test_array_init.cpp)
+svc_target(method_array_init GOLDEN method_array_init.sv)
+
 add_executable(method_array_param test_array_param.cpp)
 svc_target(method_array_param GOLDEN method_array_param.sv)
 
 add_executable(method_array_return test_array_return.cpp)
 svc_target(method_array_return GOLDEN method_array_return.sv)
+
+add_executable(method_array_return_fail test_array_return_fail.cpp)
+svc_target(method_array_return_fail WILL_FAIL)
 
 add_executable(method_array_unknown test_array_unknown.cpp)
 svc_target(method_array_unknown GOLDEN method_array_unknown.sv)
@@ -264,8 +266,8 @@ svc_target(method_array_unknown GOLDEN method_array_unknown.sv)
 add_executable(method_array_in_if test_array_in_if.cpp)
 svc_target(method_array_in_if GOLDEN method_array_in_if.sv)
 
-# MIF
 
+## MIF
 add_executable(method_modular_iface_multi test_modular_iface_multi.cpp)
 svc_target(method_modular_iface_multi GOLDEN method_modular_iface_multi.sv)
 
@@ -346,6 +348,7 @@ add_executable(method_var_usedef_same_proc test_var_usedef_same_proc.cpp)
 svc_target(method_var_usedef_same_proc  
            GOLDEN method_var_usedef_same_proc.sv)
 
+
 ## Constant propagation
 add_executable(method_const_prop test_const_prop.cpp)
 svc_target(method_const_prop GOLDEN method_const_prop.sv)
@@ -369,6 +372,8 @@ svc_target(method_port_array_bind)
 add_executable(method_standard_collection test_standard_collection.cpp)
 svc_target(method_standard_collection)
 
+
+## Empty sensitivity
 add_executable(method_empty_sensvty test_empty_sensvty.cpp)
 svc_target(method_empty_sensvty GOLDEN method_empty_sensvty.sv)
 
@@ -378,11 +383,19 @@ svc_target(method_empty_sensvty1_fail WILL_FAIL)
 add_executable(method_empty_sensvty2_fail test_empty_sensvty2_fail.cpp)
 svc_target(method_empty_sensvty2_fail WILL_FAIL)
 
+add_executable(method_empty_sensvty3_fail test_empty_sensvty3_fail.cpp)
+svc_target(method_empty_sensvty3_fail WILL_FAIL)
+
+add_executable(method_empty_sensvty4_fail test_empty_sensvty4_fail.cpp)
+svc_target(method_empty_sensvty4_fail WILL_FAIL)
+
 add_executable(method_empty_sensvty_dupl_fail test_empty_sensvty_dupl_fail.cpp)
 svc_target(method_empty_sensvty_dupl_fail WILL_FAIL)
 
-add_executable(method_non_sensvty test_non_sensvty.cpp)
-svc_target(method_non_sensvty WILL_FAIL GOLDEN method_non_sensvty.sv)
+add_executable(method_non_sensvty_fail test_non_sensvty_fail.cpp)
+svc_target(method_non_sensvty_fail WILL_FAIL)
+
+
 
 add_executable(method_bool test_bool.cpp)
 svc_target(method_bool GOLDEN method_bool.sv)
@@ -403,38 +416,31 @@ svc_target(method_forloop_other_types GOLDEN method_forloop_other_types.sv)
 add_executable(method_explicit_specialz_templ test_explicit_specialz_templ.cpp)
 svc_target(method_explicit_specialz_templ GOLDEN method_explicit_specialz_templ.sv)
 
+## Conditions
+add_executable(method_cond_side_effect test_cond_side_effect.cpp)
+svc_target(method_cond_side_effect WILL_FAIL)
+
+add_executable(method_cond_oper test_cond_oper.cpp)
+svc_target(method_cond_oper GOLDEN method_cond_oper.sv)
+
+add_executable(method_cond_cast test_cond_cast.cpp)
+svc_target(method_cond_cast GOLDEN method_cond_cast.sv)
+
 add_executable(method_loop_cond_fail test_loop_cond_fail.cpp)
 svc_target(method_loop_cond_fail WILL_FAIL)
 
+add_executable(method_const_compl_cond test_const_compl_cond.cpp)
+svc_target(method_const_compl_cond GOLDEN method_const_compl_cond.sv)
 
-#6) Record Pointer - more tests
-#7) Check if channel of record is supported / required to be supported
-#  -- Is this required by syn std. Signal/sc_in/out ports of type record
-#8) Records in CTHREAD
-#  - more tests, example all tests above also implemented in CTHREAD besides SC_METHOD.
-#9) Examples of records.
-#10) Name Collision Test
+add_executable(method_const_cond_narrow test_const_cond_narrow.cpp)
+svc_target(method_const_cond_narrow GOLDEN method_const_cond_narrow.sv)
 
-#11 Building Blocks as Examples 
-#Decoder And Encoders
+## Decoder And Encoders
 add_executable(method_decoder test_decoder.cpp)
 svc_target(method_decoder GOLDEN method_decoder.sv)
-#Mux : same as decoders
-#Flip Flop And Latches
+## Flip Flop And Latches
 add_executable(method_ff_latch test_ff_latch.cpp)
 svc_target(method_ff_latch GOLDEN method_ff_latch.sv)
-
-#Counters
-#Memories
-#Parity And CRC
-#Modeling With Switch Primitives
-#Modeling With Gate Primitives
-#User Defined Primitives
-#PLI Examples
-#Verilog UART Model
-#Verilog Arbiter Model
-#Fifos
-#Small FSM
 
 add_executable(method_bit_range_access test_bit_range_access.cpp)
 svc_target(method_bit_range_access GOLDEN method_bit_range_access.sv)

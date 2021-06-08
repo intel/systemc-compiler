@@ -32,7 +32,8 @@ using namespace sc;
 
 namespace
 {
-
+using std::cout; using std::endl;
+    
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
@@ -100,6 +101,14 @@ private:
     /// Dynamic object with multiple pointer already traversed, used to exclude
     /// multiple traverse 
     std::unordered_set<ObjectView> multPtrObjs;
+    
+    /// Bound signals with its auxiliary variable in parent module which used
+    /// to bind in-port to out-port (in-port->auxiliary-variable<-out-port)
+    /// <child signal object bound to port, variable for signal in parent module>
+    std::unordered_map<ObjectView, VerilogVar*> boundSigObjs;
+    /// Bound signals collection, used to avoid multiple bound to auxiliary
+    // variable if original signal has multiple binds
+    std::unordered_set<ObjectView> boundSignals;
 
     bool activeSignal = false;
     bool activePort = false;
@@ -187,6 +196,9 @@ void ScElabModuleBuilder::run()
     
     // Create module bodies w/o processes
     for (auto modView : elabDB->getModules()) {
+        //std::cout << "--------------------------------------" << std::endl 
+        //      << "Module " << modView.getName() << std::endl;
+        
         // Add module to static collection, used to resolve pointer to module
         RecordValues::addRecordView(modView);
         
@@ -203,6 +215,8 @@ void ScElabModuleBuilder::run()
     //RecordValues::print();
 
     // Create bindings
+    //std::cout << "--------------------------------------" << std::endl 
+    //          << "Create bindings "<< std::endl;
     for (auto &verMod : elabDB->getVerilogModules()) 
     {
         createPortBindingsKeepArrays(verMod);
@@ -233,7 +247,7 @@ void ScElabModuleBuilder::run()
         createProcessBodies(verMod);
 
         // Remove unused ports and signals declarations and their assignments
-        if (!singleBlockCThreads) verMod.removeUnusedVariables();
+        verMod.removeUnusedVariables();
         
         // Detect multiple used/defined variable/channel in different processes
         verMod.detectUseDefErrors();
@@ -790,14 +804,14 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
 
 void ScElabModuleBuilder::createPortBindingsKeepArrays(VerilogModule &verMod)
 {
-
+    //cout << endl << "Module : " << verMod.getName() << endl;
     std::unordered_set<PortView> bindedPortsSet; // set of already bound ports
 
-    for (auto port : verMod.getScPorts()) {
-
-        if (bindedPortsSet.count(port))
-            continue;
-        // Direct bound port
+    for (PortView port : verMod.getScPorts()) {
+        
+        if (bindedPortsSet.count(port)) continue;
+        
+        // Get directly bound port/signal to this port
         auto directBind = port.getDirectBind();
         // If port is array element this function returns all elements with indices
         // Index object is vector contains all indices to support 
@@ -807,19 +821,17 @@ void ScElabModuleBuilder::createPortBindingsKeepArrays(VerilogModule &verMod)
         // Check each element is bound to element with the same index
         bool isFlattenBind = isFlattenArrayBind(allArrayPorts, allArrayBinds);
 
+        // All array elements will be bounded
         for (auto portel : allArrayPorts) {
-            // All array elements will be bounded
             bindedPortsSet.insert(portel.obj);
         }
 
         if (!isFlattenBind) {
             uniformBind(port);
-        }
-        else {
+        } else {
             flattenArrayBind(verMod, port, allArrayPorts);
         }
     }
-
 }
 
 void ScElabModuleBuilder::uniformBind(const PortView &port)
@@ -1123,14 +1135,16 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
     // First bind up to common Parent, then bind down to bindedObj
     auto bindedObj = portEl.getDirectBind().getAsArrayElementWithIndicies();
     ModuleMIFView commonParentMod = portEl.nearestCommonParentModule(bindedObj.obj);
-
+    
     DEBUG_WITH_TYPE(DebugOptions::doPortBind,
         llvm::outs() << "bindPortCrossAux BIND " << portEl << " to " << bindedObj.obj << "\n";
     );
 
     VerilogVarsVec hostVars;
     VerilogVarsVec instanceVars = verPortVars;
-
+    // Keep signal name in module interface and do not create auxiliary variable
+    bool keepSigVar = verPortVars.size() == 1;
+        
     {
         // 1. Bind  UP
         auto bindUpParentMods = portEl.getParentModulesList(commonParentMod);
@@ -1158,9 +1172,33 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
                     hostVars.push_back(portVar);
                     
                 } else {
-                    auto *sigVar = hostVerMod->createAuxilarySignal(
+                    // Do not keep signal name if signals and ports have 
+                    // different dimension, possible if bind to array element
+                    keepSigVar = keepSigVar && (verVar->getArrayDims().size() == 
+                                 bindedObj.indices.size());
+                    
+                    VerilogVar* sigVar;
+                    if (keepSigVar) {
+                        // Create only one variable in parent module 
+                        // for multiple binds of the signal
+                        auto i = boundSigObjs.find(bindedObj.obj);
+                        if (i != boundSigObjs.end()) {
+                            // Next binds of the signal, reuse the same variable 
+                            sigVar = i->second;
+                        } else {
+                            // First bind of the signal
+                            sigVar = hostVerMod->createAuxilarySignal(
                                         verVar->getName(), verVar->getBitwidth(), 
                                         verVar->getArrayDims(), verVar->isSigned());
+                            boundSigObjs.emplace(bindedObj.obj, sigVar);
+                        }
+                    } else {
+                        // Normal mode, port name used for module with the signal,
+                        // multiple variables created in parent module
+                        sigVar = hostVerMod->createAuxilarySignal(
+                                    verVar->getName(), verVar->getBitwidth(), 
+                                    verVar->getArrayDims(), verVar->isSigned());
+                    }
                     hostVars.push_back(sigVar);
                 }
             }
@@ -1193,14 +1231,21 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
         }
 
     }
-
+    
     // hostVars now holds auxiliary signals created in commonParentMod
     instanceVars.clear();
+    // Bind signal to port flag 
+    bool bindSigVar = true;
+    // Do not bind a signal multiple time in keep signal name mode
+    if (keepSigVar) {
+        bindSigVar = boundSignals.insert(bindedObj.obj).second;
+    }
 
     // Bind DOWN
-    {
-        auto bindDownParentMods = bindedObj.obj.getParentModulesList(commonParentMod);
-
+    if (bindSigVar) {
+        auto bindDownParentMods = bindedObj.obj.
+                                  getParentModulesList(commonParentMod);
+        
         PortDirection bottomDirection;
         if (portEl.getDirection() == PortDirection::IN)
             bottomDirection = PortDirection::OUT;
@@ -1212,20 +1257,38 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
 
             ModuleMIFView instModView = bindDownParentMods.at(i);
             VerilogModule *instVerMod = elabDB->getVerilogModule(instModView);
-            VerilogModule *hostVerMod = elabDB->getVerilogModule(bindDownParentMods.at(i - 1));
+            VerilogModule *hostVerMod = elabDB->getVerilogModule(
+                                        bindDownParentMods.at(i - 1));
             VerilogModuleInstance *instance = hostVerMod->getInstance(instModView);
+            //cout << "bindPortCrossAux hostVerMod " << hostVerMod->getName() 
+            //     << " instVerMod " << instVerMod->getName() << endl;
 
-            // create virtual ports inside instance module
-            for (const auto *verVar: verPortVars) {
-                auto *portVar = instVerMod->createAuxilaryPort(bottomDirection,
-                    verVar->getName(), verVar->getBitwidth(), verVar->getArrayDims(), verVar->isSigned());
+            // Create virtual ports for signals inside instance module 
+            if (keepSigVar && last) {
+                // In keep signal name mode module port with the name created
+                VerilogVarsVec bindedVerVars = instVerMod->getVerVariables(
+                                               bindedObj.obj);
+                for (auto* verVar : bindedVerVars) {
+                    auto *sigVar = instVerMod->createAuxilaryPortForSignal(
+                                   bottomDirection, verVar);
+                    instanceVars.push_back(sigVar);
+                }
+                
+            } else {
+                // In normal mode module port with bound port name and 
+                // auxiliary variable in signal module created
+                for (auto* verVar: verPortVars) {
+                    auto portVar = instVerMod->createAuxilaryPort(bottomDirection,
+                                    verVar->getName(), verVar->getBitwidth(), 
+                                    verVar->getArrayDims(), verVar->isSigned());
 
-                instanceVars.push_back(portVar);
+                    instanceVars.push_back(portVar);
+                }
             }
 
             SCT_TOOL_ASSERT (instanceVars.size() == hostVars.size(), "");
 
-            // bind virtual ports
+            // Bind virtual ports, skip duplicate bind for shared signal variable
             for (size_t i = 0; i < instanceVars.size(); i++) {
                 instance->addBinding(instanceVars[i], {hostVars[i]});
                 hostVerMod->addVarBindedInMod(hostVars[i]);
@@ -1238,18 +1301,20 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
                 indexes = bindedObj.indices;
             }
 
-            if (last) {
-
-                VerilogVarsVec bindedVerVars = instVerMod->getVerVariables(bindedObj.obj);
+            // Add assignment of signal port and auxiliary variable in signal module
+            if (!keepSigVar && last) {
+                VerilogVarsVec bindedVerVars = instVerMod->getVerVariables(
+                                               bindedObj.obj);
                 SCT_TOOL_ASSERT (bindedVerVars.size() == instanceVars.size(), "");
 
                 for (size_t i = 0; i < bindedVerVars.size(); i++) {
 
                     if (portEl.getDirection() == PortDirection::IN) {
-                        instVerMod->addAssignment({instanceVars[i]}, { bindedVerVars[i], indexes});
-                    }
-                    else {
-                        instVerMod->addAssignment({bindedVerVars[i], indexes}, {instanceVars[i]});
+                        instVerMod->addAssignment({instanceVars[i]}, 
+                                                  {bindedVerVars[i], indexes});
+                    } else {
+                        instVerMod->addAssignment({bindedVerVars[i], indexes}, 
+                                                  {instanceVars[i]});
                     }
                 }
             }
@@ -1772,6 +1837,7 @@ void ScElabModuleBuilder::materializePort(VerilogModule &verMod, PortView port)
     }
 }*/
 
+// Run for each module in design
 void ScElabModuleBuilder::createProcessBodies(VerilogModule &verMod)
 {
     //using std::cout; using std::endl;
@@ -1805,8 +1871,8 @@ void ScElabModuleBuilder::createProcessBodies(VerilogModule &verMod)
             verMod.addSvaPropertyCode(svaCode);
         }
         
-        // Generate process bodies
-        for (ProcessView& proc : verMod.getProcesses()) {
+        // Generate process bodies 
+        for (ProcessView& proc : verMod.getProcesses()) {    
             auto procBody = procBuilder.generateVerilogProcess(proc);
             verMod.addProcessBody(proc, procBody);
             // Set unique name for process

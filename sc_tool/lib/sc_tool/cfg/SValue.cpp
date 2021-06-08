@@ -234,6 +234,48 @@ SValue SValue::clone(const SValue& parent, const SValue& locvar, size_t index) c
     return NO_VALUE;
 }
 
+// Create zero value of the width/signess of @expr type
+SValue SValue::zeroValue(const Expr* expr)
+{
+    clang::QualType type = getTypeForWidth(expr);
+    return zeroValue(type, expr);
+}
+
+SValue SValue::zeroValue(clang::QualType type, const Expr* expr)
+{
+    size_t width = 64;
+    bool isUnsigned = true;
+
+    if (auto typeInfo = getIntTraits(type, true)) {
+        width = typeInfo.getValue().first;
+        isUnsigned = typeInfo.getValue().second;
+        //cout << "Zero width " << width << " isUnsigned " << isUnsigned << endl;
+    } else {
+        if (expr) {
+            ScDiag::reportScDiag(expr->getBeginLoc(),
+                                 ScDiag::SYNTH_UNKNOWN_TYPE_WIDTH) << 
+                                 type.getAsString();
+        } else {
+            ScDiag::reportScDiag(ScDiag::SYNTH_UNKNOWN_TYPE_WIDTH) << 
+                                 type.getAsString();
+        }
+    }
+
+    SValue val;
+    if (width != 0) {
+        val = SValue(APSInt(width, isUnsigned), 10);
+    } else {
+        if (expr) {
+            ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                 ScDiag::SYNTH_ZERO_TYPE_WIDTH) << "";
+        } else {
+            ScDiag::reportScDiag(ScDiag::SYNTH_ZERO_TYPE_WIDTH) << "";
+        }
+    }
+    
+    return val;
+}
+
 bool SValue::isUnknown() const {
     return type == otUnknown;
 }

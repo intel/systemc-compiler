@@ -964,11 +964,11 @@ llvm::Optional<sc_elab::ObjectView> ScState::getElabObject(const SValue &sval) c
     return llvm::None;
 }
 
-const unordered_map<SValue, string>& ScState::getExtrValNames() {
+const unordered_map<SValue, string>& ScState::getExtrValNames() const {
     return staticState->extrValNames;
 }
 
-const unordered_map<SValue, const VerilogVarTraits>& ScState::getVarTraits() {
+const unordered_map<SValue, const VerilogVarTraits>& ScState::getVarTraits() const {
     return staticState->varTraits;
 }
 
@@ -1055,6 +1055,7 @@ SValue ScState::getVariableForValue(const SValue& rval) const
     }
 }
 
+// Not used now
 // Filter Used/Defined values replacing array element with zero-index element
 // \return -- all record field values for a record field/record variable
 InsertionOrderSet<SValue> ScState::getZeroIndexAllFields(const SValue& val) const 
@@ -1202,7 +1203,7 @@ void ScState::writeToArrElmValue(const SValue& lval)
 
 // Add value to @defined
 // \param isDefined -- all values for fields or array elements are defined 
-void ScState::writeToValue(SValue lval, bool isDefined) 
+SValue ScState::writeToValue(SValue lval, bool isDefined) 
 {
     //cout << "writeToValue lval " << lval << endl;
     SValue llval; 
@@ -1215,20 +1216,18 @@ void ScState::writeToValue(SValue lval, bool isDefined)
     }
 
     // No Use/Def analysis for non-constant reference
-    if (!llval.isVariable()) return;
-    if (llval.isReference() && !llval.isConstReference()) return;
+    if (!llval.isVariable()) return NO_VALUE;
+    if (llval.isReference() && !llval.isConstReference()) return NO_VALUE;
     //cout << "   lval " << lval << " llval " << llval << " isDefined " << isDefined << endl;
     
-    InsertionOrderSet<SValue> orderVal = getZeroIndexAllFields(llval);
+    // Get zero index element if required
+    SValue zeroVal = getFirstArrayElementForAny(llval);
 
     // Add array defined for any array/non-array value
-    // REC all fields, ARR zero element
-    arraydefined.insert(orderVal.begin(), orderVal.end());
+    arraydefined.insert(zeroVal);
 
     if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
-        cout << "   add to array_defined ";
-        for (const auto& oval : orderVal) cout << oval << ", ";
-        cout << endl;
+        cout << "   add to array_defined " << zeroVal << endl;
     }
 
     if (isDefined) {
@@ -1236,8 +1235,8 @@ void ScState::writeToValue(SValue lval, bool isDefined)
         // REC add all fields, ARR add all elements
         defined.insert(lval);
             
-        defallpath.insert(orderVal.begin(), orderVal.end());
-        defsomepath.erase(orderVal.begin(), orderVal.end());
+        defallpath.insert(zeroVal);
+        defsomepath.erase(zeroVal);
 
         if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
             cout << "   add to defined param/first elem lval " << lval << endl;
@@ -1264,9 +1263,10 @@ void ScState::writeToValue(SValue lval, bool isDefined)
             // No define for array, difficult to prove all elements are defined 
         }
     }
+    return zeroVal;
 }
 
-void ScState::readFromValue(SValue lval)
+SValue ScState::readFromValue(SValue lval)
 {
     //cout << "readFromValue lval " << lval << endl;
     SValue llval; 
@@ -1279,11 +1279,13 @@ void ScState::readFromValue(SValue lval)
     }
 
     // No Use/Def analysis for non-constant reference
-    if (!llval.isVariable()) return;
-    if (llval.isReference() && !llval.isConstReference()) return;
+    if (!llval.isVariable()) return NO_VALUE;
+    if (llval.isReference() && !llval.isConstReference()) return NO_VALUE;
     //cout << "   lval " << lval << " llval " << llval << endl;
 
-    InsertionOrderSet<SValue> orderVal = getZeroIndexAllFields(llval);
+    // Get zero index element if required
+    SValue zeroVal = getFirstArrayElementForAny(llval);
+
     bool isDefined = false;
     bool isDeclared = false;
     
@@ -1304,31 +1306,52 @@ void ScState::readFromValue(SValue lval)
 
     if (!isDefined && !isDeclared) {
         if (parseSvaArg) {
-            readsva.insert(orderVal.begin(), orderVal.end());
+            readsva.insert(zeroVal);
         } else {
-            readndef.insert(orderVal.begin(), orderVal.end());
+            readndef.insert(zeroVal);
         }
         
         if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
-            cout << "   add to readNotDefined ";
-            for (const auto& oval : orderVal) cout << oval << ", ";
-            cout << endl;
+            cout << "   add to readNotDefined " << zeroVal << endl;
         }
     }
     
     // Read non-initialized CPP variables in the same cycle where declared
     // to report warning
     if (isDeclared && !isDefined && !parseSvaArg) {
-        readninit.insert(orderVal.begin(), orderVal.end());
+        readninit.insert(zeroVal);
     }
 
-    read.insert(orderVal.begin(), orderVal.end());
+    read.insert(zeroVal);
 
     if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
-        cout << "   add to read ";
-        for (const auto& oval : orderVal) cout << oval << ", ";
-        cout << endl;
+        cout << "   add to read " << zeroVal << endl;
     }
+    return zeroVal;
+}
+
+// Filter UseDef to remove non-used values eliminated in unused statements removing
+void ScState::filterUseDef(const std::unordered_set<SValue>& defVals, 
+                           const std::unordered_set<SValue>& useVals) 
+{
+    //cout << "filterUseDef" << endl;
+    auto filter = [](InsertionOrderSet<SValue>& ovals, 
+                     const std::unordered_set<SValue>& fvals) 
+    {
+        for (auto i = ovals.begin(); i != ovals.end(); ) {
+            if (fvals.count(*i) == 0) {
+                i = ovals.erase(i);
+                //cout << "  " << *i << endl;
+            } else {
+                ++i;
+            }
+        }
+    };
+    
+    filter(arraydefined, defVals);
+    filter(read, useVals);
+    filter(readndef, useVals);
+    filter(readsva, useVals);
 }
 
 const InsertionOrderSet<SValue> ScState::getReadNotDefinedValues(
@@ -1701,6 +1724,28 @@ void ScState::getArrayIndices(const SValue& eval, SValue& mval,
     std::reverse(indxs.begin(), indxs.end());
     // @mval is topmost array if exists
     mval = getValue(mval); 
+}
+
+// Get all elements in sub-arrays for given array
+std::vector<SValue> ScState::getSubArrayElements(const SValue& val) const 
+{
+    vector<SValue> res;
+    SValue mval = getValue(val);
+    
+    if (mval.isArray()) {
+        // Work with sub-arrays
+        for (size_t i = 0; i < mval.getArray().getSize(); ++i) {
+            mval.getArray().setOffset(i);
+            vector<SValue> evals = getSubArrayElements(mval);
+            for (const SValue& eval : evals) {
+                res.push_back(eval);
+            }
+        }
+    } else {
+        res.push_back(val);
+    }
+    
+    return res;
 }
 
 

@@ -11,19 +11,18 @@ function(svc_target exe_target)
     # Flags:
     # REPLACE_CONST_VALUE  -- replace constant with its number value if possible
     # NO_SVA_GENERATE      -- disable SVA generating for SCT assertions
+    # PORT_MAP_GENERATE    -- generate port map file for SV/SC mixed simulation
     # NO_REMOVE_EXTRA_CODE -- disable removing unused variable and extra code
     # INIT_LOCAL_VARS      -- initialize local variables at declaration with zero
-    # SINGLE_BLOCK_CTHREAD -- generate single always_ff block for clocked thread
     # ELAB_ONLY  -- run elaboration without process generation
-    # CONST_PROP -- run elabortation and contant propagation, w/o proc generation
     # WILL_FAIL  -- test will fail on non-synthesizable code
     set(boolOptions REPLACE_CONST_VALUE 
                     NO_SVA_GENERATE
+                    PORT_MAP_GENERATE
                     NO_REMOVE_EXTRA_CODE
                     INIT_LOCAL_VARS
-                    SINGLE_BLOCK_CTHREAD
                     ELAB_ONLY 
-                    CONST_PROP WILL_FAIL)
+                    WILL_FAIL)
 
     # Arguments with one value
     # GOLDEN        -- Path to golden Verilog output for diff
@@ -44,16 +43,12 @@ function(svc_target exe_target)
         set(ELAB_ONLY -elab_only)
     endif()
 
-    if (${PARAM_CONST_PROP})
-        set(CONST_PROP -const_prop)
-    endif()
-
-    if (${PARAM_SINGLE_BLOCK_CTHREAD})
-        set(SINGLE_BLOCK_CTHREAD -single_block_cthread)
-    endif()
-
     if (${PARAM_NO_SVA_GENERATE})
         set(NO_SVA_GENERATE -no_sva_generate)
+    endif()
+
+    if (${PARAM_PORT_MAP_GENERATE})
+        set(PORT_MAP_GENERATE -portmap_generate)
     endif()
 
     if (${PARAM_NO_REMOVE_EXTRA_CODE})
@@ -159,11 +154,10 @@ function(svc_target exe_target)
             ${MODULE_PREFIX}
             ${REPLACE_CONST_VALUE}
             ${NO_SVA_GENERATE}
+            ${PORT_MAP_GENERATE}
             ${NO_REMOVE_EXTRA_CODE}
             ${INIT_LOCAL_VARS}
-            ${SINGLE_BLOCK_CTHREAD}
             ${ELAB_ONLY}
-            ${CONST_PROP}
             --
             -D__SC_TOOL__ -D__SC_TOOL_ANALYZE__ -DNDEBUG
             -Wno-logical-op-parentheses

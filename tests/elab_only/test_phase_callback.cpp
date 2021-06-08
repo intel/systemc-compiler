@@ -19,6 +19,7 @@ struct top : sc_module {
 
     SC_CTOR(top) {
         SC_THREAD(test_thread);
+        async_reset_signal_is(sig, 0);
     }
 
 protected:

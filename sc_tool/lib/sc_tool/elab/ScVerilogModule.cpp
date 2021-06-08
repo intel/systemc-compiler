@@ -19,44 +19,8 @@
 
 namespace sc_elab
 {
+using std::cout; using std::endl;
 
-std::string UniqueNamesGenerator::getUniqueName(const std::string &suggestedName)
-{
-    std::string genName = suggestedName;
-    
-    // If given name is Verilog keyword add some suffix
-    bool isKeyword = sc::VerilogKeywords::check(genName);
-    if (isKeyword) {
-        genName += "_v";
-    }
-
-    int postfix = 0;
-
-    while (takenNames.count(genName)) {
-        genName = suggestedName + /*"_" +*/ std::to_string(postfix);
-        ++postfix;
-    }
-
-    if (isKeyword || postfix) {
-        changedNames.insert(suggestedName);
-    }
-    
-    takenNames.insert(genName);
-
-    //std::cout << "getUniqueName " << suggestedName << " " << genName << std::endl;
-    return genName;
-}
-
-bool UniqueNamesGenerator::isTaken(const std::string &name)
-{
-    return takenNames.count(name) != 0;
-}
-
-bool UniqueNamesGenerator::isChanged(const std::string &name)
-{
-    //std::cout << " Check name " << name << " changed : " << changedNames.count(name) << std::endl;
-    return changedNames.count(name) != 0;
-}
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -388,10 +352,10 @@ void VerilogModule::serializeToStream(llvm::raw_ostream &os) const
     os << "\n);\n\n";
 
     if (!verilogSignals.empty()) {
-        os << "// SystemC signals\n";
+        os << "// Variables generated for SystemC signals\n";
         for (auto *var : verilogSignals) {
             // Skip not required variables
-            if (!singleBlockCThreads && requiredVars.count(var) == 0) {
+            if (requiredVars.count(var) == 0) {
                 continue;
             }
             serializeVerVar(os, *var);
@@ -404,39 +368,29 @@ void VerilogModule::serializeToStream(llvm::raw_ostream &os) const
         bool first = true;
         std::unordered_set<std::string> varNames;
         for (auto& var : dataVars) {
-            
-            if (!singleBlockCThreads) {
-                // Skip not required variables
-                if (requiredVars.count(&var) == 0) {
-                    continue;
-                }
-                // Print constants with filtering duplicates
-                if (var.isConstant()) {
-                    if (varNames.count(var.getName()) == 0) {
-                        if (first) {
-                            os << "// C++ data variables\n";
-                            first = false;
-                        }
-                        serializeVerVar(os, var);
-                        varNames.insert(var.getName());
-                        os << ";\n";
-                    }
-                }
-            } else {
-                if (first) {
-                    os << "// C++ data variables\n";
-                    first = false;
-                }
-                serializeVerVar(os, var);
-                os << ";\n";
+            // Skip not required variables
+            if (requiredVars.count(&var) == 0) {
+                continue;
             }
-
+            // Print constants with filtering duplicates
+            if (var.isConstant()) {
+                if (varNames.count(var.getName()) == 0) {
+                    if (first) {
+                        os << "// Local parameters generated for C++ constants\n";
+                        first = false;
+                    }
+                    serializeVerVar(os, var);
+                    varNames.insert(var.getName());
+                    os << ";\n";
+                }
+            }
         }
         if (!first) os << "\n";
     }
 
     if (!assignments.empty()) {
         // Filtering assignment to remove intermediate signals
+        os << "// Assignments generated for C++ channel arrays\n";
         for (auto& assign : assignments) {
             os << "assign " << assign.getLeftVar()->getName();
             for (auto dim : assign.getLeftIdx())
@@ -459,7 +413,8 @@ void VerilogModule::serializeToStream(llvm::raw_ostream &os) const
 
     if (!instances.empty()) {
         os << "\n";
-        os << "//------------------------------------------------------------------------------\n\n";
+        os << "//------------------------------------------------------------------------------\n";
+        os << "// Child module instances\n\n";
     }
 
     // Normal module instances
@@ -493,7 +448,8 @@ void VerilogModule::serializeToStream(llvm::raw_ostream &os) const
     if (!svaPropCode.empty()) {
         if (hasModInst) {
             os << "\n";
-            os << "//------------------------------------------------------------------------------\n\n";
+            os << "//------------------------------------------------------------------------------\n";
+            os << "// SVA generated for SystemC temporal assertions\n\n";
         }
         os << "`ifndef INTEL_SVA_OFF\n";
         os << svaPropCode;
@@ -502,6 +458,48 @@ void VerilogModule::serializeToStream(llvm::raw_ostream &os) const
     
     os << "endmodule\n\n\n";
     
+}
+
+void VerilogModule::createPortMap(llvm::raw_ostream &os) const
+{
+    using namespace sc;
+    
+    os << "# Module: " << commentName << " (" << name << ")\n\n";
+
+    for (auto& port : verilogPorts) {
+        
+        auto var = port.getVariable();
+
+        if (var->isConstant()) continue;
+        if (var->getBitwidth() == 1) continue;
+
+        // Empty arrays are not generated
+        bool isEmpty = false;
+        for (auto dim : var->getArrayDims()) {
+            if (dim == 0) {
+                isEmpty = true;
+            }
+        }
+        if (isEmpty) continue;
+
+        os << var->getName() << " " << var->getBitwidth() << " bit_vector ";
+        
+        if (var->getBitwidth() <= 64) {
+            if (var->isSigned()) {
+                os << "sc_int";
+            } else {
+                os << "sc_uint";
+            }
+        } else {
+            if (var->isSigned()) {
+                os << "sc_bigint";
+            } else {
+                os << "sc_biguint";
+            }
+        }
+        os << "\n";
+    }
+    os << "\n";
 }
 
 // Translate SystemC assertion string into SVA string
@@ -647,10 +645,9 @@ void VerilogModule::serializeProcess(llvm::raw_ostream &os,
 {
     bool isCthread = procObj.isScThread() || procObj.isScCThread();
 
-    if (!singleBlockCThreads && isCthread) {
+    if (isCthread) {
         serializeProcSplit(os, procObj);
-    }
-    else {
+    } else {
         serializeProcSingle(os, procObj);
     }
 }
@@ -791,8 +788,9 @@ VerilogVar *VerilogModule::createProcessLocalVariable(
                                             bool isSigned, APSIntVec initVals, 
                                             llvm::StringRef comment)
 {
+    // Avoid name conflict with local names
     auto* procVar = &procVars.emplace_back(
-        VerilogVar(nameGen.getUniqueName(suggestedName), bitwidth,
+        VerilogVar(nameGen.getUniqueName(suggestedName, true), bitwidth,
             std::move(arrayDims), isSigned, std::move(initVals), comment) );
 
 //    std::cout << "createProcessLocalVariable procVar " << procVar->getName() 
@@ -831,7 +829,8 @@ VerilogVar *VerilogModule::createAuxilarySignal(
                             nameGen.getUniqueName(suggestedName),
                             bitwidth, arrayDims, isSigned, initVals, comment));
 
-    //std::cout << "createAuxilarySignal var " << newVar->getName() << std::endl;
+    //cout << this->getName() << " createAuxilarySignal " << suggestedName.data() << " " << newVar->getName() << endl;
+
     verilogSignals.emplace_back(newVar);
     return newVar;
 }
@@ -847,7 +846,34 @@ VerilogVar* VerilogModule::createAuxilaryPort(
         VerilogVar(nameGen.getUniqueName(suggestedName), bitwidth, arrayDims,
             isSigned, initVals, comment));
 
+    //cout << this->getName() << " createAuxilaryPort " << suggestedName.data() << " " << newVar->getName() << endl;
+
     verilogPorts.emplace_back(dir, newVar);
+    return newVar;
+}
+
+// Create auxiliary Verilog port for port binding purposes and remove 
+// signal variable from this Verilog module
+// Used to keep signal name when signal connected to port in another module
+VerilogVar* VerilogModule::createAuxilaryPortForSignal(PortDirection dir,
+                                            VerilogVar* verVar, 
+                                            APSIntVec initVals, 
+                                            llvm::StringRef comment)
+{
+    auto *newVar = &channelVars.emplace_back(
+        VerilogVar(verVar->getName(), verVar->getBitwidth(), 
+                   verVar->getArrayDims(), verVar->isSigned(), 
+                   initVals, comment));
+
+    //cout << this->getName() << " createAuxilaryPortForSignal " << newVar->getName() << endl;
+
+    verilogPorts.emplace_back(dir, newVar);
+    
+    // Remove signal variable create before
+    auto i = std::find(verilogSignals.begin(), verilogSignals.end(), verVar);
+    if (i != verilogSignals.end()) {
+        verilogSignals.erase(i);
+    }
     return newVar;
 }
 
@@ -880,7 +906,7 @@ void VerilogModule::convertToProcessLocalVar(const VerilogVar *var,
 
 void VerilogModule::addSignal(VerilogVar *var)
 {
-    //std::cout << "addSignal var " << var->getName() << std::endl;
+    //cout << this->getName() << " addSignal " << var->getName() << endl;
     verilogSignals.push_back(var);
 }
 
@@ -925,19 +951,21 @@ void VerilogModule::convertToPort(const VerilogVar *var, PortDirection dir)
                                     return &v == var;
                                 }) != channelVars.end(),
                     "Duplicated variable in convertToPort");
-
+    
+    //cout << this->getName() << " convertToPort " << var->getName() << endl;
     verilogPorts.emplace_back(dir, var);
 }
 
 void VerilogModule::convertToSignal(const VerilogVar *var)
 {
-    //std::cout << "addSignal #2 var " << var->getName() << std::endl;
+    //cout << this->getName() << " convertToSignal " << var->getName() << endl;
     verilogSignals.push_back(var);
 }
 
 void VerilogModule::addVerilogPort(VerilogVar *var,
                                    PortDirection dir)
 {
+    //cout << this->getName() << " addVerilogPort " << var->getName() << endl;
     verilogPorts.emplace_back(dir, var);
 }
 
@@ -958,11 +986,31 @@ static void serializeVerilogBool(llvm::raw_ostream &os, llvm::APSInt val)
 
 static void serializeVerilogInt(llvm::raw_ostream &os, llvm::APSInt val)
 {
-    if (val < 0) {
+    using namespace llvm;
+    
+    bool isNegative = val < 0;
+    std::string literStr = val.toString(10);
+    unsigned bitNeeded = APSInt::getBitsNeeded(literStr, 10);
+    
+    if (isNegative) {
         os << "-";
-        val = val.abs();
     }
-    os << "'d" << val;
+    
+    // Maximal/minimal decimal value is 2147483647/-2147483647, 
+    // greater values are represented as hex (required by Lintra)
+    char radix;
+    if (bitNeeded < (isNegative ? 33 : 32)) {
+        os << "'d";
+        radix = 10;
+
+    } else {
+        // Add size for >32bit literals as some tools required that
+        os << bitNeeded << "'h";
+        radix = 16;
+    }
+    
+    // Get absolute value for negative literal
+    os << (isNegative ? APSInt(val.abs()).toString(radix) : val.toString(radix));
 }
 
 static void serializeInitVals(llvm::raw_ostream &os,
@@ -1591,6 +1639,8 @@ void VerilogModule::serializeResetCondition(llvm::raw_ostream &os,
 void VerilogModuleInstance::addBinding(VerilogVar *instancePort,
                                        VerilogVarRef hostVar)
 {
+    //cout << "addBinding " << instancePort->getName() << " -> " 
+    //     << hostVar.var->getName() << endl;
     std::string bindedName = hostVar.var->getName();
     for (const auto idx : hostVar.indicies) {
         bindedName = bindedName + "[" + std::to_string(idx) + "]";

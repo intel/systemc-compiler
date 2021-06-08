@@ -47,13 +47,30 @@ class ScParseExprValue : public ScParseExpr
 protected:
     /// Evaluation precision 
     uint32_t EPRECISION = 64;
+
+    /// Current top level statement analyzed
+    clang::Stmt* currStmt = nullptr;
+    /// Current statements properties
+    /// Current statement is mandatory required, cannot be removed
+    bool isRequiredStmt;
+    bool isUserCallStmt;
+    bool isAssignStmt;
+    bool isSideEffStmt;
     
-    /// Name generation fabric
-    DynamicNameFabric nameFabric;
+    /// Statements for variable value which define/use the variable
+    std::unordered_map<SValue, std::unordered_set<clang::Stmt*>> defVarStmts;
+    std::unordered_map<SValue, std::unordered_set<clang::Stmt*>> useVarStmts;
+    
+    /// Constant evaluation mode for CPA or code generation, prevent user 
+    /// defined function calls from @evaluateConstInt()/@checkConstRefValue()
+    bool evaluateConstMode = false;
     
     /// Do checking @sct_assert_*
     bool checkSctAssert = false;
     
+    /// The following loop is alive, i.e. has at least one iteration
+    bool aliveLoop = false;
+
     /// Ignore stored statement value @stmtStoredValue in 
     /// ScTraverseConst::chooseExprMethod(), used in CPA to get 
     /// variable value for function argument
@@ -76,6 +93,12 @@ public:
 
     virtual ~ScParseExprValue() {}
     
+    /// Wrappers around similar methods of @state, 
+    /// register variable in @defVarStmts/@useVarStmts
+    void declareValue(const SValue& var);
+    void writeToValue(const SValue& lval, bool isDefined = false);
+    void readFromValue(const SValue& lval);
+
     /// Parse SCT_ASSERT in module scope to fill read value
     void parseSvaDecl(const clang::FieldDecl* fdecl);
     
@@ -123,6 +146,9 @@ protected:
 
     /// Used for local variables usage like assignment statement in left/right parts
     void parseExpr(clang::DeclRefExpr* expr, SValue& val) override;
+    
+    // Any access of member variable
+    void parseExpr(clang::MemberExpr* expr, SValue& val) override;
     
     /// Used for default initializer in constructor or in aggregate initialization
     void parseExpr(clang::CXXDefaultInitExpr* expr, SValue& val) override;

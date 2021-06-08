@@ -157,6 +157,9 @@ public:
     void storeStmt(const clang::Stmt* stmt, const std::string& s,  
                    bool artifIf = false);
     
+    /// Store @sct_assert statement in the current scope
+    void storeAssertStmt(const clang::Stmt* stmt, const std::string& s);
+
     /// Store null statement to make scope non-empty, required for do..while
     void storeNullStmt(std::shared_ptr<CodeScope> scope);
     
@@ -311,6 +314,8 @@ protected:
     
     /// Loop statements which are artificial IF in threads
     std::unordered_set<const clang::Stmt*>  artifIfStmts;
+    /// @sct_assert statements
+    std::unordered_set<const clang::Stmt*>  assertStmts;
     
     /// Statements belong to METHOD with empty sensitive
     std::unordered_set<const clang::Stmt*>  emptySensStmt;

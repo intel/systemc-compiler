@@ -76,9 +76,13 @@ public:
         async_reset_signal_is(nrst, false);
 
         SC_CTHREAD(func_call, clk.pos());
+        async_reset_signal_is(nrst, false);
         SC_CTHREAD(func_call_sc_type, clk.pos());
+        async_reset_signal_is(nrst, false);
         SC_CTHREAD(func_call_arr, clk.pos());
+        async_reset_signal_is(nrst, false);
         SC_CTHREAD(func_call_arr2, clk.pos());
+        async_reset_signal_is(nrst, false);
 
         SC_METHOD(return_value); sensitive << a;
     }
@@ -269,6 +273,8 @@ public:
         sct_assert_defined(dd);
         sct_assert_read(dd, false);
         wait();
+        
+        while(1) wait();
     }
     
     void func_call_sc_type() 
@@ -285,6 +291,8 @@ public:
         func_sc_read(ee);
         sct_assert_read(ee);
         wait();
+        
+        while(1) wait();
     }
     
     // Function calls
@@ -295,17 +303,22 @@ public:
     void func_arr3(int par_a[2][2]) {
     }
     void func_call_arr() {
-        int aa[3];
-        int bb[3];
-        func_arr1(aa);
-        func_arr2(bb);
-        sct_assert_read(aa, false);
-        sct_assert_read(bb, false);
-
-        int cc[2][2];
-        func_arr3(cc);
-        sct_assert_read(cc, false);
         wait();
+        
+        while(1) {
+            int aa[3];
+            int bb[3];
+            func_arr1(aa);
+            func_arr2(bb);
+            sct_assert_read(aa, false);
+            sct_assert_read(bb, false);
+
+            int cc[2][2];
+            func_arr3(cc);
+            sct_assert_read(cc, false);
+            
+            wait();
+        }
     }
     
     sc_signal<int> sig;
@@ -320,17 +333,22 @@ public:
         auto ii = par_a[sig.read()][1];
     }
     void func_call_arr2() {
-        int aa[3];
-        int bb[3];
-        func_arr1a(aa);
-        func_arr2a(bb);
-        sct_assert_read(aa, true);
-        sct_assert_read(bb, true);
-
-        int cc[2][2];
-        func_arr3a(cc);
-        sct_assert_read(cc, true);
         wait();
+        
+        while(1) {
+            int aa[3];
+            int bb[3] = {0,1,2};
+            func_arr1a(aa);
+            func_arr2a(bb);
+            sct_assert_read(aa, true);
+            sct_assert_read(bb, true);
+
+            int cc[2][2];
+            func_arr3a(cc);
+            sct_assert_read(cc, true);
+
+            wait();
+        }
     }
     
 };

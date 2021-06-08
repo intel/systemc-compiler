@@ -71,8 +71,9 @@ public:
         SC_CTHREAD(rec_loc_arr10, clk.pos());  
         async_reset_signal_is(nrst, 0);
 
-        SC_CTHREAD(rec_arr_elem_assign, clk.pos());  
-        async_reset_signal_is(nrst, 0);
+        // #141
+        //SC_CTHREAD(rec_arr_elem_assign, clk.pos());  
+        //async_reset_signal_is(nrst, 0);
         
         SC_CTHREAD(rec_arr_elem_field_assign, clk.pos());  
         async_reset_signal_is(nrst, 0);

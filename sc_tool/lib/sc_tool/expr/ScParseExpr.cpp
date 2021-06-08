@@ -178,6 +178,33 @@ SValue ScParseExpr::getRecordFromState(const SValue& val,
     return lval;
 }
 
+
+std::vector<clang::Expr*> ScParseExpr::getAllInitExpr(clang::Expr* expr,
+                                                      bool innerArray) const 
+{
+    std::vector<Expr*> res;
+    if (InitListExpr* init = dyn_cast<InitListExpr>(expr)) {
+        // Check no partial initialization for sub-array
+        size_t arrSize = getArraySize(init->getType());
+        if (innerArray && arrSize != init->getNumInits()) {
+             ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                  ScDiag::SYNTH_ARRAY_INIT_LIST);
+        }
+        
+        for (size_t i = 0; i < init->getNumInits(); i++) {
+            Expr* iexpr = const_cast<Expr*>(init->getInit(i));
+            std::vector<Expr*> subexpr = getAllInitExpr(iexpr, true);
+            for (Expr* se : subexpr) {
+                res.push_back(se);
+            }
+        }
+    } else {
+        res.push_back(expr);
+    }
+    return res;
+}
+
+
 bool ScParseExpr::getConstASTValue(const clang::ASTContext &context,
                                    const SValue &lval,
                                    SValue &rval)
@@ -371,48 +398,55 @@ std::pair<SValue, std::vector<SValue> >
                 
         } else
         if (iexpr) {
+            // Array element number
+            auto elmnum = getArrayElementNumber(type);
+            
             // Put values of elements, that also works well for SC data types
             // Remove ExprWithCleanups wrapper
             if (auto cleanExpr = dyn_cast<ExprWithCleanups>(iexpr)) {
                 iexpr = cleanExpr->getSubExpr();
             }
+            
             // Parse initialization expression
             if (auto init = dyn_cast<InitListExpr>(iexpr)) {
-                for (unsigned i = 0; i < init->getNumInits(); i++) {
-                    Expr *iiexpr = const_cast<Expr *>(init->getInit(i));
-                    SValue ival = evalSubExpr(iiexpr);
+                // Normal initializer list, can be combined with array filler
+                // if not all element values provided in initializer list
+                // Get all sub-expressions
+                std::vector<Expr*> subexpr = getAllInitExpr(iexpr);
+                // Put initialized array elements
+                for (size_t i = 0; i < subexpr.size(); ++i) {
+                    SValue ival = evalSubExpr(subexpr[i]);
                     initvals.push_back(ival);
-                }
-            }
-            
-            if (!checkConst || isConst) {
-                if (auto init = dyn_cast<InitListExpr>(iexpr)) {
-                    for (unsigned i = 0; i < init->getNumInits(); i++) {
-                        // Try to evaluate expression as integer constant
-                        Expr *iiexpr = const_cast<Expr *>(init->getInit(i));
-                        SValue ival = initvals[i];
-                        SValue iival = evaluateConstInt(iiexpr, ival, checkConst);
 
-                        // Set @i-th element in multi-dimensional array
+                    if (!checkConst || isConst) {
+                        SValue iival = evaluateConstInt(subexpr[i], initvals[i], 
+                                                        checkConst);
                         setArrayElement(type, i, aval, iival);
                     }
-                } else 
-                if ( isScIntegerArray(type, false) ) {
-                    // Put zero value for @iexpr
-                    SValue zval(APSInt(APInt(64, 0), true), 10);
-                    auto elmnum = getArrayElementNumber(type);
-                    for (unsigned i = 0; i < elmnum; i++) {
-                        // Set @i-th element in multi-dimensional array
+                }
+                
+                // Array filler, used for rest of array element
+                if (init->getArrayFiller()) {
+                    // Get typed zero
+                    SValue zval = SValue::zeroValue(getArrayElementType(type));
+                    for (size_t i = subexpr.size(); i < elmnum; i++) {
+                        initvals.push_back(zval);
+
+                        if (!checkConst || isConst) {
+                            setArrayElement(type, i, aval, zval);
+                        }
+                    }
+                }
+            } else 
+            if (isScIntegerArray(type, false)) {
+                // Get typed zero
+                SValue zval = SValue::zeroValue(getArrayElementType(type));
+                for (size_t i = 0; i < elmnum; i++) {
+                    initvals.push_back(zval);
+                    
+                    if (!checkConst || isConst) {
                         setArrayElement(type, i, aval, zval);
                     }
-                } else 
-                if (isa<ArrayInitLoopExpr>(iexpr)) {
-                    // Do nothing here, ArrayInitLoopExpr used for array copy/move
-
-                } else {
-                    SCT_INTERNAL_FATAL(iexpr->getBeginLoc(), 
-                                     string("Unsupported initializer ")+ 
-                                     iexpr->getStmtClassName());
                 }
             }
         }
@@ -447,12 +481,15 @@ std::pair<SValue, std::vector<SValue> >
 
                 // Reference can be to array element or dynamic object
                 // Channels can be for constant reference parameter
+                // No non-constant reference to prefix ++/-- allowed
                 if (!ival.isVariable() && !ival.isTmpVariable() &&
                     !ival.isArray() && !ival.isSimpleObject() &&
                     !((ival.isInteger() || ival.isUnknown() || 
                        ival.isScChannel()) && isConst))
                 {
-                    SCT_TOOL_ASSERT (false, "Incorrect reference initialization");
+                    SCT_INTERNAL_FATAL (iexpr->getBeginLoc(), 
+                                        string("Incorrect reference initialization ")+
+                                        ival.asString());
                 }
 
                 // Initializer value dereference required as @putValue() 
@@ -481,15 +518,25 @@ std::pair<SValue, std::vector<SValue> >
 //                SValue ival = evalSubExpr(iexpr);
 //                SValue iival = evaluateConstInt(iexpr, ival, checkConst);
 //                initvals.push_back(ival);
-            
+
+                // Check pointed object
                 if (iival.isInteger()) {
-                    // Got integer constant for pointer
+                    // Have integer constant for pointer
                     if (!iival.getInteger().isNullValue()) {
                         ScDiag::reportScDiag(argExpr->getBeginLoc(),
                                              ScDiag::SYNTH_POINTER_NONZERO_INIT)
-                                             << val.asString();
+                                             << val.asString(false);
                     }
                 } else {
+                    // Multiple returns with different objects leads to unknown
+                    SValue pval = getValueFromState(ival, ArrayUnkwnMode::
+                                                    amArrayUnknown);
+                    if (!pval.isVariable() && !pval.isArray() && 
+                        !pval.isSimpleObject()) {
+                        ScDiag::reportScDiag(argExpr->getBeginLoc(),
+                                             ScDiag::SYNTH_POINTER_INCORRECT_INIT)
+                                             << pval.asString(false);
+                    }
                     iival = ival;
                 }
 
@@ -624,6 +671,9 @@ void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
     else if (auto expr = dyn_cast<InitListExpr>(stmt)) {
         parseExpr(expr, val);
     }
+    else if (auto expr = dyn_cast<ImplicitValueInitExpr>(stmt)) {
+        parseExpr(expr, val);
+    }
     else if (auto expr = dyn_cast<CXXConstructExpr>(stmt)) {
         parseExpr(expr, val);
     }
@@ -722,7 +772,6 @@ void ScParseExpr::parseExpr(clang::CXXNullPtrLiteralExpr* expr, SValue& val)
 // Used for local variables access in left/right parts
 void ScParseExpr::parseExpr(clang::DeclRefExpr* expr, SValue& val)
 {
-    using namespace std;
     using namespace llvm;
     auto* decl = expr->getDecl();
 
@@ -763,6 +812,57 @@ void ScParseExpr::parseExpr(clang::DeclRefExpr* expr, SValue& val)
             val = SValue(decl, modval);
         }
     }
+}
+
+void ScParseExpr::parseExpr(clang::MemberExpr* expr, SValue& val)
+{
+    // Get record from variable/dynamic object
+    SCT_TOOL_ASSERT (expr->getBase(), "In parseExpr for MemberExpr no base found");
+    SValue tval = evalSubExpr(expr->getBase());
+    SValue ttval = getRecordFromState(tval, ArrayUnkwnMode::amArrayUnknown);
+    
+    //cout << "ScParseExpr::MemberExpr tval = " << tval << ", base->getType() = " 
+    //     << expr->getBase()->getType().getAsString() << endl;
+    //cout << "final ttval = " << ttval << endl;
+    //state->print();
+    
+    // Allowed parent kinds
+    if (!ttval.isArray() && !ttval.isRecord() && !ttval.isVariable()) {
+        ScDiag::reportScDiag(expr->getBeginLoc(), ScDiag::SYNTH_INCORRECT_RECORD);
+    }
+    
+    ValueDecl* decl = expr->getMemberDecl();
+    
+    // Normal member variable or constant
+    val = SValue(decl, ttval);
+
+    // Static member variable or constant
+    if (!isa<clang::EnumConstantDecl>(decl)) {
+        if (isa<clang::RecordDecl>(decl->getDeclContext())) {
+            if (auto* varDecl = dyn_cast<clang::VarDecl>(decl)) {
+                if (varDecl->isStaticDataMember()) {
+                    val = SValue(decl, NO_VALUE);
+                }
+            }
+        }
+    }
+
+    //cout << "ScParseExpr::MemberExpr tval = " << tval
+    //     << ", expr->getType() = " << expr->getType().getAsString()
+    //     << ", val = "  << val << endl;
+}
+
+void ScParseExpr::parseExpr(clang::CXXThisExpr* expr, SValue& thisPtrVal)
+{
+    using namespace std;
+    //cout << "parse CXXThisExpr, recval "  << recval << ", modval " << modval << endl;
+    
+    thisPtrVal = SValue(expr->getType()); // pointer
+    SValue recVal = recval ? recval : modval;
+    state->putValue(thisPtrVal, recVal, false);
+    state->setValueLevel(thisPtrVal, level+1);
+    
+    //cout << "   level " << level << ", thisPtrVal " << thisPtrVal << endl;
 }
 
 // Create record/module object value and parse its field declarations
@@ -952,54 +1052,6 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
     return currec;
 }
 
-void ScParseExpr::parseExpr(clang::CXXThisExpr* expr, SValue& thisPtrVal)
-{
-    using namespace std;
-    //cout << "parse CXXThisExpr, recval "  << recval << ", modval " << modval << endl;
-    
-    thisPtrVal = SValue(expr->getType()); // pointer
-    SValue recVal = recval ? recval : modval;
-    state->putValue(thisPtrVal, recVal, false);
-    state->setValueLevel(thisPtrVal, level+1);
-    
-    //cout << "   level " << level << ", thisPtrVal " << thisPtrVal << endl;
-}
-
-void ScParseExpr::parseExpr(clang::MemberExpr *expr, SValue &val)
-{
-    using namespace clang;
-    using namespace std;
-    
-    // Parse @this expression, put it into @tval
-    if (!expr->getBase()) {
-        SCT_TOOL_ASSERT (false, "In parseExpr for MemberExpr no base found");
-    }
-    
-    SValue tval = evalSubExpr(expr->getBase());
-
-    //cout << "ScParseExpr::MemberExpr tval = " << tval << ", base->getType() = " 
-    //     << expr->getBase()->getType().getAsString() << endl;
-    
-    // Get record from variable/dynamic object
-    SValue ttval = getRecordFromState(tval, ArrayUnkwnMode::amArrayUnknown);
-    //cout << "final ttval = " << ttval << endl;
-    //state->print();
-    
-    // Allowed parent kinds
-    if (!ttval.isArray() && !ttval.isRecord() && !ttval.isVariable()) {
-        ScDiag::reportScDiag(expr->getSourceRange().getBegin(),
-                             ScDiag::SYNTH_INCORRECT_RECORD);
-        cout << "ScParseExpr::parseExpr, incorrect : tval " << tval << ", ttval " << ttval << endl;
-    }
-    
-    ValueDecl* decl = expr->getMemberDecl();
-    val = (ttval.isUnknown()) ? NO_VALUE : SValue(decl, ttval);
-
-    //cout << "ScParseExpr::MemberExpr tval = " << tval
-    //     << ", expr->getType() = " << expr->getType().getAsString()
-    //     << ", val = "  << val << endl;
-}
-
 void ScParseExpr::parseExpr(clang::ImplicitCastExpr *expr, SValue& rval, SValue &val)
 {
     using namespace clang;
@@ -1105,6 +1157,12 @@ void ScParseExpr::parseExpr(clang::ParenExpr* expr, SValue& val)
 void ScParseExpr::parseExpr(clang::CXXDefaultArgExpr* expr, SValue& val)
 {
     val = evalSubExpr(expr->getExpr());
+}
+
+
+void ScParseExpr::parseExpr(clang::ImplicitValueInitExpr* expr, SValue& val) 
+{
+    val = SValue::zeroValue(expr);
 }
 
 void ScParseExpr::parseExpr(clang::CXXConstructExpr* expr, SValue& val)

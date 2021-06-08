@@ -24,7 +24,7 @@
  * 
  * @push and @pop may be asserted whenever. 
  * FIFO does push operation when both @push/@ready_to_push asserted.
- * FIFO does pop operation when all three @pop/@out_valid/@pop_enable asserted.
+ * FIFO does pop operation when both @pop/@out_valid asserted.
  * 
  * @push_enable used for MCP request FIFO and return 1 on matched clocks, 
  * it restricts changing @read_to_push and @afull output, but not push operation.
@@ -33,13 +33,24 @@
  * Outputs @out_valid, @ready and @afull may be asserted asynchronously, 
  * de-assertion is done synchronously only.
  * 
- * FIFO allows to pop an element in the same clock it is pushed into empty FIFO, 
- * to do that @out_valid and @data_valid are asserted asynchronously.
- * FIFO provides asynchronous assertion @ready_to_push for full FIFO,
- * if pop operation will be done next clock posedge.
- * FIFO provides asynchronous assertion @almost_full when FIFO is one element 
- * lower than length and there is push and no pop. This feature is not MCP ready.
- * De-assertion @out_valid, @ready_to_push, @almost_full is done synchronously!!!
+ * The FIFO push and pop may be asserted whenever. 
+ * FIFO does push operation when both @push/@ready_to_push asserted. 
+ * FIFO does pop operation when both @pop/@out_valid asserted.
+ * Outputs @out_valid, @ready_to_push and @almost_full may be asserted 
+ * combinationally, de-assertion of them is done synchronously only.
+ * 
+ * The FIFO allows to pop an element in the same clock it is pushed into 
+ * empty FIFO, if ASYNC_VALID is true (@out_valid is asserted combinationally).
+ * 
+ * The FIFO allows to push an element into full FIFO if there is pop operation 
+ * in the same clock, if ASYNC_READY is true (@ready_to_push is asserted 
+ * combinationally).
+ * 
+ * The FIFO provides combinational assertion of @almost_full when FIFO is 
+ * one element lower than AFULL_ELEMENT_NUM and there is push and no pop. 
+ * This feature is not MCP ready.
+ * 
+ * De-assertion @out_valid, @ready_to_push, @almost_full is done synchronously!
  * 
  * Async @out_valid combinationally depends on @push.
  * Async @ready_to_push combinationally depends on @pop.
@@ -49,31 +60,37 @@
  * FIFO as well.
  */   
 
-template <typename T,
-          bool     ASYNC_VALID,  // Set @out_valid asynchronously
-          bool     ASYNC_READY,  // Set @ready_to_push asynchronously
-          bool     ASYNC_AFULL,  // Set @almost_full asynchronously
-          unsigned FIFO_LENGTH,
-          unsigned AFULL_ELEMENT_NUM,  // Number of free element slots in FIFO
-                                       // when @is_almost_full is set high
-          bool INIT_BUFFER             // Initialize @fifo_buffer in reset
-          >
+template <
+    typename T,                 // FIFO slot data type
+    bool     ASYNC_VALID,       // Assert @out_valid combinationally
+    bool     ASYNC_READY,       // Assert @ready_to_push combinationally
+    bool     ASYNC_AFULL,       // Assert @almost_full combinationally
+    unsigned FIFO_LENGTH,       // Number of FIFO slots
+    unsigned AFULL_ELEMENT_NUM, // Number of free element slots in FIFO
+                                // when @almost_full is asserted
+    bool INIT_BUFFER            // Initialize FIFO slots in reset with zeros
+>
 class adv_fifo_base : public sc_module
 {
    public:
-    sc_in_clk   clk;
+    // Common clock, positive edge is used
+    sc_in_clk   clk;            
+    // Asynchronous reset, low active
     sc_in<bool> nrst;
     // Push operation is performed without @enable checking for burst on core clock,
     // @push may be asserted when @ready_to_push is high only
     sc_in<bool> push;
+    // Input data
     sc_in<T>    data_in;
     // FIFO is ready to @push assert signal
     sc_out<bool> ready_to_push;
     // @pop may be asserted whenever, pop operation is done when @pop && @out_valid
     sc_in<bool> pop;
+    // Output data
     sc_out<T>   data_out;
-    // @data_out is valid signal
+    // Output data is valid signal
     sc_out<bool> out_valid;
+    // FIFO is almost full, number of free slots equal or less than @AFULL_ELEMENT_NUM
     sc_out<bool> almost_full;
 
     SC_HAS_PROCESS(adv_fifo_base);
@@ -352,19 +369,20 @@ class adv_fifo_base : public sc_module
     }
 };
 
-//=========================== Non-MCP FIFO ================================
+//========================= Normal (non-MCP) FIFO =============================
 /**
- * Non-MCP FIFO
+ * Normal (non-MCP) FIFO with signal interface
  */
-template <typename T,
-          bool     ASYNC_VALID,  // Set @out_valid asynchronously
-          bool     ASYNC_READY,  // Set @ready_to_push asynchronously
-          bool     ASYNC_AFULL,  // Set @almost_full asynchronously
-          unsigned FIFO_LENGTH,
-          unsigned AFULL_ELEMENT_NUM,  // Number of free element slots in FIFO
-                                       // when @is_almost_full is set up
-          bool INIT_BUFFER = 0         // Initialize @fifo_buffer in reset
-          >
+template <
+    typename T,                 // FIFO slot data type
+    bool     ASYNC_VALID,       // Assert @out_valid combinationally
+    bool     ASYNC_READY,       // Assert @ready_to_push combinationally
+    bool     ASYNC_AFULL,       // Assert @almost_full combinationally
+    unsigned FIFO_LENGTH,       // Number of FIFO slots
+    unsigned AFULL_ELEMENT_NUM, // Number of free element slots in FIFO
+                                // when @almost_full is asserted
+    bool INIT_BUFFER = 0        // Initialize FIFO slots in reset with zeros
+>
 class adv_fifo
     : public adv_fifo_base<T, ASYNC_VALID, ASYNC_READY, ASYNC_AFULL,
                            FIFO_LENGTH, AFULL_ELEMENT_NUM, INIT_BUFFER>
@@ -390,17 +408,18 @@ class adv_fifo
 };
 
 /**
- * Non-MCP FIFO with function interface
+ * Normal (non-MCP) FIFO with function interface
  */
-template <typename T,
-          bool     ASYNC_VALID,  // Set @out_valid asynchronously
-          bool     ASYNC_READY,  // Set @ready_to_push asynchronously
-          bool     ASYNC_AFULL,  // Set @almost_full asynchronously
-          unsigned FIFO_LENGTH,
-          unsigned AFULL_ELEMENT_NUM,  // Number of free element slots in FIFO
-                                       // when @is_almost_full is set up
-          bool INIT_BUFFER = 0         // Initialize @fifo_buffer in reset
-          >
+template <
+    typename T,                 // FIFO slot data type
+    bool     ASYNC_VALID,       // Assert @out_valid combinationally
+    bool     ASYNC_READY,       // Assert @ready_to_push combinationally
+    bool     ASYNC_AFULL,       // Assert @almost_full combinationally
+    unsigned FIFO_LENGTH,       // Number of FIFO slots
+    unsigned AFULL_ELEMENT_NUM, // Number of free element slots in FIFO
+                                // when @almost_full is asserted
+    bool INIT_BUFFER = 0        // Initialize FIFO slots in reset with zeros
+>
 class adv_fifo_mif : public sc_module, public sc_interface
 {
    protected:
@@ -446,10 +465,10 @@ class adv_fifo_mif : public sc_module, public sc_interface
         fifo.almost_full(full_sig);
     }
 
-    /// Is ready to push
+    /// FIFO is ready to push
     bool ready() { return ready_sig; }
 
-    /// Push or clear push, push is ignored is FIFO is not ready to push
+    /// Push or clear push, push is ignored if FIFO is not ready to push
     /// \return ready to push flag
     bool push(const T& data, bool push = true)
     {
@@ -458,17 +477,17 @@ class adv_fifo_mif : public sc_module, public sc_interface
         return ready_sig;
     }
 
-    /// Is data valid, pop return can be used only if data is valid
+    /// FIFO output data valid, pop return can be used only if data is valid
     bool valid() { return valid_sig; }
 
-    /// Pop or get data
+    /// Pop or get data from FIFO, do not remove data from FIFO if pop = false
     T pop(bool pop = true)
     {
         pop_sig = pop;
         return (T)data_out_sig.read();
     }
 
-    /// Is almost full, there is AFULL_ELEMENT_NUM elements or more used
+    /// FIFO is almost full, there is AFULL_ELEMENT_NUM elements or more used
     bool full() { return full_sig; }
 
     /// Add FIFO signals to sensitivity list
@@ -477,6 +496,7 @@ class adv_fifo_mif : public sc_module, public sc_interface
         s << ready_sig << valid_sig << data_out_sig << full_sig;
     }
 
+    /// Bind FIFO clock and reset
     template <typename CLK_t, typename RSTN_t>
     void clk_nrst(CLK_t& clk_in, RSTN_t& nrst_in)
     {
@@ -542,15 +562,16 @@ class adv_fifo<T, 1, 1, 1, 0, 0, 0> : public sc_module
  * @enable high allows to change @is_almost_full and @ready_to_push outputs,
  * push may happen if @enable is low!!!
  */
-template <typename T,
-          bool     ASYNC_VALID,  // Set @out_valid asynchronously
-          bool     ASYNC_READY,  // Set @ready_to_push asynchronously
-          bool     ASYNC_AFULL,  // Set @almost_full asynchronously
-          unsigned FIFO_LENGTH,
-          unsigned AFULL_ELEMENT_NUM,  // Number of free element slots in FIFO
-                                       // when @is_almost_full is set up
-          bool INIT_BUFFER = 0         // Initialize @fifo_buffer in reset
-          >
+template <
+    typename T,                 // FIFO slot data type
+    bool     ASYNC_VALID,       // Assert @out_valid combinationally
+    bool     ASYNC_READY,       // Assert @ready_to_push combinationally
+    bool     ASYNC_AFULL,       // Assert @almost_full combinationally
+    unsigned FIFO_LENGTH,       // Number of FIFO slots
+    unsigned AFULL_ELEMENT_NUM, // Number of free element slots in FIFO
+                                // when @almost_full is asserted
+    bool INIT_BUFFER = 0        // Initialize FIFO slots in reset with zeros
+>
 class mcp_request_fifo
     : public adv_fifo_base<T, ASYNC_VALID, ASYNC_READY, ASYNC_AFULL,
                            FIFO_LENGTH, AFULL_ELEMENT_NUM, INIT_BUFFER>
@@ -589,15 +610,16 @@ class mcp_request_fifo
  * @data_out may be changed without @enable, but it is read by @out_valid,
  * therefore skipped.
  */
-template <typename T,
-          bool     ASYNC_VALID,  // Set @out_valid asynchronously
-          bool     ASYNC_READY,  // Set @ready_to_push asynchronously
-          bool     ASYNC_AFULL,  // Set @almost_full asynchronously
-          unsigned FIFO_LENGTH,
-          unsigned AFULL_ELEMENT_NUM,  // Number of free element slots in FIFO
-                                       // when @is_almost_full is set up
-          bool INIT_BUFFER = 0         // Initialize @fifo_buffer in reset
-          >
+template <
+    typename T,                 // FIFO slot data type
+    bool     ASYNC_VALID,       // Assert @out_valid combinationally
+    bool     ASYNC_READY,       // Assert @ready_to_push combinationally
+    bool     ASYNC_AFULL,       // Assert @almost_full combinationally
+    unsigned FIFO_LENGTH,       // Number of FIFO slots
+    unsigned AFULL_ELEMENT_NUM, // Number of free element slots in FIFO
+                                // when @almost_full is asserted
+    bool INIT_BUFFER = 0        // Initialize FIFO slots in reset with zeros
+>
 class mcp_response_fifo
     : public adv_fifo_base<T, ASYNC_VALID, ASYNC_READY, ASYNC_AFULL,
                            FIFO_LENGTH, AFULL_ELEMENT_NUM, INIT_BUFFER>

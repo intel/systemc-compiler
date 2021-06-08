@@ -117,6 +117,11 @@ public:
     SValue clone(const SValue& parent = NO_VALUE, const SValue& locvar = NO_VALUE, 
                  size_t index = 0) const;
     
+    /// Create zero value of the width/signess of @expr type 
+    static SValue zeroValue(const clang::Expr* expr);
+    static SValue zeroValue(clang::QualType type, 
+                            const clang::Expr* expr = nullptr);
+    
     bool isUnknown() const;
 
     /// True if value is valid

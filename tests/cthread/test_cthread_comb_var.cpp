@@ -227,9 +227,7 @@ public:
     {
         while (true) { 
             d1 = 3;
-            wait();
-
-            d1 = 4;
+            if (in.read()) d1 = 4;
             wait();
         }
     }

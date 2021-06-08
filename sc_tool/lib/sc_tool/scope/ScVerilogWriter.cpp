@@ -20,6 +20,7 @@
 
 #include "clang/AST/ExprCXX.h"
 #include "llvm/Support/ScopedPrinter.h"
+#include "sc_tool/cfg/ScState.h"
 #include <limits.h>
 #include <iostream>
 
@@ -58,28 +59,9 @@ std::size_t hash< std::pair<std::string, sc::SValue> >::operator () (
 
 }
 
-using namespace sc;
-
-// Update external names from constant propagator, required for static constants
-void ScVerilogWriter::updateExtrNames(
-                    const unordered_map<SValue, std::string>& valNames) 
-{
-    for (const auto& i : valNames) {
-        // Only first name for the value is stored, next inserts are ignored
-        extrValNames.insert(i); 
-        extrNames.insert(i.second);
-    }
-}
-
-// Update external name strings after process analysis, required to add 
-// empty sensitive METHOD local variables to provide name uniqueness
-void ScVerilogWriter::updateExtrNames(
-                    const unordered_set<std::string>& valNames) 
-{
-    extrNames.insert(valNames.begin(), valNames.end());
-}
-
 //============================================================================
+
+using namespace sc;
 
 // Get variable declaration string in Verilog
 string ScVerilogWriter::getVarDeclVerilog(const QualType& type, 
@@ -224,9 +206,11 @@ std::string ScVerilogWriter::getUniqueName(const std::string& origVarName)
     }
 
     // Check name is unique with already constructed and external names
-    string nameWithIndex = origVarName + 
-                           ((index == 0) ? "" : NAME_SUFF_SYM + to_string(index));
-    while (varNameIndex.count(nameWithIndex) || extrNames.count(nameWithIndex)) {
+    string nameWithIndex = origVarName + ((index == 0) ? "" : 
+                           NAME_SUFF_SYM + to_string(index));
+    // Check conflict for previous processes local names if empty sensitivity 
+    while (varNameIndex.count(nameWithIndex) || 
+           namesGenerator.isTaken(nameWithIndex, emptySensitivity)) {
         index += 1;
         nameWithIndex = origVarName + NAME_SUFF_SYM + to_string(index);
     }
@@ -243,10 +227,13 @@ std::string ScVerilogWriter::getUniqueName(const std::string& origVarName)
 // Check if variable value is not registered in varTraits and extrValNames 
 bool ScVerilogWriter::isLocalVariable(const SValue& val) 
 {
+    // Empty sensitivity method variables are module members
+    if (emptySensitivity) return false;
+    
     auto i = varTraits.find(val);
     auto j = extrValNames.find(val);
     bool local = (i == varTraits.end() || !i->second.isModuleScope) && 
-                 j == extrValNames.end();
+                 (j == extrValNames.end());
     return local;
 }
 
@@ -263,15 +250,15 @@ std::pair<string, string> ScVerilogWriter::getVarName(const SValue& val)
     }
 
     // Do not manage external name, it should be unique by itself
-    if (!isCombProcess && !singleBlockCThreads) {
+    if (!isCombProcess) {
         //cout << "Get thread name for " << val << endl;
         auto i = varTraits.find(val);
         
-        //cout << "varTraits: " << endl;
-        //for (auto& e : varTraits) {
-        //    cout << "   " << e.first << " : " << (e.second.currName ? 
-        //          e.second.currName.getValue() : "---") << e.second << endl;
-        //}
+//        cout << "varTraits: " << endl;
+//        for (auto& e : varTraits) {
+//            cout << "   " << e.first << " : " << (e.second.currName ? 
+//                  e.second.currName.getValue() : "---") << e.second << endl;
+//        }
         
         if (i != varTraits.end()) {
             // There is no name for local variable, 
@@ -307,21 +294,23 @@ std::pair<string, string> ScVerilogWriter::getVarName(const SValue& val)
                 return pair<string, string>(vname, vname);
             }
         }
-    } else {
-        //cout << "Get external name for " << val << endl;
-        auto i = extrValNames.find(val);
-        if ( i != extrValNames.end() ) {
-            /*cout << "extrValNames: " << endl;
-            for (auto& e : extrValNames) {
-                cout << "   " << e.first << " : " << e.second << endl;
-            }*/
-            
-            if (DebugOptions::isEnabled(DebugComponent::doGenName)) {
-                cout << "   External name " << i->second << endl;
-            }
-            
-            return pair<string, string>(i->second, i->second);
+    }
+    
+    // CTHREAD used/defined variable can be not found in @varTraits, 
+    // for example declared pointer initialized with pointer 
+    //cout << "Get external name for " << val << endl;
+    auto i = extrValNames.find(val);
+    if ( i != extrValNames.end() ) {
+//            cout << "extrValNames: " << endl;
+//            for (auto& e : extrValNames) {
+//                cout << "   " << e.first << " : " << e.second << endl;
+//            }
+
+        if (DebugOptions::isEnabled(DebugComponent::doGenName)) {
+            cout << "   External name " << i->second << endl;
         }
+
+        return pair<string, string>(i->second, i->second);
     }
     
     // Original name of variable
@@ -333,42 +322,24 @@ std::pair<string, string> ScVerilogWriter::getVarName(const SValue& val)
 
     //cout << "Get local name for " << val << endl;
     
+    string finalName;
     if (forLoopInit) {
-        // Loop counter normally overrides same name variables in loop scope
-        // Loop variable is combinatorial variable, next suffix is false
+        // Loop variable which is combinatorial variable considered here, 
+        // so next suffix is false
         std::pair<SValue, bool> viKey(val, false);
-        if (recordValueName.first) {
-            // Get unique name for loop counter in record method as it can 
-            // conflict with the record name or the record array indices
+        
+        auto i = varIndex.find(viKey);
+        if (i == varIndex.end()) {
             // Get unique name with index 
-            string finalName = getUniqueName(origVarName);
+            finalName = getUniqueName(origVarName);
             // Store name with index 
-            auto i = varIndex.emplace(viKey, finalName);
-            if (!i.second) {
-                i.first->second = finalName;
-            }
-
-            if (DebugOptions::isEnabled(DebugComponent::doGenName)) {
-                cout << "   Local loop initializer name " << finalName << endl;
-            }
-            return pair<string, string>(finalName, finalName);
-            
+            varIndex.emplace(viKey, finalName);
         } else {
-            // No uniqueness checking loop counter, as it overrides other variables
-            // do nothing if @viKey already there
-            auto i = varIndex.emplace(viKey, origVarName);
-            if (!i.second) {
-                SCT_TOOL_ASSERT(i.first->second == origVarName, 
-                                "Incorrect loop variable name index");
-            }
-            // Add loop variable name to avoid same name declaration in loop scope,
-            // do nothing if @origVarName already there
-            varNameIndex.emplace(origVarName, 0);
+            finalName = i->second;
+        }
 
-            if (DebugOptions::isEnabled(DebugComponent::doGenName)) {
-                cout << "   Local loop initializer name " << origVarName << endl;
-            }
-            return pair<string, string>(origVarName, origVarName);
+        if (DebugOptions::isEnabled(DebugComponent::doGenName)) {
+            cout << "   Local loop initializer name " << finalName << endl;
         }
         
     } else {
@@ -378,7 +349,6 @@ std::pair<string, string> ScVerilogWriter::getVarName(const SValue& val)
         // @val considers difference between variable in base classes
         pair<SValue, bool> viKey(val, isNext);
 
-        string finalName;
         auto i = varIndex.find(viKey);
         if (i == varIndex.end()) {
             // Local record field prefix
@@ -398,14 +368,17 @@ std::pair<string, string> ScVerilogWriter::getVarName(const SValue& val)
         // Add local variable name from empty sensitive METHOD as it is declared
         // in module scope, that provides variable name uniqueness
         if (emptySensitivity) {
-            extrNames.insert(finalName);
+            namesGenerator.addTakenName(finalName);
         }
         
         if (DebugOptions::isEnabled(DebugComponent::doGenName)) {
             cout << "   Local name " << finalName << endl;
         }
-        return pair<string, string>(finalName, finalName);
     }
+    // Register local name to avoid name conflict with registers
+    namesGenerator.addLocalName(finalName);
+    
+    return pair<string, string>(finalName, finalName);
 }
 
 // Get name for ScChannel, used for port/signal
@@ -417,7 +390,7 @@ pair<string, string> ScVerilogWriter::getChannelName(const SValue& cval)
         cout << "getScChannelName for val " << cval << endl;
     }
 
-    if (!isCombProcess && !singleBlockCThreads) {
+    if (!isCombProcess) {
         // Clocked thread process
         auto i = varTraits.find(cval);
         
@@ -496,6 +469,17 @@ std::string ScVerilogWriter::getIndexFromRecordName(std::string recName) const
     }
 }
 
+// Check is value corresponds to member constant which translated to @localparam
+bool ScVerilogWriter::isConstVerVar(const SValue& val) 
+{
+    if (val.isUnknown()) {
+        return false;
+    }
+    
+    auto i = varTraits.find(val);
+    return ((i != varTraits.end()) && i->second.isConstVerVar());
+} 
+
 // Return true if @val is register in @varTraits, only in splitting thread mode
 bool ScVerilogWriter::isRegister(const SValue& val) 
 {
@@ -503,7 +487,7 @@ bool ScVerilogWriter::isRegister(const SValue& val)
         return false;
     }
     
-    if (!isCombProcess && !singleBlockCThreads) {
+    if (!isCombProcess) {
         auto i = varTraits.find(val);
         return ((i != varTraits.end()) && i->second.isRegister());
     }
@@ -517,7 +501,7 @@ bool ScVerilogWriter::isCombSig(const SValue& val)
         return false;
     }
     
-    if (!isCombProcess && !singleBlockCThreads) {
+    if (!isCombProcess) {
         auto i = varTraits.find(val);
         return ((i != varTraits.end()) && i->second.isCombSig());
     }
@@ -531,24 +515,27 @@ bool ScVerilogWriter::isCombSigClear(const SValue& val)
         return false;
     }
     
-    if (!isCombProcess && !singleBlockCThreads) {
+    if (!isCombProcess) {
         auto i = varTraits.find(val);
         return ((i != varTraits.end()) && i->second.isCombSigClear());
     }
     return false;
 }
 
-// Calculate outlined brackets number
-unsigned ScVerilogWriter::getBracketNum(const string& s) 
+ unsigned ScVerilogWriter::getBracketNum(const string& s) 
 {
     // Get number of leading open brackets
     size_t slen = s.length();
+    if (slen < 2) return 0;
+    
     unsigned leadNum = 0;
     for (; s[leadNum] == '(' && leadNum < slen; leadNum++) {}
+    if (leadNum == 0) return 0;
     
     // Get number of trailing close brackets
     unsigned trailNum = 0;
     for (; s[slen-1-trailNum] == ')' && trailNum < slen; trailNum++) {}
+    if (trailNum == 0) return 0;
     
     unsigned minNum = leadNum;
     for (size_t i = leadNum; i < slen-trailNum; i++) {
@@ -575,14 +562,23 @@ bool ScVerilogWriter::isTermInBrackets(const string& s)
 // Remove all leading "(" and tailing ")" brackets in the given string 
 string ScVerilogWriter::removeBrackets(const string& s)
 {
-    std::string res = s;
     unsigned bracketNum = getBracketNum(s);
+    return s.substr(bracketNum, s.length()-2*bracketNum);
+}
+
+// Remove one leading "{" and one tailing "}" brackets if exist
+string ScVerilogWriter::removeCurlyBrackets(const string& s)
+{
+    size_t slen = s.length();
     
-    if (bracketNum != 0) {
-        res.erase(s.length()-bracketNum, bracketNum);
-        res.erase(0, bracketNum);
+    if (slen < 2 || s[0] != '{' || s[slen-1] != '}') return s;
+    
+    // Check no other curly brackets inside the expression
+    for (size_t i = 1; i < slen-1; i++) {
+        if (s[i] == '{' || s[i] == '}') return s;
     }
-    return res;
+
+    return s.substr(1, slen-2);
 }
 
 // Remove minus at first position
@@ -646,20 +642,20 @@ std::string ScVerilogWriter::makeLiteralStr(const std::string& literStr,
     bool isZero = val.isNullValue();
     bool isOne = val == 1;
     bool isNegative = val < 0;
-    
-    // Do not use APSInt::getActiveBits() it provides wrong results for -2,-4,-8
     unsigned bitNeeded = APSInt::getBitsNeeded(literStr, 10);
     
     // It is possible to have no cast for non-negative literal in integer range
     bool valueCast = minCastWidth;
+    // Width >32bit required size
+    bool isBigWidth = false;
     // Maximal/minimal decimal value is 2147483647/-2147483647, 
-    // greater values are represented as hex
+    // greater values are represented as hex (required by Lintra)
     if (bitNeeded < (isNegative ? 33 : 32)) {
         if (isZero || isOne) {
             radix = (radix == 2) ? 2 : 10;
         }
     } else {
-        radix = 16; valueCast = true;
+        radix = 16; valueCast = true; isBigWidth = true;
     }
    
     // Zero value not casted, negative value always considered as signed
@@ -691,9 +687,11 @@ std::string ScVerilogWriter::makeLiteralStr(const std::string& literStr,
         minCastWidth = bitNeeded + (isSignCast && !isNegative ? 1 : 0);
     }
     
-    string absVal = isNegative ? removeLeadMinus(val.toString(radix)) : 
+    string absVal = isNegative ? APSInt(val.abs()).toString(radix) : 
                                  val.toString(radix);
-    string s = (minCastWidth ? to_string(minCastWidth) : "") + baseStr + absVal;
+    // Add size for >32bit literals as some tools required that
+    string s = (minCastWidth ? to_string(minCastWidth) : 
+                (isBigWidth ? to_string(bitNeeded) : "")) + baseStr + absVal;
     
     if (lastCastWidth && lastCastWidth != minCastWidth) {
         s = to_string(lastCastWidth) + "'(" + s + ')';
@@ -778,9 +776,13 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
     
     if (info.literRadix) {
         // Apply lastCastWidth only for explicit cast or concatenation
-        size_t lastCastWidth = (info.explCast || doConcat) ? 
-                               info.lastCastWidth : 0; 
-        rdName = makeLiteralStr(rdName, info.literRadix, info.minCastWidth, 
+        // For concatenation minimal width taken as minCastWidth if exists, 
+        // lastCastWidth if exists (required for replaced constants) or exprWidth
+        size_t lastCastWidth = info.explCast ? info.lastCastWidth  : 0; 
+        size_t minCastWidth = (info.minCastWidth || !doConcat) ? info.minCastWidth :
+                              info.lastCastWidth ? info.lastCastWidth : info.exprWidth; 
+        
+        rdName = makeLiteralStr(rdName, info.literRadix, minCastWidth, 
                                 lastCastWidth, info.castSign, addNegBrackets);
         wrName = rdName;
 
@@ -1005,8 +1007,7 @@ void ScVerilogWriter::putAssignBase(const Stmt* stmt, const SValue& lval,
     bool isReg = isRegister(lval) || isCombSig(lval) || isCombSigClear(lval);
     bool isRecord = isUserDefinedClass(lval.getType(), true);
     // Do not use non-blocking assignment for channel in METHOD
-    bool nbAssign = (isClockThreadReset && isReg && !singleBlockCThreads) ||
-                    (!isCombProcess && singleBlockCThreads && isChannel);
+    bool nbAssign = isClockThreadReset && isReg;
     SCT_TOOL_ASSERT (!isRecord, "Record not expected in putAssignBase");
     
     string s;
@@ -1545,6 +1546,7 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
 // \param recarrs -- vector of record arrays, used to get indices string
 // \param elemOfMifArr -- put member of current element of MIF array 
 // \param elemOfRecArr -- put member of a element of a record/MIF array 
+// \param refRecarrIndxStr -- record array parameter passed by reference indices
 void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
                                    const vector<SValue>& recarrs, 
                                    bool elemOfMifArr, bool elemOfRecArr,
@@ -1553,8 +1555,8 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
     if (skipTerm) return;
 //    cout << "putValueExpr for stmt " << hex << stmt << dec << ", val " << val 
 //         << ", elemMifArr " << elemOfMifArr << ", elemRecArr " << elemOfRecArr 
-//         << ", recarrs size " << recarrs.size() << " arraySubIndices.size "
-//         << arraySubIndices.size() << " refRecarrIndxStr " << refRecarrIndxStr << endl;
+//         << ", recarrs size " << recarrs.size()
+//         << " refRecarrIndxStr " << refRecarrIndxStr << endl;
 
     if (val.isInteger()) {
         // Integer put for evaluated expressions
@@ -1563,6 +1565,7 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
     } else 
     if (val.isVariable() || val.isTmpVariable()) {
         pair<string, string> names = getVarName(val);
+        //cout << "val " << val << " name " << names.first << endl;
         
         // Do not use MIF indices in reset section as variable is declared locally
         bool isExtrCombVarNoIndx = isClockThreadReset && 
@@ -1571,8 +1574,8 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
         // Add MIF variable prefix for its member access
         if (elemOfMifArr && !isExtrCombVarNoIndx) {
             // Access to member of MIF from its process body 
-            // For local variables nothing required
-            if (!isLocalVariable(val)) {
+            // No index for local variables and member constant variables (@localparam)
+            if (!isLocalVariable(val) && !isConstVerVar(val)) {
                 string indxSuff = getIndexFromRecordName(MIFValueName.second);
                 names.first += indxSuff;
                 names.second += indxSuff;
@@ -1601,24 +1604,33 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
             //}
             //cout << "  isLocalVariable " << val << " " << isLocalVariable(val) << endl;
             
-            // Add record array index inside
+            // Record array index inside, optionally erase indices in @arraySubIndices
             string indxSuff = getRecordIndxs(recarrs);
-            names.first += indxSuff;
-            names.second += indxSuff;
+            // No index for member constant variables (@localparam)
+            if (!isConstVerVar(val)) {
+                names.first += indxSuff;
+                names.second += indxSuff;
+            }
             //cout << "  REC from module suffix " << refRecarrIndxStr << indxSuff
             //     << " names.first " << names.first << endl;
         }
         
-        // Get variable width 
+        // Clear record array indices for static member, required to avoid
+        // indices applied to the next term 
+        if (val.isVariable()) {
+            if (auto varDecl = dyn_cast<VarDecl>(val.getVariable().getDecl())) {
+                if (varDecl->isStaticDataMember() && !arraySubIndices.empty()) {
+                    arraySubIndices.clear();
+                }
+            }
+        }
+        
+        // Type width can be not determinable for example for
+        // MIF/record array or vector of vectors
         size_t width = 0;
         if (auto typeInfo = getIntTraits(val.getType(), true)) {
             width = typeInfo->first;
-            
-        } /*else {
-            ScDiag::reportScDiag(stmt->getBeginLoc(),
-                                 ScDiag::SYNTH_UNKNOWN_TYPE_WIDTH) << 
-                                 val.getType().getAsString();
-        }*/
+        }
         
         // Get unique variable name
         putString(stmt, names, width);
@@ -1852,7 +1864,7 @@ void ScVerilogWriter::putRecordAssign(const Stmt* stmt,
                                       const string& rrecSuffix) 
 {
     bool isReg = isRegister(lvar) || isCombSig(lvar) || isCombSigClear(lvar);
-    bool nbAssign = isClockThreadReset && isReg && !singleBlockCThreads;
+    bool nbAssign = isClockThreadReset && isReg;
     bool secName = !isClockThreadReset && isReg && !emptySensitivity;
     SCT_TOOL_ASSERT (lrec.isRecord(), "lrec is not record value");
     SCT_TOOL_ASSERT (rrec.isRecord(), "rrec is not record value");
@@ -1887,11 +1899,12 @@ void ScVerilogWriter::putRecordAssign(const Stmt* stmt,
 // \param bval -- array variable
 // \param ival -- array index integer
 void ScVerilogWriter::putArrayElemInit(const Stmt* stmt, const SValue& bval, 
-                                       const SValue& ival, const Expr* iexpr) 
+                                       const std::vector<std::size_t>& indices, 
+                                       const Expr* iexpr) 
 {
     if (skipTerm) return;
-    SCT_TOOL_ASSERT ((bval.isVariable() || bval.isTmpVariable()) && 
-                     ival.isInteger(), "No variable or integer found");
+    SCT_TOOL_ASSERT ((bval.isVariable() || bval.isTmpVariable()), 
+                     "No variable or integer found");
     SCT_TOOL_ASSERT (stmt != iexpr, "Incorrect array inializer");
 
     if (terms.count(iexpr)) {
@@ -1899,13 +1912,16 @@ void ScVerilogWriter::putArrayElemInit(const Stmt* stmt, const SValue& bval,
         auto names = getVarName(bval);
 
         bool isReg = isRegister(bval);
-        bool nbAssign = isClockThreadReset && isReg && !singleBlockCThreads;
+        bool nbAssign = isClockThreadReset && isReg;
         bool secName = !isClockThreadReset && isReg;
 
-        string s = (secName ? names.second : names.first) + 
-                   "[" + ival.asString() + "]" + 
-                   (nbAssign ? NB_ASSIGN_SYM : ASSIGN_SYM) + 
-                       getTermAsRValue(iexpr).first;
+        string s;
+        for (size_t indx : indices) {
+            s += "[" + to_string(indx) + "]";
+        }
+        s = (secName ? names.second : names.first) + s +
+            (nbAssign ? NB_ASSIGN_SYM : ASSIGN_SYM) + 
+            getTermAsRValue(iexpr).first;
 
         auto i = terms.find(stmt);
         if (i != terms.end()) {
@@ -1921,22 +1937,25 @@ void ScVerilogWriter::putArrayElemInit(const Stmt* stmt, const SValue& bval,
 // \param bval -- array variable
 // \param ival -- array index integer
 void ScVerilogWriter::putArrayElemInitZero(const Stmt* stmt, const SValue& bval, 
-                                           const SValue& ival) 
+                                           const std::vector<std::size_t>& indices) 
 {
     if (skipTerm) return;
-    SCT_TOOL_ASSERT ((bval.isVariable() || bval.isTmpVariable()) && 
-                     ival.isInteger(), "No variable or integer found");
+    SCT_TOOL_ASSERT ((bval.isVariable() || bval.isTmpVariable()), 
+                      "No variable found");
 
     // Get unique variable name for write
     auto names = getVarName(bval);
 
     bool isReg = isRegister(bval);
-    bool nbAssign = isClockThreadReset && isReg && !singleBlockCThreads;
+    bool nbAssign = isClockThreadReset && isReg;
     bool secName = !isClockThreadReset && isReg;
 
-    string s = (secName ? names.second : names.first) + 
-               "[" + ival.asString() + "]" + 
-               (nbAssign ? NB_ASSIGN_SYM : ASSIGN_SYM) + "0";
+    string s;
+    for (size_t indx : indices) {
+        s += "[" + to_string(indx) + "]";
+    }
+    s = (secName ? names.second : names.first) + s +
+        (nbAssign ? NB_ASSIGN_SYM : ASSIGN_SYM) + "0";
 
     addString(stmt, s);
     clearSimpleTerm(stmt);
@@ -1961,6 +1980,7 @@ void ScVerilogWriter::addSubscriptIndex(const SValue& aval,
 
 
 // Get string from indices "[index1][index2]..." stored in @arraySubIndices
+// and erase them in @arraySubIndices if no @keepArrayIndices
 std::string ScVerilogWriter::getIndexString(const SValue& val) 
 {
     //cout << "---- getIndexString for val " << val << endl;
@@ -2014,15 +2034,12 @@ void ScVerilogWriter::putArrayIndexExpr(const Stmt* stmt, const Expr* base,
                                "putArrayIndexExpr : incorrect expression type");
         }
         
+        // Type width can be not determinable for example for
+        // MIF/record array or vector of vectors
         size_t width = 0;
         if (auto typeWidth = getAnyTypeWidth(type, true, true)) {
             width = *typeWidth;
-            
-        }/* else {
-            ScDiag::reportScDiag(stmt->getBeginLoc(),
-                                 ScDiag::SYNTH_UNKNOWN_TYPE_WIDTH) << 
-                                 type.getAsString();
-        }*/
+        }
 
         putString(stmt, pair<string,string>(rdName, wrName), width);
         
@@ -2501,7 +2518,7 @@ void ScVerilogWriter::putCompAssign(const Stmt* stmt, string opcode,
         auto names = getTermAsRValue(lhs);
         
         bool isReg = isRegister(lval) || isCombSig(lval) || isCombSigClear(lval);
-        bool nbAssign = isClockThreadReset && isReg && !singleBlockCThreads;
+        bool nbAssign = isClockThreadReset && isReg;
         bool secName = !isClockThreadReset && isReg;
 
         // RHS string, add brackets for negative    
@@ -2724,11 +2741,15 @@ void ScVerilogWriter::putConcat(const clang::Stmt* stmt,
 
     if (terms.count(first) && terms.count(second)) {
         string rdName = "{" + 
-                getTermAsRValue(first, false, false, false, true).first + ", " + 
-                getTermAsRValue(second, false, false, false, true).first + "}";
+                        removeCurlyBrackets(getTermAsRValue(
+                        first, false, false, false, true).first) + ", " + 
+                        removeCurlyBrackets(getTermAsRValue(
+                        second, false, false, false, true).first) + "}";
         string wrName = "{" + 
-                getTermAsRValue(first, false, false, false, true).second + ", " + 
-                getTermAsRValue(second, false, false, false, true).second + "}";
+                        removeCurlyBrackets(getTermAsRValue(
+                        first, false, false, false, true).second) + ", " + 
+                        removeCurlyBrackets(getTermAsRValue(
+                        second, false, false, false, true).second) + "}";
         
         // Take sum of LHS and RHS widths if both of them are known
         size_t lwidth = getExprWidth(first, true);
@@ -2789,10 +2810,8 @@ void ScVerilogWriter::putWaitNAssign(const clang::Stmt* stmt,
         if (waitNVarName.first.empty() || waitNVarName.second.empty()) {
             ScDiag::reportScDiag(waitn->getBeginLoc(), ScDiag::SC_WAIT_N_EMPTY);
         }
-        string s = ((!singleBlockCThreads && isClockThreadReset) ? 
-                    waitNVarName.first : waitNVarName.second) + 
-                   ((!singleBlockCThreads && isClockThreadReset) ? 
-                    NB_ASSIGN_SYM : ASSIGN_SYM) + 
+        string s = ((isClockThreadReset) ? waitNVarName.first : waitNVarName.second) + 
+                   ((isClockThreadReset) ? NB_ASSIGN_SYM : ASSIGN_SYM) + 
                    getTermAsRValue(waitn).first;
         
         addString(stmt, s);
@@ -2914,28 +2933,55 @@ llvm::Optional<string> ScVerilogWriter::getStmtString(const Stmt* stmt)
 // Get string for IF statement
 string ScVerilogWriter::getIfString(const Expr* cexpr) 
 {
-    return ("if (" +  getStmtString(cexpr).getValue() + ")");
+    if (terms.count(cexpr)) {
+        // Use @getTermAsRValue to support type cast for condition
+        return ("if (" + getTermAsRValue(cexpr).first + ")");
+        
+    } else {
+        SCT_INTERNAL_FATAL(cexpr->getBeginLoc(), 
+                           "getIfString : No term for if condition");
+        return "";
+    }
 }
 
 // Get string for SWITCH statement
 string ScVerilogWriter::getSwitchString(const Expr* cexpr) 
 {
-    return ("case (" + getStmtString(cexpr).getValue() + ")");
+    if (terms.count(cexpr)) {
+        // Use @getTermAsRValue to support type cast for condition
+        return ("case (" + getTermAsRValue(cexpr).first + ")");
+        
+    } else {
+        SCT_INTERNAL_FATAL(cexpr->getBeginLoc(), 
+                           "getSwitchString : No term for switch variable");
+        return "";
+    }
 }
 
 // Get string for FOR statement
 string ScVerilogWriter::getForString(const Stmt* init,const Expr* cexpr, 
                                      const Expr* incr) 
 {
+    // Condition can be empty 
+    std::string condStr = terms.count(cexpr) ? getTermAsRValue(cexpr).first : "";
+    // Use @getStmtString for initialization/increment at it cannot have type cast
     return ("for (" + getStmtString(init).getValueOr("") + "; " +
-                      getStmtString(cexpr).getValueOr("") + "; " + 
+                      condStr + "; " + 
                       getStmtString(incr).getValueOr("") + ")");
 }
 
 // Get string for WHILE statement
 string ScVerilogWriter::getWhileString(const Expr* cexpr) 
 {
-    return ("while (" + getStmtString(cexpr).getValue() + ")");
+    if (terms.count(cexpr)) {
+        // Use @getTermAsRValue to support type cast for condition
+        return ("while (" + getTermAsRValue(cexpr).first + ")");
+        
+    } else {
+        SCT_INTERNAL_FATAL(cexpr->getBeginLoc(), 
+                           "getWhileString : No term for while condition");
+        return "";
+    }
 }
 
 // Get break statement
@@ -2978,6 +3024,9 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
         printSplitString(os, pair.second, emptySensMethod ? "" : TAB_SYM);
         //cout << "   " << val << " : " << pair.second << endl;
     }
+    
+    // Skip next assignments for method process
+    if (isCombProcess) return;
 
     // Put current to next assignment for registers
     vector<string> sortAssign;

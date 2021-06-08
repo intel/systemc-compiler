@@ -79,6 +79,17 @@ size_t getArraySize(clang::QualType type)
     return 0;
 }
 
+// Get array element type
+clang::QualType getArrayElementType(clang::QualType type)
+{
+    if (type.isNull()) return type;
+
+    while (type->isArrayType()) {
+        type = clang::QualType(type->getArrayElementTypeNoTypeQual(), 0);
+    }
+    return type;
+}
+
 // Get array/sub-array sizes in multi-dimensional array
 std::vector<std::size_t> getArraySizes(clang::QualType type)
 {

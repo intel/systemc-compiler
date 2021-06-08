@@ -15,6 +15,7 @@
 #define SCVERILOGWRITER_H
 
 #include "sc_tool/cfg/ScState.h"
+#include "sc_tool/utils/NameGenerator.h"
 #include "llvm/ADT/Optional.h"
 
 namespace std {
@@ -117,50 +118,18 @@ public:
                 const clang::SourceManager& sm_,
                 bool isCombProcess_,
                 const std::unordered_map<SValue, std::string>& extrValNames_,
-                const std::unordered_map<SValue, 
-                const VerilogVarTraits>& varTraits_,
+                UniqueNamesGenerator& namesGenerator_,
+                const std::unordered_map<SValue, const VerilogVarTraits>& varTraits_,
                 const std::pair<std::string, std::string>& waitNVarName_) : 
         sm(sm_), 
         isCombProcess(isCombProcess_),  
         extrValNames(extrValNames_),
+        namesGenerator(namesGenerator_),
         varTraits(varTraits_),
         waitNVarName(waitNVarName_)
-    {
-        using namespace std;
+    {}
     
-        // Fill all external names
-        for (const auto& i : extrValNames) {
-            extrNames.insert(i.second);
-        }
-        for (const auto& i : varTraits) {
-            if (i.second.currName) {
-                extrNames.insert(i.second.currName.getValue());
-            }
-            if (i.second.nextName) {
-                extrNames.insert(i.second.nextName.getValue());
-            }
-        }
-        
-        /*cout << "---------- extrNames -----------" << endl;
-        for (auto&& i : extrValNames) {
-            cout << i.first << " : " << i.second << endl;
-        }
-        cout << "--------------------------------" << endl;*/
-    }
-    
-    /// Copy constructor from module code write which contains some non-local
-    /// variable and their declarations
-    explicit ScVerilogWriter(const ScVerilogWriter& rhs) :
-        sm(rhs.sm),
-        isCombProcess(rhs.isCombProcess),
-        isClockThreadReset(rhs.isClockThreadReset),
-        extrValNames(rhs.extrValNames),
-        varTraits(rhs.varTraits),
-        extrNames(rhs.extrNames),
-        waitNVarName(rhs.waitNVarName),
-        varNameIndex(rhs.varNameIndex),
-        varIndex(rhs.varIndex)
-    {}    
+    ScVerilogWriter(const ScVerilogWriter& rhs) = delete;
     
     virtual ~ScVerilogWriter() {}
     
@@ -200,17 +169,6 @@ public:
     /// Clear to do not have these declaration in @always_comb process
     void clearExtrCombVarUsedRst() {
         extrCombVarUsedRst.clear();
-    }
-    
-    /// Update external names from constant propagator, required for static constants
-    void updateExtrNames(const std::unordered_map<SValue, std::string>& valNames);
-    
-    /// Update external name strings after process analysis, required to add 
-    /// empty sensitive METHOD local variables to provide name uniqueness
-    void updateExtrNames(const std::unordered_set<std::string>& valNames);
-    
-    std::unordered_set<std::string>& getExtrNames() {
-        return extrNames;
     }
     
     /// Set @forLoopInit
@@ -262,6 +220,9 @@ protected:
     /// \return <readName, writeName>
     std::pair<std::string, std::string> getChannelName(const SValue& cval);
     
+    /// Check is value corresponds to member constant which translated to @localparam
+    bool isConstVerVar(const SValue& val);
+    
     /// Return true if @val is register in @varTraits, only in splitting thread mode
     bool isRegister(const SValue& val);
 
@@ -280,6 +241,9 @@ protected:
     /// Remove all leading "(" and tailing ")" brackets in the given string
     /// Returns the same string reference
     std::string removeBrackets(const std::string& s);
+    
+    /// Remove one leading "{" and one tailing "}" brackets if exist
+    std::string removeCurlyBrackets(const std::string& s);
     
     /// Remove minus at first position
     std::string removeLeadMinus(const std::string& s);
@@ -505,18 +469,20 @@ public:
     /// Put array element initialization, used for array initializer list for 
     /// local variable
     void putArrayElemInit(const clang::Stmt* stmt, const SValue& bval, 
-                          const SValue& ival, const clang::Expr* iexpr);
-    
+                          const std::vector<std::size_t>& indices, 
+                          const clang::Expr* iexpr);
+
     /// Put array element initialization with zero
     /// \param bval -- array variable
     /// \param ival -- array index integer
     void putArrayElemInitZero(const clang::Stmt* stmt, const SValue& bval, 
-                              const SValue& ival);
+                              const std::vector<std::size_t>& indices);
     
     /// Add array subscript index into @arraySubIndices
     void addSubscriptIndex(const SValue& bval, const clang::Expr* indx);
     
     /// Get string from indices "[index1][index2]..." stored in @arraySubIndices
+    /// and erase them in @arraySubIndices if no @keepArrayIndices
     std::string getIndexString(const SValue& val);
 
     /// Array index access operator []
@@ -758,11 +724,12 @@ protected:
     std::pair<SValue, std::string> MIFValueName{NO_VALUE, ""};
 
     /// Variable value to external name collection
-    std::unordered_map<SValue, std::string> extrValNames;
+    const std::unordered_map<SValue, std::string>& extrValNames;
+    /// Module name generator, constains module member names and local names
+    UniqueNamesGenerator& namesGenerator;
+    
     /// Verilog properties of SValues including names
     std::unordered_map<SValue, const VerilogVarTraits> varTraits;
-    /// All external names, used to check uniqueness of local variable name
-    std::unordered_set<std::string> extrNames;
     /// Name of automatically-generated counter variable used for wait(N)
     std::pair<std::string, std::string> waitNVarName;
     

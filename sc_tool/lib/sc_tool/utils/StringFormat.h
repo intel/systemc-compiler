@@ -22,6 +22,9 @@ namespace sc {
 /// Get file name from file path
 std::string getFileName(const std::string& s);
 
+/// Remove extention
+std::string removeFileExt(const std::string& s);
+
 /// Get string tail
 std::string getTail(const std::string& source, const std::size_t length);
 

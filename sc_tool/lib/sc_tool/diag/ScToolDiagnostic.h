@@ -148,7 +148,6 @@ public:
         SYNTH_ZERO_TYPE_WIDTH       = 176,
         SYNTH_SWITCH_ALL_EMPTY_CASE = 177,
         SYNTH_NONCOST_PTR_CONST     = 178,
-        SYNTH_CONST_VAR_MODIFIED    = 179,
         SYNTH_WIDTH_WIDENNING       = 180,
         CPP_BOOL_BITWISE_NOT        = 181,
         SYNTH_ARRAY_ELM_REFERENCE   = 182,
@@ -166,25 +165,42 @@ public:
         SYNTH_MEMORY_NON_UNIQUE     = 194,
         CPP_LOOP_COMPOUND_COND      = 195,
         SYNTH_FUNC_CALL_LOOP        = 196,
+        CPP_UNKNOWN_STD_FUNC        = 197,
+        SYNTH_ALIVE_LOOP_ERROR      = 198,        
+        SYNTH_ALIVE_LOOP_NULL_COND  = 199,
+        SC_CHAN_READ_IN_RESET       = 200,
+        SC_CTHREAD_NO_MAIN_LOOP     = 201,
+        SYNTH_RETURN_FROM_LOOP      = 202,
+        SYNTH_CODE_AFTER_RETURN     = 203,
+        SYNTH_NO_RESET_VIOLATION    = 204,
+        SYNTH_POINTER_INCORRECT_INIT= 205,
+        SC_BIT_CONSTPTR_BASE        = 206,
+        SC_RANGE_CONSTPTR_BASE      = 207,
+        SYNTH_ASSIGN_IN_COND        = 208,
+        SYNTH_SIDE_EFFECT_IN_COND   = 209,
+        SYNTH_LVALUE_BIT_CAST       = 210,
 
-        SC_FATAL_ELAB_TYPES_NS      = 200,
+        SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
         SC_WARN_ELAB_DANGLING_PTR,
         SC_ERROR_ELAB_MULT_PTRS,
         SC_WARN_ELAB_MULT_PTRS,
         SC_ERROR_ELAB_BASE_OFFSET_PTR,
         SC_ERROR_ELAB_UNSUPPORTED_TYPE,
+        ELAB_PORT_BOUND_PORT_ERROR,
+        ELAB_PORT_BOUND_SIGNAL_ERROR,
+        ELAB_PROCESS_ERROR,
         SYNTH_WAIT_LOOP_FALLTHROUGH,
 
 
-        SC_ERROR_CPROP_UNROLL_MAX   = 300,
-        SC_ERROR_CPROP_UNROLL_WAIT  = 301,
-        SC_ERROR_CPROP_UNROLL_UNKWN   = 302,
-        SC_WARN_EVAL_UNSUPPORTED_EXPR = 303,
+        SC_ERROR_CPROP_UNROLL_MAX   = 400,
+        SC_ERROR_CPROP_UNROLL_WAIT  = 401,
+        SC_ERROR_CPROP_UNROLL_UNKWN   = 402,
+        SC_WARN_EVAL_UNSUPPORTED_EXPR = 403,
 
-        TOOL_INTERNAL_ERROR          = 400,
-        TOOL_INTERNAL_FATAL          = 401,
-        TOOL_INTERNAL_WARNING        = 402
+        TOOL_INTERNAL_ERROR          = 500,
+        TOOL_INTERNAL_FATAL          = 501,
+        TOOL_INTERNAL_WARNING        = 502
     };
 
 private:
@@ -228,8 +244,8 @@ private:
             {clang::DiagnosticIDs::Error, 
             "Array out-of-bound"};
         idFormatMap[SYNTH_ARRAY_INIT_LIST] =
-            {clang::DiagnosticIDs::Warning, 
-            "Multidimensional array initialization not supported yet"};
+            {clang::DiagnosticIDs::Error, 
+            "Partial initialization of sub-arrays not supported"};
         idFormatMap[SYNTH_UNSUPPORTED_INIT] =
             {clang::DiagnosticIDs::Warning, 
             "Unsupported initializer : %0"};
@@ -269,6 +285,9 @@ private:
         idFormatMap[SC_RANGE_WRONG_BASE] =
             {clang::DiagnosticIDs::Error, 
             "Incorrect range access, base cannot be expression or literal"};
+        idFormatMap[SC_RANGE_CONSTPTR_BASE] =
+            {clang::DiagnosticIDs::Error, 
+            "Range access for constant pointer to dynamic memory not supported"};
         idFormatMap[SYNTH_SWITCH_LAST_EMPTY_CASE] =
             {clang::DiagnosticIDs::Fatal, 
             "Incorrect switch statement, no break in last case"};
@@ -282,22 +301,16 @@ private:
         idFormatMap[SC_BIT_WRONG_BASE] =
             {clang::DiagnosticIDs::Error, 
             "Incorrect bit access, base cannot be expression or literal"};
+        idFormatMap[SC_BIT_CONSTPTR_BASE] =
+            {clang::DiagnosticIDs::Error, 
+            "Bit access for constant pointer to dynamic memory not supported"};
         
         idFormatMap[CPP_FOR_WITHOUT_INIT] =
             {clang::DiagnosticIDs::Warning, 
             "For loop without counter initialization"};
-        idFormatMap[CPP_DIFF_POINTER_COMP] =
-            {clang::DiagnosticIDs::Fatal, 
-            "Pointers to different objects comparison"};
         idFormatMap[SC_UNSUPPORTED_PORT] =
             {clang::DiagnosticIDs::Fatal, 
             "Unsupported kind of port : %0"};
-        idFormatMap[SYNTH_POINTER_NO_INIT] =
-            {clang::DiagnosticIDs::Warning, 
-            "Local pointer declared without initialization : %0"};
-        idFormatMap[SYNTH_MULTI_POINTER_DIFF] =
-            {clang::DiagnosticIDs::Fatal, 
-            "Pointers to dynamically allocated object declared in different modules"};
         idFormatMap[CPP_NO_VIRT_FUNC] =
             {clang::DiagnosticIDs::Fatal, 
             "No virtual function %0 found in the dynamic class"};
@@ -307,9 +320,6 @@ private:
         idFormatMap[CPP_REFER_NO_INIT] =
             {clang::DiagnosticIDs::Fatal, 
             "Uninitialized reference : %0"};
-        idFormatMap[SYNTH_POINTER_NONZERO_INIT] =
-            {clang::DiagnosticIDs::Error, 
-            "Pointer initialization with non-zero integer not supported : %0"};
         idFormatMap[CPP_ASSERT_FAILED] =
             {clang::DiagnosticIDs::Error, 
             "User assertion (sct_assert_const) failed"};
@@ -342,7 +352,7 @@ private:
             "Duplicate assignment in SC_METHOD with empty sensitivity"};
         idFormatMap[SYNTH_NON_SENSTIV_2USED] =
             {clang::DiagnosticIDs::Error, 
-            "SC_METHOD %0() is non-sensitive to %1 which read inside"};
+            "SC_METHOD is non-sensitive to (%0) which read inside"};
         idFormatMap[SYNTH_SOME_PATH_DEFINED] =
             {clang::DiagnosticIDs::Error, 
             "Variable %0 defined at some paths of %1() process, latch detected"};
@@ -363,9 +373,6 @@ private:
             {clang::DiagnosticIDs::Warning, 
             "Too big (>1024) shift not allowed"};
         
-        idFormatMap[SYNTH_POINTER_OPER] =
-            {clang::DiagnosticIDs::Error, 
-            "Pointer operation not supported yet : %0"};
         idFormatMap[CPP_INCORRECT_ASSERT] =
             {clang::DiagnosticIDs::Warning, 
             "Incorrect assert expression for : %0"};
@@ -390,9 +397,6 @@ private:
         idFormatMap[SYNTH_NO_ARRAY] =
             {clang::DiagnosticIDs::Fatal, 
             "No array or global array object in [] operator: %0"};
-        idFormatMap[SYNTH_ARRAY_TO_POINTER] =
-            {clang::DiagnosticIDs::Fatal, 
-            "Array to pointer on zero element cast not supported"};
         
 
         idFormatMap[SYNTH_SVA_INCORRECT_TIME] =
@@ -510,30 +514,83 @@ private:
             {clang::DiagnosticIDs::Warning, 
             "Use signal/port defined in the same method process : %0"};
         
-        idFormatMap[CPP_NULL_PTR_DEREF] =
-            {clang::DiagnosticIDs::Error, 
-            "Null pointer dereference : %0"};
-        
-        idFormatMap[CPP_DANGLING_PTR_DEREF] =
-            {clang::DiagnosticIDs::Fatal, 
-            "Dangling pointer dereference : %0"};
-        
-        idFormatMap[CPP_DANGLING_PTR_CAST] =
-            {clang::DiagnosticIDs::Error, 
-            "Dangling pointer casted to bool : %0"};
-        
-        idFormatMap[SYNTH_NONCOST_PTR_CONST] =
-            {clang::DiagnosticIDs::Error, 
-            "Non-constant pointer to constant variable no allowed : %0"};
-        
-        idFormatMap[SYNTH_CONST_VAR_MODIFIED] =
-            {clang::DiagnosticIDs::Fatal, 
-            "Constant variable modified in process code : %0"};
-        
         idFormatMap[SYNTH_FUNC_CALL_LOOP] =
             {clang::DiagnosticIDs::Error, 
             "Function call in loop condition/initialization/increment not supported"};
 
+        idFormatMap[CPP_UNKNOWN_STD_FUNC] =
+            {clang::DiagnosticIDs::Warning, 
+            "Call of unknown function from namespace std : %0"};
+        
+        idFormatMap[SYNTH_ALIVE_LOOP_ERROR] =
+            {clang::DiagnosticIDs::Error, 
+            "SCT_ALIVE_LOOP macro can be applied to FOR or WHILE loops only"};
+
+        idFormatMap[SYNTH_ALIVE_LOOP_NULL_COND] =
+            {clang::DiagnosticIDs::Error, 
+            "SCT_ALIVE_LOOP macro cannot be applied to loop with false condition"};
+        
+        idFormatMap[SC_CHAN_READ_IN_RESET] =
+            {clang::DiagnosticIDs::Warning, 
+            "Channel read in CTHREAD reset section is prohibited : %0"};
+        
+        idFormatMap[SC_CTHREAD_NO_MAIN_LOOP] =
+            {clang::DiagnosticIDs::Error, 
+            "No main loop in CTHREAD found"};
+        
+        idFormatMap[SYNTH_RETURN_FROM_LOOP] =
+            {clang::DiagnosticIDs::Fatal, 
+            "Function return in loop is prohibited"};
+        
+        idFormatMap[SYNTH_CODE_AFTER_RETURN] =
+            {clang::DiagnosticIDs::Fatal, 
+            "Code after function return is prohibited"};
+        
+        idFormatMap[SYNTH_NO_RESET_VIOLATION] =
+            {clang::DiagnosticIDs::Error, 
+            "CTHREAD without reset cannot have reset code or multiple states"};
+        
+        
+        idFormatMap[CPP_NULL_PTR_DEREF] =
+            {clang::DiagnosticIDs::Error, 
+            "Null pointer dereference : %0"};
+        idFormatMap[CPP_DANGLING_PTR_DEREF] =
+            {clang::DiagnosticIDs::Fatal, 
+            "Dangling pointer dereference : %0"};
+        idFormatMap[CPP_DANGLING_PTR_CAST] =
+            {clang::DiagnosticIDs::Error, 
+            "Dangling pointer casted to bool : %0"};
+        idFormatMap[SYNTH_NONCOST_PTR_CONST] =
+            {clang::DiagnosticIDs::Error, 
+            "Non-constant pointer to constant variable no allowed : %0"};
+        
+        idFormatMap[SYNTH_ARRAY_TO_POINTER] =
+            {clang::DiagnosticIDs::Fatal, 
+            "Array to pointer on zero element cast not supported"};
+        idFormatMap[SYNTH_POINTER_OPER] =
+            {clang::DiagnosticIDs::Error, 
+            "Pointer operation not supported yet : %0"};
+        idFormatMap[SYNTH_POINTER_INCORRECT_INIT] =
+            {clang::DiagnosticIDs::Error, 
+            "Pointer initialization with incorrect object : %0"};
+        idFormatMap[SYNTH_POINTER_NONZERO_INIT] =
+            {clang::DiagnosticIDs::Error, 
+            "Pointer initialization with non-zero integer not supported : %0"};
+        idFormatMap[SYNTH_POINTER_NO_INIT] =
+            {clang::DiagnosticIDs::Warning,
+            "Local pointer declared without initialization : %0"};
+        idFormatMap[SYNTH_MULTI_POINTER_DIFF] =
+            {clang::DiagnosticIDs::Fatal, 
+            "Pointers to dynamically allocated object declared in different modules"};
+        idFormatMap[CPP_DIFF_POINTER_COMP] =
+            {clang::DiagnosticIDs::Fatal, 
+            "Pointers to different objects comparison"};
+        
+        idFormatMap[SYNTH_LVALUE_BIT_CAST] =
+            {clang::DiagnosticIDs::Error, 
+            "LValue cast is not supported"};
+        
+        
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =
             {clang::DiagnosticIDs::Fatal,
@@ -552,10 +609,27 @@ private:
             "Multiple pointers point to object #%0"};
         idFormatMap[SC_ERROR_ELAB_BASE_OFFSET_PTR] =
             {clang::DiagnosticIDs::Error,
-            "Unsupported pointer to element of integer array %0"};
+            "Non-initialized pointer or pointer to non-zero element of array"};
         idFormatMap[SC_ERROR_ELAB_UNSUPPORTED_TYPE] =
             {clang::DiagnosticIDs::Error,
             "Unsupported type: %0"};
+        
+        idFormatMap[ELAB_PORT_BOUND_PORT_ERROR] =
+            {clang::DiagnosticIDs::Error,
+            "Port bound to incorrect port: %0"};
+        idFormatMap[ELAB_PORT_BOUND_SIGNAL_ERROR] =
+            {clang::DiagnosticIDs::Error,
+            "Port bound to incorrect signal: %0"};
+        idFormatMap[ELAB_PROCESS_ERROR] =
+            {clang::DiagnosticIDs::Error,
+            "Process object is expected: %0"};
+        
+        idFormatMap[SYNTH_ASSIGN_IN_COND] =
+            {clang::DiagnosticIDs::Error,
+            "Assignment in condition not supported"};
+        idFormatMap[SYNTH_SIDE_EFFECT_IN_COND] =
+            {clang::DiagnosticIDs::Error,
+            "Side effects in condition not supported"};
 
         idFormatMap[SYNTH_MEMORY_NON_UNIQUE] =
             {clang::DiagnosticIDs::Error,

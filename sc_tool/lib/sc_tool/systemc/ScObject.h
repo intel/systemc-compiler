@@ -53,15 +53,6 @@ struct hash<sc::ScDynamicName>
 
 namespace sc {
 
-// ScObject name fabric
-struct DynamicNameFabric {
-    std::unordered_set<ScDynamicName>  names;
-    
-    DynamicNameFabric() {}
-    
-    std::string getName(const clang::SourceLocation& loc);
-};
-
 // Any SC object instance
 class ScObject {
     /// Unique ID generator

@@ -124,14 +124,16 @@ public:
     void tmp2() {
         bool b1 = in;
         int i = 0;
+        i++;
         
-        if (b1 && i++) {        // This IF removed
+        if (b1 && i) {        // This IF removed
             int i = 1;  
         }
         sct_assert_const(i == 1);
         
         i = 0;
-        if (b1 && ++i) {
+        i++;
+        if (b1 && i) {
             int i = 2;
         }
         sct_assert_const(i == 1);
@@ -154,7 +156,7 @@ public:
             int j;
         }
         
-        if (i++) {      // Condition with side-effect, see #224
+        if (i) {      
             int k;
         }
 

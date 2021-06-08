@@ -55,14 +55,15 @@ void ScStmtInfo::run(const clang::FunctionDecl* fdecl, unsigned level)
     using namespace std;
     
     if (fdecl) {
-        analyzeStmt(fdecl->getBody(), level);
+        clang::Stmt* returnStmt = nullptr;
+        analyzeStmt(fdecl->getBody(), level, returnStmt);
     }
     //cout << "-------------------------------------------------" << endl;
 }
 
 // Recursively run analysis for statement
 void ScStmtInfo::analyzeStmt(clang::Stmt* stmt, unsigned level, 
-                             bool switchBody)
+                             clang::Stmt*& returnStmt, bool switchBody)
 {
     using namespace std;
     
@@ -72,34 +73,53 @@ void ScStmtInfo::analyzeStmt(clang::Stmt* stmt, unsigned level,
         //cout << "----- Compound #" << hex << stmt << dec << endl;
         //stmt->dumpColor();
         
-        for (Stmt* s : compStmt->body()) {
-            analyzeStmt(s, level, switchBody);
+        if (switchBody) {
+            // Join return flags from all the switch cases
+            clang::Stmt* returnSwitch = nullptr;
+            for (Stmt* s : compStmt->body()) {
+                clang::Stmt* returnCase = returnStmt;
+                analyzeStmt(s, level, returnCase, switchBody);
+                returnSwitch = returnSwitch ? returnSwitch : returnCase;
+            }
+            returnStmt = returnStmt ? returnStmt : returnSwitch;
+            
+        } else {
+            for (Stmt* s : compStmt->body()) {
+                analyzeStmt(s, level, returnStmt, switchBody);
+            }
         }
     } else {
         stmt = removeExprCleanups(stmt);
         //cout << "----- Stmt #" << hex << stmt << dec << " level " << level << endl;
         //stmt->dumpColor();
         
+        if (returnStmt) {
+            ScDiag::reportScDiag(returnStmt->getBeginLoc(), 
+                                 ScDiag::SYNTH_CODE_AFTER_RETURN);
+        }
+        
         if (IfStmt* ifStmt = dyn_cast<IfStmt>(stmt)) {
-            analyzeStmt(ifStmt->getThen(), level+1, switchBody);
-            analyzeStmt(ifStmt->getElse(), level+1, switchBody);
+            clang::Stmt* returnElse = returnStmt;
+            analyzeStmt(ifStmt->getThen(), level+1, returnStmt, switchBody);
+            analyzeStmt(ifStmt->getElse(), level+1, returnElse, switchBody);
             ssVisitor.addSubStmts(ifStmt->getCond(), ifStmt);
+            returnStmt = returnStmt ? returnStmt : returnElse;
 
         } else 
         if (SwitchStmt* switchStmt = dyn_cast<SwitchStmt>(stmt)) {
             //cout << "----- Compound Switch Body #" << hex << switchStmt->getBody() << dec << endl;
             //switchStmt->getBody()->dumpColor();
             
-            analyzeStmt(switchStmt->getBody(), level+1, true);
+            analyzeStmt(switchStmt->getBody(), level+1, returnStmt, true);
             ssVisitor.addSubStmts(switchStmt->getCond(), switchStmt);
 
         } else 
         if (SwitchCase* caseStmt = dyn_cast<SwitchCase>(stmt)) {
-            analyzeStmt(caseStmt->getSubStmt(), level, switchBody);
+            analyzeStmt(caseStmt->getSubStmt(), level, returnStmt, switchBody);
 
         } else 
         if (ForStmt* forStmt = dyn_cast<ForStmt>(stmt)) {
-            analyzeStmt(forStmt->getBody(), level+1, false);
+            analyzeStmt(forStmt->getBody(), level+1, returnStmt, false);
             
             ssVisitor.addSubStmts(forStmt->getCond(), forStmt);
             if (ssVisitor.hasCallExpr()) {
@@ -121,7 +141,7 @@ void ScStmtInfo::analyzeStmt(clang::Stmt* stmt, unsigned level,
 
         } else 
         if (WhileStmt* whileStmt = dyn_cast<WhileStmt>(stmt)) {
-            analyzeStmt(whileStmt->getBody(), level+1, false);
+            analyzeStmt(whileStmt->getBody(), level+1, returnStmt, false);
             ssVisitor.addSubStmts(whileStmt->getCond(), whileStmt);
             if (ssVisitor.hasCallExpr()) {
                 ScDiag::reportScDiag(whileStmt->getCond()->getBeginLoc(), 
@@ -130,7 +150,7 @@ void ScStmtInfo::analyzeStmt(clang::Stmt* stmt, unsigned level,
 
         } else 
         if (DoStmt* doStmt = dyn_cast<DoStmt>(stmt)) {
-            analyzeStmt(doStmt->getBody(), level+1, false);
+            analyzeStmt(doStmt->getBody(), level+1, returnStmt, false);
             ssVisitor.addSubStmts(doStmt->getCond(), doStmt);
             if (ssVisitor.hasCallExpr()) {
                 ScDiag::reportScDiag(doStmt->getCond()->getBeginLoc(), 
@@ -151,14 +171,17 @@ void ScStmtInfo::analyzeStmt(clang::Stmt* stmt, unsigned level,
         } else 
         if (LabelStmt* labelStmt = dyn_cast<LabelStmt>(stmt)) {
             // Ignore labels
-            analyzeStmt(labelStmt->getSubStmt(), level, switchBody);
+            analyzeStmt(labelStmt->getSubStmt(), level, returnStmt, switchBody);
             
         } else {
             // Register break in switch body
             if (switchBody && isa<BreakStmt>(stmt)) {
                 switchBreaks.insert(stmt);
             }
-
+            
+            if (!returnStmt && isa<ReturnStmt>(stmt)) {
+                returnStmt = stmt;
+            }
             ssVisitor.addSubStmts(stmt, stmt);
         }
 

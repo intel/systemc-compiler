@@ -67,6 +67,7 @@ std::string ProcBuilder::generateSvaProperties(VerilogModule& verMod)
     return svaPropStr;
 }
 
+// Run for each process in the module
 VerilogProcCode ProcBuilder::generateVerilogProcess(ProcessView& procView)
 {
     /// Host record and cxx Method for process
@@ -96,21 +97,14 @@ VerilogProcCode ProcBuilder::generateVerilogProcess(ProcessView& procView)
 //    cout << "procRecordView " << procRecordView.getDebugString() << " isMIF "
 //         << procRecordView.isModularInterface() << procRecordView.isArrayElement() << endl;
 
-    if (constPropOnly) {
-        procAnalyzer->analyzeConstProp(procHostClass,
-                                       hostModuleDynClass,
-                                       procView);
+    if (procView.isScMethod()) {
+        auto code = procAnalyzer->analyzeMethodProcess(procHostClass,
+                                           hostModuleDynClass,
+                                           procView);
+        return code;
     } else {
-
-        if (procView.isScMethod()) {
-            auto code = procAnalyzer->analyzeMethodProcess(procHostClass,
-                                               hostModuleDynClass,
-                                               procView);
-            return code;
-        } else {
-            return procAnalyzer->analyzeCthreadProcess(procHostClass,
-                hostModuleDynClass, procView);
-        }
+        return procAnalyzer->analyzeCthreadProcess(procHostClass,
+            hostModuleDynClass, procView);
     }
 
     return VerilogProcCode("");
@@ -213,11 +207,22 @@ sc::SValue ProcBuilder::traverseRecord(RecordView recView, bool isVerModule)
         }
     }
     unresolvedPointers.clear();
+    
+    // Replace pointed array variable to array object for pointers
+    for (auto arrayPtr : arrayPointers) {
+        const SValue& rval = moduleState->getValue(arrayPtr);
+        const SValue& aval = moduleState->getValue(rval);
+        if (aval.isArray()) {
+            moduleState->putValue(arrayPtr, aval, false, false);
+            //cout << "Replace " << rval << " to " << aval << endl;
+        }
+    }
+    arrayPointers.clear();
 
     classHierStack.pop_back();
 
     objSValMap[recView] = currentModSVal;
-
+    
     return currentModSVal;
 }
 
@@ -250,6 +255,14 @@ sc::SValue ProcBuilder::traverseField(ObjectView memberObj)
 
         objSValMap[memberObj] = lSVal;
 
+        // Register pointed array variable to replace it to array object
+        if (lSVal.isPointer() && rSval.isVariable()) {
+            if (sc::isArray(rSval.getType())) {
+                arrayPointers.insert(lSVal);
+                //cout << "-- arrayPointers lSVal " << lSVal << endl;
+            }
+        }
+        
         moduleState->putValue(lSVal, rSval, false, false);
         moduleState->putElabObject(lSVal, memberObj);
 
@@ -443,12 +456,18 @@ sc::SValue ProcBuilder::getOrCreatePointeeSValue(PtrOrRefView ptrOrRefView)
         return SValue(APSInt::getUnsigned(0), 10);
     }
 
+    // If pointer is not initialized it can be eventually pointed to memory
+    // with array-like data, so cannot detect that
     // Pointer to non-first element of non-constant integer array not supported
     if (ptrOrRefView.isBaseOffsetPtr() && (*ptrOrRefView.getOffset() != 0)
         && !ptrOrRefView.pointeeOrArray()->isConstant()) {
 
-        ScDiag::reportScDiag(ScDiag::SC_ERROR_ELAB_BASE_OFFSET_PTR)
-            << ptrOrRefView.getDebugString();
+        if (auto ptrDecl = ptrOrRefView.getValueDecl()) {
+            ScDiag::reportScDiag(ptrDecl->getBeginLoc(), 
+                                 ScDiag::SC_ERROR_ELAB_BASE_OFFSET_PTR);
+        } else {
+            ScDiag::reportScDiag(ScDiag::SC_ERROR_ELAB_BASE_OFFSET_PTR);
+        }
 
         return NO_VALUE;
     }

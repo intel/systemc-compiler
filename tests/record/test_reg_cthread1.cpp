@@ -36,11 +36,13 @@ public:
         SC_CTHREAD(record_glob_assign1, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(record_glob_assign1a, clk.pos());
-        async_reset_signal_is(rstn, false);
+        // #141
+        //SC_CTHREAD(record_glob_assign1a, clk.pos());
+        //async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(record_glob_assign2, clk.pos());
-        async_reset_signal_is(rstn, false);
+        // #141
+        //SC_CTHREAD(record_glob_assign2, clk.pos());
+        //async_reset_signal_is(rstn, false);
         
         SC_CTHREAD(record_not_defined, clk.pos());
         async_reset_signal_is(rstn, false);

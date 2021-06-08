@@ -41,7 +41,7 @@ public:
         SC_METHOD(reference1); sensitive << s;
         SC_METHOD(reference2); sensitive << s;
         SC_METHOD(reference3); sensitive << s;
-          
+        
         SC_METHOD(const_reference); sensitive << dummy;
         SC_METHOD(const_reference2); sensitive << dummy;
         
@@ -54,6 +54,8 @@ public:
 
         SC_CTHREAD(array_ref_wait, clk.pos());
         async_reset_signal_is(nrst, 0);
+        
+        SC_METHOD(reference_init_func); sensitive << s;
     }
 
     // reference type 
@@ -223,6 +225,22 @@ public:
         int m = 1;
         int il4[2] = {0, m};
     }
+
+// ----------------------------------------------------------------------------    
+    // Constant reference initialized with operator or function
+    int f1(int i ) {
+        return (i+1);
+    }
+    
+    void reference_init_func() {
+        int m = 1;
+        const int& r = m++;
+        const int& rr = --m;
+        const int& rrr = f1(m++);
+        int a = r + rr + rrr;
+        // return by reference not supported yet
+    }
+    
     
 // ----------------------------------------------------------------------------
     // For #182, warning generated

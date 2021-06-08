@@ -28,9 +28,11 @@ struct B : sc_module, my_if<sc_uint<4>>
     const sc_uint<4> bvar = 4;
     const sc_uint<3> num1 = 6;
     
+    sc_signal<bool> dummy;
+    
     SC_CTOR(B){
-        // TODO: Fix me, #118
         SC_METHOD(b_proc);
+        sensitive << dummy;
     }
     void b_proc() {
         c_port->f(4);
@@ -58,9 +60,8 @@ struct C : sc_module, my_if<sc_uint<4>>
     sc_signal<bool> access;
     
     SC_CTOR(C) {
-        // TODO: Fix me, #118
         SC_METHOD(c_proc);
-        //sensitive << ;
+        sensitive << access;
     }
     
     void c_proc () {

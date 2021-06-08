@@ -10,75 +10,81 @@
 // wait(N) general cases
 SC_MODULE(test_mod) {
     
-    sc_signal<bool> clk{"clk"}; 
+    sc_in<bool>     clk{"clk"}; 
     sc_signal<bool> rstn{"rstn"};
     sc_signal<bool> a{"a"};
 
     SC_CTOR(test_mod) {
         
-        SC_CTHREAD(wait_n_reset_decl, clk);
+        SC_CTHREAD(wait_n_reset_decl, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(one_wait_n, clk);
+        SC_CTHREAD(one_wait_n, clk.pos());
         async_reset_signal_is(rstn, false);
         
-        SC_CTHREAD(thread0, clk);
+        SC_CTHREAD(thread0, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        // TODO: FIx me, #233
-        // thread1_WAIT_N_COUNTER <= 0; in end of reset
-        SC_CTHREAD(thread1, clk);
+        SC_CTHREAD(thread_waitn_first, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(thread1a, clk);
+        SC_CTHREAD(thread_waitn_no_reset, clk.pos());
+        
+        SC_CTHREAD(thread_waitn_first_cond, clk.pos());
+        async_reset_signal_is(rstn, false);
+        
+        SC_CTHREAD(thread_waitn_cond, clk.pos());
+        async_reset_signal_is(rstn, false);
+        
+        SC_CTHREAD(thread1a, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(thread1b, clk);
+        SC_CTHREAD(thread1b, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(thread1c, clk);
+        SC_CTHREAD(thread1c, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(thread1d, clk);
+        SC_CTHREAD(thread1d, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(thread2, clk);
+        SC_CTHREAD(thread2, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(thread3, clk);
+        SC_CTHREAD(thread3, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(thread4_no_waitn, clk);
+        SC_CTHREAD(thread4_no_waitn, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(wait_n_const, clk);
+        SC_CTHREAD(wait_n_const, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(wait_n_var, clk);
+        SC_CTHREAD(wait_n_var, clk.pos());
         async_reset_signal_is(rstn, false);
          
-        SC_CTHREAD(wait_n_calc, clk);
+        SC_CTHREAD(wait_n_calc, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(wait_n_calc_if, clk);
+        SC_CTHREAD(wait_n_calc_if, clk.pos());
         async_reset_signal_is(rstn, false);
         
-        SC_CTHREAD(wait_n_calc_for, clk);
+        SC_CTHREAD(wait_n_calc_for, clk.pos());
         async_reset_signal_is(rstn, false);
         
-        SC_CTHREAD(three_wait, clk);
+        SC_CTHREAD(three_wait, clk.pos());
         async_reset_signal_is(rstn, false);
         
-        SC_CTHREAD(four_wait, clk);
+        SC_CTHREAD(four_wait, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(cntr_name_conflict, clk);
+        SC_CTHREAD(cntr_name_conflict, clk.pos());
         async_reset_signal_is(rstn, false);
         
-        SC_CTHREAD(while_wait, clk);
+        SC_CTHREAD(while_wait, clk.pos());
         async_reset_signal_is(rstn, false);
         
-        SC_CTHREAD(wait_1, clk);
+        SC_CTHREAD(wait_1, clk.pos());
         async_reset_signal_is(rstn, false);
     }
     
@@ -114,11 +120,48 @@ SC_MODULE(test_mod) {
 
     sc_signal<sc_uint<4>> usig{"usig"};
 
-    void thread1 () {
+    void thread_waitn_first () {
         usig = 0;
         while (1) {
             wait(3); 
             usig = 1;
+        }
+    }
+    
+    void thread_waitn_no_reset () {
+        while (1) {
+            usig = 1;
+            wait(); 
+        }
+    }
+
+    
+    void thread_waitn_first_cond () {
+        int m = 0;
+        usig = 0;
+        while (1) {
+            if (m) {
+                wait(4); 
+            } else {
+                wait(5); 
+            }
+            usig = 1;
+            wait();
+        }
+    }
+    
+    void thread_waitn_cond () {
+        usig = 0;
+        while (1) {
+            wait();
+            usig = 1;
+            if (a.read()) {
+                wait(3); 
+            } else {
+                wait(5); 
+                usig = 2;
+                wait(2); 
+            }
         }
     }
     
@@ -305,8 +348,11 @@ SC_MODULE(test_mod) {
 };
 
 
-int sc_main(int argc, char **argv) {
+int sc_main(int argc, char **argv) 
+{
+    sc_clock clk{"clk", 1, SC_NS};
     test_mod tmod{"tmod"};
+    tmod.clk(clk);
     sc_start();
     return 0;
 }

@@ -52,6 +52,11 @@ public:
         np  = nullptr;
         np2 = nullptr;
         
+    
+        cp1 = new sc_signal<int>("cp1");
+        cp2 = new sc_signal<sc_uint<40>>("cp2");
+        cp3 = new sc_signal<sc_bigint<80>>("cp3");
+        
         for (int i = 0; i < N; i++) {
             parr1[i] = sc_new<sc_uint<12>>();
             parr2[i] = new sc_signal<sc_int<12>>("parr2");
@@ -80,6 +85,8 @@ public:
         for (int i = 0; i < N; i++) {
             sensitive << *parr2[i];
         }
+        
+        SC_METHOD(channel_pointer); sensitive << c1 << c2 << c3;
     }
     
     // @this pointer dereference
@@ -125,6 +132,29 @@ public:
             l = 2;
         }
         sct_assert_const(l == 2);
+    }
+    
+    // Check implicit casts for channel and channel pointer
+    sc_signal<int>              c1;
+    sc_signal<sc_uint<40>>      c2;
+    sc_signal<sc_bigint<80>>    c3;
+    
+    sc_signal<int>*             cp1;
+    sc_signal<sc_uint<40>>*     cp2;
+    sc_signal<sc_bigint<80>>*   cp3;
+    
+    void channel_pointer() 
+    {
+        int l = c1;
+        l = c2.read();
+        l *= c2.read();
+        l = l + c3.read().to_int();
+        auto x =c2.read() - c3.read();
+        
+        l = cp1->read();
+        l *= cp2->read();
+        l = l + cp3->read().to_int();
+        auto y = cp2->read() - cp3->read();
     }
     
 // ----------------------------------------------------------------------------    

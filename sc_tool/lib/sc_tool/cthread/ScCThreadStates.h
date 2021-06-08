@@ -30,7 +30,7 @@ typedef int WaitID;
 
 static constexpr WaitID RESET_ID = -1;
 
-/// Contains call stacks for all wait states in Cthread
+/// Contains call stacks for all wait states in CThread
 /// Reset state is represented by empty call stack and has ID == RESET_ID
 class ScCThreadStates 
 {
@@ -49,6 +49,9 @@ class ScCThreadStates
 
     /// Set of all states with a counter ( wait(N) calls )
     std::unordered_set<WaitID> waitNSet;
+    
+    /// First @wait() is @wait(N), used to avoid reset WAIT_N counter in reset
+    bool firstWaitN = false;
 
     /// Reset state has empty call stack
     inline static const CfgCursorStack resetStack = CfgCursorStack();
@@ -57,8 +60,8 @@ class ScCThreadStates
 
 public:
 
-    ScCThreadStates(clang::FunctionDecl * entryFunction,
-        const clang::ASTContext &astCtx);
+    ScCThreadStates(clang::FunctionDecl* entryFunction,
+                    const clang::ASTContext& astCtx);
 
     /// Get number of states in CThread (w/o Reset state)
     size_t getNumFSMStates() const { return statesVec.size(); }
@@ -78,6 +81,8 @@ public:
 
     /// Returns true for wait(N > 1)
     bool isWaitNState(WaitID wID) const;
+    
+    bool isFirstWaitN() const;
 
     CfgCursorStack getStateCallStack(WaitID stateID) const {
         if (stateID == RESET_ID)

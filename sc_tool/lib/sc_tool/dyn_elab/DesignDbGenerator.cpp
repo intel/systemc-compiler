@@ -640,6 +640,7 @@ Object *DesignDbGenerator::createDynamicElabObject(TypedObject to, Object *modul
 
 void DesignDbGenerator::resolvePointers()
 {
+    using std::cout; using std::endl;
     for (int i = 0; i < designDB.objects_size(); ++i) {
         Object* ptrEO = designDB.mutable_objects(i);
 
@@ -668,7 +669,7 @@ void DesignDbGenerator::resolvePointers()
                     // If channel binded to port is not found, it means it is outside
                     // of module hierarchy. We create a "virtual" signal in this case
 
-                    TypedObject signalTO = getBindedSignal(*ptrTO);
+                    TypedObject signalTO = getBindedSignal(*ptrTO, ptrEO);
                     Object* signalEO = createVirtualSignal(signalTO);
                     ptr_val->add_pointee_id(signalEO->id());
                     signalEO->add_pointer_ids(ptrEO->id());
@@ -680,7 +681,8 @@ void DesignDbGenerator::resolvePointers()
 }
 
 
-TypedObject DesignDbGenerator::getBindedSignal(PtrOrRefObject portPtr) const
+TypedObject DesignDbGenerator::getBindedSignal(PtrOrRefObject portPtr,
+                                               Object* ptrEO) const
 {
     while (1) {
         auto pointeeTO = portPtr.dereference().getAs<RecordObject>()
@@ -688,8 +690,15 @@ TypedObject DesignDbGenerator::getBindedSignal(PtrOrRefObject portPtr) const
 
         if (isScBasePort(pointeeTO.getType())) {
             portPtr = getPortBindPtr(pointeeTO);
+            if (portPtr.isNullPtr()) {
+                ScDiag::reportScDiag(ScDiag::ELAB_PORT_BOUND_PORT_ERROR)
+                            << ptrEO->sc_name();
+            }
         } else {
-            assert(isScSignal(pointeeTO.getType()));
+            if (!isScSignal(pointeeTO.getType())) {
+                ScDiag::reportScDiag(ScDiag::ELAB_PORT_BOUND_SIGNAL_ERROR) 
+                            << ptrEO->sc_name();
+            }
             return pointeeTO;
         }
     }
@@ -760,13 +769,16 @@ void DesignDbGenerator::resolvePortSensitivity(const Object &portEO)
 
     for (auto procSens : procs) {
 
-        auto procBPtrType
-            = getAstCtx()->getPointerType(getScProcessBType());
+        auto procBPtrType = getAstCtx()->getPointerType(getScProcessBType());
 
         TypedObject procPtrTO(&procSens.proc_ptr, procBPtrType);
 
-        auto procEO = memMap.resolvePointer(*procPtrTO.getAs<PtrOrRefObject>())->first;
-        assert(isProcess(*procEO));
+        auto procEO = memMap.resolvePointer(
+                                *procPtrTO.getAs<PtrOrRefObject>())->first;
+        if (!isProcess(*procEO)) {
+            ScDiag::reportScDiag(ScDiag::ELAB_PROCESS_ERROR) 
+                            << procEO->sc_name();
+        }
 
         auto *sens = procEO->mutable_primitive()->
             mutable_proc_val()->add_static_events();

@@ -23,6 +23,10 @@ struct mod_if : public sc_module, sc_interface
     sc_in<int>              in;
     sc_signal<int>          sig;
     sc_out<int>             out;
+    
+    const unsigned A = 1;
+    static const unsigned B = 2;
+    static constexpr unsigned C = 3;
 
     SC_CTOR(mod_if) 
     {
@@ -33,16 +37,20 @@ struct mod_if : public sc_module, sc_interface
         async_reset_signal_is(rst, true);
     }
 
+    unsigned m;
     void meth() {
-        mout = min.read();
+        int i = m + A + B;
+        mout = min.read() + i;
     }
     
+    unsigned n;
     void thrd() {
         out = 0;
         wait();
         
         while (true) {
-            int a = in.read();
+            int i = n + A + B;
+            int a = in.read() + i;
             wait();
             sig = a;
         }

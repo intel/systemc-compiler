@@ -26,6 +26,12 @@ cl::opt<bool> noSvaGenerate (
     cl::cat(ScToolCategory)
     );
 
+cl::opt<bool> portMapGenerate (
+    "portmap_generate",
+    cl::desc("Generate port map file used for SV/SC mixed language simulation"),
+    cl::cat(ScToolCategory)
+    );
+
 cl::opt<bool> noRemoveExtraCode(
     "no_remove_extra_code",
     cl::desc("No removing unused variable and extra code"),
@@ -51,21 +57,9 @@ cl::opt<std::string> modulePrefix (
     );
 
 
-cl::opt<bool> singleBlockCThreads(
-    "single_block_cthread",
-    cl::desc("Generate single always_ff block for clocked thread"),
-    cl::cat(ScToolCategory)
-);
-
 cl::opt<bool> noProcessAnalysis (
     "elab_only",
     cl::desc("Elaboration only, disable SystemC process analysis"),
-    cl::cat(ScToolCategory)
-    );
-
-cl::opt<bool> constPropOnly (
-    "const_prop",
-    cl::desc("Perform constant propagation test, without generating anything"),
     cl::cat(ScToolCategory)
     );
 

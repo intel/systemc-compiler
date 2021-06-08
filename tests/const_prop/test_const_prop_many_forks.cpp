@@ -27,10 +27,15 @@ SC_MODULE(test_module) {
 
     bool dirtyMemory[LINE_INDEX_NUM][CACHE_WAY_NUM];
 
+    sc_in<bool> clk;
+    
     SC_CTOR(test_module) {
-        SC_THREAD(test_thread);
+        SC_CTHREAD(test_thread, clk.pos());
+        async_reset_signal_is(din, 0);
     }
 
+    sc_signal<bool> din;
+    
     void test_thread() {
 
         int x;
@@ -71,7 +76,8 @@ SC_MODULE(test_module) {
 
 int sc_main(int argc, char **argv) {
     auto tmod = std::make_unique<test_module>("tmod");
-    sc_start();
+    sc_clock    clk{"clk", 10 , SC_NS};
+    tmod->clk(clk);
     return 0;
 }
 

@@ -38,7 +38,10 @@ struct derived_mod : base_mod {
     derived_mod(sc_module_name nm) : base_mod(nm) {
         SC_HAS_PROCESS(derived_mod);
         SC_METHOD(test_method);
+        sensitive << din;
     }
+    
+    sc_signal<bool> din;
 
     void vfun0() override {
         x = 2;

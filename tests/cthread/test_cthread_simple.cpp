@@ -9,7 +9,7 @@
 
 using namespace sc_core;
 
-// Local variables in method process body analysis
+// Simple clocked threads
 class A : public sc_module {
 public:
 
@@ -38,8 +38,6 @@ public:
         async_reset_signal_is(rst, false);
         
         SC_CTHREAD(simple_thread_wo_reset1, clk.pos());
-
-        SC_CTHREAD(simple_thread_wo_reset2, clk.pos());
 
         // DvCon 2019 examples
         /*SC_CTHREAD(thread1, clk.pos());
@@ -105,14 +103,6 @@ public:
     void simple_thread_wo_reset1() {
         while (true) {
             int i = 0;
-            wait();
-        }
-    }
-
-    void simple_thread_wo_reset2() {
-        int i = 0;
-        while (true) {
-            i = 1;
             wait();
         }
     }

@@ -64,6 +64,7 @@ public:
 
             b = p == q;
             b = p != q;
+            auto x = *px;
 
             wait();
         }

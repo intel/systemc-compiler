@@ -17,6 +17,7 @@ SC_MODULE(top) {
 
     SC_CTOR(top) {
         SC_METHOD(test_method);
+        sensitive << din;
     }
 
     sc_signal<bool> din {"din",1};
@@ -37,9 +38,9 @@ SC_MODULE(top) {
 
         do {
             y = 3;
-            if (x++)
+            if (x);
                 break;
-
+            x++;
         } while (din.read());
 
 

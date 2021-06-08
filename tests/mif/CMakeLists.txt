@@ -1,8 +1,11 @@
 add_executable(mif_simple test_simple.cpp)
 svc_target(mif_simple GOLDEN mif_simple.sv)
 
-add_executable(mif_const test_mif_const.cpp)
-svc_target(mif_const GOLDEN mif_const.sv)
+add_executable(mif_const1 test_mif_const1.cpp)
+svc_target(mif_const1 GOLDEN mif_const1.sv)
+
+add_executable(mif_const2 test_mif_const2.cpp)
+svc_target(mif_const2 GOLDEN mif_const2.sv)
 
 add_executable(mif_sc_vector test_sc_vector.cpp)
 svc_target(mif_sc_vector GOLDEN mif_sc_vector.sv)
@@ -25,15 +28,12 @@ svc_target(mif_array_record_meth GOLDEN mif_array_record_meth.sv)
 add_executable(mif_array_record_cthread test_array_record_cthread.cpp)
 svc_target(mif_array_record_cthread GOLDEN mif_array_record_cthread.sv)
 
-## Fix me, error not reported yet, see #115
-#add_executable(mif_array_heterogenous test_array_heterogenous.cpp)
-#svc_target(mif_array_heterogenous WILL_FAIL)
+add_executable(mif_name_conflict1 test_name_conflict1.cpp)
+svc_target(mif_name_conflict1 GOLDEN mif_name_conflict1.sv)
 
-##Fix me, error not reported yet, see #121
-#add_executable(mif_access_violation1 test_access_violation1.cpp)
-#svc_target(mif_access_violation1 WILL_FAIL)
+add_executable(mif_name_conflict2 test_name_conflict2.cpp)
+svc_target(mif_name_conflict2 GOLDEN mif_name_conflict2.sv)
 
-## Hangs up, see #114
-#add_executable(mif_sc_vector_sc_vector test_sc_vector_sc_vector.cpp)
-#svc_target(mif_sc_vector_sc_vector GOLDEN mif_sc_vector_sc_vector.sv)
+add_executable(mif_name_conflict3 test_name_conflict3.cpp)
+svc_target(mif_name_conflict3 GOLDEN mif_name_conflict3.sv)
 

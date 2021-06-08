@@ -119,7 +119,7 @@ protected:
 
     /// Recursively run analysis for statement
     void analyzeStmt(clang::Stmt* stmt, unsigned level, 
-                     bool switchBody = false);
+                     clang::Stmt*& returnStmt, bool switchBody = false);
     
 };
 }

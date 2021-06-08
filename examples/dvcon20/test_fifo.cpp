@@ -94,7 +94,7 @@ SC_MODULE(Tb) {
 int sc_main(int argc, char **argv) 
 {
     sc_clock clk("clk", sc_time(1, SC_NS));
-    Tb tb{"top"};
+    Tb tb{"tb"};
     tb.clk(clk);
     
     sc_start();

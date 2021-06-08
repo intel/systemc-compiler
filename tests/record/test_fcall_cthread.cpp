@@ -26,6 +26,7 @@ public:
         SC_CTHREAD(single_rec_call_comb, clk.pos());
         async_reset_signal_is(rstn, false);
 
+        // #261 TODO: no initialization of B
         SC_CTHREAD(rec_arr_call_reg, clk.pos());
         async_reset_signal_is(rstn, false);
         
@@ -38,6 +39,7 @@ public:
         SC_CTHREAD(rec_arr_call_reg2, clk.pos());
         async_reset_signal_is(rstn, false);
 
+        // #261 TODO: no initialization of B
         SC_CTHREAD(rec_arr_call_unknw_reg, clk.pos());
         async_reset_signal_is(rstn, false);
 
@@ -55,11 +57,13 @@ public:
     }
     
     struct Simple {
+        static const int A = 1;
+        const int B = 2;
         bool a;
         int b;
         
         void reset() {
-            a = 0; b = 0;
+            a = A + a; b = B + b;
         }
         
         void setA(bool par) {
@@ -123,12 +127,14 @@ public:
     void rec_arr_call_reg() 
     {
         Simple t[2];
+        t[0].reset();
         wait();
         
         while (true) {
             t[1].setA(1);
             wait();
 
+            t[0].reset();
             bool c = t[1].getA();
         }
     }
@@ -179,7 +185,7 @@ public:
         wait();
         
         while (true) {
-            int j = sig.read();
+            int j = sig.read() + s[1].B;
 
             s[1].setA(1);
             bool c = s[j].getA();

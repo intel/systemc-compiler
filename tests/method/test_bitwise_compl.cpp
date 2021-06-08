@@ -34,6 +34,8 @@ public:
     SC_HAS_PROCESS(A);
     A(sc_module_name) 
     {
+        SC_METHOD(bitwise_in_concat); sensitive << dummy;
+        
         SC_METHOD(bool_bitwise); 
         sensitive << dummy;
         
@@ -67,6 +69,36 @@ public:
     SCT_ASSERT(bu40s.read() == 5, clk.pos());
     
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
+    
+    
+    // Example from DCC
+    void bitwise_in_concat() 
+    {
+        sc_uint<16> u;
+        sc_uint<16> u1 = 1;
+        sc_uint<16> u2 = 0x2;
+        sc_uint<16> u3 = 0x1;
+        sc_biguint<16> b2 = 0x2;
+        sc_biguint<16> b3 = 0x1;
+        
+        // Error reported -- that is OK
+        //u = (u1.range(2,0), u2.range(2,0) & ~u3.range(2,0));    // 3
+        //cout << "uint " << u << endl;
+        
+        u = (u1.range(2,0), sc_uint<3>(u2.range(2,0) & ~u3.range(2,0))); // 10
+        cout << "uint cast " << u << endl;
+        CHECK(u == 10);
+        
+        u = (u1.range(2,0), b2.range(2,0) & ~b3.range(2,0));    // 34
+        cout << "biguint " << u << endl;
+        
+        // TODO: check me
+        u = (u1.range(2,0), sc_biguint<3>(b2.range(2,0) & ~b3.range(2,0))); // 10
+        cout << "biguint cast " << u << endl;
+        //CHECK(u == 10);
+    }
+    
+// ---------------------------------------------------------------------------    
     
     void bool_bitwise() 
     {

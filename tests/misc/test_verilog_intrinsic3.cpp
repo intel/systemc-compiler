@@ -111,10 +111,7 @@ SC_MODULE(testbench) {
 
 
     void test_thread() {
-#ifndef __SC_TOOL_ANALYZE__
-        sc_stop();
-#endif
-        wait();
+        while(1) wait();
     }
 
 };

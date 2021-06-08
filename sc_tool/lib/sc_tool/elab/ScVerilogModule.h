@@ -21,6 +21,7 @@
 #include "sc_tool/cfg/SValue.h"
 #include "sc_tool/elab/ScObjectView.h"
 #include "sc_tool/utils/InsertionOrderSet.h"
+#include "sc_tool/utils/NameGenerator.h"
 
 #include "llvm/ADT/StringRef.h"
 #include "llvm/ADT/Optional.h"
@@ -72,30 +73,6 @@ template<> struct hash<sc_elab::RecordMemberNameKey>
 namespace sc_elab 
 {
 typedef llvm::SmallVector<VerilogVar*,1> VerilogVarsVec;
-
-/// Generates unique names inside module body
-class UniqueNamesGenerator {
-public:
-    void reset() { 
-        takenNames.clear(); 
-        changedNames.clear(); 
-    }
-    std::string getUniqueName (const std::string & suggestedName);
-    
-    bool isTaken(const std::string & name);
-    bool isChanged(const std::string & name);
-
-    UniqueNamesGenerator () = default;
-    UniqueNamesGenerator (UniqueNamesGenerator &&) = default;
-    UniqueNamesGenerator (const UniqueNamesGenerator &) = delete;
-    UniqueNamesGenerator& operator=(UniqueNamesGenerator &&) = default;
-
-private:
-    // Names already taken
-    std::set<std::string> takenNames;
-    // Names have collision, store original name which has been modified
-    std::set<std::string> changedNames;
-};
 
 //=============================================================================
 /// Verilog Variable object
@@ -363,7 +340,12 @@ public:
     /// Detect multiple used/defined variable/channel in different processes
     void detectUseDefErrors();
     
+    /// Print module to output stream
     void serializeToStream(llvm::raw_ostream &os) const;
+    
+    /// Generate port map file
+    void createPortMap(llvm::raw_ostream &os) const;
+
 
     const ModuleMIFView getModObj() const { return elabModObj; }
     const std::string& getName() const { return name; }
@@ -427,7 +409,7 @@ public:
                                            APSIntVec initVals = {},
                                            llvm::StringRef comment = "");
 
-    // Create auxilary Verilog variable for port binding purposes, it has no mapping
+    // Create auxiliary Verilog variable for port binding purposes, it has no mapping
     // to elaboration object (not exists in SystemC source)
     VerilogVar* createAuxilarySignal(llvm::StringRef suggestedName,
                                      size_t bitwidth,
@@ -436,13 +418,21 @@ public:
                                      APSIntVec initVals = {},
                                      llvm::StringRef comment = "");
 
-    // Create auxilary Verilog port for port binding purposes, it has no mapping
+    // Create auxiliary Verilog port for port binding purposes, it has no mapping
     // to elaboration object (not exists in SystemC source)
     VerilogVar* createAuxilaryPort(PortDirection dir,
                                    llvm::StringRef suggestedName,
                                    size_t bitwidth,
                                    IndexVec arrayDims,
                                    bool isSigned,
+                                   APSIntVec initVals = {},
+                                   llvm::StringRef comment = "");
+    
+    /// Create auxiliary Verilog port for port binding purposes and remove 
+    /// signal variable from this Verilog module
+    /// Used to keep signal name when signal connected to port in another module
+    VerilogVar* createAuxilaryPortForSignal(PortDirection dir,
+                                   VerilogVar* verVar,
                                    APSIntVec initVals = {},
                                    llvm::StringRef comment = "");
 

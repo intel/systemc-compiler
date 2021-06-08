@@ -20,23 +20,24 @@ public:
 
     SC_CTOR(A) 
     {
-        SC_CTHREAD(copy_rec_arr_elem, clk.pos());  
-        async_reset_signal_is(nrst, 0);
-
-        SC_CTHREAD(copy_rec_arr_elem2, clk.pos());  
-        async_reset_signal_is(nrst, 0);
-
-        SC_CTHREAD(copy_rec_arr_unknw, clk.pos());  
-        async_reset_signal_is(nrst, 0);
-
-        SC_CTHREAD(copy_rec_arr_unknw2, clk.pos());  
-        async_reset_signal_is(nrst, 0);
-        
-        SC_CTHREAD(copy_rec_arr_unknw3, clk.pos());  
-        async_reset_signal_is(nrst, 0);
-        
-        SC_CTHREAD(copy_rec_arr_mult, clk.pos());  
-        async_reset_signal_is(nrst, 0);
+          // #141
+//        SC_CTHREAD(copy_rec_arr_elem, clk.pos());  
+//        async_reset_signal_is(nrst, 0);
+//
+//        SC_CTHREAD(copy_rec_arr_elem2, clk.pos());  
+//        async_reset_signal_is(nrst, 0);
+//
+//        SC_CTHREAD(copy_rec_arr_unknw, clk.pos());  
+//        async_reset_signal_is(nrst, 0);
+//
+//        SC_CTHREAD(copy_rec_arr_unknw2, clk.pos());  
+//        async_reset_signal_is(nrst, 0);
+//        
+//        SC_CTHREAD(copy_rec_arr_unknw3, clk.pos());  
+//        async_reset_signal_is(nrst, 0);
+//        
+//        SC_CTHREAD(copy_rec_arr_mult, clk.pos());  
+//        async_reset_signal_is(nrst, 0);
     }
    
     

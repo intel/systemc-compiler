@@ -26,9 +26,11 @@ namespace sc {
  * Otherwise return false
  *
  * @param funcDecl - top level function for thread
- * @return true if thread has single state
+ * @return <one wait or all waits before/in the end of main loop, 
+ *          only one wait in the end of main loop>
  */
-bool isSingleStateThread(const ScCThreadStates &states);
+std::pair<bool, bool> isSingleStateThread(const ScCThreadStates &states, 
+                                          const clang::Stmt* mainLoop);
 
 } // namespace sc
 

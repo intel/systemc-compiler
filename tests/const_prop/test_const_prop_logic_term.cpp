@@ -5,32 +5,26 @@
 * 
 *****************************************************************************/
 
-//
-// Created by ripopov on 7/7/18.
-//
-
 #include <systemc.h>
 #include <sct_assert.h>
 
-
+// Function call and other side effects in complex condition with &&/||
 SC_MODULE(top) {
 
-    SC_CTOR(top) {
-        SC_METHOD(test_method);
-    }
+    sc_signal<int> s;
 
-    sc_signal<int> din;
+    SC_CTOR(top) {
+        //SC_METHOD(test_method); sensitive << s;
+        SC_METHOD(test_method2); sensitive << s;
+    }
 
     int dec(int &x1) {
         return x1--;
     }
 
-
-    void test_method () {
+    void test_method () 
+    {
         int x = 1;
-
-//        x = dec(x) + 1;
-//
         int y = dec(x) && dec(x) && dec(x) && dec(x);
 
         sct_assert_const(x == -1);
@@ -47,6 +41,21 @@ SC_MODULE(top) {
         sct_assert_const(y == 0);
         sct_assert_const(z == 1);
 
+    }
+    
+    
+    static const bool A = true;
+    void test_method2 () 
+    {
+        int x = 2;
+        bool b = true || dec(x);
+        sct_assert_const(x == 2);
+        
+        b = A || dec(x);
+        sct_assert_const(x == 2);
+        
+        b = s.read()  || dec(x);
+        sct_assert_const(x == 1);
     }
 
 };

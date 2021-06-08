@@ -21,6 +21,8 @@ public:
 
         SC_METHOD(concat_cpp); 
         sensitive << s3 << s4;
+
+        SC_METHOD(cast_lhs); sensitive << s3;
     }
     
     void icorrect_concat() 
@@ -50,6 +52,19 @@ public:
         z = (s3, 0, y);                     // ERROR
         z = (yy*y, i);  
         bz = (by, yy + s4.read(), s3);      // ERROR
+    }
+    
+    void cast_lhs() 
+    {
+        int k;
+        sc_uint<4> a;
+        unsigned i;
+
+        // Error reported: LValueBitCast not supported
+        (int&)a = s3.read();
+        if (a) k = 1;
+        (int&)i = s3.read();
+        if (i) k = 1;
     }
 };
 

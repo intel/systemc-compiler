@@ -17,6 +17,7 @@ SC_MODULE(top) {
 
     SC_CTOR(top) {
         SC_METHOD(test_method);
+        sensitive << din;
     }
 
     sc_signal<bool> din;
@@ -27,9 +28,10 @@ SC_MODULE(top) {
             x1 = 0;
             y1 = 1;
             return;
+        } else {
+            x1 = 1;
+            y1 = 1;
         }
-        x1 = 1;
-        y1 = 1;
     }
 
     void forked2(unsigned &x2, unsigned &y2) {

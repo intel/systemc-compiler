@@ -152,6 +152,10 @@ public:
 // ----------------------------------------------------------------------------
 // Auxiliary functions
     
+    /// Get all sub-expressions in initializer list 
+    std::vector<clang::Expr*> getAllInitExpr(clang::Expr* expr,
+                                             bool innerArray = false) const;
+    
     /// Get AST value for constant or template parameter given as @lval
     /// \return true and integer value in @rval of false and NO_VALUE
     static bool getConstASTValue(const clang::ASTContext &context,
@@ -253,12 +257,12 @@ protected:
     /// Used for local variables access in left/right parts
     virtual void parseExpr(clang::DeclRefExpr* expr, SValue& val);
     
-    /// Set root to determine module hierarchy
-    virtual void parseExpr(clang::CXXThisExpr* expr, SValue& thisPtrVal);
-    
     /// Any access of member variable
     virtual void parseExpr(clang::MemberExpr* expr, SValue& val);
 
+    /// Set root to determine module hierarchy
+    virtual void parseExpr(clang::CXXThisExpr* expr, SValue& thisPtrVal);
+    
     /// Used for implicit type cast and LValue to RValue cast.
     virtual void parseExpr(clang::ImplicitCastExpr* expr, SValue& rval, SValue& val);
     virtual void parseExpr(clang::ExplicitCastExpr* expr, SValue& rval, SValue& val);
@@ -275,6 +279,9 @@ protected:
 
     /// Used for default initializer in constructor or in aggregate initialization
     virtual void parseExpr(clang::InitListExpr* expr, SValue& val) {}
+    
+    /// C++ type default initializer (0), used for array filler 
+    virtual void parseExpr(clang::ImplicitValueInitExpr* expr, SValue& val);
     
     /// CXX constructor, including @sc_port/@sc_signal
     virtual void parseExpr(clang::CXXConstructExpr* expr, SValue& val);

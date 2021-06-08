@@ -25,6 +25,7 @@ namespace {
 
 class SingleStateImp {
     const ScCThreadStates &states;
+    const clang::Stmt* mainLoop;
     ASTContext &astCtx;
 
     /// Set of all statements succeeding wait()s
@@ -33,13 +34,13 @@ class SingleStateImp {
 
 public:
 
-    SingleStateImp (const ScCThreadStates &states)
-    : states(states)
+    SingleStateImp (const ScCThreadStates &states, const clang::Stmt* mainLoop)
+    : states(states), mainLoop(mainLoop)
     , astCtx(states.getEntryFunction()->getASTContext())
     {}
 
-    const Stmt * getNextStmt(const CFGBlock *curBlock, size_t nextElementID) {
-
+    const Stmt * getNextStmt(const CFGBlock *curBlock, size_t nextElementID) 
+    {
         if (nextElementID == 0) {
             // we are entering new block, check if it is a loop header
             if (auto *loopStmt = getLoopStmt(curBlock))
@@ -51,11 +52,10 @@ public:
             assert(nextElement.getKind() == CFGElement::Statement);
             auto nextStmt = nextElement.getAs<CFGStmt>()->getStmt();
 
-            if (auto expr = dyn_cast<Expr>(nextStmt);
-                expr && expr->isIntegerConstantExpr(astCtx)) {
+            auto expr = dyn_cast<Expr>(nextStmt);
+            if (expr && expr->isIntegerConstantExpr(astCtx)) {
                 ++nextElementID;
-            }
-            else {
+            } else {
                 return nextStmt;
             }
         }
@@ -75,24 +75,28 @@ public:
         if (curBlock->succ_size() == 0)
             return nullptr;
 
-        assert(curBlock->succ_size() == 1);
+        assert (curBlock->succ_size() == 1 && 
+                "No successor block in SingleStateImp::getNextStmt");
 
         // get first stmt of next block
         return getNextStmt(*curBlock->succ_begin(), 0);
     }
 
 
-    bool run() {
+    std::pair<bool, bool> run() 
+    {
+        using std::cout; using std::endl;
 
         if (states.getNumFSMStates() == 0) {
-            return true;
+            ScDiag::reportScDiag(mainLoop->getBeginLoc(), 
+                                 ScDiag::SC_FATAL_THREAD_NO_STATE);
         }
         
         // Do not consider thread as single state if there is wait(n)
         if (states.hasWaitNState()) {
-            return false;
+            return std::make_pair(false, false);
         }
-
+        
         for (size_t i = 0; i < states.getNumFSMStates(); ++i) {
             const auto waitStack = states.getStateCallStack(i);
             const auto waitCursor = waitStack.back();
@@ -105,18 +109,32 @@ public:
                 waitCursor.getElementID() + 1));
         }
 
-        assert(waitSuccsSet.size() > 0);
-//        llvm::outs() << "waitSuccsSet size : " << waitSuccsSet.size() << "\n";
-        return waitSuccsSet.size() == 1;
+        assert (waitSuccsSet.size() > 0);
+        //cout << "waitSuccsSet size : " << waitSuccsSet.size() << endl;
+
+        // Check if one loop statement is main loop 
+        if (waitSuccsSet.size() == 1) {
+            // Main loop is next statement after all wait`s
+            bool mainLoopAfterWaits = waitSuccsSet.find(mainLoop) != 
+                                      waitSuccsSet.end();
+            // One state is always single 
+            bool singleState = states.getNumFSMStates() == 1 || mainLoopAfterWaits;
+            // Only one wait in the end of main loop, means no reset code
+            bool waitMainLoop = states.getNumFSMStates() == 1 && mainLoopAfterWaits;
+            
+            return std::make_pair(singleState, waitMainLoop);
+        }
+        return std::make_pair(false, false);
     }
 };
 
 } // namespace
 
 
-bool isSingleStateThread(const ScCThreadStates &states)
+std::pair<bool, bool> isSingleStateThread(const ScCThreadStates &states, 
+                                          const clang::Stmt* mainLoop)
 {
-    return SingleStateImp(states).run();
+    return SingleStateImp(states, mainLoop).run();
 }
 
 } // namespace sc

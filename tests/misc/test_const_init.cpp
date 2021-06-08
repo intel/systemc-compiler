@@ -11,7 +11,6 @@
 // Constant initialization in constructor body
 struct A : public sc_module 
 {
-    sc_in<bool> clk{"clk"};
     sc_signal<sc_uint<32>> s;
     
     const bool b = 0;
@@ -43,11 +42,17 @@ struct A : public sc_module
         j = 10;
         z = 11;
         
-        SC_METHOD(proc);
-        sensitive << clk.pos();
+        SC_METHOD(constInit);
+        sensitive << s;
+
+        SC_METHOD(unknownConstInit);
+        sensitive << s;
+    
+        SC_METHOD(unknownConstFunc);
+        sensitive << s;
     }
     
-    void proc() 
+    void constInit() 
     {
         sct_assert_const(b);
         sct_assert_const(i == 12);
@@ -67,25 +72,66 @@ struct A : public sc_module
             sct_assert_const(arr[i] == i+1);
         }
     }
-
-};
-
-struct Top : public sc_module 
-{
-    sc_in<bool>     clk{"clk"};
-    A               modA{"modA", 1, 11};
-
-    SC_CTOR(Top)  
+    
+    void unknownConstInit() 
     {
-        modA.clk(clk);
+        const bool c1 = s.read() == 42;
+        const int c2  = s.read();
+        const sc_uint<16> c3 = sc_uint<16>(s.read());
+        const sc_bigint<65> c4 = sc_bigint<65>(s.read());
+        
+        sct_assert_unknown(c1);
+        sct_assert_unknown(c2);
+        sct_assert_unknown(c3);
+        sct_assert_unknown(c4);
+        
+        const bool d1 = c2 == c3;
+        const unsigned d2 = d1 ? c3.to_uint() : c4.to_uint();
+        const sc_uint<20> d3 = sc_uint<20>(d2);
+        const sc_biguint<100> d4 = sc_biguint<100>(c4+1);
+        
+        sct_assert_unknown(d1);
+        sct_assert_unknown(d2);
+        sct_assert_unknown(d3);
+        sct_assert_unknown(d4);
+    }
+
+    
+    int f1() {
+        return s.read();
+    }
+    
+    sc_biguint<80> f2(int i) {
+        return (sc_biguint<80>(f1()));
+    }
+
+    sc_int<22> f3(int i) {
+        return (sc_int<22>(i+1));
+    }
+
+    template<typename T>
+    sc_uint<16> f4(T i) {
+        return (sc_uint<16>)i.range(15,0);
+    }
+
+    void unknownConstFunc() 
+    {
+        const int e1 = f1();
+        const auto e2  = f2(e1);
+        const auto e3 = f3(s.read());
+        const auto e4 = f4(e3);
+        
+        sct_assert_unknown(e1);
+        sct_assert_unknown(e2);
+        sct_assert_unknown(e3);
+        sct_assert_unknown(e4);        
     }
 };
 
+
 int sc_main(int argc, char **argv) {
 
-    sc_clock clock_gen{"clock_gen", 10, SC_NS};
-    Top mod{"mod"};
-    mod.clk(clock_gen);
+    A modA{"modA", 1, 11};
     sc_start();
 
     return 0;

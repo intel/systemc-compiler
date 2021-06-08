@@ -53,6 +53,8 @@ struct VerilogVarTraits
     /// Is extra zero element of MIF array or non-zero element,
     /// only one zero element is used to print
     bool skipNextAssign = false;
+    /// Constant variable which is translated into @localparam
+    bool isConstVar = false;
     
     /// For registers holds name of register
     /// For module-level combinational variables, holds variable name
@@ -82,12 +84,12 @@ struct VerilogVarTraits
     }
     
     VerilogVarTraits(VarKind kind, AccessPlace place,
-                     bool isModuleScope, bool skipNextAssign, 
+                     bool isModuleScope, bool skipNextAssign, bool isConstVar,
                      llvm::Optional<std::string> curr = llvm::None,
                      llvm::Optional<std::string> next = llvm::None,
                      llvm::Optional<std::string> suffix = llvm::None) :
         kind(kind), place(place), isModuleScope(isModuleScope), 
-        skipNextAssign(skipNextAssign),
+        skipNextAssign(skipNextAssign), isConstVar(isConstVar),
         currName(curr), nextName(next), mifElemSuffix(suffix)
     {}
 
@@ -111,6 +113,7 @@ struct VerilogVarTraits
     bool isReadOnly() const {return (kind == READONLY || kind == READONLY_CDR);}
     bool isReadOnlyCDR() const { return kind == READONLY_CDR; }
     bool isComb() const { return kind == COMB; }
+    bool isConstVerVar() const {return isConstVar;}
 
     bool isAccessInReset() const { return place == BOTH || place == IN_RESET;}
     bool isAccessAfterReset() const { 
@@ -389,10 +392,10 @@ public:
     llvm::Optional<sc_elab::ObjectView> getElabObject(const SValue &sval) const;
 
     /// Get elaboration object map
-    const std::unordered_map<SValue, std::string>& getExtrValNames();
+    const std::unordered_map<SValue, std::string>& getExtrValNames() const;
     
     /// Get variable traits including names
-    const std::unordered_map<SValue, const VerilogVarTraits>& getVarTraits();
+    const std::unordered_map<SValue, const VerilogVarTraits>& getVarTraits() const;
     
     /// Is @val array variable or pointer which owns of an object, 
     /// return false for temporary variable
@@ -402,6 +405,7 @@ public:
     /// For record it also checks derived records
     SValue getVariableForValue(const SValue& rval) const;
     
+    /// Not used now
     /// Filter Used/Defined values replacing array element with zero element
     /// \return -- all record field values for a record field/record variable
     InsertionOrderSet<SValue> getZeroIndexAllFields(const SValue& val) const;
@@ -420,10 +424,17 @@ public:
     
     /// Add value to @defined
     /// \param isDefined -- all values for fields or array elements are defined 
-    void writeToValue(SValue lval, bool isDefined = false);
+    /// \return variable for given value @lval
+    SValue writeToValue(SValue lval, bool isDefined = false);
 
     /// Add value to read not defined if it was not defined yet
-    void readFromValue(SValue lval);
+    /// \return variable for given value @lval
+    SValue readFromValue(SValue lval);
+    
+    /// Filter UseDef to remove non-used values eliminated in unused 
+    /// statements removing
+    void filterUseDef(const std::unordered_set<SValue>& defVals, 
+                      const std::unordered_set<SValue>& useVals);
     
     /// Register FOR-loop counter variable
     void regForLoopCounter(const SValue& val) {
@@ -519,6 +530,10 @@ public:
     /// \param indxs -- array indices, -1 for unknown index
     void getArrayIndices(const SValue& eval, SValue& mval, 
                          std::vector<int>& indxs) const;
+    
+    /// Get all elements in sub-arrays for given array
+    /// Not used for now
+    std::vector<SValue> getSubArrayElements(const SValue& val) const;
 
     /// Compare state tuples and set NO_VALUE if tuples are different 
     void compareAndSetNovalue(ScState* other);

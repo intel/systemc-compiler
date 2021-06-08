@@ -76,6 +76,7 @@ enable_testing()
 if( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" ) 
     message (STATUS "Debug mode: add tests and test designs")
     add_subdirectory(tests)
+    add_subdirectory(examples)
     add_subdirectory(designs)
 endif()
 

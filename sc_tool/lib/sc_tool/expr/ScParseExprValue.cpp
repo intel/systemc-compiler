@@ -24,9 +24,70 @@ using namespace std;
 using namespace clang;
 using namespace llvm;
 
+
+void ScParseExprValue::declareValue(const SValue& var) 
+{
+    if (!var.isVariable()) {
+        SCT_INTERNAL_ERROR (currStmt->getBeginLoc(), 
+                            "Non variable value in declareValue()");
+    }
+
+    state->declareValue(var);
+    
+    //cout << "DL " << var << endl;
+    auto i = defVarStmts.emplace(var, unordered_set<Stmt*>({currStmt}));
+    if (!i.second) {
+        i.first->second.insert(currStmt);
+    }
+}
+
+void ScParseExprValue::writeToValue(const SValue& val, bool isDefined) 
+{
+    SValue var = state->writeToValue(val, isDefined);
+    
+    if (var.isVariable()) {
+        //cout << "WR " << var << endl;
+        auto i = defVarStmts.emplace(var, unordered_set<Stmt*>({currStmt}));
+        if (!i.second) {
+            i.first->second.insert(currStmt);
+        }
+    }
+}
+
+void ScParseExprValue::readFromValue(const SValue& val) 
+{
+    SValue var = state->readFromValue(val);
+    
+    if (var.isVariable()) {
+        //cout << "RD " << var << endl;
+        auto i = useVarStmts.emplace(var, unordered_set<Stmt*>({currStmt}));
+        if (!i.second) {
+            i.first->second.insert(currStmt);
+        }
+    }
+}
+
+/// Enter and exit constant evaluating mode 
+struct EvalMode {
+    bool& evaluateConstMode;
+    EvalMode(bool& mode) : evaluateConstMode(mode) {
+        DebugOptions::suspend();
+        evaluateConstMode = true;
+    }
+    ~EvalMode() {
+        evaluateConstMode = false;
+        DebugOptions::resume();
+    }
+};
+
 // Parse SCT_ASSERT in module scope to fill read value
 void ScParseExprValue::parseSvaDecl(const clang::FieldDecl* fdecl) 
 {
+    // Assertion expression cannot contain function call
+    // Suspend debug to ignore parsing expressions done for constant evaluation
+    // and prevent user defined function calls
+    EvalMode em(evaluateConstMode);
+
     Expr* expr = removeExprCleanups(fdecl->getInClassInitializer());
     
     std::vector<Expr*> args;
@@ -43,8 +104,8 @@ void ScParseExprValue::parseSvaDecl(const clang::FieldDecl* fdecl)
     SValue sval = evalSubExpr(args[1]);
     // Do not parse time argument(s) as its evaluated to integer
 
-    state->readFromValue(fval);
-    state->readFromValue(sval);
+    readFromValue(fval);
+    readFromValue(sval);
     state->setParseSvaArg(false);
 }
 
@@ -56,13 +117,14 @@ std::pair<SValue, SValue>
 ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst)
 {
     // Suspend debug to ignore parsing expressions done for constant evaluation
-    DebugOptions::suspend();
+    // and prevent user defined function calls
+    EvalMode em(evaluateConstMode);
+    
     SValue val = evalSubExpr(expr);
     //cout << "evaluateConstInt val " << val << " rval " << getValueFromState(val) << endl;
     
     // Return integer value
     if (val.isInteger()) {
-        DebugOptions::resume();
         return make_pair(val, val);
     }
     
@@ -70,7 +132,6 @@ ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst)
     // from constants in state
     if (val.isTmpVariable()) {
         SValue rval = getValueFromState(val);
-        DebugOptions::resume();
         return make_pair(val, rval);
     }
 
@@ -83,11 +144,9 @@ ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst)
     // Get value from constant variable
     if (isConst || !checkConst) {
         SValue rval = getValueFromState(val);
-        DebugOptions::resume();
         return make_pair(val, rval);
     }
     
-    DebugOptions::resume();
     return make_pair(val, NO_VALUE);
 }
 
@@ -100,6 +159,10 @@ SValue ScParseExprValue::evaluateConstInt(clang::Expr* expr, const SValue& val,
     if (val.isInteger()) {
         return val;
     }
+    
+    // Suspend debug to ignore parsing expressions done for constant evaluation
+    // and prevent user defined function calls
+    EvalMode em(evaluateConstMode);
     
     // Do not check @checkConst here as under @checkConst it is evaluated 
     // from constants in state
@@ -126,6 +189,10 @@ SValue ScParseExprValue::evaluateConstInt(clang::Expr* expr, const SValue& val,
 bool ScParseExprValue::checkConstRefValue(SValue val)
 {
     if (val.isInteger()) return true;
+    
+    // Suspend debug to ignore parsing expressions done for constant evaluation
+    // and prevent user defined function calls
+    EvalMode em(evaluateConstMode);
     
     if (val.isTmpVariable()) {
         val = getValueFromState(val);
@@ -223,13 +290,13 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
         // Array passed by pointer, reference on argument is used
         if (!isRef && !isPtr && !isArray || isConstRefInit || isConstRefArrUnkw) {
             // Put parameter passed by value to @defined
-            state->writeToValue(pval, true);
+            writeToValue(pval, true);
             
             // Put argument passed by value to @read, apply for constant array 
             // element at unknown index, but not to general constant if replaced,
             // do not apply for record copy as done in parsing @CXXConstructExpr
             if (ipval && !isRecCopy && (!isConstRefInit || !replaceConstByValue)) {
-                state->readFromValue(ipval);
+                readFromValue(ipval);
             }
         }
         
@@ -313,9 +380,9 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
         // Declare variable to avoid register creation and remove declaration 
         // Declare variable/array variable to remove declaration if not used 
         if (iexpr) {
-            state->writeToValue(val, true); 
+            writeToValue(val, true); 
         } else {
-            state->declareValue(val);
+            declareValue(val);
         }
     }
     
@@ -325,7 +392,7 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
     // If declaration has initializer add it as read to @state
     if (iexpr && !isRec && !isRecArr && !isRef && !isPtr) {
         for (SValue ival : varvals.second) {
-            state->readFromValue(ival);
+            readFromValue(ival);
         }
     }
 }
@@ -358,6 +425,30 @@ void ScParseExprValue::parseExpr(clang::DeclRefExpr* expr, SValue& val)
             }
         }
     }
+}
+
+// Any access of member variable
+void ScParseExprValue::parseExpr(clang::MemberExpr* expr, SValue& val)
+{
+    using namespace llvm;
+    ValueDecl* decl = expr->getMemberDecl();
+
+    ScParseExpr::parseExpr(expr, val);
+
+    // Initialization of static constant variables
+    if (!isa<clang::EnumConstantDecl>(decl)) {
+        if (isa<clang::RecordDecl>(decl->getDeclContext())) {
+            // Class data members
+            if (auto* varDecl = dyn_cast<clang::VarDecl>(decl)) {
+                if (varDecl->isStaticDataMember()) {
+                    // Static data member
+                    if (val.getType().isConstQualified()) {
+                        parseGlobalConstant(val);
+                    }
+                }
+            }
+        }
+    } 
 }
 
 // Used for default initializer in constructor or in aggregate initialization
@@ -413,10 +504,9 @@ void ScParseExprValue::parseExpr(InitListExpr* expr, SValue& val)
     QualType type = expr->getType();
     
     if (type->isArrayType()) {
-        // Element type
-        QualType elmType = cast<clang::ArrayType>(type)->getElementType();
         // Array initialization list
         if (expr->getNumInits() > 0) {
+            QualType elmType = cast<clang::ArrayType>(type)->getElementType();
             val = SValue(elmType);
             //state->setValueLevel(val, level+1); //TODO: check me, +1 ???  
             
@@ -428,12 +518,17 @@ void ScParseExprValue::parseExpr(InitListExpr* expr, SValue& val)
             // Array initialization list
             for (unsigned i = 0; i < size; i++) {
                 SValue ival = evalSubExpr(expr->getInit(i));
-                state->readFromValue(ival);
+                readFromValue(ival);
                 
                 aval.getArray().setOffset(i);
                 assignValueInState(aval, ival);
                 //state->setValueLevel(aval, level); //TODO: check me 
             }
+        } else 
+        if (auto arrayFiller = expr->getArrayFiller()) {
+            // Multidimensional array initializer with empty brackets
+            val = evalSubExpr(arrayFiller);
+            
         } else {
             ScDiag::reportScDiag(expr->getBeginLoc(), 
                                  ScDiag::SYNTH_UNSUPPORTED_INIT) << " no values";
@@ -467,24 +562,8 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
             SValue initVal;
 
             if (expr->getNumArgs() == 0) {
-                size_t width = 64; 
-                bool isUnsigned = true;
+                initVal = SValue::zeroValue(expr);
                 
-                if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
-                    width = typeInfo.getValue().first;
-                    isUnsigned = typeInfo.getValue().second;
-                } else {
-                    ScDiag::reportScDiag(expr->getBeginLoc(),
-                                         ScDiag::SYNTH_UNKNOWN_TYPE_WIDTH) << 
-                                         type.getAsString();
-                }
-                                
-                if (width != 0) {
-                    initVal = SValue(APSInt(width, isUnsigned), 10);
-                } else {
-                    ScDiag::reportScDiag(expr->getBeginLoc(), 
-                                ScDiag::SYNTH_ZERO_TYPE_WIDTH) << "";
-                } 
             } else 
             if (expr->getNumArgs() == 1) {
                 auto argExpr = expr->getArg(0);
@@ -492,7 +571,7 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
                 if (isAnyIntegerRef(argExpr->getType())) {
                     // Parse constructor argument
                     SValue rval = evalSubExpr(expr->getArg(0));
-                    state->readFromValue(rval);
+                    readFromValue(rval);
 
                     // Try to get integer value
                     SValue rrval = getValueFromState(rval);
@@ -565,6 +644,12 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
                                  ScDiag::SYNTH_LOCAL_MODULE_DECL);
         }
         if (locrecvar) {
+            if (evaluateConstMode) {
+                // No user-define function call in constant evaluation mode
+                // Prevent construction body analysis in @parseRecordCtor() 
+                val = NO_VALUE;
+                
+            } else 
             if (isCopyCtor) {
                 // Copy constructor to pass record parameter by value
                 if (!expr->getArg(0)) {
@@ -600,9 +685,9 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
                 auto recDecl = val.getType()->getAsCXXRecordDecl();
                 for (auto fieldDecl : recDecl->fields()) {
                     SValue fval(fieldDecl, rrec);
-                    state->readFromValue(fval);
+                    readFromValue(fval);
                     fval = SValue(fieldDecl, val);
-                    state->writeToValue(fval);
+                    writeToValue(fval);
                 }
                 
             } else {
@@ -613,16 +698,20 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
                 auto recDecl = val.getType()->getAsCXXRecordDecl();
                 for (auto fieldDecl : recDecl->fields()) {
                     SValue fval(fieldDecl, val);
-                    state->writeToValue(fval);
+                    writeToValue(fval);
                 }
                 // No set level as record is returned
             }
             locrecvar = NO_VALUE;
         }
+        isUserCallStmt = true;
+        isRequiredStmt = true;
         
     } else 
     if (getUserDefinedClassFromArray(type)) {
         // Do nothing, record array filled in ScParseExpr::parseValueDecl()
+        isUserCallStmt = true;
+        isRequiredStmt = true;
         
     } else {
         SCT_INTERNAL_FATAL(expr->getBeginLoc(), 
@@ -729,7 +818,7 @@ void ScParseExprValue::parseExpr(ArraySubscriptExpr* expr, SValue& val)
     bool lastAssignLHS = assignLHS; assignLHS = false;
     SValue ival = evalSubExpr(expr->getIdx());  // Index value
     assignLHS = lastAssignLHS;
-    state->readFromValue(ival);
+    readFromValue(ival);
     
     val = parseArraySubscript(expr, bval, ival);
 }
@@ -780,7 +869,7 @@ void ScParseExprValue::parseImplExplCast(CastExpr* expr, SValue& rval,
         if (castKind == CK_IntegralToBoolean || castKind == CK_IntegralCast) {
             if (val.isVariable()) {
                 // Read value if real type casting done, can be in RHS only
-                state->readFromValue(val);
+                readFromValue(val);
 
                 // Replace variable with its value
                 val = getValueFromState(val);
@@ -860,7 +949,10 @@ void ScParseExprValue::parseExpr(ExplicitCastExpr* expr, SValue& rval, SValue& v
             if (castKind == CK_ConstructorConversion || castKind == CK_ToVoid ||
                 castKind == CK_NoOp) {
                 // No cast required
-                
+            } else 
+            if (castKind == CK_LValueBitCast) {
+                ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                     ScDiag::SYNTH_LVALUE_BIT_CAST);
             } else {
                 cout << "Cast kind " << expr->getCastKindName(castKind) << endl;
                 expr->getBeginLoc().dump(sm);
@@ -935,11 +1027,11 @@ void ScParseExprValue::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
     //cout << "Binary operator lval " << lval << ", rval " << rval << endl;
     
     // Add defined/read to state
-    state->readFromValue(rval);
+    readFromValue(rval);
     if (opcode == BO_Assign) {
-        state->writeToValue(lval);
+        writeToValue(lval);
     } else {
-        state->readFromValue(lval);
+        readFromValue(lval);
     }
     
     SValue obj1 = (llval.isVariable() || llval.isTmpVariable() || 
@@ -963,6 +1055,11 @@ void ScParseExprValue::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
         }
         val = lval;
 
+        isAssignStmt   = true;
+        isRequiredStmt = (sc::isScChannel(lexpr->getType()) || 
+                          sc::isScChannelArray(lexpr->getType())) ? 
+                          true : isRequiredStmt;
+        
     } else 
     if (opcode == BO_Add || opcode == BO_Sub) 
     {
@@ -1344,49 +1441,20 @@ void ScParseExprValue::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
     SValue rval = evalSubExpr(rexpr);
 
     // Keep array unknown element
-    SValue llval = getValueFromState(lval, ArrayUnkwnMode::amArrayUnknown);
-    //cout << "parseCompoundAssignStmt lval " << lval << ", llval " << llval << endl;
+    SValue llval = getValueFromState(lval);
     SValue rrval = getValueFromState(rval);
-
     // Get referenced variable for @llval and @rrval
     SValue tmp;
     state->getDerefVariable(rrval, tmp); rrval = tmp;
     state->getDerefVariable(llval, tmp); llval = tmp;
     
-    // Add defined/read to state 
     // Add @lval to @read first to produce @readndef if required
-    state->readFromValue(rval);
-    state->readFromValue(lval);
-    state->writeToValue(lval);
+    readFromValue(rval);
+    readFromValue(lval);
+    writeToValue(lval);
 
     BinaryOperatorKind opcode = stmt->getOpcode();
-    string opcodeStr = stmt->getOpcodeStr();
     
-    // Do not apply to array unknown element
-    if (llval.isArray() && !llval.getArray().isUnknown() && rrval.isInteger()) {
-        // Pointer arithmetic
-        if (opcode == BO_AddAssign || opcode == BO_SubAssign) {
-            // Get shifted object
-            int64_t shiftIndx = (opcode == BO_AddAssign) ?
-                (llval.getArray().getOffset() + rrval.getInteger().getExtValue()) :
-                (llval.getArray().getOffset() - rrval.getInteger().getExtValue());
-
-            if (shiftIndx >= 0 && (size_t)shiftIndx < llval.getArray().getSize()) {
-                llval.getArray().setOffset(shiftIndx);
-            } else {
-                llval = NO_VALUE;
-                ScDiag::reportScDiag(stmt->getBeginLoc(), 
-                                     ScDiag::CPP_ARRAY_OUT_OF_BOUND);
-            }
-        } else {
-            SCT_INTERNAL_FATAL(stmt->getBeginLoc(), 
-                             "Unknown pointer operation "+opcodeStr);
-        }    
-        // Update the @lval and return it
-        state->putValue(lval, llval);
-        val = lval;
-
-    } else 
     if (llval.isInteger() && rrval.isInteger()) {
         // Integer arithmetic
         APSInt val1 = llval.getInteger(); 
@@ -1447,20 +1515,18 @@ void ScParseExprValue::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
 
         // Update the @lval and return it
         state->putValue(lval, SValue(res, llval.getRadix())); 
-        val = lval;
 
     } else {
-        // Remove array values by unknown element access
-        if (llval.isArray() && llval.getArray().isUnknown()) {
-            state->putValue(llval, NO_VALUE);
-        }
-        
-        val = NO_VALUE;
-        if (checkNoValue) {
-            SCT_INTERNAL_FATAL(stmt->getBeginLoc(), 
-                             "No values in compound assign statement "+opcodeStr);
-        }
+        // Remove LHS variable value (de-reference inside)
+        // Remove values for all array elements by unknown element access
+        state->putValue(lval, NO_VALUE);
     }
+    
+    // Return @lval anyway
+    val = lval;
+    isSideEffStmt  = true;
+    isAssignStmt   = true;
+    isRequiredStmt = true;
 }
 
 void ScParseExprValue::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
@@ -1525,7 +1591,7 @@ void ScParseExprValue::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
     if (opcode == UO_Plus) {
         // Plus operation
         val = rval;
-        state->readFromValue(rval);
+        readFromValue(rval);
         
     } else 
     if (opcode == UO_Minus)  
@@ -1551,13 +1617,13 @@ void ScParseExprValue::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
             }
         }
         //cout << "Minus rval " << rval << " val " << val << endl;
-        state->readFromValue(rval);
+        readFromValue(rval);
           
     } else 
     if (opcode == UO_LNot)
     {
         val = evalUnaryLNot(rval);
-        state->readFromValue(rval);
+        readFromValue(rval);
         
     } else 
     if (opcode == UO_Not)
@@ -1570,7 +1636,7 @@ void ScParseExprValue::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
             // Do not use @evalUnaryBNot as it does not propagate MSB 
             val = NO_VALUE;
         }
-        state->readFromValue(rval);
+        readFromValue(rval);
         
     } else 
     if (isIncrDecr)
@@ -1578,8 +1644,11 @@ void ScParseExprValue::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
         val = parseIncDecStmt(rval, isPrefix, opcode == UO_PostInc || 
                               opcode == UO_PreInc);
 
-        state->readFromValue(rval);
-        state->writeToValue(rval);
+        readFromValue(rval);
+        writeToValue(rval);
+        
+        isSideEffStmt  = true;
+        isRequiredStmt = true;
         
     } else {
         ScDiag::reportScDiag(expr->getBeginLoc(), 
@@ -1663,18 +1732,18 @@ void ScParseExprValue::parseConditionalStmt(ConditionalOperator* stmt, SValue& v
     if (cval) {
         if (cval.getBoolValue()) {
             val = evalSubExpr(stmt->getTrueExpr());
-            state->readFromValue(val);
+            readFromValue(val);
             
         } else {
             val = evalSubExpr(stmt->getFalseExpr());
-            state->readFromValue(val);
+            readFromValue(val);
         }
     } else {
         val = NO_VALUE;
         SValue trueval  = evalSubExpr(stmt->getTrueExpr());
         SValue falseval = evalSubExpr(stmt->getFalseExpr());
-        state->readFromValue(trueval);
-        state->readFromValue(falseval);
+        readFromValue(trueval);
+        readFromValue(falseval);
     }
     // ReadDefined properties for condition added in @TraverseConst::evaluateTermCond
 }
@@ -1781,6 +1850,9 @@ SValue ScParseExprValue::getConcatVal(const SValue& fval, const SValue& sval)
 // Function call expression
 void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
 {
+    // There is no value for many of member calls
+    val = NO_VALUE;
+    
     // Get arguments
     Expr** args = expr->getArgs();
     unsigned argNum = expr->getNumArgs();
@@ -1811,7 +1883,9 @@ void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
         SCT_TOOL_ASSERT (argNum == 1 || argNum == 2, "Incorrect argument number");
 
         SValue fval = evalSubExpr(args[0]);
-        state->readFromValue(fval);
+        readFromValue(fval);
+        
+        isRequiredStmt = noSvaGenerate ? isRequiredStmt : true;
         
     } else 
     if (fname == "sct_assert_const" || fname == "__assert" || 
@@ -1836,7 +1910,6 @@ void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
                 }
             }
         }
-        val = NO_VALUE; // No value returned from assert
         
     } else
     if (fname == "sct_assert_defined" || fname == "sct_assert_register" ||
@@ -1895,9 +1968,16 @@ void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
         // Do nothing, implemented in ScTraverseConst
         
     } else 
+    if (fname == "sct_alive_loop") {
+        // Set the following loop has at least one iteration
+        aliveLoop = true;
+        
+    } else 
     if (fname == "sct_assert_in_proc_start") {
         // Set parsing SVA argument mode to make them registers
         if (!noSvaGenerate) state->setParseSvaArg(true);
+        
+        isRequiredStmt = noSvaGenerate ? isRequiredStmt : true;
         
     } else 
     if (fname == "sct_assert_in_proc_func") {
@@ -1910,10 +1990,11 @@ void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
             SValue sval = evalSubExpr(args[1]);
             // Do not parse time argument(s) as its evaluated to integer
             
-            state->readFromValue(fval);
-            state->readFromValue(sval);
+            readFromValue(fval);
+            readFromValue(sval);
             state->setParseSvaArg(false);
         }
+        isRequiredStmt = noSvaGenerate ? isRequiredStmt : true;
         
     } else 
     if (nsname && *nsname == "sc_dt" && isScTypeFunc) {
@@ -1928,11 +2009,17 @@ void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
             SValue sval = evalSubExpr(sexpr);
             
             // Read value for any usage, that can lead to extra register for LHS
-            state->readFromValue(fval);
-            state->readFromValue(sval);
+            readFromValue(fval);
+            readFromValue(sval);
             
             // Put concatenation expression
             val = getConcatVal(fval, sval);
+            
+            // Clear variables if they are in LHS
+            if (assignLHS) {
+                state->putValue(fval, NO_VALUE);
+                state->putValue(sval, NO_VALUE);
+            }
             
         } else
         if (fname == "and_reduce" || fname == "or_reduce" ||
@@ -1946,18 +2033,15 @@ void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
             SValue rrval = getValueFromState(rval);
             
             // This cannot be in left part
-            state->readFromValue(rval);
+            readFromValue(rval);
 
             // Put reduction unary expression
             val = getReducedVal(fname, rrval);
             
-        } else {
-            val = NO_VALUE;
         }
 
     } else 
     if (nsname && *nsname == "sc_core") {
-        val = NO_VALUE;
         
     } else 
     if (((nsname && *nsname == "std") || isLinkageDecl(funcDecl)) &&
@@ -1965,16 +2049,15 @@ void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
          fname == "sprintf" || fname == "snprintf" ||
          fname == "fopen" || fname == "fclose"))
     {
-        val = NO_VALUE;
         
     } else {
         // General functions, most logic is in ScTraverseConst
         // Declare temporary return variable in current module
         if (!isVoidType(retType)) {
             val = SValue(retType, modval);
-        } else {
-            val = NO_VALUE;
         }
+        isUserCallStmt = true;
+        isRequiredStmt = true;
     }
 }
 
@@ -2047,9 +2130,9 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
             SValue rval = evalSubExpr(indxExpr);
 
             // Read index value
-            state->readFromValue(rval);
+            readFromValue(rval);
             // Read value for any usage, that can lead to extra register for LHS
-            state->readFromValue(ttval);
+            readFromValue(ttval);
 
             // Get bit value
             val = evalRangeSelect(callExpr, ttval, rval, rval);
@@ -2068,10 +2151,10 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
             SValue lval = evalSubExpr(loExpr);
             
             // Read index values
-            state->readFromValue(hval);
-            state->readFromValue(lval);
+            readFromValue(hval);
+            readFromValue(lval);
             // Read value for any usage, that can lead to extra register for LHS
-            state->readFromValue(ttval);
+            readFromValue(ttval);
             
             // Get range value
             val = evalRangeSelect(callExpr, ttval, hval, lval);
@@ -2089,7 +2172,7 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
             SValue tttval = getValueFromState(ttval);
 
             // This cannot be in left part, use @ttval to extract variable
-            state->readFromValue(ttval);
+            readFromValue(ttval);
             
             // Put reduction unary expression
             val = getReducedVal(fname, tttval);
@@ -2099,7 +2182,7 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
             fname.find("to_u") != string::npos ||
             fname.find("to_long") != string::npos) {
             // This cannot be in left part, use @ttval to extract variable
-            state->readFromValue(ttval);
+            readFromValue(ttval);
             // Get value of variable @ttval from state
             val = getValueFromState(ttval);
             
@@ -2118,7 +2201,7 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
         } else 
         if (fname.find("to_bool") != string::npos) {
             // This cannot be in left part, use @ttval to extract variable
-            state->readFromValue(ttval);
+            readFromValue(ttval);
             // Get value of variable @ttval from state
             val = getValueFromState(ttval);
             // Convert to boolean
@@ -2152,9 +2235,12 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
             Expr* writeExpr = args[0];
             SValue wval = evalSubExpr(writeExpr);
             // Mark channel written variable as read
-            state->readFromValue(wval);
+            readFromValue(wval);
             // Mark channel variable as defined, use @ttval to extract variable
-            state->writeToValue(ttval);
+            writeToValue(ttval);
+            
+            isAssignStmt   = true;
+            isRequiredStmt = true;
             
         } else
         if ((fname == "read" || (fname.find("operator") != string::npos && (
@@ -2166,7 +2252,7 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
              fname.find("bool") != string::npos))) && cval.isScChannel())
         {
             // Mark channel variable as read, use @ttval to extract variable
-            state->readFromValue(ttval);
+            readFromValue(ttval);
         }
         
     } else 
@@ -2179,6 +2265,8 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
         if (!isVoidType(retType)) {
             val = SValue(retType, modval);
         }
+        isUserCallStmt = true;
+        isRequiredStmt = true;
     }
 }
 
@@ -2245,7 +2333,6 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
 
         if (isAnyScIntegerRef(thisType, true)) {
             // Check for integer/unknown required for range in left part 
-            // TODO: remove check integer/unknown later
             if (!argsVec.at(0).isInteger() && !argsVec.at(0).isUnknown()) {
                 assignValueInState(argsVec.at(0), argsVec.at(1));
             }
@@ -2253,8 +2340,13 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         }
         
         // Mark variable/object/channel as written/read
-        state->readFromValue(argsVec.at(1));
-        state->writeToValue(argsVec.at(0));
+        readFromValue(argsVec.at(1));
+        writeToValue(argsVec.at(0));
+        
+        isAssignStmt   = true;
+        isRequiredStmt = (sc::isScChannel(thisType) || 
+                          sc::isScChannelArray(thisType)) ? 
+                          true : isRequiredStmt;
         
     } else 
     if (isScPort(thisType) && opcode == OO_Arrow) {
@@ -2265,12 +2357,12 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         
     } else
     if (isVectorIndex) {
-        // sc_vector access at index
+        // @sc_vector access at index
         
         // Parse base and index expression to fill @terms
         SValue bval = argsVec.at(0); // Array variable 
         SValue ival = argsVec.at(1); // Index value
-        state->readFromValue(ival);
+        readFromValue(ival);
         
         val = parseArraySubscript(expr, bval, ival);
         
@@ -2283,9 +2375,9 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         // SC data types
         if (opcode == OO_Subscript) { // "[]"
             SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
-            state->readFromValue(argsVec.at(1));
+            readFromValue(argsVec.at(1));
             // Read value for any usage, that can lead to extra register for LHS
-            state->readFromValue(argsVec.at(0));
+            readFromValue(argsVec.at(0));
             
             // Get bit value
             val = evalRangeSelect(expr, argsVec.at(0), argsVec.at(1), argsVec.at(1));
@@ -2298,10 +2390,10 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         } else 
         if (opcode == OO_Call) {  // "()"
             SCT_TOOL_ASSERT (argNum == 3, "Incorrect argument number");
-            state->readFromValue(argsVec.at(1));
-            state->readFromValue(argsVec.at(2));
+            readFromValue(argsVec.at(1));
+            readFromValue(argsVec.at(2));
             // Read value for any usage, that can lead to extra register for LHS
-            state->readFromValue(argsVec.at(0));
+            readFromValue(argsVec.at(0));
             
             // Get range value
             val = evalRangeSelect(expr, argsVec.at(0), argsVec.at(1), argsVec.at(2));
@@ -2316,7 +2408,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             SCT_TOOL_ASSERT (argNum == 1, "Incorrect argument number");
             
             val = evalUnaryLNot(argsVec.at(0));
-            state->readFromValue(argsVec.at(0));
+            readFromValue(argsVec.at(0));
 
         } else 
         if (opcode == OO_Tilde) { // "~"
@@ -2328,18 +2420,24 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             } else {
                 // Do not use @evalUnaryBNot as it does not propagate MSB 
             }
-            state->readFromValue(argsVec.at(0));
+            readFromValue(argsVec.at(0));
 
         } else 
         if (opcode == OO_Comma) { // ","
             SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
 
             // Read value for any usage, that can lead to extra register for LHS
-            state->readFromValue(argsVec.at(0)); 
-            state->readFromValue(argsVec.at(1));
+            readFromValue(argsVec.at(0)); 
+            readFromValue(argsVec.at(1));
             
             // Put concatenation expression
             val = getConcatVal(argsVec.at(0), argsVec.at(1));
+            
+            // Clear variables if they are in LHS
+            if (assignLHS) {
+                state->putValue(argsVec.at(0), NO_VALUE);
+                state->putValue(argsVec.at(1), NO_VALUE);
+            }
             
         } else 
         // "++" "--"
@@ -2348,17 +2446,22 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             SCT_TOOL_ASSERT (argNum == 1 || argNum == 2, 
                              "Incorrect argument number");
             
-            state->readFromValue(argsVec.at(0));
-            state->writeToValue(argsVec.at(0));
+            readFromValue(argsVec.at(0));
+            writeToValue(argsVec.at(0));
 
             bool isPrefix = (argNum == 1);
             val = parseIncDecStmt(argsVec.at(0), isPrefix, opcode == OO_PlusPlus);
-
+            
+            // Not required to clear value if @assignLHS as it is normally assigned
+            
+            isSideEffStmt  = true;
+            isRequiredStmt = true;
+            
         } else    
         // Unary "-" and "+"
         if (argNum == 1 && (opcode == OO_Plus || opcode == OO_Minus)) 
         {
-            state->readFromValue(argsVec.at(0));
+            readFromValue(argsVec.at(0));
             
             if (opcode == OO_Minus) {
                 SValue rrval = getValueFromState(argsVec.at(0));
@@ -2389,8 +2492,8 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             SCT_TOOL_ASSERT (opcode != OO_AmpAmp && opcode != OO_PipePipe,
                              "No &&/|| for SC data types supported");
                     
-            state->readFromValue(argsVec.at(0));
-            state->readFromValue(argsVec.at(1));
+            readFromValue(argsVec.at(0));
+            readFromValue(argsVec.at(1));
 
             // Prepare values for @lval and @rval for arithmetic operations
             SValue llval = getValueFromState(argsVec.at(0));
@@ -2541,9 +2644,10 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         {
             SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
             
-            state->readFromValue(argsVec.at(0));
-            state->writeToValue(argsVec.at(0));
-            state->readFromValue(argsVec.at(1));
+            // Add @lval to @read first to produce @readndef if required
+            readFromValue(argsVec.at(1));
+            readFromValue(argsVec.at(0));
+            writeToValue(argsVec.at(0));
             
             // Prepare values for @lval and @rval for arithmetic operations
             SValue llval = getValueFromState(argsVec.at(0));
@@ -2564,10 +2668,10 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
                 size_t rtypeWidth = rinfo ? rinfo->first : 0;
                 
                 if (opcode == OO_LessLessEqual || opcode == OO_GreaterGreaterEqual) {
-                    // Width and sign adjustment, required by APSInt operators
+                    // Extend value width before operation to fit result value
                     extendBitWidthOO(val1, val2, ltypeWidth, rtypeWidth, opcode);
                 } else {
-                    // Width and sign adjustment, required by APSInt operators
+                    // Extend value width before operation to fit result value
                     extendBitWidthOO(val1, val2, ltypeWidth, rtypeWidth, opcode);
                     // Width and sign adjustment, required by APSInt operators
                     adjustIntegers(val1, val2, val1, val2, true);
@@ -2608,15 +2712,20 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
                 }
 
                 // Update the @lval and return it
-                char radix = llval.isInteger() ? llval.getRadix() : 10;
-                state->putValue(argsVec.at(0), SValue(res, radix)); 
+                state->putValue(argsVec.at(0), SValue(res, llval.getRadix())); 
                 
             } else {
+                // Remove LHS variable value (de-reference inside)
+                // Remove values for all array elements by unknown element access
                 state->putValue(argsVec.at(0), NO_VALUE);
             }
+            
             // Return @lval anyway
             val = argsVec.at(0);
-
+            isSideEffStmt  = true;
+            isAssignStmt   = true;
+            isRequiredStmt = true;
+            
         } else {
             expr->dumpColor();
             string opStr = getOperatorSpelling(opcode);
@@ -2675,7 +2784,7 @@ void ScParseExprValue::parseReturnStmt(ReturnStmt* stmt, SValue& val)
     // for void function and if it used not in ScTraverseConst
     if (returnValue.isTmpVariable()) {
         assignValueInState(returnValue, val);
-        state->readFromValue(val);
+        readFromValue(val);
         
     } else 
     if (returnValue.isUnknown()) {
@@ -2683,6 +2792,7 @@ void ScParseExprValue::parseReturnStmt(ReturnStmt* stmt, SValue& val)
     } else {
         SCT_TOOL_ASSERT (false, "Unexpected kind of return variable value");
     }
+    isRequiredStmt = true;
 }
 
 void ScParseExprValue::parseExpr(ExpressionTraitExpr* expr, SValue& val)

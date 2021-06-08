@@ -36,9 +36,12 @@ struct mbase1 : base {
 
 struct derived_mod : sc_module, mbase0, mbase1 {
 
+    sc_signal<bool> s;
+    
     derived_mod(sc_module_name nm)  {
         SC_HAS_PROCESS(derived_mod);
         SC_METHOD(test_method);
+        sensitive << s;
     }
 
 

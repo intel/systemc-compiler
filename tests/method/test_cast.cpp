@@ -190,8 +190,20 @@ public:
         i = ux.to_int();
         i = bu.to_int();
         i = (int)ix + ix.to_int() + bi.to_int();
+        
         i = ix.to_int();
+        i = ix.to_long();
+        i = ix.to_int64();
+        i = ix.to_uint();
+        i = ix.to_ulong();
+        i = ix.to_uint64();
+
         i = bi.to_int();
+        i = bi.to_long();
+        i = bi.to_int64();
+        i = bi.to_uint();
+        i = bi.to_ulong();
+        i = bi.to_uint64();
     }
     
     // Implicit and explicit cast for SC types

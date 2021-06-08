@@ -10,7 +10,7 @@
 
 using namespace sc_core;
 
-// Defined and read not defined values tests
+// Simple clocked threads, including both clock edges and negative edge
 class A : public sc_module
 {
 public:
@@ -27,17 +27,18 @@ public:
         async_reset_signal_is(nrst, false);
 
         SC_CTHREAD(simple1, clk.pos());
+        async_reset_signal_is(nrst, true);
         
-        SC_CTHREAD(simple2, clk.pos());
+        SC_CTHREAD(simple2, clk.neg());
         async_reset_signal_is(nrst, false);
-        
-        SC_CTHREAD(simple3, clk.pos());
+
+        // clk posedge generated
+        SC_CTHREAD(simple3, clk);
         async_reset_signal_is(nrst, false);
         
         SC_CTHREAD(simple_pres, clk.pos());
         async_reset_signal_is(nrst, false);
         
-        //SC_METHOD(simple1_); sensitive << a;
     }
 
     int                 m;

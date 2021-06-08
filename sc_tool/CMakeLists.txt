@@ -86,8 +86,6 @@ add_library(SCTool
         lib/sc_tool/cthread/ScFindWaitCallVisitor.h
         lib/sc_tool/cthread/ScCFGAnalysis.cpp
         lib/sc_tool/cthread/ScCFGAnalysis.h
-        lib/sc_tool/cthread/ScThreadVerilogGen.cpp
-        lib/sc_tool/cthread/ScThreadVerilogGen.h
         lib/sc_tool/cthread/ScCfgCursor.h
         lib/sc_tool/cthread/ScCfgCursor.cpp
         lib/sc_tool/cthread/ScThreadBuilder.h
@@ -118,6 +116,8 @@ add_library(SCTool
         lib/sc_tool/utils/CheckCppInheritance.cpp
         lib/sc_tool/utils/VerilogKeywords.h
         lib/sc_tool/utils/VerilogKeywords.cpp
+        lib/sc_tool/utils/NameGenerator.h
+        lib/sc_tool/utils/NameGenerator.cpp
 
         lib/sc_tool/dyn_elab/Demangle.cpp
         lib/sc_tool/dyn_elab/Demangle.h

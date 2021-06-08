@@ -10,7 +10,7 @@
 
 using namespace sc_core;
 
-// Complex conditions with side effect
+// Complex conditions with side effect -- error reported
 class A : public sc_module
 {
 public:

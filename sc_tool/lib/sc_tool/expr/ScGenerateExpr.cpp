@@ -192,7 +192,7 @@ bool ScGenerateExpr::isWaitNStmt(const Stmt* stmt)
     return false;
 }
 
-// Returns true is given statement is call of @sct_assert_in_proc_func()
+// Returns true if statement is call of @sct_assert_in_proc_func()
 bool ScGenerateExpr::isTemporalAssert(const Stmt* stmt) const
 {
     if (auto expr = dyn_cast<CallExpr>(stmt)) {
@@ -200,6 +200,19 @@ bool ScGenerateExpr::isTemporalAssert(const Stmt* stmt) const
         if (auto funcDecl = expr->getDirectCallee()) {
             std::string fname = funcDecl->getNameAsString();
             return (fname == "sct_assert_in_proc_func");
+        }
+    }
+    return false;
+}
+
+// Returns true if statement is call of @sct_assert()
+bool ScGenerateExpr::isSctAssert(const Stmt* stmt) const
+{
+    if (auto expr = dyn_cast<CallExpr>(stmt)) {
+        
+        if (auto funcDecl = expr->getDirectCallee()) {
+            std::string fname = funcDecl->getNameAsString();
+            return (fname == "sct_assert");
         }
     }
     return false;
@@ -978,8 +991,8 @@ void ScGenerateExpr::parseExpr(InitListExpr* expr, SValue& val)
     QualType type = expr->getType();
     
     if (type->isArrayType()) {
-        // TODO : ...
-        
+        // Implemented in @parseDeclStmt()
+            
     } else {
         if (expr->getNumInits() == 1) {
             val = evalSubExpr(expr->getInit(0));
@@ -1036,6 +1049,10 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
     } else 
     if (isUserDefinedClass(type)) {
         // User defined class or structure
+        if (codeWriter->isEmptySensitivity()) {
+            ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                 ScDiag::SYNTH_NOSENSITIV_METH);
+        }
         if (isScModuleOrInterface(type)) {
             ScDiag::reportScDiag(expr->getBeginLoc(), 
                                  ScDiag::SYNTH_LOCAL_MODULE_DECL);
@@ -1181,52 +1198,48 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
         // Array initialization list
         SCT_TOOL_ASSERT (type->isConstantArrayType(), "Unsupported array type");
         vector<size_t> arrSizes = getArraySizes(type);
+        size_t elmnum = getArrayElementNumber(type);
         auto recType = getUserDefinedClassFromArray(type);
         
         // Array declaration w/o initialization
         codeWriter->putArrayDecl(stmt, val, type, arrSizes);
         
         if (iexpr) {
-            // Only one-dimensional array initialization supported now
-            if (arrSizes.size() == 1) {
-                if ( auto init = dyn_cast<InitListExpr>(iexpr) ) {
-                    for (unsigned i = 0; i < init->getNumInits(); i++) {
-                        // Set @i-th element in multi-dimensional array
-                        auto arrInds = getArrayIndices(type, i);
-                        // Create unsigned 64-bit index value
-                        SValue indxVal(APSInt(APInt(64, arrInds[0]), true), 10);
-                        // Initializer expression parsed in @parseValueDecl()
-                        Expr* iiexpr = const_cast<Expr*>(init->getInit(i));
+            if (auto init = dyn_cast<InitListExpr>(iexpr)) {
+                // Normal initializer list, can be combined with array filler
+                // if not all element values provided in initializer list
+                // Get all sub-expressions
+                std::vector<Expr*> subexpr = getAllInitExpr(iexpr);
+                // Put initialized array elements
+                for (size_t i = 0; i < subexpr.size(); ++i) {
+                    auto arrInds = getArrayIndices(type, i);
+                    codeWriter->putArrayElemInit(stmt, val, arrInds, subexpr[i]);
+                }
 
-                        // Array element initialization assign statement
-                        codeWriter->putArrayElemInit(stmt, val, indxVal, iiexpr);
-                    }
-                } else 
-                if ( isScIntegerArray(type, false) ) {
-                    // Default initialization SC data type array, fill with zeros
-                    for (unsigned i = 0; i < arrSizes.at(0); i++) {
-                        // Set @i-th element in multi-dimensional array
+                // Array filler, used for rest of array element 
+                if (init->getArrayFiller()) {
+                    for (size_t i = subexpr.size(); i < elmnum; i++) {
                         auto arrInds = getArrayIndices(type, i);
-                        // Create unsigned 64-bit index value
-                        SValue indxVal(APSInt(APInt(64, arrInds[0]), true), 10);
-                        
-                        // Array element initialization assign statement
-                        codeWriter->putArrayElemInitZero(stmt, val, indxVal);
+                        codeWriter->putArrayElemInitZero(stmt, val, arrInds);
                     }
-                    
-                } else 
-                if (recType) {
-                    // Nothing to add for record array
-                    
-                } else {
-                    string s = iexpr->getStmtClassName();
-                    ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
-                                         ScDiag::SYNTH_UNSUPPORTED_INIT) << s;
-                }    
+                }
+            } else 
+            if (isScIntegerArray(type, false)) {
+                // Default initialization SC data type array, fill with zeros
+                for (size_t i = 0; i < elmnum; i++) {
+                    auto arrInds = getArrayIndices(type, i);
+                    codeWriter->putArrayElemInitZero(stmt, val, arrInds);
+                }
+
+            } else 
+            if (recType) {
+                // Nothing to add for record array
+
             } else {
+                string s = iexpr->getStmtClassName();
                 ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
-                                     ScDiag::SYNTH_ARRAY_INIT_LIST);
-            }
+                                     ScDiag::SYNTH_UNSUPPORTED_INIT) << s;
+            }    
         }
     } else {
         // Single variable 
@@ -1296,12 +1309,18 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
         } else 
         if (isPtr) {
             // Local pointer variable declaration and initialization
-            // Check if argument is pointer array at unknown index
+
+            // Get pointed object for temporal variable returned from function
+            if (ival.isTmpVariable()) {
+                ival = getValueFromState(ival);
+            }
+            //cout << "parseDecl ival " << ival << " iexpr " << hex << iexpr << dec << endl;
+
             bool unkwIndex;
             bool isArr = state->isArray(ival, unkwIndex);
             
             if (isArr) {
-                // It is replaced with @arg string in generated code
+                // Put term string for array to support pointer to array element
                 if (iexpr) {
                     codeWriter->storePointerVarDecl(val, iexpr);
                 }
@@ -1568,6 +1587,11 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
         opcode == BO_ShrAssign || opcode == BO_AndAssign ||
         opcode == BO_OrAssign || opcode == BO_XorAssign) 
     {
+        if (codeWriter->isEmptySensitivity()) {
+            ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                 ScDiag::SYNTH_NOSENSITIV_METH);
+        }
+        
         if (isPtr) {
             ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
                                  ScDiag::SYNTH_POINTER_OPER) << (opcodeStr+"=");
@@ -1680,6 +1704,14 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
     } else    
     if (opcode == UO_PreInc || opcode == UO_PreDec)
     {
+        if (codeWriter->isEmptySensitivity()) {
+            ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                 ScDiag::SYNTH_NOSENSITIV_METH);
+        }
+        
+        // Do not set @val to @rval to avoid reference to ++/-- as it can be
+        // zero/multiple used that lead to incorrect code
+        
         if (isPointer) {
             ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
                                  ScDiag::SYNTH_POINTER_OPER) << opcodeStr;
@@ -1690,6 +1722,11 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
     } else
     if (opcode == UO_PostInc || opcode == UO_PostDec)
     {
+        if (codeWriter->isEmptySensitivity()) {
+            ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                 ScDiag::SYNTH_NOSENSITIV_METH);
+        }
+
         // Do not set @val to support conversion to boolean with brackets
         if (isPointer) {
             ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
@@ -1717,11 +1754,11 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
             if (val.isVariable() || val.isSimpleObject()) {
                 // Check pointer and pointe both are constant type, 
                 // for dynamic object constantness specified by pointer only
-                bool isConst = isPointerToConst(rval.getType()) && 
-                               (val.getType().isConstQualified() ||
-                                val.isSimpleObject());
-                
-                if (isConst) {
+                bool replaceConst = isPointerToConst(rval.getType()) && 
+                                    (val.isSimpleObject() || replaceConstByValue &&
+                                     val.getType().isConstQualified());
+                // Replace pointer with integer value
+                if (replaceConst) {
                     SValue ival = state->getValue(val);
                     if (ival.isInteger()) {
                         codeWriter->putLiteral(stmt, ival);
@@ -1754,7 +1791,8 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
             } else {
                 // Dangling pointer de-references, put pointer variable as best option
                 ScDiag::reportScDiag(stmt->getBeginLoc(), 
-                                     ScDiag::CPP_DANGLING_PTR_DEREF);
+                                     ScDiag::CPP_DANGLING_PTR_DEREF) << 
+                                     rvar.asString(rvar.isObject());
                 codeWriter->copyTerm(rexpr, stmt);
             }
             
@@ -1940,6 +1978,10 @@ void ScGenerateExpr::parseCall(CallExpr* expr, SValue& val)
         }
         
     } else 
+    if (fname == "sct_alive_loop") {
+        // Do nothing, implemented in ScTraverseConst
+        
+    } else
     if (fname == "sct_assert_const" || fname == "__assert" || 
         fname == "sct_assert_unknown") {
         // Do nothing
@@ -2076,6 +2118,10 @@ void ScGenerateExpr::parseCall(CallExpr* expr, SValue& val)
         
     } else {
         // General functions, most logic is in ScTraverseProc 
+        if (codeWriter->isEmptySensitivity()) {
+            ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                 ScDiag::SYNTH_NOSENSITIV_METH);
+        }
 
         // Declare temporary return variable in current module
         if (!isVoidType(retType)) {
@@ -2127,16 +2173,33 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
              << fname  << ", return type = " << retType.getAsString() 
              << ", tval " << tval << ", module is " << modval << endl;
     }
-    
+
+    // Constant pointer to dynamically allocated memory, need to replace by integer
+    bool replacePtrObj = false; 
+    SValue pival;
+
     // Pointer de-reference
     SValue ttval = tval;
     if (isPointer) {
         state->getValue(tval, ttval);
+        //cout << "Ptr tval " << tval << " ttval " << ttval << endl;
 
+        // Array to pointer cast
         if (ttval.isArray()) {
-            // Array to pointer cast
             ScDiag::reportScDiag(expr->getBeginLoc(), 
                                  ScDiag::SYNTH_ARRAY_TO_POINTER);
+        }
+        
+        // Check pointer and pointe both are constant type, 
+        // for dynamic object constantness specified by pointer only
+        bool constPtr = isPointerToConst(tval.getType());
+        replacePtrObj = constPtr && ttval.isSimpleObject();
+        bool replaceConst = replacePtrObj || constPtr && replaceConstByValue && 
+                            ttval.isVariable() && ttval.getType().isConstQualified();
+        // Replace pointer with integer value
+        if (replaceConst) {
+            pival = state->getValue(ttval);
+            //cout << "   ival " << ival << endl;
         }
     }
 
@@ -2148,13 +2211,28 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             fname.find("int") != string::npos ||
             fname.find("long") != string::npos ||  
             fname.find("bool") != string::npos)) {
-            // Type conversion
+            
+            // Implicit SC type conversion to some integer, 
+            // not correspondent to any operator in the code
+            
+            // Replace constant pointer with its integer value
+            if (pival.isInteger()) {
+                codeWriter->putLiteral(thisExpr, pival);
+            }
+            
             codeWriter->copyTerm(thisExpr, expr);
 
         } else 
         if (fname == "bit" || fname == "operator[]") {
+            
             SCT_TOOL_ASSERT (argNum == 1, "Incorrect argument number");
             Expr* indxExpr = args[0];
+
+            if (replacePtrObj) {
+                ScDiag::reportScDiag(thisExpr->getBeginLoc(), 
+                                     ScDiag::SC_BIT_CONSTPTR_BASE);
+            }
+
             // Skip sign cast for part select index
             bool skipSignCastOrig = codeWriter->isSkipSignCast();
             codeWriter->setSkipSignCast(true);
@@ -2167,9 +2245,15 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             
         } else 
         if (fname == "range" || fname == "operator()") {
+            
             SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
             Expr* hiExpr = args[0];
             Expr* loExpr = args[1];
+            
+            if (replacePtrObj) {
+                ScDiag::reportScDiag(thisExpr->getBeginLoc(), 
+                                     ScDiag::SC_RANGE_CONSTPTR_BASE);
+            }
 
             // Skip sign cast for part select index
             bool skipSignCastOrig = codeWriter->isSkipSignCast();
@@ -2197,6 +2281,11 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                             (fname == "nand_reduce") ? "~&" :
                             (fname == "nor_reduce") ? "~|" : "~^";
             
+            // Replace constant pointer with its integer value
+            if (pival.isInteger()) {
+                codeWriter->putLiteral(thisExpr, pival);
+            }
+            
             // Put reduction unary expression for @this
             codeWriter->putUnary(expr, opcode, thisExpr);    
             
@@ -2204,7 +2293,12 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         if (fname.find("to_i") != string::npos ||
             fname.find("to_u") != string::npos ||
             fname.find("to_long") != string::npos) {
-            // Type conversion
+            
+            // Replace constant pointer with its integer value
+            if (pival.isInteger()) {
+                codeWriter->putLiteral(thisExpr, pival);
+            }
+            
             QualType type = expr->getType();
             codeWriter->putTypeCast(thisExpr, expr, type);
 
@@ -2218,7 +2312,7 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             }
         } else
         if (fname.find("to_bool") != string::npos) {
-            // No type cast required for to_bool as it applied for @bit_ref only
+            // No type cast required for @to_bool as it applied for @bit_ref only
             codeWriter->copyTerm(thisExpr, expr);
             
         } else
@@ -2253,13 +2347,15 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             codeWriter->putAssign(expr, cval, thisExpr, argExpr);
 
         } else 
-        if ((fname == "read" || (fname.find("operator") != string::npos && (
+        if (cval.isScChannel() && (fname == "read" || 
+            (fname.find("operator") != string::npos && (
              fname.find("sc_int") != string::npos ||
              fname.find("sc_uint") != string::npos ||  
              fname.find("char") != string::npos ||
              fname.find("int") != string::npos ||
              fname.find("long") != string::npos ||
-             fname.find("bool") != string::npos))) && cval.isScChannel()) {
+             fname.find("bool") != string::npos)))) {
+            
             // Channel read access method
             SCT_TOOL_ASSERT (argNum == 0, "Incorrect argument number");
 
@@ -2276,7 +2372,9 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             fname.find("int") != string::npos ||
             fname.find("long") != string::npos ||
             fname.find("bool") != string::npos)) {
-            // Channel read/access operator
+            
+            // Channel read/access operator, used when channel object is unknown
+            // like result of ternary operator of channels
             
             // Copy terms for this expression
             codeWriter->copyTerm(thisExpr, expr);
@@ -2329,11 +2427,18 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
 
     } else {
         // General methods, most logic is in ScTraverseProc 
+        if (codeWriter->isEmptySensitivity()) {
+            ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                 ScDiag::SYNTH_NOSENSITIV_METH);
+        }
 
         // Declare temporary return variable in current module
         if (!isVoidType(retType)) {
             SValue retVal(retType, modval);
-            codeWriter->putVarDecl(nullptr, retVal, retType, nullptr);
+            // Do not declare temporal variable if pointer is returned
+            if (!sc::isPointer(retType)) {
+                codeWriter->putVarDecl(nullptr, retVal, retType, nullptr);
+            }
             val = retVal;
             //cout << "Return value " << retVal.asString() << endl;
         }
@@ -2561,6 +2666,10 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             // Postfix ++/-- has artifical argument
             SCT_TOOL_ASSERT (argNum == 1 || argNum == 2, "Incorrect argument number");
             
+            if (codeWriter->isEmptySensitivity()) {
+                ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                     ScDiag::SYNTH_NOSENSITIV_METH);
+            }
             if (lhsIsTempExpr) {
                 ScDiag::reportScDiag(expr->getBeginLoc(), 
                                      ScDiag::SYNTH_TEMP_EXPR_ARG);
@@ -2642,6 +2751,11 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         {
             SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
             
+            if (codeWriter->isEmptySensitivity()) {
+                ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                     ScDiag::SYNTH_NOSENSITIV_METH);
+            }
+            
             // Left value is result of assignment statement
             val = lval;
             
@@ -2708,8 +2822,10 @@ void ScGenerateExpr::parseReturnStmt(ReturnStmt* stmt, SValue& val)
                 ScDiag::reportScDiag(expr->getBeginLoc(), 
                          ScDiag::SYNTH_NONTRIVIAL_COPY);
             }
-       }
-
+        }
+        QualType retType = expr->getType();
+        bool isPointer = sc::isPointer(retType);
+ 
         // Set return temporal variable value to analyze @CXXConstructExpr and
         // use as record copy local variable
         locrecvar = returnValue; 
@@ -2732,7 +2848,7 @@ void ScGenerateExpr::parseReturnStmt(ReturnStmt* stmt, SValue& val)
         
         // Assign to specified temporary variable
         // Put assign for record and others
-        bool isRecord = isUserDefinedClass(returnValue.getType(), true);
+        bool isRecord = isUserDefinedClass(retType, true);
 
         if (isRecord) {
             // Get field initialization string from @CXXConstructExpr
@@ -2740,6 +2856,13 @@ void ScGenerateExpr::parseReturnStmt(ReturnStmt* stmt, SValue& val)
                 codeWriter->copyTerm(ctorExpr, stmt);
             }
             
+        } else 
+        if (isPointer) {
+            // For pointer type pointed object/array registered to use in
+            // ScTraverseProc::chooseExprMethod()
+            SValue vval = getValueFromState(val, ArrayUnkwnMode::amArrayUnknown);
+            returnPtrVal = state->getVariableForValue(vval);
+
         } else {
             codeWriter->putAssign(stmt, returnValue, expr);
         }
@@ -2816,7 +2939,7 @@ llvm::Optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt,
     // It is prohibited to use any statement except IF in method w/o sensitivity
     if (codeWriter->isEmptySensitivity() && !isa<const IfStmt>(stmt) && 
         !isa<const ConditionalOperator>(stmt)) {
-        ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
+        ScDiag::reportScDiag(stmt->getBeginLoc(), 
                              ScDiag::SYNTH_NOSENSITIV_METH);
     }
 
@@ -2830,7 +2953,7 @@ llvm::Optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt,
             chooseExprMethod(cexpr, val);
             // No IF statement with unknown condition in method w/o sensitivity
             if (codeWriter->isEmptySensitivity()) {
-                ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
+                ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                      ScDiag::SYNTH_NOSENSITIV_METH);
             }
         }

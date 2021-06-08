@@ -44,6 +44,8 @@ struct A : public B<T>
         d();
         f(12);
         wait();
+        
+        while(1) wait();
     }
 };
 

@@ -77,6 +77,7 @@ private:
 
 private: // data
     clang::ASTContext &ctx;
+    // Common for all processes in module
     std::unique_ptr<sc::ScProcAnalyzer> procAnalyzer;
     ModuleMIFView rootModView;
     ElabDatabase &elabDB;
@@ -86,6 +87,9 @@ private: // data
     std::vector<sc::SValue> classHierStack;
 
     std::vector<PtrOrRefView> unresolvedPointers;
+    
+    // Array pointers used to replace its pointed array variable to array object
+    std::unordered_set<sc::SValue> arrayPointers;
 
     /// Maps Elaborator Objects to Process analyzer state values
     /// The same as state::elabs2SValMap

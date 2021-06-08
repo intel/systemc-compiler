@@ -14,11 +14,11 @@
 
 SC_MODULE(top) {
 
-    sc_clock    clk_gen{"clk_gen", 10 , SC_NS};
+    sc_in<bool> clk;
 
     SC_CTOR(top) {
-        SC_THREAD(test_thread);
-        sensitive << clk_gen.posedge_event();
+        SC_CTHREAD(test_thread, clk.pos());
+        async_reset_signal_is(din, 0);
     }
 
     sc_signal<bool> din;
@@ -48,6 +48,8 @@ SC_MODULE(top) {
 
         dwait_wrap();
         sct_assert_const(x == 4);
+        
+        while (true) wait();
 
     }
 
@@ -55,7 +57,9 @@ SC_MODULE(top) {
 
 int sc_main (int argc, char ** argv ) {
 
+    sc_clock    clk{"clk", 10 , SC_NS};
     top t_inst{"t_inst"};
+    t_inst.clk(clk);
     sc_start(100, SC_NS);
 
     return 0;

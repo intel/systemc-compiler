@@ -14,17 +14,18 @@ using namespace sc_core;
 template <unsigned N>
 class A : public sc_module {
 public:
-    sc_signal<bool> dummy{"dummy"};
+    sc_in<bool>         clk;
+    sc_signal<bool>     rst;
+    sc_signal<bool>     dummy;
 
-    SC_CTOR(A) {
-        //SC_METHOD(base_record);  // partially work, need to support base class ctor
-        //sensitive << dummy;
+    SC_CTOR(A) 
+    {
+        SC_METHOD(record_const); sensitive << dummy;
         
-        SC_METHOD(record_concat1);  
-        sensitive << dummy;
-        
-        SC_METHOD(record_concat2);  
-        sensitive << dummy;
+        // Check constant in member record is considered as readOnly/useVals
+        SC_METHOD(record_decl1);  sensitive << dummy;
+        SC_CTHREAD(record_decl2, clk.pos());  
+        async_reset_signal_is(rst, 0);
         
         SC_METHOD(record_local_var1);  
         sensitive << dummy;
@@ -40,6 +41,10 @@ public:
 
         SC_METHOD(record_loop_conflict3);
         sensitive << dummy;
+
+        // Base record not supported yet
+        //SC_METHOD(base_record);  // partially work, need to support base class ctor
+        //sensitive << dummy;
         
         // Inner records not supported yet
 //        SC_METHOD(inner_record1);  
@@ -53,48 +58,51 @@ public:
     }
     
     struct ScSimple {
+        const sc_uint<2> A = 1;
+        static const unsigned B = 2;
         sc_uint<2> a;
         sc_uint<3> b;
     };
     
     ScSimple scRec;
+    ScSimple scRecArr[2];
     
-    void record_concat1() 
-    {
-        sc_uint<5> c = (scRec.a, scRec.b);
+    void record_const() {
+        int i;
+        i = scRec.A + scRec.B + scRec.a;
+        i = ScSimple::B + scRecArr[0].a;
+        i = scRecArr[0].a + ScSimple::B +  scRecArr[1].b;
+        i = scRecArr[0].a + scRecArr[0].B +  scRecArr[1].b;
+        i = ScSimple::B + scRecArr[1].A + scRecArr[0].a + scRecArr[1].b;
+        i = scRecArr[1].A + scRecArr[0].a + ScSimple::B + scRecArr[0].b;
+        i = scRecArr[1].A + scRecArr[0].a + scRecArr[1].B + scRecArr[0].b;
+        
+        int m[3];
+        m[0] = ScSimple::B + scRecArr[0].B + scRecArr[1].A;
     }
-    
-    void record_concat2() 
-    {
-        ScSimple scRecLoc;
-        sc_uint<5> c = (scRecLoc.a, scRecLoc.b);
-    }
-    
+
 //-----------------------------------------------------------------------------
 
-    struct BaseRec {
-        int a;
-        int b = 2;
-        int c;
-        
-        BaseRec(int a_) : a(a_) { 
-            c = a + b;
-        }
-    };
-
-    struct InheritRec : BaseRec {
-        int d = 4;
-        int e;
-         
-        InheritRec() : BaseRec(1) {
-            e = 5;
-        }
-    };
-
-    void base_record() {
-        InheritRec ir;
+    // Check constant in member record is considered as useVals
+    ScSimple scRec1;
+    void record_decl1() 
+    {
+        const int L = scRec1.A;
+        sc_uint<5> c = (scRec1.a, scRec1.b);
     }
-
+    
+    // Check constant in member record is considered as readOnly
+    ScSimple scRec2;
+    void record_decl2() 
+    {
+         wait();
+         while (true) {
+            const int LL = scRec2.A;
+            ScSimple scRecLoc;
+            wait();
+         }
+    }
+    
 //-----------------------------------------------------------------------------
     
     struct Rec1 {
@@ -214,6 +222,31 @@ public:
     }
 
 //-----------------------------------------------------------------------------
+
+    struct BaseRec {
+        int a;
+        int b = 2;
+        int c;
+        
+        BaseRec(int a_) : a(a_) { 
+            c = a + b;
+        }
+    };
+
+    struct InheritRec : BaseRec {
+        int d = 4;
+        int e;
+         
+        InheritRec() : BaseRec(1) {
+            e = 5;
+        }
+    };
+
+    void base_record() {
+        InheritRec ir;
+    }
+
+//-----------------------------------------------------------------------------
     // Inner structure
     
     struct Inner {
@@ -294,16 +327,13 @@ public:
     
 };
 
-class B_top : public sc_module {
-public:
+
+int sc_main(int argc, char *argv[]) 
+{
+    sc_clock clk("clk", 1, SC_NS);
     A<1> a_mod{"a_mod"};
-
-    SC_CTOR(B_top) {
-    }
-};
-
-int sc_main(int argc, char *argv[]) {
-    B_top b_mod{"b_mod"};
+    a_mod.clk(clk);
+    
     sc_start();
     return 0;
 }

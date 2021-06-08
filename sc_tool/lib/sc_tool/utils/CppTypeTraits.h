@@ -44,6 +44,9 @@ size_t getArraySize(clang::ValueDecl* decl);
 /// Get array size from type or 0 if it is not (constant) array
 size_t getArraySize(clang::QualType type);
 
+/// Get array element type
+clang::QualType getArrayElementType(clang::QualType type);
+
 /// Get array/sub-array sizes in multi-dimensional array
 std::vector<std::size_t> getArraySizes(clang::QualType type);
 

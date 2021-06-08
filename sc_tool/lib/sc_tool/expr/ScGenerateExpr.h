@@ -49,6 +49,9 @@ protected:
     /// Returns true is given statement is call of @sct_assert_in_proc_func()
     bool isTemporalAssert(const clang::Stmt* stmt) const;
     
+    /// Returns true if statement is call of @sct_assert()
+    bool isSctAssert(const clang::Stmt* stmt) const;
+    
     /// Check if function has wait() inside, implemented in ScTraverseProc
     virtual bool isWaitInFunc(const clang::FunctionDecl* decl) = 0;
 
@@ -247,6 +250,10 @@ protected:
     
     /// Do not evaluate expression to constant for partial selection argument
     bool calcPartSelectArg = false;
+    
+    /// Returned pointed object to replace temporary variable returned for
+    /// functions returns pointer
+    SValue returnPtrVal = NO_VALUE;
     
     /// Array indices for for record array parameters passed by reference
     /// <record value, indices string>

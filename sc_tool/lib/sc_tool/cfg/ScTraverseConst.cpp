@@ -101,11 +101,30 @@ void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt)
                     inResetAccessVars.insert(val);
                     //cout << "   " << val << endl;
                 }
+                
+                // Report error for any channel read in reset 
+                QualType type = val.getType();
+                // @sc_vector can contain channels only
+                if (isScChannel(type, true) || isScChannelArray(type, true) || 
+                    isScVector(type)) {
+                    if (SValue var = state->getVariableForValue(val)) {
+                        if (auto varDecl = var.getVariable().getDecl()) {
+                            ScDiag::reportScDiag(varDecl->getBeginLoc(),
+                                ScDiag::SC_CHAN_READ_IN_RESET) << var.asString(false);
+                        } else {
+                            ScDiag::reportScDiag(stmt->getBeginLoc(),
+                                ScDiag::SC_CHAN_READ_IN_RESET) << val.asString(false);
+                        }
+                    } else {
+                        ScDiag::reportScDiag(stmt->getBeginLoc(),
+                            ScDiag::SC_CHAN_READ_IN_RESET) << val.asString(false);
+                    }
+                }
             }
         }
 
         // Read-not-defined not valid at reset section,
-        // get ReadNotDefined excluding read in SVA
+        // get ReadNotDefined excluding read in SVA (false)
         for (const auto& val : state->getReadNotDefinedValues(false)) {
             if (!val.isVariable()) continue;
             // Skip record field as copy constructor leads to 
@@ -115,7 +134,7 @@ void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt)
             QualType type = val.getType();
 
             if (isScChannel(type, true) || isScChannelArray(type, true) ||
-                ScState::isConstVarOrLocRec(val)) continue;
+                isScVector(type) || ScState::isConstVarOrLocRec(val)) continue;
 
             ScDiag::reportScDiag(stmt->getBeginLoc(),
                     ScDiag::CPP_READ_NOTDEF_VAR_RESET) << val.asString(false);
@@ -175,7 +194,7 @@ void ScTraverseConst::evaluateTermCond(Stmt* stmt, SValue& val)
         //cout << "Condition #" << hex << stmt << dec << endl;
         //cond->dumpColor();
         auto condvals = evaluateConstInt(const_cast<Expr*>(cond), false);
-        state->readFromValue(condvals.first);
+        readFromValue(condvals.first);
         val = condvals.second;
         
         // Store condition to avoid double parsing, required for &&/|| and ?
@@ -222,9 +241,9 @@ llvm::Optional<unsigned> ScTraverseConst::evaluateIterNumber(const Stmt* stmt)
 bool ScTraverseConst::isCompareState(const Stmt* stmt, unsigned maxIterNumber, 
                                      unsigned iterNumber, unsigned iterCntr) 
 {
-    if (DebugOptions::isEnabled(DebugComponent::doConstTerm)) {
-        cout << "CompareState iterNumber " << ((iterNumber) ? 
-                to_string(iterNumber) : "unknown") << endl;
+    if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
+        cout << "CompareState for #" << hex << stmt << dec << ", iterNumber " 
+             << ((iterNumber) ? to_string(iterNumber) : "unknown") << endl;
     }
     
     if (iterNumber && iterNumber < maxIterNumber-1) {
@@ -411,8 +430,7 @@ void ScTraverseConst::parseCall(CallExpr* expr, SValue& val)
         if (level != expectedLevel) {
             cout << "--------------------------" << endl;
             cout << "Incorrect level " << level << " expected " << expectedLevel << endl;
-            ScDiag::reportScDiag(expr->getSourceRange().getBegin(),
-                                 ScDiag::CPP_ASSERT_FAILED);
+            ScDiag::reportScDiag(expr->getBeginLoc(), ScDiag::CPP_ASSERT_FAILED);
             SCT_TOOL_ASSERT (false, "Incorrect level stop");
         }
         val = NO_VALUE; // No value returned from assert
@@ -439,6 +457,11 @@ void ScTraverseConst::parseCall(CallExpr* expr, SValue& val)
         
     } else {
         // General function call
+        // No user-define function call in constant evaluation mode
+        if (evaluateConstMode) {
+            return;
+        }
+        
         if (DebugOptions::isEnabled(DebugComponent::doConstFuncCall)) {
             cout << "-------------------------------------" << endl;
             cout << "| Build CFG for FUNCTION : " << fname << " (" 
@@ -447,6 +470,11 @@ void ScTraverseConst::parseCall(CallExpr* expr, SValue& val)
         }
         
         SCT_TOOL_ASSERT (isUserCallExpr(expr), "Incorrect user defined function");
+        
+        if (nsname && *nsname == "std") {
+            ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                 ScDiag::CPP_UNKNOWN_STD_FUNC) << fname;
+        }
 
         // Generate function parameter assignments
         prepareCallParams(expr, modval, funcDecl);
@@ -493,6 +521,11 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         
     } else {
         // General method call
+        // No user-define method call in constant evaluation mode
+        if (evaluateConstMode) {
+            return;
+        }
+        
         if (DebugOptions::isEnabled(DebugComponent::doConstFuncCall)) {
             cout << "-------------------------------------" << endl;
             cout << "| Build CFG for METHOD FUNCTION : " << fname << " (" 
@@ -591,10 +624,8 @@ void ScTraverseConst::chooseExprMethod(Stmt* stmt, SValue& val)
     if (anyFuncCall && calledFuncs.count(stmt)) {
         // Get return value from already analyzed user defined functions
         val = calledFuncs.at(stmt);
+        //cout << "Get RET value " << val << " for stmt #" << hex << stmt << dec  << endl;
         
-        if (DebugOptions::isEnabled(DebugComponent::doConstStmt)) {
-            cout << "Get RET value " << val.asString() << " for stmt #" << hex << stmt << dec  << endl;
-        }
     } else {
         // Normal statement analysis
         ScParseExpr::chooseExprMethod(stmt, val);
@@ -623,6 +654,9 @@ void ScTraverseConst::initContext()
     exitBlockId = cfg->getExit().getBlockID();
     deadCond = false;
     funcCall = false;
+    aliveLoop = false;
+    mainLoopStmt = nullptr;
+    hasCodeBeforeMainLoop = false;
     
     // Setup first non-MIF module value 
     synmodval = state->getSynthModuleValue(modval, ScState::MIF_CROSS_NUM);
@@ -715,6 +749,64 @@ void ScTraverseConst::setFunction(const FunctionDecl* fdecl)
     funcDecl = fdecl;
 }
 
+// Remove unused variable definition statements in METHODs and CTHREADs
+void ScTraverseConst::removeUnusedStmt() 
+{
+//    cout << "Simple statements: " << endl;
+//    for (Stmt* stmt : simpleStmts) {
+//        cout << "  " << hex << stmt << dec << endl;
+//    } 
+    
+    while (true) {
+        unordered_set<Stmt*> removeStmts;
+
+        // Find defined but not used variables to remove
+        //cout << "Unused val " << endl;
+        for (auto i = defVarStmts.begin(); i != defVarStmts.end(); ) {
+            const QualType& type = i->first.getType();
+            // Skip pointer, channel and record values
+            if (sc::isPointer(type) || 
+                sc::isScChannel(type) || 
+                sc::isScChannelArray(type) ||
+                sc::isUserDefinedClass(type, true) ||
+                sc::isUserDefinedClassArray(type, true)) {++i; continue;}
+            
+            // Skip used value
+            if (useVarStmts.count(i->first)) {++i; continue;}
+
+            //cout << "  " << i->first << endl;
+            for (Stmt* stmt : i->second) {
+                if (simpleStmts.count(stmt)) {
+                    removeStmts.insert(stmt);
+                }
+            }
+            i = defVarStmts.erase(i);
+        }
+        // Stop if no statements removed
+        if (removeStmts.empty()) break;
+
+        // Remove unused statements from @useVarStmts
+        for (auto i = useVarStmts.begin(); i != useVarStmts.end(); ) {
+            for (Stmt* stmt : removeStmts) {
+                i->second.erase(stmt);
+            }
+            if (i->second.empty()) {
+                i = useVarStmts.erase(i);
+            } else {
+                ++i;
+            }
+        }
+
+        // Remove unused statements from @liveStmts
+        //cout << "Removed statements: " << endl;
+        for (Stmt* stmt : removeStmts) {
+            liveStmts.erase(stmt);
+            //cout << "  " << hex << stmt << dec << endl;
+        }
+    }
+}
+
+
 // Run analysis at function entry, runs once per process
 void ScTraverseConst::run()
 {
@@ -734,7 +826,7 @@ void ScTraverseConst::run()
 
     while (true)
     {
-        Stmt* currStmt = nullptr;
+        currStmt = nullptr;
         
         // Do not analyze statement for dead condition blocks, required for
         // complex conditions with side effects
@@ -748,10 +840,26 @@ void ScTraverseConst::run()
 
             // Update loop stack for do...while loop enter
             if (auto doterm = getDoWhileTerm(block)) {
+                // Check for CTHREAD main loop DO..WHILE
+                // Set main loop as last high level loop with wait`s
+                if (!isCombProcess && loopStack.empty() && contextStack.empty()) {
+                    if (findWaitInLoop && findWaitInLoop->hasWaitCall(doterm)) {
+                        mainLoopStmt = doterm;
+                        //cout << "mainLoop " << endl; mainLoopStmt->dumpColor();
+                    }
+                }
+                
                 // Determine loop already visited with checking if 
                 // current (last) loop has the same terminator
                 bool loopVisited = loopStack.isCurrLoop(doterm);
                 
+//                if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
+//                    cout << "--- DO term #" << hex << doterm << " : " 
+//                         << (loopStack.size() ? loopStack.back().stmt : 0) 
+//                         << dec <<" (" << loopStack.size() << ")" 
+//                         << ", loopVisited " << loopVisited << endl;
+//                }
+
                 if (!loopVisited) {
                     unsigned iterNumber = 0;
                     if (auto in = evaluateIterNumber(doterm)) {
@@ -759,9 +867,18 @@ void ScTraverseConst::run()
                     }
                     // Add current loop into loop stack, set 1st iteration
                     loopStack.pushLoop({doterm, 1U, state->clone(), iterNumber});
-//                    cout << "Push loop stack(1) " << hex << doterm << dec 
-//                         << ", level " << level << ", LS size " << loopStack.size() << endl;
+                    
+//                    if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
+//                        cout << "Push loop stack(1) " << hex << doterm << dec 
+//                             << ", level " << level << ", LS size " << loopStack.size() << endl;
+//                    }
                 }
+                
+                if (aliveLoop) {
+                    ScDiag::reportScDiag(doterm->getBeginLoc(),
+                                         ScDiag::SYNTH_ALIVE_LOOP_ERROR);
+                }
+                aliveLoop = false;
             }
             
             // CFG block body analysis, preformed for not dead state only
@@ -825,10 +942,20 @@ void ScTraverseConst::run()
                 }
 
                 // Parse statement and fill state
+                isRequiredStmt = false;
                 SValue val;
                 chooseExprMethod(currStmt, val);
                 SCT_TOOL_ASSERT (!assignLHS, "Incorrect assign LHS flag");
 
+                // Register not mandatory required statements
+                if (!isRequiredStmt) {
+                    simpleStmts.insert(currStmt);
+                }
+                
+                if (!mainLoopStmt && !isCombProcess) {
+                    hasCodeBeforeMainLoop = true;
+                }
+                
                 // Register statement as live
                 liveStmts.insert(currStmt);
                 
@@ -899,7 +1026,7 @@ void ScTraverseConst::run()
                         cfg->dump(LangOptions(), true);
                         cout << "--------------------------------------" << endl;
                     }
-
+                    
                     // Store and null function context
                     contextStack.push_back( *(lastContext.get()) );
 
@@ -937,8 +1064,8 @@ void ScTraverseConst::run()
         } else 
         if (term) {
             // FOR/WHILE loop first iteration, used to get separate condition value
-            bool loopFirstIter = (isa<ForStmt>(term) || isa<WhileStmt>(term)) && 
-                                 !loopStack.isCurrLoop(term);
+            bool loopTerm = isa<ForStmt>(term) || isa<WhileStmt>(term);
+            bool loopFirstIter = loopTerm && !loopStack.isCurrLoop(term);
             //if (isa<ForStmt>(term) || isa<WhileStmt>(term) || isa<DoStmt>(term)) {
             //    cout << "loopFirstIter " << loopFirstIter << endl;
             //}
@@ -980,12 +1107,39 @@ void ScTraverseConst::run()
             }
 
             // Try to calculate condition 
+            isAssignStmt = false; isSideEffStmt = false;
             SValue termCondValue;
-            // Do not calculate condition for dead code as state is dead
             evaluateTermCond(term, termCondValue);
             
+            if (isAssignStmt) {
+                ScDiag::reportScDiag(term->getBeginLoc(), 
+                                     ScDiag::SYNTH_ASSIGN_IN_COND);
+            }
+            if (isSideEffStmt) {
+                ScDiag::reportScDiag(term->getBeginLoc(), 
+                                     ScDiag::SYNTH_SIDE_EFFECT_IN_COND);
+            }
+            
+            // Check and apply alive loop macro to FOR/WHILE first iteration
+            if (aliveLoop) {
+                if (loopFirstIter) {
+                    if (termCondValue.isInteger() && 
+                        termCondValue.getInteger().isNullValue()) {
+                        ScDiag::reportScDiag(term->getBeginLoc(),
+                                             ScDiag::SYNTH_ALIVE_LOOP_NULL_COND);
+                    }
+                    termCondValue = SValue(SValue::boolToAPSInt(true), 10);
+                    
+                } else 
+                if (!loopTerm) {
+                    ScDiag::reportScDiag(term->getBeginLoc(),
+                                         ScDiag::SYNTH_ALIVE_LOOP_ERROR);
+                }
+            }
+            aliveLoop = false;
+            
             bool trueCond = termCondValue.isInteger() && 
-                            !termCondValue.getInteger().isNullValue();
+                             !termCondValue.getInteger().isNullValue();
             bool falseCond = termCondValue.isInteger() && 
                              termCondValue.getInteger().isNullValue();
 
@@ -1018,6 +1172,11 @@ void ScTraverseConst::run()
                 //term->dumpColor();
                 //cout << "Remove value at term by level " << level << endl;
                 state->removeValuesByLevel(level);
+                
+            } else {
+                if (!mainLoopStmt && !isCombProcess) {
+                    hasCodeBeforeMainLoop = true;
+                }
             }
             
             // Analyze terminator
@@ -1215,11 +1374,31 @@ void ScTraverseConst::run()
                 //cout << "Loop "<< hex << term << dec << " termCondValue " << termCondValue << endl;
                 //state->print();
                 
+                // Check for CTHREAD main loop WHILE/FOR
+                // Set main loop as last high level loop with wait`s
+                if (!isCombProcess && loopStack.empty() && contextStack.empty()) {
+                    if (findWaitInLoop && findWaitInLoop->hasWaitCall(term)) {
+                        mainLoopStmt = term;
+                        //cout << "mainLoop " << endl; mainLoopStmt->dumpColor();
+                    }
+                }
+                
+                if (!mainLoopStmt && !isCombProcess) {
+                    hasCodeBeforeMainLoop = true;
+                }
+                
                 // Determine loop already visited with checking if 
                 // current (last) loop has the same terminator
-                bool loopVisited = isa<DoStmt>(term) || loopStack.isCurrLoop(term);
+                bool loopVisited = loopStack.isCurrLoop(term);
+                
+//                if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
+//                    cout << "--- Loop term #" << hex << term << " : " 
+//                         << (loopStack.size() ? loopStack.back().stmt : 0) 
+//                         << dec <<" (" << loopStack.size() << ")" << endl;
+//                }
                 
                 if (!isCombProcess) {
+                    // Checking for fall through path in this loop
                     if (waitInLoops.count(term) && visitedLoops.count(term)) {
                         ScDiag::reportScDiag(term->getBeginLoc(), 
                                              ScDiag::SYNTH_WAIT_LOOP_FALLTHROUGH);
@@ -1311,6 +1490,11 @@ void ScTraverseConst::run()
                             loopStack.back().counter = LOOP_LAST_ITER;
                             // Clear to have iteration through loop body
                             stableState = false;
+                            
+                        } else {
+//                            if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
+//                                cout << "Loop finished " << hex << loopStack.back().stmt << dec << endl;
+//                            }
                         }
                     }
                     
@@ -1337,9 +1521,9 @@ void ScTraverseConst::run()
                     blockSuccs.push_back({bodyBlock, enterSI});
                     clone = true;
                     
-                    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                        cout << "Push loop body block B" << bodyBlock.getCfgBlockID() << endl;
-                    }
+//                    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
+//                        cout << "   Push loop body block B" << bodyBlock.getCfgBlockID() << endl;
+//                    }
                 }
                 if (addExitBlock) {
                     visitedLoops.erase(loopStack.back().stmt);
@@ -1349,9 +1533,9 @@ void ScTraverseConst::run()
                                           block, loopStack, visitedLoops);
                     blockSuccs.push_back({exitBlock, exitSI});
                     
-                    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
-                        cout << "Push loop exit block B" << exitBlock.getCfgBlockID() << endl;
-                    }
+//                    if (DebugOptions::isEnabled(DebugComponent::doConstBlock)) {
+//                        cout << "   Push loop exit block B" << exitBlock.getCfgBlockID() << endl;
+//                    }
                 }
                 
             } else
@@ -1530,6 +1714,7 @@ void ScTraverseConst::run()
         if (!delayed.empty()) {
             // Take block from @delayed
             auto i = delayed.rbegin();
+            //cout << "Get next block B" << i->first.getCfgBlockID() << endl;
             
             // Prepare next block
             prepareNextBlock(i->first, i->second);
@@ -1538,6 +1723,15 @@ void ScTraverseConst::run()
             delayed.erase((++i).base());
 
         } else {
+            // Exit from function in non-empty loop stack, means return from loop
+            // Do not consider return to main loop in CTHREAD
+            if (isCombProcess || !contextStack.empty()) {
+                if (!loopStack.empty()) {
+                    ScDiag::reportScDiag(funcDecl->getBeginLoc(), 
+                                         ScDiag::SYNTH_RETURN_FROM_LOOP);
+                }
+            }
+                
             // No more blocks to analysis 
             if (contextStack.empty()) {
                 //state->print();
@@ -1547,6 +1741,7 @@ void ScTraverseConst::run()
             // Restore callee function context
             restoreContext();
             skipOneElement = true;
+            //cout << "Restore context next block B" << block.getCfgBlockID() << endl;
         }
     }
 }

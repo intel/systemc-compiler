@@ -23,7 +23,8 @@ SC_MODULE(top)
 
     SC_CTOR(top)
     {
-        SC_METHOD(test_method);
+        //SC_METHOD(test_method);  #251
+        //sensitive << din;
     }
 
     sc_signal<bool> din;

@@ -103,21 +103,16 @@ public:
         const int C = 42;
         int i = 1;
 
-        // Warning generated 
         int j = i;
-        int k = a.read();  // "=" instead of "<=" for local variable
+        int k = j++;
         
-        // Warning generated 
-        i++;
+        i++;                
         --j;
-        k += 1;
+        k += 1;             // "=" instead of "<=" for local variable
         
-        // Warning generated 
         i = j + 1;
-        j = 2*a.read();
         k = j ? i : i + 1;  // "=" instead of "<=" for local variable
         
-        // No warnings
         i = C ? 1 : 2;
         j = C;
         k = 1 - C;
@@ -236,19 +231,23 @@ public:
     sc_signal<sc_uint<3>> s3;
     void common_wait5() 
     {
-        sc_uint<3> x;       // Reg
-        x = 1;
         s3 = 0;
         
         while (true) {
-            while (!s1.read()) wait();  // 0
-            x = x + s1.read();
-            wait();         // 1
-            
-            s3 = x;
+            wait();                     // 0
+            while (!s1.read()) wait();  // 1
+            s3 = 1;
         }
     }
     
+    
+//    void common_wait5() 
+//    {
+//        while (true) {
+//            wait();                     // 1
+//            s3 = 1;
+//        }
+//    }
     
 // ----------------------------------------------------------------------------
     // No reset section, created with and w/o reset signal
@@ -257,7 +256,7 @@ public:
     {
         while (true) {
             int jj = 42;
-            if (a) {
+            if (jj) {
                 int kk = 43;
             }
             wait();
@@ -278,10 +277,10 @@ public:
     void no_reset3() 
     {
         while (true) {
-            sc_uint<3> v = s3.read();
+            sc_uint<3> v = 0;
             wait();
             
-            v++;
+            v += s3.read();
             wait();
         }
     }
@@ -295,9 +294,9 @@ public:
     {
         while (true) {
             s4 = 0;
-            int w = g(s3.read());
             wait();
             
+            int w = g(s3.read());
             sc_uint<3> z = w+1;
             s4 = z;
             wait();
@@ -308,13 +307,13 @@ public:
     void no_reset5() 
     {
         while (true) {
+            wait();                         // 0
             s5 = s1.read() + 1;
             sc_uint<3> z = s3.read();
             
-            while (!s1.read()) wait();      // 0
+            while (!s1.read()) wait();      // 1
             
             s5 = z; 
-            wait();                         // 1
         }
     }
     
@@ -322,8 +321,8 @@ public:
 
     // Function call in reset
     int f() {
-        const bool A = a.read();
-        bool b = a.read();
+        const bool A = 1;
+        bool b = 2;
         return (A ^ b);
     }
 

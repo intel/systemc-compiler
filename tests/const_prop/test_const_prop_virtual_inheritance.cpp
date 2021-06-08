@@ -39,9 +39,11 @@ struct derived_mod : sc_module, mbase0, mbase1 {
     derived_mod(sc_module_name nm)  {
         SC_HAS_PROCESS(derived_mod);
         SC_METHOD(test_method);
+        sensitive << din;
     }
 
-
+    sc_signal<bool> din;
+    
     void test_method() {
 
         mbase0_method();

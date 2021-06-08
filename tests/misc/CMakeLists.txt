@@ -12,6 +12,11 @@ set(COMMON_TEST $ENV{ICSC_HOME}/svc/components/common/test)
 #    ${COMMON_HOME}/sctcommon
 #)
 
+## Example for UG section 6
+add_executable(misc_module_sections test_module_sections.cpp)
+svc_target(misc_module_sections ELAB_TOP tb_inst.top_mod 
+           GOLDEN misc_module_sections.sv)
+
 ## Verilog intrinsics
 add_executable(misc_verilog_intrinsic test_verilog_intrinsic.cpp)
 svc_target(misc_verilog_intrinsic GOLDEN misc_verilog_intrinsic.sv)
@@ -83,6 +88,27 @@ svc_target(misc_array_no_indx_fail WILL_FAIL)
 add_executable(misc_const_array test_const_array.cpp)
 svc_target(misc_const_array GOLDEN misc_const_array.sv)
 
+add_executable(misc_large_array test_large_array.cpp)
+svc_target(misc_large_array)
+
+add_executable(misc_array_ptr_noninit test_array_ptr_noninit.cpp)
+svc_target(misc_array_ptr_noninit GOLDEN misc_array_ptr_noninit.sv)
+
+add_executable(misc_zero_width_fail test_zero_width_fail.cpp)
+svc_target(misc_zero_width_fail WILL_FAIL)
+
+
+## Vectors
+add_executable(misc_vector_in_top test_vector_in_top.cpp)
+svc_target(misc_vector_in_top GOLDEN misc_vector_in_top.sv)
+
+add_executable(misc_sc_vector1 test_sc_vector1.cpp)
+svc_target(misc_sc_vector1 GOLDEN misc_sc_vector1.sv)
+
+add_executable(misc_sc_vector2 test_sc_vector2.cpp)
+svc_target(misc_sc_vector2 GOLDEN misc_sc_vector2.sv)
+
+
 ## sct_comb_signal and memory
 add_executable(misc_vendor_memory test_vendor_memory.cpp)
 svc_target(misc_vendor_memory GOLDEN misc_vendor_memory.sv MODULE_PREFIX MPREF_)
@@ -105,12 +131,13 @@ add_executable(misc_string test_string.cpp)
 svc_target(misc_string GOLDEN misc_string.sv)
 
 add_executable(misc_vendor_memory_sem test_vendor_memory_sem.cpp)
-svc_target(misc_vendor_memory_sem GOLDEN misc_vendor_memory_sem.sv)
+svc_target(misc_vendor_memory_sem ELAB_TOP tb.mod_mem GOLDEN misc_vendor_memory_sem.sv)
 
 add_executable(misc_vendor_memory_if test_vendor_memory_if.cpp)
 svc_target(misc_vendor_memory_if GOLDEN misc_vendor_memory_if.sv)
 
-## ...
+
+## Binds ports/signals
 add_executable(misc_module_typedef test_module_typedef.cpp)
 svc_target(misc_module_typedef GOLDEN misc_module_typedef.sv)
 
@@ -126,6 +153,22 @@ add_executable(misc_cross_hierarchy_bind3 test_cross_hierarchy_bind3.cpp)
 svc_target(misc_cross_hierarchy_bind3 
            GOLDEN misc_cross_hierarchy_bind3.sv)
 
+add_executable(misc_module_port_sig test_module_port_sig.cpp)
+svc_target(misc_module_port_sig GOLDEN misc_module_port_sig.sv)
+
+add_executable(misc_module_binds_simple test_module_binds_simple.cpp)
+svc_target(misc_module_binds_simple ELAB_TOP tb_inst.top_mod 
+           GOLDEN misc_module_binds_simple.sv)
+
+add_executable(misc_module_binds_double test_module_binds_double.cpp)
+svc_target(misc_module_binds_double GOLDEN misc_module_binds_double.sv)
+
+add_executable(misc_module_binds_array test_module_binds_array.cpp)
+svc_target(misc_module_binds_array GOLDEN misc_module_binds_array.sv)
+
+add_executable(misc_sig_access_reset test_sig_access_reset.cpp)
+svc_target(misc_sig_access_reset GOLDEN misc_sig_access_reset.sv)
+
 ## Constants
 add_executable(misc_const_init test_const_init.cpp)
 svc_target(misc_const_init GOLDEN misc_const_init.sv)
@@ -133,8 +176,23 @@ svc_target(misc_const_init GOLDEN misc_const_init.sv)
 add_executable(misc_const_radix test_const_radix.cpp)
 svc_target(misc_const_radix GOLDEN misc_const_radix.sv)
 
+add_executable(misc_const_large test_const_large.cpp)
+svc_target(misc_const_large GOLDEN misc_const_large.sv)
+
 add_executable(misc_const_remove test_const_remove.cpp)
 svc_target(misc_const_remove GOLDEN misc_const_remove.sv)
+
+add_executable(misc_unused_remove_local test_unused_remove_local.cpp)
+svc_target(misc_unused_remove_local GOLDEN misc_unused_remove_local.sv REPLACE_CONST_VALUE)
+
+add_executable(misc_unused_remove_member test_unused_remove_member.cpp)
+svc_target(misc_unused_remove_member GOLDEN misc_unused_remove_member.sv)
+
+add_executable(misc_unused_remove_mif test_unused_remove_mif.cpp)
+svc_target(misc_unused_remove_mif GOLDEN misc_unused_remove_mif.sv)
+
+add_executable(misc_cond_side_effect_fail test_cond_side_effect_fail.cpp)
+svc_target(misc_cond_side_effect_fail WILL_FAIL)
 
 add_executable(misc_const_keep_var1 test_const_keep_var1.cpp)
 svc_target(misc_const_keep_var1 GOLDEN misc_const_keep_var1.sv)
@@ -157,6 +215,9 @@ svc_target(misc_multiple_pointers_mod GOLDEN misc_multiple_pointers_mod.sv)
 
 add_executable(misc_array_to_pointer test_array_to_pointer.cpp)
 svc_target(misc_array_to_pointer GOLDEN misc_array_to_pointer.sv)
+
+add_executable(misc_array_to_pointer_fail test_array_to_pointer_fail.cpp)
+svc_target(misc_array_to_pointer_fail WILL_FAIL)
 
 add_executable(misc_pointer_warning test_pointer_warning.cpp)
 svc_target(misc_pointer_warning GOLDEN misc_pointer_warning.sv)
@@ -195,6 +256,12 @@ svc_target(misc_sc_port GOLDEN misc_sc_port.sv)
 #add_executable(misc_sc_port2 test_sc_port2.cpp)
 #svc_target(misc_sc_port2 GOLDEN misc_sc_port2.sv)
 
+add_executable(misc_sc_port3 test_sc_port3.cpp)
+svc_target(misc_sc_port3 GOLDEN misc_sc_port3.sv)
+
+add_executable(misc_sc_port4 test_sc_port4.cpp)
+svc_target(misc_sc_port4 GOLDEN misc_sc_port4.sv)
+
 ## Fix me, see #116
 #add_executable(misc_sc_port_array1 test_sc_port_array1.cpp)
 #svc_target(misc_sc_port_array1 GOLDEN misc_sc_port_array1.sv)
@@ -202,14 +269,6 @@ svc_target(misc_sc_port GOLDEN misc_sc_port.sv)
 ## Module port array not supported yet
 #add_executable(misc_sc_port_array2 test_sc_port_array2.cpp)
 #svc_target(misc_sc_port_array2 GOLDEN misc_sc_port_array2.sv)
-
-## Fix me, see #118
-#add_executable(misc_sc_port3 test_sc_port3.cpp)
-#svc_target(misc_sc_port3 GOLDEN misc_sc_port3.sv)
-
-## Fix me, see #118
-#add_executable(misc_sc_port4 test_sc_port4.cpp)
-#svc_target(misc_sc_port4 GOLDEN misc_sc_port4.sv)
 
 add_executable(misc_sc_port_dyn test_sc_port_dyn.cpp)
 svc_target(misc_sc_port_dyn GOLDEN misc_sc_port_dyn.sv)
@@ -270,10 +329,6 @@ target_compile_definitions(misc_sva_generate_proc_off PUBLIC -DSCT_ASSERT_OFF)
 svc_target(misc_sva_generate_proc_off GOLDEN misc_sva_generate_proc_off.sv 
            ELAB_TOP test_top.a_mod)
 
-add_executable(misc_module_binds_simple test_module_binds_simple.cpp)
-svc_target(misc_module_binds_simple ELAB_TOP tb_inst.top_mod 
-           GOLDEN misc_module_binds_simple.sv)
-
 add_executable(misc_sc_port_ptr2 test_sc_port_ptr2.cpp)
 svc_target(misc_sc_port_ptr2 GOLDEN misc_sc_port_ptr2.sv)
 
@@ -292,6 +347,30 @@ svc_target(misc_const_global ELAB_TOP tb_inst.top_mod
 add_executable(misc_constexpr test_constexpr.cpp)
 svc_target(misc_constexpr GOLDEN misc_constexpr.sv)
 
+add_executable(misc_name_conflict0 test_name_conflict0.cpp)
+svc_target(misc_name_conflict0 GOLDEN misc_name_conflict0.sv)
+
+add_executable(misc_name_conflict1 test_name_conflict1.cpp)
+svc_target(misc_name_conflict1 GOLDEN misc_name_conflict1.sv)
+
+add_executable(misc_name_conflict2 test_name_conflict2.cpp)
+svc_target(misc_name_conflict2 GOLDEN misc_name_conflict2.sv)
+
+add_executable(misc_name_conflict3 test_name_conflict3.cpp)
+svc_target(misc_name_conflict3 GOLDEN misc_name_conflict3.sv)
+
+add_executable(misc_name_conflict4 test_name_conflict4.cpp)
+svc_target(misc_name_conflict4 GOLDEN misc_name_conflict4.sv)
+
+add_executable(misc_name_conflict5 test_name_conflict5.cpp)
+svc_target(misc_name_conflict5 GOLDEN misc_name_conflict5.sv)
+
+add_executable(misc_name_conflict6 test_name_conflict6.cpp)
+svc_target(misc_name_conflict6 GOLDEN misc_name_conflict6.sv)
+
+add_executable(misc_name_conflict7 test_name_conflict7.cpp)
+svc_target(misc_name_conflict7 GOLDEN misc_name_conflict7.sv)
+
 # Inner records not supported yet
 #add_executable(misc_reg_array_target test_reg_array_target.cpp)
 #svc_target(misc_reg_array_target ELAB_TOP top 
@@ -306,7 +385,7 @@ svc_target(misc_read_notdef_chan GOLDEN misc_read_notdef_chan.sv)
 add_executable(misc_verilog_keyword test_verilog_keyword.cpp)
 svc_target(misc_verilog_keyword GOLDEN misc_verilog_keyword.sv)
 
-# Function calls
+## Function calls
 add_executable(misc_fcall_params test_fcall_params.cpp)
 svc_target(misc_fcall_params GOLDEN misc_fcall_params.sv)
 
@@ -322,24 +401,23 @@ svc_target(misc_fcall_array_unknown GOLDEN misc_fcall_array_unknown.sv)
 add_executable(misc_fcall_multi_state test_fcall_multi_state.cpp)
 svc_target(misc_fcall_multi_state GOLDEN misc_fcall_multi_state.sv) 
 
+add_executable(misc_fcall_loop test_fcall_loop.cpp)
+svc_target(misc_fcall_loop GOLDEN misc_fcall_loop.sv) 
 
-add_executable(misc_large_array test_large_array.cpp)
-svc_target(misc_large_array)
+add_executable(misc_fcall_return_fail1 test_fcall_return_fail1.cpp)
+svc_target(misc_fcall_return_fail1 WILL_FAIL)
 
-add_executable(misc_sc_vector1 test_sc_vector1.cpp)
-svc_target(misc_sc_vector1 GOLDEN misc_sc_vector1.sv)
+add_executable(misc_fcall_return_fail2 test_fcall_return_fail2.cpp)
+svc_target(misc_fcall_return_fail2 WILL_FAIL)
 
-add_executable(misc_sc_vector2 test_sc_vector2.cpp)
-svc_target(misc_sc_vector2 GOLDEN misc_sc_vector2.sv)
+add_executable(misc_fcall_return_fail3 test_fcall_return_fail3.cpp)
+svc_target(misc_fcall_return_fail3 WILL_FAIL)
 
-add_executable(misc_sig_access_reset test_sig_access_reset.cpp)
-svc_target(misc_sig_access_reset GOLDEN misc_sig_access_reset.sv)
+add_executable(misc_fcall_return_fail4 test_fcall_return_fail4.cpp)
+svc_target(misc_fcall_return_fail4 WILL_FAIL)
 
-add_executable(misc_array_ptr_noninit test_array_ptr_noninit.cpp)
-svc_target(misc_array_ptr_noninit GOLDEN misc_array_ptr_noninit.sv)
-
-add_executable(misc_zero_width_fail test_zero_width_fail.cpp)
-svc_target(misc_zero_width_fail WILL_FAIL)
+add_executable(misc_loop_return_fail test_loop_return_fail.cpp)
+svc_target(misc_loop_return_fail WILL_FAIL)
 
 add_executable(misc_neg_range_fail test_neg_range_fail.cpp)
 svc_target(misc_neg_range_fail WILL_FAIL)

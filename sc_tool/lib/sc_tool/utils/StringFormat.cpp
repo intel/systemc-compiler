@@ -26,6 +26,17 @@ std::string getFileName(const std::string& s)
    return("");
 }
 
+std::string removeFileExt(const std::string& s) 
+{
+   char sep = '.';
+   
+   size_t i = s.rfind(sep, s.length());
+   if (i != std::string::npos) {
+       return (s.substr(0, i));
+   }
+   
+   return s;
+}
 
 std::string getTail(const std::string& source, const std::size_t length) 
 {

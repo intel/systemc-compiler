@@ -59,7 +59,8 @@ public:
     void if_complex_stmt2()
     {
         int i, j;
-        if (i || j++) {
+        j++;
+        if (i || j) {
         }
         sct_assert_read(i);
         sct_assert_read(j);
@@ -132,7 +133,7 @@ public:
     void if_complex_assign1()
     {
         int i, j;
-        if (i || (j = a)) {
+        if (i || (j == a)) {
         }
         sct_assert_read(i);
     }
@@ -140,7 +141,7 @@ public:
     void if_complex_assign2()
     {
         int i, j;
-        if (i || (j = 1)) {
+        if (i || (j == 1)) {
         }
         sct_assert_read(i);
     }

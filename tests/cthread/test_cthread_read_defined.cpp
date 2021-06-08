@@ -24,13 +24,18 @@ public:
         SC_METHOD(read_array_bug); sensitive << s;
 
         SC_CTHREAD(linear1, clk.pos());
+        async_reset_signal_is(nrst, false);
         SC_METHOD(linear_self); sensitive << s;
         SC_CTHREAD(linear_comp_assign, clk.pos());
+        async_reset_signal_is(nrst, false);
         SC_CTHREAD(linear_unary, clk.pos());
+        async_reset_signal_is(nrst, false);
 
         SC_CTHREAD(decl_init, clk.pos());
+        async_reset_signal_is(nrst, false);
 
         SC_CTHREAD(decl_init_array, clk.pos());
+        async_reset_signal_is(nrst, false);
         SC_METHOD(read_array); sensitive << s;
         SC_METHOD(wite_known_array); sensitive << s;
         SC_METHOD(wite_unknown_array); sensitive << s;
@@ -69,6 +74,7 @@ public:
     const int           CI = 1;
     void linear1()
     {
+        m = 1;
         int i = 1;
         k = m + CI;
         m = k - 1;
@@ -77,10 +83,11 @@ public:
         sct_assert_defined(k);
         sct_assert_defined(n);
         sct_assert_defined(m);
-        sct_assert_register(m);
         sct_assert_read(k);
         sct_assert_read(n, false);
         wait();
+        
+        while(1) wait();
     }
 
     // Assignment with the same variable in left and right parts
@@ -99,6 +106,7 @@ public:
 
     void linear_comp_assign()
     {
+        k2 = 0; m2 = 0;
         int i = 1;
         i += 1;
         k2 -= m2;
@@ -106,12 +114,11 @@ public:
         sct_assert_defined(i);
         sct_assert_read(i);
         sct_assert_defined(k2);
-        sct_assert_register(k2);
         sct_assert_read(k2);
-        sct_assert_defined(m2, false);
-        sct_assert_register(m2);
         sct_assert_read(m2);
         wait();
+        
+        while(1) wait();
     }
 
     int                 n3;
@@ -120,20 +127,19 @@ public:
 
     void linear_unary()
     {
+        k3 = 0; m3 = 1; n3 = 2;
         int i = +k3;
         i = --m3;
         n3++;
 
-        sct_assert_defined(k3, false);
         sct_assert_read(k3);
-        sct_assert_register(k3);
         sct_assert_defined(m3);
         sct_assert_read(m3);
-        sct_assert_register(m3);
         sct_assert_defined(n3);
         sct_assert_read(n3);
-        sct_assert_register(n3);
         wait();
+        
+        while(1) wait();
     }
     
     void decl_init()
@@ -157,6 +163,8 @@ public:
         sct_assert_defined(e);
         sct_assert_read(j);
         wait();
+        
+        while(1) wait();
     }
 
     void decl_init_array()
@@ -175,6 +183,8 @@ public:
         sct_assert_defined(c);
         sct_assert_array_defined(d);
         wait();
+        
+        while(1) wait();
     }
     
 

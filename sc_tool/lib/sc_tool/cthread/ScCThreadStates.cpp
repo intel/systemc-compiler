@@ -32,7 +32,7 @@ WaitID ScCThreadStates::getStateID(const CfgCursorStack &waitState) const {
         if (waitState == state) {
             return waitID;
         }
-        waitID ++;
+        waitID++;
     }
     llvm_unreachable("can't find state id");
     return 0;
@@ -51,9 +51,15 @@ bool ScCThreadStates::isWaitNState(WaitID wID) const
     return waitNSet.count(wID) == 1;
 }
 
+bool ScCThreadStates::isFirstWaitN() const
+{
+    return firstWaitN;
+}
+
 WaitID ScCThreadStates::getOrInsertStateID(const CfgCursorStack &waitState,
                                            size_t maxWaitCycles)
 {
+    // @resetStack is empty, means no @wait() calls
     if (resetStack == waitState)
         return RESET_ID;
 
@@ -63,7 +69,12 @@ WaitID ScCThreadStates::getOrInsertStateID(const CfgCursorStack &waitState,
         if (waitState == state) {
             return waitID;
         }
-        waitID ++;
+        waitID++;
+    }
+    
+    // First wait() is wait(N)
+    if (statesVec.empty() && maxWaitCycles > 1) {
+        firstWaitN = true;
     }
 
     statesVec.emplace_back(waitState);

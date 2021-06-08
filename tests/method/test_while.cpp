@@ -43,7 +43,8 @@ public:
     // Empty While
     void while_stmt_empty() {
         int i = 0;
-        while (i++ < 2) {
+        while (i < 2) {
+            i++;
         }
         sct_assert_level(0);
     }

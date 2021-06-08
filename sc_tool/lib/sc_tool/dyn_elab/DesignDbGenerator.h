@@ -130,7 +130,7 @@ private:
     /// Fill pointees for pointer and pointer-like objects
     void resolvePointers();
 
-    TypedObject getBindedSignal(PtrOrRefObject portPtr) const;
+    TypedObject getBindedSignal(PtrOrRefObject portPtr, Object* ptrEO) const;
 
     /// Create a "virtual" signal outside of module hierarchy
     Object* createVirtualSignal(TypedObject signalTO);

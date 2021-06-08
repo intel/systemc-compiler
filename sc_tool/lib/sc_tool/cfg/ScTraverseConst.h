@@ -314,6 +314,9 @@ public:
     /// Preset CFG for run analysis
     void setFunction(const clang::FunctionDecl* fdecl);
     
+    /// Remove unused variable definition statements in METHODs and CTHREADs
+    void removeUnusedStmt();
+    
     /// Run analysis at function entry, runs once per process
     void run();
     
@@ -354,11 +357,6 @@ public:
         return (inSvaAccessVars.count(val) != 0);
     }
     
-    /// Get stored state at wait() calls
-    const std::map<WaitID, ScState>& getWaitStates() const{
-        return waitStates;
-    }
-    
     /// Get functions with wait()
     const std::unordered_set<const clang::FunctionDecl*>& getWaitFuncs() const {
         return hasWaitFuncs;
@@ -372,9 +370,51 @@ public:
     /// Current thread has reset signal
     void setHasReset(bool hasReset_);
     
+    /// Get stored state at wait() calls
+    std::map<WaitID, ScState>& getWaitStates() {
+        return waitStates;
+    }
+    
+    /// Get wait states ordered, really that just numbers from 0 to N-1
+    std::set<WaitID> getWaitStatesInOrder() {
+        std::set<WaitID> res;
+        for (auto& entry : waitStates) {
+            res.insert(entry.first);
+        }
+        return res;
+    }
+    
     /// Get final state with UseDef information
-    const ScState* getFinalState() const {
+    ScState* getFinalState() const {
         return finalState.get();
+    }
+    
+    /// Get defined/used values after unused statements removed
+    std::unordered_set<SValue> getDefinedVals() {
+        std::unordered_set<SValue> definedVals;
+        for (const auto& i : defVarStmts) {
+            definedVals.insert(i.first);
+        }
+        return definedVals;
+    }
+    
+    std::unordered_set<SValue> getUsedVals() {
+        std::unordered_set<SValue> usedVals;
+        for (const auto& i : useVarStmts) {
+            usedVals.insert(i.first);
+        }
+        return usedVals;
+    }
+    
+    
+    /// Get main loop terminator for CTHREAD
+    const clang::Stmt* getMainLoopStmt() const {
+        return mainLoopStmt;
+    }
+    
+    /// Check if CTHREAD has code before main loop
+    bool codeBeforeMainLoop() const {
+        return hasCodeBeforeMainLoop;
     }
     
     /// This process is in zero/non-zero element of array of modular interfaces
@@ -394,16 +434,16 @@ public:
     
 protected:
     /// Maximal iteration number analyzed for a loop
-    unsigned LOOP_MAX_ITER = 16;
+    unsigned LOOP_MAX_ITER = 10;
     /// Code of last iteration index stored in @counter, 
     /// used to mark last iteration after state  becomes stable
     unsigned LOOP_LAST_ITER = 1024;
     /// Deep loop, 3rd and more nested loop
-    unsigned DEEP_LOOP_DEPTH = 3;
+    unsigned DEEP_LOOP_DEPTH = 2;
     /// Maximal iteration number for a deep loop
     unsigned DEEP_LOOP_MAX_ITER  = 3;
     unsigned COMPARE_STATE_ITER1 = 2;
-    unsigned COMPARE_STATE_ITER2 = 11;
+    unsigned COMPARE_STATE_ITER2 = 7;
     /// Iteration number when iteration exceeded error is reported 
     unsigned UNROLL_ERROR_ITER = 20;
     
@@ -465,6 +505,9 @@ protected:
     std::unordered_set<clang::Stmt*> liveStmts;
     /// Live terminators, also includes switch cases/default
     std::unordered_set<clang::Stmt*> liveTerms;
+    /// Not mandatory required statements, can be removed in @removeUnusedStmt()
+    std::unordered_set<clang::Stmt*> simpleStmts;
+    
     /// Evaluated terminator condition values, use in ScTraverseProc
     std::unordered_map<CallStmtStack, SValue> termConds;
 
@@ -493,6 +536,11 @@ protected:
     bool isCombProcess;
     /// Current process has reset signal
     bool hasReset;
+    /// Current process has code before main loop
+    bool hasCodeBeforeMainLoop = false;
+    /// Main loop terminator for CTHREAD
+    const clang::Stmt* mainLoopStmt = nullptr;
+    
     /// Current process is in zero/.non-zero element of array of modular interfaces
     /// Used to suppress process variable generation
     bool zeroElmtMIF = false;

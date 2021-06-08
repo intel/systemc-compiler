@@ -30,19 +30,15 @@ class ScProcAnalyzer {
     std::shared_ptr<ScState> globalState;
     sc_elab::ElabDatabase &elabDB;
 
-    /// Code writer for module non-local variables, contains variable name
-    /// indices and used as initial copy for process writer class  
-    ScVerilogWriter modWriter;
-    
 public:
     /// @state is owned outside (by ScElabProcBuilder)
     ScProcAnalyzer(const clang::ASTContext &context,
                    sc_elab::ElabDatabase &elabDB,
                    std::shared_ptr<ScState>  state_) :
-        astCtx(context), sm(context.getSourceManager()), globalState(state_),
-        elabDB(elabDB), 
-        modWriter(sm, true, state_->getExtrValNames(), state_->getVarTraits(),
-                  state_->getWaitNVarName())
+        astCtx(context), 
+        sm(context.getSourceManager()), 
+        globalState(state_),
+        elabDB(elabDB) 
     {}
         
     /// Analyze process body and print equivalent Verilog.
@@ -61,13 +57,6 @@ public:
     sc_elab::VerilogProcCode   analyzeCthreadProcess(const SValue& modval,
                                const SValue& dynmodval,
                                sc_elab::ProcessView procView);
-
-    /// Test constant propagation on given process
-    void analyzeConstProp(
-        const SValue& modval,
-        const SValue& dynmodval,
-        sc_elab::ProcessView procView);
-
 
     /// Generated SVA property code from module scope SCT_ASSERT
     std::string analyzeSvaProperties(

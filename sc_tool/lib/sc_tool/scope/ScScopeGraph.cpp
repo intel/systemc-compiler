@@ -48,6 +48,12 @@ void ScScopeGraph::storeStmt(const Stmt* stmt, const string& s, bool artifIf) {
     //     << currScope.get() << ", stmt " << stmt << " : "<< dec << s << endl; 
 }
 
+// Store @sct_assert statement in the current scope
+void ScScopeGraph::storeAssertStmt(const Stmt* stmt, const string& s) {
+    assertStmts.insert(stmt);
+    currScope->push_back({stmt, s});
+}
+
 void ScScopeGraph::storeNullStmt(std::shared_ptr<CodeScope> scope) {
     scope->push_back({nullptr, ""});
 }
@@ -82,10 +88,10 @@ void ScScopeGraph::storeStateAssign(const clang::Stmt* stmt,
     string nextName = names.second.empty() ? STATE_VAR_NAME : names.second;
     
     string s = (addTab ? "    " : "") + 
-               ((!singleBlockCThreads && isReset) ? currName : nextName) + 
-               ((!singleBlockCThreads && isReset) ? NB_ASSIGN_SYM : ASSIGN_SYM) + 
+               ((isReset) ? currName : nextName) + 
+               ((isReset) ? NB_ASSIGN_SYM : ASSIGN_SYM) + 
                to_string(waitId) + 
-               (!singleBlockCThreads ? (isReset ? "" : "; return") : "; break") +
+               (isReset ? "" : "; return") +
                ((comment.empty()) ? "" : ";    // "+comment);
     currScope->push_back({stmt, s});
 }
@@ -439,10 +445,24 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                 }
                 //cout << "ENDLOOP #" << hex << stmt << dec << endl;
 
+            } else 
+            if ( stmt && assertStmts.count(stmt) ) {
+                // @sct_assert
+                bool noTabStmt = emptySensStmt.count(stmt);
+                string tabStr = noTabStmt ? "" : getTabString(level);
+                
+                os << tabStr << "`ifndef INTEL_SVA_OFF" << endl;
+                os << tabStr << TAB_SYM << stmtStr << ";" << endl;
+                os << tabStr << "`endif // INTEL_SVA_OFF" << endl;
+                
+                if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
+                    cout << "   " << stmtStr << endl;
+                }
+                
             } else {
                 // Print statement string, empty string can be for function call
-                // Commented: do not print parameters for record constructor as that already
-                // done before print of initialization list
+                // Commented: do not print parameters for record constructor as 
+                // that already done before print of initialization list
                 if (!stmtStr.empty() /*&& (!stmt || !isa<CXXConstructExpr>(stmt))*/) {
                     // Split and print one or more lines with tabulation
                     bool noTabStmt = emptySensStmt.count(stmt);
