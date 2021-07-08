@@ -22,6 +22,9 @@
 #include <rtti_sysc/SystemCRTTI.h>
 
 #include <type_traits>
+#include <iostream>
+
+#include "sc_tool/diag/ScToolDiagnostic.h"
 
 using namespace clang;
 using namespace sc;
@@ -275,6 +278,9 @@ RecordObject::BasesIterator::operator*() const {
         auto &recordLayout = getAstCtx()->getASTRecordLayout(
             dynObj.getAs<RecordObject>()->getRecordDecl());
 
+        if (recordLayout.getVBaseOffsetsMap().count(baseDecl) == 0) {
+            ScDiag::reportScDiag(ScDiag::ELAB_BAD_RECORD_OBJ);
+        }
         baseOffset = recordLayout.getVBaseClassOffset(baseDecl).getQuantity();
 
         const void *basePtr = ((const char*)objPtr + baseOffset);

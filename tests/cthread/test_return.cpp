@@ -42,11 +42,17 @@ SC_MODULE(test)
         SC_CTHREAD(mif_method_call, clk.pos());
         async_reset_signal_is(rst, 0);
         
+        SC_CTHREAD(return_func2, clk.pos());
+        async_reset_signal_is(rst, 0);
+
+        SC_CTHREAD(return_func3, clk.pos());
+        async_reset_signal_is(rst, 0);
+
         SC_CTHREAD(return_func4, clk.pos());
         async_reset_signal_is(rst, 0);
     }
     
-    // Normal return from function
+    // Return bit/range from function
     sc_uint<1> f1(unsigned bitIndx) {
         sc_uint<4> res = s.read();
         return (sc_uint<1>)res.bit(bitIndx-1);
@@ -57,6 +63,7 @@ SC_MODULE(test)
         return res.range(rangeLo+4, rangeLo);
     }
     
+    sc_signal<int> s0;
     void return_func1() 
     {
         wait();
@@ -64,6 +71,7 @@ SC_MODULE(test)
         {
             int i = f1(s.read());
             i = f2(s.read()).bit(1);
+            s0 = i;
             wait();
         }
     }
@@ -75,12 +83,13 @@ SC_MODULE(test)
         return a_mif->read(addr);
     }
     
+    sc_signal<int> s1;
     void mif_method_call() 
     {
         wait();
         while (true) 
         {
-            read(s.read());
+            s1 = read(s.read());
             wait();
         }
     }
@@ -102,12 +111,64 @@ SC_MODULE(test)
         } while(!A);
     }
     
-    void return_func4() 
+    void return_func2() 
     {
         wait();
         while (true) {
             
             ff5(s.read());
+            wait();
+        }
+    }
+    
+// ---------------------------------------------------------------------------    
+
+    template <class T>
+    T ff6(T& par) {
+        if (par > s1.read()) {
+            return ++par;
+        } else {
+            return par;
+        }
+    }
+    
+    // Return in IF
+    sc_signal<int> s3;
+    void return_func3() 
+    {
+        wait();
+        while (true) {
+
+            int i = 42;
+            if (s.read()) {
+                ff6(i);
+            } else {
+                i = ff6(i);
+            }
+            s3 = i;
+            wait();
+        }
+    }
+    
+    
+// ---------------------------------------------------------------------------    
+
+    template <class T>
+    T ff7(T par) {
+        switch (par) {
+            case 0: return 1;
+            case 1: return s.read();
+            default: return 0;
+        }
+    }
+    
+    // Return in switch
+    sc_signal<int> s4;
+    void return_func4() 
+    {
+        wait();
+        while (true) {
+            s4 = ff7(s.read());
             wait();
         }
     }

@@ -15,6 +15,7 @@ public:
     sc_signal<bool> arstn{"arstn", 1};
     sc_signal<int> in{"in"};
     sc_signal<int> out{"out"};
+    sc_signal<int> s;
 
     SC_HAS_PROCESS(top);
     top(sc_module_name)
@@ -62,10 +63,19 @@ public:
         SC_THREAD(while_with_binary_oper3);
         sensitive << clk.posedge_event();
         async_reset_signal_is(arstn, false);
-        // TODO: Fix me, #133
+        
+        // TODO: Fix me, #133 -- error reported
         //SC_THREAD(no_wait_main_loop);
         //sensitive << clk.posedge_event();
         //async_reset_signal_is(arstn, false);
+        
+        SC_THREAD(while_continue1);
+        sensitive << clk.posedge_event();
+        async_reset_signal_is(arstn, false);
+
+        SC_THREAD(while_break1);
+        sensitive << clk.posedge_event();
+        async_reset_signal_is(arstn, false);
     }
 
     // @while with wait
@@ -222,7 +232,7 @@ public:
         wait();
         
         while (1) {             
-            while (b1 && b2) {  
+            while (b1 && s.read()) {  
                 k = 1;          
                 wait();
                 k = 2;
@@ -255,7 +265,7 @@ public:
         wait();     
         
         while (1) { 
-            while ((b1 && b2) || b3) { 
+            while ((b1 && s.read()) || b3) { 
                 k = 1;
                 wait();     
                 k = 2;
@@ -266,7 +276,6 @@ public:
             
     
     // Main loop w/o wait(), see #133
-    sc_signal<int> s;
     void no_wait_main_loop()
     {
         s = 0;
@@ -276,7 +285,66 @@ public:
             s = 1;
         } 
     }
-        
+    
+// --------------------------------------------------------------------------
+    
+    // break and continue
+    
+    sc_signal<int> s1;
+    sc_signal<int> s2;
+    void while_continue1()
+    { 
+        s2 = 0;
+        wait();
+
+        while (true) 
+        {
+            while (!s.read()) {
+                wait();             // 1
+                s2 = 2;
+            }
+
+            while (s.read()) {
+                wait();            // 2     
+                if (s1.read()) {
+                    s2 = 1;
+                    continue;
+                }
+            }
+            wait();                // 3       
+        }
+    }
+    
+    sc_signal<int> s3;
+    void while_break1()
+    { 
+        wait();
+
+        while (true) 
+        {
+            s3 = 0;
+            while (true) {
+                wait();             // 1     
+                if (s1.read()) {
+                    break;
+                }
+                s3 = 1;
+            }
+            while (s1) {
+                while (s2) {
+                    wait();         // 2
+                }
+                if (s1 > s2) { 
+                    wait();         // 3
+                    break;
+                }
+                s3 = 2;
+                wait();             // 4
+            }
+            
+            wait();                 // 5
+        }
+    }
 };
 
 int sc_main(int argc, char *argv[])

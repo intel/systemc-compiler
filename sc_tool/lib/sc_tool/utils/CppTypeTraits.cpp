@@ -109,8 +109,15 @@ std::vector<std::size_t> getArraySizes(clang::QualType type)
 std::size_t getArrayElementNumber(clang::QualType type)
 {
     if (type.isNull()) return 0;
-    
+
     auto arrSizes = getArraySizes(type);
+    return getArrayElementNumber(arrSizes);
+}
+
+// Get total element number in one/multi-dimensional array, 
+// for one-dimensional array the same as its size
+std::size_t getArrayElementNumber(const vector<size_t>& arrSizes)
+{
     std::size_t elmnum = (arrSizes.size() > 0) ? 1 : 0;
 
     for (auto s : arrSizes) {
@@ -120,11 +127,20 @@ std::size_t getArrayElementNumber(clang::QualType type)
     return elmnum;
 }
 
+
 // Get array indices in multi-dimensional for given @indx
 std::vector<std::size_t> getArrayIndices(clang::QualType type, std::size_t indx) 
 {
     std::vector<std::size_t> arrInds = getArraySizes(type);
-    if (type.isNull()) return arrInds;
+    return getArrayIndices(arrInds, indx);
+}
+
+// Get array indices in multi-dimensional for given @indx
+// \param allSizes -- record array and field array joined sizes
+std::vector<std::size_t> getArrayIndices(const vector<size_t>& arrSizes, 
+                                         std::size_t indx) 
+{
+    std::vector<std::size_t> arrInds(arrSizes);
 
     // Fill @arrInds with element indices
     for (auto i = arrInds.rbegin(); i != arrInds.rend(); ++i) {
@@ -134,6 +150,7 @@ std::vector<std::size_t> getArrayIndices(clang::QualType type, std::size_t indx)
     }
     return arrInds;
 }
+
 
 // Check if the type is pointer to constant type
 bool isPointerToConst(clang::QualType type)

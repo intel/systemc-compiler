@@ -10,16 +10,33 @@
 // Constexpr variables and constexpr functions
 
 // Logarithm based on constexr
-constexpr unsigned myLogFunc(unsigned n, unsigned p) {
-  return (n < 2 ? p : myLogFunc(n/2, p+1));
+constexpr unsigned myLogFunc(uint64_t n, unsigned p) noexcept {
+    return (n < 2 ? p : myLogFunc(n/2, p+1));
+}
+template<uint64_t n> constexpr unsigned myLog = myLogFunc(n-1, 0)+1;
+
+constexpr unsigned myLogFunc2(uint64_t n) noexcept {
+    unsigned p = 0;
+    while (n > 1) {
+        n = n / 2;
+        p++;
+    }
+    return p;
+}
+template<uint64_t n> constexpr unsigned myLog2 = myLogFunc2(n-1)+1;
+
+// Get array size
+template<class T, unsigned N>
+constexpr std::size_t getArrSize(const T (&) [N]) noexcept {
+    return N;
 }
 
-template<unsigned n> constexpr unsigned myLog = myLogFunc(n, 0);
 
 template <unsigned N>
 struct A : public sc_module
 {
-    constexpr static unsigned M = myLog<N>;
+    constexpr static unsigned M1 = myLog<N>;
+    constexpr static unsigned M2 = myLog2<N>;
 
     sc_in_clk       clk;
     sc_signal<bool>         rst;
@@ -27,18 +44,46 @@ struct A : public sc_module
     
     SC_CTOR(A) 
     {
-        SC_METHOD(logProc);
-        sensitive << s;
+        SC_METHOD(arrProc); sensitive << s;
+        SC_METHOD(logProc); sensitive << s;
     }    
+    
+    void arrProc() 
+    {
+        int arr1[12];
+        constexpr auto i = getArrSize(arr1);
+        cout << i << endl;
+        int arr2[i];
+        sc_uint<i> a = arr2[0];
+    }
     
     void logProc() 
     {
+        cout << "M1 " << M1 << " M2 " << M2 << endl;
         constexpr unsigned i = 42;
-        auto j = myLog<i> + M;
+        constexpr uint64_t A = 1ULL << 63;
         
-        // SYN hangs up
-        //unsigned k = s.read();
-        //k = myLogFunc(k, 0);
+        auto j = myLog<i>;
+        cout << "Log of " << i << " is " << j << endl;
+        j = myLog<121>;
+        cout << "Log of " << 121 << " is " << j << endl;
+        j = myLog<7148>;
+        cout << "Log of " << 7148 << " is " << j << endl;
+        j = myLog<3122741901>;
+        cout << "Log of " << 3122741901 << " is " << j << endl;
+        j = myLog<A>;
+        cout << "Log of " << A << " is " << j << endl;
+        
+        j = myLog2<i>;
+        cout << "Log of " << i << " is " << j << endl;
+        j = myLog2<121>;
+        cout << "Log of " << 121 << " is " << j << endl;
+        j = myLog2<7148>;
+        cout << "Log of " << 7148 << " is " << j << endl;
+        j = myLog2<3122741901>;
+        cout << "Log of " << 3122741901 << " is " << j << endl;
+        j = myLog2<A>;
+        cout << "Log of " << A << " is " << j << endl;
     }
 };
 

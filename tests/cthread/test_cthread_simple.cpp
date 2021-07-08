@@ -9,7 +9,7 @@
 
 using namespace sc_core;
 
-// Simple clocked threads
+// Simple clocked threads and DvCon 2019 examples
 class A : public sc_module {
 public:
 
@@ -22,6 +22,14 @@ public:
     SC_CTOR(A) {
         ps = new sc_signal<bool>("ps");
         
+        SC_CTHREAD(simple_thread, clk.pos());
+        async_reset_signal_is(rst, true);
+
+        SC_CTHREAD(simple_reg, clk.pos());
+        async_reset_signal_is(rst, false);
+        
+        SC_CTHREAD(simple_thread_wo_reset1, clk.pos());
+
         SC_METHOD(concat_meth);
         sensitive << (*ps);
         
@@ -30,14 +38,6 @@ public:
 
         SC_CTHREAD(simple_reg_ro, clk.pos());
         async_reset_signal_is(rst, false);
-        
-        SC_CTHREAD(simple_thread, clk.pos());
-        async_reset_signal_is(rst, true);
-
-        SC_CTHREAD(simple_reg, clk.pos());
-        async_reset_signal_is(rst, false);
-        
-        SC_CTHREAD(simple_thread_wo_reset1, clk.pos());
 
         // DvCon 2019 examples
         /*SC_CTHREAD(thread1, clk.pos());
@@ -56,30 +56,6 @@ public:
         sensitive << in << s;*/
     }
     
-    
-    void concat_meth() {
-        sc_uint<2> c = ((sc_uint<1>)ps->read(), (sc_uint<1>)0);
-        //sc_uint<2> c = ((sc_uint<1>)ps->read());
-    }
-
-    void simple_concat() {
-        wait();
-        
-        while (true) {
-            sc_uint<2> c = ((sc_uint<1>)ps->read(), (sc_uint<1>)0);
-            wait();
-        }
-    }
-    
-    void simple_reg_ro() {
-        wait();
-        
-        while (true) {
-            bool b = d;
-            wait();
-        }
-    }
-    // Module member array
     void simple_thread() {
         wait();
         while (true) {
@@ -106,7 +82,32 @@ public:
             wait();
         }
     }
+    
+    void concat_meth() {
+        sc_uint<2> c = ((sc_uint<1>)ps->read(), (sc_uint<1>)0);
+        //sc_uint<2> c = ((sc_uint<1>)ps->read());
+    }
 
+    void simple_concat() {
+        wait();
+        
+        while (true) {
+            sc_uint<2> c = ((sc_uint<1>)ps->read(), (sc_uint<1>)0);
+            wait();
+        }
+    }
+    
+    void simple_reg_ro() {
+        wait();
+        
+        while (true) {
+            bool b = d;
+            wait();
+        }
+    }
+
+// --------------------------------------------------------------------------
+    
     // DvCon19 paper examples
     sc_in<bool>       in;
     sc_out<bool>      out;

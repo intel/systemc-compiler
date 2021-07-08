@@ -10,16 +10,28 @@
 
 using namespace sc_core;
 
-// Read not initialized variables in reset
+// Read not initialized variables/arrays in reset -- error/warning reported
 class A : public sc_module
 {
 public:
     sc_in<bool>         clk{"clk"};
     sc_signal<bool>     nrst{"nrst"};
     
+    int* p;
+    int m;
+    int* q = &m;
+    int n;
+    int& r = n;
+    int mm;
+    
     SC_CTOR(A)
     {
-        SC_CTHREAD(readProc, clk.pos());
+        p = sc_new<int>();
+
+        SC_CTHREAD(readProc1, clk.pos());
+        async_reset_signal_is(nrst, false);
+
+        SC_CTHREAD(readProc2, clk.pos());
         async_reset_signal_is(nrst, false);
     }
     
@@ -35,16 +47,44 @@ public:
         auto ii = par_a[i+1][i+2];
     }
 
-    void readProc() 
+    sc_signal<int>     s0;
+    void readProc1() 
     {
         int aa[3];
         int bb[3] = {0,1,2};
         int cc[3][3];
+        int dd[3];
 
-        f1(aa);
+        f1(aa);             // Warning
         f2(bb, 1);
-        f3(cc, 0);
+        f3(cc, 0);          // Warning
+        int i = dd[1];      // Warning
+        int j;
+        int& r = j;          
+        i = r;              // Warning
+        int l;
+        i = l + 1;          // Warning
 
+        s0 = i;             
+        
+        wait();
+        
+        while(1) {
+            wait();
+        }
+    }
+    
+    sc_signal<int>     s1;
+    void readProc2() 
+    {
+        int i;
+        i = *p;             // Error
+        i = mm;             // Error
+        int j = *q;         // Error
+        j = r;              // Error
+
+        s1 = i + j;     
+        
         wait();
         
         while(1) {

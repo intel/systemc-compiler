@@ -57,6 +57,9 @@ struct A : public sc_module
         SC_METHOD(const_range2);
         sensitive << s;
 
+        SC_CTHREAD(multi_ref_call, clk.pos());
+        async_reset_signal_is(nrst, 0);
+        
         SC_CTHREAD(negative_cost_ref1, clk.pos());
         async_reset_signal_is(nrst, 0);
         
@@ -162,6 +165,19 @@ struct A : public sc_module
         wait();
         l += par;
         s3 = l;
+    }
+
+    // Check no parameter declared if referenced variable is used, for #246
+    const sc_int<4> XC = 3;
+    void multi_ref_call() 
+    {
+        wait();
+        while (true) {
+            const sc_int<4> y = 41;
+            cref1(y);
+            cref1(XC);
+            wait();
+        }
     }
     
     void negative_cost_ref1() 

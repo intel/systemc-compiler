@@ -44,6 +44,7 @@ struct A : public sc_module
     sc_signal<sc_bigint<65>>*   parr3[N][M][K];
 
     sc_in<sc_uint<33>>*         iarr1[N];
+    sc_uint<33>*                arr1[N];
     
     SC_HAS_PROCESS(A);
 
@@ -61,6 +62,7 @@ struct A : public sc_module
         for (int i = 0; i < N; i++) {
             parr1[i] = new sc_signal<sc_uint<33>>("parr1");
             iarr1[i] = new sc_in<sc_uint<33>>("iarr1");
+            arr1[i] = sc_new<sc_uint<33>>();
             for (int j = 0; j < M; j++) {
                 parr2[i][j] = new sc_signal<sc_biguint<42>>("parr2");
                 for (int k = 0; k < K; k++) {
@@ -164,13 +166,14 @@ struct A : public sc_module
     {
         for (int i = 0; i < N; i++) {
             *parr1[i] = 0;
+            *arr1[i] = i;
         }
         wait();
         
         while (1) {
             for (int i = 0; i < N; i++) {
                 sc_biguint<100> mul = 0; 
-                sc_bigint<100> dif = 0;
+                sc_bigint<100> dif = (sc_bigint<100>)*arr1[i];
                 for (int j = 0; j < M; j++) {
                     mul *= *parr2[i][j] + iarr1[i]->read();
                     dif -= (*parr2[i][j]).read();

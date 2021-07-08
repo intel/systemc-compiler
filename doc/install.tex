@@ -198,7 +198,7 @@ Generated SystemVerilog files are put into {\tt sv\_out} folders.
 For {\tt counter} example:
 % 
 \begin{lstlisting}[language=bash]
-$ cd examples/counter                # go to counter example folder 
+$ cd icsc/examples/counter           # go to counter example folder 
 $ cat sv_out/counter.sv              # see generated SystemVerilog file 
 \end{lstlisting}
 
@@ -207,10 +207,10 @@ $ cat sv_out/counter.sv              # see generated SystemVerilog file
 SystemC simulation for examples and tests can be run with:
 \begin{lstlisting}[language=bash]
 $ cd $ICSC_HOME
-$ mkdir build && cd build
+$ mkdir -p build && cd build
 $ cmake ../                          # prepare Makefiles 
 $ make counter                       # compile SystemC simulation for counter example
-$ cd examples/counter                # go to counter example folder
+$ cd icsc/examples/counter           # go to counter example folder
 $ ./counter                          # run SystemC simulation 
 \end{lstlisting}
 

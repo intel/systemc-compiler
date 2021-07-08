@@ -499,154 +499,157 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
     std::unordered_set<SValue>  combSignClearRnDs; 
         
     // Process read non-constant, non-channel variables
+    //cout << "READ: " << endl;
     for (const auto& val : finalState->getReadValues()) {
-        if (val.isVariable() || val.isObject()) {
-            // Skip constants, channels and pointers to channel
-            if (!val.getType().isConstQualified() &&
-                !isPointerToConst(val.getType()) &&
-                !isScChannel(val.getType()) && 
-                !isScVector(val.getType()) &&
-                !isScChannelArray(val.getType()) &&
-                !isScToolCombSignal(val.getType())) continue;
-            
-            // Skip null pointer
-            if (isPointer(val.getType())) {
-                SValue rval = globalState->getValue(val);
-                if (rval.isInteger() && rval.getInteger().isNullValue())
-                    continue;
-            }
-
-            threadReadVars.insert(val);
+        //cout << "   " << val << endl;
+        
+        if (!val.isVariable() && !val.isObject()) {
+            SCT_TOOL_ASSERT (false, "Unexpected UD value type");
+            continue;
         }
+        
+        // Skip constants, channels and pointers to channel
+        if (!val.getType().isConstQualified() &&
+            !isPointerToConst(val.getType()) &&
+            !isScChannel(val.getType()) && 
+            !isScVector(val.getType()) &&
+            !isScChannelArray(val.getType()) &&
+            !isScToolCombSignal(val.getType())) continue;
+
+        // Skip null pointer
+        if (isPointer(val.getType())) {
+            SValue rval = globalState->getValue(val);
+            if (rval.isInteger() && rval.getInteger().isNullValue())
+                continue;
+        }
+
+        threadReadVars.insert(val);
     }
     
     // Process read-not-defined
-    for (const auto& sval : finalState->getReadNotDefinedValues()) {
-        DEBUG_WITH_TYPE(DebugOptions::doThreadBuild,
-                        outs() << "READ_NOT_DEF: " << sval<< "\n";);
+    //cout << "READ_NOT_DEF: " << endl;
+    for (const auto& val : finalState->getReadNotDefinedValues()) {
+        //cout << "   " << sval << endl;
 
-        if (sval.isVariable() || sval.isObject()) {
-            // Check @sc_comb_sig read before defined, report error if so
-            QualType qtype = sval.getType();
-            if (isScToolCombSignal(qtype)) {
-                // @sc_comb_sig has second argument @CLEAR
-                bool sctCombSignClear = false;
-                if (auto clearArg = getTemplateArgAsInt(qtype, 1)) {
-                    sctCombSignClear = !clearArg->isNullValue();
-                }
+        if (!val.isVariable() && !val.isObject()) {
+            SCT_TOOL_ASSERT (false, "Unexpected UD value type");
+            continue;
+        }
+        
+        // Check @sc_comb_sig read before defined, report error if so
+        QualType qtype = val.getType();
+        if (isScToolCombSignal(qtype)) {
+            // @sc_comb_sig has second argument @CLEAR
+            bool sctCombSignClear = false;
+            if (auto clearArg = getTemplateArgAsInt(qtype, 1)) {
+                sctCombSignClear = !clearArg->isNullValue();
+            }
 
-                // Report fatal error as it generates incorrect code
-                if (sctCombSignClear) {
-                    combSignClearRnDs.insert(sval);
-                }
+            // Report fatal error as it generates incorrect code
+            if (sctCombSignClear) {
+                combSignClearRnDs.insert(val);
+            }
+        }
+
+        if (isScChannel(val.getType()) || isScVector(val.getType()) ||
+            isScChannelArray(val.getType()) || 
+            isScToolCombSignal(val.getType())) 
+        {
+            // RnD channel becomes read only if it is not defined later
+            if (!threadRegVars.count(val)) {
+                threadReadOnlyVars.insert(val);
             }
             
-            bool isConsRef = sval.isConstReference();
-            bool isConsVal = !isConsRef && ScState::isConstVarOrLocRec(sval);
+        } else {
+            
+            bool isConsRef = val.isConstReference();
+            bool isConsVal = !isConsRef && ScState::isConstVarOrLocRec(val);
 
             if (isConsVal || isConsRef) {
                 // Member constant
-                bool isMember = globalState->getElabObject(sval).hasValue();
+                bool isMember = globalState->getElabObject(val).hasValue();
 
                 // Check if local constant has integer value to replace it or
                 // defined in reset means its value available in all states 
                 // Such local constant considered as read only, no register
                 bool readOnlyConst = false;
                 if (!isMember) {
-                    const SValue& rval = finalState->getValue(sval);
+                    const SValue& rval = finalState->getValue(val);
                     readOnlyConst = (replaceConstByValue && rval.isInteger()) || 
                                     (isConsVal && travConst->
-                                     getResetDefConsts().count(sval));
+                                     getResetDefConsts().count(val));
                 }
-                        
+
                 if (isMember || readOnlyConst) {
                     // Member and local replaced constant becomes read only
-                    if (!threadRegVars.count(sval) && 
-                        !threadReadOnlyVars.count(sval)) {
-                        threadReadOnlyVars.insert(sval);
+                    if (!threadRegVars.count(val) && 
+                        !threadReadOnlyVars.count(val)) {
+                        threadReadOnlyVars.insert(val);
                     }
                 } else {
                     // Local not replaced constant becomes registers
-                    if (!threadRegVars.count(sval)) {
-                        threadRegVars.insert(sval); 
+                    if (!threadRegVars.count(val)) {
+                        threadRegVars.insert(val); 
                     }
-                    if (threadReadOnlyVars.count(sval)) {
-                        threadReadOnlyVars.erase(sval);
+                    if (threadReadOnlyVars.count(val)) {
+                        threadReadOnlyVars.erase(val);
                     }
-                }
-                // TODO: Uncomment me, #247
-//                assert (!threadRegVars.count(sval));
-//                if (!threadReadOnlyVars.count(sval)) {
-//                    threadReadOnlyVars.insert(sval);
-//                }
-
-            } else 
-            if (isScChannel(sval.getType()) || isScVector(sval.getType()) ||
-                isScChannelArray(sval.getType()) || 
-                isScToolCombSignal(sval.getType())) 
-            {
-                // RnD channel becomes read only if it is not defined later
-                if (!threadRegVars.count(sval)) {
-                    threadReadOnlyVars.insert(sval);
                 }
             } else {
                 // Put variable into ReadNotDefined if meet it first time,
                 // used to report error only
-                if (!threadRegVars.count(sval) && !threadCombVars.count(sval)) {
-                    threadReadNotDefVars.insert(sval);
+                if (!threadRegVars.count(val) && !threadCombVars.count(val)) {
+                    threadReadNotDefVars.insert(val);
                 }
                 // RnD variable becomes register
-                if (threadCombVars.count(sval)) {
-                    threadCombVars.erase(sval);
+                if (threadCombVars.count(val)) {
+                    threadCombVars.erase(val);
                 }
-                threadRegVars.insert(sval);
+                threadRegVars.insert(val);
             }
-        } else {
-            llvm::outs() << "val " << sval << "\n";
-            SCT_TOOL_ASSERT (false, "Unexpected value type");
         }
     }
 
     // Processing define values
-    for (const auto& sval : finalState->getDefArrayValues()) {
-        DEBUG_WITH_TYPE(DebugOptions::doThreadBuild,
-                        outs() << "ARRAY DEFINED: " << sval<< "\n";);
+    //cout << "DEFINED: " << endl;
+    for (const auto& val : finalState->getDefArrayValues()) {
+        //cout << "   " << sval << endl;
 
-        if (combSignClearRnDs.count(sval)) {
+        if (!val.isVariable() && !val.isObject()) {
+            SCT_TOOL_ASSERT (false, "Unexpected UD value type");
+            continue;
+        }
+        
+        if (combSignClearRnDs.count(val)) {
             ScDiag::reportScDiag(
                 procView.getLocation().second->getBeginLoc(),
                 ScDiag::SYNTH_COMB_SIG_READNOTDEF);
         }
          
-        if (isScChannel(sval.getType()) || isScVector(sval.getType()) ||
-            isScChannelArray(sval.getType()) || 
-            isScToolCombSignal(sval.getType())) 
+        if (isScChannel(val.getType()) || isScVector(val.getType()) ||
+            isScChannelArray(val.getType()) || 
+            isScToolCombSignal(val.getType())) 
         {
             // Defined channel becomes register
-            if (threadReadOnlyVars.count(sval)) {
-                threadReadOnlyVars.erase(sval);
+            if (threadReadOnlyVars.count(val)) {
+                threadReadOnlyVars.erase(val);
             }
-            threadRegVars.insert(sval);
+            threadRegVars.insert(val);
             
-        } else 
-        if (sval.isVariable() || sval.isObject()) {
+        } else {
             
-            bool isConsRef = sval.isConstReference();
-            bool isConsVal = !isConsRef && ScState::isConstVarOrLocRec(sval);
+            bool isConsRef = val.isConstReference();
+            bool isConsVal = !isConsRef && ScState::isConstVarOrLocRec(val);
 
             // Defined variable becomes combinational if it is not register
             if (!isConsVal && !isConsRef) {
-                if (!threadRegVars.count(sval)) {
-                    threadCombVars.insert(sval);
+                if (!threadRegVars.count(val)) {
+                    threadCombVars.insert(val);
                 }
-                if (threadReadNotDefVars.count(sval)) {
-                    threadReadNotDefVars.erase(sval);
+                if (threadReadNotDefVars.count(val)) {
+                    threadReadNotDefVars.erase(val);
                 }
             }
-            
-        } else {
-            llvm::outs() << "val " << sval << "\n";
-            SCT_TOOL_ASSERT (false, "Unexpected value type");
         }
     }
     
@@ -1331,7 +1334,7 @@ void ThreadBuilder::generateThreadLocalVariables()
 //                bool definedInReset = globalConstProp->getResetDefConsts().count(roVar);
 //                auto varKind = definedInReset ? VerilogVarTraits::READONLY_CDR : 
 //                                                VerilogVarTraits::READONLY;
-                
+                 
                 // Add to verVarTraits, this constant not declared in always blocks
                 globalState->putVerilogTraits(roVar, VerilogVarTraits(
                                      VerilogVarTraits::READONLY_CDR, accessPlace,

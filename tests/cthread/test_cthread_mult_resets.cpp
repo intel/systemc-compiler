@@ -5,36 +5,39 @@
 * 
 *****************************************************************************/
 
-//
-// Created by ripopov on 3/27/18.
-//
-
 #include <systemc.h>
 
+// Multiple sync and async resets for CTHREAD
 class top : sc_module
 {
 public:
-    sc_clock clk{"clk", 10, SC_NS};
-    sc_signal<bool> arstn{"arstn", 1};
-    sc_signal<bool> sreset{"sreset", 1};
+    sc_in<bool> clk;
+    sc_in<bool> arstn1;
+    sc_in<bool> arstn2;
+    sc_in<bool> sreset1;
+    sc_in<bool> sreset2;
+    sc_in<bool> sreset3;
 
-    sc_in <bool> areset2{"areset2"};
-
-    sc_signal<int> out{"out"};
     sc_signal<int> in{"in"};
 
     SC_HAS_PROCESS(top);
+
     top(sc_module_name)
     {
-        areset2(sreset);
-        SC_THREAD(test_thread);
-        sensitive << clk.posedge_event();
-        async_reset_signal_is(arstn, false);
-        reset_signal_is(sreset, true);
-        async_reset_signal_is(areset2, true);
+        SC_CTHREAD(test_thread1, clk.pos());
+        async_reset_signal_is(arstn1, false);
+        async_reset_signal_is(arstn2, true);
+        reset_signal_is(sreset1, true);
+
+        SC_CTHREAD(test_thread2, clk.pos());
+        async_reset_signal_is(arstn1, false);
+        reset_signal_is(sreset1, true);
+        reset_signal_is(sreset2, true);
+        reset_signal_is(sreset3, true);
     }
 
-    void test_thread()
+    sc_signal<int> out;
+    void test_thread1()
     {
         out = 0;
         while (1) {
@@ -42,11 +45,38 @@ public:
             out = 1;
         }
     }
+
+    sc_signal<int> out2;
+    void test_thread2()
+    {
+        int i = 0;
+        wait();
+        
+        while (1) {
+            out2 = i++;
+            wait();
+            if (in) i--;
+        }
+    }
 };
 
 int sc_main(int argc, char *argv[])
 {
+    sc_clock clk{"clk", 10, SC_NS};
+    sc_signal<bool> s1;
+    sc_signal<bool> s2;
+    sc_signal<bool> s3;
+    sc_signal<bool> s4;
+    sc_signal<bool> s5;
+
     top top_inst{"top_inst"};
+    top_inst.clk(clk);
+    top_inst.arstn1(s1);
+    top_inst.arstn2(s2);
+    top_inst.sreset1(s3);
+    top_inst.sreset2(s4);
+    top_inst.sreset3(s5);
+    
     sc_start(100, SC_NS);
     return 0;
 }

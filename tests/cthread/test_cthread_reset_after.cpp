@@ -36,6 +36,12 @@ public:
 
         SC_CTHREAD(after_multi2, clk.pos());
         async_reset_signal_is(rstn, false);
+
+        SC_CTHREAD(after_multi3, clk.pos());
+        async_reset_signal_is(rstn, false);
+
+        SC_CTHREAD(after_multi4, clk.pos());
+        async_reset_signal_is(rstn, false);
     }
     
     sc_signal<sc_uint<4>> s1;
@@ -129,6 +135,44 @@ public:
             wait();     
             s5[2] = s5[1];
             s5[1] = d;
+        }
+    }
+    
+    // While with wait() after reset
+    sc_signal<int> s6;
+    void after_multi3() 
+    {
+        int i = 0;
+        wait();   
+
+        while (!s5[s4.read()].read()) {
+            i++;
+            wait();
+        }
+        s6 = i;
+        
+        while (true) {
+            s6 = i+1;
+            wait();
+        }
+    }
+    
+    sc_signal<int> s7;
+    void after_multi4() 
+    {
+        int i = 0;
+        wait();   
+
+        while (s6.read()) {
+            if (s4.read()) break;
+            i++;
+            wait();
+        }
+        s7 = i;
+        
+        while (true) {
+            s7 = i+1;
+            wait();
         }
     }
 };

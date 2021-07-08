@@ -65,12 +65,13 @@ SC_MODULE(Top)
         for (int i = 0; i < 2; ++i) {
             k += aminst[i]->A + aminst[i]->B + aminst[i]->C;
         }
+        int sum = k;
         wait();
         
         while (true) {
             int i = s.read();
-            k += aminst[i]->A + aminst[i]->B + aminst[i]->C;
-            s = k;
+            sum += aminst[i]->A + aminst[i]->B + aminst[i]->C;
+            s = sum;
             wait();
         }
     }

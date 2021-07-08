@@ -130,6 +130,29 @@ ScGenerateExpr::ScGenerateExpr(
 // ---------------------------------------------------------------------------
 // Utility functions
 
+// Report warning if @val is register or pointer/reference to register
+void ScGenerateExpr::reportReadRegister(const SValue& val, const Expr* expr) 
+{
+    SValue lval;
+    if (val.isPointer()) {
+        // Get dereferenced variable
+        SValue rval; state->getValue(val, rval);
+        lval = state->getVariableForValue(rval);   
+        
+    } else 
+    if (val.isReference()) {
+        state->getDerefVariable(val, lval);
+        
+    } else {
+        lval = val;
+    }
+    //cout << "!!! val " << val << " lval " << lval << endl;
+    if (codeWriter->isRegister(lval)) {
+        ScDiag::reportScDiag(expr->getBeginLoc(), 
+                             ScDiag::SYNTH_READ_REG_IN_RESET);
+    }
+}
+
 // Check if argument is narrowing integral to boolean cast
 bool ScGenerateExpr::isIntToBoolCast(const Expr* expr) 
 {
@@ -317,8 +340,14 @@ bool ScGenerateExpr::evaluateRangeExpr(Expr* hexpr, Expr* lexpr)
     equalVars = equalVars && lvars.empty();
     
     if (equalVars) {
-        SCT_TOOL_ASSERT (hval.isInteger() && lval.isInteger(), 
-                         "No integer in range");
+        if (!hval.isInteger()) {
+            ScDiag::reportScDiag(hexpr->getBeginLoc(),
+                                 ScDiag::SC_RANGE_NO_INTEGER);
+        }
+        if (!lval.isInteger()) {
+            ScDiag::reportScDiag(lexpr->getBeginLoc(), 
+                                 ScDiag::SC_RANGE_NO_INTEGER);
+        }
         //cout << "varNum " << hvarNum << endl;
         
         if (hvarNum == 0) {
@@ -434,6 +463,7 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
                         ScDiag::SYNTH_SC_PORT_INCORRECT) << "in function parameter";
         }
         bool isRef = isReference(type);
+        bool isConstRef = sc::isConstReference(type);
         bool isPtr = isPointer(type);
         bool isArray = type->isArrayType();
         bool isConst = (isRef) ? type.getNonReferenceType().
@@ -448,7 +478,10 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
         // variable is constant type, use @arg as initialization expression
         // Parameter variable, can be array variable
         // Use module @funcModval where function is called
+        bool lastAssignLHS = assignLHS;
+        if (isRef && !isConstRef) assignLHS = true;
         auto parvals = parseValueDecl(parDecl, funcModval, arg, true);
+        assignLHS = lastAssignLHS;
         SValue pval = parvals.first;
         SValue ival = (parvals.second.size() == 1) ? 
                        parvals.second.front() : NO_VALUE;
@@ -492,7 +525,8 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
                 codeWriter->storeRefVarDecl(pval, pval);
                 // Declare constant reference variable w/o initialization,
                 // always declare parameter as range/bit selection can be used
-                codeWriter->putVarDecl(nullptr, pval, refType, nullptr, false);
+                codeWriter->putVarDecl(nullptr, pval, refType, nullptr, true, 
+                                       level);
                 // Add initialization with the argument corresponds to declaration
                 codeWriter->putFCallParam(expr, pval, arg);
                 //cout << "prepareCallParams ConstRef pval " << pval << " iival " << iival << endl;
@@ -531,7 +565,7 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
 
         } else {
             // Variable declaration w/o initialization
-            codeWriter->putVarDecl(nullptr, pval, type, nullptr);
+            codeWriter->putVarDecl(nullptr, pval, type, nullptr, true, level);
 
             // Add parameter initialization with the argument
             if (isRecord) {
@@ -721,6 +755,11 @@ void ScGenerateExpr::parseExpr(DeclRefExpr* expr, SValue& val)
     
     refRecarrIndx = "";
     
+    // Report warning for read register in reset section
+    if (codeWriter->isResetSection() && !assignLHS) {
+        reportReadRegister(val, expr);
+    }
+    
     // Non-integer expression/variable replaced by integer, type cast required
     bool replacedByValue = false;    
     // Do de-reference for reference and pointer type 
@@ -748,7 +787,7 @@ void ScGenerateExpr::parseExpr(DeclRefExpr* expr, SValue& val)
         if (codeWriter->putLocalPtrValueExpr(expr, val)) {
             return;
         }
-        // Module/global pointer
+        // Module/global pointer 
         
     } else {
         // Non-reference and non-pointer
@@ -777,8 +816,7 @@ void ScGenerateExpr::parseExpr(MemberExpr* expr, SValue& val)
     QualType baseType = expr->getBase()->getType();
     bool setSaveArrayIndices = false;
 
-    if (isUserDefinedClass(baseType, true) && !codeWriter->isKeepArrayIndices())
-    {
+    if (isUserDefinedClass(baseType, true) && !codeWriter->isKeepArrayIndices()) {
         codeWriter->setKeepArrayIndices();
         setSaveArrayIndices = true;
     }
@@ -787,6 +825,11 @@ void ScGenerateExpr::parseExpr(MemberExpr* expr, SValue& val)
     
     if (setSaveArrayIndices) {
         codeWriter->resetKeepArrayIndices();
+    }
+    
+    // Report warning for read register in reset section
+    if (codeWriter->isResetSection() && !assignLHS) {
+        reportReadRegister(val, expr);
     }
     
     // Non-integer expression/variable replaced by integer, type cast required
@@ -1202,9 +1245,10 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
         auto recType = getUserDefinedClassFromArray(type);
         
         // Array declaration w/o initialization
-        codeWriter->putArrayDecl(stmt, val, type, arrSizes);
+        codeWriter->putArrayDecl(stmt, val, type, arrSizes, iexpr, level);
         
-        if (iexpr) {
+        if (iexpr && !recType) {
+            
             if (auto init = dyn_cast<InitListExpr>(iexpr)) {
                 // Normal initializer list, can be combined with array filler
                 // if not all element values provided in initializer list
@@ -1230,11 +1274,6 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                     auto arrInds = getArrayIndices(type, i);
                     codeWriter->putArrayElemInitZero(stmt, val, arrInds);
                 }
-
-            } else 
-            if (recType) {
-                // Nothing to add for record array
-
             } else {
                 string s = iexpr->getStmtClassName();
                 ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
@@ -1296,7 +1335,8 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                 codeWriter->storeRefVarDecl(val, val);
                 // Declare constant reference variable w/o initialization,
                 // always declare parameter as range/bit selection can be used
-                codeWriter->putVarDecl(nullptr, val, refType, nullptr, false);
+                codeWriter->putVarDecl(nullptr, val, refType, nullptr, false, 
+                                       level);
                 // Add initialization with the initializer
                 codeWriter->putAssign(stmt, val, iexpr);
                 
@@ -1338,7 +1378,8 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                 }
                 
             } else {
-                codeWriter->putVarDecl(stmt, val, type, iexpr, iival.isInteger());
+                codeWriter->putVarDecl(stmt, val, type, iexpr, false, level, 
+                                       iival.isInteger());
             }
         }
     }
@@ -1352,7 +1393,7 @@ void ScGenerateExpr::parseFieldDecl(ValueDecl* decl, const SValue& lfvar)
     const QualType& type = decl->getType();
     
     // Put field declaration to @localDeclVerilog, @nullptr no initialization
-    codeWriter->putVarDecl(nullptr, lfvar, type, nullptr);
+    codeWriter->putVarDecl(nullptr, lfvar, type, nullptr, false, level);
 }
 
 // Parse array field declaration without initialization to put into @codeWriter, 
@@ -1360,6 +1401,7 @@ void ScGenerateExpr::parseFieldDecl(ValueDecl* decl, const SValue& lfvar)
 void ScGenerateExpr::parseArrayFieldDecl(ValueDecl* decl, const SValue& lfvar, 
                                          const vector<size_t>& arrSizes)
 {
+    //cout << "parseArrayFieldDecl lfvar " << lfvar << " locrecvar " << locrecvar << endl;
     vector<size_t> allSizes(arrSizes); 
     const QualType& type = decl->getType();
 
@@ -1370,7 +1412,7 @@ void ScGenerateExpr::parseArrayFieldDecl(ValueDecl* decl, const SValue& lfvar,
     }
     
     // Put field declaration to @localDeclVerilog, @nullptr no initialization
-    codeWriter->putArrayDecl(nullptr, lfvar, type, allSizes);
+    codeWriter->putArrayDecl(nullptr, lfvar, type, allSizes, nullptr, level);
 }
 
 // Parse statement and run @chooseExprMethod for each operand
@@ -1386,8 +1428,11 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
     string opcodeStr = stmt->getOpcodeStr(opcode);
 
     // Parse LHS 
+    bool lastAssignLHS = assignLHS;
+    if (opcode == BO_Assign) assignLHS = true;
     SValue lval; 
     chooseExprMethod(lexpr, lval);
+    assignLHS = lastAssignLHS;
     
     // Get record indices from @arraySubIndices, it is erased after use
     SValue lrec; state->getValue(lval, lrec);
@@ -1565,13 +1610,17 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
     Expr* rexpr = stmt->getRHS();
 
     // Parse left and right parts to fill @terms
-    SValue lval; SValue rval;
+    bool lastAssignLHS = assignLHS; assignLHS = true;
+    SValue lval; 
     chooseExprMethod(lexpr, lval);
+    assignLHS = lastAssignLHS; 
+    SValue rval;
     chooseExprMethod(rexpr, rval);
     
     QualType ltype = lexpr->getType();
     QualType rtype = rexpr->getType();
     bool isPtr = isPointer(ltype) || isPointer(rtype);
+    bool isBool = ltype->isBooleanType();
     
     // Left value is result of assignment statement
     val = lval;
@@ -1580,6 +1629,8 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
     BinaryOperatorKind opcode = stmt->getOpcode();
     BinaryOperatorKind compOpcode = stmt->getOpForCompoundAssignment(opcode);
     string opcodeStr = stmt->getOpcodeStr(compOpcode);
+    bool isBitwise = opcode == BO_AndAssign || opcode == BO_OrAssign || 
+                     opcode == BO_XorAssign;
 
     if (opcode == BO_AddAssign || opcode == BO_SubAssign || 
         opcode == BO_MulAssign || opcode == BO_DivAssign ||
@@ -1590,6 +1641,13 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
         if (codeWriter->isEmptySensitivity()) {
             ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                  ScDiag::SYNTH_NOSENSITIV_METH);
+        }
+        if (codeWriter->isResetSection()) {
+            SValue varval = state->getVariableForValue(lval);
+            if (codeWriter->isRegister(varval)) {
+                ScDiag::reportScDiag(lexpr->getBeginLoc(), 
+                                     ScDiag::SYNTH_MODIFY_REG_IN_RESET);
+            }
         }
         
         if (isPtr) {
@@ -1607,7 +1665,7 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
             }
             
             // Put sign cast for LHS if RHS is signed
-            if (!isSignedType(ltype) && isSignedType(rtype)) { 
+            if (!(isBool && isBitwise) && !isSignedType(ltype) && isSignedType(rtype)) { 
                 codeWriter->putSignCast(lexpr, CastSign::SCAST);
             }
 
@@ -1626,21 +1684,25 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
 // Parse statement and run @chooseExprMethod for the operand
 void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val) 
 {
-    Expr* rexpr = stmt->getSubExpr();
     // There is no value for general unary statement
     val = NO_VALUE;
     
-    // Parse right part to fill @terms
+    UnaryOperatorKind opcode = stmt->getOpcode();
+    string opcodeStr = stmt->getOpcodeStr(stmt->getOpcode());
+    bool isPrefix = stmt->isPrefix(stmt->getOpcode());
+    bool isIncrDecr = opcode == UO_PostInc || opcode == UO_PreInc || 
+                      opcode == UO_PostDec || opcode == UO_PreDec;
+    
+    Expr* rexpr = stmt->getSubExpr();
+    bool lastAssignLHS = assignLHS; 
+    if (isIncrDecr) assignLHS = true;
     SValue rval;
     chooseExprMethod(rexpr, rval);
+    assignLHS = lastAssignLHS;
     
     auto rtype = rval.getTypePtr();
     bool isPointer = rtype && rtype->isPointerType();
 
-    // Operation code
-    UnaryOperatorKind opcode = stmt->getOpcode();
-    string opcodeStr = stmt->getOpcodeStr(stmt->getOpcode());
-    
     if (opcode == UO_Plus) {
         val = rval;
         if (isPointer) {
@@ -1702,40 +1764,31 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
         }
 
     } else    
-    if (opcode == UO_PreInc || opcode == UO_PreDec)
+    if (isIncrDecr)
     {
         if (codeWriter->isEmptySensitivity()) {
             ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                  ScDiag::SYNTH_NOSENSITIV_METH);
         }
-        
+        if (codeWriter->isResetSection()) {
+            SValue varval = state->getVariableForValue(rval);
+            if (codeWriter->isRegister(varval)) {
+                ScDiag::reportScDiag(rexpr->getBeginLoc(), 
+                                     ScDiag::SYNTH_MODIFY_REG_IN_RESET);
+            }
+        }
+
         // Do not set @val to @rval to avoid reference to ++/-- as it can be
         // zero/multiple used that lead to incorrect code
         
         if (isPointer) {
-            ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
+            ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                  ScDiag::SYNTH_POINTER_OPER) << opcodeStr;
         } else {
-            codeWriter->putUnary(stmt, opcodeStr, rexpr, true);
+            codeWriter->putUnary(stmt, opcodeStr, rexpr, isPrefix);
         }
 
     } else
-    if (opcode == UO_PostInc || opcode == UO_PostDec)
-    {
-        if (codeWriter->isEmptySensitivity()) {
-            ScDiag::reportScDiag(stmt->getBeginLoc(), 
-                                 ScDiag::SYNTH_NOSENSITIV_METH);
-        }
-
-        // Do not set @val to support conversion to boolean with brackets
-        if (isPointer) {
-            ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
-                                 ScDiag::SYNTH_POINTER_OPER) << opcodeStr;
-        } else {
-            codeWriter->putUnary(stmt, opcodeStr, rexpr, false);
-        }
-        
-    } else 
     if (opcode == UO_Deref) {
         // If @rval is reference it de-referenced in getValue()
         // Dereferenced value provided in @val
@@ -1855,9 +1908,13 @@ SValue ScGenerateExpr::parseArraySubscript(Expr* expr,
     // Skip sign cast for array index
     bool skipSignCastOrig = codeWriter->isSkipSignCast();
     codeWriter->setSkipSignCast(true);
+    
     // Index variable/value
+    bool lastAssignLHS = assignLHS; assignLHS = false;
     SValue ival;    
     chooseExprMethod(indxExpr, ival);
+    assignLHS = lastAssignLHS;
+    
     calcPartSelectArg = calcPartSelectArgOrig;
     codeWriter->setSkipSignCast(skipSignCastOrig);
     
@@ -2126,7 +2183,8 @@ void ScGenerateExpr::parseCall(CallExpr* expr, SValue& val)
         // Declare temporary return variable in current module
         if (!isVoidType(retType)) {
             SValue retVal(retType, modval);
-            codeWriter->putVarDecl(nullptr, retVal, retType, nullptr);
+            codeWriter->putVarDecl(nullptr, retVal, retType, nullptr, false, 
+                                   level);
             val = retVal;
             if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
                 cout << "Return value " << retVal.asString() << endl;
@@ -2437,7 +2495,8 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             SValue retVal(retType, modval);
             // Do not declare temporal variable if pointer is returned
             if (!sc::isPointer(retType)) {
-                codeWriter->putVarDecl(nullptr, retVal, retType, nullptr);
+                codeWriter->putVarDecl(nullptr, retVal, retType, nullptr, false, 
+                                       level);
             }
             val = retVal;
             //cout << "Return value " << retVal.asString() << endl;
@@ -2468,6 +2527,15 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
     OverloadedOperatorKind opcode = expr->getOperator();
     string opStr = getOperatorSpelling(opcode);
     
+    bool isAssignOperator = expr->isAssignmentOp() && opcode == OO_Equal;
+    bool isIncrDecr = opcode == OO_PlusPlus || opcode == OO_MinusMinus;
+    bool isCompoundAssign = opcode == OO_PlusEqual || opcode == OO_MinusEqual || 
+            opcode == OO_StarEqual || opcode == OO_SlashEqual ||
+            opcode == OO_PercentEqual || 
+            opcode == OO_GreaterGreaterEqual || opcode == OO_LessLessEqual ||
+            opcode == OO_AmpEqual || opcode == OO_PipeEqual || 
+            opcode == OO_CaretEqual;
+    
     if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
         cout << "ScGeneratExpr::parseOperatorCall fname : " << fname 
              << ", type : " << thisType.getAsString() << endl;
@@ -2477,7 +2545,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
     // Required for @sc_biguint/@sc_bigint
     bool lhsIsTempExpr = isa<MaterializeTemporaryExpr>(lexpr);
     
-    if (expr->isAssignmentOp() && opcode == OO_Equal) {
+    if (isAssignOperator) {
         // Assignment "operator=" for all types including SC data types
         // Assignments with add, subtract, ... processed below
         // Output port/signal write method
@@ -2489,8 +2557,10 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         }
         
         // Parse argument expression to fill @terms
+        bool lastAssignLHS = assignLHS; assignLHS = true;
         SValue lval;
         chooseExprMethod(lexpr, lval);
+        assignLHS = lastAssignLHS;
         val = lval;
         
         // Get record indices from @arraySubIndices, it is erased after use
@@ -2575,8 +2645,11 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         bool calcPartSelectArgOrig = calcPartSelectArg;
         calcPartSelectArg = (opcode == OO_Subscript || opcode == OO_Call);
 
+        bool lastAssignLHS = assignLHS; 
+        if (isIncrDecr || isCompoundAssign) assignLHS = true;
         SValue lval;
         chooseExprMethod(lexpr, lval);
+        assignLHS = lastAssignLHS;
         calcPartSelectArg = calcPartSelectArgOrig;
         
         if (opcode == OO_Subscript) { // "[]"
@@ -2662,13 +2735,20 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             
         } else 
         // "++" "--"
-        if (opcode == OO_PlusPlus || opcode == OO_MinusMinus) {
+        if (isIncrDecr) {
             // Postfix ++/-- has artifical argument
             SCT_TOOL_ASSERT (argNum == 1 || argNum == 2, "Incorrect argument number");
             
             if (codeWriter->isEmptySensitivity()) {
                 ScDiag::reportScDiag(expr->getBeginLoc(), 
                                      ScDiag::SYNTH_NOSENSITIV_METH);
+            }
+            if (codeWriter->isResetSection()) {
+                SValue varval = state->getVariableForValue(lval);
+                if (codeWriter->isRegister(varval)) {
+                    ScDiag::reportScDiag(lexpr->getBeginLoc(), 
+                                         ScDiag::SYNTH_MODIFY_REG_IN_RESET);
+                }
             }
             if (lhsIsTempExpr) {
                 ScDiag::reportScDiag(expr->getBeginLoc(), 
@@ -2742,18 +2822,20 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             
         } else     
         // "+=" "-=" "*="  "/=" "%=" ">>=" "<<=" "&=" "|=" "^="
-        if (opcode == OO_PlusEqual || opcode == OO_MinusEqual || 
-            opcode == OO_StarEqual || opcode == OO_SlashEqual ||
-            opcode == OO_PercentEqual || 
-            opcode == OO_GreaterGreaterEqual || opcode == OO_LessLessEqual ||
-            opcode == OO_AmpEqual || opcode == OO_PipeEqual || 
-            opcode == OO_CaretEqual)
+        if (isCompoundAssign)
         {
             SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
             
             if (codeWriter->isEmptySensitivity()) {
                 ScDiag::reportScDiag(expr->getBeginLoc(), 
                                      ScDiag::SYNTH_NOSENSITIV_METH);
+            }
+            if (codeWriter->isResetSection()) {
+                SValue varval = state->getVariableForValue(lval);
+                if (codeWriter->isRegister(varval)) {
+                    ScDiag::reportScDiag(lexpr->getBeginLoc(), 
+                                         ScDiag::SYNTH_MODIFY_REG_IN_RESET);
+                }
             }
             
             // Left value is result of assignment statement

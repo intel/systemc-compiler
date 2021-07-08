@@ -321,35 +321,47 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                 // Print IF statement string, no ";" after
                 vector<shared_ptr<CodeScope> > succs = scopeSuccs.at(scope);
                 SCT_TOOL_ASSERT (succs.size() == 2, "No two successors in IF");
+                shared_ptr<CodeScope> thenScope = succs.at(0);
+                shared_ptr<CodeScope> elseScope = succs.at(1);
 
+                // Remove IF statement, only Then or Else branch printed
+                bool removeIf = (thenScope->isDead() || elseScope->isDead()) && 
+                                REMOVE_EMPTY_IF();
+                
                 // ThenBranch scope
                 std::stringstream ts;
-                shared_ptr<CodeScope> thenScope = succs.at(0);
                 if (!thenScope->isDead()) {
-                    prepared.splice(printCurrentScope(ts, thenScope, level+1));
+                    prepared.splice(printCurrentScope(ts, thenScope, 
+                                    removeIf ? level : level+1));
                 }
                 const string& thenStr = (!thenScope->isDead()) ? ts.str() : "";
 
                 // ElseBranch scope
                 std::stringstream es;
-                shared_ptr<CodeScope> elseScope = succs.at(1);
                 if (!elseScope->isDead()) {
-                    prepared.splice(printCurrentScope(es, elseScope, level+1));
+                    prepared.splice(printCurrentScope(es, elseScope, 
+                                    removeIf ? level : level+1));
                 }
                 const string& elseStr = (!elseScope->isDead()) ? es.str() : "";
                 
-                if (!thenStr.empty() || !elseStr.empty() || !REMOVE_EMPTY_IF()) {
-                
-                    os << getTabString(level) << stmtStr << endl;
-                    os << getTabString(level) << BEGIN_SYM << endl;
-                    os << thenStr;
+                if (!thenStr.empty() || !elseStr.empty() || !REMOVE_EMPTY_IF()){
 
-                    if (!elseStr.empty()) {
-                        os << getTabString(level) << END_SYM << " else " 
-                           << BEGIN_SYM << endl;
-                        os << elseStr;
+                    if (removeIf) {
+                         if (thenScope->isDead()) os << elseStr;
+                         else os << thenStr;
+
+                    } else {
+                        os << getTabString(level) << stmtStr << endl;
+                        os << getTabString(level) << BEGIN_SYM << endl;
+                        os << thenStr;
+
+                        if (!elseStr.empty()) {
+                            os << getTabString(level) << END_SYM << " else " 
+                               << BEGIN_SYM << endl;
+                            os << elseStr;
+                        }
+                        os << getTabString(level) << END_SYM << endl;
                     }
-                    os << getTabString(level) << END_SYM << endl;
                 }
                 
             } else 

@@ -1600,7 +1600,7 @@ std::string VerilogModule::getSensEventStr(const ProcessView& procObj) const
 void VerilogModule::serializeResetCondition(llvm::raw_ostream &os,
                                             ProcessView procObj) const
 {
-    os << "if (";
+    os << "if ( ";
     bool first = true;
     for (auto reset : procObj.resets()) {
 
@@ -1614,7 +1614,7 @@ void VerilogModule::serializeResetCondition(llvm::raw_ostream &os,
             first = false;
 
             if (!reset.level)
-                os << " ~";
+                os << "~";
 
             os << var->getName();
             for (auto idx : source.indices)

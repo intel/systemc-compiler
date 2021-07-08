@@ -303,6 +303,21 @@ void test_cthread () {
 
 Clocked thread process ({\tt SC\_CTHREAD} and {\tt SC\_THREAD}) is activated by one clock edge. Method process ({\tt SC\_METHOD}) can be sensitive to any change in the signals including clock positive or/and negative edge.
 
+Method process can have arbitrary number of resets in its sensitivity list. 
+\begin{lstlisting}[style=mycpp]
+SC_CTOR(test_reset) {
+   SC_METHOD(proc);
+   sensitive << sreset << areset << ...;       
+}
+void proc() {
+   if (!sreset || !areset) {
+       // Reset behavior
+   } else {
+       // Normal behavior
+   }
+}
+\end{lstlisting}
+
 Clocked thread process can have one, several or no reset. Clocked thread cannot have more than one asynchronous reset, but can have multiple synchronous resets. SystemC synthesizable subset does not allow clocked thread without resets and multiple synchronous resets. As soon as no reset clocked threads and clocked thread with multiple synchronous resets are required for some applications that is supported by ICSC tool. 
 
 Method process can be sensitive to all resets required.
@@ -354,7 +369,9 @@ void proc() {
 }
 \end{lstlisting}
 
-For thread process ICSC generates pair of {\tt always\_comb} and {\tt always\_ff} blocks as described in~\ref{section:noreset}.
+For clocked thread process ICSC generates pair of {\tt always\_comb} and {\tt always\_ff} blocks as described in~\ref{section:thread_gen}.
+
+There are some limitation to variable use in reset section of clocked thread described in~\ref{section:reg_in_reset}.
 
 \subsection{Data types}
 

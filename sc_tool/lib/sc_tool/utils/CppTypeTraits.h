@@ -53,9 +53,12 @@ std::vector<std::size_t> getArraySizes(clang::QualType type);
 /// Get total element number in one/multi-dimensional array, 
 /// for one-dimensional array the same as its size
 std::size_t getArrayElementNumber(clang::QualType type);
+std::size_t getArrayElementNumber(const std::vector<size_t>& allSizes);
 
 /// Get array indices in multi-dimensional for given @indx
 std::vector<std::size_t> getArrayIndices(clang::QualType type, std::size_t indx);
+std::vector<std::size_t> getArrayIndices(const std::vector<size_t>& allSizes, 
+                                         std::size_t indx);
 
 /// Check if the type is pointer to constant type
 bool isPointerToConst(clang::QualType type);

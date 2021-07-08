@@ -10,7 +10,7 @@
 #include "sct_assert.h"
 #include <iostream>
 
-// Binary operation general cases
+// Compound operations including with boolean arguments
 class A : public sc_module 
 {
 public:
@@ -33,6 +33,8 @@ public:
         SC_METHOD(compound_assign); sensitive << s;
         SC_METHOD(compound_assign_brackets); sensitive << s;
         SC_METHOD(compound_bool_bitwise); sensitive << s;
+        SC_METHOD(compound_bool_arithm); sensitive << s;
+        
         SC_METHOD(compound_ref_compound); sensitive << s;
         SC_METHOD(sc_compound_assign); sensitive << s;
     }
@@ -155,18 +157,64 @@ public:
         CHECK(i == 1);
     }
 
+    sc_vector<sc_signal<bool>> bv{"bv", 3};
     void compound_bool_bitwise() 
     {
-        int k;
+        bool b = bool(s.read());
+        bool bb = bool(s.read());
         sc_uint<1> a = s.read();
-        bool b = 1;
-        //b = b & a;
-        b &= a;
+        sc_uint<12> x = s.read();
+        sc_int<12> y = s.read();
+        int i = s.read();
         
-        if (b) {
-            k = 1;
-        }
+        b = b && bb;
+        b = b && a;
+        b = b && x;
+        b = b && y;
+        b = b && i;
+        b = b && s.read();
+        b = b && bv[1];
+        
+        b &= bb;
+        b &= a;    
+        b &= x;    
+        b &= y;
+        b &= i;
+        b &= s.read();
+        b &= bv[1];
+
+        b |= bb;
+        b |= s.read();
+        b |= x;
+        b ^= bb;
+        b ^= i;
+        b ^= bv[1];
     }
+    
+    void compound_bool_arithm() 
+    {
+        bool b = bool(s.read());
+        bool bb = bool(s.read());
+        sc_uint<1> a = s.read();
+        sc_uint<12> x = s.read();
+        sc_int<12> y = s.read();
+        int i = s.read();
+        
+        b += bb;
+        b += a;    
+        b += x;    
+        b += y;
+        b += i;
+        b += s.read();
+        b += bv[1];
+
+        b *= bb;
+        b /= s.read();
+        b -= x;
+        b %= bb;
+        b >>= i;
+        b <<= bv[1];
+    }    
     
     void compound_ref_compound() 
     {

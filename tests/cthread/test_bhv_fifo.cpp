@@ -13,7 +13,7 @@ using namespace sc_core;
 #define LOGBUFSIZE 2
 #define LOGBUFSIZEPLUSONE 3
 
-// BREAK statement in method process body analysis
+// Behavioral FIFO example
 class Circ_buf : public sc_module
 {
 public:

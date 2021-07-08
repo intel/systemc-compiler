@@ -224,19 +224,6 @@ std::string ScVerilogWriter::getUniqueName(const std::string& origVarName)
     return nameWithIndex;
 }
 
-// Check if variable value is not registered in varTraits and extrValNames 
-bool ScVerilogWriter::isLocalVariable(const SValue& val) 
-{
-    // Empty sensitivity method variables are module members
-    if (emptySensitivity) return false;
-    
-    auto i = varTraits.find(val);
-    auto j = extrValNames.find(val);
-    bool local = (i == varTraits.end() || !i->second.isModuleScope) && 
-                 (j == extrValNames.end());
-    return local;
-}
-
 // Get unique read and write names for variable in scope
 // \param recvar -- used to provide unique name inside of record instance
 // \return <readName, writeName>
@@ -467,6 +454,19 @@ std::string ScVerilogWriter::getIndexFromRecordName(std::string recName) const
     } else {
         return recName.substr(i, j-i+1);
     }
+}
+
+// Check if variable value is not registered in varTraits and extrValNames 
+bool ScVerilogWriter::isLocalVariable(const SValue& val) 
+{
+    // Empty sensitivity method variables are module members
+    if (emptySensitivity) return false;
+    
+    auto i = varTraits.find(val);
+    auto j = extrValNames.find(val);
+    bool local = (i == varTraits.end() || !i->second.isModuleScope) && 
+                 (j == extrValNames.end());
+    return local;
 }
 
 // Check is value corresponds to member constant which translated to @localparam
@@ -1268,6 +1268,7 @@ void ScVerilogWriter::putLiteral(const Stmt* stmt, const SValue& val)
 // Put local variable (non-array) declaration with possible initialization
 void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val, 
                                  const QualType& type, const Expr* init,
+                                 bool funcCall, unsigned level, 
                                  bool replaceConstEnable) 
 {
     if (skipTerm) return;
@@ -1319,11 +1320,22 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
         bool isConst = val.getType().isConstQualified();
         bool isConstRef = val.isConstReference();
         bool isRecord = isUserDefinedClass(val.getType(), true);
+        // Initialization of local variable required for variables w/o initializer
+        // and variables at no-zero level (funcCall variable is initialized)
+        bool initZero = (isCombProcess && !emptySensitivity && 
+                         (level > 0 || (!init && !funcCall))) ||
+                        (!isCombProcess && !isClockThreadReset && 
+                         (level > 1 || (!init && !funcCall)));
+        // Initialization of non-initialized reset local variables
+        // Ignore temporary variables here as they must be initialized anyway
+        bool initResetZero = !isCombProcess && isClockThreadReset && 
+                              (!init && !funcCall) && val.isVariable();
+        
         SCT_TOOL_ASSERT (!isRecord || !init,
                          "Unexpected record variable with initialization");
         
         //cout << "putVarDecl val " << val << " isRecord " << isRecord
-        //     << " isConst " << isConst << endl;
+        //     << " isConst " << isConst << " initResetZero " << initResetZero << endl;
          
         pair<string, string> names = getVarName(val);
         
@@ -1354,7 +1366,15 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                 if (i == localDeclVerilog.end()) {
                     string s = getVarDeclVerilog(type, names.first, init);
                     //cout << "put to localDeclVerilog val " << val << endl;
-                    localDeclVerilog.push_back({val, s});
+                    localDeclVerilog.emplace_back(val, s);
+
+                    // Add variable initialization with zero
+                    if ((initZero && initLocalVars) || 
+                        (initResetZero && initResetLocalVars)) {
+                        
+                        string s = names.first + ASSIGN_SYM + "0";
+                        localDeclInitVerilog.emplace_back(val, s);
+                    }
                 }
             }
 
@@ -1372,17 +1392,16 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
             }
 
             // Write variable initialization, already done for isConst && !isReg
-            if (stmt && (init || initLocalVars) && !removeUnusedInit) {
-                if (init && terms.count(init) == 0) {
+            if (stmt && init && !removeUnusedInit) {
+                if (terms.count(init) == 0) {
                     SCT_INTERNAL_FATAL (init->getBeginLoc(),
                                         "No term for variable initialization");
                 }
-
+                
                 // Use read name in @assign (emptySensitivity)
                 bool secName = !isClockThreadReset && isReg && !emptySensitivity;
                 string lhsName = secName ? names.second : names.first;
-                // If no initializer use 0 
-                string rhsName = init ? getTermAsRValue(init).first : "0";
+                string rhsName = getTermAsRValue(init).first;
 
                 putAssignBase(stmt, val, lhsName, rhsName, 0);
             }
@@ -1400,7 +1419,9 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
 // assignments for @stmt  
 void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val, 
                                    const QualType& type, 
-                                   const vector<size_t>& arrSizes) 
+                                   const vector<size_t>& arrSizes,
+                                   const Expr* init,
+                                   unsigned level) 
 {
     if (skipTerm) return;
     SCT_TOOL_ASSERT (val.isVariable() || val.isTmpVariable(), 
@@ -1409,6 +1430,15 @@ void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val,
     bool isReg = isRegister(val);
     bool isRecord = isUserDefinedClassArray(val.getType(), true);
     //cout << "putArrayDecl val " << val << " " << isReg << isRecord << endl;
+    
+    // Initialization of local variable required for variables w/o initializer
+    // and variables at no-zero level
+    bool initZero = (isCombProcess && !emptySensitivity && 
+                     (level > 0 || !init)) ||
+                    (!isCombProcess && !isClockThreadReset && 
+                     (level > 1 || !init));
+    // Initialization of non-initialized reset local variables
+    bool initResetZero = !isCombProcess && isClockThreadReset && !init;
     
     // Do not declare record as individual fields are declared
     if (!isReg && !isRecord) {
@@ -1437,8 +1467,29 @@ void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val,
             
             // Array variable declaration, no declaration for registers
             string s = getVarDeclVerilog(type, names.first) + indx;
-            localDeclVerilog.push_back({val, s});
+            localDeclVerilog.emplace_back(val, s);
             //cout << "   " << s << endl;
+            
+            // Add array initialization with zero
+            if ((initZero && initLocalVars) || 
+                (initResetZero && initResetLocalVars)) {
+                string s;
+                size_t elmnum = getArrayElementNumber(arrSizes);
+                
+                for (size_t i = 0; i < elmnum; i++) {
+                    string indStr;
+                    auto indices = getArrayIndices(arrSizes, i);
+                    
+                    for (size_t indx : indices) {
+                        indStr += "[" + to_string(indx) + "]";
+                    }
+                    
+                    s += names.first + indStr + ASSIGN_SYM + "0" + 
+                         ((i == elmnum-1) ? "" : "; ");
+                }
+
+                localDeclInitVerilog.emplace_back(val, s);
+            }
         } 
     }
 }
@@ -2214,8 +2265,10 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
         auto& linfo = terms.at(lhs);
         auto& rinfo = terms.at(rhs);
         
-        //cout << "putBinary #" << hex << stmt << dec << " castSign " << (int)linfo.castSign << (int)rinfo.castSign
-        //     << " exprSign " << (int)linfo.exprSign << (int)rinfo.exprSign << endl;
+//        cout << "putBinary #" << hex << stmt << dec 
+//             << " castSign " << (int)linfo.castSign << (int)rinfo.castSign
+//             << " exprSign " << (int)linfo.exprSign << (int)rinfo.exprSign 
+//             << " explCast " << (int)linfo.explCast << (int)rinfo.explCast << endl;
         
         // Warning reported as division/reminder results for SC types 
         // are different in SC and SV, warning for other operations
@@ -2303,7 +2356,8 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
                 QualType stype = sexpr->getType().getCanonicalType();
                 
                 if (!first.literRadix && first.exprSign != ExprSign::LEXPR &&
-                    (first.castSign == CastSign::UCAST ||
+                    (first.castSign == CastSign::UCAST 
+                     /*&& first.explCast != ExplCast::UCAST*/ ||
                      first.exprSign == ExprSign::SEXPR) && 
                     secnd.castSign == CastSign::NOCAST && !secnd.explCast)
                 {
@@ -3003,6 +3057,8 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
     // METHOD with empty sensitivity
     bool emptySensMethod = isCombProcess && emptySensitivity;
     
+    // Local variables declarations
+    unordered_set<SValue> declaredVars;
     //cout << "---------- printLocalDeclaration" << endl;
     for (const auto& pair : localDeclVerilog) {
         const SValue& val = pair.first;
@@ -3020,9 +3076,21 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
         if (notReplacedVars.count(val) == 0) {
             continue;
         }
-        
+        declaredVars.insert(val);
+
         printSplitString(os, pair.second, emptySensMethod ? "" : TAB_SYM);
         //cout << "   " << val << " : " << pair.second << endl;
+    }
+    
+    // Local variables initialization with zeros (@INIT_LOCAL_VARS)
+    if (initLocalVars) {
+        for (const auto& pair : localDeclInitVerilog) {
+            // Print initialization for declared variables only
+            if (declaredVars.count(pair.first) != 0) {
+                printSplitString(os, pair.second, TAB_SYM);
+                //cout << "   " << val << " : " << pair.second << endl;
+            }
+        }
     }
     
     // Skip next assignments for method process
@@ -3088,6 +3156,7 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
 void ScVerilogWriter::printResetCombDecl(std::ostream &os)
 {
     //cout << "------------ printResetCombDecl" << endl;
+    unordered_set<SValue> declaredVars;
     // Normal local variable declarations
     for (const auto& pair : localDeclVerilog) {
         if (REMOVE_RESET_UNUSED() && !isCombProcess) {
@@ -3102,12 +3171,24 @@ void ScVerilogWriter::printResetCombDecl(std::ostream &os)
         if (!notReplacedVars.count(pair.first)) {
             continue;
         }
-        
+        declaredVars.insert(pair.first);
+
         // Local constant, static constant, function parameter or
         // temporary variables not stored in @varTraits, 
         // it needs to provide them for reset section as well
         printSplitString(os, pair.second, TAB_SYM);    
         //cout << "   " << pair.first << " : " << pair.second << endl;
+    }
+    
+    // Reset local variables initialization with zeros (@INIT_RESET_LOCAL_VARS)
+    if (initResetLocalVars) {
+        for (const auto& pair : localDeclInitVerilog) {
+            // Print initialization for declared variables only
+            if (declaredVars.count(pair.first) != 0) {
+                printSplitString(os, pair.second, TAB_SYM);
+                //cout << "   " << val << " : " << pair.second << endl;
+            }
+        }
     }
 }
 

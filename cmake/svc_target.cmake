@@ -14,6 +14,8 @@ function(svc_target exe_target)
     # PORT_MAP_GENERATE    -- generate port map file for SV/SC mixed simulation
     # NO_REMOVE_EXTRA_CODE -- disable removing unused variable and extra code
     # INIT_LOCAL_VARS      -- initialize local variables at declaration with zero
+    # INIT_RESET_LOCAL_VARS -- initialize CTHREAD reset section local variables 
+    #                          at declaration with zero
     # ELAB_ONLY  -- run elaboration without process generation
     # WILL_FAIL  -- test will fail on non-synthesizable code
     set(boolOptions REPLACE_CONST_VALUE 
@@ -21,6 +23,7 @@ function(svc_target exe_target)
                     PORT_MAP_GENERATE
                     NO_REMOVE_EXTRA_CODE
                     INIT_LOCAL_VARS
+                    INIT_RESET_LOCAL_VARS
                     ELAB_ONLY 
                     WILL_FAIL)
 
@@ -57,6 +60,10 @@ function(svc_target exe_target)
 
     if (${PARAM_INIT_LOCAL_VARS})
         set(INIT_LOCAL_VARS -init_local_vars)
+    endif()
+
+    if (${PARAM_INIT_RESET_LOCAL_VARS})
+        set(INIT_RESET_LOCAL_VARS -init_reset_local_vars)
     endif()
 
     if (${PARAM_REPLACE_CONST_VALUE})
@@ -157,6 +164,7 @@ function(svc_target exe_target)
             ${PORT_MAP_GENERATE}
             ${NO_REMOVE_EXTRA_CODE}
             ${INIT_LOCAL_VARS}
+            ${INIT_RESET_LOCAL_VARS}
             ${ELAB_ONLY}
             --
             -D__SC_TOOL__ -D__SC_TOOL_ANALYZE__ -DNDEBUG

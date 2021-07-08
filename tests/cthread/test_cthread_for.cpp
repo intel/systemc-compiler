@@ -50,6 +50,15 @@ public:
 
         SC_CTHREAD(for_stmt_wait_noiter, clk.pos());
         async_reset_signal_is(arstn, false);
+        
+        SC_CTHREAD(for_multi_wait1, clk.pos());
+        async_reset_signal_is(arstn, false);
+        
+        SC_CTHREAD(for_multi_wait2, clk.pos());
+        async_reset_signal_is(arstn, false);
+
+        SC_CTHREAD(for_multi_wait3, clk.pos());
+        async_reset_signal_is(arstn, false);
     }
 
     void for_stmt_no_wait1()
@@ -239,7 +248,77 @@ public:
             wait();
         }
     }
+    
+// ---------------------------------------------------------------------------
+    
+    void for_multi_wait1()
+    {
+        int k = 0;
+        wait();
+        
+        while (true) {
+            k = 1;
+            for (int i = 0; i < 10; i++) {
+                k = 2;
+                wait();         // 1
+                
+                k = 3;
+                wait();         // 2
+                
+                if (in) {
+                    k = 4;
+                    wait();     // 3
+                }
+            }
+            wait();             // 4
+        }
+    }
+    
+    void for_multi_wait2()
+    {
+        int k = 0;
+        wait();
+        
+        while (true) {
+            k = 1;
+            wait();             // 1
+            
+            while (!in) {
+                wait();         // 2
 
+                for (int i = 0; i <3; ++i) {
+                    k = 2;
+                    wait();     // 3
+                }
+            }
+        }
+    }    
+
+    void for_multi_wait3()
+    {
+        int k = 0;
+        wait();
+        
+        while (true) {
+            k = 1;
+            wait();             // 1
+            
+            do {
+                for (int i = 0; i <3; ++i) {
+                    k = 2;
+                    wait();     // 2
+                }
+
+                wait();         // 3
+                
+                if (out) {
+                    wait();     // 4
+                    k = 3;
+                }
+
+            } while (in.read() != 42);
+        }
+    }     
 };
 
 int sc_main(int argc, char *argv[])

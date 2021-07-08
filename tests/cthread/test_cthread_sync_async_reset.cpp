@@ -5,14 +5,9 @@
 * 
 *****************************************************************************/
 
-//
-// Created by htrampur on 6/6/19.
-//
-
 #include <systemc.h>
 
-// Async and Sync Reset Combinations
-
+// Async and sync reset combinations
 SC_MODULE(test_reset) {
 
 	// Inputs: Clock, resets, and 3 bit data inputs

@@ -16,14 +16,19 @@ struct Producer : sc_module {
 
     sc_vector<sc_in<bool>>  req{"req", N};
     sc_vector<sc_out<sc_uint<16>>>  data{"data", N};
+    sc_vector<sc_vector<sc_in<int>>>  req2D{"req2D", N};
 
     SC_HAS_PROCESS(Producer);
     
     Producer(sc_module_name) 
     {
+        for (int i = 0; i < N; ++i) {
+            req2D[i].init(2);
+        }
+        
         SC_METHOD(methProc);
         for (int i = 0; i < N; ++i) {
-            sensitive << req[i];
+            sensitive << req[i] << req2D[i][0];
         }
         
         SC_CTHREAD(threadProc, clk.pos());
@@ -36,7 +41,7 @@ struct Producer : sc_module {
     {
         bool a = 0;
         for(int i = 0; i < N; ++i) {
-            a = a || req[i];
+            a = a || req[i] || req2D[i][0];
         }
         greq = a;
     }
@@ -67,15 +72,21 @@ SC_MODULE(Top) {
     const static unsigned N = 3;
     sc_vector<sc_signal<bool>> req{"req", N};
     sc_vector<sc_signal<sc_uint<16>>> data{"data", N};
+    sc_vector<sc_vector<sc_signal<int>>>  req2D{"req2D", N};
 
     Producer<N> p{"p"};
     
     SC_CTOR(Top) {
         
+        for (int i = 0; i < N; ++i) {
+            req2D[i].init(2);
+        }
+        
         p.clk(clk);
         p.rstn(rstn);
         p.req.bind(req);
         p.data.bind(data);
+        p.req2D.bind(req2D);
 
         SC_CTHREAD(mainProc, clk.pos());
         async_reset_signal_is(rstn, false);
@@ -84,6 +95,7 @@ SC_MODULE(Top) {
     void mainProc() {
         for(int i = 1; i < N; ++i) {
             req[i] = 0;
+            req2D[i][0] = i;
         }
         wait();
         

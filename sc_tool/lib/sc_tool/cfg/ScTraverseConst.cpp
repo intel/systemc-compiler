@@ -137,7 +137,8 @@ void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt)
                 isScVector(type) || ScState::isConstVarOrLocRec(val)) continue;
 
             ScDiag::reportScDiag(stmt->getBeginLoc(),
-                    ScDiag::CPP_READ_NOTDEF_VAR_RESET) << val.asString(false);
+                                 ScDiag::CPP_READ_NOTDEF_VAR_RESET, false) << 
+                                 val.asString(false);
         }
 
     } else {
@@ -207,6 +208,23 @@ void ScTraverseConst::evaluateTermCond(Stmt* stmt, SValue& val)
     }
 }
 
+// Evaluate literal or constant expression as non-negative integer
+llvm::Optional<unsigned> ScTraverseConst::evaluateConstExpr(Expr* expr) 
+{
+    SValue rval;
+    if (auto intLiter = dyn_cast<IntegerLiteral>(expr)) {
+        ScParseExpr::parseExpr(intLiter, rval);
+    } else 
+    if (expr->getType().isConstQualified()) {
+        rval = evaluateConstInt(expr, true).second;
+    }
+    
+    if (rval.isInteger()) {
+        return rval.getInteger().getZExtValue(); 
+    }
+    return llvm::None;
+} 
+
 // Evaluate loop iteration number from conditional expression
 llvm::Optional<unsigned> ScTraverseConst::evaluateIterNumber(const Stmt* stmt) 
 { 
@@ -218,58 +236,16 @@ llvm::Optional<unsigned> ScTraverseConst::evaluateIterNumber(const Stmt* stmt)
             if (opcode == BO_NE || opcode == BO_GT || opcode == BO_LT || 
                 opcode == BO_GE || opcode == BO_LE) 
             {
-                SValue rval;
-                if (auto intLiter = dyn_cast<IntegerLiteral>(binoper->getRHS())) {
-                    ScParseExpr::parseExpr(intLiter, rval);
+                if (auto inum = evaluateConstExpr(binoper->getRHS())) {
+                    return *inum;
                 } else 
-                if (auto intLiter = dyn_cast<IntegerLiteral>(binoper->getLHS())) {
-                    ScParseExpr::parseExpr(intLiter, rval);
-                }
-                if (rval.isInteger()) {
-                    unsigned iterNumber = rval.getInteger().getZExtValue();
-                    return iterNumber;
+                if (auto inum = evaluateConstExpr(binoper->getLHS())) {
+                    return *inum;
                 }
             }
         }
     }
     return llvm::None;
-}
-
-// Check if this loop needs compare state with last iteration state
-// \param iterNumber -- number of iterations, 0 if unknown
-// \param iterCntr -- number of analyzed iteration
-bool ScTraverseConst::isCompareState(const Stmt* stmt, unsigned maxIterNumber, 
-                                     unsigned iterNumber, unsigned iterCntr) 
-{
-    if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
-        cout << "CompareState for #" << hex << stmt << dec << ", iterNumber " 
-             << ((iterNumber) ? to_string(iterNumber) : "unknown") << endl;
-    }
-    
-    if (iterNumber && iterNumber < maxIterNumber-1) {
-        // Loop with known and not too big iteration number 
-        bool result = (iterCntr == iterNumber+1 || iterCntr >= maxIterNumber);
-        
-        if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
-            cout << "CompareState fixed iteration loop " << iterCntr << "/" 
-                 << iterNumber << ", need to compare " << result << endl;
-        }
-        return result;
-                
-    } else {
-        // Loop with unknown or too big iteration number 
-        bool result = (iterCntr == COMPARE_STATE_ITER1 || 
-                       iterCntr == COMPARE_STATE_ITER2 || 
-                       iterCntr >= maxIterNumber);
-        
-        if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
-            cout << "CompareState unknown/big iteration loop, iterCntr " 
-                 << iterCntr << " need to compare " << result << endl;
-        }
-        return result;
-    }
-    
-    return false;
 }
 
 // Prepare next block analysis
@@ -866,7 +842,7 @@ void ScTraverseConst::run()
                         iterNumber = in.getValue();
                     }
                     // Add current loop into loop stack, set 1st iteration
-                    loopStack.pushLoop({doterm, 1U, state->clone(), iterNumber});
+                    loopStack.pushLoop({doterm, state->clone(), iterNumber, 1U});
                     
 //                    if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
 //                        cout << "Push loop stack(1) " << hex << doterm << dec 
@@ -1416,24 +1392,27 @@ void ScTraverseConst::run()
                 AdjBlock bodyBlock(*iter);
                 AdjBlock exitBlock(*(++iter));
 
-                // Stop loop analysis and go to exit block if iteration exceeded
-                bool maxIterFlag = false;
                 // Stop loop analysis if state is not changed at last iteration
                 bool stableState = false;
                 
                 if (loopVisited) {
                     // Maximal iteration number to analyze
-                    const unsigned loopMaxIter = 
-                                (loopStack.size() <= DEEP_LOOP_DEPTH) ? 
-                                 LOOP_MAX_ITER : DEEP_LOOP_MAX_ITER;
+                    unsigned loopMaxIter = (loopStack.size() <= DEEP_LOOP_DEPTH) ? 
+                                            LOOP_MAX_ITER : DEEP_LOOP_MAX_ITER;
+                    // Iteration number or zero
+                    unsigned iterNumber = loopStack.back().iterNumber;
+                    // Loop with fixed and quite small iteration number
+                    bool fixedLoop = iterNumber && iterNumber < loopMaxIter-1;
+                    // Counter of already analyzed iterations
+                    unsigned iterCntr = loopStack.back().counter;
                     
-                    // Check if state changed at some iterations
-                    bool compareState = isCompareState(term, loopMaxIter,
-                                            loopStack.back().iterNumber,
-                                            loopStack.back().counter+1);
+                    // Check if state changed at some analysis iterations
+                    // For fixed loop it is last iteration and last max iteration
+                    bool compareState = (iterCntr >= loopMaxIter-1) ||
+                                        (fixedLoop ? iterCntr == iterNumber :
+                                         iterCntr == COMPARE_STATE_ITER);
+                     
                     if (compareState) {
-                        //state->print();
-                        //loopStack.back().state->print();
                         stableState = state->compare(loopStack.back().state.get());
                         if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
                             cout << "Loop stable state " << stableState << endl;
@@ -1442,11 +1421,11 @@ void ScTraverseConst::run()
                     
                     // Check and increment iteration counter
                     if (!stableState) {
-                        if (loopStack.back().counter < loopMaxIter) {
+                        if (iterCntr < loopMaxIter) {
                             // Normal iterations
                             if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
                                 cout << "Loop next iteration " << hex << loopStack.back().stmt << dec 
-                                     << ", counter " << loopStack.back().counter << endl;
+                                     << ", counter " << iterCntr << endl;
                             }
                             loopStack.back().counter += 1;
                             // Store state for next comparison
@@ -1456,45 +1435,49 @@ void ScTraverseConst::run()
                             }
 
                         } else 
-                        if (loopStack.back().counter >= loopMaxIter && 
-                            loopStack.back().counter < UNROLL_ERROR_ITER) 
+                        if (iterCntr >= loopMaxIter && iterCntr < UNROLL_ERROR_ITER) 
                         {
                             // Several last iterations with replace to NO_VALUE,
                             // required to spread NO_VALUE through all conditions
                             if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
                                 cout << "Loop last iteration(s) " << hex << loopStack.back().stmt << dec 
-                                     << ", counter " << loopStack.back().counter << endl;
-                                cout << "Set NO_VALUE for unstable state delta" << endl;
+                                     << ", counter " << iterCntr << endl;
+                                    cout << "> Set NO_VALUE for unstable state delta" << endl;
                             }
                             loopStack.back().counter += 1;
+                            
                             // Set NO_VALUE for all different tuples,
                             // at next iteration state should be stable
-                            state->compareAndSetNovalue(
-                                        loopStack.back().state.get());
+                            state->compareAndSetNovalue(loopStack.back().state.get());
+
                             // Store state for next comparison
-                            SCT_TOOL_ASSERT(compareState, "No compare state flag");
                             loopStack.back().state = 
                                         shared_ptr<ScState>(state->clone());
-                            
+
                         } else {
-                            SCT_TOOL_ASSERT(compareState, "No compare state flag");
-                            maxIterFlag = true;
-                            ScDiag::reportScDiag(term->getSourceRange().getBegin(), 
+                            ScDiag::reportScDiag(term->getBeginLoc(), 
                                                  ScDiag::SC_ERROR_CPROP_UNROLL_MAX);
-                            state->print();
+                            // Set to exit from this loop
+                            stableState = true;
                         }
+                        loopStack.back().stableState = false;
+                    
                     } else {
                         // If state is stable one more iteration required to ensure 
                         // it is really stable, but not eventual coincidence
-                        if (loopStack.back().counter < LOOP_LAST_ITER) {
-                            loopStack.back().counter = LOOP_LAST_ITER;
+                        if (loopStack.back().stableState) {
+                            // Second iteration with stable state, loop finished
+
+                        } else {
+                            // First iteration with stable state, needs one more
+                            if (iterCntr < loopMaxIter) {
+                                loopStack.back().counter = loopMaxIter;
+                            } else {
+                                loopStack.back().counter += 1;
+                            }
+                            loopStack.back().stableState = true;
                             // Clear to have iteration through loop body
                             stableState = false;
-                            
-                        } else {
-//                            if (DebugOptions::isEnabled(DebugComponent::doConstLoop)) {
-//                                cout << "Loop finished " << hex << loopStack.back().stmt << dec << endl;
-//                            }
                         }
                     }
                     
@@ -1508,12 +1491,11 @@ void ScTraverseConst::run()
                         iterNumber = in.getValue();
                     }
                     // Store state to compare with last iteration state
-                    loopStack.pushLoop({term, 1U, state->clone(), iterNumber});
+                    loopStack.pushLoop({term, state->clone(), iterNumber, 1U});
                 }
                 
-                bool addBodyBlock = (!maxIterFlag && !stableState) && 
-                                    bodyBlock.getCfgBlock();
-                bool addExitBlock = (maxIterFlag || stableState || !trueCond) && 
+                bool addBodyBlock = !stableState && bodyBlock.getCfgBlock();
+                bool addExitBlock = (stableState || !trueCond) && 
                                     exitBlock.getCfgBlock();      
                 bool clone = false;    
                 if (addBodyBlock && !falseCond) {

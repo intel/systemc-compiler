@@ -379,22 +379,26 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
         // Only initialized variable is defined, SC data type has zero initializer
         // Declare variable to avoid register creation and remove declaration 
         // Declare variable/array variable to remove declaration if not used 
-        if (iexpr) {
-            writeToValue(val, true); 
-        } else {
-            declareValue(val);
+        // Do not define or declare reference/pointer
+        if (!isRef && !isPtr) {
+            if (iexpr) {
+                writeToValue(val, true); 
+            } else {
+                declareValue(val);
+            }
         }
     }
     
-    // No value for declaration statement
-    val = NO_VALUE;
-    
     // If declaration has initializer add it as read to @state
+    // Do not need to consider constant reference
     if (iexpr && !isRec && !isRecArr && !isRef && !isPtr) {
         for (SValue ival : varvals.second) {
             readFromValue(ival);
         }
     }
+
+    // No value for declaration statement
+    val = NO_VALUE;
 }
 
 // Used for local variables usage like assignment statement in left/right parts
@@ -913,14 +917,6 @@ void ScParseExprValue::parseImplExplCast(CastExpr* expr, SValue& rval,
                              val.getRadix());
                 //cout << "Updated val " << val << endl;
             }
-        } else {
-            // Constant cast, required for SC type temporary object created 
-            // for integer literal
-            /*if (isConst != isConstOrig) {
-                if (val.isObject()) {
-                    val.getObjectPtr()->setType(expr->getType());
-                }
-            }*/
         }
     }
 }
@@ -959,6 +955,12 @@ void ScParseExprValue::parseExpr(ExplicitCastExpr* expr, SValue& rval, SValue& v
                 expr->dumpColor();
                 SCT_TOOL_ASSERT (false, "Unsupported cast kind in ExplicitCastExpr");
             }
+        }
+    } else 
+    if (isa<CXXConstCastExpr>(expr)) {
+        // No @const_cast in assignment LHS
+        if (assignLHS) {
+            ScDiag::reportScDiag(expr->getBeginLoc(), ScDiag::SYNTH_CONST_CAST);
         }
     }
 }
@@ -1537,7 +1539,6 @@ void ScParseExprValue::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
     UnaryOperatorKind opcode = stmt->getOpcode();
     string opcodeStr = stmt->getOpcodeStr(stmt->getOpcode());
     bool isPrefix = stmt->isPrefix(stmt->getOpcode());
-    
     bool isIncrDecr = opcode == UO_PostInc || opcode == UO_PreInc || 
                       opcode == UO_PostDec || opcode == UO_PreDec;
 
@@ -1646,6 +1647,12 @@ void ScParseExprValue::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
 
         readFromValue(rval);
         writeToValue(rval);
+        
+        if (assignLHS) {
+            // Not supported by vendor simulator tool
+            ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                 ScDiag::SYNTH_INCRDECR_LHS);
+        }
         
         isSideEffStmt  = true;
         isRequiredStmt = true;
@@ -2453,6 +2460,11 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             val = parseIncDecStmt(argsVec.at(0), isPrefix, opcode == OO_PlusPlus);
             
             // Not required to clear value if @assignLHS as it is normally assigned
+            if (assignLHS) {
+                // Not supported by vendor simulator tool
+                ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                     ScDiag::SYNTH_INCRDECR_LHS);
+            }
             
             isSideEffStmt  = true;
             isRequiredStmt = true;

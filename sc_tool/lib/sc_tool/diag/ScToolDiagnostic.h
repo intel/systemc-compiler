@@ -148,6 +148,7 @@ public:
         SYNTH_ZERO_TYPE_WIDTH       = 176,
         SYNTH_SWITCH_ALL_EMPTY_CASE = 177,
         SYNTH_NONCOST_PTR_CONST     = 178,
+        SYNTH_INCRDECR_LHS          = 179,
         SYNTH_WIDTH_WIDENNING       = 180,
         CPP_BOOL_BITWISE_NOT        = 181,
         SYNTH_ARRAY_ELM_REFERENCE   = 182,
@@ -179,6 +180,11 @@ public:
         SYNTH_ASSIGN_IN_COND        = 208,
         SYNTH_SIDE_EFFECT_IN_COND   = 209,
         SYNTH_LVALUE_BIT_CAST       = 210,
+        SYNTH_CONST_CAST            = 211,
+        ELAB_BAD_RECORD_OBJ         = 212,
+        SYNTH_READ_REG_IN_RESET     = 213,
+        SYNTH_MODIFY_REG_IN_RESET   = 214,
+        SC_RANGE_NO_INTEGER         = 215,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -273,6 +279,9 @@ private:
             {clang::DiagnosticIDs::Remark, 
             "Widening width in type cast : %0 to %1"};
 
+        idFormatMap[SC_RANGE_NO_INTEGER] =
+            {clang::DiagnosticIDs::Fatal, 
+            "No integer value in range lo/hi"};
         idFormatMap[SC_RANGE_DIFF_VARS] =
             {clang::DiagnosticIDs::Fatal, 
             "Incorrect range access, different variables in lo/hi"};
@@ -564,6 +573,10 @@ private:
             {clang::DiagnosticIDs::Error, 
             "Non-constant pointer to constant variable no allowed : %0"};
         
+        idFormatMap[SYNTH_INCRDECR_LHS] =
+            {clang::DiagnosticIDs::Error, 
+            "Increment/decrement in left side of assignment is prohibited"};
+        
         idFormatMap[SYNTH_ARRAY_TO_POINTER] =
             {clang::DiagnosticIDs::Fatal, 
             "Array to pointer on zero element cast not supported"};
@@ -589,8 +602,22 @@ private:
         idFormatMap[SYNTH_LVALUE_BIT_CAST] =
             {clang::DiagnosticIDs::Error, 
             "LValue cast is not supported"};
+        idFormatMap[SYNTH_CONST_CAST] =
+            {clang::DiagnosticIDs::Error, 
+            "Constant cast in process code is ignored"};
         
+        idFormatMap[ELAB_BAD_RECORD_OBJ] =
+            {clang::DiagnosticIDs::Fatal, 
+            "Bad record object at elaboration phase, a port is bound twice"};
         
+        idFormatMap[SYNTH_READ_REG_IN_RESET] =
+            {clang::DiagnosticIDs::Warning, 
+            "Register variable cannot be read in reset section"};
+        
+        idFormatMap[SYNTH_MODIFY_REG_IN_RESET] =
+            {clang::DiagnosticIDs::Error, 
+            "Register variable cannot be read-and-modified in reset section"};
+
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =
             {clang::DiagnosticIDs::Fatal,

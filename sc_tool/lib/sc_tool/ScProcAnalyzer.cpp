@@ -392,7 +392,7 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
     }    
     
     // Checking latches in method
-    for (const auto &sval : finalState->getDefSomePathValues()) {
+    for (const auto& sval : finalState->getDefSomePathValues()) {
         // Class field must be in this map, no local variables there
         if (auto defObj = globalState->getElabObject(sval)) {
             // Skip non-channel variables
@@ -404,10 +404,19 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
             
             // Report error if the latch is not registered by @sct_assert_latch()
             if (travConst.getAssertLatches().count(sval) == 0) {
-                ScDiag::reportScDiag(methodDecl->getBeginLoc(),
-                                     ScDiag::SYNTH_SOME_PATH_DEFINED) << 
-                                     sval.asString(false) <<
-                                     methodDecl->getNameAsString();
+                if (sval.isVariable()) {
+                    auto valDecl = sval.getVariable().getDecl();
+                    ScDiag::reportScDiag(valDecl->getBeginLoc(),
+                                         ScDiag::SYNTH_SOME_PATH_DEFINED) << 
+                                         sval.asString(false) <<
+                                         methodDecl->getNameAsString();
+                } else {
+                    // Do not check duplicates
+                    ScDiag::reportScDiag(methodDecl->getBeginLoc(), 
+                                         ScDiag::SYNTH_SOME_PATH_DEFINED, false) << 
+                                         sval.asString(false) <<
+                                         methodDecl->getNameAsString();
+                }
             }
         }
     }

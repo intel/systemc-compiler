@@ -5,14 +5,10 @@
 * 
 *****************************************************************************/
 
-//
-// Created by Mikhail Moiseev
-//
-
 #include "sct_assert.h"
 #include <systemc.h>
 
-// Various reset: empty, common wait(), multi-wait()
+// Various reset: empty, common wait()
 class top : sc_module
 {
 public:
@@ -25,9 +21,6 @@ public:
     SC_HAS_PROCESS(top);
     top(sc_module_name)
     {
-        SC_CTHREAD(incr_in_reset, clk.pos());
-        async_reset_signal_is(arstn, false);
-
         SC_CTHREAD(sct_assert_test, clk.pos());
         async_reset_signal_is(arstn, false);
 
@@ -95,34 +88,6 @@ public:
         
         SC_CTHREAD(array_init_in_reset, clk.pos());
         async_reset_signal_is(arstn, false);
-    }
-    
-    // Increment/decrement in reset
-    void incr_in_reset() 
-    {
-        const int C = 42;
-        int i = 1;
-
-        int j = i;
-        int k = j++;
-        
-        i++;                
-        --j;
-        k += 1;             // "=" instead of "<=" for local variable
-        
-        i = j + 1;
-        k = j ? i : i + 1;  // "=" instead of "<=" for local variable
-        
-        i = C ? 1 : 2;
-        j = C;
-        k = 1 - C;
-        
-        wait();
-        
-        while (true) {
-            a = i + j;
-            wait();
-        }
     }
     
 // ----------------------------------------------------------------------------
@@ -264,11 +229,12 @@ public:
     }
     
     // Additional code for reset section, cannot be created w/o reset signal
+    sc_signal<int> s10;
     void no_reset2() 
     {
         int ll = 0; 
         while (true) {
-            ll++;
+            s10 = ll;
             wait();
         }
     }
@@ -325,10 +291,18 @@ public:
         bool b = 2;
         return (A ^ b);
     }
+    
+    void f1(int& par) {
+        int l = par+1;
+        par = l;
+    }
 
+    sc_signal<int> s7;
     void var_fcall_in_reset_only() 
     {
         int i = f();
+        f1(i);
+        s7 = i;
         wait();
         
         while(true) 
@@ -420,12 +394,11 @@ public:
         int k; k = 2;
         a = k;
         int l = 0;
-        l -= 1;
         sc_uint<2> x;
-        x += 1;
+        x = 1;
         
         arr0[1] = 0;
-        arr0[1] += 1;
+        arr0[2] = 1;
         
         wait();
         
@@ -473,6 +446,7 @@ public:
     // Array elements initialization, array cannot be combinational variable yet
     sc_int<2>           arr1[3];
     sc_signal<bool>     arr2[3];
+    int arr4[2];
     
     void array_init_in_reset() 
     {
@@ -480,15 +454,18 @@ public:
         arr2[1] = true;
         int arr3[2] = {1, 2};
         
+        for (int i = 0; i < 2; ++i) {
+            arr4[i] = arr3[i];
+        }
+        
         wait();
         
         while (true) {
             // Partial defined not used to determined it as comb variable
-            arr1[0] = 1; arr1[1] = 2; 
+            arr1[0] = 1; arr1[s7.read()] = 2; 
             a = arr1[0];
             
-            a = arr2[1];
-            a = arr3[0];
+            a = arr2[1] + arr4[s7.read()];
             
             wait();
         }

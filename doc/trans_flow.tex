@@ -74,7 +74,7 @@ localparam logic signed C = 'd1;
 localparam logic signed [31:0] D = 'd42;
 
 //------------------------------------------------------------------------------
-// Assignments generated for SystemC array of channels
+// Assignments generated for SystemC channel arrays
 assign f[0] = f0;
 assign f[1] = f1;
 
@@ -386,6 +386,51 @@ begin : multiStateProc_ff
         multiStateProc_PROC_STATE <= multiStateProc_PROC_STATE_next;
     end
 end
+\end{lstlisting}
+
+\subsection{Register variables in thread reset section}\label{section:reg_in_reset}
+
+There are some limitations to use register variables in reset section of clocked thread. Register variable is a variable which keeps its values between thread states. Register variable {\tt i} is represented with a pair of variables {\tt i} and {\tt i\_next} in SV code. Register next to current value has non-blocking assignment in {\tt always\_ff} block, therefore such variable cannot have blocking assignment in reset section. For operations which modify register variable in reset section error is reported:
+%
+\begin{lstlisting}[style=mycpp]
+void proc() {
+    int i = 1;      // Register variable
+    i++;            // Error reported
+    i += 1;         // Error reported
+    wait();
+    while (true) {
+       out = i;     // Value from reset used here
+       wait();
+    }        
+\end{lstlisting}
+
+\begin{lstlisting}[style=myverilog]
+logic signed [31:0] i;
+logic signed [31:0] i_next;
+always_ff @(posedge clk or negedge arstn) 
+begin : read_modify_reg_in_reset_ff
+    if ( ~arstn ) begin
+        i <= 1;
+        i++;         // Blocking assignment
+        i = i + 2;   
+    end
+    else begin
+        i <= i_next;
+    end
+\end{lstlisting}
+
+Another problem with register variable is reading it in reset section. As soon as the variables has non-blocking assignment it values could be incorrect in RHS of the following statements. For operations which read register variable in reset section warning is reported:
+%
+\begin{lstlisting}[style=mycpp]
+void proc() {
+    int i = 1;      // Register variable
+    int j = i;      // Warning reported
+    i = j;          // X results in SV simulation
+    wait();
+    while (true) {
+       out = i;     // Value from reset used here
+       wait();
+    }        
 \end{lstlisting}
 
 \subsection{Thread process without reset}\label{section:noreset}

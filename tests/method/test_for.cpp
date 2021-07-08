@@ -50,8 +50,10 @@ public:
         sensitive << a;
         SC_METHOD(sc_type_for);
         sensitive << a;
-        SC_METHOD(for_false);
-        sensitive << a;
+
+        SC_METHOD(for_false); sensitive << a;
+        SC_METHOD(for_false_extr1); sensitive << a;
+        SC_METHOD(for_false_extr2); sensitive << a;
         
         // Not supported yet
 //        SC_METHOD(for_multi_counter);
@@ -226,14 +228,37 @@ public:
     }
     
      // For with false and true constant condition
+    sc_signal<int> r0;
     void for_false() {
-        k = 0;
+        int k = 0;
         for (int i = 0; false; i++) {
             k = k + 1;
         }
+        r0 = k;
         sct_assert_level(0);
     }
 
+    sc_signal<int> r1;
+    void for_false_extr1() {
+        int k = 0;
+        int i;
+        for (i = 10; i < 5; i++) {
+            k = k + 1;
+        }
+        r1 = k + i;
+        sct_assert_level(0);
+    }
+    
+    sc_signal<int> r2;
+    void for_false_extr2() {
+        int k = 0;
+        int i = 10;
+        for (; i < 5; i++) {
+            k = k + 1;
+        }
+        r2 = k + i;
+        sct_assert_level(0);
+    }
 
 // ----------------------------------------------------------------------------
     

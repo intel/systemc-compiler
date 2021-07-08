@@ -5,23 +5,22 @@
 # 
 # *****************************************************************************
 
+## Arrays
 add_executable(cthread_array test_cthread_array.cpp)
 svc_target(cthread_array GOLDEN cthread_array.sv)
 
 add_executable(cthread_array_access test_cthread_array_access.cpp)
 svc_target(cthread_array_access GOLDEN cthread_array_access.sv)
 
+add_executable(cthread_array_comb_reg test_cthread_array_comb_reg.cpp)
+svc_target(cthread_array_comb_reg GOLDEN cthread_array_comb_reg.sv)
+
+
 add_executable(cthread_simple test_cthread_simple.cpp)
 svc_target(cthread_simple GOLDEN cthread_simple.sv)
 
 add_executable(cthread_simple2 test_cthread_simple2.cpp)
 svc_target(cthread_simple2 GOLDEN cthread_simple2.sv)
-
-add_executable(cthread_linear test_cthread_linear.cpp)
-svc_target(cthread_linear GOLDEN cthread_linear.sv)
-
-add_executable(cthread_comb_break test_cthread_comb_break.cpp)
-svc_target(cthread_comb_break GOLDEN cthread_comb_break.sv)
 
 # Reset related tests
 add_executable(cthread_reset test_cthread_reset.cpp)
@@ -30,8 +29,13 @@ svc_target(cthread_reset GOLDEN cthread_reset.sv)
 add_executable(cthread_reset_warning test_cthread_reset_warning.cpp)
 svc_target(cthread_reset_warning GOLDEN cthread_reset_warning.sv)
 
+add_executable(cthread_reset_fail test_cthread_reset_fail.cpp)
+svc_target(cthread_reset_fail GOLDEN cthread_reset_fail.sv
+           WILL_FAIL)
+
 add_executable(cthread_reset_noninit_read test_reset_noninit_read.cpp)
-svc_target(cthread_reset_noninit_read GOLDEN cthread_reset_noninit_read.sv)
+svc_target(cthread_reset_noninit_read GOLDEN cthread_reset_noninit_read.sv
+           WILL_FAIL)
 
 add_executable(cthread_reset_after test_cthread_reset_after.cpp)
 svc_target(cthread_reset_after GOLDEN cthread_reset_after.sv)
@@ -41,6 +45,9 @@ svc_target(cthread_simple_reset GOLDEN cthread_simple_reset.sv)
 
 add_executable(cthread_mult_resets test_cthread_mult_resets.cpp)
 svc_target(cthread_mult_resets GOLDEN cthread_mult_resets.sv)
+
+add_executable(cthread_multi_wait_reset test_cthread_multi_wait_reset.cpp)
+svc_target(cthread_multi_wait_reset GOLDEN cthread_multi_wait_reset.sv)
 
 add_executable(cthread_sync_async_reset test_cthread_sync_async_reset.cpp)
 svc_target(cthread_sync_async_reset GOLDEN cthread_sync_async_reset.sv)
@@ -109,13 +116,12 @@ svc_target(cthread_loop_fail6 WILL_FAIL)
 add_executable(cthread_loop_fail7 test_cthread_loop_fail7.cpp)
 svc_target(cthread_loop_fail7 WILL_FAIL)
 
-# if
+## Control flow
 add_executable(cthread_if test_if.cpp)
 svc_target(cthread_if GOLDEN cthread_if.sv)
 
 add_executable(cthread_if_const test_if_const.cpp)
 svc_target(cthread_if_const GOLDEN cthread_if_const.sv)
-
 
 add_executable(cthread_break test_break.cpp)
 svc_target(cthread_break GOLDEN cthread_break.sv)
@@ -123,8 +129,13 @@ svc_target(cthread_break GOLDEN cthread_break.sv)
 add_executable(cthread_continue test_continue.cpp)
 svc_target(cthread_continue GOLDEN cthread_continue.sv)
 
+## Function calls
 add_executable(cthread_fcall test_cthread_fcall.cpp)
 svc_target(cthread_fcall GOLDEN cthread_fcall.sv)
+
+add_executable(cthread_fcall_ref test_fcall_ref.cpp)
+svc_target(cthread_fcall_ref GOLDEN cthread_fcall_ref.sv)
+
 
 add_executable(cthread_return test_return.cpp)
 svc_target(cthread_return GOLDEN cthread_return.sv)
@@ -204,9 +215,6 @@ svc_target(cthread_read_defined_ref GOLDEN cthread_read_defined_ref.sv)
 add_executable(cthread_wait_states test_cthread_wait_states.cpp)
 svc_target(cthread_wait_states GOLDEN cthread_wait_states.sv)
 
-add_executable(cthread_shared_vars test_cthread_shared_vars.cpp)
-svc_target(cthread_shared_vars GOLDEN cthread_shared_vars.sv)
-
 add_executable(cthread_read_only test_cthread_read_only.cpp)
 svc_target(cthread_read_only GOLDEN cthread_read_only.sv)
 
@@ -222,89 +230,49 @@ svc_target(cthread_const_prop GOLDEN cthread_const_prop.sv)
 
 
 add_executable(cthread_varname test_cthread_varname.cpp)
-svc_target(cthread_varname 
-            GOLDEN cthread_varname.sv)
+svc_target(cthread_varname GOLDEN cthread_varname.sv)
 
 add_executable(cthread_sel_bit test_cthread_sel_bit.cpp)
-svc_target(cthread_sel_bit 
-           GOLDEN cthread_sel_bit.sv)
+svc_target(cthread_sel_bit GOLDEN cthread_sel_bit.sv)
 
 add_executable(cthread_sel_range test_cthread_sel_range.cpp)
-svc_target(cthread_sel_range 
-           GOLDEN cthread_sel_range.sv)
+svc_target(cthread_sel_range GOLDEN cthread_sel_range.sv)
 
-add_executable(cthread_comb_var test_cthread_comb_var.cpp)
-svc_target(cthread_comb_var GOLDEN cthread_comb_var.sv)
-
+## Pointers
 add_executable(cthread_pointers test_pointers.cpp) 
 svc_target(cthread_pointers GOLDEN cthread_pointers.sv)
 
-add_executable(cthread_comb_arr test_cthread_comb_arr.cpp)
-svc_target(cthread_comb_arr 
-           GOLDEN cthread_comb_arr.sv)
+add_executable(cthread_pointer_to_bool test_pointer_to_bool.cpp)
+svc_target(cthread_pointer_to_bool GOLDEN cthread_pointer_to_bool.sv)
+
 
 add_executable(cthread_concat test_cthread_concat.cpp)
-svc_target(cthread_concat 
-           GOLDEN cthread_concat.sv)
+svc_target(cthread_concat GOLDEN cthread_concat.sv)
 
 add_executable(cthread_initvar_inf_loop test_cthread_initvar_inf_loop.cpp)
-svc_target(cthread_initvar_inf_loop  
-           GOLDEN cthread_initvar_inf_loop.sv)
+svc_target(cthread_initvar_inf_loop GOLDEN cthread_initvar_inf_loop.sv)
 
-add_executable(cthread_multiwait test_cthread_multiwait.cpp)
-svc_target(cthread_multiwait 
-            GOLDEN cthread_multiwait.sv)
-
-add_executable(cthread_mif_array_ptr test_cthread_mif_array_ptr.cpp)
-svc_target(cthread_mif_array_ptr  
-           GOLDEN cthread_mif_array_ptr.sv)
-
-add_executable(cthread_mif_array_ptr2 test_cthread_mif_array_ptr2.cpp)
-svc_target(cthread_mif_array_ptr2  
-           GOLDEN cthread_mif_array_ptr2.sv)
-
-add_executable(cthread_mif_array_ptr_unkwn test_cthread_mif_array_ptr_unkwn.cpp)
-svc_target(cthread_mif_array_ptr_unkwn  
-           GOLDEN cthread_mif_array_ptr_unkwn.sv)
-
-add_executable(cthread_mif_array_ptr_unkwn2 test_cthread_mif_array_ptr_unkwn2.cpp)
-svc_target(cthread_mif_array_ptr_unkwn2  
-           GOLDEN cthread_mif_array_ptr_unkwn2.sv)
-
-add_executable(cthread_mif_array_ptr_unkwn3 test_cthread_mif_array_ptr_unkwn3.cpp)
-svc_target(cthread_mif_array_ptr_unkwn3  
-           GOLDEN cthread_mif_array_ptr_unkwn3.sv)
-
-add_executable(cthread_mif_array_fcall test_cthread_mif_array_fcall.cpp)
-svc_target(cthread_mif_array_fcall  
-           GOLDEN cthread_mif_array_fcall.sv)
-
-add_executable(cthread_mif test_cthread_mif.cpp)
-svc_target(cthread_mif  
-           GOLDEN cthread_mif.sv)
-
-add_executable(simple_fsm test_simple_fsm.cpp)
-svc_target(simple_fsm  
-           GOLDEN simple_fsm.sv ELAB_TOP b_mod.a_mod)
 
 add_executable(rtl_fifo test_rtl_fifo.cpp)
-svc_target(rtl_fifo  
-           GOLDEN rtl_fifo.sv)
+svc_target(rtl_fifo GOLDEN rtl_fifo.sv)
 
 add_executable(bhv_fifo test_bhv_fifo.cpp)
-svc_target(bhv_fifo  
-           GOLDEN bhv_fifo.sv)
+svc_target(bhv_fifo GOLDEN bhv_fifo.sv)
            
+## Variables
 add_executable(cthread_var_reg test_cthread_var_reg.cpp)
 svc_target(cthread_var_reg GOLDEN cthread_var_reg.sv)
+
+add_executable(cthread_var_comb test_cthread_var_comb.cpp)
+svc_target(cthread_var_comb GOLDEN cthread_var_comb.sv)
 
 add_executable(cthread_var_const test_cthread_var_const.cpp)
 svc_target(cthread_var_const GOLDEN cthread_var_const.sv)
 
-add_executable(cthread_var_multiple_use test_cthread_var_multiple_use.cpp)
-svc_target(cthread_var_multiple_use  
-            GOLDEN cthread_var_multiple_use.sv)
+add_executable(cthread_var_ref test_cthread_var_ref.cpp)
+svc_target(cthread_var_ref GOLDEN cthread_var_ref.sv)
 
-add_executable(cthread_bool test_bool.cpp)
-svc_target(cthread_bool GOLDEN cthread_bool.sv)
+add_executable(cthread_var_multiple_use test_cthread_var_multiple_use.cpp)
+svc_target(cthread_var_multiple_use GOLDEN cthread_var_multiple_use.sv)
+
 

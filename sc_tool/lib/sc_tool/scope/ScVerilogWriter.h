@@ -50,7 +50,14 @@ enum class CastSign {
     SCAST = 2,  // original signed cast added in ImplicitCast operator
     SACAST = 3  // artificially signed cast added in VerilogWriter, signed+1bit
 };
-    
+
+// TODO: use for @TermInfo.explCast to fix #266
+enum class ExplCast {
+    NOCAST = 0, 
+    UCAST = 1, 
+    SCAST = 2
+};
+
 enum class ExprSign {
     NOEXPR = 0, 
     SEXPR = 1, 
@@ -144,6 +151,9 @@ public:
     void setResetSection(bool isReset) {
         isClockThreadReset = isReset;
     }
+    bool isResetSection() {
+        return isClockThreadReset;
+    }
     
     /// Set start of assert arguments parsing
     void setParseSvaArg(bool isAssert) {
@@ -200,9 +210,6 @@ protected:
     /// Get index to provide unique name for local variable
     std::string getUniqueName(const std::string& origVarName);
 
-    // Check if variable value is not registered in varTraits and extrValNames 
-    bool isLocalVariable(const SValue& val);
-    
     /// Get unique read and write names for variable in scope
     /// \param recvar -- used to provide unique name inside of record instance,
     ///                  required for inner records only
@@ -220,19 +227,24 @@ protected:
     /// \return <readName, writeName>
     std::pair<std::string, std::string> getChannelName(const SValue& cval);
     
+public:     
+    // Check if variable value is not registered in varTraits and extrValNames 
+    bool isLocalVariable(const SValue& val);
+    
     /// Check is value corresponds to member constant which translated to @localparam
     bool isConstVerVar(const SValue& val);
     
     /// Return true if @val is register in @varTraits, only in splitting thread mode
     bool isRegister(const SValue& val);
-
+    
     /// Check @sc_comb_sig with CLEAR flag 
     bool isCombSig(const SValue& val);
     
     /// Check @sc_comb_sig without CLEAR flag 
     bool isCombSigClear(const SValue& val);
 
-    // Calculate outlined brackets number
+protected: 
+    /// Calculate outlined brackets number
     unsigned getBracketNum(const std::string& s);
     
     /// Check if string is in brackets, return true if it is
@@ -377,18 +389,21 @@ public:
     
     /// Put local variable (non-array) declaration with possible initialization
     /// \param init -- initialization expression, can be @nullptr
+    /// \param funcCall -- is function parameter or return temporal variable declaration
     /// \param replaceConstEnable -- constant variable declaration can be not
     ///                              generated if it replaced with value,
     ///                              that possible for non-reference constants 
     ///                              with evaluated initialization value
     void putVarDecl(const clang::Stmt* stmt, const SValue& val, 
                     const clang::QualType& type, const clang::Expr* init,
-                    bool replaceConstEnable = false);
+                    bool funcCall, unsigned level, bool replaceConstEnable = false);
 
     /// Array declaration statement w/o initialization 
     void putArrayDecl(const clang::Stmt* stmt, const SValue& val, 
                       const clang::QualType& type, 
-                      const std::vector<std::size_t>& arrSizes);
+                      const std::vector<std::size_t>& arrSizes,
+                      const clang::Expr* init,
+                      unsigned level);
     
     /// Put string of @init statement to use instead of the reference variable
     /// Used for any non-constant reference 
@@ -741,6 +756,9 @@ protected:
     std::unordered_map<std::pair<SValue, bool>, std::string> varIndex;
     /// Declaration for local variables
     std::vector< std::pair<SValue, std::string> > localDeclVerilog;
+    /// Local variables initialization with zero, required to avoid latch
+    /// detection by lint and logic synthesis tools (@INIT_LOCAL_VARS required)
+    std::vector< std::pair<SValue, std::string> > localDeclInitVerilog;
     /// Variables and constants not replaced by integer values, 
     /// in future any objects which name is used in generated code
     std::unordered_set<SValue> notReplacedVars;

@@ -323,6 +323,8 @@ void ScState::join(ScState* other)
             }
         }
     }
+    // Get values from other state to keep them
+    defsomepath.insert(cbegin(other->defsomepath), cend(other->defsomepath));
     
     // Remain value if it exists in any state
     readndef.insert(cbegin(other->readndef), cend(other->readndef));

@@ -5,12 +5,9 @@
 * 
 *****************************************************************************/
 
-//
-// Created by ripopov on 3/13/18.
-//
-
 #include <systemc.h>
 
+// while with SC tyeps and bit/range/... operations in condition
 class top : sc_module
 {
 public:
@@ -50,6 +47,10 @@ public:
         sensitive << clk.posedge_event();
         async_reset_signal_is(arstn, false);
         
+        SC_THREAD(while_with_signal_cond_sc_uint2);
+        sensitive << clk.posedge_event();
+        async_reset_signal_is(arstn, false);
+
         SC_THREAD(while_with_binary_oper_sc_bigint);
         sensitive << clk.posedge_event();
         async_reset_signal_is(arstn, false);
@@ -180,6 +181,28 @@ public:
 
             out4 = 2;
             wait();     // 2
+        }
+    }
+    
+    sc_signal<sc_uint<12>> s0;
+    sc_signal<sc_uint<12>> s1;
+    void while_with_signal_cond_sc_uint2()
+    {
+        s1 = 0;
+        wait();
+        
+        while (1) {
+
+            while (s0.read().range(7,4) > 2) {
+                s1 = 1;
+                wait();     // 1
+                while (s1.read().bit(3)) {
+                    wait(); // 2
+                }
+            }
+
+            s1 = 2;
+            wait();     // 3
         }
     }
 

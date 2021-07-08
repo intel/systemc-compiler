@@ -28,6 +28,7 @@ SC_MODULE(top) {
     int y;
 
     void wait_wrap () {
+        wait();
         x++;
 
         sct_assert_const(x == 2);
@@ -37,6 +38,7 @@ SC_MODULE(top) {
     }
 
     void dwait_wrap () {
+        wait();
         x++;
         wait_wrap();
         x++;

@@ -9,7 +9,7 @@
 
 using namespace sc_core;
 
-// for loop in if  and for loop with if tests
+// FOR loop in IF and FOR loop with IF inside
 class A : public sc_module {
 public:
 

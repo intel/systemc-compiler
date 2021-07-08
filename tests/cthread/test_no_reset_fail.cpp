@@ -5,10 +5,6 @@
 * 
 *****************************************************************************/
 
-//
-// Created by Mikhail Moiseev
-//
-
 #include "sct_assert.h"
 #include <systemc.h>
 

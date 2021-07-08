@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <iostream>
 
-// Constant literals, including negative literals and comparison with 
+// Constant literals, literal suffixes, negative literals and comparison with 
 // narrow variable. 
 // More tests with negative in unsigned variable are in 
 // const_prop/test_const_negative.cpp
@@ -44,6 +44,8 @@ public:
 
         SC_METHOD(short_operations);
         sensitive << s;
+        
+        SC_METHOD(suffixes); sensitive << s;
     }
 
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
@@ -286,6 +288,49 @@ public:
 
         c += 20;
         CHECK (c == -26);
+    }
+    
+// ---------------------------------------------------------------------------    
+    // Suffixes
+    
+    sc_signal<int> r0;
+    void suffixes() {
+        int i = 12;
+        unsigned u = 12U;
+        long li = 12L;
+        unsigned long lu = 12UL;
+        long long lli = 12LL;
+        unsigned long long llu = 12ULL;
+
+        i = ~0U;
+        CHECK (i == 0xFFFFFFFF);
+        u = ~0U;
+        CHECK (u == 0xFFFFFFFF);
+        li = ~0L;  CHECK (li == 0xFFFFFFFFFFFFFFFF);
+        lu = ~0UL; CHECK (lu == 0xFFFFFFFFFFFFFFFF);
+        lli = ~0L;  CHECK (lli == 0xFFFFFFFFFFFFFFFF);
+        llu = ~0UL; CHECK (llu == 0xFFFFFFFFFFFFFFFF);
+        
+        i = -1000000000;  CHECK (i == -0x3B9ACA00); 
+        u =  1000000000U; CHECK (u == 0x3B9ACA00);
+        lu = 10000000000LU; CHECK (lu == 0x2540BE400);
+        li = 10000000000L;  CHECK (li == 0x2540BE400);
+        
+        i = ~12;  CHECK (i == 0xFFFFFFF3); 
+        u = ~12U; CHECK (u == 0xFFFFFFF3);
+        lu = ~12LU; CHECK (lu == 0xFFFFFFFFFFFFFFF3);
+        li = ~12L;  CHECK (li == 0xFFFFFFFFFFFFFFF3);
+        llu = ~12LLU; CHECK (llu == 0xFFFFFFFFFFFFFFF3);
+        lli = ~12LL;  CHECK (lli == 0xFFFFFFFFFFFFFFF3);
+                
+        i = 12 - 24;  CHECK (i == -12); 
+        u = 12U - 6U; CHECK (u == 6);
+        u = 12U - 24U; CHECK (u == 0xFFFFFFF4);
+        lu = 12LU - 6LU; CHECK (lu == 6);
+        lu = 12LU - 24LU; CHECK (lu == 0xFFFFFFFFFFFFFFF4);
+        li = 12L - 24L;  CHECK (li == -12);
+        
+        r0 = i + u + li + lu;
     }
     
 };

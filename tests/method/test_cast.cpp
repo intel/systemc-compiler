@@ -23,12 +23,22 @@ public:
 
     static const unsigned CONST_A = 1;
     static const unsigned CONST_Z = 0;
+    const int M1 = 42;
+    const int M2 = 44;
+    const int* pm = &M1;
     
     sc_signal<bool> dummy{"dummy"};
     sc_signal<sc_uint<4>> s;
 
     SC_CTOR(A)
     {
+        *(const_cast<int*>(pm)) = 43;
+        const_cast<int&>(M2) = 45;
+        // #266
+        SC_METHOD(cast_to_unsigned); sensitive << is << xs << us << bs;
+        
+        SC_METHOD(const_cast_for_variable); sensitive << dummy;
+        
         SC_METHOD(cond_const); sensitive << dummy;
         SC_METHOD(bool_cast); sensitive << dummy;
         SC_METHOD(const_bool_type_cast); sensitive << dummy;
@@ -44,6 +54,82 @@ public:
     }
     
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
+    
+    sc_signal<int> is;
+    sc_signal<unsigned> us;
+    sc_signal<sc_uint<15>> xs;
+    sc_signal<sc_biguint<15>> bs;
+    void cast_to_unsigned() 
+    {
+        int i = -11;
+        unsigned u = 12;
+        sc_uint<15> x = 12;
+        sc_biguint<15> bx = 12;
+        sc_int<15> y = -11;
+        sc_bigint<15> by = -11;
+        long res;
+        
+        // TODO: Fix me, signed/unsigned in SV required?    (#266.2)
+        res = (unsigned)i;
+        res = (unsigned)y;
+        res = (int)x;
+        res = (int)u;
+        
+        // Cast to unsigned in binary
+        // TODO: Fix me. Must be unsigned arithmetic!!!     (#266.3)
+        res = x + (unsigned)i;                    // Error
+
+        // Cast to signed in binary
+        // TODO: fix me, signed required for both arguments (#266.3)
+        res = int(u) + x;                         // Error
+        res = u + int(x);                         // Error
+        
+        // TODO: Fix me. `signed required here for @x
+        res = x.to_int() + x;                     // Error
+        res = x.to_int() + i;                     // OK
+        res = xs.read().to_int() + xs.read();     // Error
+        res = xs.read().to_int() + is.read();     // OK
+        
+        // Signed casted to signed
+        res = sc_int<12>(i) + u;                  // OK
+        res = sc_int<12>(y) + x;                  // OK  
+        res = sc_int<12>(is.read()) + us.read();  // OK
+        res = sc_int<12>(is.read()) + xs.read();  // OK
+        
+        res = x + i;            // OK
+        
+        // Unintended signed arithmetic for @sc_biguint    (#266.4)
+        res = 10 - u;
+        res = 10 - x;
+        res = u - 10;
+        res = x - 10;
+        res = x - u;
+
+        bx = 10 + bx;               // Error?
+        bx = 10 - bs.read();        // Error?    
+
+//        res = bx - 10;
+//        res = 10 - bx;
+//        res = x - bx;
+//        res = bx - x;
+//        res = u - bx;
+//        res = bx - u;
+    }
+    
+    // @const_cast<> to remove constantness
+    sc_signal<int> r1;
+    void const_cast_for_variable() {
+        CHECK (M1 == 43);
+        CHECK (M2 == 45);
+        
+        // That is OK
+        int i = *(const_cast<int*>(pm));
+        // Error reported, M1 is @localparam cannot be changed
+        //*(const_cast<int*>(pm)) = 46;
+        
+        auto j = (const int)i;
+        r1 = j+1;
+    }
     
     void cond_const() {
         bool b;

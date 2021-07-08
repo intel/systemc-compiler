@@ -9,7 +9,7 @@
 
 using namespace sc_core;
 
-// Local variables in method process body analysis
+// Empty CTHREAD with async reset signal and signal pointer
 class A : public sc_module {
 public:
 

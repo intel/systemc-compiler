@@ -5,12 +5,9 @@
 * 
 *****************************************************************************/
 
-//
-// Created by ripopov on 10/12/18.
-//
-
 #include <systemc.h>
 
+// wait() call in virtual function overridden in child module
 struct base : sc_module {
 
     sc_in_clk clk{"clk"};

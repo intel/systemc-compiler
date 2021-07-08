@@ -23,6 +23,11 @@ public:
     SC_HAS_PROCESS(top);
     top(sc_module_name)
     {
+        SC_METHOD(const_init_meth); sensitive << s;
+        
+        SC_CTHREAD(const_init_thread, clk.pos());
+        async_reset_signal_is(rstn, false);
+
         SC_CTHREAD(local_rnd1, clk.pos());
         async_reset_signal_is(rstn, false);
         
@@ -39,7 +44,40 @@ public:
         async_reset_signal_is(rstn, false);
     }
 
+    sc_signal<int> r0;
+    void const_init_meth() {
+        if (s.read()) {
+            int i = s.read();
+            const unsigned M1 = i+42;
+            r0 = M1;
+        }
+        const sc_uint<16> M2;
+
+        r0 = M2 + A + B;
+    }
    
+    sc_signal<int> r1;
+    void const_init_thread() {
+        if (s.read()) {
+            int i = 41;
+            const unsigned R1 = i+1;
+            r1 = R1;
+        }
+        const unsigned R2 = 42;
+        r1 = R2 + B;
+        
+        wait();             
+        
+        while (true) {
+            const unsigned N1 = 43;
+            const unsigned R1 = 44;
+            wait();
+            r1 = N1 + R2 + R1 + A + B;
+        }
+    }
+
+// ---------------------------------------------------------------------------
+    
     // Constant not defined before read in some state
     void local_rnd1() {
         int i = 0;

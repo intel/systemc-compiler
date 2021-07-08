@@ -5,11 +5,9 @@
 * 
 *****************************************************************************/
 
-//
-// Created by ripopov on 10/30/18.
-//
 #include <systemc.h>
 
+// First and last state in generated case are duplicated, for #40
 SC_MODULE(dut) {
 
     sc_signal<bool> clk;

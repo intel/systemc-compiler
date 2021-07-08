@@ -23,6 +23,10 @@ public:
         sensitive << clk.posedge_event();
         async_reset_signal_is(arstn, false);
 
+        SC_THREAD(dowhile_with_wait0a);
+        sensitive << clk.posedge_event();
+        async_reset_signal_is(arstn, false);
+
         SC_THREAD(dowhile_with_wait1);
         sensitive << clk.posedge_event();
         async_reset_signal_is(arstn, false);
@@ -36,6 +40,18 @@ public:
         async_reset_signal_is(arstn, false);
         
         SC_THREAD(dowhile_with_signal_cond);
+        sensitive << clk.posedge_event();
+        async_reset_signal_is(arstn, false);
+        
+        SC_THREAD(dowhile_inner1);
+        sensitive << clk.posedge_event();
+        async_reset_signal_is(arstn, false);
+        
+        SC_THREAD(dowhile_inner2);
+        sensitive << clk.posedge_event();
+        async_reset_signal_is(arstn, false);
+        
+        SC_THREAD(dowhile_inner3);
         sensitive << clk.posedge_event();
         async_reset_signal_is(arstn, false);
         
@@ -55,7 +71,7 @@ public:
             int i = 0;          // B6
             do {
                 out = 1;        // B4    
-                wait();  // 2
+                wait();  // 1
                 i++;
             } while (i < 3);    // B3, B5
             
@@ -63,10 +79,27 @@ public:
         }
     }
     
-      // @while with wait
+    sc_signal<int> s0;
+    void dowhile_with_wait0a()
+    {
+        s0 = 0;
+        wait();
+        
+        while (1) {             
+            int i = 0;          
+            do {
+                s0 = i;
+                i++;
+                wait();         
+            } while (i < 3);    
+        }
+    }
+    
+    // @while with waits
+    sc_signal<int> s1;
     void dowhile_with_wait1()
     {
-        out = 0;
+        s1 = 0;
         wait();
         
         while (1) {
@@ -74,18 +107,19 @@ public:
             int i = 0;
             do {
                 i++;
-                out = 1;
+                s1 = 1;
                 wait();     // 1
             } while (i < 3);
-            out = 2;
+            s1 = 2;
             wait();         // 2
         }
     }
     
     // @while with conditional wait
+    sc_signal<int> s2;
     void dowhile_with_wait2()
     {
-        out = 0;
+        s2 = 0;
         wait();
         
         while (1) {
@@ -93,23 +127,24 @@ public:
             int i = 0;
             do {
                 i++;
-                out = 1;
+                s2 = 1;
                 wait();     // 2
                 
                 if (in.read() > 1) {
-                    out = 2;
+                    s2 = 2;
                     wait();  // 3
                 }
             } while (i < 3);
-            out = 3;
+            s2 = 3;
             wait();     // 4
         }
     }
     
     // @while with inner @for 
+    sc_signal<int> s3;
     void dowhile_with_for()
     {
-        out = 0;
+        s3 = 0;
         wait();
         
         while (1) {
@@ -117,41 +152,130 @@ public:
             int i = 0;
             do {
                 i++;
-                out = 1;
+                s3 = 1;
                 
                 for (int j = 0; j < 2; j++) {
                     if (in.read() > 1) {
-                        out = j;
+                        s3 = j;
                     }
-                    wait();  // 2
+                    wait();  // 1
                 }
             } while (i < 3);
-            out = 3;
-            wait();     // 3
+            s3 = 3;
+            wait();         // 2
         }
     }
 
     // @while with signal condition
+    sc_signal<int> s4;
     void dowhile_with_signal_cond()
     {
-        out = 0;
+        s4 = 0;
         wait();
         
         while (1) {
 
             do {
-                out = 1;
+                s4 = 1;
                 wait();     // 2
             } while (in.read());
 
-            out = 2;
+            s4 = 2;
             wait();     // 3
         }
     }
     
+// ----------------------------------------------------------------------------    
+    
+    // Inner do...while
+    sc_signal<int> s6;
+    void dowhile_inner1()
+    {
+        s6 = 0;
+        wait();
+        
+        while (1) {
+
+            do {
+                s6 = 1;
+                
+                int i = 3;
+                do {
+                    i++;
+                    s6 = i-1;
+                    wait();         // 1
+                    
+                } while (i < 10);
+                
+            } while (in.read());
+            
+            wait();                 // 2
+        }
+    }
+    
+    sc_signal<int> s7;
+    void dowhile_inner2()
+    {
+        s7 = 0;
+        wait();
+        
+        while (1) {
+
+            do {
+                s7 = 1;
+                wait();             // 1
+                
+                int i = 3;
+                do {
+                    i++;
+                    wait();         // 2
+
+                    s7 = i-1;
+                } while (i < 10);
+                
+            } while (s7.read() > 5);
+            
+            s7 = 0;
+            wait();                 // 3
+        }
+    }    
+    
+    
+    sc_signal<int> s8;
+    void dowhile_inner3()
+    {
+        s8 = 42;
+        wait();
+        
+        while (1) {
+
+            int k = 0;
+            do {
+                int i = 0;
+                if (in.read()) {
+                    do {
+                        i++;
+                        s8 = i;
+                        wait();     // 1
+                    } while (s8.read() < 10);
+                    
+                } else {
+                    k++;
+                    wait();         // 2
+                }
+                
+            } while (k < 10);
+            
+            wait();                 // 3
+        }
+    }
+    
+// ----------------------------------------------------------------------------    
+    
+    sc_signal<int> s5;
     void complex1()
     {
-        out = 0;
+        s5 = 0;
         wait();
         while (1) {
 
@@ -168,14 +292,14 @@ public:
 
             do {
                 i ++;
-                out = i;
+                s5 = i;
             } while ( i < 5);
 
             i = 0;
 
             do {
                 i ++;
-                out = i;
+                s5 = i;
 
                 if (in.read())
                     break;

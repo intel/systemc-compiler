@@ -7,11 +7,7 @@
 
 #include <systemc.h>
 
-// Member and local channels and variables declaration as registers
-
-// Variable which should become registers:
-//  1) used/defined in one thread,
-//  2) defined in one thread and used in another thread/method
+// Register variables/channels/arrays in CTHREAD
 struct A : public sc_module
 {
     sc_in_clk               clk;
@@ -31,6 +27,9 @@ struct A : public sc_module
 
     SC_CTOR(A) 
     {
+        SC_CTHREAD(var_init_reset, clk.pos());
+        async_reset_signal_is(rst, true);
+        
         SC_METHOD(channels0);
         sensitive << a << b << c;
 
@@ -45,8 +44,44 @@ struct A : public sc_module
 
         SC_CTHREAD(variables2, clk.pos());
         async_reset_signal_is(rst, true);
+        
+        SC_CTHREAD(variables_in_scope1, clk.pos());
+        async_reset_signal_is(rst, true);
+        
+        SC_CTHREAD(variables_in_scope2, clk.pos());
+        async_reset_signal_is(rst, true);
+        
+        SC_CTHREAD(local_array1, clk.pos());
+        async_reset_signal_is(rst, true);
+
+        SC_CTHREAD(local_array2, clk.pos());
+        async_reset_signal_is(rst, true);
+        
+        SC_CTHREAD(member_array1, clk.pos());
+        async_reset_signal_is(rst, true);
+        
+        SC_CTHREAD(local_record_array1, clk.pos());
+        async_reset_signal_is(rst, true);
+        
     }
 
+    // Variable initialized in reset only
+    // The generated code is OK, it needs to use local constant for this case.
+    int mi;
+    sc_signal<int> r0;
+    
+    void var_init_reset() {
+        const int ci = 42;      // Comb
+        int vi = 43;            // Reg
+        mi = 44;                // Reg
+        wait();
+        
+        while (true) {
+            r0 = mi+vi+ci;
+            wait();
+        }
+    }
+    
     void channels0() 
     {
         bool x = a;
@@ -96,6 +131,8 @@ struct A : public sc_module
         }
     }
 
+// ---------------------------------------------------------------------------    
+    
     // Local and member variables 
     bool k;                     // assigned in reset only
     unsigned m;                 // RnD at one path only
@@ -146,30 +183,149 @@ struct A : public sc_module
         }
     }
     
-};
+    // Local variables declared in scope
+    void variables_in_scope1() {
+        wait();
+        
+        while (true) {
 
-SC_MODULE(Top) {
-
-    sc_in_clk       clk{"clk"};
-    sc_signal<bool> rst;
-    
-    A               a_mod{"a_mod"};
-    sc_signal<int>  t;      
-
-    SC_CTOR(Top) 
-    {
-        a_mod.clk(clk);
-        a_mod.rst(rst);
-        a_mod.in(t);
-        a_mod.out(t);
+            if (a.read()) {
+                sc_uint<16> lu = b.read();  // reg
+                
+                while (lu != c.read()) {
+                    lu--;
+                    wait();             // 1
+                }
+            }
+            
+            wait();                     // 2
+        }
     }
+    
+    sc_signal<int> r5;
+    void variables_in_scope2() {
+        wait();
+        
+        while (true) {
+
+            for (int i = 0; i < 10; ++i) {
+                sc_bigint<8> lbi = sc_bigint<8>(b.read());  // reg
+                if (a.read()) {
+                    int li = i+1;       // comb
+                    r5 = li;
+                    wait();             // 1
+                    
+                    r5 = i + lbi.to_int();
+                }
+                wait();                 // 2
+            }
+            
+            wait();                     // 3
+        }
+    }    
+    
+// --------------------------------------------------------------------------
+    // Arrays
+    
+    // Local array initialized with variables
+    sc_signal<int> s6;
+    void local_array1()
+    {
+        int i = 42;                         // reg
+        int k = 42;                         // comb in reset only
+        bool arr1[3];                       // reg
+        sc_uint<4> arr2[3];
+        int arr3[3] = {1,2,k}; 
+        wait();
+        
+        while (true) {
+            int j = 43;                     // comb
+            sc_uint<4> arr4[2] = {i, j+1}; 
+            s6 = arr1[0];
+            wait();
+        }
+    }
+    
+    // Local array registers
+    sc_signal<int> s7;
+    void local_array2()
+    {
+        bool arr1[3];                       // comb           
+        arr1[0] = 1;
+        sc_uint<4> arr2[3];                 // reg
+        int arr3[3] = {1,2,arr1[0]};        // reg
+        wait();
+        
+        while (true) {
+            sc_uint<4> arr4[2] = {arr3[0], arr3[1]}; 
+            wait();
+            s7 = arr2[1] + arr4[1];
+        }
+    }
+    
+    // Member array registers
+    sc_signal<int> s8;
+    bool marr1[3];                       // comb           
+    sc_uint<4> marr2[20];                // reg
+    int marr3[3];                        // reg
+    
+    void member_array1()
+    {
+        marr1[0] = true;
+        for (int i = 0; i < 20; ++i) {
+            marr2[i] = i;
+        }
+        s8 = marr1[0];
+        wait();
+        
+        while (true) {
+            s8 = marr2[1] + marr3[1];
+            marr3[s7.read()] = s6.read();
+            wait();
+        }
+    }
+    
+// --------------------------------------------------------------------------
+    
+    struct Simple {
+        bool a;
+        int b;
+        Simple() = default;
+        Simple(int par) : a(false), b(par) {}
+    };
+    
+    // Local record array 
+    sc_signal<int> s9;
+    void local_record_array1()
+    {
+        Simple rarr0[3];        // reg
+        Simple rarr1[3];        // reg
+        rarr0[0].a = true;
+        rarr0[0].b = 0;
+        wait();
+        
+        while (true) {
+            Simple rarr2[2];    // comb
+            rarr2[1].b = 42;
+            s9 = rarr0[0].b + rarr1[0].b + rarr2[1].b;
+            rarr1[s8.read()].b = 43;
+            wait();
+        }
+    }
+    
 };
 
 int sc_main(int argc, char **argv) 
 {
     sc_clock clk {"clk", sc_time(1, SC_NS)};
-    Top top{"top"};
-    top.clk(clk);
+    sc_signal<bool> rst;
+    sc_signal<int>  t;      
+    
+    A a_mod{"a_mod"};
+    a_mod.clk(clk);
+    a_mod.rst(rst);
+    a_mod.in(t);
+    a_mod.out(t);
     
     sc_start();
 

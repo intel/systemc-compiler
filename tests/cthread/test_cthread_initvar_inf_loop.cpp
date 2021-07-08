@@ -6,10 +6,10 @@
 *****************************************************************************/
 
 #include <systemc.h>
-// JIRA-112: Test for variable read-only after initialization in reset/previous wait()
+
+// Test for variable read-only after initialization in reset/previous wait()
 // 1) In CTHREAD initialize variable in reset and read in inf loop body.
 // 2) In CTHREAD initialize variable before wait() and read after it, no write after this wait().
-
 class Top : sc_module
 {
 public:

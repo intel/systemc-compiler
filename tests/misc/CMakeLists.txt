@@ -422,8 +422,23 @@ svc_target(misc_loop_return_fail WILL_FAIL)
 add_executable(misc_neg_range_fail test_neg_range_fail.cpp)
 svc_target(misc_neg_range_fail WILL_FAIL)
 
-add_executable(misc_init_local_var test_init_local_var.cpp)
-svc_target(misc_init_local_var GOLDEN misc_init_local_var.sv INIT_LOCAL_VARS)
+add_executable(misc_init_local_var1 test_init_local_var1.cpp)
+svc_target(misc_init_local_var1 GOLDEN misc_init_local_var1.sv INIT_LOCAL_VARS)
+
+add_executable(misc_init_local_var2 test_init_local_var2.cpp)
+svc_target(misc_init_local_var2 GOLDEN misc_init_local_var2.sv INIT_LOCAL_VARS)
+
+add_executable(misc_init_local_var2_comb test_init_local_var2.cpp)
+svc_target(misc_init_local_var2_comb GOLDEN misc_init_local_var2_comb.sv 
+           INIT_LOCAL_VARS INIT_RESET_LOCAL_VARS)
+
+add_executable(misc_init_reset_local_var test_init_reset_local_var.cpp)
+svc_target(misc_init_reset_local_var GOLDEN misc_init_reset_local_var.sv 
+           INIT_RESET_LOCAL_VARS)
+
+add_executable(misc_init_reset_local_var_comb test_init_reset_local_var.cpp)
+svc_target(misc_init_reset_local_var_comb GOLDEN misc_init_reset_local_var_comb.sv 
+           INIT_LOCAL_VARS INIT_RESET_LOCAL_VARS)
 
 add_executable(misc_module_prefix test_module_prefix.cpp)
 svc_target(misc_module_prefix GOLDEN misc_module_prefix.sv MODULE_PREFIX MPREF_)

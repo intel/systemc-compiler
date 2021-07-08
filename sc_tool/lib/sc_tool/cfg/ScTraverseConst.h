@@ -40,13 +40,15 @@ namespace sc {
 struct ConstLoopStackInfo {
     // Loop statement
     const clang::Stmt* stmt;
-    // Iteration counter, used in constant propagator
-    unsigned counter;
     // Last iteration state
     std::shared_ptr<ScState> state;
     // Iteration number or 0 if unknown, 
     // do not need to consider zero iteration loops
     unsigned iterNumber;
+    // Iteration counter, used in constant propagator
+    unsigned char counter;
+    // Last state comparison results in stable state
+    bool stableState;
    
     bool operator ==(const ConstLoopStackInfo& other) {
         return (stmt == other.stmt);
@@ -56,11 +58,12 @@ struct ConstLoopStackInfo {
         return (stmt == other.stmt);
     }
     
-    ConstLoopStackInfo(const clang::Stmt* stmt_, 
-                       unsigned counter_, ScState* state_, 
-                       unsigned iterNumber_) :
-        stmt(stmt_), counter(counter_), state(state_), 
-        iterNumber(iterNumber_)
+    ConstLoopStackInfo() = delete;
+    
+    ConstLoopStackInfo(const clang::Stmt* stmt_, ScState* state_, 
+                       unsigned iterNumber_, unsigned counter_) :
+        stmt(stmt_), state(state_), 
+        iterNumber(iterNumber_), counter(counter_), stableState(false)
     {}
 };
 
@@ -251,8 +254,6 @@ public:
         isCombProcess(isCombProcess_)
     {
         state->getMostDerivedClass(dynmodval, dynmodval);
-        SCT_TOOL_ASSERT (LOOP_LAST_ITER > LOOP_MAX_ITER, 
-                         "Incorrect loop analysis constants");
         enableCheckAssert();    
     }
 
@@ -271,14 +272,11 @@ protected:
     /// Evaluate terminator condition if it is compile time constant
     void evaluateTermCond(clang::Stmt* stmt, SValue& val);
     
+    /// Evaluate literal or constant expression as non-negative integer
+    llvm::Optional<unsigned> evaluateConstExpr(clang::Expr* expr);
+
     /// Evaluate loop iteration number from conditional expression
     llvm::Optional<unsigned> evaluateIterNumber(const clang::Stmt* stmt);
-    
-    /// Check if this loop needs compare state with last iteration state
-    /// \param iterNumber -- number of iterations, 0 if unknown
-    /// \param iterCntr -- number of analyzed iteration
-    bool isCompareState(const clang::Stmt* stmt, unsigned maxIterNumber,
-                        unsigned iterNumber, unsigned iterCntr);
     
     /// Prepare next block analysis
     void prepareNextBlock(AdjBlock& nextBlock, std::vector<ConstScopeInfo>& scopeInfos);
@@ -435,15 +433,13 @@ public:
 protected:
     /// Maximal iteration number analyzed for a loop
     unsigned LOOP_MAX_ITER = 10;
-    /// Code of last iteration index stored in @counter, 
-    /// used to mark last iteration after state  becomes stable
-    unsigned LOOP_LAST_ITER = 1024;
     /// Deep loop, 3rd and more nested loop
     unsigned DEEP_LOOP_DEPTH = 2;
     /// Maximal iteration number for a deep loop
-    unsigned DEEP_LOOP_MAX_ITER  = 3;
-    unsigned COMPARE_STATE_ITER1 = 2;
-    unsigned COMPARE_STATE_ITER2 = 7;
+    unsigned DEEP_LOOP_MAX_ITER = 3;
+    // Iteration number to compare state to check stable in loop with 
+    // unknown iteration number 
+    unsigned COMPARE_STATE_ITER = 2;
     /// Iteration number when iteration exceeded error is reported 
     unsigned UNROLL_ERROR_ITER = 20;
     

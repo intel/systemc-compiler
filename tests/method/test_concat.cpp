@@ -47,7 +47,7 @@ public:
     SC_CTOR(A) 
     {
         SC_METHOD(concat_lhs); sensitive << s3;
-        // TODO: add error report
+        // Error reported
         //SC_METHOD(incrdecr_lhs); sensitive << s3;
         SC_METHOD(cast_lhs); sensitive << s3;
         SC_METHOD(concat_return); sensitive << s3;

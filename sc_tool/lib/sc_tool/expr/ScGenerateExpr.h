@@ -37,6 +37,9 @@ protected:
     // ------------------------------------------------------------------------
     // Utility functions
     
+    /// Report warning if @val is register or pointer/reference to register
+    void reportReadRegister(const SValue& val, const clang::Expr* expr);
+    
     /// Check if argument is narrowing integral to boolean cast
     bool isIntToBoolCast(const clang::Expr* expr);
 

@@ -22,6 +22,7 @@ extern llvm::cl::opt<bool>          noSvaGenerate;
 extern llvm::cl::opt<bool>          portMapGenerate;
 extern llvm::cl::opt<bool>          noRemoveExtraCode;
 extern llvm::cl::opt<bool>          initLocalVars;
+extern llvm::cl::opt<bool>          initResetLocalVars;
 extern llvm::cl::opt<bool>          replaceConstByValue;
 extern llvm::cl::opt<std::string>   modulePrefix;
 

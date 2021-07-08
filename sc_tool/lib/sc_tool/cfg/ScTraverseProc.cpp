@@ -830,6 +830,7 @@ void ScTraverseProc::run()
 
                     // Parse statement expression and generate RTL
                     auto stmtStr = parse(currStmt);
+                    SCT_TOOL_ASSERT (!assignLHS, "Incorrect assign LHS flag");
                     
                     // Store statement if it has term only, that ignores 
                     // declaration statements, also check for empty statement
@@ -1451,10 +1452,13 @@ void ScTraverseProc::run()
                     // Parse for-loop initialization part only
                     if (!loopVisited) {
                         if (auto forstmt = dyn_cast<ForStmt>(term)) {
-                            // Parse and store statement string
                             if (auto init = forstmt->getInit()) {
-                                SValue val; chooseExprMethod(init, val);
-                                storeStmtStr(init);
+                                // Parse and store statement string for external
+                                // counter only
+                                if (hasForExtrCntr(term)) {
+                                    SValue val; chooseExprMethod(init, val);
+                                    storeStmtStr(init);
+                                }
                             }
                         }
                     }

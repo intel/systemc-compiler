@@ -444,6 +444,7 @@ clang::QualType getTypeForWidth(const clang::Expr* expr)
 }
 
 // Get width of any integral type including SC data types
+// \return < width, isUnsigned >
 llvm::Optional<std::pair<size_t, bool>> getIntTraits(clang::QualType type, 
                                                      bool checkPointer)
 {

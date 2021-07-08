@@ -41,6 +41,8 @@ public:
         ps = new sc_signal<bool>("ps");
         px = sc_new<sc_uint<5>>();
         
+        SC_METHOD(bool_arithmetic); sensitive << dummy;
+        
         SC_METHOD(test_bool_to_bool); sensitive << a << s << b << *ps;
         SC_METHOD(test_bool_unary); sensitive << dummy;
         SC_METHOD(test_sc_to_bool); sensitive << dummy;
@@ -51,6 +53,41 @@ public:
         SC_METHOD(test_bool1); sensitive << a;
         SC_METHOD(test_bool2); sensitive << dummy;
         SC_METHOD(test_bool4); sensitive << dummy;
+    }
+    
+    #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
+    
+    void bool_arithmetic() 
+    {
+        int res;
+        
+        bool b = true;
+        unsigned u = 42;
+        int i = -42;
+        sc_uint<16> ux = 43;
+        sc_int<16>  ix = -43;
+        sc_biguint<16> ub = 44;
+        sc_bigint<16>  ib = -44;
+        
+        res = b + b*b;
+        CHECK(res == 2);
+        res = b + 1;
+        CHECK(res == 2);
+        res = u + b;
+        CHECK(res == 43);
+        res = i + b;
+        CHECK(res == -41);
+        res = ux + b;
+        CHECK(res == 44);
+        res = ix + b;
+        CHECK(res == -42);
+        res = ub.to_uint64() + b;
+        CHECK(res == 45);
+        res = ib.to_int64() + b;
+        CHECK(res == -43);
+
+        res = -b + i;
+        CHECK(res == -43);
     }
 
     // Try to find not required (extra) conversion

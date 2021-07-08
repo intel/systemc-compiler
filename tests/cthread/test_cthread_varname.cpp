@@ -9,7 +9,7 @@
 
 using namespace sc_core;
 
-// Variables name resolving
+// Variables name uniqueness in CTHREAD
 class A : public sc_module {
 public:
 
@@ -50,13 +50,19 @@ public:
 
         SC_CTHREAD(double_reg2, clk.pos());
         async_reset_signal_is(rst, true);
+        
+        SC_CTHREAD(suffix_name, clk.pos());
+        async_reset_signal_is(rst, true);
+        
+        SC_CTHREAD(suffix_name_next, clk.pos());
+        async_reset_signal_is(rst, true);
     }
     
     // Method local variable name
     void local_varname()
     {
-        int m = 1;  // Register
-        int k = 2;  // Combinational
+        int m = 1;  
+        int k = 2;  
         int a;
     }
     
@@ -94,7 +100,7 @@ public:
             
             if (a) {
                 // Register
-                sc_uint<3> acheck_hiwait_delay = 1;
+                sc_uint<3> acheck_hiwait_delay = 2;
                 wait(); 
                 m2 = acheck_hiwait_delay; 
             }
@@ -115,7 +121,7 @@ public:
             
             if (a) {
                 // Register
-                sc_uint<3> bcheck_hiwait_delay = 1;
+                sc_uint<3> bcheck_hiwait_delay = 2;
                 wait();
                 m3 = bcheck_hiwait_delay; 
             }
@@ -135,7 +141,7 @@ public:
             
             if (a) {
                 // Register
-                sc_uint<3> ccheck_hiwait_delay = 1;
+                sc_uint<3> ccheck_hiwait_delay = 2;
                 m4 = ccheck_hiwait_delay; 
             }
             
@@ -143,7 +149,7 @@ public:
         }
     }
 
-    //------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
     
     // Two processes with local variables with same name becomes registers
     sc_signal<bool> s1;
@@ -190,6 +196,47 @@ public:
             s2 = varC;
         }
     }
+    
+//-----------------------------------------------------------------------------
+    // Name conflict with suffixed name
+
+    sc_signal<int> s3;
+    void suffix_name() 
+    {
+        sc_uint<3> varA0;
+        sc_uint<4> varA1 = 42;
+        sc_uint<5> varA00 = varA1;
+        wait();
+        
+        while (true) {
+            auto varB0 = varA00;
+            int varA01 = 42;
+            int varA02 = varA01-1;
+            wait();                         // 2
+            
+            bool varC0 = varA0 == varB0;
+            s3 = varC0 ? 1 : int(varA0 + varB0 + varA02);
+            varA0 = varB0;
+            wait();                         // 3
+        }
+    }
+    
+    sc_signal<int> s4;
+    void suffix_name_next() 
+    {
+        sc_uint<3> varA00_next = 42;
+        sc_uint<4> varA00 = 42;
+        sc_uint<5> varB0_next = varA00;
+        wait();
+        
+        while (true) {
+            s4 = varA00_next;
+            varA00_next = varB0_next; 
+            varB0_next++;
+            wait();                         
+        }
+    }
+    
     
 };
 
