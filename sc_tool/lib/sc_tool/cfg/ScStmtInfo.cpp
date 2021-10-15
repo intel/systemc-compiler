@@ -13,6 +13,7 @@
 
 using namespace sc;
 using namespace clang;
+using std::cout; using std::endl; using std::hex; using std::dec;
 
 // Add all sub-statements for @stmt with super-statement @superstmt
 void SubStmtVisitor::addSubStmts(clang::Stmt* stmt, clang::Stmt* superstmt)
@@ -45,6 +46,14 @@ clang::Stmt* SubStmtVisitor::getSuperStmt(clang::Stmt* stmt) const
 bool SubStmtVisitor::hasCallExpr() const
 {
     return callExpr;
+}
+
+void SubStmtVisitor::print() const
+{
+    cout << "SubStmtVisitor : " << endl;
+    for (auto& entry : subStmts) {
+        cout << " " << hex << entry.first << " " << entry.second << dec << endl;
+    }
 }
 
 //-----------------------------------------------------------------------------

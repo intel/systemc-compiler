@@ -25,4 +25,4 @@ target_include_directories(counter PUBLIC $ENV{ICSC_HOME}/examples/counter)
 # and @example that runs general SystemC simulation
 # ELAB_TOP parameter accepts hierarchical name of DUT  
 # (that is SystemC name, returned by sc_object::name() method)
-svc_target(counter SPLIT_CTHREAD KEEP_CHAN_ARRAYS ELAB_TOP tb.dut_inst)
+svc_target(counter ELAB_TOP tb.dut_inst)

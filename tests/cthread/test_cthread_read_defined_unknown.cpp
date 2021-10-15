@@ -57,9 +57,9 @@ public:
         
         SC_METHOD(read_pointer); sensitive << a;
         
-        SC_METHOD(read_pointer_array_unknown1); sensitive << a;
-        SC_METHOD(read_pointer_array_unknown2); sensitive << a;
-        SC_METHOD(read_pointer_array_unknown3); sensitive << a;
+        SC_METHOD(read_pointer_array_unknown1); sensitive << a << *ppca[0][0] << *pca[0];
+        SC_METHOD(read_pointer_array_unknown2); sensitive << a << *ppca[0][0] << *pca[0];
+        SC_METHOD(read_pointer_array_unknown3); sensitive << a << *ppca[0][0] << *pca[0];
          
         SC_METHOD(define_pointer_array_unknown1); sensitive << a;
 

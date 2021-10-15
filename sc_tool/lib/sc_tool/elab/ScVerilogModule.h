@@ -67,7 +67,7 @@ template<> struct hash<sc_elab::RecordMemberNameKey>
         }
         return res;
     }
-};
+};       
 }
 
 namespace sc_elab 
@@ -343,6 +343,9 @@ public:
     /// Print module to output stream
     void serializeToStream(llvm::raw_ostream &os) const;
     
+    /// ...
+    void createTopWrapper(llvm::raw_ostream &os) const;
+    
     /// Generate port map file
     void createPortMap(llvm::raw_ostream &os) const;
 
@@ -358,75 +361,75 @@ public:
 
     void addScPort(PortView port) { scPorts.push_back(port); }
 
-    void addModuleInstance(ModuleMIFView modObj, llvm::StringRef name);
+    void addModuleInstance(ModuleMIFView modObj, const std::string& name);
 
     // signal or port
     VerilogVar *createChannelVariable( ObjectView systemcObject,
-                                    llvm::StringRef suggestedName,
+                                    const std::string& suggestedName,
                                     size_t bitwidth,
                                     IndexVec arrayDims,
                                     bool isSigned,
                                     APSIntVec initVals = {},
-                                    llvm::StringRef comment = "");
+                                    const std::string& comment = "");
 
     // not sc_object, plain C++
     VerilogVar *createDataVariable( ObjectView cppObject,
-                                    llvm::StringRef suggestedName,
+                                    const std::string& suggestedName,
                                     size_t bitwidth,
                                     IndexVec arrayDims,
                                     bool isSigned,
                                     APSIntVec initVals = {},
-                                    llvm::StringRef comment = "");
+                                    const std::string& comment = "");
 
     /// The same as previous, but for member variable of MIF array element,
     /// provides the same name for all array instances
     VerilogVar* createDataVariableMIFArray(ObjectView cppObject,
                                            ObjectView parentObject,
-                                           llvm::StringRef suggestedName,
+                                           const std::string& suggestedName,
                                            size_t bitwidth,
                                            IndexVec arrayDims,
                                            bool isSigned,
                                            APSIntVec initVals = {},
-                                           llvm::StringRef comment = "");
+                                           const std::string& comment = "");
     
     // Create process local variable or member variable used in the process
     VerilogVar* createProcessLocalVariable(ProcessView procView,
-                                           llvm::StringRef suggestedName,
+                                           const std::string& suggestedName,
                                            size_t bitwidth,
                                            IndexVec arrayDims,
                                            bool isSigned,
                                            APSIntVec initVals = {},
-                                           llvm::StringRef comment = "");
+                                           const std::string& comment = "");
     
     // Create process local variable or member variable used in the process
     // Do not register variable in @procVarMap to avoid its declaration,
     // required for non zero elements of MIF array
     VerilogVar* createProcessLocalVariableMIFNonZero(ProcessView procView,
-                                           llvm::StringRef suggestedName,
+                                           const std::string& suggestedName,
                                            size_t bitwidth,
                                            IndexVec arrayDims,
                                            bool isSigned,
                                            APSIntVec initVals = {},
-                                           llvm::StringRef comment = "");
+                                           const std::string& comment = "");
 
     // Create auxiliary Verilog variable for port binding purposes, it has no mapping
     // to elaboration object (not exists in SystemC source)
-    VerilogVar* createAuxilarySignal(llvm::StringRef suggestedName,
+    VerilogVar* createAuxilarySignal(const std::string& suggestedName,
                                      size_t bitwidth,
                                      IndexVec arrayDims,
                                      bool isSigned,
                                      APSIntVec initVals = {},
-                                     llvm::StringRef comment = "");
+                                     const std::string& comment = "");
 
     // Create auxiliary Verilog port for port binding purposes, it has no mapping
     // to elaboration object (not exists in SystemC source)
     VerilogVar* createAuxilaryPort(PortDirection dir,
-                                   llvm::StringRef suggestedName,
+                                   const std::string& suggestedName,
                                    size_t bitwidth,
                                    IndexVec arrayDims,
                                    bool isSigned,
                                    APSIntVec initVals = {},
-                                   llvm::StringRef comment = "");
+                                   const std::string& comment = "");
     
     /// Create auxiliary Verilog port for port binding purposes and remove 
     /// signal variable from this Verilog module
@@ -434,7 +437,7 @@ public:
     VerilogVar* createAuxilaryPortForSignal(PortDirection dir,
                                    VerilogVar* verVar,
                                    APSIntVec initVals = {},
-                                   llvm::StringRef comment = "");
+                                   const std::string& comment = "");
 
 
     /// Create @var = @next_var assignment pair for variable
@@ -700,6 +703,16 @@ template<> struct hash<sc_elab::VerilogModule>
     {
         // unique name is guaranteed
         return std::hash<std::string>{}(obj.getName());
+    }
+};
+
+template<> struct hash<sc_elab::VerilogPort>
+{
+    typedef sc_elab::VerilogPort argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(argument_type const &obj) const noexcept
+    {
+        return std::hash<void*>{}((void*)obj.getVariable());
     }
 };
 

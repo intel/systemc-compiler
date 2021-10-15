@@ -66,7 +66,7 @@ public:
         p4 = &arr[0];
         
         SC_METHOD(array_of_pointers); sensitive << a;
-        SC_METHOD(array_of_channels); sensitive << a;
+        SC_METHOD(array_of_channels); sensitive << a << *pca[0] << ca[0] << *ppca[0][0];
 
         SC_METHOD(if1); sensitive << a;
 

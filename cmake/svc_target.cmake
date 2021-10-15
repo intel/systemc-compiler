@@ -11,11 +11,11 @@ function(svc_target exe_target)
     # Flags:
     # REPLACE_CONST_VALUE  -- replace constant with its number value if possible
     # NO_SVA_GENERATE      -- disable SVA generating for SCT assertions
-    # PORT_MAP_GENERATE    -- generate port map file for SV/SC mixed simulation
+    # PORT_MAP_GENERATE    -- generate port map file and top module wrapper
     # NO_REMOVE_EXTRA_CODE -- disable removing unused variable and extra code
     # INIT_LOCAL_VARS      -- initialize local variables at declaration with zero
-    # INIT_RESET_LOCAL_VARS -- initialize CTHREAD reset section local variables 
-    #                          at declaration with zero
+    # INIT_RESET_LOCAL_VARS-- initialize CTHREAD reset section local variables 
+    #                         at declaration with zero
     # ELAB_ONLY  -- run elaboration without process generation
     # WILL_FAIL  -- test will fail on non-synthesizable code
     set(boolOptions REPLACE_CONST_VALUE 

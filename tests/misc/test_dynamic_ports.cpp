@@ -24,7 +24,7 @@ public:
     
     void proc1() {
         *s1 = p1->read() ? 1 : 2;
-        *p2 = s1->read();
+        *p2 = 1;
     }     
     
     void allocatePort() {

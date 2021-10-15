@@ -36,9 +36,9 @@ public:
         SC_METHOD(func_in_if_const3); sensitive << dummy;
         SC_METHOD(func_in_if_const4); sensitive << dummy;
 
-        SC_METHOD(chan_array_in_if1); sensitive << dummy;
-        SC_METHOD(chan_array_in_if2); sensitive << dummy;
-        
+        SC_METHOD(chan_array_in_if1); sensitive << dummy << ms_pwrin_nenable[0];
+        SC_METHOD(chan_array_in_if2); sensitive << dummy << block_access[0]
+                                      << ms_pwrin_nenable[0] << sleep_idle_cntr[0];        
         SC_METHOD(mem_array_in_if); sensitive << s;
         SC_METHOD(loc_array_in_if); sensitive << s;
         SC_METHOD(decl_array_in_if1); sensitive << s;

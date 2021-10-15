@@ -33,7 +33,7 @@ public:
         }
         
         SC_METHOD(complex_if_level); sensitive << a;
-        SC_METHOD(mstrResponseMuxProc); sensitive << a;
+        SC_METHOD(mstrResponseMuxProc); sensitive << a << *arr3[0] << *arr1[0];
 
         SC_METHOD(NoReturnProc); sensitive << a;
         SC_METHOD(NoReturnProc2); sensitive << a;
@@ -42,7 +42,8 @@ public:
 
         SC_METHOD(intrControlProc); sensitive << a;
         SC_METHOD(chooseRequestProc); sensitive << a;
-        SC_METHOD(ackProc2R2Wcache4); sensitive << a << rr_first_indx;
+        SC_METHOD(ackProc2R2Wcache4); sensitive << a << rr_first_indx
+                            << port_req[0] << port_oper[0] << port_bindx[0];
          
         SC_METHOD(simple_if1); sensitive << a;
         SC_METHOD(simple_if2); sensitive << a;

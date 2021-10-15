@@ -28,7 +28,7 @@ cl::opt<bool> noSvaGenerate (
 
 cl::opt<bool> portMapGenerate (
     "portmap_generate",
-    cl::desc("Generate port map file used for SV/SC mixed language simulation"),
+    cl::desc("Generate port map file and top module wrapper"),
     cl::cat(ScToolCategory)
     );
 

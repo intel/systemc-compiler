@@ -21,6 +21,9 @@ struct A : public sc_module
     
     explicit A(const sc_module_name& name) : sc_module(name) 
     {
+        SC_METHOD(constLiter);
+        sensitive << s;
+        
         SC_METHOD(declMeth);
         sensitive << s;
         
@@ -46,6 +49,44 @@ struct A : public sc_module
         sensitive << s;
     }
    
+    void constLiter() 
+    {
+        int i0 = 0x0;
+        i0 = 0;
+        i0 = -0;
+        int i1 = -1;
+        i1 = -0x1;
+        i1 = -0b1;
+        i1 = 1;
+        i1 = 0x1;
+        i1 = 0b1;
+        
+        const int i2 = 0xFF;
+        const int i3 = 0x100;       
+        const int i4 = 0x101;
+        const int i5 = -0xFF;       // -9'shFF
+        const int i6 = -0x100;      // -10'sh100
+        const int i7 = -0x101;      // -10'sh101
+        
+        sc_bigint<65> b0 = 0x0;
+        b0 = 0;
+        b0 = -0;
+        b0 =  0x0FFFFFFFFFFFFFFFEULL;
+        b0 =  0x0FFFFFFFFFFFFFFFFULL;
+        //b0 =  0x10000000000000000ULL; -- gcc error
+        b0 = -0x07FFFFFFFFFFFFFFEULL;
+        b0 = -0x07FFFFFFFFFFFFFFFULL;
+        //b0 = -0x0FFFFFFFFFFFFFFFFULL; -- ICSCS reports error
+        //cout << "-0x0FFFFFFFFFFFFFFFF " << b0 << endl;
+        //b0 = -0x10000000000000000ULL;  -- gcc error
+        
+        uint64_t u = 10000000000;
+        u = 0x100000000;
+        u = 0x200000000;
+                
+        const long l1 = -(1UL << 63);
+        const int i8  = -(42);
+    }
     
     // Simple declaration
     void declMeth() 

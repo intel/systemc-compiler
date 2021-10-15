@@ -38,8 +38,9 @@ public:
             vecsig2d[i].init(2);
         }
         
-        SC_METHOD(sc_shift_type_extension_array_binary); sensitive << s;
-
+        SC_METHOD(sc_shift_type_extension_array_binary); 
+        sensitive << s << vecsig2d[0][0] << arrsig2d[0][0] << vecsig[0]
+                  << *arrsigp[0] << arrsig[0];
         SC_METHOD(sc_shift_type_extension_binary); sensitive << s;
         SC_METHOD(sc_shift_type_extension_big_binary); sensitive << s;
         SC_METHOD(sc_shift_type_extension_unary); sensitive << s;
@@ -60,7 +61,6 @@ public:
         SC_METHOD(cpp_shift_type_extension); sensitive << s;
         SC_METHOD(chan_shift_type_extension); sensitive << ch0 << ch1 << ch2;
         SC_METHOD(div_type_extension); sensitive << s;
-        
         SC_METHOD(compound_type_extension); sensitive << s;
     }
     
@@ -211,7 +211,7 @@ public:
         sc_uint<8> a, b, c, d = 1;
         sc_uint<3> e;
         const unsigned K = 42;
-        const unsigned long long M = 1ULL << 50;
+        const unsigned long long M = 1ULL << 50;        // Warning reported
         sc_biguint<66> x, y, z, u = 1;
 
         // Left shift in LHS -- OK
@@ -239,8 +239,8 @@ public:
         sc_biguint<66> x;
         
         a = (c1.read() + c2.read()) >> 8;
-        a = (c1.read() * c2.read()) >> 8;
-        x = (c3.read() * c4.read() - c2.read()) >> (c1.read() + c2.read());
+        a = (c1.read() * c2.read()) >> 8;   // Warning reported
+        x = (c3.read() * c4.read() - c2.read()) >> (c1.read() + c2.read()); // Warning reported
     }
     
     // References and pointers
@@ -299,11 +299,19 @@ public:
     void sc_shift_type_extension_concat()
     {
         bool cond;
+        int i;
+        unsigned u;
         sc_uint<8> a, b;
         sc_uint<16> c;
         
-        a = ((b, c) * 3) >> 8;
-        a = ((b, sc_uint<6>(42)) * c) >> 8;   
+        a = (b, c) + 3;         // signed, OK
+        a = (b, c) * 3;         // signed, OK
+        a = (b, c) * 3U;
+        a = (b, c) * i;         // signed, OK
+        a = (b, c) * u;
+        a = (b, c) * a;
+        a = ((b, c) * 3) >> 8;  // signed, OK
+        a = ((b, sc_uint<6>(42)) * c) >> 8;     
     }
 
     void sc_shift_type_extension_comma()

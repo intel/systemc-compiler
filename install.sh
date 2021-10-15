@@ -21,14 +21,13 @@ tar -xvf v3.13.0.tar.gz
 cd $ICSC_HOME
 
 # Download, unpack, build, install Clang and LLVM
-##wget https://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-linux-sles12.3.tar.xz --no-check-certificate
-wget https://releases.llvm.org/7.0.0/cfe-7.0.0.src.tar.xz --no-check-certificate
-wget https://releases.llvm.org/7.0.0/llvm-7.0.0.src.tar.xz --no-check-certificate
-tar -xvf cfe-7.0.0.src.tar.xz
-tar -xvf llvm-7.0.0.src.tar.xz
-mv cfe-7.0.0.src llvm-7.0.0.src/tools/clang
+wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/clang-12.0.1.src.tar.xz --no-check-certificate
+wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/llvm-12.0.1.src.tar.xz --no-check-certificate
+tar -xvf clang-12.0.1.src.tar.xz
+tar -xvf llvm-12.0.1.src.tar.xz
+mv clang-12.0.1.src llvm-12.0.1.src/tools/clang
 (
-    cd llvm-7.0.0.src
+    cd llvm-12.0.1.src
     mkdir build -p && cd build
     cmake ../ -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME
     make -j12

@@ -623,6 +623,9 @@ void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
     else if (auto expr = dyn_cast<IntegerLiteral>(stmt)) {
         parseExpr(expr, val);
     }
+    else if (auto expr = dyn_cast<ConstantExpr>(stmt)) {
+        parseExpr(expr, val);
+    }
     else if (auto expr = dyn_cast<CXXBoolLiteralExpr>(stmt)) {
         parseExpr(expr, val);
     }
@@ -758,6 +761,15 @@ void ScParseExpr::parseExpr(clang::IntegerLiteral* expr, SValue& val)
                  isUnsignedIntegerType()), getLiteralRadix(expr));
 }
 
+void ScParseExpr::parseExpr(clang::ConstantExpr* expr, SValue& val)
+{
+    if (expr->getResultStorageKind() == ConstantExpr::ResultStorageKind::RSK_Int64) {
+        val = SValue(expr->getResultAsAPSInt(), 10);
+    } else {
+        val = evalSubExpr(expr->getSubExpr());
+    }
+}
+
 void ScParseExpr::parseExpr(clang::CXXBoolLiteralExpr* expr, SValue& val) 
 {
     val = SValue(SValue::boolToAPSInt(expr->getValue()), 10);
@@ -793,6 +805,8 @@ void ScParseExpr::parseExpr(clang::DeclRefExpr* expr, SValue& val)
                     val = SValue(decl, modval);
                 }
             } else {
+                // This happens for function pointer passed as parameter
+                decl->dumpColor();
                 SCT_TOOL_ASSERT (false, "Record has not variable declaration");
             }
 

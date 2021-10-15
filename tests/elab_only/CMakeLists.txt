@@ -5,6 +5,9 @@
 # 
 # *****************************************************************************
 
+#add_subdirectory(test_apb_dma)
+#add_subdirectory(multi_source)
+
 add_executable(elab_simple_test simple_test.cpp)
 svc_target(elab_simple_test ELAB_ONLY)
 
@@ -127,6 +130,9 @@ svc_target(elab_local_data ELAB_ONLY )
 
 add_executable(elab_unique_ptr test_unique_ptr.cpp)
 svc_target(elab_unique_ptr ELAB_ONLY )
+
+#add_executable(elab_dvcon_demo dvcon_demo.cpp)
+#svc_target(elab_dvcon_demo ELAB_ONLY )
 
 add_executable(elab_no_top test_no_top.cpp)
 svc_target(elab_no_top ELAB_ONLY WILL_FAIL)

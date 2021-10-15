@@ -107,7 +107,7 @@ public:
         
         SC_METHOD(func_double_used); sensitive << dummy;
         
-        SC_METHOD(func_chan_pointer); sensitive << *sp;
+        SC_METHOD(func_chan_pointer); sensitive << *sp << *p << *ip;
         SC_METHOD(func_var_pointer); sensitive << dummy;
         
         SC_METHOD(special_funcs); sensitive << dummy;

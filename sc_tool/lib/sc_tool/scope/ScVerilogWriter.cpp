@@ -93,7 +93,7 @@ string ScVerilogWriter::getVarDeclVerilog(const QualType& type,
         string s;
         
         if (auto typeInfo = getIntTraits(ctype)) {
-            size_t width = typeInfo.getValue().first;
+            unsigned width = typeInfo.getValue().first;
             bool isUnsigned = typeInfo.getValue().second;
             
             // SV integer and unsigned are exactly 32bit
@@ -129,7 +129,7 @@ string ScVerilogWriter::getVarDeclVerilog(const QualType& type,
             
         } else 
         if (init && isScSigned(ctype)) {
-            size_t width = getExprWidth(init);
+            unsigned width = getExprWidth(init);
             
             if (width > 1) {
                 s = "logic signed [" + to_string(width-1) + ":0]";
@@ -148,7 +148,7 @@ string ScVerilogWriter::getVarDeclVerilog(const QualType& type,
             }
         } else 
         if (init && isScUnsigned(ctype)) {
-            size_t width = getExprWidth(init);
+            unsigned width = getExprWidth(init);
             
             if (width > 1) {
                 s = "logic [" + to_string(width-1) + ":0]";
@@ -415,7 +415,9 @@ pair<string, string> ScVerilogWriter::getChannelName(const SValue& cval)
                          i->second.nextName.getValue() :
                          i->second.currName.getValue();
 
-        string wrName = ((i->second.isRegister() && !isClockThreadReset) || 
+        // For @sct_comb_signal assign to current value
+        string wrName = (((i->second.isRegister() || i->second.isClearSig()) && 
+                          !isClockThreadReset) || 
                          (i->second.isCombSig() && isClockThreadReset)) ?
                          i->second.nextName.getValue() : 
                          i->second.currName.getValue();
@@ -494,7 +496,7 @@ bool ScVerilogWriter::isRegister(const SValue& val)
     return false;
 } 
 
-// Check @sc_comb_sig without CLEAR flag 
+// Check @sct_comb_sig wit CLEAR flag false
 bool ScVerilogWriter::isCombSig(const SValue& val) 
 {
     if (val.isUnknown()) {
@@ -508,7 +510,7 @@ bool ScVerilogWriter::isCombSig(const SValue& val)
     return false;
 }
 
-// Check @sc_comb_sig with CLEAR flag 
+// Check @sct_comb_sig with CLEAR flag true
 bool ScVerilogWriter::isCombSigClear(const SValue& val) 
 {
     if (val.isUnknown()) {
@@ -518,6 +520,20 @@ bool ScVerilogWriter::isCombSigClear(const SValue& val)
     if (!isCombProcess) {
         auto i = varTraits.find(val);
         return ((i != varTraits.end()) && i->second.isCombSigClear());
+    }
+    return false;
+}
+
+// Check @sct_clear_sig 
+bool ScVerilogWriter::isClearSig(const SValue& val) 
+{
+    if (val.isUnknown()) {
+        return false;
+    }
+    
+    if (!isCombProcess) {
+        auto i = varTraits.find(val);
+        return ((i != varTraits.end()) && i->second.isClearSig());
     }
     return false;
 }
@@ -631,18 +647,43 @@ uint64_t ScVerilogWriter::getLiteralAbs(const Stmt* stmt)
 }
 
 // Make literal term string in sized form if required
-std::string ScVerilogWriter::makeLiteralStr(const std::string& literStr,
-                                            char radix, size_t minCastWidth, 
-                                            size_t lastCastWidth,
+std::string ScVerilogWriter::makeLiteralStr(const Stmt* stmt,
+                                            const std::string& literStr,
+                                            char radix, unsigned minCastWidth, 
+                                            unsigned lastCastWidth,
                                             CastSign castSign,
                                             bool addNegBrackets)
 {
     APSInt val(literStr);
+    string s = makeLiteralStr(stmt, val, radix, minCastWidth, lastCastWidth, 
+                              castSign, addNegBrackets);
+    
+    return s;
+}
 
+std::string ScVerilogWriter::makeLiteralStr(const Stmt* stmt, APSInt val,
+                                            char radix, unsigned minCastWidth, 
+                                            unsigned lastCastWidth,
+                                            CastSign castSign, 
+                                            bool addNegBrackets)
+{
     bool isZero = val.isNullValue();
     bool isOne = val == 1;
     bool isNegative = val < 0;
-    unsigned bitNeeded = APSInt::getBitsNeeded(literStr, 10);
+    unsigned bitNeeded = getBitsNeeded(val);
+//    cout << "literStr" << literStr << " getBitsNeeded " << bitNeeded 
+//         << " val.abs().getActiveBits() " << val.abs().getActiveBits() 
+//         << " val.getActiveBits() " << val.getActiveBits() 
+//         << " APSInt::getBitsNeeded " << APSInt::getBitsNeeded(literStr, 10) << endl;
+    
+    if (bitNeeded > 64) {
+        if (stmt) {
+            ScDiag::reportScDiag(stmt->getBeginLoc(),
+                                 ScDiag::CPP_BIG_INTEGER_LITER) << bitNeeded;
+        } else {
+            ScDiag::reportScDiag(ScDiag::CPP_BIG_INTEGER_LITER) << bitNeeded;
+        }
+    }
     
     // It is possible to have no cast for non-negative literal in integer range
     bool valueCast = minCastWidth;
@@ -662,7 +703,7 @@ std::string ScVerilogWriter::makeLiteralStr(const std::string& literStr,
     bool isUnsignCast = !isZero && (
                         castSign == CastSign::UCAST && valueCast && !isNegative);
     bool isSignCast = !isZero && (
-                      castSign == CastSign::SCAST && valueCast || isNegative);
+                      (castSign == CastSign::SCAST && valueCast) || isNegative);
     bool isCast = minCastWidth || lastCastWidth || isSignCast || isUnsignCast;
     
     string baseStr;
@@ -686,7 +727,7 @@ std::string ScVerilogWriter::makeLiteralStr(const std::string& literStr,
         // +1 bit for sign for positive casted to signed
         minCastWidth = bitNeeded + (isSignCast && !isNegative ? 1 : 0);
     }
-    
+
     string absVal = isNegative ? APSInt(val.abs()).toString(radix) : 
                                  val.toString(radix);
     // Add size for >32bit literals as some tools required that
@@ -702,14 +743,14 @@ std::string ScVerilogWriter::makeLiteralStr(const std::string& literStr,
         s = '(' + s + ')';
     }
     //cout << "makeLiteralStr " << literStr << " => "  << s << endl;
-    
+
     return s;
 }
 
 // Make non-literal term string with sign cast if required
 std::string ScVerilogWriter::makeTermStr(const std::string& termStr,
-                                         size_t minCastWidth, 
-                                         size_t lastCastWidth,
+                                         unsigned minCastWidth, 
+                                         unsigned lastCastWidth,
                                          CastSign castSign)
 {
     string s = termStr;
@@ -778,11 +819,12 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
         // Apply lastCastWidth only for explicit cast or concatenation
         // For concatenation minimal width taken as minCastWidth if exists, 
         // lastCastWidth if exists (required for replaced constants) or exprWidth
-        size_t lastCastWidth = info.explCast ? info.lastCastWidth  : 0; 
-        size_t minCastWidth = (info.minCastWidth || !doConcat) ? info.minCastWidth :
-                              info.lastCastWidth ? info.lastCastWidth : info.exprWidth; 
+        unsigned lastCastWidth = info.explCast ? info.lastCastWidth  : 0; 
+        unsigned minCastWidth = (info.minCastWidth || !doConcat) ? 
+                    info.minCastWidth :
+                    info.lastCastWidth ? info.lastCastWidth : info.exprWidth; 
         
-        rdName = makeLiteralStr(rdName, info.literRadix, minCastWidth, 
+        rdName = makeLiteralStr(stmt, rdName, info.literRadix, minCastWidth, 
                                 lastCastWidth, info.castSign, addNegBrackets);
         wrName = rdName;
 
@@ -823,14 +865,14 @@ void ScVerilogWriter::putString(const Stmt* stmt,
 // Put/replace string into @terms with given flags
 void ScVerilogWriter::putString(const Stmt* stmt, 
                                 const pair<string, string>& s, 
-                                size_t exprWidth, bool isChannel)
+                                unsigned exprWidth, bool isChannel)
 {
     putString(stmt, TermInfo(s, exprWidth, isChannel));
 }
 
 // Put/replace the same string into @terms with empty flags and no range
 void ScVerilogWriter::putString(const Stmt* stmt, const string& s,
-                                size_t exprWidth, bool isChannel)
+                                unsigned exprWidth, bool isChannel)
 {
     putString(stmt, TermInfo(pair<string, string>(s, s), exprWidth, isChannel));
 }
@@ -872,15 +914,14 @@ void ScVerilogWriter::clearSimpleTerm(const Stmt* stmt)
     }
 }
 
-void ScVerilogWriter::setExprSign(const Stmt* stmt, bool sign, bool liter) 
+void ScVerilogWriter::setExprSign(const Stmt* stmt, bool sign) 
 {
-    //cout << "setExprSign #" << hex << stmt << dec << " sign " << sign << endl;
+//    cout << "setExprSign #" << hex << stmt << dec << " sign " << sign << endl;
 
     auto i = terms.find(stmt);
     if (i != terms.end()) {
         auto& info = i->second;
-        info.exprSign = liter ? ExprSign::LEXPR :
-                        sign ? ExprSign::SEXPR : ExprSign::UEXPR;
+        info.exprSign = sign ? ExprSign::SEXPR : ExprSign::UEXPR;
     }
 }
 
@@ -915,7 +956,7 @@ bool ScVerilogWriter::isIncrWidth(const Stmt* stmt) const
 // type information at the end
 // \param doConcat -- get expression width for concatenation
 // \return @exprWidth for given statement or 0 if width unknown
-size_t ScVerilogWriter::getExprWidth(const Stmt* stmt, bool doConcat) {
+unsigned ScVerilogWriter::getExprWidth(const Stmt* stmt, bool doConcat) {
     
     auto i = terms.find(stmt);
     if (i == terms.end()) {
@@ -924,14 +965,14 @@ size_t ScVerilogWriter::getExprWidth(const Stmt* stmt, bool doConcat) {
     auto& info = i->second;
     
     // Get last cast width if exists, required for concatenation
-    size_t width = ((info.explCast || doConcat) && info.lastCastWidth) ? 
-                    info.lastCastWidth : info.exprWidth;
+    unsigned width = ((info.explCast || doConcat) && info.lastCastWidth) ? 
+                     info.lastCastWidth : info.exprWidth;
     return width;
 }
 
 // Get minimal expression data width as minimal of @minCast and @exprWidth
 // \return @exprWidth for given statement or 0 if width unknown
-size_t ScVerilogWriter::getMinExprWidth(const Stmt* stmt) {
+unsigned ScVerilogWriter::getMinExprWidth(const Stmt* stmt) {
     
     auto i = terms.find(stmt);
     if (i == terms.end()) {
@@ -940,7 +981,7 @@ size_t ScVerilogWriter::getMinExprWidth(const Stmt* stmt) {
     auto& info = i->second;
     
     // Get minimal width to avoid part/bit selection outside of variable width
-    size_t width = info.minCastWidth == 0 ? info.exprWidth :
+    unsigned width = info.minCastWidth == 0 ? info.exprWidth :
                         (info.exprWidth == 0 ? info.minCastWidth : 
                          min(info.minCastWidth, info.exprWidth));
     return width;
@@ -949,9 +990,9 @@ size_t ScVerilogWriter::getMinExprWidth(const Stmt* stmt) {
 // Get expression data width from @lastCast or @exprWidth after that or 
 // type information at the end
 // \return expression/type width or 64 with error reporting
-size_t ScVerilogWriter::getExprTypeWidth(const Expr* expr, size_t defWidth) 
+unsigned ScVerilogWriter::getExprTypeWidth(const Expr* expr, unsigned defWidth) 
 {
-    size_t width = getExprWidth(expr);
+    unsigned width = getExprWidth(expr);
 
     if (width == 0) {
         if (auto typeInfo = getIntTraits(getTypeForWidth(expr))) {
@@ -968,9 +1009,9 @@ size_t ScVerilogWriter::getExprTypeWidth(const Expr* expr, size_t defWidth)
 
 // Get minimal expression data width as minimal of @minCast and @exprWidth
 // \return expression/type width or 64 with error reporting
-size_t ScVerilogWriter::getMinExprTypeWidth(const Expr* expr, size_t defWidth) 
+unsigned ScVerilogWriter::getMinExprTypeWidth(const Expr* expr, unsigned defWidth) 
 {
-    size_t width = getMinExprWidth(expr);
+    unsigned width = getMinExprWidth(expr);
 
     if (width == 0) {
         if (auto typeInfo = getIntTraits(getTypeForWidth(expr))) {
@@ -1002,9 +1043,10 @@ std::string ScVerilogWriter::getRecordIndxs(const vector<SValue>& recarrs)
 // Put assignment string, record field supported
 void ScVerilogWriter::putAssignBase(const Stmt* stmt, const SValue& lval, 
                                    string lhsName, string rhsName, 
-                                   size_t width, bool isChannel) 
+                                   unsigned width) 
 {
-    bool isReg = isRegister(lval) || isCombSig(lval) || isCombSigClear(lval);
+    bool isReg = isRegister(lval) || isCombSig(lval) || isCombSigClear(lval) || 
+                 isClearSig(lval);
     bool isRecord = isUserDefinedClass(lval.getType(), true);
     // Do not use non-blocking assignment for channel in METHOD
     bool nbAssign = isClockThreadReset && isReg;
@@ -1148,7 +1190,7 @@ void ScVerilogWriter::putTypeCast(const clang::Stmt* srcStmt,
     // Copy in range terms from @srcStmt and store for @stmt
     if (terms.count(srcStmt) != 0) {
 
-        size_t width = 64; 
+        unsigned width = 64; 
         if (auto typeInfo = getIntTraits(type, true)) {
             width = typeInfo.getValue().first;
             
@@ -1178,6 +1220,28 @@ void ScVerilogWriter::putTypeCast(const clang::Stmt* srcStmt,
     }
 }
 
+// Put sign cast for literals and expressions
+void ScVerilogWriter::putSignCast(const clang::Stmt* stmt, CastSign castSign)
+{
+    if (skipTerm || skipSignCast) return;
+
+    if (terms.count(stmt)) {
+        auto& info = terms.at(stmt);
+        // No signed cast for signed expression
+        if (info.exprSign != ExprSign::SEXPR) {
+            // Apply SACAST after explicit cast to get @signed'({1'b0, ...});
+            info.castSign = info.explCast && castSign == CastSign::SCAST ? 
+                            CastSign::SACAST : castSign;
+//            cout << "putSignCast #" << hex << stmt << dec << " castSign " 
+//                 << (int)castSign << endl;
+        }
+    } else {
+        SCT_INTERNAL_FATAL(stmt->getBeginLoc(), 
+                           "putSignCast : No term for statement " +
+                           llvm::to_hexString((size_t)stmt, false));
+    }
+}
+
 // Set cast width for variables/expressions replaced by value,
 // used in concatenation
 void ScVerilogWriter::setReplacedCastWidth(const clang::Stmt* stmt,
@@ -1188,7 +1252,7 @@ void ScVerilogWriter::setReplacedCastWidth(const clang::Stmt* stmt,
     // Copy in range terms from @srcStmt and store for @stmt
     if (terms.count(stmt) != 0) {
 
-        size_t width = 64;
+        unsigned width = 64;
         if (auto typeInfo = getIntTraits(type, true)) {
             width = typeInfo.getValue().first;
             
@@ -1216,7 +1280,7 @@ void ScVerilogWriter::setReplacedCastWidth(const clang::Stmt* stmt,
 // Extend type width for arithmetic operation  argument self-determined in SV,
 // this is type cast to given @width
 void ScVerilogWriter::extendTypeWidth(const clang::Stmt* stmt,
-                                      const size_t width)
+                                      unsigned width)
 {
     if (skipTerm) return;
 
@@ -1246,7 +1310,7 @@ void ScVerilogWriter::putLiteral(const Stmt* stmt, const SValue& val)
 
     if (val.isInteger()) {
         string s = val.getInteger().toString(10);
-        size_t width = APSInt::getBitsNeeded(s, 10);
+        unsigned width = APSInt::getBitsNeeded(s, 10);
         char radix = val.getRadix();
         
 //        cout << "putLiteral stmt #" << hex << stmt << dec << " val " << val 
@@ -1678,7 +1742,7 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
         
         // Type width can be not determinable for example for
         // MIF/record array or vector of vectors
-        size_t width = 0;
+        unsigned width = 0;
         if (auto typeInfo = getIntTraits(val.getType(), true)) {
             width = typeInfo->first;
         }
@@ -1760,7 +1824,7 @@ void ScVerilogWriter::putChannelExpr(const Stmt* stmt, const SValue& cval,
     }
     
     // Get variable width, channel must always have determinable width 
-    size_t width = 0;
+    unsigned width = 0;
     if (auto typeInfo = getIntTraits(cval.getScChannel()->getType())) {
         width = typeInfo->first;
         
@@ -1787,7 +1851,7 @@ bool ScVerilogWriter::putLocalRefValueExpr(const Stmt* stmt, const SValue& val)
         auto names = refValueDecl.at(val);
 
         // Get variable width 
-        size_t width = 0;
+        unsigned width = 0;
         if (auto typeInfo = getIntTraits(val.getType().getNonReferenceType())) {
             width = typeInfo->first;
         }
@@ -1813,7 +1877,7 @@ bool ScVerilogWriter::putLocalPtrValueExpr(const Stmt* stmt, const SValue& val)
         }
 
         // Get variable width 
-        size_t width = 0;
+        unsigned width = 0;
         if (auto typeInfo = getIntTraits(val.getType(), true)) {
             width = typeInfo->first;
         }
@@ -1833,15 +1897,15 @@ void ScVerilogWriter::putAssign(const Stmt* stmt, const SValue& lval,
     //cout << "putAssign for " << hex << (unsigned long)stmt << " lhs " << (unsigned long)lhs  << " rhs " << (unsigned long)rhs << dec << endl;
     if (skipTerm) return;
 
-    if (terms.count(rhs) != 0 ) {
+    if (terms.count(rhs) != 0) {
         if (terms.count(lhs) != 0) {
             auto info = terms.at(lhs);
-            
+                    
             // Get LHS names
             auto names = info.str;
 
             bool isReg = isRegister(lval) || isCombSig(lval) || 
-                         isCombSigClear(lval);
+                         isCombSigClear(lval) || isClearSig(lval);
             bool isRecord = isUserDefinedClass(lval.getType(), true);
             SCT_TOOL_ASSERT (!isRecord, "Unexpected record variable");
             
@@ -1850,20 +1914,20 @@ void ScVerilogWriter::putAssign(const Stmt* stmt, const SValue& lval,
             string lhsName = removeBrackets(secName ? names.second:names.first);
             string rhsName = removeBrackets(getTermAsRValue(rhs).first);
 
-            size_t width = getExprWidth(lhs); 
+            unsigned width = getExprWidth(lhs); 
 
-            putAssignBase(stmt, lval, lhsName, rhsName, width, info.isChannel);
+            putAssignBase(stmt, lval, lhsName, rhsName, width);
             //cout << "+++ " << hex << (unsigned long)stmt << dec << endl;
             
         } else {
             SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                             "putAssign : no term for left part "+ 
-                             llvm::to_hexString((size_t)lhs, false));
+                               "putAssign : no term for left part "+ 
+                               llvm::to_hexString((size_t)lhs, false));
         }
     } else {
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                         "putAssign : no term for right part " +
-                         llvm::to_hexString((size_t)rhs, false));
+                           "putAssign : no term for right part " +
+                           llvm::to_hexString((size_t)rhs, false));
     }
 }
 
@@ -1883,7 +1947,7 @@ void ScVerilogWriter::putAssign(const Stmt* stmt, const SValue& lval,
         auto names = getVarName(lval); 
 
         bool isReg = isRegister(lval) || isCombSig(lval) || 
-                     isCombSigClear(lval);
+                     isCombSigClear(lval) || isClearSig(lval);
         bool isRecord = isUserDefinedClass(lval.getType(), true);
         SCT_TOOL_ASSERT (!isRecord, "Unexpected record variable");
 
@@ -1893,7 +1957,7 @@ void ScVerilogWriter::putAssign(const Stmt* stmt, const SValue& lval,
         string rhsName = removeBrackets(getTermAsRValue(rhs).first);
         
         // Get LHS variable width 
-        size_t width = 0;
+        unsigned width = 0;
         if (auto typeInfo = getIntTraits(lval.getType())) {
             width = typeInfo->first;
         }
@@ -1914,7 +1978,8 @@ void ScVerilogWriter::putRecordAssign(const Stmt* stmt,
                                       const string& lrecSuffix,
                                       const string& rrecSuffix) 
 {
-    bool isReg = isRegister(lvar) || isCombSig(lvar) || isCombSigClear(lvar);
+    bool isReg = isRegister(lvar) || isCombSig(lvar) || isCombSigClear(lvar) ||
+                 isClearSig(lvar); 
     bool nbAssign = isClockThreadReset && isReg;
     bool secName = !isClockThreadReset && isReg && !emptySensitivity;
     SCT_TOOL_ASSERT (lrec.isRecord(), "lrec is not record value");
@@ -1967,7 +2032,7 @@ void ScVerilogWriter::putArrayElemInit(const Stmt* stmt, const SValue& bval,
         bool secName = !isClockThreadReset && isReg;
 
         string s;
-        for (size_t indx : indices) {
+        for (auto indx : indices) {
             s += "[" + to_string(indx) + "]";
         }
         s = (secName ? names.second : names.first) + s +
@@ -2002,7 +2067,7 @@ void ScVerilogWriter::putArrayElemInitZero(const Stmt* stmt, const SValue& bval,
     bool secName = !isClockThreadReset && isReg;
 
     string s;
-    for (size_t indx : indices) {
+    for (auto indx : indices) {
         s += "[" + to_string(indx) + "]";
     }
     s = (secName ? names.second : names.first) + s +
@@ -2087,7 +2152,7 @@ void ScVerilogWriter::putArrayIndexExpr(const Stmt* stmt, const Expr* base,
         
         // Type width can be not determinable for example for
         // MIF/record array or vector of vectors
-        size_t width = 0;
+        unsigned width = 0;
         if (auto typeWidth = getAnyTypeWidth(type, true, true)) {
             width = *typeWidth;
         }
@@ -2131,9 +2196,9 @@ void ScVerilogWriter::putPartSelectExpr(const Stmt* stmt,  const SValue& val,
         }
 
         // Type width after cast
-        size_t castWidth = getExprTypeWidth(base);
+        unsigned castWidth = getExprTypeWidth(base);
         // Internal (minimal) type width, this number of bits can be accessed 
-        size_t intrWidth = getMinExprTypeWidth(base);
+        unsigned intrWidth = getMinExprTypeWidth(base);
 
         // Check incorrect range
         APSInt lval(APInt(64, 0), true);
@@ -2172,8 +2237,8 @@ void ScVerilogWriter::putPartSelectExpr(const Stmt* stmt,  const SValue& val,
         string rdName = names.first + range;
         string wrName = names.second + range;
         
-        size_t width = useDelta ? getLiteralAbs(lindx) : 
-                                  getLiteralAbs(hindx)-getLiteralAbs(lindx)+1;
+        unsigned width = useDelta ? getLiteralAbs(lindx) : 
+                                    getLiteralAbs(hindx)-getLiteralAbs(lindx)+1;
         
         putString(stmt, pair<string,string>(rdName, wrName), width);
 
@@ -2208,9 +2273,9 @@ void ScVerilogWriter::putBitSelectExpr(const Stmt* stmt, const SValue& val,
         }
         
         // Type width after cast
-        size_t castWidth = getExprTypeWidth(base);
+        unsigned castWidth = getExprTypeWidth(base);
         // Internal (minimal) type width, this number of bits can be accessed 
-        size_t intrWidth = getMinExprTypeWidth(base);
+        unsigned intrWidth = getMinExprTypeWidth(base);
         
         // Check incorrect bit index
         if (indexInfo.literRadix) {
@@ -2244,6 +2309,40 @@ void ScVerilogWriter::putBitSelectExpr(const Stmt* stmt, const SValue& val,
     }
 }
 
+// Report warning for negative literal casted to unsigned
+void ScVerilogWriter::checkNegLiterCast(const Stmt* stmt, const TermInfo& info) 
+{
+    if (info.literRadix && info.castSign == CastSign::UCAST) {
+        APSInt val(info.str.first);
+        if (val < 0) {
+            ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                 ScDiag::SYNTH_NEG_LITER_UCAST);
+        }
+    }
+}
+
+// Set SCAST for literal, SACAST for unsigned operand which is not SEXPR
+void ScVerilogWriter::setExprSCast(const Expr* expr, TermInfo& info) 
+{
+    if (info.literRadix) {
+        // Set SCAST for literal to have it signed in signed operation
+        info.castSign = CastSign::SCAST;
+        
+    } else {
+        QualType type = expr->getType().getCanonicalType();
+        
+        if (!isSignedType(type)) {
+            // Set SACAST to have signed'{1'b0, ...} cast in SV code
+            if (info.exprSign != ExprSign::SEXPR) {
+                info.castSign = CastSign::SACAST;
+            } else {
+                ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                     ScDiag::SYNTH_SEXPR_UNSIGNED);
+            }
+        }
+    }
+}
+
 // Binary operators "+", "-", "*", "/", "%", "||", "&&", "&", "|", "^",
 // "<<<", ">>>", ">", "<", ">=", "<=", "==", "!="
 void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode, 
@@ -2251,16 +2350,16 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
 {
     if (skipTerm) return;
 
-    if (terms.count(lhs) && terms.count(rhs)) {
-        bool negBrackets = opcode == "+" || opcode == "-" || 
+    if (terms.count(lhs) && terms.count(rhs)) 
+    {
+        bool binaryMinus = opcode == "-";
+        bool arithmOper  = binaryMinus || opcode == "+" || 
                            opcode == "*" || opcode == "/" || opcode == "%" ||
-                           opcode == "&" || opcode == "|" || opcode == "^" ||
-                           opcode == ">>>" || opcode == "<<<";
-        bool doSignCast = !skipSignCast && (
-                            opcode == "+" || opcode == "-" || 
-                            opcode == "*" || opcode == "/" || opcode == "%" ||
-                            opcode == "&" || opcode == "|" || opcode == "^");
-        bool checkSignedExpr = doSignCast;
+                           opcode == "&" || opcode == "|" || opcode == "^";
+        bool shiftOper   = opcode == ">>>" || opcode == "<<<";
+        bool compareOper = opcode == ">" || opcode == "<" ||
+                           opcode == ">=" || opcode == "<=" ||
+                           opcode == "==" || opcode == "!=";        
         
         auto& linfo = terms.at(lhs);
         auto& rinfo = terms.at(rhs);
@@ -2270,191 +2369,55 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
 //             << " exprSign " << (int)linfo.exprSign << (int)rinfo.exprSign 
 //             << " explCast " << (int)linfo.explCast << (int)rinfo.explCast << endl;
         
-        // Warning reported as division/reminder results for SC types 
-        // are different in SC and SV, warning for other operations
-        if (!linfo.literRadix && linfo.exprSign != ExprSign::LEXPR && 
-            linfo.castSign == CastSign::UCAST || 
-            !rinfo.literRadix && rinfo.exprSign != ExprSign::LEXPR &&
-            rinfo.castSign == CastSign::UCAST)  
+        // Report warning for signed to unsigned cast for non-literal
+        if ((!linfo.literRadix && linfo.castSign == CastSign::UCAST) || 
+            (!rinfo.literRadix && rinfo.castSign == CastSign::UCAST))  
         {
-            if (opcode == "+" || opcode == "-" || opcode == "*") {
+            if (arithmOper) {
                 ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                      ScDiag::SYNTH_SIGN_UNSIGN_MIX);
-            } else
-            if (opcode == "/" || opcode == "%") {
-                ScDiag::reportScDiag(stmt->getBeginLoc(), 
-                                     ScDiag::SYNTH_DIV_SIGN_UNSIGN_MIX);
             } else 
-            if (opcode == "&" || opcode == "|" || opcode == "^") {
-                ScDiag::reportScDiag(stmt->getBeginLoc(),
-                                     ScDiag::SYNTH_BITWISE_SIGN_UNSIGN_MIX);
+            if (compareOper) {
+                // Uncomment me, #271
+                //ScDiag::reportScDiag(stmt->getBeginLoc(),
+                //                     ScDiag::SYNTH_COMPARE_SIGN_UNSIGN_MIX);
             }
         }
         
-        // Error reported for negative literal casted to unsigned
-        auto checkNegLiterCast = 
-            [stmt](TermInfo& first) 
-            {
-                if (first.literRadix && first.castSign == CastSign::UCAST) {
-                    APSInt val(first.str.first);
-                    if (val < 0) {
-                        ScDiag::reportScDiag(stmt->getBeginLoc(), 
-                                    ScDiag::SYNTH_NEG_LITER_UCAST);
-                    }
-                }
-            };
-            
+        // Report warning for negative literal casted to unsigned in / and %
         if (opcode == "/" || opcode == "%") {
-            checkNegLiterCast(linfo);
-            checkNegLiterCast(rinfo);
+            checkNegLiterCast(stmt, linfo);
+            checkNegLiterCast(stmt, rinfo);
         }
 
-        // Expression with both literals not considered as signed expression
-        bool literExpr = linfo.literRadix && rinfo.literRadix;
-        // Expression is signed in generated code
-        bool signedExpr = false;
+        // Get binary expression type
+        auto bexpr = dyn_cast<Expr>(stmt);
+        SCT_TOOL_ASSERT (bexpr, "No expression for binary operation");
+        QualType btype = bexpr->getType();
+        bool isSignedBinary = isSignedType(btype);
 
-        // Evaluate if expression is signed in generated code
-        auto setSignedExpr = 
-            [&signedExpr](TermInfo& first, const Expr* fexpr, 
-                          TermInfo& secnd, const Expr* sexpr) 
-            {
-                QualType ftype = fexpr->getType().getCanonicalType();
-                QualType stype = sexpr->getType().getCanonicalType();
-                
-                if (!first.literRadix && first.exprSign != ExprSign::LEXPR &&
-                    (first.castSign == CastSign::SCAST || 
-                     first.castSign == CastSign::SACAST || 
-                     first.exprSign == ExprSign::SEXPR || 
-                     isSignedType(ftype)) &&
-                     (secnd.literRadix || secnd.exprSign == ExprSign::LEXPR ||
-                      secnd.castSign == CastSign::SCAST || 
-                      secnd.castSign == CastSign::SACAST || 
-                      secnd.exprSign == ExprSign::SEXPR || 
-                      isSignedType(stype)))
-                {
-                    signedExpr = true;
-                }
-            };
-        
-        if (checkSignedExpr) {
-            setSignedExpr(linfo, lhs, rinfo, rhs);
-            setSignedExpr(rinfo, rhs, linfo, lhs);
+        if (shiftOper && isSignedBinary) {
+            ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                 ScDiag::SYNTH_SIGNED_SHIFT);
         }
-        //cout << "   signedExpr " << signedExpr << endl;
-            
-        // Set SCAST for operand if another non-literal operand has UCAST or
-        // signed expression, that converts signed+unsigned mix to signed in SV.
-        // No cast by literal to keep unsigned arithmetic, commonly used.
-        // Do not apply cast if there is explicit cast.
-        // That is not equal to SC but better than have unsigned semantic in SV
-        // which is also not equal to SC
-        auto setExprSCast = 
-            [&signedExpr](TermInfo& first, const Expr* fexpr, 
-                          TermInfo& secnd, const Expr* sexpr) 
-            {
-                QualType stype = sexpr->getType().getCanonicalType();
-                
-                if (!first.literRadix && first.exprSign != ExprSign::LEXPR &&
-                    (first.castSign == CastSign::UCAST 
-                     /*&& first.explCast != ExplCast::UCAST*/ ||
-                     first.exprSign == ExprSign::SEXPR) && 
-                    secnd.castSign == CastSign::NOCAST && !secnd.explCast)
-                {
-                    // Do not apply sign cast to signed expression
-                    if (secnd.exprSign != ExprSign::SEXPR && !isSignedType(stype)) {
-                        first.castSign = CastSign::NOCAST;
-                        secnd.castSign = CastSign::SACAST;
-                        //cout << "setExprSCast executed" << endl;
-                    }
-                    signedExpr = true;
-                }
-            };
         
-        // Set non-literal SCAST for one operand if another operand is @sc_bigint   
-        // which is casted to @sc_signed, convert sc_bigint+unsigned 
-        // to signed operation
-        auto setBigIntSCast = 
-            [&signedExpr](TermInfo& first, const Expr* fexpr, 
-                          TermInfo& secnd, const Expr* sexpr)  
-            {
-                QualType ftype = fexpr->getType().getCanonicalType();
-                QualType stype = sexpr->getType().getCanonicalType();
-                
-                if (!first.literRadix && first.exprSign != ExprSign::LEXPR &&
-                    isScBigInt(ftype))
-                {
-                    // Do not apply sign cast to signed expression
-                    if (!secnd.literRadix && !isSignedType(stype) &&
-                        secnd.exprSign != ExprSign::SEXPR) 
-                    {
-                        secnd.castSign = CastSign::SACAST;
-                        //cout << "setBigIntSCast executed" << endl;
-                    }
-                    signedExpr = true;
-                }
-            };    
-            
-        // Set non-literal SCAST for @sc_biguint operand if another operand is 
-        // signed expression or literal, convert sc_bigint+int/sc_int/sc_bigint
-        // to signed operation
-        auto setBigUintSCast = 
-            [&signedExpr](TermInfo& first, const Expr* fexpr, 
-               TermInfo& secnd, const Expr* sexpr) 
-            {
-                QualType ftype = fexpr->getType().getCanonicalType();
-                QualType stype = sexpr->getType().getCanonicalType();
-                
-                if (!first.literRadix && first.exprSign != ExprSign::LEXPR &&
-                    isScBigUInt(ftype) && isSignedType(stype)) 
-                {
-                    // Do not apply sign cast to signed expression
-                    if (first.exprSign != ExprSign::SEXPR) {
-                        first.castSign = CastSign::SACAST;
-                        //cout << "setBigUintSCast executed" << endl;
-                    }
-                    signedExpr = true;
-                }
-            };     
-            
-        // Set SCAST for literal if another operand is signed, 
-        // that adds "s" for literal if it is in sized form ('d -> 'sd),
-        // Required for all operations
-        auto setLiterSCast = 
-            [](TermInfo& first, const Expr* fexpr, 
-               TermInfo& secnd, const Expr* sexpr) 
-            {
-                QualType stype = sexpr->getType().getCanonicalType();
-
-                // Check NOCAST to avoid break UCAST`ed literal
-                if (first.literRadix && first.castSign == CastSign::NOCAST && 
-                    isSignedType(stype)) {
-                    first.castSign = CastSign::SCAST;
-                }
-            };  
-            
-        if (doSignCast) {
-            setExprSCast(linfo, lhs, rinfo, rhs);
-            setExprSCast(rinfo, rhs, linfo, lhs);
-            
-            setBigIntSCast(linfo, lhs, rinfo, rhs);
-            setBigIntSCast(rinfo, rhs, linfo, lhs);
-            
-            setBigUintSCast(linfo, lhs, rinfo, rhs);
-            setBigUintSCast(rinfo, rhs, linfo, lhs);
-
-            setLiterSCast(linfo, lhs, rinfo, rhs);
-            setLiterSCast(rinfo, rhs, linfo, lhs);
+        bool negBrackets = arithmOper || shiftOper;
+        bool doSignCast = !skipSignCast && (arithmOper || compareOper);
+        
+        // For signed binary operation set SACAST for operand if its unsigned 
+        if (doSignCast && isSignedBinary) {
+            setExprSCast(lhs, linfo);
+            setExprSCast(rhs, rinfo);
         }
         
         string s = getTermAsRValue(lhs, false, negBrackets, doSignCast).first + 
                    " " + opcode + " " +
                    getTermAsRValue(rhs, false, negBrackets, doSignCast).first;
         
-        size_t width = 0;
-        size_t lwidth = getExprWidth(lhs); 
-        size_t rwidth = getExprWidth(rhs);
-        size_t maxwidth = (lwidth > rwidth) ? lwidth : rwidth;
+        unsigned width = 0;
+        unsigned lwidth = getExprWidth(lhs);
+        unsigned rwidth = getExprWidth(rhs);
+        unsigned maxwidth = (lwidth > rwidth) ? lwidth : rwidth;
         
         if (opcode == "||" || opcode == "&&" || opcode == ">" ||
             opcode == "<" || opcode == ">=" || opcode == "<=" ||
@@ -2493,9 +2456,15 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
             }
         }
         
+        // For unsigned operation promote SEXPR/signed type from arguments and 
+        // also set it for binary minus
+        bool signedExpr = !skipSignCast && !isSignedBinary &&
+                          (binaryMinus || linfo.exprSign == ExprSign::SEXPR || 
+                           rinfo.exprSign == ExprSign::SEXPR);
+        
         putString(stmt, s, width);
         clearSimpleTerm(stmt);
-        setExprSign(stmt, signedExpr, literExpr);
+        setExprSign(stmt, signedExpr);
         //cout << "    signedExpr " << int(signedExpr) << " literExpr " << literExpr << endl;
         
         // Set increase result width 
@@ -2522,56 +2491,50 @@ void ScVerilogWriter::putCompAssign(const Stmt* stmt, string opcode,
 
     if (terms.count(lhs) && terms.count(rhs)) {
         
-        bool doSignCast = !skipSignCast && (
-                            opcode == "+" || opcode == "-" || 
-                            opcode == "*" || opcode == "/" || opcode == "%" ||
-                            opcode == "&" || opcode == "|" || opcode == "^");
+        bool arithmOper  = opcode == "+" || opcode == "-" || 
+                           opcode == "*" || opcode == "/" || opcode == "%" ||
+                           opcode == "&" || opcode == "|" || opcode == "^";
         
         auto& linfo = terms.at(lhs);
         auto& rinfo = terms.at(rhs);
-        SCT_TOOL_ASSERT (!linfo.isChannel, "putCompAssign for SC channel object");
         
+        SCT_TOOL_ASSERT (!linfo.isChannel, "putCompAssign for SC channel object");
         //cout << "putCompAssign castSign " << (int)linfo.castSign << (int)rinfo.castSign << endl;
         
-        // Report warning for signed type in bitwise operators
-        if (opcode == "&" || opcode == "|" || opcode == "^") {
-            if (!rinfo.literRadix && (rinfo.castSign == CastSign::UCAST ||
-                rinfo.castSign == CastSign::SCAST)) {
+        // Get compound expression type
+        auto cexpr = dyn_cast<Expr>(stmt);
+        SCT_TOOL_ASSERT (cexpr, "No expression for compound operation");
+        QualType ctype = cexpr->getType();
+        QualType rtype = rhs->getType();
+        bool isSignedCompound = isSignedType(ctype);
+        
+        // Report warning for signed to unsigned cast and signed rvalue
+        // in unsigned operation for non-literal
+        if (!rinfo.literRadix && (rinfo.castSign == CastSign::UCAST ||
+            (!isSignedCompound && isSignedType(rtype))))
+        {
+            if (arithmOper) {
                 ScDiag::reportScDiag(stmt->getBeginLoc(),
-                                     ScDiag::SYNTH_BITWISE_SIGN_UNSIGN_MIX);
+                                     ScDiag::SYNTH_SIGN_UNSIGN_MIX);
             }
         }
         
-        // Set non-literal SCAST for @sc_biguint operand if another operand is 
-        // signed expression or literal, convert sc_bigint+int/sc_int/sc_bigint
-        // to signed operation
-        auto setBigUintExprSCast = 
-            [](TermInfo& first, const Expr* fexpr, 
-               TermInfo& secnd, const Expr* sexpr) 
-            {
-                QualType ftype = fexpr->getType().getCanonicalType();
-                QualType stype = sexpr->getType().getCanonicalType();
-                
-                if (!first.literRadix && isScBigUInt(ftype) && 
-                    isSignedType(stype)) 
-                {
-                    // Do not apply sign cast to signed expression
-                    if (first.exprSign != ExprSign::SEXPR) {
-                        first.castSign = CastSign::SACAST;
-                    }
-                }
-            }; 
-            
-        // Do not need another rules used in binary operation
+        // Report warning for negative literal casted to unsigned in / and %
+        if (opcode == "/" || opcode == "%") {
+            checkNegLiterCast(stmt, rinfo);
+        }
         
-        if (doSignCast) {
-            setBigUintExprSCast(linfo, lhs, rinfo, rhs);
-            setBigUintExprSCast(rinfo, rhs, linfo, lhs);
-        }    
+        bool doSignCast = !skipSignCast && arithmOper;
 
+        // For signed operation set SACAST for right operand if its unsigned 
+        if (doSignCast && isSignedCompound) {
+            setExprSCast(rhs, rinfo);
+        }
+            
         auto names = getTermAsRValue(lhs);
         
-        bool isReg = isRegister(lval) || isCombSig(lval) || isCombSigClear(lval);
+        bool isReg = isRegister(lval) || isCombSig(lval) || 
+                     isCombSigClear(lval) || isClearSig(lval);
         bool nbAssign = isClockThreadReset && isReg;
         bool secName = !isClockThreadReset && isReg;
 
@@ -2589,7 +2552,7 @@ void ScVerilogWriter::putCompAssign(const Stmt* stmt, string opcode,
             getTermAsRValue(lhs, false, false, doSignCast).first + " " + 
             opcode + " " + s;
 
-        size_t width = getExprWidth(lhs); 
+        unsigned width = getExprWidth(lhs); 
         
         putString(stmt, s, width);
         clearSimpleTerm(stmt);
@@ -2611,61 +2574,28 @@ void ScVerilogWriter::putUnary(const Stmt* stmt, string opcode, const Expr* rhs,
 
     if (terms.count(rhs)) {
         
-        bool doSignCast = !skipSignCast && opcode == "-";
-        bool checkSignedExpr = doSignCast || opcode == "++" || 
-                               opcode == "--" || opcode == "~";
+        bool unaryMinus = opcode == "-";
+        bool doSignCast = !skipSignCast && unaryMinus;
         
-        auto& info = terms.at(rhs);
+        auto& rinfo = terms.at(rhs);
         
-        // Is this expression signed in generated code
-        bool signedExpr = false;
+        // Get unary expression type
+        auto uexpr = dyn_cast<Expr>(stmt);
+        SCT_TOOL_ASSERT (uexpr, "No expression for unary operation");
+        QualType utype = uexpr->getType();
+        bool isSignedUnary = isSignedType(utype);
         
-        // Evaluate if expression is signed in generated code
-        auto setSignedExpr = 
-            [&signedExpr](TermInfo& first, const Expr* fexpr) 
-            {
-                QualType ftype = fexpr->getType().getCanonicalType();
-                
-                if (!first.literRadix && first.exprSign != ExprSign::LEXPR &&
-                    (first.castSign == CastSign::SCAST || 
-                     first.castSign == CastSign::SACAST || 
-                     first.exprSign == ExprSign::SEXPR || 
-                     isSignedType(ftype)))
-                {
-                    signedExpr = true;
-                }
-            };
-            
-        if (checkSignedExpr) {
-            setSignedExpr(info, rhs);
-        }
-        
-        // Set non-literal SCAST for @sc_biguint operand for unary minus
-        // For ++ and -- operators @sc_uint/@sc_biguint remain unsigned
-        auto setBigUintExprSCast = 
-            [&signedExpr](TermInfo& first, const Expr* fexpr) 
-            {
-                QualType ftype = fexpr->getType().getCanonicalType();
-                
-                if (!first.literRadix && isScBigUInt(ftype)) {
-                    // Do not apply sign cast to signed expression
-                    if (first.exprSign != ExprSign::SEXPR) {
-                        first.castSign = CastSign::SACAST;
-                    }
-                    signedExpr = true;
-                }
-            }; 
-        
-        if (doSignCast) {
-            setBigUintExprSCast(info, rhs);
+        // For signed unary operation set SACAST for operand if its unsigned
+        if (doSignCast && isSignedUnary) {
+            setExprSCast(rhs, rinfo);
         }
             
         string s;
-        char literRadix = info.literRadix;
+        char literRadix = rinfo.literRadix;
         bool isLiteralMinus = (opcode == "-") && literRadix;
         
         if (isLiteralMinus) {
-            auto names = info.str;
+            auto names = rinfo.str;
             s = addLeadMinus(names.first);
             
         } else {
@@ -2680,14 +2610,14 @@ void ScVerilogWriter::putUnary(const Stmt* stmt, string opcode, const Expr* rhs,
            
             // Do not apply "|" for 1 bit width argument
             // Extracting width from RHS type not work as argument is integer
-            size_t baseWidth = getExprTypeWidth(rhs);
+            unsigned baseWidth = getExprTypeWidth(rhs);
             bool skipOper = opcode == "|" && baseWidth == 1;
             
             s = skipOper ? name : isPrefix ? opcode + name : name + opcode;
         }
 
-        size_t width = 0;
-        size_t rwidth = getExprWidth(rhs);
+        unsigned width = 0;
+        unsigned rwidth = getExprWidth(rhs);
 
         if (opcode == "!" || opcode == "&" || opcode == "|" || opcode == "^" ||
             opcode == "~&" || opcode == "~|" || opcode == "~^" ) 
@@ -2696,23 +2626,27 @@ void ScVerilogWriter::putUnary(const Stmt* stmt, string opcode, const Expr* rhs,
         } else 
         if (rwidth) {
             if (opcode == "++" || opcode == "--") {
-                width = rwidth+1;
+                width = rwidth+1;   
             } else {
                 width = rwidth;
             }
         }
         
+        // Unary minus considered as signed to avoid adding 'signed{}
+        bool signedExpr = !skipSignCast && !isSignedUnary &&
+                          (unaryMinus || rinfo.exprSign == ExprSign::SEXPR);
+        
         putString(stmt, s, width);
         clearSimpleTerm(stmt);
-        setExprSign(stmt, signedExpr, literRadix);
+        setExprSign(stmt, signedExpr);
         
         // Literal with minus preserved as literal, castWidth copied
         if (isLiteralMinus) {
             auto& sinfo = terms.at(stmt);
             sinfo.literRadix = literRadix;
-            sinfo.minCastWidth = info.minCastWidth;
-            sinfo.lastCastWidth = info.lastCastWidth;
-            sinfo.explCast = info.explCast;
+            sinfo.minCastWidth = rinfo.minCastWidth;
+            sinfo.lastCastWidth = rinfo.lastCastWidth;
+            sinfo.explCast = rinfo.explCast;
         }
         
         // Set increase result width 
@@ -2728,25 +2662,6 @@ void ScVerilogWriter::putUnary(const Stmt* stmt, string opcode, const Expr* rhs,
     }
 }
 
-// Put sign cast for literals and expressions
-void ScVerilogWriter::putSignCast(const clang::Stmt* stmt, CastSign castSign)
-{
-    if (skipTerm || skipSignCast) return;
-
-    if (terms.count(stmt)) {
-        auto& info = terms.at(stmt);
-        // Apply SACAST after explicit cast to get @signed'({1'b0, ...});
-        info.castSign = info.explCast && castSign == CastSign::SCAST ? 
-                        CastSign::SACAST : castSign;
-        
-        //cout << "putSignCast #" << hex << stmt << dec << " castSign " << (int)castSign << endl;
-    } else {
-        SCT_INTERNAL_FATAL(stmt->getBeginLoc(), 
-                           "putSignCast : No term for statement " +
-                           llvm::to_hexString((size_t)stmt, false));
-    }
-}
-
 // Ternary statement ?
 void ScVerilogWriter::putCondStmt(const Stmt* stmt, const Stmt* cond, 
                                   const Stmt* lhs, const Stmt* rhs) 
@@ -2757,6 +2672,11 @@ void ScVerilogWriter::putCondStmt(const Stmt* stmt, const Stmt* cond,
         const auto& linfo = terms.at(lhs);
         const auto& rinfo = terms.at(rhs);
         
+//        cout << "putCondStmt #" << hex << stmt << dec 
+//             << " castSign " << (int)linfo.castSign << (int)rinfo.castSign
+//             << " exprSign " << (int)linfo.exprSign << (int)rinfo.exprSign 
+//             << " explCast " << (int)linfo.explCast << (int)rinfo.explCast << endl;
+        
         string conds = getTermAsRValue(cond).first + " ? ";
         string rdName = conds + getTermAsRValue(lhs).first + " : " + 
                         getTermAsRValue(rhs).first;
@@ -2764,26 +2684,32 @@ void ScVerilogWriter::putCondStmt(const Stmt* stmt, const Stmt* cond,
                         getTermAsRValue(rhs).second;
         
         // LHS and RHS widths should be the same, so take non-zero one
-        size_t lwidth = getExprWidth(lhs);
-        size_t rwidth = getExprWidth(rhs); 
-        size_t width = lwidth ? lwidth : rwidth; 
+        unsigned lwidth = getExprWidth(lhs);
+        unsigned rwidth = getExprWidth(rhs); 
+        unsigned width = lwidth ? lwidth : rwidth; 
         
         putString(stmt, pair<string,string>(rdName, wrName), width);
         clearSimpleTerm(stmt);
 
-        // Keep expression signed cast
+        auto cexpr = dyn_cast<Expr>(stmt);
+        SCT_TOOL_ASSERT (cexpr, "No expression for conditional statement");
+        QualType ctype = cexpr->getType();
+
+        // Promote signed expression flag from arguments
         bool signedExpr = linfo.exprSign == ExprSign::SEXPR || 
                           rinfo.exprSign == ExprSign::SEXPR;
-        // Expression with both literals not considered as signed expression
-        bool literExpr = linfo.literRadix && rinfo.literRadix;
-        setExprSign(stmt, signedExpr, literExpr);
+        // Check no signed expression for signed type
+        SCT_TOOL_ASSERT (!signedExpr || !isSignedType(ctype), 
+                         "Signed expression for signed conditional statement");
+        
+        setExprSign(stmt, signedExpr);
         
     } else {
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
                          "putCondStmt : No term for cond/lhs/rhs statement " +
                          llvm::to_hexString((size_t)((terms.count(cond)) ?
                          ((terms.count(lhs)) ? rhs : lhs) : cond), false));
-    }    
+    }
 }
 
 // Concatenation statement
@@ -2806,9 +2732,9 @@ void ScVerilogWriter::putConcat(const clang::Stmt* stmt,
                         second, false, false, false, true).second) + "}";
         
         // Take sum of LHS and RHS widths if both of them are known
-        size_t lwidth = getExprWidth(first, true);
-        size_t rwidth = getExprWidth(second, true); 
-        size_t width = (lwidth && rwidth) ? (lwidth + rwidth) : 0;
+        unsigned lwidth = getExprWidth(first, true);
+        unsigned rwidth = getExprWidth(second, true); 
+        unsigned width = (lwidth && rwidth) ? (lwidth + rwidth) : 0;
         
         putString(stmt, pair<string,string>(rdName, wrName), width);
         
@@ -3128,7 +3054,24 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
             }
         } else 
         if (i.second.isCombSigClear()) {
-            // COMBSIG with CLEAR flag is assigned instead of @currName
+            // COMBSIG with CLEAR flag, @currName is assigned 
+            SValue val = i.first;
+            bool unkwIndex;
+            //cout << "i.first " << i.first << endl;
+            bool isArr = state->isArray(val, unkwIndex);
+            isArr = isArr || state->getBottomArrayForAny(val, unkwIndex, 
+                                                         ScState::MIF_CROSS_NUM);
+            //cout << "i.first " << i.first << " isArr " << isArr << endl;
+            
+            // Use "default" for array only
+            if (i.second.currName) {
+                string s = i.second.currName.getValue() + suffix + 
+                           ASSIGN_SYM + (isArr ? "'{default:0}" : "'0");
+                sortAssign.push_back(s);
+            }
+        } else 
+        if (i.second.isClearSig()) {
+            // CLEARSIG, @nextName is assigned 
             SValue val = i.first;
             bool unkwIndex;
             //cout << "i.first " << i.first << endl;
@@ -3139,7 +3082,7 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
             
             // Use "default" for array only
             if (i.second.nextName) {
-                string s = i.second.currName.getValue() + suffix + 
+                string s = i.second.nextName.getValue() + suffix + 
                            ASSIGN_SYM + (isArr ? "'{default:0}" : "'0");
                 sortAssign.push_back(s);
             }
@@ -3163,6 +3106,7 @@ void ScVerilogWriter::printResetCombDecl(std::ostream &os)
             auto i = varTraits.find(pair.first);
             if (i != varTraits.end()) {
                 if (i->second.isCombSig() || i->second.isCombSigClear() || 
+                    i->second.isClearSig() ||     
                     i->second.isRegister() || i->second.isReadOnlyCDR()) continue;
                 if (!i->second.isAccessInReset()) continue;
             }

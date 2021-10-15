@@ -134,6 +134,9 @@ protected:
     /// Integer literal
     void parseExpr(clang::IntegerLiteral* expr, SValue& val) override;
     
+    /// Constant expression
+    void parseExpr(clang::ConstantExpr* expr, SValue& val) override;
+    
     /// Bool literal
     void parseExpr(clang::CXXBoolLiteralExpr* expr, SValue& val) override;
 

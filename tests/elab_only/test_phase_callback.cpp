@@ -16,23 +16,31 @@ struct top : sc_module {
     sc_in <bool>     in{"in"};
     sc_signal <bool> sig{"sig"};
 
-
     SC_CTOR(top) {
         SC_THREAD(test_thread);
         async_reset_signal_is(sig, 0);
     }
 
 protected:
+    const unsigned* A = nullptr;
 
     void before_end_of_elaboration() override
     {
+        A = sc_new<unsigned>(42);
         in(sig);
-        cout << "before end of elaboration\n";
+        cout << "before end of elaboration callback\n";
     }
 
     void test_thread() {
-        cout << "Test thread\n";
-        while (1) {wait();}
+        auto j = A ? *A : 0;
+        wait();
+        
+        while (1) {
+            if (A) {
+                j += *A;
+            }
+            wait();
+        }
     }
 
 };

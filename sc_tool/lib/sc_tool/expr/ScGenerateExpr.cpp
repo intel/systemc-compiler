@@ -250,7 +250,7 @@ ScGenerateExpr::getStringFromArg(Expr* argExpr) {
         expr = castExpr->getSubExpr();
     } 
     if (auto* strExpr = dyn_cast<clang::StringLiteral>(expr)) {
-        std::string res = strExpr->getString();
+        std::string res = strExpr->getString().str();
         return res;
     }
     
@@ -734,6 +734,12 @@ void ScGenerateExpr::parseExpr(IntegerLiteral* expr, SValue& val)
     codeWriter->putLiteral(expr, val);
 }
 
+void ScGenerateExpr::parseExpr(ConstantExpr* expr, SValue& val)
+{
+    ScParseExpr::parseExpr(expr, val);
+    codeWriter->putLiteral(expr, val);
+}
+
 // Boolean literal
 void ScGenerateExpr::parseExpr(CXXBoolLiteralExpr* expr, SValue& val) 
 {
@@ -971,6 +977,7 @@ void ScGenerateExpr::parseExpr(ExplicitCastExpr* expr, SValue& rval, SValue& val
         if (getIntTraits(type, true) && !isBoolType(type) &&
             (isa<CStyleCastExpr>(expr) || isa<CXXFunctionalCastExpr>(expr) || 
              isa<CXXStaticCastExpr>(expr))) {
+            // Explicit cast
             // Not required to support boolean converting as it is done 
             // in underlying implicit cast
             // Type cast with partial select possible
@@ -1425,7 +1432,7 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
 
     // Operation code
     BinaryOperatorKind opcode = stmt->getOpcode();
-    string opcodeStr = stmt->getOpcodeStr(opcode);
+    string opcodeStr = stmt->getOpcodeStr(opcode).str();
 
     // Parse LHS 
     bool lastAssignLHS = assignLHS;
@@ -1558,7 +1565,7 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                 if (codeWriter->isIncrWidth(rexpr) && 
                     (opcode == BO_Shr || opcode == BO_Shl)) {
                     // 32bit is always enough for shift value
-                    size_t width = codeWriter->getExprTypeWidth(rexpr, 32);
+                    unsigned width = codeWriter->getExprTypeWidth(rexpr, 32);
                     width = (width > 32) ? 32 : width;
                     codeWriter->extendTypeWidth(rexpr, width);
                 }
@@ -1568,7 +1575,7 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                 if (codeWriter->isIncrWidth(lexpr) && 
                     (opcode == BO_Shr || opcode == BO_Div || opcode == BO_Rem)) {
                     // Try to get expression/type width
-                    size_t width = codeWriter->getExprTypeWidth(lexpr);
+                    unsigned width = codeWriter->getExprTypeWidth(lexpr);
                     codeWriter->extendTypeWidth(lexpr, width);
                 }
                 codeWriter->putBinary(stmt, opcodeStr, lexpr, rexpr);
@@ -1620,7 +1627,6 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
     QualType ltype = lexpr->getType();
     QualType rtype = rexpr->getType();
     bool isPtr = isPointer(ltype) || isPointer(rtype);
-    bool isBool = ltype->isBooleanType();
     
     // Left value is result of assignment statement
     val = lval;
@@ -1628,10 +1634,8 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
     // Operation code
     BinaryOperatorKind opcode = stmt->getOpcode();
     BinaryOperatorKind compOpcode = stmt->getOpForCompoundAssignment(opcode);
-    string opcodeStr = stmt->getOpcodeStr(compOpcode);
-    bool isBitwise = opcode == BO_AndAssign || opcode == BO_OrAssign || 
-                     opcode == BO_XorAssign;
-
+    string opcodeStr = stmt->getOpcodeStr(compOpcode).str();
+    
     if (opcode == BO_AddAssign || opcode == BO_SubAssign || 
         opcode == BO_MulAssign || opcode == BO_DivAssign ||
         opcode == BO_RemAssign || opcode == BO_ShlAssign ||
@@ -1659,16 +1663,11 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
             if (codeWriter->isIncrWidth(rexpr) && 
                 (opcode == BO_ShrAssign || opcode == BO_ShlAssign)) {
                 // 32bit is always enough for shift value
-                size_t width = codeWriter->getExprTypeWidth(rexpr, 32);
+                unsigned width = codeWriter->getExprTypeWidth(rexpr, 32);
                 width = (width > 32) ? 32 : width;
                 codeWriter->extendTypeWidth(rexpr, width);
             }
             
-            // Put sign cast for LHS if RHS is signed
-            if (!(isBool && isBitwise) && !isSignedType(ltype) && isSignedType(rtype)) { 
-                codeWriter->putSignCast(lexpr, CastSign::SCAST);
-            }
-
             // Get owner variable, required for arrays
             SValue lvar = state->getVariableForValue(lval);
 
@@ -1688,7 +1687,7 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
     val = NO_VALUE;
     
     UnaryOperatorKind opcode = stmt->getOpcode();
-    string opcodeStr = stmt->getOpcodeStr(stmt->getOpcode());
+    string opcodeStr = stmt->getOpcodeStr(stmt->getOpcode()).str();
     bool isPrefix = stmt->isPrefix(stmt->getOpcode());
     bool isIncrDecr = opcode == UO_PostInc || opcode == UO_PreInc || 
                       opcode == UO_PostDec || opcode == UO_PreDec;
@@ -1807,9 +1806,9 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
             if (val.isVariable() || val.isSimpleObject()) {
                 // Check pointer and pointe both are constant type, 
                 // for dynamic object constantness specified by pointer only
-                bool replaceConst = isPointerToConst(rval.getType()) && 
-                                    (val.isSimpleObject() || replaceConstByValue &&
-                                     val.getType().isConstQualified());
+                bool replaceConst = 
+                    isPointerToConst(rval.getType()) && (val.isSimpleObject() || 
+                    (replaceConstByValue && val.getType().isConstQualified()));
                 // Replace pointer with integer value
                 if (replaceConst) {
                     SValue ival = state->getValue(val);
@@ -2252,8 +2251,9 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         // for dynamic object constantness specified by pointer only
         bool constPtr = isPointerToConst(tval.getType());
         replacePtrObj = constPtr && ttval.isSimpleObject();
-        bool replaceConst = replacePtrObj || constPtr && replaceConstByValue && 
-                            ttval.isVariable() && ttval.getType().isConstQualified();
+        bool replaceConst = 
+                replacePtrObj || (constPtr && replaceConstByValue && 
+                ttval.isVariable() && ttval.getType().isConstQualified());
         // Replace pointer with integer value
         if (replaceConst) {
             pival = state->getValue(ttval);
@@ -2804,7 +2804,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             if (codeWriter->isIncrWidth(rexpr) && 
                 (opcode == OO_GreaterGreater || opcode == OO_LessLess)) {
                 // 32bit is always enough for shift value
-                size_t width = codeWriter->getExprTypeWidth(rexpr, 32);
+                unsigned width = codeWriter->getExprTypeWidth(rexpr, 32);
                 width = (width > 32) ? 32 : width;
                 codeWriter->extendTypeWidth(rexpr, width);
             }
@@ -2815,7 +2815,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
                 (opcode == OO_Slash || opcode == OO_GreaterGreater || 
                  opcode == OO_Percent)) {
                 // Try to get expression/type width
-                size_t width = codeWriter->getExprTypeWidth(lexpr);
+                unsigned width = codeWriter->getExprTypeWidth(lexpr);
                 codeWriter->extendTypeWidth(lexpr, width);
             }
             codeWriter->putBinary(expr, opStr, lexpr, rexpr);
@@ -2865,7 +2865,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             if (codeWriter->isIncrWidth(rexpr) && 
                 (opcode == OO_GreaterGreaterEqual || opcode == OO_LessLessEqual)) {
                 // 32bit is always enough for shift value
-                size_t width = codeWriter->getExprTypeWidth(rexpr, 32);
+                unsigned width = codeWriter->getExprTypeWidth(rexpr, 32);
                 width = (width > 32) ? 32 : width;
                 codeWriter->extendTypeWidth(rexpr, width);
             }

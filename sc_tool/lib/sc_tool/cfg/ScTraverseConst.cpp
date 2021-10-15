@@ -133,8 +133,10 @@ void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt)
 
             QualType type = val.getType();
 
-            if (isScChannel(type, true) || isScChannelArray(type, true) ||
-                isScVector(type) || ScState::isConstVarOrLocRec(val)) continue;
+            if (ScState::isConstVarOrLocRec(val) || 
+                isPointerToConst(type) ||
+                isScChannel(type) || isScVector(type) || 
+                isScChannelArray(type) || isScToolCombSignal(type)) continue;
 
             ScDiag::reportScDiag(stmt->getBeginLoc(),
                                  ScDiag::CPP_READ_NOTDEF_VAR_RESET, false) << 
@@ -798,6 +800,7 @@ void ScTraverseConst::run()
     
     // Fill statement levels for entry function
     stmtInfo.run(funcDecl, 0);
+    //stmtInfo.printLevels();
     //stmtInfo.printBreaks();
 
     while (true)
@@ -865,13 +868,13 @@ void ScTraverseConst::run()
                                  "Incorrect element kind");
                 
                 // Get statement 
-                CFGStmt* s = elm.getAs<CFGStmt>().getPointer();
-                currStmt = const_cast<Stmt*>(s->getStmt());
+                CFGStmt cfgstmt = elm.getAs<CFGStmt>().getValue();
+                currStmt = const_cast<Stmt*>(cfgstmt.getStmt());
                 //cout << "Stmt #" << hex << currStmt << dec << endl;
                 //currStmt->dumpColor();
                 
                 // Get statement level and check if it is sub-statement
-                bool isStmt; bool upLevel; 
+                bool isStmt = false; bool upLevel = false; 
                 if (auto stmtLevel = stmtInfo.getLevel(currStmt)) {
                     upLevel = *stmtLevel < level;
                     level = *stmtLevel; 
@@ -1355,7 +1358,8 @@ void ScTraverseConst::run()
                 if (!isCombProcess && loopStack.empty() && contextStack.empty()) {
                     if (findWaitInLoop && findWaitInLoop->hasWaitCall(term)) {
                         mainLoopStmt = term;
-                        //cout << "mainLoop " << endl; mainLoopStmt->dumpColor();
+                        //cout << "mainLoop :"; mainLoopStmt->getBeginLoc().dump(sm);
+                        //cout << endl;
                     }
                 }
                 

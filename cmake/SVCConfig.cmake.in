@@ -34,4 +34,4 @@ set (SystemC_CXX_STANDARD @CMAKE_CXX_STANDARD@)
 set (SystemC_CXX_STANDARD_REQUIRED @CMAKE_CXX_STANDARD_REQUIRED@)
 
 # CLang internal headers, required as sc_tool located out of CLang folder
-set (CLANG_INT_INC_DIR "$ENV{ICSC_HOME}/lib/clang/7.0.0/include")
+set (CLANG_INT_INC_DIR "$ENV{ICSC_HOME}/lib/clang/$ENV{LLVM_VER}/include")

@@ -36,7 +36,7 @@ public:
         //SC_METHOD(comp_assign_array); sensitive << a;
 
         SC_METHOD(array_init); sensitive << a;
-        SC_METHOD(multi_array_of_channel_pointers); sensitive << a;
+        SC_METHOD(multi_array_of_channel_pointers); sensitive << a << *ch[0][0];
         
         SC_METHOD(write_unknown_index1); sensitive << a;
         SC_METHOD(write_unknown_index2); sensitive << a;

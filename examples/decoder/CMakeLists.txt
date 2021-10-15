@@ -26,4 +26,4 @@ target_include_directories(decoder PUBLIC
 # and ${PROJECT_NAME} that runs general SystemC simulation
 # ELAB_TOP parameter accepts hierarchical name of design  
 # (that is SystemC name, returned by sc_object::name() method)
-svc_target(decoder SPLIT_CTHREAD KEEP_CHAN_ARRAYS ELAB_TOP tb.dut_inst)
+svc_target(decoder ELAB_TOP tb.dut_inst)

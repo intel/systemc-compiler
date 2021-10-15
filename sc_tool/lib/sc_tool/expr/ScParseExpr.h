@@ -22,6 +22,8 @@
 
 #include <clang/AST/Expr.h>
 #include <clang/AST/ExprCXX.h>
+#include <clang/AST/ASTContext.h>
+#include "clang/Basic/SourceManager.h"
 #include <clang/Analysis/CFG.h>
 
 namespace sc {
@@ -247,6 +249,9 @@ protected:
     /// Parse expression and return @val
     /// Used for literal
     virtual void parseExpr(clang::IntegerLiteral* expr, SValue& val);
+    
+    /// Constant expression, can contain literal inside
+    virtual void parseExpr(clang::ConstantExpr* expr, SValue& val);
     
     /// Boolean literal
     virtual void parseExpr(clang::CXXBoolLiteralExpr* expr, SValue& val);

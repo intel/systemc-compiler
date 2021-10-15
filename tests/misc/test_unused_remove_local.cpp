@@ -67,7 +67,7 @@ struct A : public sc_module
         SC_METHOD(remove2); sensitive << s << i1;
         SC_METHOD(remove2a); sensitive << s;
         SC_METHOD(remove3); sensitive << s;
-        SC_METHOD(remove4); sensitive << s << i1;
+        SC_METHOD(remove4); sensitive << s << i1 << ivec1[0];
         SC_METHOD(remove5); sensitive << s;
         SC_METHOD(remove6); 
         sensitive << s << i1 << iarr1[1] << iarr2[0][0] << iarr2[1][0];

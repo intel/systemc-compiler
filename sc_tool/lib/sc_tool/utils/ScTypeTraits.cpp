@@ -754,6 +754,26 @@ bool isScToolCombSignal(QualType type, bool checkPointer)
     return false;
 }
 
+bool isScToolClearSignal(QualType type, bool checkPointer)
+{
+    if (type.isNull()) return false;
+    
+    // Remove pointer
+    if (checkPointer) {
+        // sc_port<IF> cannot point to channel
+        while (type->isPointerType()) {
+            type = type->getPointeeType();
+        }
+    }
+    type = getPureType(type);
+    
+    if (isScSignal(type)) {
+        return (type.getAsString().find("sc_core::sct_clear_signal") != 
+                std::string::npos);
+    }
+    return false;
+}
+
 bool isScChannel(clang::QualType type, bool checkPointer)
 {
     if (type.isNull()) return false;

@@ -51,7 +51,7 @@ public:
         sensitive << a;
         
         SC_METHOD(chan_array_read);
-        sensitive << a;
+        sensitive << a << chans[0] << chans2d[0][0];
         
         // No reset process
         SC_CTHREAD(operProc, clk.pos())

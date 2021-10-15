@@ -265,6 +265,10 @@ bool isUserDefinedClass(clang::QualType type, bool checkPointer)
     if (!ctype->isStructureType() && !ctype->isClassType()) {
         return false;
     }
+    // TODO: check me!!!
+//    if (isAnyScCoreObject(ctype)) {
+//        return false;
+//    }
     if (isScChannel(ctype) || isScVector(ctype)) {
         return false;
     }
@@ -496,6 +500,20 @@ void adjustIntegers(llvm::APSInt val1, llvm::APSInt val2, llvm::APSInt &res1,
         if (res1.isUnsigned() || res2.isUnsigned()) {
             res1.setIsUnsigned(true);
             res2.setIsUnsigned(true);
+        }
+    }
+}
+
+unsigned getBitsNeeded(llvm::APSInt val) 
+{
+    if (val.isNullValue()) {
+        return 1;
+    } else {
+        if (val < 0) {
+            val = val * (-1);
+            return (val.getActiveBits() + 1);
+        } else {
+            return val.getActiveBits();
         }
     }
 }

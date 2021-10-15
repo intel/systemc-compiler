@@ -12,6 +12,7 @@ using namespace sc_core;
 // Dynamically allocated ports in another module
 class A : public sc_module {
 public:
+    sc_in<bool>             clk;
     sc_in<bool>*            p1[3];
     sc_out<bool>**          p2;
     sc_signal<int>*         s1;
@@ -19,18 +20,34 @@ public:
     sc_signal<bool>         dummy;
     
     SC_CTOR(A) {
-        SC_METHOD(proc1); sensitive << dummy;
+        SC_METHOD(proc1); 
+        sensitive << dummy;
+
+        SC_THREAD(proc2); 
+        sensitive << clk.pos();
     }
     
     void proc1() {
-        s1[0] = p1[0]->read() ? 1 : 2;
-        *(p2[0]) = s1[0].read();
+        s1[0] = dummy ? 1 : 2;
+        *(p2[0]) = dummy;
     }     
+    
+    void proc2() 
+    {
+        while (true) {
+            auto j = s1[0].read();
+            auto i = p1[0]->read() ? 1 : 2;
+            dummy = i + j;
+            wait();
+        }
+   
+    }
     
 };
 
 class B_top : public sc_module {
 public:
+    sc_in<bool>             clk;
     sc_signal<bool>         sig1[3];
     sc_signal<bool>         sig2[3];
     sc_signal<bool>         sig3[3];
@@ -39,7 +56,9 @@ public:
     A a_mod{"a_mod"};
     A* p_mod;
 
-    SC_CTOR(B_top) {
+    SC_CTOR(B_top) 
+    {
+        a_mod.clk(clk);
         // Allocate signal in another module directly
         for (int i = 0; i < 3; i++) {
             a_mod.p1[i] = new sc_in<bool>("p1");
@@ -58,6 +77,7 @@ public:
         }
         
         p_mod = new A("p_mod");
+        p_mod->clk(clk);
         for (int i = 0; i < 3; i++) {
             p_mod->p1[i] = new sc_in<bool>("p1");
         }
@@ -77,7 +97,9 @@ public:
 };
 
 int sc_main(int argc, char *argv[]) {
+    sc_clock clk{"clk", 1, SC_NS};
     B_top b_mod{"b_mod"};
+    b_mod.clk(clk);
     sc_start();
     return 0;
 }

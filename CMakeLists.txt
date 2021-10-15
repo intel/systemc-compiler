@@ -10,7 +10,7 @@ project(sctool)
 
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(LLVM 7.0.0 REQUIRED CONFIG)
+find_package(LLVM $ENV{LLVM_VER} REQUIRED CONFIG)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")

@@ -9,7 +9,7 @@
 
 using namespace sc_core;
 
-// Multiple pointers to module, 4 warnings reported
+// Multiple pointers to module, 1 warning reported
 class B : public sc_module {
 public:
     SC_CTOR(B) {

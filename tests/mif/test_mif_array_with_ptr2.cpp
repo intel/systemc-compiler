@@ -32,7 +32,7 @@ struct mod_if : public sc_module, sc_interface
         vp = sc_new<sc_uint<4>>();
         
         SC_METHOD(ptrProc);
-        sensitive << *p;
+        sensitive << *p << *in;
 
         SC_CTHREAD(thrProc, clk.pos());
         async_reset_signal_is(rst, true);
@@ -86,7 +86,7 @@ SC_MODULE(Top) {
         minst[1]->out->bind(z);
         
         SC_METHOD(top_method);
-        sensitive << t;
+        sensitive << t << *minst[0]->p;
         
         SC_CTHREAD(top_thread, clk.pos());
         async_reset_signal_is(rst, true);

@@ -30,7 +30,7 @@ struct mod_if : public sc_module, sc_interface
         vp = sc_new<sc_uint<4>>();
         
         SC_METHOD(ptrProc);
-        sensitive << *p;
+        sensitive << *p << *in;
 
         SC_CTHREAD(thrProc, clk.pos());
         async_reset_signal_is(rst, true);

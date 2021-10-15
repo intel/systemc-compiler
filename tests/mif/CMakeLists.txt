@@ -10,6 +10,8 @@ svc_target(mif_simple3 ELAB_TOP tb_inst.top_inst GOLDEN mif_simple3.sv)
 add_executable(mif_simple4 test_mif_simple4.cpp)
 svc_target(mif_simple4 ELAB_TOP tb_inst.top_inst GOLDEN mif_simple4.sv)
 
+add_executable(mif_simple5 test_mif_simple5.cpp)
+svc_target(mif_simple5 ELAB_TOP tb_inst.top_inst GOLDEN mif_simple5.sv)
 
 add_executable(mif_const1 test_mif_const1.cpp)
 svc_target(mif_const1 GOLDEN mif_const1.sv)

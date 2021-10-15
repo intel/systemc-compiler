@@ -324,8 +324,8 @@ std::pair<unsigned, unsigned> calcNextLevel(
         
         // Check if last element is return statement
         if (elm.getKind() == CFGElement::Kind::Statement) {
-            CFGStmt* s = elm.getAs<CFGStmt>().getPointer();
-            if (isa<const ReturnStmt>(s->getStmt())) {
+            CFGStmt cfgstmt = elm.getAs<CFGStmt>().getValue();
+            if (isa<const ReturnStmt>(cfgstmt.getStmt())) {
                 returnPred = true; break;
             }
         }

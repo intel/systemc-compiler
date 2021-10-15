@@ -21,10 +21,11 @@ public:
     top (sc_module_name) {
 
         SC_METHOD(test_method);
+        sensitive << *sigp;
     }
 
     void test_method() {
-        *sigp = sigp->read() + 1;
+        *sigp2 = sigp->read() + 1;
         sigp2->write(*sigp);
     }
 

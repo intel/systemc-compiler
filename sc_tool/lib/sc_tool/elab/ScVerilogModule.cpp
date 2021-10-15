@@ -11,11 +11,13 @@
 
 #include <sc_tool/elab/ScVerilogModule.h>
 #include <sc_tool/utils/ScTypeTraits.h>
+#include <sc_tool/utils/CppTypeTraits.h>
 #include <sc_tool/utils/StringFormat.h>
 #include <sc_tool/diag/ScToolDiagnostic.h>
 #include <sc_tool/utils/VerilogKeywords.h>
 #include <sc_tool/ScCommandLine.h>
 #include "ScVerilogModule.h"
+#include "sc_tool/scope/ScVerilogWriter.h"
 
 namespace sc_elab
 {
@@ -300,11 +302,59 @@ void VerilogModule::detectUseDefErrors()
             if (isChannel && procUseVars[procView].count(verVar) != 0) {
                 auto* procDecl = procView.getLocation().second;
                 SCT_TOOL_ASSERT (procDecl, "Process has null declaration");
-                ScDiag::reportScDiag(procDecl->getBeginLoc(), 
-                                     ScDiag::SYNTH_USEDEF_IN_SAME_PROC) <<
-                                     verVar->getName();
+                
+                // Print warning for non-array channel only, else print remark
+                if (verVar->getArrayDims().empty()) {
+                    ScDiag::reportScDiag(procDecl->getBeginLoc(), 
+                                         ScDiag::SYNTH_USEDEF_IN_SAME_PROC) <<
+                                         verVar->getName();
+                } else {
+                    ScDiag::reportScDiag(procDecl->getBeginLoc(), 
+                                         ScDiag::SYNTH_USEDEF_ARR_IN_SAME_PROC) <<
+                                         verVar->getName();
+                }
             }
         }
+    }
+    
+    // Checking method sensitivity list is complete
+    for (const auto& entry : procUseVars) {
+        const auto& procView = entry.first;
+        if (!procView.isScMethod()) continue;
+        
+        unsigned nonSensFound = 0;
+        std::string nonSensChannels;
+        for (const auto& procVar : entry.second) {
+            bool isChannel = procVar.second == VarKind::vkChannel;
+            if (!isChannel) continue;
+                
+            const VerilogVar* verVar = procVar.first;
+            
+            bool found = false;
+            for (const auto& event : procView.staticSensitivity()) {
+                if (!event.isDefault()) continue;
+
+                auto eventVars = event.sourceObj.getVerilogVars();
+                for (const auto& eventVar : eventVars) {
+                    if (verVar == eventVar.var) {
+                        found = true; break;
+                    }
+                }
+                if (found) break;
+            }
+            
+            if (!found) {
+                if (nonSensFound) nonSensChannels += ", ";
+                nonSensChannels += verVar->getName();
+                if (++nonSensFound > 5) break;
+            }    
+        }
+        if (nonSensFound) {
+            auto* procDecl = procView.getLocation().second;
+            ScDiag::reportScDiag(procDecl->getBeginLoc(), 
+                                 ScDiag::SYNTH_NON_SENSTIV_2USED) << 
+                                 nonSensChannels;
+        }                
     }
 }
 
@@ -458,6 +508,164 @@ void VerilogModule::serializeToStream(llvm::raw_ostream &os) const
     
     os << "endmodule\n\n\n";
     
+}
+
+// Get array indices in multi-dimensional for given @indx
+// \param allSizes -- record array and field array joined sizes
+IndexVec getArrayIndices(const IndexVec& arrSizes, std::size_t indx) 
+{
+    IndexVec arrInds(arrSizes);
+
+    // Fill @arrInds with element indices
+    for (auto i = arrInds.rbegin(); i != arrInds.rend(); ++i) {
+        unsigned a = indx % (*i);
+        indx = indx / (*i);
+        *i = a;
+    }
+    return arrInds;
+}
+
+// Get total element number in one/multi-dimensional array, 
+// for one-dimensional array the same as its size
+unsigned getArrayElementNumber(const IndexVec& arrSizes)
+{
+    unsigned elmnum = (arrSizes.size() > 0) ? 1 : 0;
+
+    for (auto s : arrSizes) {
+        elmnum = elmnum*s;
+    }
+
+    return elmnum;
+}
+
+
+void VerilogModule::createTopWrapper(llvm::raw_ostream &os) const
+{
+    using namespace sc;
+    using namespace std;
+    
+    string modLoc = "";
+    if (elabModObj.getFieldDecl()) {
+        auto& sm = elabModObj.getFieldDecl()->getASTContext().getSourceManager();
+        modLoc = elabModObj.getFieldDecl()->getBeginLoc().printToString(sm);
+        modLoc = sc::getFileName(modLoc);
+    }
+    
+    os << "\n//==============================================================================\n";
+    os << "//\n";
+    os << "// Module wrapper with array port flatten \n";
+    os << "// for : " << commentName << " (" << modLoc << ")\n";
+    os << "//\n";
+    
+    os << "module " << name << "_wrapper\n";
+    os << "(";
+
+    UniqueNamesGenerator portNameGen;
+    portNameGen.addTakenName(name);
+    for (auto &port : verilogPorts) {
+        const VerilogVar& var = *port.getVariable();
+        portNameGen.addTakenName(var.getName());
+    }
+    
+    // Generated array ports for array port variable
+    unordered_map<VerilogPort, vector<VerilogVar>> arrPorts;
+
+    bool firstPort = true;
+    for (auto &port : verilogPorts) {
+        string dirStr = port.getDirection() == PortDirection::IN ?
+                        "    input " : 
+                        port.getDirection() == PortDirection::OUT ?
+                        "    output " :
+                        port.getDirection() == PortDirection::INOUT ?
+                        "    inout " : "";
+        const VerilogVar& var = *port.getVariable();
+        
+        if (var.isArray()) {
+            auto entry = arrPorts.emplace(port, vector<VerilogVar>());
+            SCT_TOOL_ASSERT(entry.second, 
+                            "Non-unique port variable at top module interface");
+            
+            auto dims = var.getArrayDims();
+            unsigned elemNum = getArrayElementNumber(dims);
+            
+            for (unsigned i = 0; i < elemNum; i++) {
+                string arrName = var.getName();
+                auto indices = getArrayIndices(dims, i);
+                for (auto indx : indices) {
+                    arrName += "_" + to_string(indx);
+                }
+                //cout << "arrName " << arrName << endl;
+                
+                const auto& arrPort = entry.first->second.emplace_back(
+                            VerilogVar(portNameGen.getUniqueName(arrName),
+                            var.getBitwidth(), IndexVec(), var.isSigned()));
+                
+                if (!firstPort) os << ",\n"; else os << "\n"; 
+                os << dirStr;
+                serializeVerVar(os, arrPort);
+            }
+            
+        } else {
+            if (!firstPort) os << ",\n"; else os << "\n"; 
+            os << dirStr;
+            serializeVerVar(os, var);
+        }
+        firstPort = false;
+    }
+    os << "\n);\n\n";
+    
+    // Declare local array variables
+    for (auto& entry : arrPorts) {
+        const VerilogVar& var = *entry.first.getVariable();
+        serializeVerVar(os, var);
+        os << ";\n";
+    }
+    os << "\n";
+
+    // Generate intermediate assignments
+    for (auto& entry : arrPorts) {
+        const VerilogVar& var = *entry.first.getVariable();
+        bool inPort = entry.first.getDirection() == PortDirection::IN;
+        auto dims = var.getArrayDims();
+        unsigned elemNum = getArrayElementNumber(dims);
+        
+        for (unsigned i = 0; i < elemNum; i++) {
+            string arrName = var.getName();
+            auto indices = getArrayIndices(dims, i);
+            for (auto indx : indices) {
+                arrName += "[" + to_string(indx) + "]";
+            }
+            
+            os << "assign ";
+            if (inPort) {
+                os << arrName << " = " << entry.second.at(i).getName(); 
+            } else {
+                os << entry.second.at(i).getName() << " = " << arrName; 
+            }
+            os << ";\n";
+        }
+    }
+    os << "\n";
+    
+    // Instantiate this module
+    string instName = portNameGen.getUniqueName(name + "_inst");
+    os << name << " " << instName << "\n(\n";
+
+    firstPort = true;
+    for (auto& port : verilogPorts) {
+        const VerilogVar& var = *port.getVariable();
+        if (!firstPort) os << ",\n";
+        os << "  .";
+        os << var.getName();
+        os << "(";
+        os << var.getName();
+        os << ")";
+        firstPort = false;
+    }
+
+    os << "\n);\n\n";
+    
+    os << "endmodule\n\n";
 }
 
 void VerilogModule::createPortMap(llvm::raw_ostream &os) const
@@ -652,7 +860,8 @@ void VerilogModule::serializeProcess(llvm::raw_ostream &os,
     }
 }
 
-void VerilogModule::addModuleInstance(ModuleMIFView modObj , llvm::StringRef name)
+void VerilogModule::addModuleInstance(ModuleMIFView modObj, 
+                                      const std::string& name)
 {
     auto instanceName = nameGen.getUniqueName(name);
     auto *newInstance = &instances.emplace_back(instanceName, modObj);
@@ -660,12 +869,12 @@ void VerilogModule::addModuleInstance(ModuleMIFView modObj , llvm::StringRef nam
 }
 
 VerilogVar *VerilogModule::createChannelVariable(sc_elab::ObjectView systemcObject,
-                                                 llvm::StringRef suggestedName,
+                                                 const std::string& suggestedName,
                                                  size_t bitwidth,
                                                  sc_elab::IndexVec arrayDims,
                                                  bool isSigned,
                                                  sc_elab::APSIntVec initVals,
-                                                 llvm::StringRef comment)
+                                                 const std::string& comment)
 {
     VerilogVar *var = &channelVars.emplace_back(VerilogVar(
                                 nameGen.getUniqueName(suggestedName),
@@ -687,12 +896,12 @@ VerilogVar *VerilogModule::createChannelVariable(sc_elab::ObjectView systemcObje
 //}
 
 VerilogVar *VerilogModule::createDataVariable(ObjectView cppObject,
-                                              llvm::StringRef suggestedName,
+                                              const std::string& suggestedName,
                                               size_t bitwidth,
                                               IndexVec arrayDims,
                                               bool isSigned,
                                               APSIntVec initVals,
-                                              llvm::StringRef comment)
+                                              const std::string& comment)
 {
     //std::cout << "    createDataVariable suggestedName " << std::string(suggestedName) << std::endl;    
     //std::cout << "    VerilogModule::createDataVariable arrayDims.size " << arrayDims.size() << std::endl;
@@ -713,12 +922,12 @@ VerilogVar *VerilogModule::createDataVariable(ObjectView cppObject,
 // provides the same name for all array instances
 VerilogVar *VerilogModule::createDataVariableMIFArray(ObjectView cppObject,
                                               ObjectView parentObject,
-                                              llvm::StringRef suggestedName,
+                                              const std::string& suggestedName,
                                               size_t bitwidth,
                                               IndexVec arrayDims,
                                               bool isSigned,
                                               APSIntVec initVals,
-                                              llvm::StringRef comment)
+                                              const std::string& comment)
 {
 //    std::cout << "    createDataVariableMIFArray parentObject " 
 //              << parentObject.getID() << ", cppObject " 
@@ -783,10 +992,10 @@ VerilogVar *VerilogModule::createDataVariableMIFArray(ObjectView cppObject,
 // Create process local variable or member variable used in the process
 VerilogVar *VerilogModule::createProcessLocalVariable(
                                             ProcessView procView, 
-                                            llvm::StringRef suggestedName,
+                                            const std::string& suggestedName,
                                             size_t bitwidth, IndexVec arrayDims, 
                                             bool isSigned, APSIntVec initVals, 
-                                            llvm::StringRef comment)
+                                            const std::string& comment)
 {
     // Avoid name conflict with local names
     auto* procVar = &procVars.emplace_back(
@@ -807,10 +1016,10 @@ VerilogVar *VerilogModule::createProcessLocalVariable(
 // do not change given name (it is unique because of zero element)
 VerilogVar *VerilogModule::createProcessLocalVariableMIFNonZero(
                                             ProcessView procView, 
-                                            llvm::StringRef suggestedName,
+                                            const std::string& suggestedName,
                                             size_t bitwidth, IndexVec arrayDims, 
                                             bool isSigned, APSIntVec initVals, 
-                                            llvm::StringRef comment)
+                                            const std::string& comment)
 {
     auto* procVar = &procVars.emplace_back(
         VerilogVar(suggestedName, bitwidth, std::move(arrayDims), 
@@ -820,10 +1029,10 @@ VerilogVar *VerilogModule::createProcessLocalVariableMIFNonZero(
 }
 
 VerilogVar *VerilogModule::createAuxilarySignal(
-                                            llvm::StringRef suggestedName,
+                                            const std::string& suggestedName,
                                             size_t bitwidth, IndexVec arrayDims, 
                                             bool isSigned, APSIntVec initVals,
-                                            llvm::StringRef comment)
+                                            const std::string& comment)
 {
     auto *newVar = &channelVars.emplace_back(VerilogVar(
                             nameGen.getUniqueName(suggestedName),
@@ -837,10 +1046,10 @@ VerilogVar *VerilogModule::createAuxilarySignal(
 
 VerilogVar* VerilogModule::createAuxilaryPort(
                                             PortDirection dir,
-                                            llvm::StringRef suggestedName, 
+                                            const std::string& suggestedName, 
                                             size_t bitwidth, IndexVec arrayDims,
                                             bool isSigned, APSIntVec initVals, 
-                                            llvm::StringRef comment)
+                                            const std::string& comment)
 {
     auto *newVar = &channelVars.emplace_back(
         VerilogVar(nameGen.getUniqueName(suggestedName), bitwidth, arrayDims,
@@ -858,7 +1067,7 @@ VerilogVar* VerilogModule::createAuxilaryPort(
 VerilogVar* VerilogModule::createAuxilaryPortForSignal(PortDirection dir,
                                             VerilogVar* verVar, 
                                             APSIntVec initVals, 
-                                            llvm::StringRef comment)
+                                            const std::string& comment)
 {
     auto *newVar = &channelVars.emplace_back(
         VerilogVar(verVar->getName(), verVar->getBitwidth(), 
@@ -987,10 +1196,15 @@ static void serializeVerilogBool(llvm::raw_ostream &os, llvm::APSInt val)
 static void serializeVerilogInt(llvm::raw_ostream &os, llvm::APSInt val)
 {
     using namespace llvm;
+    using namespace sc;
     
-    bool isNegative = val < 0;
-    std::string literStr = val.toString(10);
-    unsigned bitNeeded = APSInt::getBitsNeeded(literStr, 10);
+    // Previous version of member constant code generation
+/*    bool isNegative = val < 0;
+    unsigned bitNeeded = getBitsNeeded(val);
+
+    if (bitNeeded > 64) {
+        ScDiag::reportScDiag(ScDiag::CPP_BIG_INTEGER_LITER) << bitNeeded;
+    }
     
     if (isNegative) {
         os << "-";
@@ -1010,7 +1224,11 @@ static void serializeVerilogInt(llvm::raw_ostream &os, llvm::APSInt val)
     }
     
     // Get absolute value for negative literal
-    os << (isNegative ? APSInt(val.abs()).toString(radix) : val.toString(radix));
+    os << (isNegative ? APSInt(val.abs()).toString(radix) : val.toString(radix));*/
+    
+    std::string s = ScVerilogWriter::makeLiteralStr(nullptr, val, 10, 0, 0, 
+                                                    CastSign::NOCAST, false);
+    os << s;
 }
 
 static void serializeInitVals(llvm::raw_ostream &os,

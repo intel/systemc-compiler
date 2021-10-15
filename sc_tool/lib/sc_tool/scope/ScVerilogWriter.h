@@ -44,25 +44,17 @@ struct hash< std::pair<std::string, sc::SValue> >
 
 namespace sc {
     
-enum class CastSign {
+enum class CastSign : char {
     NOCAST = 0, 
     UCAST = 1, 
     SCAST = 2,  // original signed cast added in ImplicitCast operator
     SACAST = 3  // artificially signed cast added in VerilogWriter, signed+1bit
 };
 
-// TODO: use for @TermInfo.explCast to fix #266
-enum class ExplCast {
-    NOCAST = 0, 
-    UCAST = 1, 
-    SCAST = 2
-};
-
-enum class ExprSign {
-    NOEXPR = 0, 
-    SEXPR = 1, 
-    UEXPR = 2,
-    LEXPR = 3
+enum class ExprSign : char {
+    NOEXPR = 0, // no expression
+    SEXPR = 1,  // expression could be negative    
+    UEXPR = 2   // non-negative expression
 };
 
 /// Term string, flags and range
@@ -70,33 +62,34 @@ struct TermInfo
 {
     // <readName, writeName>
     std::pair<std::string, std::string> str;
-    bool        isChannel;      // Used to choose non-blocking assignment
     // General width of any kind of term:
     // - Literal width based on value bit needed
     // - Variable width based on type width 
     // - Expression width evaluated from argument widths, 0 if unknown
-    size_t      exprWidth;      // Used to avoid index in partial select and 
+    unsigned exprWidth : 32;    // Used to avoid index in partial select and 
                                 // for type extension in some binary operations
-    size_t      minCastWidth;   // From explicit cast, minimal width to narrow value
-    size_t      lastCastWidth;  // From explicit cast/extend width/replace variable, 
+    unsigned minCastWidth  : 32;// From explicit cast, minimal width to narrow value
+    unsigned lastCastWidth : 32;// From explicit cast/extend width/replace variable, 
                                 // last cast for concatenation, applied depends on
                                 // @explCast for @getExprWidth or make literal only 
-    bool        explCast;       // Explicit cast, used to apply SACAST and skip
-                                // NOCAST -> SCAST transformation
-    CastSign    castSign;       // From implicit/explicit casts, signedness for
+    char        literRadix: 8;  // Term literal radix or 0 if not literal
+    CastSign    castSign  : 8;  // From implicit/explicit casts, signedness for
                                 // literals/variables/expressions 
-    ExprSign    exprSign;       // Signed/unsigned expression (unary/binary) flag
-    char        literRadix;     // Term literal radix or 0 if not literal
-    bool        simplTerm;      // Term can be used w/o brackets anywhere
-    bool        incrWidth;      // Increase result width of operand width, 
+    ExprSign    exprSign  : 8;  // Signed/unsigned expression (unary/binary) flag
+    bool        isChannel : 1;  // Used to choose non-blocking assignment
+    bool        explCast  : 1;  // Explicit cast, used to apply SACAST and skip
+                                // NOCAST -> SCAST transformation
+    bool        simplTerm : 1;  // Term can be used w/o brackets anywhere
+    bool        incrWidth : 1;  // Increase result width of operand width, 
                                 // some binary and unary operators       
     
     TermInfo(const std::pair<std::string, std::string>& s, 
-             size_t exprWidth_, bool isChannel_) : 
-        str(s), isChannel(isChannel_), 
-        exprWidth(exprWidth_), minCastWidth(0), lastCastWidth(0), explCast(false),
-        castSign(CastSign::NOCAST), exprSign(ExprSign::NOEXPR), 
-        literRadix(0), simplTerm(true), incrWidth(false)
+             unsigned exprWidth_, bool isChannel_) : 
+        str(s),  
+        exprWidth(exprWidth_), minCastWidth(0), lastCastWidth(0), 
+        literRadix(0), castSign(CastSign::NOCAST), exprSign(ExprSign::NOEXPR), 
+        isChannel(isChannel_), explCast(false),
+        simplTerm(true), incrWidth(false)
     {}
 };
 
@@ -237,11 +230,14 @@ public:
     /// Return true if @val is register in @varTraits, only in splitting thread mode
     bool isRegister(const SValue& val);
     
-    /// Check @sc_comb_sig with CLEAR flag 
+    /// Check @sct_comb_sig wit CLEAR flag false
     bool isCombSig(const SValue& val);
     
-    /// Check @sc_comb_sig without CLEAR flag 
+    /// Check @sct_comb_sig with CLEAR flag true 
     bool isCombSigClear(const SValue& val);
+    
+    /// Check @sct_clear_sig 
+    bool isClearSig(const SValue& val);
 
 protected: 
     /// Calculate outlined brackets number
@@ -275,14 +271,15 @@ protected:
 
     /// Make literal term string in sized form if required
     /// \param addNegBrackets -- add brackets for negative literal
-    std::string makeLiteralStr(const std::string& literStr, char radix,
-                               size_t minCastWidth, size_t lastCastWidth,
+    std::string makeLiteralStr(const clang::Stmt* stmt,
+                               const std::string& literStr, char radix,
+                               unsigned minCastWidth, unsigned lastCastWidth,
                                CastSign castSign, bool addNegBrackets);
     
     /// Make non-literal term string with sign cast if required
     /// \param castSign -- sign cast applied to add @signed
-    std::string makeTermStr(const std::string& termStr, size_t minCastWidth, 
-                            size_t lastCastWidth, CastSign castSign);
+    std::string makeTermStr(const std::string& termStr, unsigned minCastWidth, 
+                            unsigned lastCastWidth, CastSign castSign);
 
     /// Get @stmt string as RValue, cast optionally applied
     /// \param skipCast       -- do not add cast for non-literal, 
@@ -295,7 +292,13 @@ protected:
                                             bool addNegBrackets = false,
                                             bool doSignCast = false,
                                             bool doConcat = false);
+public:
+    static std::string makeLiteralStr(const clang::Stmt* stmt, 
+                                llvm::APSInt val, char radix, 
+                                unsigned minCastWidth, unsigned lastCastWidth,
+                                CastSign castSign, bool addNegBrackets);
     
+protected:    
     /// Put/replace string into @terms
     void putString(const clang::Stmt* stmt, 
                    const TermInfo& info);
@@ -303,11 +306,11 @@ protected:
     /// Put/replace string into @terms with given flags
     void putString(const clang::Stmt* stmt, 
                    const std::pair<std::string, std::string>& s, 
-                   size_t exprWidth, bool isChannel = false);
+                   unsigned exprWidth, bool isChannel = false);
 
     /// Put/replace the same string into @terms with empty flags and no range
     void putString(const clang::Stmt* stmt, const std::string& s, 
-                   size_t exprWidth, bool isChannel = false);
+                   unsigned exprWidth, bool isChannel = false);
     
     /// Add string into @terms string with empty flags, no range and no channel
     void addString(const clang::Stmt* stmt, const std::string& s);
@@ -318,7 +321,7 @@ protected:
     // that means this term needs brackets in compound assignment
     void clearSimpleTerm(const clang::Stmt* stmt);
     
-    void setExprSign(const clang::Stmt* stmt, bool sign, bool liter = false);
+    void setExprSign(const clang::Stmt* stmt, bool sign);
 
     /// Set incrWidth for given stmt, 
     /// that means result width is bigger than operand data width 
@@ -327,7 +330,7 @@ protected:
     /// Put assignment string, record field supported
     void putAssignBase(const clang::Stmt* stmt, const SValue& lval, 
                       std::string lhsName, std::string rhsName, 
-                      size_t width, bool isChannel = false);
+                      unsigned width);
     
 //============================================================================
 
@@ -338,21 +341,21 @@ public:
     /// Get expression data width from @exprWidth 
     /// \param doConcat -- get expression width for concatenation
     /// \return @exprWidth for given statement or 0 if width unknown
-    size_t getExprWidth(const clang::Stmt* stmt, bool doConcat = false);
+    unsigned getExprWidth(const clang::Stmt* stmt, bool doConcat = false);
     
     /// Get minimal width to avoid part/bit selection outside of variable width
     /// \return @exprWidth for given statement or 0 if width unknown
-    size_t getMinExprWidth(const clang::Stmt* stmt);
+    unsigned getMinExprWidth(const clang::Stmt* stmt);
     
     /// Get expression data width from @lastCast or @exprWidth after that or 
     /// type information at the end
     /// \param getMinWidth -- get minimal width of @minCast and @exprWidth
     /// \return expression/type width or 64 with error reporting
-    size_t getExprTypeWidth(const clang::Expr* expr, size_t defWidth = 64);
+    unsigned getExprTypeWidth(const clang::Expr* expr, unsigned defWidth = 64);
 
     /// Get minimal expression data width as minimal of @minCast and @exprWidth
     /// \return expression/type width or 64 with error reporting
-    size_t getMinExprTypeWidth(const clang::Expr* expr, size_t defWidth = 64);
+    unsigned getMinExprTypeWidth(const clang::Expr* expr, unsigned defWidth = 64);
 
     /// Get record array indices string
     std::string getRecordIndxs(const std::vector<SValue>& recarrs);
@@ -375,6 +378,9 @@ public:
     void putTypeCast(const clang::Stmt* srcStmt, const clang::Stmt* stmt,
                      const clang::QualType& type);
 
+    /// Put sign cast for literals and expressions
+    void putSignCast(const clang::Stmt* stmt, CastSign castSign);
+    
     /// Set cast width for variables/expressions replaced by value,
     /// used in concatenation
     void setReplacedCastWidth(const clang::Stmt* stmt, 
@@ -382,7 +388,7 @@ public:
 
     /// Extend type width for arithmetic operation  argument self-determined in SV,
     /// this is type cast to given @width
-    void extendTypeWidth(const clang::Stmt* stmt, const size_t width);
+    void extendTypeWidth(const clang::Stmt* stmt, unsigned width);
     
     /// Used for literals
     void putLiteral(const clang::Stmt* stmt, const SValue& val);
@@ -521,6 +527,12 @@ public:
                           const clang::Expr* base,
                           const clang::Expr* index);
     
+    /// Report warning for negative literal casted to unsigned in division/reminder
+    void checkNegLiterCast(const clang::Stmt* stmt, const TermInfo& info);
+
+    /// Set SCAST for literal, SACAST for unsigned operand which is not SEXPR
+    void setExprSCast(const clang::Expr* expr, TermInfo& info);
+    
     /// Binary operators "+", "-", "*", "/", "%", "||", "&&", "&", "|", "^",
     /// "<<", ">>", >", "<", ">=", "<=", "==", "!="
     void putBinary(const clang::Stmt* stmt, std::string opcode, 
@@ -535,9 +547,6 @@ public:
     /// Unary operators "++", "--", ...
     void putUnary(const clang::Stmt* stmt, std::string opcode, 
                   const clang::Expr* rhs, bool isPrefix = true);
-    
-    /// Put sign cast for literals and expressions
-    void putSignCast(const clang::Stmt* stmt, CastSign castSign);
     
     /// Ternary statement ?
     void putCondStmt(const clang::Stmt* stmt, const clang::Stmt* cond, 

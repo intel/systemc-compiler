@@ -102,8 +102,9 @@ clang::DiagnosticBuilder ScDiag::reportScDiag(clang::SourceLocation loc,
     return engine.Report(loc, clangId);
 }
 
-clang::DiagnosticBuilder ScDiag::reportScDiag(ScDiag::ScDiagID id) {
-    return ScDiag::reportScDiag(clang::SourceLocation(), id);
+clang::DiagnosticBuilder ScDiag::reportScDiag(ScDiag::ScDiagID id,
+                                              bool checkDuplicate) {
+    return ScDiag::reportScDiag(clang::SourceLocation(), id, checkDuplicate);
 }
 
 }

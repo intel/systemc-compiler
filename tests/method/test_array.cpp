@@ -54,17 +54,17 @@ public:
             }    
         }    
 
-        SC_METHOD(chan_array_range); sensitive<< dummy;
-        SC_METHOD(chan_array_double_used); sensitive << dummy;
+        SC_METHOD(chan_array_range); sensitive<< dummy << sig1[0];
+        SC_METHOD(chan_array_double_used); sensitive << dummy << sig1b[0];
 
         SC_METHOD(mem_array); sensitive<< dummy;
         SC_METHOD(var_array); sensitive<< dummy;
-        SC_METHOD(in_port_array); sensitive<< dummy;
-        SC_METHOD(out_port_array); sensitive<< dummy;
-        SC_METHOD(signal_array_part_sel); sensitive<< dummy;
-        SC_METHOD(signal_array); sensitive<< dummy;
-        SC_METHOD(port_pointer_array); sensitive<< dummy;
-        SC_METHOD(sig_pointer_array); sensitive<< dummy;
+        SC_METHOD(in_port_array); sensitive<< dummy << in_ports1[0] << in_ports2[0][0] << in_ports1b[0] << in_ports2b[0][0];
+        SC_METHOD(out_port_array); sensitive<< dummy << in_ports1[0] << in_ports2[0][0] << in_ports2b[0][0];
+        SC_METHOD(signal_array_part_sel); sensitive<< dummy << sig2a[0][0] << sig1[0] << *sig_p2a[0][0] << *in_ports_p1[0];
+        SC_METHOD(signal_array); sensitive<< dummy << sig1[0] <<sig2[0][0] << sig1b[0];
+        SC_METHOD(port_pointer_array); sensitive<< dummy << *in_ports_p1[0] << *in_ports_p2[0][0];
+        SC_METHOD(sig_pointer_array); sensitive<< dummy << *sig_p1[1] << *sig_p2[1][0] << *out_ports_p1[0] << *in_ports_p1[0] << *in_ports_p2[0][0];
 
         SC_METHOD(array_init); sensitive<< dummy;
         SC_METHOD(array_record); sensitive << sig;

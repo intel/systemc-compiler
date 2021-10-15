@@ -601,8 +601,8 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
 
         // If not all next scope predecessors analyzed or next scope level
         // is less than current level, return from this function
-        if (next == nullptr || !next->empty() && 
-            next->getCorrLevel() < scopeLevel && !noExitByLevel) 
+        if (next == nullptr || (!next->empty() && 
+            next->getCorrLevel() < scopeLevel && !noExitByLevel)) 
         {
             if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
                 cout << "--- Scope up, as next " << ((next) ? "level up" : "is null") << endl;

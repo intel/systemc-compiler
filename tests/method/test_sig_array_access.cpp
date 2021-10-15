@@ -24,7 +24,7 @@ struct dut : sc_module {
         sensitive << en << r_nw << addr << wdata;
 
         SC_METHOD(read_method_comb);
-        sensitive << en << r_nw << addr;
+        sensitive << en << r_nw << addr << reg_file[0];
 
         SC_METHOD(chan_arr_func_param);  
         sensitive << chr[0] << chr[1] << chr[2];

@@ -36,7 +36,7 @@ SC_MODULE(bottom) {
 
     SC_CTOR(bottom) {
         SC_METHOD(test_method);
-        sensitive << clk.pos();
+        sensitive << clk.pos() << in2d[1][0] << in[1];
     }
 
     void test_method() {
@@ -80,7 +80,7 @@ SC_MODULE(middle) {
         b_inst.out2d[1][1]( out2d[1][1] );
 
         SC_METHOD(drive_in2d_method);
-        sensitive << clk.pos();
+        sensitive << clk.pos() << in2d[0][0];
     }
 
     void drive_in2d_method() {

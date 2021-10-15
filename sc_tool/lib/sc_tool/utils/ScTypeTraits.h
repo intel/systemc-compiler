@@ -121,6 +121,8 @@ bool isScSignal(clang::QualType type);
 
 /// Check if @type is sct_comb_signal or its inheritor
 bool isScToolCombSignal(clang::QualType type, bool checkPointer = true);
+/// Check if @type is sct_clear_signal or its inheritor
+bool isScToolClearSignal(clang::QualType type, bool checkPointer = true);
 
 /// Check if type is signal or any kind of port
 /// \param checkPointer -- also check if it is pointer to signal

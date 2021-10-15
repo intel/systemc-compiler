@@ -43,14 +43,12 @@ MangledTypeDB::MangledTypeDB(clang::ASTContext &astCtx)
 
 
             if (auto builtinType =  type->getAs<BuiltinType>()) {
-                // Skip types not yet supported on Windows
-
+                // Skip types not yet supported
                 if (builtinType->getKind() == BuiltinType::Kind::Float128)
                     continue;
 
-                if (builtinType->getKind() == BuiltinType::Kind::Char8)
+                if (builtinType->getKind() == BuiltinType::Kind::BFloat16)
                     continue;
-
             }
 
             auto cannonType = type->getCanonicalTypeInternal();
@@ -77,7 +75,7 @@ MangledTypeDB::MangledTypeDB(clang::ASTContext &astCtx)
 
 clang::QualType MangledTypeDB::getType(llvm::StringRef mangledTypeName)
 {
-    return typeMap.at(mangledTypeName);
+    return typeMap.at(mangledTypeName.str());
 }
 
 } // namespace sc_elab

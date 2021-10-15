@@ -329,6 +329,8 @@ svc_target(method_empty_sensvty_dupl_fail WILL_FAIL)
 add_executable(method_non_sensvty_fail test_non_sensvty_fail.cpp)
 svc_target(method_non_sensvty_fail WILL_FAIL)
 
+add_executable(method_non_sensvty_arr_fail test_non_sensvty_arr_fail.cpp)
+svc_target(method_non_sensvty_arr_fail WILL_FAIL)
 
 
 add_executable(method_bool test_bool.cpp)

@@ -21,7 +21,7 @@ struct Dut : sc_module
     }
 
     void methodProc() {
-        if (*x == 0){
+        if (x) {
             int i = 42;
         }
     }

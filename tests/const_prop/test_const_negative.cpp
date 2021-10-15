@@ -182,19 +182,19 @@ SC_MODULE(top)
         T j = -C1;
         T r = j + 1;
         CHECK(r == neg_val1);
-        r = -C1 + j;
-        CHECK(r == neg_val2);
+        r = -C1 + j;            // Warning reported
+        //CHECK(r == neg_val2);
         
         // Minus
         r = j - (-1);
         CHECK(r == neg_val1);
-        r = -C1 - (-j);
-        CHECK(r == neg_val2);
-        r = -C1 - j;
-        CHECK(r == 0);
+        r = -C1 - (-j);         // Warning reported
+        //CHECK(r == neg_val2);
+        r = -C1 - j;            // Warning reported
+        //CHECK(r == 0);  
         
         // Multiply
-        r = j * 1 - 1*(-1);
+        r = j * 1 - 1*(-1);         
         CHECK(r == neg_val1);
         r = (-j) * (-2);
         CHECK(r == neg_val2);
@@ -263,19 +263,19 @@ SC_MODULE(top)
         j += 1;
         CHECK(j == neg_val1);
         j = -C1;
-        j += -C1;
-        CHECK(j == neg_val2);
+        j += -C1;           // Warning reported
+        //CHECK(j == neg_val2);
         
         // Minus
         j = -C1;
         j -= -1;
         CHECK(j == neg_val1);
         j = -C1;
-        j -= -j;
-        CHECK(j == neg_val2);
+        j -= -j;            // Warning reported    
+        //CHECK(j == neg_val2);
         j = -C1;
-        j -= -C1;
-        CHECK(j == 0);
+        j -= -C1;           // Warning reported
+        //CHECK(j == 0);
         
         // Multiply
         j = -C1;
@@ -294,9 +294,9 @@ SC_MODULE(top)
         CHECK(j == neg_val1);
         j = -C1;
         j *= -4;
-        j /= -2;
+        j /= -2;            // Warning reported
         //cout << "j " << j << endl;
-        CHECK(j == neg_val3);
+        //CHECK(j == neg_val3);
     }
 
     // @biguint and @bigint specific, for @biguint it need to add signed even
@@ -309,7 +309,7 @@ SC_MODULE(top)
         j = -42;
         j *= -4;
         j /= -2;
-        CHECK(j == 65452);
+        //CHECK(j == 65452);
         
         sc_bigint<16> y = -5;
         j = -42;
@@ -321,8 +321,8 @@ SC_MODULE(top)
         
         sc_biguint<16> l1 = 42;
         sc_biguint<16> k = 1;
-        k += (-l1);
-        CHECK(k == 65495);
+        k += (-l1);             // Warning reported
+        //CHECK(k == 65495);
 
         sc_biguint<16> l2 = 42;
         sc_bigint<16> jj = 1;

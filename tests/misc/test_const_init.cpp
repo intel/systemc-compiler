@@ -17,6 +17,12 @@ struct A : public sc_module
     const int  i = 0;
     const sc_uint<16> x = 0;
     const sc_bigint<64> y = 0;
+    const sc_biguint<64> uy = 1ULL << 63;
+    //const sc_bigint<65> by = 42; -- error reported
+    
+    const sc_uint<64> AA = 0x8000000000000000;
+    const sc_uint<64> BB = 0x8000000000000000;
+    //const sc_biguint<128> C = (AA, BB);  -- error reported
     
     static const size_t N = 3;
     const unsigned arr[N] = {0,0,0};
@@ -58,6 +64,7 @@ struct A : public sc_module
         sct_assert_const(i == 12);
         sct_assert_const(x == 48);
         sct_assert_const(y == -36);
+        sct_assert_const(uy == 1ULL << 63);
 
         // Non-constant fields have no initialization value after elaboration
         // No @j declaration generated as @sct_assert_unknown is debug function
@@ -67,6 +74,8 @@ struct A : public sc_module
         if (b) {
             s = i + x;
         }
+        
+        sc_biguint<64> bu = uy + AA + BB;
 
         for (int i = 0; i < N; i++) {
             sct_assert_const(arr[i] == i+1);

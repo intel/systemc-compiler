@@ -937,7 +937,7 @@ void ScState::clearVerilogTraits()
     staticState->varTraits.clear();
 }
 
-void ScState::setProcStateName(llvm::StringRef current, llvm::StringRef next)
+void ScState::setProcStateName(const std::string& current, const std::string& next)
 {
     staticState->procStateName = {current, next};
 }
@@ -947,7 +947,7 @@ const std::pair<std::string, std::string>& ScState::getProcStateName() const
     return staticState->procStateName;
 }
 
-void ScState::setWaitNVarName(llvm::StringRef current, llvm::StringRef next)
+void ScState::setWaitNVarName(const std::string& current, const std::string& next)
 {
     staticState->waitNVarName = {current, next};
 }

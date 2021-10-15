@@ -971,7 +971,7 @@ void ScParseExprValue::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
 {
     // Operation code
     BinaryOperatorKind opcode = stmt->getOpcode();
-    string opcodeStr = stmt->getOpcodeStr();
+    string opcodeStr = stmt->getOpcodeStr().str();
 
     Expr* lexpr = stmt->getLHS();
     Expr* rexpr = stmt->getRHS();
@@ -1537,7 +1537,7 @@ void ScParseExprValue::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
     val = NO_VALUE;
     
     UnaryOperatorKind opcode = stmt->getOpcode();
-    string opcodeStr = stmt->getOpcodeStr(stmt->getOpcode());
+    string opcodeStr = stmt->getOpcodeStr(stmt->getOpcode()).str();
     bool isPrefix = stmt->isPrefix(stmt->getOpcode());
     bool isIncrDecr = opcode == UO_PostInc || opcode == UO_PreInc || 
                       opcode == UO_PostDec || opcode == UO_PreDec;

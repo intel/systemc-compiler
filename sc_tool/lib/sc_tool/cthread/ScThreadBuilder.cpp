@@ -793,16 +793,19 @@ void ThreadBuilder::generateThreadLocalVariables()
             // @sct_comb_signal flag 
             bool sctCombSignal = false; 
             bool sctCombSignClear = false;
+            bool sctClearSignal = false;
             
             if (elabObj->isChannel()) {
                 QualType qtype = elabObj->getType();
                 sctCombSignal = isScToolCombSignal(qtype);
-
+                
                 if (sctCombSignal) {
                     // @sc_comb_sig has second argument @CLEAR
                     if (auto clearArg = getTemplateArgAsInt(qtype, 1)) {
                         sctCombSignClear = !clearArg->isNullValue();
                     }
+                } else {
+                    sctClearSignal = isScToolClearSignal(qtype);
                 }
                         
                 // For channels and channel arrays process analyzer wants to
@@ -930,13 +933,17 @@ void ThreadBuilder::generateThreadLocalVariables()
                     if (first) {
                         // Put suffix to @varTraits to use in @var_next = @var
                         globalState->putVerilogTraits(regVar,
-                            VerilogVarTraits(sctCombSignal ?
-                            VerilogVarTraits::COMBSIG : VerilogVarTraits::REGISTER, 
+                            VerilogVarTraits(
+                            sctCombSignal ? VerilogVarTraits::COMBSIG : 
+                            sctClearSignal ? VerilogVarTraits::CLEARSIG : 
+                                             VerilogVarTraits::REGISTER, 
                             accessPlace, true, isNonZeroElmt, false,
                             verVar->getName(), nextVar->getName(), mifElemSuffix));
                         globalState->putVerilogTraits(regVarZero,
-                            VerilogVarTraits(sctCombSignal ?
-                            VerilogVarTraits::COMBSIG : VerilogVarTraits::REGISTER, 
+                            VerilogVarTraits(
+                            sctCombSignal ? VerilogVarTraits::COMBSIG : 
+                            sctClearSignal ? VerilogVarTraits::CLEARSIG : 
+                                             VerilogVarTraits::REGISTER, 
                             accessPlace, true, !isNonZeroElmt, false,
                             verVar->getName(), nextVar->getName(), mifElemSuffix));
                         first = false;
@@ -963,7 +970,7 @@ void ThreadBuilder::generateThreadLocalVariables()
             }
 
             // Get name with local record name prefix
-            std::string varName = regVar.getVariable().getDecl()->getName();
+            std::string varName = regVar.getVariable().getDecl()->getName().str();
             std::string locRecName = ScState::getLocalRecName(regVar);
             if (!locRecName.empty()) {
                 varName = locRecName + "_" + varName;
@@ -1295,7 +1302,7 @@ void ThreadBuilder::generateThreadLocalVariables()
                 }
 
                 // Get name with local record name prefix
-                std::string varName = roVar.getVariable().getDecl()->getName();
+                std::string varName = roVar.getVariable().getDecl()->getName().str();
                 std::string locRecName = ScState::getLocalRecName(roVar);
                 if (!locRecName.empty()) {
                     varName = locRecName + "_" + varName;

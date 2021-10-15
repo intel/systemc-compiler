@@ -211,8 +211,8 @@ public:
             auto elm = cursor.getBlock()->operator [](cursor.getElementID());
             
             if (elm.getKind() == CFGElement::Kind::Statement) {
-                CFGStmt* s = elm.getAs<CFGStmt>().getPointer();
-                stmtStack.push_back(s->getStmt());
+                CFGStmt cfgstmt = elm.getAs<CFGStmt>().getValue();
+                stmtStack.push_back(cfgstmt.getStmt());
                 
             } else {
                 SCT_TOOL_ASSERT (false, "Incorrect element kind");

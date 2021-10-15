@@ -52,7 +52,6 @@ public:
         np  = nullptr;
         np2 = nullptr;
         
-    
         cp1 = new sc_signal<int>("cp1");
         cp2 = new sc_signal<sc_uint<40>>("cp2");
         cp3 = new sc_signal<sc_bigint<80>>("cp3");
@@ -85,8 +84,9 @@ public:
         for (int i = 0; i < N; i++) {
             sensitive << *parr2[i];
         }
-        
-        SC_METHOD(channel_pointer); sensitive << c1 << c2 << c3;
+        for (int i = 0; i < M; i++) sensitive << parrp[0][0];
+
+        SC_METHOD(channel_pointer); sensitive << c1 << c2 << c3 << cp1[0] << cp2[0] << cp3[0];
     }
     
     // @this pointer dereference

@@ -60,8 +60,8 @@ struct A : public sc_module
         SC_METHOD(remove_member2a); sensitive << s;
         SC_METHOD(remove_member3); sensitive << s;
         SC_METHOD(remove_member3a); sensitive << s;
-        SC_METHOD(remove_member4); sensitive << s;
-        SC_METHOD(remove_member4a); sensitive << s;
+        SC_METHOD(remove_member4); sensitive << s << sarr[0][0] << *sparr[0][0] << vec2[0][0];
+        SC_METHOD(remove_member4a); sensitive << s << vec1[0];
         
         SC_CTHREAD(remove5, clk.pos());
         async_reset_signal_is(nrst, 0);

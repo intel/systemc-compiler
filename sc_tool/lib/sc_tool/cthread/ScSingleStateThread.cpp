@@ -50,7 +50,8 @@ public:
         while (nextElementID < curBlock->size()) {
             CFGElement nextElement = (*curBlock)[nextElementID];
             assert(nextElement.getKind() == CFGElement::Statement);
-            auto nextStmt = nextElement.getAs<CFGStmt>()->getStmt();
+            CFGStmt cfgstmt = nextElement.getAs<CFGStmt>().getValue();
+            auto nextStmt = cfgstmt.getStmt();
 
             auto expr = dyn_cast<Expr>(nextStmt);
             if (expr && expr->isIntegerConstantExpr(astCtx)) {
@@ -64,8 +65,9 @@ public:
             // current stmt is not last in block, pick next stmt
             CFGElement nextElement = (*curBlock)[nextElementID];
             assert(nextElement.getKind() == CFGElement::Statement);
-            auto nextStmt = nextElement.getAs<CFGStmt>();
-            return nextStmt->getStmt();
+            CFGStmt cfgstmt = nextElement.getAs<CFGStmt>().getValue();
+            return cfgstmt.getStmt();
+            
         }
 
         if (const Stmt* termStmt = curBlock->getTerminator().getStmt()) {

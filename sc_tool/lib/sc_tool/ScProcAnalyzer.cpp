@@ -360,37 +360,6 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
 //            cout << entry.first->getName() << endl;
 //        }
     
-    // Checking method sensitivity list is complete
-    unsigned nonSensFound = 0;
-    std::string nonSensChannels;
-    for (const auto& readVal : useVals) {
-        // Class field must be in this map, no local variables there
-        if (auto readObj = globalState->getElabObject(readVal)) {
-            // Skip non-channel variables
-            if (!readObj->isChannel()) continue;
-                
-            bool found = false;
-            for (const auto& event : procView.staticSensitivity()) {
-                if (readObj.getValue() == event.sourceObj && event.isDefault()) {
-                    found = true;
-                    break;
-                }
-            }
-            
-            if (!found) {
-                if (nonSensFound) nonSensChannels += ", ";
-                nonSensChannels += readVal.asString(false);
-                if (++nonSensFound > 5) break;
-            }
-        }
-    }
-    
-    if (nonSensFound) {
-        ScDiag::reportScDiag(methodDecl->getBeginLoc(), 
-                             ScDiag::SYNTH_NON_SENSTIV_2USED) << 
-                             nonSensChannels;
-    }    
-    
     // Checking latches in method
     for (const auto& sval : finalState->getDefSomePathValues()) {
         // Class field must be in this map, no local variables there

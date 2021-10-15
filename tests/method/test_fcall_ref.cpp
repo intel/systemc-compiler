@@ -73,7 +73,7 @@ public:
         sensitive << sig << sig2 << sig3;
 
         SC_METHOD(const_reference_sig_arr);
-        sensitive << sig;
+        sensitive << sig << sig_arr[0] << sig_arr2[0];
         
         SC_METHOD(scint_reference); 
         sensitive << dummy;

@@ -134,31 +134,40 @@ In general case a module can have pointer to another module or {\tt sc\_port<IF>
 Other ways of call of another module methods or access another module fields are prohibited. 
 
 
-\subsection{Module constructor code}
+\subsection{Module constructor and constant initialization}
 
 Any module/modular interface must have at least one constructor. Module/modular interface constructor must have {\tt sc\_module\_name} parameter which can be passed to {\tt sc\_module} inheritor or just not used. Module/modular interface constructor can contains arbitrary C++ code. 
 
-Constant fields can be initialized in module constructor initialization list and body, they are generated as {\tt localparam} in SV. Constant of any integral type initialized at elaboration phase should be 64 bit or less (stored in int64 field). Constant more than 64 bit has unknown value after elaboration.
+Module member constants can be initialized in place, in module constructor initialization list and in {\tt before\_end\_of\_elaboration} callback. Global and member constants are translated into {\tt localparam} in SystemVerilog. 
+Member constants of any integral type should be 64 bit or less (stored in uint64/int64 field). Such constants with more than 64 bit has unknown value after 
+elaboration, therefore error is reported.
 
 \begin{lstlisting}[style=mycpp]
-// Constant fields initalized in constructor code
+// Constants initialized in and after constructor
 class MyModule : public sc_module {
-    sc_uint<8> a = 0; 
-    const bool b = false;
-    int c[4] = {0,0,0,0};
+    const sc_uint<8> A = 0;          // In-place initialization
+    const int B[4] = {0,1,2,3};      // In-place initialization
+    const bool C;       
     
-    MyModule(const sc_module_name& name, sc_uint<8> aa, int bb) :
-        sc_module(name)
-    {
-        const_cast<sc_uint<8>&>(a) = (bb) ? aa - 1 : aa + 1;
-        const_cast<bool&>(b) = bb;
-        for (int i = 0; i < N; i++) {
-            const_cast<int&>(c[i]) = i;
-        } 
+    MyModule(const sc_module_name& name, int par) :
+        sc_module(name), 
+        C(par == 42)                 // In initialization list
+    {}
+    
+    unsigned d;
+    void setParam(unsigned par) {
+       d = par;
+    }
+    
+    const unsigned* D = nullptr;
+    void before_end_of_elaboration() override {
+       D = sc_new<unsigned>(d);	     // After constructor initialization
     }
 }
 MyModule mod("mod", 12, true);
 \end{lstlisting}
+
+Local constants in process function are translated to SV local variables. Such constants can be more than 64bit.
 
 Non-constant module fields cannot be initialized in constructor or in place. After elaboration phase non-constant fields have unknown value. They need to be initialized in reset section of a process. 
 
@@ -567,8 +576,14 @@ Union type not supported.
 
 This section describes type cast operations can be used in process functions. 
 
-Type cast in C style ((T)x), functional style (T(x)), and static cast supported for right side of assignment statement and function arguments. Type cast for left side of assignment is ignored. Constant type cast ignored. Reinterpret and dynamic type cast not supported. 
-SystemC type conversion to C++ integer methods {\tt to\_int(), to\_uint()}, {\tt to\_long(), to\_ulong(}), {\tt to\_int64(), to\_uint64()} supported. Multiple type narrowing and widening casts supported.
+Type cast in C style ((T)x), functional style (T(x)), and static cast supported for right side of assignment statement and function arguments. Type cast for left side of assignment is ignored. 
+Constant cast {\tt const\_cast} is prohibited in left part of assignment, and ignored elsewhere. Reinterpret and dynamic type casts are not supported.
+
+Type cast can be used to change width or/and signness of the variable, literal or expression. 
+Type cast to change unsigned object to signed is supported in binary, unary and compound operations. In other operations type cast to signed as well as all type casts to unsigned are ignored. 
+
+Multiple casts for one object are supported. 
+SystemC type conversion to C++ integer methods {\tt to\_int(), to\_uint()}, {\tt to\_long(), to\_ulong(}), {\tt to\_int64(), to\_uint64()} supported. 
 %
 % method_cast.cpp
 \begin{lstlisting}[style=mycpp]
@@ -587,6 +602,16 @@ b = |i;
 i = 32'(x);
 y = 3'(x);
 y = 6'(2'(x));
+\end{lstlisting}
+
+Type cast to cast negative value to unsigned is prohibited. Type cast unsigned with set high bit to signed negative is prohibited.
+%
+% method_cast.cpp
+\begin{lstlisting}[style=mycpp]
+ unsigned u = 0x1FFFFFFFFUL;
+ int i = -1;
+ long l = (int)u;                    // Prohibited as result is negative value
+ unsigned long ul = (unsigned)i;     // Prohibited as operand has negative value
 \end{lstlisting}
 
 Type cast to base class supported for function call (T::f()) and member access (T::m).

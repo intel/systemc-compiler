@@ -46,7 +46,7 @@ public:
         sensitive << s;
 
         SC_METHOD(arr_elem_in_index);
-        sensitive << s;
+        sensitive << s << srr[0] << *spp[0];
 
         // TODO: Fix me, #99
         //SC_METHOD(rec_arr_elem_in_index);

@@ -160,9 +160,7 @@ target_link_libraries(SCTool
         clangBasic
         LLVMX86AsmParser
         LLVMX86Desc
-        LLVMX86AsmPrinter
         LLVMX86Info
-        LLVMX86Utils
         LLVMipo
         LLVMScalarOpts
         LLVMInstCombine
@@ -176,6 +174,7 @@ target_link_libraries(SCTool
         LLVMBitReader
         LLVMCore
         LLVMSupport
+        LLVMFrontendOpenMP
         ${system_libs}
         )
 
@@ -185,7 +184,7 @@ target_include_directories(SCTool PUBLIC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
         )
 
-target_compile_definitions(SCTool PRIVATE SC_ELAB2_BUILD)
+target_compile_definitions(SCTool PRIVATE SC_ELAB2_BUILD -DCLANG_10)
 
 target_compile_options(SCTool PRIVATE -fno-rtti)
 

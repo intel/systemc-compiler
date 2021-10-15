@@ -336,13 +336,13 @@ public:
         z = u.to_uint() + u.to_uint64() + u.to_ulong();
         
         z = i.to_int() + i.to_int64() + i.to_long();
-        z = i.to_uint() + i.to_uint64() + i.to_ulong();
+        z = i.to_uint() + i.to_uint64() + i.to_ulong();     // warning reported
         
         z = bu.to_int() + bu.to_int64() + bu.to_long();
         z = bu.to_uint() + bu.to_uint64() + bu.to_ulong();
 
         z = bi.to_int() + bi.to_int64() + bi.to_long();
-        z = bi.to_uint() + bi.to_uint64() + bi.to_ulong();
+        z = bi.to_uint() + bi.to_uint64() + bi.to_ulong();  // warning reported
     }
     
     // SC bit/range to_int(), to_uint(), ...

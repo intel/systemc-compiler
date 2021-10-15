@@ -23,6 +23,7 @@ using namespace llvm;
 using namespace clang;
 using namespace clang::ast_matchers;
 using namespace sc;
+using std::cout; using std::endl;
 
 namespace sc_elab {
 
@@ -66,7 +67,7 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
     QualType varType = varDecl->getType();
     sc_elab::Object* newObj = createStaticObject(varType, parent.getID());
 
-    newObj->set_field_name(varDecl->getName());
+    newObj->set_field_name(varDecl->getName().str());
 
     sc_elab::Object* parentObj = designDB.mutable_objects(parent.getID());
     parentObj->mutable_record()->add_member_ids(newObj->id());
@@ -184,8 +185,10 @@ void ElabDatabase::initStaticArray(sc_elab::Object *arrayObj,
     }
 
     std::size_t arraySize = arrayObj->array().dims(0);
-
+    
     for (size_t idx = 0; idx < arraySize; ++idx) {
+        // Skip extra elements which has no initializers
+        if (idx >= initVals.getArrayInitializedElts()) continue;
         auto arrayInit = initVals.getArrayInitializedElt(idx);
 
         if (elementType->isArrayType()) {

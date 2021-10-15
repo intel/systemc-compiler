@@ -32,7 +32,7 @@ struct Top : public sc_module
         
         SC_METHOD(methProc);
         for (int i = 0; i < 3; ++i) {
-            sensitive << sarr[i] << parr[i] << *psarr[i];
+            sensitive << sarr[i] << parr[i] << *psarr[i] << iarr[0];
         }
 
         SC_CTHREAD(intArrThread, clk.pos());

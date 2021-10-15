@@ -764,8 +764,8 @@ void ScTraverseProc::run()
                 const CFGElement& elm = block.getCfgBlock()->operator [](i);
                 if (elm.getKind() == CFGElement::Kind::Statement) {
                     // Get statement 
-                    CFGStmt* s = elm.getAs<CFGStmt>().getPointer();
-                    currStmt = const_cast<Stmt*>(s->getStmt());
+                    CFGStmt cfgstmt = elm.getAs<CFGStmt>().getValue();
+                    currStmt = const_cast<Stmt*>(cfgstmt.getStmt());
                     
                     // Skip bind temporary required for function return 
                     // which is not assigned to variable
@@ -775,7 +775,7 @@ void ScTraverseProc::run()
                     }
                     
                     // Get statement level and check if it is sub-statement
-                    bool isStmt;
+                    bool isStmt = false;
                     if (auto stmtLevel = stmtInfo.getLevel(currStmt)) {
                         level = *stmtLevel; 
                         isStmt = true;
@@ -1315,11 +1315,7 @@ void ScTraverseProc::run()
 
                     // Set enter into main loop, used to reduce level by 1
                     // in ScopeGRaph and to check SVA generation
-                    if (trueCond) {
-                        if (!inMainLoop && term != mainLoopStmt) {
-                            SCT_INTERNAL_ERROR(term->getBeginLoc(),
-                                    "Incorrect CTHREAD main loop statement");
-                        }
+                    if (!inMainLoop && term == mainLoopStmt) {
                         inMainLoop = true;
                     }
                     

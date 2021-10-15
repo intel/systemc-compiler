@@ -301,7 +301,7 @@ void ScElabModuleBuilder::traverseModule(ModuleMIFView modView)
         std::string uniqueName = modNameGen.getUniqueName(name);
         if (uniqueName != name) {
             ScDiag::reportScDiag(recordDecl->getBeginLoc(),
-                                ScDiag::SYNTH_MEMORY_NON_UNIQUE) << name;
+                                 ScDiag::SYNTH_MEMORY_NON_UNIQUE) << name;
         }
         curVerMod->setName(uniqueName);
        
@@ -528,8 +528,8 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traversePtrOrRef(
         return true;
 
     if (ptrref.isNotNullDangling()) {
-        ScDiag::reportScDiag(ScDiag::SC_WARN_ELAB_DANGLING_PTR)
-            << ptrref.getDebugString();
+        ScDiag::reportScDiag(ScDiag::SC_WARN_ELAB_DANGLING_PTR, false) << 
+                             ptrref.getDebugString();
         return true;
     }
 
@@ -1036,7 +1036,7 @@ void ScElabModuleBuilder::bindPortSameAux(PortView portEl,
     bool isIntrinsic = hostVerMod->isIntrinsic();
 
     if (bindedObj.obj.isSignal() && !isPortInMIF && !isIntrinsic) {
-        ScDiag::reportScDiag (ScDiag::SC_PORT_BOUND_SIGNAL_SAME) << 
+        ScDiag::reportScDiag(ScDiag::SC_PORT_BOUND_SIGNAL_SAME, false) << 
                              portEl.getSCName();
     }
     

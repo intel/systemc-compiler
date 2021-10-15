@@ -277,7 +277,7 @@ void sc_elab::DesignDbGenerator::run(clang::CXXRecordDecl* modRecordDecl,
     // Some debug output
     std::string designDBStr;
     if (google::protobuf::TextFormat::PrintToString(designDB, &designDBStr)) {
-        DEBUG_WITH_TYPE(DebugOptions::doElab,
+        if (DebugOptions::isEnabled(DebugComponent::doElab)) {
             std::cout << "Design DB:\n" << designDBStr;
 
             std::cout << "designDB.objects_size " << designDB.objects_size() << "\n";
@@ -290,7 +290,7 @@ void sc_elab::DesignDbGenerator::run(clang::CXXRecordDecl* modRecordDecl,
             }
 
             std::cout << "designDB.n_procs " << n_procs << "\n";
-        );
+        }
     } else {
         std::cerr << "Invalid Design DB, partial content: "
                   << designDB.ShortDebugString() << "\n";
@@ -412,7 +412,7 @@ void DesignDbGenerator::addChildrenRecursive(TypedObject hostTO, Object* hostEO)
 
             auto elabObj = createFieldElabObject(field, hostEO, false);
 
-            elabObj->set_field_name(field.itemDecl->getName());
+            elabObj->set_field_name(field.itemDecl->getName().str());
 
             if (isAggregate(*elabObj))
                 addChildrenRecursive(field.typedObj, elabObj);
@@ -762,6 +762,7 @@ void DesignDbGenerator::resolveSensitivity()
 
 void DesignDbGenerator::resolvePortSensitivity(const Object &portEO)
 {
+    using std::cout; using std::endl; 
     TypedObject portTO = *memMap.findTypedObj(&portEO);
 
     auto procs = getSensitiveProcs(
@@ -773,25 +774,30 @@ void DesignDbGenerator::resolvePortSensitivity(const Object &portEO)
 
         TypedObject procPtrTO(&procSens.proc_ptr, procBPtrType);
 
-        auto procEO = memMap.resolvePointer(
-                                *procPtrTO.getAs<PtrOrRefObject>())->first;
-        if (!isProcess(*procEO)) {
-            ScDiag::reportScDiag(ScDiag::ELAB_PROCESS_ERROR) 
-                            << procEO->sc_name();
+        if (auto resPtr = memMap.resolvePointer(*procPtrTO.getAs<PtrOrRefObject>())) {
+            auto procEO = resPtr->first;
+            if (!isProcess(*procEO)) {
+                ScDiag::reportScDiag(ScDiag::ELAB_PROCESS_ERROR) 
+                                << procEO->sc_name();
+            }
+
+            auto *sens = procEO->mutable_primitive()->
+                mutable_proc_val()->add_static_events();
+
+            sens->set_event_source_id(portEO.id());
+
+            if (procSens.kind == port_sens_proc::DEFAULT)
+                sens->set_kind(Sensitive::DEFAULT);
+            else if (procSens.kind == port_sens_proc::POSEDGE)
+                sens->set_kind(Sensitive::POSEDGE);
+            else if (procSens.kind == port_sens_proc::NEGEDGE)
+                sens->set_kind(Sensitive::NEGEDGE);
+        } else {
+            // See #272 
+            cout << "No object for port " << portEO.sc_name() 
+                 << ", check sc_module is first in base classes list" << endl;
+            assert (false);
         }
-
-        auto *sens = procEO->mutable_primitive()->
-            mutable_proc_val()->add_static_events();
-
-        sens->set_event_source_id(portEO.id());
-
-        if (procSens.kind == port_sens_proc::DEFAULT)
-            sens->set_kind(Sensitive::DEFAULT);
-        else if (procSens.kind == port_sens_proc::POSEDGE)
-            sens->set_kind(Sensitive::POSEDGE);
-        else if (procSens.kind == port_sens_proc::NEGEDGE)
-            sens->set_kind(Sensitive::NEGEDGE);
-
     }
 }
 

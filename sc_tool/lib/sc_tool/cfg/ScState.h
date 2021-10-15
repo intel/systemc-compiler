@@ -32,10 +32,12 @@ namespace sc {
 /// registers 
 struct VerilogVarTraits 
 {
-    // @COMBSIG is @sct_comb_signal 
-    // @COMBSIGCLEAR is @sct_comb_signal with @clear true template parameter
+    // @COMBSIG is @sct_comb_signal with @clear false
+    // @COMBSIGCLEAR is @sct_comb_signal with @clear true 
+    // @CLEARSIG is @sct_clear_signal 
     // @READONLY_CDR is READONLY constant defined in reset section of CTHREAD 
-    enum VarKind {REGISTER, COMB, READONLY, READONLY_CDR, COMBSIG, COMBSIGCLEAR};
+    enum VarKind {REGISTER, COMB, READONLY, READONLY_CDR, COMBSIG, COMBSIGCLEAR, 
+                  CLEARSIG};
 
     /// true for register variables, false for combinational/read-only variables
     VarKind kind;
@@ -109,6 +111,7 @@ struct VerilogVarTraits
 
     bool isCombSigClear() const { return kind == COMBSIGCLEAR; }
     bool isCombSig() const { return kind == COMBSIG; }
+    bool isClearSig() const { return kind == CLEARSIG; }
     bool isRegister() const { return kind == REGISTER; }
     bool isReadOnly() const {return (kind == READONLY || kind == READONLY_CDR);}
     bool isReadOnlyCDR() const { return kind == READONLY_CDR; }
@@ -379,12 +382,12 @@ public:
     void clearVerilogTraits();
 
     /// Set name of wait state variable <PROC_STATE, PROC_STATE_next>
-    void setProcStateName(llvm::StringRef current, llvm::StringRef next);
+    void setProcStateName(const std::string& current, const std::string& next);
     /// Get name of wait state variable <PROC_STATE, PROC_STATE_next>
     const std::pair<std::string, std::string>&  getProcStateName() const;
 
     /// Set name of a counter variable used to model wait(N)
-    void setWaitNVarName(llvm::StringRef current, llvm::StringRef next);
+    void setWaitNVarName(const std::string& current, const std::string& next);
     /// Get name of a counter variable used to model wait(N)
     const std::pair<std::string, std::string>&  getWaitNVarName() const;
 

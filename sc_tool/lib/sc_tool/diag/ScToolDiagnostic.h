@@ -152,7 +152,7 @@ public:
         SYNTH_WIDTH_WIDENNING       = 180,
         CPP_BOOL_BITWISE_NOT        = 181,
         SYNTH_ARRAY_ELM_REFERENCE   = 182,
-        SYNTH_BITWISE_SIGN_UNSIGN_MIX = 183,
+        SYNTH_SIGNED_SHIFT          = 183,
         SYNTH_NEGATIVE_SHIFT        = 184,
         SYNTH_BIG_SHIFT             = 185,
         SYNTH_DIV_SIGN_UNSIGN_MIX   = 186,
@@ -185,6 +185,10 @@ public:
         SYNTH_READ_REG_IN_RESET     = 213,
         SYNTH_MODIFY_REG_IN_RESET   = 214,
         SC_RANGE_NO_INTEGER         = 215,
+        SYNTH_USEDEF_ARR_IN_SAME_PROC = 216,
+        SYNTH_COMPARE_SIGN_UNSIGN_MIX = 217,
+        SYNTH_SEXPR_UNSIGNED        = 218,    
+        CPP_BIG_INTEGER_LITER       = 219, 
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -400,7 +404,7 @@ private:
             {clang::DiagnosticIDs::Fatal, 
             "Port not bound : %0 (%1)"};
         idFormatMap[SC_PORT_BOUND_SIGNAL_SAME] =
-            {clang::DiagnosticIDs::Warning, 
+            {clang::DiagnosticIDs::Remark, 
             "Port bound to signal located in the same module: %0"};
 
         idFormatMap[SYNTH_NO_ARRAY] =
@@ -435,14 +439,25 @@ private:
             {clang::DiagnosticIDs::Warning,
              "Signed/unsigned types mix may lead to non-equivalent code"};
         
+        // Not used
         idFormatMap[SYNTH_DIV_SIGN_UNSIGN_MIX] =
             {clang::DiagnosticIDs::Warning,
              "Signed/unsigned types mix in division/remainder leads to non-equivalent code"};
         
-        idFormatMap[SYNTH_BITWISE_SIGN_UNSIGN_MIX] =
+        idFormatMap[SYNTH_SIGNED_SHIFT] =
             {clang::DiagnosticIDs::Warning, 
-            "Signed/unsigned types mix in bitwise operation not allowed"};
+            "Signed shift operation may lead to non-equivalent code"};
         
+        idFormatMap[SYNTH_COMPARE_SIGN_UNSIGN_MIX] =
+            {clang::DiagnosticIDs::Warning, 
+            "Signed/unsigned types mix in comparison operation not allowed"};
+
+        // More dangerous as leads to negative expression casted to unsigned 
+        // with signed'{1'b0, ...}
+        idFormatMap[SYNTH_SEXPR_UNSIGNED] =
+            {clang::DiagnosticIDs::Warning,
+             "Negative expression with unsigned type leads to non-equivalent code"};
+
         idFormatMap[SYNTH_NEG_LITER_UCAST] =
             {clang::DiagnosticIDs::Warning,
              "Negative literal casted to unsigned leads to non-equivalent code"};
@@ -522,6 +537,10 @@ private:
         idFormatMap[SYNTH_USEDEF_IN_SAME_PROC] =
             {clang::DiagnosticIDs::Warning, 
             "Use signal/port defined in the same method process : %0"};
+        
+        idFormatMap[SYNTH_USEDEF_ARR_IN_SAME_PROC] =
+            {clang::DiagnosticIDs::Remark, 
+            "Possibly use signal/port defined in the same method process : %0"};
         
         idFormatMap[SYNTH_FUNC_CALL_LOOP] =
             {clang::DiagnosticIDs::Error, 
@@ -618,6 +637,10 @@ private:
             {clang::DiagnosticIDs::Error, 
             "Register variable cannot be read-and-modified in reset section"};
 
+        idFormatMap[CPP_BIG_INTEGER_LITER] =
+            {clang::DiagnosticIDs::Error, 
+            "Integer literal is too big : %0 bit, up to 64bit supported"};
+        
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =
             {clang::DiagnosticIDs::Fatal,
@@ -720,7 +743,8 @@ public:
     static clang::DiagnosticBuilder reportScDiag(clang::SourceLocation loc,
                                                  ScDiag::ScDiagID id,
                                                  bool checkDuplicate = true);
-    static clang::DiagnosticBuilder reportScDiag(ScDiag::ScDiagID id);
+    static clang::DiagnosticBuilder reportScDiag(ScDiag::ScDiagID id,
+                                                 bool checkDuplicate = true);
     
     /// Reporting internal warning/error
     #define SCT_INTERNAL_WARNING(loc, msg) \

@@ -136,9 +136,9 @@ public:
         ux--; CHECK(ux == 212);
         --ux; CHECK(ux == 211);
         
-        sc_bigint<18> z = (ux++) - (x--);
+        sc_bigint<18> z = (ux++) - (x--);       // Warning reported
         cout << "z " << z << endl;
-        CHECK(z == 422);
+        //CHECK(z == 422);
         
         z = (--j) * 2 + (++x) / (i--);
         cout << "z " << z << endl;
@@ -167,8 +167,8 @@ public:
         int i = -a.read();
         unsigned j = +a.read();
         
-        int k1 = i + (-j);
-        unsigned k2 = (+j) + i;
+        int k1 = i + (-j);          // Warning reported
+        unsigned k2 = (+j) + i;     // Warning reported
         
         c.write(-k1);
         c.write(+k2);
@@ -211,7 +211,7 @@ public:
         z = ~(x++) + -(~y);
         
         sc_uint<8> t = a.read();
-        z = (~a) - (~(~t));
+        z = (~a) - (~(~t));         // Warning reported
     }            
     
     // Unary operation for array index

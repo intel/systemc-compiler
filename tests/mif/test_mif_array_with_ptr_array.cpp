@@ -37,7 +37,7 @@ struct mod_if : public sc_module, sc_interface
         }
 
         SC_METHOD(methProc);
-        sensitive << s;
+        sensitive << s << *in[0] << *sig[0];
     }
 
     void methProc() {
@@ -71,7 +71,7 @@ SC_MODULE(Top) {
         }
         
         SC_METHOD(top_method);
-        sensitive << a[1][1] << b[1][1];
+        sensitive << a[1][1] << b[1][1] << *minst[0]->in[0] << *minst[0]->sig[0];
     }
 
     void top_method() 

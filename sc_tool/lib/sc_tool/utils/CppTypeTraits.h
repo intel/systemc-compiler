@@ -128,6 +128,9 @@ void extendBitWidthOO(llvm::APSInt& val1, llvm::APSInt& val2,
 void adjustIntegers(llvm::APSInt val1, llvm::APSInt val2, llvm::APSInt &res1,
                     llvm::APSInt &res2, bool promoteSigned = false);
 
+/// Get number of bits required for signed/unsigned literal
+unsigned getBitsNeeded(llvm::APSInt val);
+
 /// Try to get get CXXConstructExpr from given expression
 clang::CXXConstructExpr* getCXXCtorExprArg(clang::Expr* expr);
 

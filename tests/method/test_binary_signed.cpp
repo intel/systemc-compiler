@@ -58,12 +58,12 @@ public:
         sc_int<8> z;
         z = 6 / 2U;
         CHECK(z == 3);
-        z = (-6) / 2U;
-        CHECK(z == -3);
+        z = (-6) / 2U;      // Warning repotred
+        //CHECK(z == -3);
 
         z = 12U / 6;
         CHECK(z == 2);
-        z = 12U / (-6);
+        z = 12U / (-6);     // Warning repotred
         std::cout << "z = " << z << std::endl;
         //CHECK(z == 0);  -2 in SV
     }
@@ -149,29 +149,29 @@ public:
         sc_uint<4> ux = 2;
         unsigned uu = 42;
 
-        z = bu + (ux + x);
+        z = bu + (ux + x);      // Warning repotred
         std::cout << "z = " << z << std::endl;
-        CHECK(z == -2); 
+        //CHECK(z == -2); 
         
         i = -1;
-        i = j + uu * i;
-        CHECK(i == -38); 
+        i = j + uu * i;         // Warning repotred
+        //CHECK(i == -38); 
         
         z = 1;
         bz = (bu * bz - x);
         
-        z = -6 / ux;
+        z = -6 / ux;            // Warning repotred
         bz = (-6) + ux * (-3);
-        CHECK(bz == -12);  
+        //CHECK(bz == -12);  
         
         // Unsigned division, incorrect expression
-        z = (-uu*4) / (-2);
+        z = (-uu*4) / (-2);     // Warning repotred
         std::cout << "z = " << z << std::endl;
-        CHECK(z == 0); 
+        //CHECK(z == 0); 
         
         // Literal expression
-        uu = ux + (1 + 2);
-        uu = ux / (1 << 2);
+        uu = ux + (1 + 2);      // Warning repotred
+        uu = ux / (1 << 2);     // Warning repotred
     }
     
     void liter_neg_div() 
@@ -202,7 +202,7 @@ public:
         CHECK(z == -2);
         
         unsigned uu = 2;
-        z = -6 / uu;
+        z = -6 / uu;            // Warning repotred
         std::cout << "z = " << z << std::endl;
         CHECK(z == -3);
 
@@ -318,23 +318,23 @@ public:
         
         // Unsupported as gives different results in SC and SV
         sc_uint<4> ux = 2;
-        z = y / ux;
+        z = y / ux;                 // Warning repotred
         std::cout << "z = " << z << std::endl;
-        CHECK(z == -3);
+        //CHECK(z == -3);
         
         int i = -6;
-        z = i / ux;
+        z = i / ux;                 // Warning repotred
         std::cout << "z = " << z << std::endl;
-        CHECK(z == -3);
+        //CHECK(z == -3);
 
         unsigned uu = 2;
         z = y / uu;
         std::cout << "z = " << z << std::endl;
         CHECK(z == -3);
         
-        z = i / uu;
+        z = i / uu;                 // Warning repotred
         std::cout << "z = " << z << std::endl;
-        CHECK(z == -3);
+        //CHECK(z == -3);
     }
     
     // Division of negative number in @sc_bigint
@@ -390,8 +390,8 @@ public:
         CHECK(z == -4);
         
         sc_uint<4> ux = 5;
-        z = y / (x + ux);
-        CHECK(z == 7);
+        z = y / (x + ux);       // Warning repotred
+        //CHECK(z == 7);
         z = y / (bx + ux);
         std::cout << "z = " << z << std::endl;
         CHECK(z == 7);
@@ -419,10 +419,10 @@ public:
         
         // Unsupported as gives different results in SC and SV
         sc_uint<4> ux = 2;
-        z = y / ux;
-        r = y % ux;
-        CHECK(z == 2);
-        CHECK(r == 1);
+        z = y / ux;         // Warning reported
+        r = y % ux;         // Warning reported
+        //CHECK(z == 2);
+        //CHECK(r == 1);
         
         sc_uint<4> uy = 5;
         z = uy / ux;
@@ -472,7 +472,7 @@ public:
     // Check explicit cast to signed leads to signed in SV
     void expl_sign_cast()
     {
-        int i;
+        int i = 42;
         sc_int<16> z;
         sc_bigint<16> bz;
         sc_int<6> x = -5;
@@ -482,18 +482,18 @@ public:
         unsigned uu = 2;
     
         z = x + sc_int<7>(x);
-        z = x + sc_int<7>(x+ux);
-        z = x + ux;
-        z = x + sc_uint<6>(ux);
+        z = x + sc_int<7>(x+ux);        // Warning reported    
+        z = x + ux;                     // Warning reported
+        z = x + sc_uint<6>(ux);         // Warning reported
         z = x + sc_int<7>(ux);
         z = x + sc_bigint<8>(ux);
         z = x + sc_biguint<9>(ux);
-        z = x + sc_uint<7>(ux);
+        z = x + sc_uint<7>(ux);         // Warning reported
         z = x + int(ux);    
         z = x + (unsigned int)(ux);     // signed'({1'b0, 32'(ux)});
         
         bz = bx + sc_int<7>(x);
-        bz = bx + sc_int<7>(x+ux);
+        bz = bx + sc_int<7>(x+ux);      // Warning reported    
         bz = bx + sc_int<7>(ux);
         bz = bx + sc_bigint<8>(ux);
         bz = bx + sc_biguint<9>(ux);
@@ -508,11 +508,11 @@ public:
         bz = bux + int(ux);
         bz = bux + (unsigned int)(ux);
         
-        bux += i;
-        bux += sc_int<7>(x);
-        bux += sc_int<8>(ux);
-        bux += bux;
-        bux += sc_bigint<8>(bux);
+        bux += i;                       // Warning reported
+        bux += sc_int<7>(x);            // Warning reported
+        bux += sc_int<8>(ux);           // Warning reported
+        bux += bux;             
+        bux += sc_bigint<8>(bux);       // Warning reported
         bux += sc_biguint<9>(bux);
         
         bz  = -5;
@@ -542,9 +542,9 @@ public:
         z = x - int(ux) + 1;
         std::cout << "z = " << z << std::endl;
         CHECK(z == -6);
-        z = x * int(ux) + ux;
+        z = x * int(ux) + ux;           // Warning reported
         std::cout << "z = " << z << std::endl;
-        CHECK(z == -8);
+        //CHECK(z == -8);
         z = sc_bigint<13>(x) / sc_int<15>(ux);
         std::cout << "z = " << z << std::endl;
         CHECK(z == -2);
@@ -566,14 +566,14 @@ public:
         
         b = x == y;
         CHECK(b);
-        b = ux == y;
-        CHECK(b);
+        b = ux == y;            // Warning reported
+        //CHECK(b);
         b = i == y;
         CHECK(b);
         b = i == x;
-        CHECK(b);
-        b = i == uu;
-        CHECK(b);
+        CHECK(b);               
+        b = i == uu;            // Warning reported
+        //CHECK(b);
         b = x == uu;
         CHECK(b);
         b = ux == uu;
@@ -586,9 +586,9 @@ public:
         b = i == y;
         CHECK(b);
         
-        b = i == ux;
-        CHECK(!b);
-        b = y == ux;
+        b = i == ux;        // Warning reported
+        CHECK(!b);  
+        b = y == ux;        // Warning reported
         CHECK(!b);
     }
     
@@ -604,14 +604,14 @@ public:
         sc_biguint<60> y = 3;
         sc_bigint<80>z;
         
-        z = x * ux;
+        z = x * ux;         // Warning reported
         std::cout << "z = " << z << std::endl;
         //CHECK(z == 18446744073709551601ULL); -15 in SV
         z = x * sc_int<64>(ux);
         std::cout << "z = " << z << std::endl;
         CHECK(z == -15);
         
-        z = x / ux;
+        z = x / ux;             // Warning reported
         std::cout << "z = " << z << std::endl;
         //CHECK(z == 6148914691236517203ULL); -1 in SV
         z = x / sc_int<64>(ux);
@@ -622,10 +622,10 @@ public:
         CHECK(z == -15);
         z = x / uu;
         CHECK(z == -1);
-        z = i * ux;
+        z = i * ux;     // Warning reported
         std::cout << "z = " << z << std::endl;
         // CHECK(z == 18446744073709551601ULL); -15 in SV
-        z = i / ux;
+        z = i / ux;     // Warning reported
         std::cout << "z = " << z << std::endl;
         //CHECK(z == 6148914691236517203ULL); -1 in SV
     }
@@ -648,15 +648,15 @@ public:
             std::cout << "z " << z << std::endl;  
             CHECK(z == rem);
         }
-        z = i * x;
+        z = i * x;          // Warning reported
         std::cout << "z " << z << std::endl;  
-        CHECK(z == mul);
-        z = i - x;
+        //CHECK(z == mul);
+        z = i - x;          // Warning reported
         std::cout << "z " << z << std::endl;  
-        CHECK(z == sub);
-        z = i + x;
+        //CHECK(z == sub);
+        z = i + x;          // Warning reported
         std::cout << "z " << z << std::endl;  
-        CHECK(z == add);
+        //CHECK(z == add);
     }
     
    
@@ -698,26 +698,26 @@ public:
         T4 r;
         
         if (doDiv) {
-            r = (x/y) / z;
+            r = (x/y) / z;          // Warning reported
             std::cout << "r " << r << std::endl;  
-            CHECK(r == div);
+            //CHECK(r == div);
 
-            r = (x * y) / z;
+            r = (x * y) / z;        // Warning reported
             std::cout << "r " << r << std::endl;  
-            CHECK(r == mul);
+            //CHECK(r == mul);
 
-            r = (x + y) / z;
+            r = (x + y) / z;        // Warning reported
             std::cout << "r " << r << std::endl;  
-            CHECK(r == add);
+            //CHECK(r == add);
 
-            r = (x / y) - z;
+            r = (x / y) - z;        // Warning reported
             std::cout << "r " << r << std::endl;  
-            CHECK(r == sub);
+            //CHECK(r == sub);
         }
         
         r = (x * y) + z;
         std::cout << "r " << r << std::endl;  
-        CHECK(r == add2);
+        //CHECK(r == add2);
     }
     
     void compl_expr_mix() 

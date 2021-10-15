@@ -77,7 +77,7 @@ add_executable(misc_array_module test_array_module.cpp)
 svc_target(misc_array_module GOLDEN misc_array_module.sv)
 
 add_executable(misc_array_in_top test_array_in_top.cpp)
-svc_target(misc_array_in_top GOLDEN misc_array_in_top.sv)
+svc_target(misc_array_in_top PORT_MAP_GENERATE GOLDEN misc_array_in_top.sv)
 
 add_executable(misc_module_base_array test_module_base_array.cpp)
 svc_target(misc_module_base_array GOLDEN misc_module_base_array.sv)

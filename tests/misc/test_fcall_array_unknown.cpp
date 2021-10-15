@@ -62,9 +62,9 @@ public:
             }
         }
         
-        SC_METHOD(read_pointer_array_unknown1); sensitive << a;
+        SC_METHOD(read_pointer_array_unknown1); sensitive << a<< *pca[0];
 
-        SC_METHOD(chan_pointer_array_param); sensitive << a;
+        SC_METHOD(chan_pointer_array_param); sensitive << a << *pca1[0];
         SC_CTHREAD(chan_pointer_array_param_thread, clk.pos()); 
         async_reset_signal_is(nrst, 0);
 
@@ -77,8 +77,8 @@ public:
         SC_METHOD(var_pointer_array_plus); sensitive << a;
         SC_METHOD(pointer_array_param); sensitive << a;
         
-        SC_METHOD(read_pointer_array_unknown_b1); sensitive << a;
-        SC_METHOD(read_pointer_array_unknown_b2); sensitive << a;
+        SC_METHOD(read_pointer_array_unknown_b1); sensitive << a<< *pcb[0];
+        SC_METHOD(read_pointer_array_unknown_b2); sensitive << a << *pcb[0];
     }
 
     template <typename VarType>

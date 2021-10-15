@@ -34,7 +34,10 @@ protected :
     // To check any CallExpr in sub-statements
     bool callExpr = false;
 public:
-
+    /// Required in Clang 10 to visit all AST nodes, including SC type 
+    /// implicit constructors
+    bool shouldVisitImplicitCode() const { return true; }
+    
     SubStmtVisitor() {}
     
     /// Add all sub-statements for @stmt with super-statement @superstmt
@@ -47,6 +50,8 @@ public:
     
     /// Visited sub-statements include user function call expression
     bool hasCallExpr() const;
+    
+    void print() const;
 };
 
 //------------------------------------------------------------------------------ 

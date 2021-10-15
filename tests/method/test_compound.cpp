@@ -32,8 +32,8 @@ public:
 
         SC_METHOD(compound_assign); sensitive << s;
         SC_METHOD(compound_assign_brackets); sensitive << s;
-        SC_METHOD(compound_bool_bitwise); sensitive << s;
-        SC_METHOD(compound_bool_arithm); sensitive << s;
+        SC_METHOD(compound_bool_bitwise); sensitive << s << bv[0];
+        SC_METHOD(compound_bool_arithm); sensitive << s << bv[0];
         
         SC_METHOD(compound_ref_compound); sensitive << s;
         SC_METHOD(sc_compound_assign); sensitive << s;
@@ -49,7 +49,7 @@ public:
         int i = s.read();
         
         a[0] += 1;
-        sct_assert_const(a[0] == 2);
+        sct_assert_const(a[0] == 2);    
         sct_assert_const(a[1] == 2);
         sct_assert_const(a[2] == 3);
         
@@ -175,20 +175,20 @@ public:
         b = b && s.read();
         b = b && bv[1];
         
-        b &= bb;
+        b &= bb;        // Warning reported
         b &= a;    
         b &= x;    
-        b &= y;
-        b &= i;
-        b &= s.read();
-        b &= bv[1];
+        b &= y;         // Warning reported
+        b &= i;         // Warning reported
+        b &= s.read();  // Warning reported
+        b &= bv[1];     // Warning reported
 
-        b |= bb;
-        b |= s.read();
+        b |= bb;        // Warning reported
+        b |= s.read();  // Warning reported
         b |= x;
-        b ^= bb;
-        b ^= i;
-        b ^= bv[1];
+        b ^= bb;        // Warning reported
+        b ^= i;         // Warning reported
+        b ^= bv[1];     // Warning reported
     }
     
     void compound_bool_arithm() 
@@ -200,18 +200,18 @@ public:
         sc_int<12> y = s.read();
         int i = s.read();
         
-        b += bb;
+        b += bb;        // Warning reported
         b += a;    
         b += x;    
-        b += y;
-        b += i;
-        b += s.read();
-        b += bv[1];
+        b += y;         // Warning reported
+        b += i;         // Warning reported
+        b += s.read();  // Warning reported
+        b += bv[1];     // Warning reported
 
-        b *= bb;
-        b /= s.read();
+        b *= bb;        // Warning reported
+        b /= s.read();  // Warning reported
         b -= x;
-        b %= bb;
+        b %= bb;        // Warning reported
         b >>= i;
         b <<= bv[1];
     }    
@@ -244,7 +244,7 @@ public:
         CHECK(i==-2);
         i /= u;
         CHECK(i==0);
-        u %= k;
+        u %= k;         // Warning reported
         u |= 2;
         u &= 3;
         u ^= sc_uint<5>(4);

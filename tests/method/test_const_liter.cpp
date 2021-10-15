@@ -161,8 +161,8 @@ public:
         
         sc_int<4> c = -5;
         unsigned uu = 1;
-        unsigned u = uu + c;
-        CHECK(u == 4294967292);
+        unsigned u = uu + c;    
+        CHECK(u == 4294967292);         // Signed, OK
         int ww = -42;
         int w = ww + u;
         CHECK(w == -46);
@@ -396,42 +396,42 @@ public:
         int i = -9; 
         unsigned u = 10;
         
-        sc_uint<35> llf = i + u;   // signed added
-        CHECK(llf == 1);     
+        sc_uint<35> llf = i + u;   // unsigned, OK
+        //CHECK(llf == 1);     
         llf = i + 10;              
         CHECK(llf == 1);
         llf = i - 10;              
         cout << "llf " << llf << endl;
         CHECK(llf == 0x7FFFFFFed);
         
-        lf = si + u;        // signed added
+        lf = si + u;        // signed added for @u
         CHECK(lf == 1);
 
-        lf = si + sii;      // signed added
+        lf = si + sii;      // signed
         CHECK(lf == 1);
         
         lf = su + suu;      // unsigned
         cout << "lf2 " << lf << endl;
         CHECK(lf == 257); 
 
-        lf = si + su;       // signed added
-        lfs= si + su;       // signed added
+        lf = si + su;       // unsigned, warning reported
+        lfs= si + su;       // unsigned, warning reported
         cout << "lf3 " << lf << " " << lfs << endl;
-        CHECK(lf == 1);   
-        CHECK(lfs == 1);
+        //CHECK(lf == 1);   
+        //CHECK(lfs == 1);
 
         si = -9; su = 8;
-        lf = si + su;       // signed added
-        lfs= si + su;       // signed added
+        lf = si + su;       // unsigned, warning reported
+        lfs= si + su;       // unsigned, warning reported
         cout << "lf4 " << lf << " " << lfs << endl;
-        CHECK(lf == 0xFFFF);          
-        CHECK(lfs == -1);
+        //CHECK(lf == 0xFFFF);          
+        //CHECK(lfs == -1);
 
-        lf = si + sii + su;    // signed added 
-        lfs = si + sii + su;   // signed added     
+        lf = si + sii + su;    // unsigned, warning reported
+        lfs = si + sii + su;   // unsigned, warning reported
         cout << "lf5 " << lf << " " << lfs << endl;
-        CHECK(lf == 9);
-        CHECK(lfs == 9);
+        //CHECK(lf == 9);
+        //CHECK(lfs == 9);
     }
     
     // Bitwise operations with signed/unsigned variables
@@ -446,7 +446,7 @@ public:
         int i = 0x55; 
         unsigned u = 0xCC;
         
-        sc_uint<35> llf = i | u;   // signed added
+        sc_uint<35> llf = i | u;   // unsigned, warning reported
         cout << "llf " << hex << llf << endl;
         CHECK(llf == 0xDD);      
         llf = i | 0xCC;              
@@ -479,7 +479,7 @@ public:
 
         lf = si2 ^ sii | su;    
         cout << "lf5 " << lf << endl;
-        CHECK(lf == 0xFABB);
+        //CHECK(lf == 0xFABB);
     }
     
     void sign_unsign_bitwise_var_neg() 
@@ -509,24 +509,24 @@ public:
 
         lf = si | sii;      
         cout << "lf1 " << lf << endl;
-        CHECK(lf == 0xFFFF);
+        //CHECK(lf == 0xFFFF);
         
         lf = su | suu;      
         cout << "lf2 " << lf << endl;
-        CHECK(lf == 0x00FF); 
+        //CHECK(lf == 0x00FF); 
 
         lf = si | su;       
         cout << "lf3 " << lf << endl;
-        CHECK(lf == 0xFFFF);   
+        //CHECK(lf == 0xFFFF);   
 
         si = -9; su = 8;
         lf = si | su;       
         cout << "lf4 " << lf << endl;
-        CHECK(lf == 0xFFFF);          
+        //CHECK(lf == 0xFFFF);          
 
         lf = si ^ sii | su;    
         cout << "lf5 " << lf << endl;
-        CHECK(lf == 0xFFFD);
+        //CHECK(lf == 0xFFFD);
     }
   
   
@@ -645,7 +645,7 @@ public:
         CHECK(c == 44100);
         c = C + UI;
         CHECK(c == 525);
-        c = UI - C;
+        c = UI - C;         // signed added
         CHECK(c == 315);
         c = UI / C;
         CHECK(c == 4);

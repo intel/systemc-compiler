@@ -14,6 +14,7 @@
 #!/bin/bash
 export SHELL=/bin/sh
 
+export LLVM_VER=12.0.1
 export ICSC_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 export CMAKE_PREFIX_PATH=$ICSC_HOME
