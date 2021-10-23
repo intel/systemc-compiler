@@ -35,6 +35,8 @@ mv clang-12.0.1.src llvm-12.0.1.src/tools/clang
 )
 cd $ICSC_HOME
 
+export CMAKE_PREFIX_PATH=$ICSC_HOME:$CMAKE_PREFIX_PATH
+
 # Build and install ISCC
 (
     cd icsc
