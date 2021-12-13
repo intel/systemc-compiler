@@ -38,6 +38,8 @@ protected:
     /// State singleton for process function analysis
     std::shared_ptr<ScState>  state;
 
+    /// Current process is combinatorial
+    bool isCombProcess;
     /// Current module value in synthesized code, 
     ///  if @modval is module, the same as @modval
     ///  if @modval if MIF, first parent module which is not MIF
@@ -77,10 +79,12 @@ public:
 
     explicit ScParseExpr(const clang::ASTContext& context_,
                          std::shared_ptr<ScState> state_, 
+                         bool isCombProcess_,
                          const SValue& modval_,
                          bool checkNoValue_ = true,
                          SValue recval_ = NO_VALUE) :
         sm(context_.getSourceManager()), astCtx(context_), state(state_),
+        isCombProcess(isCombProcess_),
         modval(modval_), recval(recval_), checkNoValue(checkNoValue_)
     {
         SCT_TOOL_ASSERT (state, "ScTraverse::ScTraverse state is null");

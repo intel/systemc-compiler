@@ -35,6 +35,8 @@ public:
         SC_CTHREAD(syncProc, clk);
         async_reset_signal_is(rstn, false);
      
+        SC_METHOD(multiAssign); sensitive << s << a;
+        
         SC_METHOD(enumOperation); sensitive << s << a;
         SC_METHOD(comma); sensitive << s << a;
         SC_METHOD(shift); sensitive << s << a;
@@ -76,6 +78,51 @@ public:
     }
 
 // ---------------------------------------------------------------------------    
+
+    void multiAssign() 
+    {
+        bool b1, b2;
+        b1 = b2 = 1;
+        //b1 = !(b2 = 1);            // Error reported, OK     
+        
+        unsigned u1, u2, u3;
+        u1 = u2 = 1;
+        u1 = u2 = u3 = 2;
+        u1 = u2 += 1;
+        u1 = u2 = u3++;
+        u1 = u2 = --u3;
+        u1 = (u2 = 3);
+        u1 *= (u2 = 3);
+        //u1 += u2 = u3;
+        //u1 = ((u2 *= u3) * 42);   // Error reported, OK
+        //u1 = +(u2 = u3);          // Error reported, OK
+      
+        sc_uint<12> ux1, ux2, ux3;
+        ux1 = ux2 = 1;
+        ux1 = ux2 = ux3 = 1;
+        ux1 = ux2 -= 1;
+        ux1 = ux2 == 1;
+        ux1 = u1 = (s.read() ? 1 : 2);
+        ux1 = (ux2 += 3);
+        ux1 += ux2 += ux3+1;
+        //(ux1 += u2)++;             // Error reported, OK
+        //ux1 = ((ux2 *= ux3) * 42); // Error reported, OK
+        
+        sc_bigint<66> bx1, bx2, bx3;
+        bx1 = bx2 = -11;
+        bx1 = bx2 /= 2;
+        bx1 = ux2 = ux1+1;
+        bx1 = u1 = ux1 = 3;
+        ux1 = bx1 = 5;
+        
+        u1 = (int)(ux1 = 3);
+        u1 = (sc_uint<10>)(ux1 = 3);
+        ux1 = (sc_uint<10>)(ux2 = 3); 
+        ux1= (sc_uint<33>)(sc_uint<10>)(ux2 = 3);
+        bx1 = (sc_biguint<33>)(bx1 = 3);
+        bx1 -= (sc_biguint<33>)(bx1 = 3);
+    }
+
     // Enum in binary operations 
     enum E1 {
         U1_ENUM=1,

@@ -30,11 +30,12 @@ namespace sc_elab {
 
 //  ScElabDatabase -------------------------------------------------------------
 
+// Create @parseValue with @isCombProcess = true
 ElabDatabase::ElabDatabase(sc_elab::SCDesign &scDesign,
                            sc_elab::ElabTypeManager &typeManager,
                            clang::ASTContext &astCtx)
     : designDB(scDesign), typeManager(typeManager), astCtx(astCtx),
-      parseValue(astCtx, std::make_shared<ScState>(), NO_VALUE)
+      parseValue(astCtx, std::make_shared<ScState>(), true, NO_VALUE)
     {
 
     std::vector<RecordView> records;

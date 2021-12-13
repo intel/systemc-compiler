@@ -115,13 +115,6 @@ public:
         sensitive << clk.posedge_event();
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(func_in_cond1);
-        sensitive << clk.posedge_event();
-        async_reset_signal_is(arstn, false);
-
-        SC_THREAD(func_in_cond2);
-        sensitive << clk.posedge_event();
-        async_reset_signal_is(arstn, false);
     }
     
     // ------------------------------------------------------------------------
@@ -637,49 +630,6 @@ public:
             i = i + 1;
         }
     }
-
-// ----------------------------------------------------------------------------        
-    // Function with wait() used in condition
-    
-    int multi_wait_f(int val) {
-        val--;
-        wait();
-        return (val-1);
-    }
-    
-    void func_in_cond1()
-    {
-        wait();
-        
-        while(true) {
-            if (multi_wait_f(in.read())) {
-                wait();
-            }
-            
-            wait();
-        }
-    }
-    
-    sc_signal<sc_uint<4>> s0;
-    int multi_wait_g(const sc_uint<4>& par) {
-        int l = par + 1;
-        wait();
-        return (par+l);
-    }
-    
-    void func_in_cond2()
-    {
-        wait();
-        
-        while(true) {
-            while (multi_wait_g(s0.read()) > 4) {
-                wait();
-            }
-            
-            wait();
-        }
-    }
-    
 
 };
 

@@ -165,7 +165,7 @@ public:
         CPP_NONSTD_TYPE_WIDTH       = 193,
         SYNTH_MEMORY_NON_UNIQUE     = 194,
         CPP_LOOP_COMPOUND_COND      = 195,
-        SYNTH_FUNC_CALL_LOOP        = 196,
+        SYNTH_FUNC_CALL_COND_LOOP   = 196,
         CPP_UNKNOWN_STD_FUNC        = 197,
         SYNTH_ALIVE_LOOP_ERROR      = 198,        
         SYNTH_ALIVE_LOOP_NULL_COND  = 199,
@@ -189,6 +189,10 @@ public:
         SYNTH_COMPARE_SIGN_UNSIGN_MIX = 217,
         SYNTH_SEXPR_UNSIGNED        = 218,    
         CPP_BIG_INTEGER_LITER       = 219, 
+        SYNTH_FUNC_CALL_II_LOOP     = 220,
+        SYNTH_FUNC_CALL_WAIT_LOOP   = 221,
+        SYNTH_MULT_ASSIGN_REC       = 222,
+        SYNTH_INTERNAL_ASSIGN_OPER  = 223,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -542,9 +546,23 @@ private:
             {clang::DiagnosticIDs::Remark, 
             "Possibly use signal/port defined in the same method process : %0"};
         
-        idFormatMap[SYNTH_FUNC_CALL_LOOP] =
+        idFormatMap[SYNTH_FUNC_CALL_II_LOOP] =
             {clang::DiagnosticIDs::Error, 
-            "Function call in loop condition/initialization/increment not supported"};
+            "Function call in FOR loop initialization/increment not supported"};
+        idFormatMap[SYNTH_FUNC_CALL_COND_LOOP] =
+            {clang::DiagnosticIDs::Error, 
+            "Function call in condition of loop without wait() not supported"};
+        idFormatMap[SYNTH_FUNC_CALL_WAIT_LOOP] =
+            {clang::DiagnosticIDs::Error, 
+            "Function with wait() call in loop condition not supported"};
+        idFormatMap[SYNTH_MULT_ASSIGN_REC] =
+            {clang::DiagnosticIDs::Error, 
+            "Multiple assignment for records not supported yet"};
+        idFormatMap[SYNTH_INTERNAL_ASSIGN_OPER] =
+            {clang::DiagnosticIDs::Error, 
+            "Internal assignment in binary/unary operation not supported yet"};
+        
+        
 
         idFormatMap[CPP_UNKNOWN_STD_FUNC] =
             {clang::DiagnosticIDs::Warning, 

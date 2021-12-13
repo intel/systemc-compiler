@@ -941,7 +941,7 @@ void ScTraverseConst::run()
                 //state->print();
 
                 // Wait call, store state and continue analysis
-                if (waitCall > 0) {
+                if (waitCall > 0 && cthreadStates) {
                     auto cursorStack = contextStack.getCursorStack();
 
                     // Add current wait()
@@ -965,8 +965,6 @@ void ScTraverseConst::run()
                     }
 
                     // Get or create new wait state
-                    SCT_TOOL_ASSERT (cthreadStates, 
-                                     "No cthreadStates specified");
                     auto waitId = cthreadStates->getOrInsertStateID(
                                         cursorStack, waitCall);
 
@@ -981,6 +979,11 @@ void ScTraverseConst::run()
 
                     // Clean ReadDefined after wait()
                     state->clearReadAndDefinedVals();
+                    
+                } else 
+                if (waitCall > 0 && !cthreadStates) {
+                    ScDiag::reportScDiag(currStmt->getSourceRange().getBegin(), 
+                                         ScDiag::SC_WAIT_IN_METHOD);
                 }
 
                 // Run analysis of called function in this traverse process

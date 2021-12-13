@@ -279,12 +279,11 @@ public:
                             ScVerilogWriter* codeWriter_,
                             const ScCThreadStates* cthreadStates_ = nullptr,
                             const FindWaitCallVisitor* findWaitInLoop_ = nullptr,
-                            bool isCombProcess = false,
+                            bool isCombProcess_ = false,
                             bool isSingleStateThread = false) :
-        ScGenerateExpr(context_, state_, modval_, codeWriter_),
+        ScGenerateExpr(context_, state_, isCombProcess_, modval_, codeWriter_),
         cthreadStates(cthreadStates_),
         findWaitInLoop(findWaitInLoop_),
-        isCombProcess(isCombProcess),
         isSingleStateThread(isSingleStateThread)
     {}
 
@@ -455,6 +454,10 @@ protected:
     /// Function directly called from this function 
     /// <func expr, <return value, return pointed object>>
     std::unordered_map<clang::Stmt*, std::pair<SValue, SValue>>  calledFuncs;
+    // Function call statement and string in loop condition
+    // <loop stmt, vector<call expr, call string>>
+    std::map<clang::Stmt*, std::vector<std::pair<
+                           clang::Stmt*, std::string>>> condFuncCallLoops;
     
     /// Temporal assert statements for reset section and all others
     InsertionOrderSet<std::string> sctRstAsserts;
@@ -494,8 +497,6 @@ protected:
     const ScCThreadStates* cthreadStates = nullptr;
     const FindWaitCallVisitor* findWaitInLoop = nullptr;
 
-    /// Current process is combinatorial
-    bool isCombProcess;
     /// Method with NO sensitivity list, @assign statement generated for such method
     bool emptySensitivity = false;
     /// Current process has reset signal

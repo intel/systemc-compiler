@@ -28,7 +28,8 @@ class ScGenerateExpr : public ScParseExpr {
 public:
              
     explicit ScGenerateExpr(const clang::ASTContext& context_, 
-                            std::shared_ptr<ScState> state_, const SValue& modval_,
+                            std::shared_ptr<ScState> state_, 
+                            bool isCombProcess_, const SValue& modval_,
                             ScVerilogWriter* codeWriter_);
 
     virtual ~ScGenerateExpr() {}
@@ -40,6 +41,10 @@ protected:
     /// Report warning if @val is register or pointer/reference to register
     void reportReadRegister(const SValue& val, const clang::Expr* expr);
     
+    /// Find any kind of assignment inside of give expression
+    /// \return <assignment statement, LHS statement of the assignment>
+    std::pair<clang::Expr*, clang::Expr*> findAssignmentStmt(clang::Expr* expr);
+
     /// Check if argument is narrowing integral to boolean cast
     bool isIntToBoolCast(const clang::Expr* expr);
 

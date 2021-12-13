@@ -109,6 +109,11 @@ public:
         return llvm::None;
     } 
     
+    /// Check if loop has function call in condition
+    bool hasCallCond(clang::Stmt* stmt) const {
+        return (loopCallCond.count(stmt) != 0);
+    }
+    
     void printLevels() const;
     void printBreaks() const;
     
@@ -119,6 +124,8 @@ protected:
     std::unordered_set<clang::Stmt*>  switchBreaks;
     /// Declaration from declaration groups
     std::unordered_map<clang::Decl*, clang::Stmt*> declGroups;
+    /// Loops with function call in condition
+    std::unordered_set<clang::Stmt*> loopCallCond;
     /// Sub-statement visitor 
     SubStmtVisitor ssVisitor;
 

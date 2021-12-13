@@ -90,38 +90,28 @@ struct tb : sc_module {
         dut_inst.addr(addr);
         dut_inst.wdata(wdata);
         dut_inst.rdata(rdata);
-
-//        SC_THREAD(test_thread);
-//        sensitive << clk.posedge_event();
-    }
-
-    void test_thread() {
-        en = 0;
-        r_nw = 0;
-        addr = 0;
-        wdata = 0;
-        wait();
-        en = 1;
-        for (size_t i = 0; i < 4; ++i) {
-            addr = i;
-            wdata = 0x100 + i;
-            wait();
-        }
-        r_nw = 1;
-        for (size_t i = 0; i < 4; ++i) {
-            addr = i;
-            wait();
-            cout << "read: " << hex << rdata << "\n";
-        }
-
-        sc_stop();
     }
 
 };
 
 
 int sc_main(int argc, char *argv[]) {
-    tb tb_inst{"tb_inst"};
+    sc_clock clk{"clk",10,SC_NS};
+
+    sc_signal <bool>         en{"en"};
+    sc_signal <bool>         r_nw{"r_nw"};
+    sc_signal <sc_uint<2>>   addr{"addr"};
+    sc_signal <sc_uint<32>>  wdata{"wdata"};
+    sc_signal <sc_uint<32>>  rdata{"rdata"};
+    
+    dut dut_inst{"dut_inst"};
+    dut_inst.clk(clk);
+    dut_inst.en(en);
+    dut_inst.r_nw(r_nw);
+    dut_inst.addr(addr);
+    dut_inst.wdata(wdata);
+    dut_inst.rdata(rdata);
+
     sc_start();
     return 0;
 }

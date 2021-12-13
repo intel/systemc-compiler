@@ -193,6 +193,14 @@ public:
         return emptySensitivity;
     }
     
+    /// Get any kind of assignment statement/operator
+    /// \return assignment statement or @nullptr
+    const clang::Expr* getAssignStmt(const clang::Stmt* stmt) const;
+
+    /// Get LHS for any kind of assignment statement/operator
+    /// \return LHS statement of the assignment or @nullptr
+    const clang::Expr* getAssignLhs(const clang::Stmt* stmt) const;
+
     //=======================================================================
 protected:    
     /// Get canonical type string for the given @type, return element type for array

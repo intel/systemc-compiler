@@ -737,17 +737,13 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
 
         if (activePort) {
             curVerMod->createChannelVariable(curScObj,
-                                             name,
-                                             bitwidth,
-                                             arrayDims,
-                                             isSigned);
+                                    name, bitwidth, arrayDims, isSigned, 
+                                    zeroElmntMIF || noneZeroElmntMIF);
         } else 
         if (activeSignal) {
-            auto *sigVerVar = curVerMod->createChannelVariable(curScObj,
-                                                               name,
-                                                               bitwidth,
-                                                               arrayDims,
-                                                               isSigned);
+            auto* sigVerVar = curVerMod->createChannelVariable(curScObj,
+                                    name, bitwidth, arrayDims, isSigned, 
+                                    zeroElmntMIF || noneZeroElmntMIF);
             // Avoid multiple declaration of signal variable
             if (!noneZeroElmntMIF) {
                 curVerMod->addSignal(sigVerVar);
@@ -756,20 +752,11 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
         } else {
             // Provide same name for all MIF array instances
             if (zeroElmntMIF || noneZeroElmntMIF) {
-                curVerMod->createDataVariableMIFArray(objView,
-                                                      parent,
-                                                      name,
-                                                      bitwidth,
-                                                      arrayDims,
-                                                      isSigned,
-                                                      initVals);
+                curVerMod->createDataVariableMIFArray(objView, parent, name, 
+                                    bitwidth, arrayDims, isSigned, initVals);
             } else {
-                curVerMod->createDataVariable(objView,
-                                              name,
-                                              bitwidth,
-                                              arrayDims,
-                                              isSigned,
-                                              initVals);
+                curVerMod->createDataVariable(objView, name, 
+                                    bitwidth, arrayDims, isSigned, initVals);
             }
         }
     }

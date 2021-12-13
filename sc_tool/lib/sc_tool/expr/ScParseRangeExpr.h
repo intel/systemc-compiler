@@ -30,8 +30,9 @@ class ScParseRangeExpr : public ScParseExprValue
 public:
     explicit ScParseRangeExpr(const clang::ASTContext& context_, 
                               std::shared_ptr<ScState> state_, 
+                              bool isCombProcess_,
                               const SValue& modval_) :
-        ScParseExprValue(context_, state_, modval_)
+        ScParseExprValue(context_, state_, isCombProcess_, modval_)
     {}
     
     /// If @lval is integer place it to @rval else place 0

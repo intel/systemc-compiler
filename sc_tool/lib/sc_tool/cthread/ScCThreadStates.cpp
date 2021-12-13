@@ -34,7 +34,7 @@ WaitID ScCThreadStates::getStateID(const CfgCursorStack &waitState) const {
         }
         waitID++;
     }
-    llvm_unreachable("can't find state id");
+    SCT_TOOL_ASSERT(false, "Cannot find state id");
     return 0;
 }
 

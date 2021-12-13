@@ -33,9 +33,11 @@ using namespace llvm;
 
 ScGenerateExpr::ScGenerateExpr(
                     const clang::ASTContext& context_, 
-                    std::shared_ptr<ScState> state_, const SValue& modval_,
+                    std::shared_ptr<ScState> state_,
+                    bool isCombProcess_,
+                    const SValue& modval_,
                     ScVerilogWriter* codeWriter_) : 
-    ScParseExpr(context_, state_, modval_),
+    ScParseExpr(context_, state_, isCombProcess_, modval_),
     codeWriter(codeWriter_)
 {
     using namespace std;
@@ -47,7 +49,7 @@ ScGenerateExpr::ScGenerateExpr(
     do {
         // Use cloned state as modified in @parseValue and used in @initConstRadix
         ScParseExprValue parseValue(astCtx, shared_ptr<ScState>(state->clone()), 
-                                    modval, false, recval);
+                                    true, modval, false, recval);
         
         // Evaluate member integer constants to get radix and store it in state
         updated = state->initConstRadix(parseValue);
@@ -208,8 +210,7 @@ bool ScGenerateExpr::isWaitNStmt(const Stmt* stmt)
         if (nsname == "sc_core" && fname == "wait" && 
             callExpr->getNumArgs() == 1) 
         {
-            auto args = callExpr->getArgs();
-            return isAnyInteger(args[0]->getType());
+            return isAnyInteger(callExpr->getArg(0)->getType());
         }
     }
     return false;
@@ -268,7 +269,7 @@ ScGenerateExpr::evaluateConstIntNoCheck(Expr* expr)
     // Use current @recval as it can be called from record constructor
     //cout << "evaluateConstIntPtr expr# " << hex << expr << dec << endl;
     ScParseExprValue parseExprValue(astCtx, shared_ptr<ScState>(state->clone()), 
-                                    modval, false, recval);
+                                    true, modval, false, recval);
     return parseExprValue.evaluateConstInt(expr, true);
 }
 
@@ -301,7 +302,7 @@ SValue ScGenerateExpr::evaluateConstInt(clang::Expr* expr, const SValue& val,
 bool ScGenerateExpr::evaluateRangeExpr(Expr* hexpr, Expr* lexpr)
 {
     // Evaluating the range expression
-    ScParseRangeExpr parseRange(astCtx, state, modval);
+    ScParseRangeExpr parseRange(astCtx, state, true, modval);
     
     SValue hval;
     parseRange.evaluate(hexpr, hval);
@@ -1520,12 +1521,21 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                 
                 // Put assign for record and others
                 bool isRecord = isUserDefinedClass(lval.getType(), true);
-
+                
                 if (isRecord) {
+                    if (codeWriter->getAssignStmt(rexpr)) {
+                        ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                            ScDiag::SYNTH_MULT_ASSIGN_REC);
+                    }
                     codeWriter->putRecordAssign(stmt, lvar, lrec, rval, rrec,
                                                 lrecSuffix, rrecSuffix);
                 } else {
                     codeWriter->putAssign(stmt, lvar, lexpr, rexpr);
+                    // Consider multiple assignments
+                    if (auto multipleAssign = codeWriter->getAssignStmt(rexpr)) {
+                        codeWriter->addTerm(stmt, multipleAssign);
+                        codeWriter->copyTerm(multipleAssign, stmt);
+                    }
                 }
             }
         } else 
@@ -1579,6 +1589,12 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                     codeWriter->extendTypeWidth(lexpr, width);
                 }
                 codeWriter->putBinary(stmt, opcodeStr, lexpr, rexpr);
+                
+                if (codeWriter->getAssignStmt(lexpr) || 
+                    codeWriter->getAssignStmt(rexpr)) {
+                    ScDiag::reportScDiag(stmt->getBeginLoc(),
+                                         ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
+                }
             }
 
         } else 
@@ -1592,15 +1608,20 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                     codeWriter->putLiteral(stmt, SValue(SValue::boolToAPSInt(
                                            val.getBoolValue()), 10));
                 } else {
-                    ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
+                    ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                          ScDiag::SYNTH_UNSUPPORTED_OPER) << 
                                          (opcodeStr+" for pointer(s)") << 
                                          "ScGenerateExpr::parseBinaryStmt";
                 }
             } else {
                 codeWriter->putBinary(stmt, opcodeStr, lexpr, rexpr);
+
+                if (codeWriter->getAssignStmt(lexpr) || 
+                    codeWriter->getAssignStmt(rexpr)) {
+                    ScDiag::reportScDiag(stmt->getBeginLoc(),
+                                         ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
+                }
             }
-            
         } else {
             ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
                                  ScDiag::SYNTH_UNSUPPORTED_OPER) 
@@ -1672,6 +1693,12 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
             SValue lvar = state->getVariableForValue(lval);
 
             codeWriter->putCompAssign(stmt, opcodeStr, lvar, lexpr, rexpr);
+            
+            // Consider multiple assignments
+            if (auto multipleAssign = codeWriter->getAssignStmt(rexpr)) {
+                codeWriter->addTerm(stmt, multipleAssign);
+                codeWriter->copyTerm(multipleAssign, stmt);
+            }
         }    
     } else {
         ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
@@ -1701,6 +1728,11 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
     
     auto rtype = rval.getTypePtr();
     bool isPointer = rtype && rtype->isPointerType();
+    
+    if (codeWriter->getAssignStmt(rexpr)) {
+        ScDiag::reportScDiag(stmt->getBeginLoc(),
+                             ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
+    }
 
     if (opcode == UO_Plus) {
         val = rval;
@@ -2087,6 +2119,16 @@ void ScGenerateExpr::parseCall(CallExpr* expr, SValue& val)
         }
         
     } else 
+    if (fname == "sct_is_method_proc") {
+        // Get process kind functions in @sct_fifo_if.h
+        codeWriter->putLiteral(expr, SValue(SValue::boolToAPSInt(isCombProcess), 10));
+        
+    } else
+    if (fname == "sct_is_thread_proc") {
+        // Get process kind functions in @sct_fifo_if.h
+        codeWriter->putLiteral(expr, SValue(SValue::boolToAPSInt(!isCombProcess), 10));
+        
+    } else
     if (fname == "wait") {
         SCT_TOOL_ASSERT (nsname && *nsname == "sc_core",
                          "wait() in non-sc_core namespace");
@@ -2594,12 +2636,24 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         bool isRecord = isUserDefinedClass(lval.getType(), true);
 
         if (isRecord) {
-            codeWriter->putRecordAssign(expr, lvar, lrec, rval, rrec, 
-                                        lrecSuffix, rrecSuffix);
+            if (isUserDefinedClass(rval.getType(), false)) {
+                if (codeWriter->getAssignStmt(rexpr)) {
+                    ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                        ScDiag::SYNTH_MULT_ASSIGN_REC);
+                }
+                codeWriter->putRecordAssign(expr, lvar, lrec, rval, rrec, 
+                                            lrecSuffix, rrecSuffix);
+            } else {
+                SCT_INTERNAL_FATAL (expr->getBeginLoc(), 
+                                    "User defined operator= () not supported yet"); 
+            }
         } else {
             codeWriter->putAssign(expr, lvar, lexpr, rexpr);
+            if (auto multipleAssign = codeWriter->getAssignStmt(rexpr)) {
+                codeWriter->addTerm(expr, multipleAssign);
+                codeWriter->copyTerm(multipleAssign, expr);
+            }
         }
-        
     } else 
     if (isScPort(thisType) && opcode == OO_Arrow) {
         // Operator "->" for @sc_port<IF>
@@ -2630,6 +2684,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
     } else 
     if (isScVector(thisType) && opcode == OO_Subscript) {
         // sc_vector access at index
+        SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
         Expr* rexpr = args[1];
         val = parseArraySubscript(expr, lexpr, rexpr);
 
@@ -2733,6 +2788,10 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             
             codeWriter->putUnary(expr, opStr, lexpr);
             
+            if (codeWriter->getAssignStmt(lexpr)) {
+                ScDiag::reportScDiag(expr->getBeginLoc(),
+                                     ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
+            }
         } else 
         // "++" "--"
         if (isIncrDecr) {
@@ -2760,6 +2819,10 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             
             codeWriter->putUnary(expr, opStr, lexpr, argNum == 1);
             
+            if (codeWriter->getAssignStmt(lexpr)) {
+                ScDiag::reportScDiag(expr->getBeginLoc(),
+                                     ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
+            }
         } else    
         // Unary "-" and "+"
         if (argNum == 1 && (opcode == OO_Plus || opcode == OO_Minus)) 
@@ -2772,6 +2835,10 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
                 codeWriter->copyTerm(lexpr, expr);
             }
             
+            if (codeWriter->getAssignStmt(lexpr)) {
+                ScDiag::reportScDiag(expr->getBeginLoc(),
+                                     ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
+            }
         } else   
         // "+" "-" "*"  "/" "==" "!=" "<" "<=" ">" ">=" "<<" ">>" "%" "^" "&" "|" 
         // There is no operators "&&" "||" for SC data types
@@ -2819,6 +2886,12 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
                 codeWriter->extendTypeWidth(lexpr, width);
             }
             codeWriter->putBinary(expr, opStr, lexpr, rexpr);
+            
+            if (codeWriter->getAssignStmt(lexpr) || 
+                codeWriter->getAssignStmt(rexpr)) {
+                ScDiag::reportScDiag(expr->getBeginLoc(),
+                                     ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
+            }
             
         } else     
         // "+=" "-=" "*="  "/=" "%=" ">>=" "<<=" "&=" "|=" "^="
@@ -2875,6 +2948,11 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             
             codeWriter->putCompAssign(expr, opStr, lvar, lexpr, rexpr);
 
+            // Consider multiple assignments
+            if (auto multipleAssign = codeWriter->getAssignStmt(rexpr)) {
+                codeWriter->addTerm(expr, multipleAssign);
+                codeWriter->copyTerm(multipleAssign, expr);
+            }
         } else { 
             ScDiag::reportScDiag(expr->getSourceRange().getBegin(), 
                                  ScDiag::SYNTH_UNSUPPORTED_OPER) << opStr << 

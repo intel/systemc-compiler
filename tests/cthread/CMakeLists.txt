@@ -62,8 +62,8 @@ svc_target(cthread_no_reset_fail WILL_FAIL)
 add_executable(cthread_for test_cthread_for.cpp)
 svc_target(cthread_for GOLDEN cthread_for.sv)
 
-add_executable(cthread_for_fcall_fail test_for_fcall_fail.cpp)
-svc_target(cthread_for_fcall_fail WILL_FAIL)
+add_executable(cthread_fcall_loop_fail test_fcall_loop_fail.cpp)
+svc_target(cthread_fcall_loop_fail WILL_FAIL)
 
 add_executable(cthread_for_other_types test_cthread_for_other_types.cpp)
 svc_target(cthread_for_other_types GOLDEN cthread_for_other_types.sv)

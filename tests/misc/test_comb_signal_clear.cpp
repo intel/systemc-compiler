@@ -25,28 +25,28 @@ struct comb_signal_module : public sc_module
     CombSig_t    csa[N];
     CombSig_t*   cspa[N];
 
-//    typedef sct_clear_signal<sc_uint<3>> ClearSig_t;
-//    ClearSig_t    ccs;
-//    ClearSig_t*   ccp;
-//    ClearSig_t    cca[N];
-//    ClearSig_t*   ccpa[N];
-//    sc_vector<ClearSig_t> ccv{"ccv", 3};
+    typedef sct_clear_signal<sc_uint<3>> ClearSig_t;
+    ClearSig_t    ccs;
+    ClearSig_t*   ccp;
+    ClearSig_t    cca[N];
+    ClearSig_t*   ccpa[N];
+    sc_vector<ClearSig_t> ccv{"ccv", 3};
     
     
     SC_CTOR(comb_signal_module) 
     {
         csp = new CombSig_t("csp");
-        //ccp = new ClearSig_t("ccp");
+        ccp = new ClearSig_t("ccp");
         for (int i = 0; i < N; i++) {
             cspa[i] = new CombSig_t("cspa");
-            ///ccpa[i] = new ClearSig_t("ccpa");
+            ccpa[i] = new ClearSig_t("ccpa");
         }
         
         SC_CTHREAD(thrdProc, clk.pos());
         async_reset_signal_is(nrst, 0);
 
-//        SC_CTHREAD(clearThrdProc, clk.pos());
-//        async_reset_signal_is(nrst, 0);
+        SC_CTHREAD(clearThrdProc, clk.pos());
+        async_reset_signal_is(nrst, 0);
         
         SC_CTHREAD(allCombThread, clk.pos());
         async_reset_signal_is(nrst, 0);
@@ -77,48 +77,48 @@ struct comb_signal_module : public sc_module
         }
     }
 
-//    void clearThrdProc() 
-//    {
-//        ccs = 1;
-//        cca[0] = 1;
-//        *ccpa[0] = 1;
-//        *ccp = 1;
-//        ccv[0] = 1;
-//        
-//        wait();             // 0
-//        
-//        while (true) {
-//            ccs = 5;
-//            cca[0] = 7;
-//            
-//            *ccp = 6;
-//            for (int i = 0; i < N; i++) {
-//                cca[i] = 7;
-//                *ccpa[i] = 8;
-//                ccv[i+1] = i;
-//            }
-//            wait();         // 1
-//        }
-//    }
+    void clearThrdProc() 
+    {
+        ccs = 1;
+        cca[0] = 1;
+        *ccpa[0] = 1;
+        *ccp = 1;
+        ccv[0] = 1;
+        
+        wait();             // 0
+        
+        while (true) {
+            ccs = 5;
+            cca[0] = 7;
+            
+            *ccp = 6;
+            for (int i = 0; i < N; i++) {
+                cca[i] = 7;
+                *ccpa[i] = 8;
+                ccv[i+1] = i;
+            }
+            wait();         // 1
+        }
+    }
     
     // Compare all kind of comb/clear and normal signals
     sc_signal<T> s{"s"};
     sct_comb_signal<T, 0> cms{"cms"};
     sct_comb_signal<T, 1> cmc{"cmc"};
-    //sct_clear_signal<T> cc{"cc"};
+    sct_clear_signal<T> cc{"cc"};
     
     void allCombThread() {
         s = 1;
         cms = 1;
         cmc = 1;
-        //cc = 1;
+        cc = 1;
         wait();
         
         while (1) {
             s = 2;
             cms = 2;
             cmc = 2;
-            //cc = 2;
+            cc = 2;
             wait();
         }
     }   
@@ -126,19 +126,19 @@ struct comb_signal_module : public sc_module
     sc_signal<T> s_{"s"};
     sct_comb_signal<T, 0> cms_{"cms_"};
     sct_comb_signal<T, 1> cmc_{"cmc_"};
-    //sct_clear_signal<T> cc_{"cc"};
+    sct_clear_signal<T> cc_{"cc"};
     
     void allCombMethod() {
         s_ = 1;
         cms_ = 1;
         cmc_ = 1;
-        //cc_ = 1;
+        cc_ = 1;
         
         if (css.read()) {
             s_ = 2;
             cms_ = 2;
             cmc_ = 2;
-            //cc_ = 2;
+            cc_ = 2;
         }
     }
 };

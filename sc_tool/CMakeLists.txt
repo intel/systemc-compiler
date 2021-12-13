@@ -184,7 +184,7 @@ target_include_directories(SCTool PUBLIC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
         )
 
-target_compile_definitions(SCTool PRIVATE SC_ELAB2_BUILD -DCLANG_10)
+target_compile_definitions(SCTool PRIVATE SC_ELAB2_BUILD)
 
 target_compile_options(SCTool PRIVATE -fno-rtti)
 

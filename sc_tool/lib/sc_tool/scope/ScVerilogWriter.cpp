@@ -63,6 +63,135 @@ std::size_t hash< std::pair<std::string, sc::SValue> >::operator () (
 
 using namespace sc;
 
+// Get any kind of assignment statement/operator
+// \return assignment statement or @nullptr
+const Expr* ScVerilogWriter::getAssignStmt(const Stmt* stmt) const
+{
+    if (auto constExpr = dyn_cast<CXXConstructExpr>(stmt)) {
+        if (constExpr->getNumArgs() != 0) 
+            return getAssignStmt(constExpr->getArg(0));
+        else 
+            return nullptr;
+    } else 
+    if (auto bindExpr = dyn_cast<CXXBindTemporaryExpr>(stmt)) {
+        return getAssignStmt(bindExpr->getSubExpr());
+    } else 
+    if (auto tempExpr = dyn_cast<MaterializeTemporaryExpr>(stmt)) {
+        return getAssignStmt(tempExpr->getSubExpr());
+    } else 
+    if (auto parenExpr = dyn_cast<ParenExpr>(stmt)) {
+        return getAssignStmt(parenExpr->getSubExpr());
+    } else 
+    if (auto castExpr = dyn_cast<CastExpr>(stmt)) {
+        return getAssignStmt(castExpr->getSubExpr());
+    } else 
+    if (auto callExpr = dyn_cast<CXXMemberCallExpr>(stmt)) {
+        Expr* thisExpr = callExpr->getImplicitObjectArgument();
+        bool isScIntegerType = isAnyScIntegerRef(thisExpr->getType(), true);
+        FunctionDecl* methodDecl = callExpr->getMethodDecl()->getAsFunction();
+        string fname = methodDecl->getNameAsString();
+        
+        if (isScIntegerType && fname.find("operator") != string::npos && (
+            fname.find("sc_unsigned") != string::npos ||
+            fname.find("int") != string::npos ||
+            fname.find("long") != string::npos ||  
+            fname.find("bool") != string::npos)) 
+        {
+            return getAssignStmt(thisExpr);
+        }
+    } else 
+    if (auto compundOper = dyn_cast<CompoundAssignOperator>(stmt)) {
+        return compundOper;
+    } else 
+    if (auto binaryOper = dyn_cast<BinaryOperator>(stmt)) {
+        auto opcode = binaryOper->getOpcode();
+        if (opcode == BO_Assign) {
+            return binaryOper;
+        }
+    } else 
+    if (auto callExpr = dyn_cast<CXXOperatorCallExpr>(stmt)) {
+        auto opcode = callExpr->getOperator();
+        if ((callExpr->isAssignmentOp() && opcode == OO_Equal) ||
+            (opcode == OO_PlusEqual || opcode == OO_MinusEqual || 
+             opcode == OO_StarEqual || opcode == OO_SlashEqual ||
+             opcode == OO_PercentEqual || 
+             opcode == OO_GreaterGreaterEqual || opcode == OO_LessLessEqual ||
+             opcode == OO_AmpEqual || opcode == OO_PipeEqual || 
+             opcode == OO_CaretEqual)) 
+        {
+            return callExpr;
+        }
+    }
+    return nullptr;
+}
+
+// Get LHS for any kind of assignment statement/operator
+// \return LHS statement of the assignment or @nullptr
+const Expr* ScVerilogWriter::getAssignLhs(const Stmt* stmt) const
+{
+    if (auto constExpr = dyn_cast<CXXConstructExpr>(stmt)) {
+        if (constExpr->getNumArgs() != 0) 
+            return getAssignLhs(constExpr->getArg(0));
+        else 
+            return nullptr;
+    } else 
+    if (auto bindExpr = dyn_cast<CXXBindTemporaryExpr>(stmt)) {
+        return getAssignLhs(bindExpr->getSubExpr());
+    } else 
+    if (auto tempExpr = dyn_cast<MaterializeTemporaryExpr>(stmt)) {
+        return getAssignLhs(tempExpr->getSubExpr());
+    } else 
+    if (auto parenExpr = dyn_cast<ParenExpr>(stmt)) {
+        return getAssignLhs(parenExpr->getSubExpr());
+    } else 
+    if (auto castExpr = dyn_cast<CastExpr>(stmt)) {
+        return getAssignLhs(castExpr->getSubExpr());
+    } else
+    if (auto callExpr = dyn_cast<CXXMemberCallExpr>(stmt)) {
+        Expr* thisExpr = callExpr->getImplicitObjectArgument();
+        bool isScIntegerType = isAnyScIntegerRef(thisExpr->getType(), true);
+        FunctionDecl* methodDecl = callExpr->getMethodDecl()->getAsFunction();
+        string fname = methodDecl->getNameAsString();
+        
+        if (isScIntegerType && fname.find("operator") != string::npos && (
+            fname.find("sc_unsigned") != string::npos ||
+            fname.find("int") != string::npos ||
+            fname.find("long") != string::npos ||  
+            fname.find("bool") != string::npos)) 
+        {
+            return getAssignLhs(thisExpr);
+        }
+    } else    
+    if (auto compundOper = dyn_cast<CompoundAssignOperator>(stmt)) {
+        return compundOper->getLHS();
+    } else 
+    if (auto binaryOper = dyn_cast<BinaryOperator>(stmt)) {
+        auto opcode = binaryOper->getOpcode();
+        if (opcode == BO_Assign) {
+            return binaryOper->getLHS();
+        }
+    } else 
+    if (auto callExpr= dyn_cast<CXXOperatorCallExpr>(stmt)) {    
+        auto opcode = callExpr->getOperator();
+        if ((callExpr->isAssignmentOp() && opcode == OO_Equal) ||
+            (opcode == OO_PlusEqual || opcode == OO_MinusEqual || 
+             opcode == OO_StarEqual || opcode == OO_SlashEqual ||
+             opcode == OO_PercentEqual || 
+             opcode == OO_GreaterGreaterEqual || opcode == OO_LessLessEqual ||
+             opcode == OO_AmpEqual || opcode == OO_PipeEqual || 
+             opcode == OO_CaretEqual)) 
+        {
+            if (callExpr->getNumArgs() != 0) 
+                return callExpr->getArg(0);
+            else 
+                return nullptr;
+        }
+    }
+    return nullptr;
+}
+
+    
+
 // Get variable declaration string in Verilog
 string ScVerilogWriter::getVarDeclVerilog(const QualType& type, 
                                           const std::string& varName, 
@@ -807,7 +936,16 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
 {
     auto info = terms.at(stmt);
 
-    auto names = info.str;
+    std::pair<std::string, std::string> names;
+    
+    if (auto lhsAssign = getAssignLhs(stmt)) {
+        // Replace multiple assignment with internal assignment LHS
+        // Casts are taken from the original statement 
+        names = terms.at(lhsAssign).str;
+    } else {
+        names = info.str;
+    }
+        
     string rdName = names.first;
     string wrName = names.second;
     
@@ -1982,8 +2120,14 @@ void ScVerilogWriter::putRecordAssign(const Stmt* stmt,
                  isClearSig(lvar); 
     bool nbAssign = isClockThreadReset && isReg;
     bool secName = !isClockThreadReset && isReg && !emptySensitivity;
-    SCT_TOOL_ASSERT (lrec.isRecord(), "lrec is not record value");
-    SCT_TOOL_ASSERT (rrec.isRecord(), "rrec is not record value");
+    if (!lrec.isRecord()) {
+        cout << "lrec " << lrec << " lvar " << lvar << endl;
+        SCT_INTERNAL_FATAL (stmt->getBeginLoc(), "lrec is not record value");
+    }
+    if (!rrec.isRecord()) {
+        cout << "rrec " << rrec << " rvar " << rvar << endl;
+        SCT_INTERNAL_FATAL (stmt->getBeginLoc(), "rrec is not record value");
+    }
     //cout << "recSuffix " << lrecSuffix << " " << rrecSuffix << endl;
     
     // Record assignment, assign all the fields

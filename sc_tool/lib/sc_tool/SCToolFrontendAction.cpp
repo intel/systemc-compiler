@@ -112,8 +112,8 @@ Object* getOuterArray(SCDesign& designDB, Object* memberObj)
     return arrayObj;
 }
 
-const std::string SCElabASTConsumer::TOOL_VERSION = "1.4.5";
-const std::string SCElabASTConsumer::TOOL_DATE = "13 Oct,2021";
+const std::string SCElabASTConsumer::TOOL_VERSION = "1.4.8";
+const std::string SCElabASTConsumer::TOOL_DATE = "11 Dec,2021";
 
 void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 {
@@ -141,8 +141,8 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
     //const char* optNames[] = {doModuleBuilder, doGenStmt};
     //const char* optNames[] = {doGenTerm, doGenCfg, doGenStmt, doModuleBuilder};
     //const char* optNames[] = {doConstCfg, doConstLoop, doConstStmt, doConstBlock, doModuleBuilder};
-    //const char* optNames[] = {doGenStmt, doModuleBuilder}; 
-    const char* optNames[] = {doModuleBuilder}; 
+    const char* optNames[] = {doConstCfg, doConstStmt, doModuleBuilder}; 
+    //const char* optNames[] = {doModuleBuilder};  
     size_t optSize = sizeof(optNames)/sizeof(const char*);
     //DebugOptions::enable(optNames, optSize); 
    
@@ -461,17 +461,10 @@ getNewSCElabActionFactory()
         SCElabActionFactory()
         {}
 
-    #ifdef CLANG_10    
         std::unique_ptr<FrontendAction> create() override
         {
             return std::unique_ptr<FrontendAction>(new SCElabFrontendAction());
         }
-    #else
-        clang::FrontendAction *create() override
-        {
-            return new SCElabFrontendAction();
-        }
-    #endif
     };
 
     return std::unique_ptr<clang::tooling::FrontendActionFactory>(

@@ -153,6 +153,11 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     travConst->setHasReset(hasReset);
     travConst->run(entryFuncDecl);
     
+    // Check for empty process and return empty process code
+    if (travConst->getLiveStmts().empty()) {
+        return VerilogProcCode(true);
+    }
+    
     // Check at least one @wait achieved
     if (travConst->getWaitStates().empty()) {
         ScDiag::reportScDiag(procView.getLocation().second->getBeginLoc(),

@@ -2004,6 +2004,16 @@ void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
         isRequiredStmt = noSvaGenerate ? isRequiredStmt : true;
         
     } else 
+    if (fname == "sct_is_method_proc") {
+        // Get process kind functions in @sct_fifo_if.h
+        val = SValue(SValue::boolToAPSInt(isCombProcess), 10);
+        
+    } else
+    if (fname == "sct_is_thread_proc") {
+        // Get process kind functions in @sct_fifo_if.h
+        val = SValue(SValue::boolToAPSInt(!isCombProcess), 10);
+        
+    } else    
     if (nsname && *nsname == "sc_dt" && isScTypeFunc) {
         // SC data type functions
         if (fname == "concat") {

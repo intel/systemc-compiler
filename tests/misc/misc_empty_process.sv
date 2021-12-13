@@ -9,41 +9,20 @@
 //
 // Module: A ()
 //
-module A // "a_mod"
+module A // "a"
 (
+    input logic clk
 );
 
 // Variables generated for SystemC signals
 
 //------------------------------------------------------------------------------
-// Method process: meth (test_multiple_pointers_mod.cpp:43:5) 
+// Clocked THREAD: emptyThread (test_empty_process.cpp:31:5) 
 // Empty process, no code generated 
 
-
 //------------------------------------------------------------------------------
-// Child module instances
-
-B b
-(
-
-);
-
-B dpb
-(
-
-);
-
-endmodule
-
-
-
-//==============================================================================
-//
-// Module: B (test_multiple_pointers_mod.cpp:21:5)
-//
-module B // "a_mod.b"
-(
-);
+// Method process: emptyMethod (test_empty_process.cpp:43:5) 
+// Empty process, no code generated 
 
 endmodule
 

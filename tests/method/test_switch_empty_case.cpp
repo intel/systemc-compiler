@@ -287,6 +287,7 @@ public:
         switch (s.read()) {
             case 1: break;
         }
+        int i = 0;
     }
     
     void switch_break_only() 

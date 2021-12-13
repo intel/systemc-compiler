@@ -28,8 +28,8 @@ bool SubStmtVisitor::VisitStmt(clang::Stmt* stmt)
     if (stmt != superStmt) {
         subStmts.emplace(stmt, superStmt);
     }
-    if (isa<clang::CallExpr>(stmt)) {
-        callExpr = isUserCallExpr(stmt);
+    if (isUserCallExpr(stmt)) {
+        callExpr = true;
     }
     return true;
 }
@@ -132,20 +132,19 @@ void ScStmtInfo::analyzeStmt(clang::Stmt* stmt, unsigned level,
             
             ssVisitor.addSubStmts(forStmt->getCond(), forStmt);
             if (ssVisitor.hasCallExpr()) {
-                ScDiag::reportScDiag(forStmt->getCond()->getBeginLoc(), 
-                                     ScDiag::SYNTH_FUNC_CALL_LOOP);
+                loopCallCond.insert(stmt);
             }
             
             ssVisitor.addSubStmts(forStmt->getInc(), forStmt);
             if (ssVisitor.hasCallExpr()) {
                 ScDiag::reportScDiag(forStmt->getInc()->getBeginLoc(), 
-                                     ScDiag::SYNTH_FUNC_CALL_LOOP);
+                                     ScDiag::SYNTH_FUNC_CALL_II_LOOP);
             }
             
             ssVisitor.addSubStmts(forStmt->getInit(), forStmt);
             if (ssVisitor.hasCallExpr()) {
                 ScDiag::reportScDiag(forStmt->getInit()->getBeginLoc(), 
-                                     ScDiag::SYNTH_FUNC_CALL_LOOP);
+                                     ScDiag::SYNTH_FUNC_CALL_II_LOOP);
             }
 
         } else 
@@ -153,8 +152,7 @@ void ScStmtInfo::analyzeStmt(clang::Stmt* stmt, unsigned level,
             analyzeStmt(whileStmt->getBody(), level+1, returnStmt, false);
             ssVisitor.addSubStmts(whileStmt->getCond(), whileStmt);
             if (ssVisitor.hasCallExpr()) {
-                ScDiag::reportScDiag(whileStmt->getCond()->getBeginLoc(), 
-                                     ScDiag::SYNTH_FUNC_CALL_LOOP);
+                loopCallCond.insert(stmt);
             }
 
         } else 
@@ -162,8 +160,7 @@ void ScStmtInfo::analyzeStmt(clang::Stmt* stmt, unsigned level,
             analyzeStmt(doStmt->getBody(), level+1, returnStmt, false);
             ssVisitor.addSubStmts(doStmt->getCond(), doStmt);
             if (ssVisitor.hasCallExpr()) {
-                ScDiag::reportScDiag(doStmt->getCond()->getBeginLoc(), 
-                                     ScDiag::SYNTH_FUNC_CALL_LOOP);
+                loopCallCond.insert(stmt);
             }
             
         } else 

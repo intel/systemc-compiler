@@ -120,10 +120,6 @@ add_executable(misc_comb_signal test_comb_signal.cpp)
 svc_target(misc_comb_signal ELAB_TOP tb.mod
            GOLDEN misc_comb_signal.sv)
 
-add_executable(misc_comb_signal_clear test_comb_signal_clear.cpp)
-svc_target(misc_comb_signal_clear ELAB_TOP tb.mod
-           GOLDEN misc_comb_signal_clear.sv)
-
 add_executable(misc_comb_signal_fail test_comb_signal_fail.cpp)
 svc_target(misc_comb_signal_fail ELAB_TOP tb.mod)
 
@@ -404,6 +400,9 @@ svc_target(misc_fcall_multi_state GOLDEN misc_fcall_multi_state.sv)
 add_executable(misc_fcall_loop test_fcall_loop.cpp)
 svc_target(misc_fcall_loop GOLDEN misc_fcall_loop.sv) 
 
+add_executable(misc_fcall_in_loop_cond test_fcall_in_loop_cond.cpp)
+svc_target(misc_fcall_in_loop_cond GOLDEN misc_fcall_in_loop_cond.sv) 
+
 add_executable(misc_fcall_return_fail1 test_fcall_return_fail1.cpp)
 svc_target(misc_fcall_return_fail1 WILL_FAIL)
 
@@ -442,3 +441,8 @@ svc_target(misc_init_reset_local_var_comb GOLDEN misc_init_reset_local_var_comb.
 
 add_executable(misc_module_prefix test_module_prefix.cpp)
 svc_target(misc_module_prefix GOLDEN misc_module_prefix.sv MODULE_PREFIX MPREF_)
+
+## Empty process function
+add_executable(misc_empty_process test_empty_process.cpp)
+svc_target(misc_empty_process GOLDEN misc_empty_process.sv) 
+

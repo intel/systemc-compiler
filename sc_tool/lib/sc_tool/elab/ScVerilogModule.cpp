@@ -330,6 +330,9 @@ void VerilogModule::detectUseDefErrors()
                 
             const VerilogVar* verVar = procVar.first;
             
+            // Skip channel variables in MIF array elements
+            if (memMifArrChannels.count(verVar) != 0) continue;
+            
             bool found = false;
             for (const auto& event : procView.staticSensitivity()) {
                 if (!event.isDefault()) continue;
@@ -347,8 +350,8 @@ void VerilogModule::detectUseDefErrors()
                 if (nonSensFound) nonSensChannels += ", ";
                 nonSensChannels += verVar->getName();
                 if (++nonSensFound > 5) break;
-            }    
-        }
+            }
+        }    
         if (nonSensFound) {
             auto* procDecl = procView.getLocation().second;
             ScDiag::reportScDiag(procDecl->getBeginLoc(), 
@@ -868,24 +871,29 @@ void VerilogModule::addModuleInstance(ModuleMIFView modObj,
     instanceMap[modObj] = newInstance;
 }
 
+// \param isMIFArrElmnt -- used to do not report error for sensitivity list
+//                         as it could be false for MIF array element
 VerilogVar *VerilogModule::createChannelVariable(sc_elab::ObjectView systemcObject,
                                                  const std::string& suggestedName,
                                                  size_t bitwidth,
                                                  sc_elab::IndexVec arrayDims,
                                                  bool isSigned,
+                                                 bool isMIFArrElmnt,       
                                                  sc_elab::APSIntVec initVals,
                                                  const std::string& comment)
 {
-    VerilogVar *var = &channelVars.emplace_back(VerilogVar(
+    VerilogVar* var = &channelVars.emplace_back(VerilogVar(
                                 nameGen.getUniqueName(suggestedName),
                                 bitwidth,
                                 std::move(arrayDims),
                                 isSigned,
                                 std::move(initVals),
                                 comment));
-
+    
     channelVarMap[systemcObject].push_back(var);
-
+    
+    if (isMIFArrElmnt) memMifArrChannels.insert(var);
+    
     return var;
 }
 
@@ -1573,6 +1581,12 @@ void VerilogModule::serializeProcSingle(llvm::raw_ostream &os,
 
     os << "//------------------------------------------------------------------------------\n";
     os << "// Method process: " << procObj.procName << " (" << procLoc << ") \n";
+
+    if (procCode.emptyProcess) {
+        os << "// Empty process, no code generated \n\n";
+        return;
+    }
+
     os << "\n";
     
     if (procVarMap.count(procObj)) {
@@ -1634,6 +1648,12 @@ void VerilogModule::serializeProcSplit(llvm::raw_ostream &os,
     
     os << "//------------------------------------------------------------------------------\n";
     os << "// Clocked THREAD: " << procObj.procName << " (" << procLoc << ") \n";
+    
+    if (procCode.emptyProcess) {
+        os << "// Empty process, no code generated \n\n";
+        return;
+    }
+
     os << "\n";
 
     if (procVarMap.count(procObj)) {

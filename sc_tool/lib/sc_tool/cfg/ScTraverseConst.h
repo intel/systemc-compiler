@@ -244,14 +244,13 @@ public:
                              ScCThreadStates* cthreadStates_ = nullptr,
                              const FindWaitCallVisitor* findWaitInLoop_ = nullptr,
                              bool isCombProcess_ = false) :
-        ScParseExprValue(context_, state_, modval_, false),
+        ScParseExprValue(context_, state_, isCombProcess_,  modval_, false),
         cthreadStates(cthreadStates_), 
         findWaitInLoop(findWaitInLoop_),
         globalState(globalState_), 
-        globExprEval(astCtx, globalState, modval),
+        globExprEval(astCtx, globalState, true, modval),
         elabDB(elabDB), 
-        dynmodval(modval_),
-        isCombProcess(isCombProcess_)
+        dynmodval(modval_)
     {
         state->getMostDerivedClass(dynmodval, dynmodval);
         enableCheckAssert();    
@@ -528,8 +527,6 @@ protected:
     /// Dynamic class module which is current for analyzed process
     SValue dynmodval;
     
-    /// Current process is combinatorial
-    bool isCombProcess;
     /// Current process has reset signal
     bool hasReset;
     /// Current process has code before main loop

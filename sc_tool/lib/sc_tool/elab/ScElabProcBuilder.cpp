@@ -98,13 +98,11 @@ VerilogProcCode ProcBuilder::generateVerilogProcess(ProcessView& procView)
 //         << procRecordView.isModularInterface() << procRecordView.isArrayElement() << endl;
 
     if (procView.isScMethod()) {
-        auto code = procAnalyzer->analyzeMethodProcess(procHostClass,
-                                           hostModuleDynClass,
-                                           procView);
-        return code;
+        return procAnalyzer->analyzeMethodProcess(procHostClass,
+                                hostModuleDynClass, procView);
     } else {
         return procAnalyzer->analyzeCthreadProcess(procHostClass,
-            hostModuleDynClass, procView);
+                                hostModuleDynClass, procView);
     }
 
     return VerilogProcCode("");
@@ -118,7 +116,7 @@ void ProcBuilder::prepareState(ModuleMIFView hostModule)
         moduleState->print();
     }
     moduleState->fillDerivedClasses(hostModuleDynClass);
-    moduleState->updateStaticClasses();
+    //moduleState->updateStaticClasses();   Not required
 
     if (DebugOptions::isEnabled(DebugComponent::doElabState)) {
         llvm::outs() << "INITIAL_STATE\n";

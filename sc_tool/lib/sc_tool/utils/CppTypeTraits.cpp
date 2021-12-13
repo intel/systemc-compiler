@@ -582,11 +582,7 @@ bool isBoolArgument(const Expr* expr)
 // Get temporary expression for @MaterializeTemporaryExpr
 // There are different API for Clang 7.0.0 and 10.0.0
 clang::Expr* getTemporaryExpr(clang::MaterializeTemporaryExpr* expr) {
-#ifdef CLANG_10
     return expr->getSubExpr();
-#else
-    return expr->GetTemporaryExpr();
-#endif
 }
 
 }

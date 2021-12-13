@@ -81,6 +81,7 @@ public:
     // Empty for removed
     void for_stmt_empty() {
         for (int i = 0; i < 2; i++) {}
+        int i = 0;
     }
 
     // Simple @for with local variable in body

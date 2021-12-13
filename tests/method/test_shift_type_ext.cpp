@@ -166,7 +166,7 @@ public:
         a = (b-42) >> 8;
         a = (1024+b) >> 8;
         
-        a = ((b *= c) * c) >> 8;
+        a = ((b * c) * c) >> 8;
 
         // Others in LHS, no type extension
         a = (b | c) >> 8;
@@ -202,7 +202,7 @@ public:
         x = (sc_uint<42>(y << 20)) >> 8;
         x = (sc_uint<42>(y << x)) >> 8;
         
-        x = ((z += y) * 2) >> 8; 
+        x = ((z + y) * 2) >> 8; 
     }
     
     // With unary operations

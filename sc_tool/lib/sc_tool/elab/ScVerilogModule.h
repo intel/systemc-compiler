@@ -290,10 +290,11 @@ public:
 
 struct VerilogProcCode {
 
-    VerilogProcCode () {}
+    VerilogProcCode (bool empty = false) : emptyProcess(empty) 
+    {}
 
-    VerilogProcCode (std::string body)
-    : body(std::move(body)) {}
+    VerilogProcCode (std::string body) : body(std::move(body)) 
+    {}
 
     VerilogProcCode (std::string body, std::string localVars, 
                      std::string resetSection, std::string tempAsserts,
@@ -304,6 +305,7 @@ struct VerilogProcCode {
         tempRstAsserts(std::move(tempRstAsserts))
     {}
 
+    bool emptyProcess = false;
     std::string body = "";
     std::string localVars = "";
     std::string resetSection = "";
@@ -363,16 +365,19 @@ public:
 
     void addModuleInstance(ModuleMIFView modObj, const std::string& name);
 
-    // signal or port
+    /// signal or port
+    /// \param isMIFArrElmnt -- used to do not report error for sensitivity list
+    ///                         as it could be false for MIF array element
     VerilogVar *createChannelVariable( ObjectView systemcObject,
                                     const std::string& suggestedName,
                                     size_t bitwidth,
                                     IndexVec arrayDims,
-                                    bool isSigned,
+                                    bool isSigned, 
+                                    bool isMIFArrElmnt,
                                     APSIntVec initVals = {},
                                     const std::string& comment = "");
 
-    // not sc_object, plain C++
+    /// not sc_object, plain C++
     VerilogVar *createDataVariable( ObjectView cppObject,
                                     const std::string& suggestedName,
                                     size_t bitwidth,
@@ -392,7 +397,7 @@ public:
                                            APSIntVec initVals = {},
                                            const std::string& comment = "");
     
-    // Create process local variable or member variable used in the process
+    /// Create process local variable or member variable used in the process
     VerilogVar* createProcessLocalVariable(ProcessView procView,
                                            const std::string& suggestedName,
                                            size_t bitwidth,
@@ -613,6 +618,8 @@ public:
     /// Member of MIF array element variables, 
     /// excluded from multiple process access error reporting
     std::unordered_set<const VerilogVar*> memMifArrVars;
+    /// 
+    std::unordered_set<const VerilogVar*> memMifArrChannels;
 
     /// Signal / Port variables
     std::deque<VerilogVar> channelVars;

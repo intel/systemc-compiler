@@ -45,9 +45,9 @@ public:
     /// \param modval -- current module/class, may be base class value
     /// \param procView -- updated inside, @latchInMethod is set
     /// \return generated Verilog code
-    std::string analyzeMethodProcess(const SValue& modval,
-                                     const SValue& dynmodval,
-                                     sc_elab::ProcessView& procView);
+    sc_elab::VerilogProcCode analyzeMethodProcess(const SValue& modval,
+                                                  const SValue& dynmodval,
+                                                  sc_elab::ProcessView& procView);
 
     /// Analyze CTHREAD process body and print equivalent Verilog.
     /// \param modval -- current module/class, may be base class value

@@ -284,7 +284,7 @@ void ScTraverseProc::parseCall(CallExpr* expr, SValue& val)
     if (fname == "__assert" || fname == "__assert_fail") {
         // Do nothing
         
-    } else     
+    } else
     if (nsname && *nsname == "sc_core") {
         if (fname == "wait") {
             // SC wait call, wait as function presents in sc_wait.h
@@ -455,7 +455,7 @@ void ScTraverseProc::chooseExprMethod(Stmt *stmt, SValue &val)
     if (anyFuncCall && calledFuncs.count(stmt)) {
         const auto& returns = calledFuncs.at(stmt);
         val = returns.first;
-        //cout << "Get RET value " << retVal << " for stmt #" << hex << stmt << dec  << endl;
+        //cout << "Get RET value " << val << " for stmt #" << hex << stmt << dec  << endl;
 
         // Store return value as term for call statement
         if (returns.second) {
@@ -527,6 +527,8 @@ void ScTraverseProc::initContext()
     block = AdjBlock(&cfg->getEntry(), true);
     elemIndx = 0;
     exitBlockId = cfg->getExit().getBlockID();
+    
+    condFuncCallLoops.clear();
     
     state->clearValueLevels();
     sctRstAsserts.clear();
@@ -702,6 +704,9 @@ void ScTraverseProc::run()
     
     codeWriter->setResetSection(isResetSection);
     codeWriter->clearExtrCombVarUsedRst();
+    
+    SCT_TOOL_ASSERT (isCombProcess || findWaitInLoop, 
+                     "No wait() finder for CTHREAD process");
 
     while (true)
     {
@@ -775,7 +780,8 @@ void ScTraverseProc::run()
                     }
                     
                     // Get statement level and check if it is sub-statement
-                    bool isStmt = false;
+                    bool isStmt = false; 
+                    bool isCallSubStmt = false;
                     if (auto stmtLevel = stmtInfo.getLevel(currStmt)) {
                         level = *stmtLevel; 
                         isStmt = true;
@@ -788,7 +794,9 @@ void ScTraverseProc::run()
                     } else 
                     if (auto stmtLevel = stmtInfo.getSubStmtLevel(currStmt)) {
                         level = *stmtLevel;
-                        isStmt = isUserCallExpr(currStmt);
+                        isCallSubStmt = isUserCallExpr(currStmt); 
+                        isStmt = isCallSubStmt;
+                        //cout << hex << "getSubStmtLevel " << currStmt << endl;
 
                     } else {
                         cout << hex << "#" << currStmt << dec << endl;
@@ -863,8 +871,45 @@ void ScTraverseProc::run()
                             }
                         
                         } else {
-                            // Normal statement, store it in scope graph
-                            scopeGraph->storeStmt(currStmt, *stmtStr);
+                            // Normal statement or sub-statement with call
+                            Stmt* stmt = isCallSubStmt ?
+                                         stmtInfo.getSuperStmt(currStmt) : nullptr;
+                            if (stmt && (isa<ForStmt>(stmt) ||
+                                isa<WhileStmt>(stmt) || isa<DoStmt>(stmt))) {
+                                // Function call in loop condition
+                                if (isCombProcess) {
+                                    ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                            ScDiag::SYNTH_FUNC_CALL_COND_LOOP);
+                                } else {
+                                    // Such loop must have @wait()
+                                    if (!findWaitInLoop->hasWaitCall(stmt)) {
+                                        ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                                ScDiag::SYNTH_FUNC_CALL_COND_LOOP);
+                                    }
+                                    // Loop condition cannot have @wait()
+                                    if (findWaitInLoop->hasWaitCall(currStmt)) {
+                                        ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                                ScDiag::SYNTH_FUNC_CALL_WAIT_LOOP);
+                                    }
+                                }
+
+                                // Function call stored in scope graph right 
+                                // before the loop statement
+                                auto i = condFuncCallLoops.emplace(
+                                     stmt, vector<pair<Stmt*, std::string>>());
+                                auto& condFuncCalls = i.first->second;
+                                
+                                bool found = false;
+                                for (auto entry : condFuncCalls) {
+                                    if (entry.first == currStmt) found = true;
+                                }
+                                if (!found) {
+                                    condFuncCalls.emplace_back(currStmt, *stmtStr);
+                                }
+                            } else {
+                                // Normal statement, store it in scope graph
+                                scopeGraph->storeStmt(currStmt, *stmtStr);  
+                            }
                             if (emptySensitivity) {
                                 scopeGraph->setEmptySensStmt(currStmt);
                             }
@@ -1358,6 +1403,16 @@ void ScTraverseProc::run()
                                 }
                             }
                         }
+                        
+                        // Store function call statement in FOR condition
+                        // after initialization/increment sections
+                        auto i = condFuncCallLoops.find(term);
+                        if (i != condFuncCallLoops.end()) {
+                            for (const auto& entry : i->second) {
+                                scopeGraph->storeStmt(entry.first, entry.second);
+                            }
+                        }
+                        
                         // Store IF statement in code writer
                         scopeGraph->storeStmt(term, stmtStr.getValue(), true);
                         
@@ -1466,7 +1521,7 @@ void ScTraverseProc::run()
                         
                         if (DebugOptions::isEnabled(DebugComponent::doGenBlock)) {
                             cout << "Loop Exit Block B" << succBlock.getCfgBlockID() << ((succBlock.isReachable()) ? "" : " is unreachable") << endl;
-                        }    
+                        }
                     }
 
                     // If entered into loop body enter, remove current loop

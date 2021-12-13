@@ -1335,7 +1335,8 @@ bool ProcessView::isScCThread() const
     return getProtobufObj()->primitive().proc_val().kind() == Process::SC_CTHREAD;
 }
 
-bool ProcessView::isCombinational() const
+// Does not work well for methods in MIF
+/*bool ProcessView::isCombinational() const
 {
     bool isCombinational = true;
 
@@ -1345,7 +1346,7 @@ bool ProcessView::isCombinational() const
     }
 
     return isCombinational;
-}
+}*/
 
 std::vector<ProcessView::SensEvent> ProcessView::staticSensitivity() const
 {

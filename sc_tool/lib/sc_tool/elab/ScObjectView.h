@@ -510,7 +510,7 @@ public:
     bool isScThread() const;
     bool isScCThread() const;
 
-    bool isCombinational() const;
+    //bool isCombinational() const;
     
     void setHasLatch() { hasLatch = true; }
     bool getHasLatch() const { return hasLatch; }

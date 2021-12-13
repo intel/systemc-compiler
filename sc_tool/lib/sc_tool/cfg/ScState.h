@@ -279,8 +279,9 @@ public:
     /// Fill derived classes map from current state tuples
     void fillDerivedClasses(const SValue &dynmodval);
     
+    // Not used for now
     /// Set static class value for pointer to derived class
-    void updateStaticClasses();
+    //void updateStaticClasses();
 
     /// Check if state is dead
     bool isDead();

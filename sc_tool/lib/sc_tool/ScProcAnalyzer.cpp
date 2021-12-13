@@ -35,7 +35,7 @@ namespace sc {
 using namespace clang;
 using namespace std;
 
-std::string ScProcAnalyzer::analyzeMethodProcess (
+sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
                     const SValue& modval,
                     const SValue& dynmodval, 
                     sc_elab::ProcessView& procView)
@@ -50,7 +50,6 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
     
     clang::CXXMethodDecl* methodDecl = procView.getLocation().second;
     bool emptySensitivity = procView.staticSensitivity().empty();
-    bool isCombMethod = procView.isCombinational();
     
     // Module in elaboration DB
     auto parentModView = procView.getParentModule();
@@ -90,6 +89,11 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
     ScTraverseConst travConst(astCtx, constState, modval, 
                               globalState, &elabDB, nullptr, nullptr, true);
     travConst.run(methodDecl);
+    
+    // Check for empty process and return empty process code
+    if (travConst.getLiveStmts().empty()) {
+        return VerilogProcCode(true);
+    }
     
     ScState* finalState = travConst.getFinalState();
     
@@ -410,7 +414,7 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
     // Clone module state for each process
     auto procState = shared_ptr<ScState>(globalState->clone());
     ScTraverseProc travProc(astCtx, procState, modval, procWriter.get(),
-                            nullptr, nullptr, isCombMethod);
+                            nullptr, nullptr, true);
     travProc.setTermConds(travConst.getTermConds());
     travProc.setLiveStmts(travConst.getLiveStmts());
     travProc.setLiveTerms(travConst.getLiveTerms());
@@ -434,7 +438,7 @@ std::string ScProcAnalyzer::analyzeMethodProcess (
         travProc.printFunctionBody(cout);
         std::cout << "---------------------------------------" << endl;
     }
-    return os.str();
+    return VerilogProcCode(os.str());
 }
 
 sc_elab::VerilogProcCode ScProcAnalyzer::analyzeCthreadProcess(

@@ -68,32 +68,26 @@ SC_MODULE(Top) {
         
         SC_METHOD(top_method);
         sensitive << minst[0]->s << minst[1]->s << t;
-        
-        //SC_METHOD(tmp_meth);
-        //sensitive << t;
     }
 
     void top_method() 
     {
         int i = t;
-        minst[1]->s = 1;
+        minst[i]->s = 1;
 
-        minst[1]->p->write(2);
-        (*minst[1]->p).write(3);
-        *(minst[1]->p) = 4;
+        minst[i]->p->write(2);
+        (*minst[i]->p).write(3);
+        *(minst[i]->p) = 4;
         
-        *minst[1]->vp = 5;
+        *minst[i]->vp = 5;
         
-//        minst[i]->vv = 0;
-//
-//        sc_uint<4> a = minst[i]->s;
-//        minst[i]->s = minst[i+1]->v + a;
-//        
-//        minst[i]->f();
-    }
-    
-    
-    void tmp_meth() {
+        minst[i]->vv = 0;
+        for (int j = 0; j < 2; ++j) minst[j]->v = j;
+
+        sc_uint<4> a = minst[i]->s;
+        minst[i]->s = minst[i+1]->v + a;
+        
+        minst[i]->f();
     }
 };
 

@@ -85,10 +85,11 @@ protected:
 public:
     explicit ScParseExprValue(const clang::ASTContext& context_,
                               std::shared_ptr<ScState> state_, 
+                              bool isCombProcess_,
                               const SValue& modval_, 
                               bool checkNoValue_ = true,
                               SValue recval_ = NO_VALUE) : 
-        ScParseExpr(context_, state_, modval_, checkNoValue_, recval_)
+        ScParseExpr(context_, state_, isCombProcess_, modval_, checkNoValue_, recval_)
     {}
 
     virtual ~ScParseExprValue() {}

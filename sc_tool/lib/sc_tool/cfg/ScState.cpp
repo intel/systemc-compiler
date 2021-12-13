@@ -180,7 +180,9 @@ void ScState::fillDerivedClasses(const SValue &dynmodval)
     }
 }
 
-void ScState::updateStaticClasses()
+// Not used for now
+// This function does not support sc_vector
+/*void ScState::updateStaticClasses()
 {
     for (const auto& i : tuples) {
         // Try to get record value 
@@ -201,6 +203,7 @@ void ScState::updateStaticClasses()
             }
             // Get class type from variable type (static class)
             while (!isUserDefinedClass(type)) {
+                // TODO: add vector support here 
                 if (isPointer(type) || type->isArrayType()) {
                     // Qualifiers not important here
                     type = QualType(type->getPointeeOrArrayElementType(), 0);
@@ -225,7 +228,7 @@ void ScState::updateStaticClasses()
             }
         }
     }
-}
+}*/
 
 bool ScState::isDead() {
     return dead;
