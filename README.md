@@ -26,6 +26,11 @@ An instruction how to build and run ISCS at **Ubuntu 20.04** is given at [Gettin
 
 SystemC/C++ various features supported by ICSC described at [SystemC/C++ supported](https://github.com/intel/systemc-compiler/wiki/SystemC--supported).
 
+## Publications
+
+* [SystemC-to-Verilog Compiler: a productivity-focused tool for hardware design in cycle-accurate SystemC](https://github.com/intel/systemc-compiler/blob/main/doc/papers/icsc.pdf) at DvCon'2019
+* [Temporal assertions in SystemC](https://github.com/intel/systemc-compiler/blob/main/doc/papers/sct_assert.pdf) at DvCon'2020 and SystemC evolution day'2020
+
 ## Help
 
 To get help please [submit your question or issue](https://github.com/intel/systemc-compiler/issues).
