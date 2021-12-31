@@ -612,13 +612,17 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
     if (objView.isModule())
         flatten = true;
 
-    if (objView.isPrimitive() && objView.isConstant())
-        flatten = true;
+    //if (objView.isPrimitive() && objView.isConstant())
+    //    flatten = true;
 
     // Checking for MIF array element
     bool zeroElmntMIF = false;
     bool noneZeroElmntMIF = false;
+    bool recordArrayElmt  = false;
+    // Parent module of MIF
     ObjectView parent; 
+    // Parent record if exists
+    ObjectView record;
 
     if (!objView.hasNoParent()) {
         parent = objView.getParentModuleOrMIF();
@@ -630,6 +634,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
             parent = elabDB->getObj(i->second);
             //std::cout << "   restored parent " << parent.getDebugString() << " id " << i->second << std::endl;
         }
+        //std::cout << "   parent " << parent.getDebugString() << std::endl;
         
         if (parent.isModularInterface()) {
             // Get pointer to check if it is an array element
@@ -639,22 +644,9 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
                 }
             }
 
-            /*
-            // Go through parents and pointers up to top or array
-            while (!parent.isTopMod() && 
-                   !parent.isArrayElement() && 
-                   !parent.isArrayLike())
-            {
-                if (parent.getPointers().size() > 0) {
-                    parent = parent.getPointers()[0];
-                } else {
-                    parent = parent.getParent();
-                }
-            }*/
-            
             // Get indices and array element at index [0][0]...[0]
             const auto& objIndx = parent.getAsArrayElementWithIndicies();
-
+            
             // Check zero/non-zero MIF array element
             if (!objIndx.indices.empty()) {
                 for (auto i : objIndx.indices) {
@@ -663,6 +655,29 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
                 zeroElmntMIF = !noneZeroElmntMIF;
             }
             parent = objIndx.obj;
+        } 
+        
+        // Check for record array element
+        if (!objView.isTopMod()) {
+            record = objView.getParent();
+            
+            // Check general record not module/MIF
+            if (record.isRecord() && 
+                !record.isModule() && !record.isModularInterface()) {
+                // Get pointer to check if it is an array element
+                if (record.isDynamic()) {
+                    if (record.getPointers().size() > 0) {
+                        record = record.getPointers()[0];
+                    }
+                }
+                recordArrayElmt = record.isArrayElement();
+                //cout << "record " << record.getDebugString() << endl;
+                
+                if (auto recordArray = record.getTopmostParentArray()) {
+                    record = recordArray.getValue();
+                    //cout << "      " << record.getDebugString() << endl;
+                }
+            }
         }
     }
     
@@ -683,12 +698,17 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
     for (size_t i = 1; i < nameStack.size(); ++i) {
         auto node = nameStack[i];
         if (node.kind == NameNode::ARRAY) {
-            if (flatten)
-                for (auto id : node.ids)
-                    name += "_" + std::to_string(id);
-            else
-                for (auto dim : node.dims)
-                    arrayDims.push_back(dim);
+            if (objView.isModule()) {
+                // Flatten module name
+                for (auto id : node.ids) name += "_" + std::to_string(id);
+            } else
+            if (objView.isPrimitive() && objView.isConstant() && 
+                objView.isStatic()) {
+                // Do not change name of static const non-array variable
+            } else {
+                // Add array dimensions otherwise
+                for (auto dim : node.dims) arrayDims.push_back(dim);
+            }
         }
         else
             name += "_" + node.name;
@@ -703,35 +723,47 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
         curVerMod->addModuleInstance(objView, name);
         
     } else {
-        if (auto arrayView = objView.array()) {
-            // generate constant array as localparam
-            if (arrayView->isConstPrimitiveArray()) {
-                curVerMod->addConstDataVariable(objView, name);
-                return flatten;
-            }
-        }
-
         if (objView.isArrayLike()) {
-            // array or std::vector of non-constant integer
-            bitwidth = objView.array()->getOptimizedArrayBitwidth();
+            // Array or std::vector 
+            auto arrayView = objView.array();
+            
+            if (arrayView->isConstPrimitiveArray()) {
+                // Constant array or std::vector
+                ObjectView childObj = *arrayView;
+                while (childObj.isArrayLike()) {
+                    ArrayView childArray = *childObj.array();
+                    arrayDims.push_back(childArray.size());
+                    childObj = childArray.at(0);
+                }
+                bitwidth = childObj.primitive()->value()->bitwidth();
+                
+                curVerMod->fillInitVals(initVals, isSigned, *arrayView);
+                flatten = true;
+                
+            } else {
+                // Non-constant array or std::vector
+                bitwidth = arrayView->getOptimizedArrayBitwidth();
+            }
             
         } else {
-            // primitive
+            // Primitive
             SCT_TOOL_ASSERT (objView.isPrimitive() && 
                              objView.primitive()->isValue(), "");
-            auto valueView = *objView.primitive()->value();
+            auto valueView = objView.primitive()->value();
+            bitwidth = valueView->bitwidth();
 
-            bitwidth = valueView.bitwidth();
-
-            if (valueView.isConstant()) {
-                if (valueView.int64Val())
-                    initVals.emplace_back(APSInt(APInt(bitwidth,
-                                                       *valueView.int64Val()),
-                                                 false));
-                else if (valueView.uint64Val())
-                    initVals.emplace_back(APSInt(APInt(bitwidth,
-                                                       *valueView.uint64Val()),
-                                                 true));
+            // Check constant pointer to dynamic memory, constant pointer
+            // to non-constant variable not considered here
+            bool isConstPtr = false;
+            if (valueView->isDynamic()) {
+                for (auto& i : objView.getPointers()) {
+                    isConstPtr = isConstPtr || isConstPointer(i.getType());
+                }
+            }
+            
+            if (valueView->isConstant() || isConstPtr) {
+                curVerMod->fillInitVal(initVals, isSigned, *valueView);
+                flatten = true;
             }
         }
 
@@ -753,6 +785,12 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
             // Provide same name for all MIF array instances
             if (zeroElmntMIF || noneZeroElmntMIF) {
                 curVerMod->createDataVariableMIFArray(objView, parent, name, 
+                                    bitwidth, arrayDims, isSigned, initVals);
+            } else 
+            if (recordArrayElmt) {
+                // Considering record separately from MIF means 
+                // no record array in MIF supported
+                curVerMod->createDataVariableMIFArray(objView, record, name, 
                                     bitwidth, arrayDims, isSigned, initVals);
             } else {
                 curVerMod->createDataVariable(objView, name, 
@@ -1833,38 +1871,29 @@ void ScElabModuleBuilder::createProcessBodies(VerilogModule &verMod)
     // Avoid black boxed module process analysis
     if (verMod.isIntrinsic()) return;
     
-    // ELAB_ONLY flag true
-    if (noProcessAnalysis) {
-        for (auto &proc : verMod.getProcesses()) {
-            verMod.addProcessBody(proc,
-                                  VerilogProcCode(
-                                      "//  Process analysis disabled\n"));
-        }
-    } else {
 //        cout << "------------- channelVarMap " << verMod.getName() << endl;
 //        for (auto& e : verMod.channelVarMap) {
 //            cout << "   " << e.first.getID() << " : " 
 //                 << ((e.second.size() > 0) ? e.second[0]->getName() : "---") << endl;
 //        }
         
-        // Create @state common for this module, could be modified for 
-        // local static constant and global variable outside of the module
-        ProcBuilder procBuilder(verMod.getModObj(), *elabDB);
-        procBuilder.prepareState(verMod.getModObj());
+    // Create @state common for this module, could be modified for 
+    // local static constant and global variable outside of the module
+    ProcBuilder procBuilder(verMod.getModObj(), *elabDB);
+    procBuilder.prepareState(verMod.getModObj());
 
-        // Generate code for SVA properties in module body
-        if (!noSvaGenerate) {
-            std::string svaCode = procBuilder.generateSvaProperties(verMod);
-            verMod.addSvaPropertyCode(svaCode);
-        }
-        
-        // Generate process bodies 
-        for (ProcessView& proc : verMod.getProcesses()) {    
-            auto procBody = procBuilder.generateVerilogProcess(proc);
-            verMod.addProcessBody(proc, procBody);
-            // Set unique name for process
-            proc.procName = verMod.getProcName(proc);
-        }
+    // Generate code for SVA properties in module body
+    if (!noSvaGenerate) {
+        std::string svaCode = procBuilder.generateSvaProperties(verMod);
+        verMod.addSvaPropertyCode(svaCode);
+    }
+
+    // Generate process bodies 
+    for (ProcessView& proc : verMod.getProcesses()) {    
+        auto procBody = procBuilder.generateVerilogProcess(proc);
+        verMod.addProcessBody(proc, procBody);
+        // Set unique name for process
+        proc.procName = verMod.getProcName(proc);
     }
 }
 

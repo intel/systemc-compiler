@@ -20,7 +20,7 @@ public:
 
     SC_CTOR(A) 
     {
-        SC_METHOD(record_const); sensitive << dummy;
+        SC_METHOD(record_const); sensitive << dummy << s;
         
         // Check constant in member record is considered as readOnly/useVals
         SC_METHOD(record_decl1);  sensitive << dummy;
@@ -67,6 +67,7 @@ public:
     ScSimple scRec;
     ScSimple scRecArr[2];
     
+    sc_signal<unsigned> s;
     void record_const() {
         int i;
         i = scRec.A + scRec.B + scRec.a;
@@ -77,8 +78,11 @@ public:
         i = scRecArr[1].A + scRecArr[0].a + ScSimple::B + scRecArr[0].b;
         i = scRecArr[1].A + scRecArr[0].a + scRecArr[1].B + scRecArr[0].b;
         
+        i = scRecArr[s.read()].a + scRecArr[s.read()+1].A;
+        i = scRecArr[s.read()].b + scRecArr[s.read()-1].B;
+        
         int m[3];
-        m[0] = ScSimple::B + scRecArr[0].B + scRecArr[1].A;
+        m[0] = ScSimple::B + scRecArr[0].B + scRecArr[0].A;
     }
 
 //-----------------------------------------------------------------------------

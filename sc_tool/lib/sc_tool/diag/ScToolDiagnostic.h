@@ -193,6 +193,10 @@ public:
         SYNTH_FUNC_CALL_WAIT_LOOP   = 221,
         SYNTH_MULT_ASSIGN_REC       = 222,
         SYNTH_INTERNAL_ASSIGN_OPER  = 223,
+        SYNTH_UNSIGNED_MODE_BINARY  = 224,
+        SYNTH_UNSIGNED_MODE_UNARY   = 225,
+        SYNTH_UNSIGNED_MODE_DECL    = 226,
+        CPP_BOOL_BITWISE_BINARY     = 227,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -561,8 +565,23 @@ private:
         idFormatMap[SYNTH_INTERNAL_ASSIGN_OPER] =
             {clang::DiagnosticIDs::Error, 
             "Internal assignment in binary/unary operation not supported yet"};
+
+        idFormatMap[SYNTH_UNSIGNED_MODE_BINARY] =
+            {clang::DiagnosticIDs::Warning, 
+            "Signed assignment or other binary operator in unsigned mode"};
+
+        idFormatMap[SYNTH_UNSIGNED_MODE_UNARY] =
+            {clang::DiagnosticIDs::Warning, 
+            "Signed unary operator in unsigned mode"};
         
-        
+        idFormatMap[SYNTH_UNSIGNED_MODE_DECL] =
+            {clang::DiagnosticIDs::Warning, 
+            "Signed type variable declaration in unsigned mode"};
+                 
+         idFormatMap[CPP_BOOL_BITWISE_BINARY] =
+            {clang::DiagnosticIDs::Remark, 
+            "Bitwise operation with boolean, use logical operation instead"};
+         
 
         idFormatMap[CPP_UNKNOWN_STD_FUNC] =
             {clang::DiagnosticIDs::Warning, 

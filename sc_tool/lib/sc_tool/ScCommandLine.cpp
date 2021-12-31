@@ -38,6 +38,12 @@ cl::opt<bool> noRemoveExtraCode(
     cl::cat(ScToolCategory)
 );
 
+cl::opt<bool> checkUnsigned(
+    "check_unsigned",
+    cl::desc("Design uses unsigned arithmetic only"),
+    cl::cat(ScToolCategory)
+);
+
 cl::opt<bool> initLocalVars(
     "init_local_vars",
     cl::desc("Initialize local variables at declaration with zero"),
@@ -59,13 +65,6 @@ cl::opt<bool> replaceConstByValue(
 cl::opt<std::string> modulePrefix (
     "module_prefix",
     cl::desc("Module prefix string"),
-    cl::cat(ScToolCategory)
-    );
-
-
-cl::opt<bool> noProcessAnalysis (
-    "elab_only",
-    cl::desc("Elaboration only, disable SystemC process analysis"),
     cl::cat(ScToolCategory)
     );
 

@@ -37,11 +37,16 @@ struct A : public sc_module
     static const int64_t INT_CONST3 = -2147483647;
     static const long INT_CONST4 = -2147483648;
     static const long INT_CONST5 = -2;
+    static const int64_t INT_CONST6 = -0x40000000;
+    static const int64_t INT_CONST7 = -1073741824;
+    static const int64_t INT_CONST8 = -0x3FFFFFFF;
+    static const int64_t INT_CONST9 = -1073741823;
 
     void constMeth() 
     {
         auto a = BIG_CONST1 + BIG_CONST2 + BIG_CONST3 /*+ BIG_CONST4*/ +
-                 INT_CONST1 + INT_CONST2 + INT_CONST3 + INT_CONST4; 
+                 INT_CONST1 + INT_CONST2 + INT_CONST3 + INT_CONST4 + 
+                 INT_CONST6 + INT_CONST7 + INT_CONST8 + INT_CONST9; 
         int64_t b = 10000000000;
         b = -10000000000;
         b = a + 10000000000;

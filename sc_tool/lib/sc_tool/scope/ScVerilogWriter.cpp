@@ -1380,6 +1380,21 @@ void ScVerilogWriter::putSignCast(const clang::Stmt* stmt, CastSign castSign)
     }
 }
 
+void ScVerilogWriter::putBoolCast(const clang::Stmt* stmt)
+{
+    if (skipTerm || skipSignCast) return;
+
+    if (terms.count(stmt)) {
+        auto& info = terms.at(stmt);
+        info.castSign = CastSign::BCAST;
+
+    } else {
+        SCT_INTERNAL_FATAL(stmt->getBeginLoc(), 
+                           "putBoolCast : No term for statement " +
+                           llvm::to_hexString((size_t)stmt, false));
+    }
+}
+
 // Set cast width for variables/expressions replaced by value,
 // used in concatenation
 void ScVerilogWriter::setReplacedCastWidth(const clang::Stmt* stmt,
@@ -1478,6 +1493,11 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                      "No variable found to declare");
     SCT_TOOL_ASSERT (!val.isReference() || val.isConstReference(), 
                      "No non-constant reference expected to be declared");
+    
+    if (checkUnsigned && isSignedType(type) && stmt) {
+        ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                             ScDiag::SYNTH_UNSIGNED_MODE_DECL);
+    }
     
     if (forLoopInit) {
         // For loop counter variable declaration in initialization section
@@ -1827,8 +1847,8 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
         // Add MIF variable prefix for its member access
         if (elemOfMifArr && !isExtrCombVarNoIndx) {
             // Access to member of MIF from its process body 
-            // No index for local variables and member constant variables (@localparam)
-            if (!isLocalVariable(val) && !isConstVerVar(val)) {
+            // No index for local variables 
+            if (!isLocalVariable(val)) {
                 string indxSuff = getIndexFromRecordName(MIFValueName.second);
                 names.first += indxSuff;
                 names.second += indxSuff;
@@ -1859,11 +1879,8 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
             
             // Record array index inside, optionally erase indices in @arraySubIndices
             string indxSuff = getRecordIndxs(recarrs);
-            // No index for member constant variables (@localparam)
-            if (!isConstVerVar(val)) {
-                names.first += indxSuff;
-                names.second += indxSuff;
-            }
+            names.first += indxSuff;
+            names.second += indxSuff;
             //cout << "  REC from module suffix " << refRecarrIndxStr << indxSuff
             //     << " names.first " << names.first << endl;
         }
@@ -2497,9 +2514,10 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
     if (terms.count(lhs) && terms.count(rhs)) 
     {
         bool binaryMinus = opcode == "-";
+        bool bitwiseOper = opcode == "&" || opcode == "|" || opcode == "^";
         bool arithmOper  = binaryMinus || opcode == "+" || 
                            opcode == "*" || opcode == "/" || opcode == "%" ||
-                           opcode == "&" || opcode == "|" || opcode == "^";
+                           bitwiseOper;
         bool shiftOper   = opcode == ">>>" || opcode == "<<<";
         bool compareOper = opcode == ">" || opcode == "<" ||
                            opcode == ">=" || opcode == "<=" ||
@@ -2521,10 +2539,17 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
                 ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                      ScDiag::SYNTH_SIGN_UNSIGN_MIX);
             } else 
-            if (compareOper) {
-                // Uncomment me, #271
-                //ScDiag::reportScDiag(stmt->getBeginLoc(),
-                //                     ScDiag::SYNTH_COMPARE_SIGN_UNSIGN_MIX);
+            if (checkUnsigned && compareOper) {
+                ScDiag::reportScDiag(stmt->getBeginLoc(),
+                                     ScDiag::SYNTH_COMPARE_SIGN_UNSIGN_MIX);
+            }
+        }
+        
+        if (arithmOper || shiftOper) {
+            if ((!linfo.literRadix && linfo.castSign == CastSign::BCAST) ||
+                (!rinfo.literRadix && rinfo.castSign == CastSign::BCAST)) {
+                ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                     ScDiag::CPP_BOOL_BITWISE_BINARY);
             }
         }
         
@@ -2543,6 +2568,18 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
         if (shiftOper && isSignedBinary) {
             ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                  ScDiag::SYNTH_SIGNED_SHIFT);
+        }
+        
+        // Check both arguments are unsigned or literals or casted from @bool
+        if (checkUnsigned) {
+            bool isSignedLHS = isSignedType(lhs->getType()) && !linfo.literRadix &&
+                               linfo.castSign != CastSign::BCAST;
+            bool isSignedRHS = isSignedType(rhs->getType()) && !rinfo.literRadix &&
+                               rinfo.castSign != CastSign::BCAST;
+            if (isSignedLHS || isSignedRHS) {
+                ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                     ScDiag::SYNTH_UNSIGNED_MODE_BINARY);
+            }
         }
         
         bool negBrackets = arithmOper || shiftOper;
@@ -2586,7 +2623,7 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
                     width = maxwidth;
                 } else 
                 if (opcode == "<<<") {
-                    if (terms.at(rhs).literRadix) {
+                    if (rinfo.literRadix) {
                         width = lwidth + getLiteralAbs(rhs);
                     } else {
                         // Left shift width can be too long, so width if limited 
@@ -2635,9 +2672,10 @@ void ScVerilogWriter::putCompAssign(const Stmt* stmt, string opcode,
 
     if (terms.count(lhs) && terms.count(rhs)) {
         
+        bool bitwiseOper = opcode == "&" || opcode == "|" || opcode == "^";
         bool arithmOper  = opcode == "+" || opcode == "-" || 
                            opcode == "*" || opcode == "/" || opcode == "%" ||
-                           opcode == "&" || opcode == "|" || opcode == "^";
+                           bitwiseOper;
         
         auto& linfo = terms.at(lhs);
         auto& rinfo = terms.at(rhs);
@@ -2651,16 +2689,30 @@ void ScVerilogWriter::putCompAssign(const Stmt* stmt, string opcode,
         QualType ctype = cexpr->getType();
         QualType rtype = rhs->getType();
         bool isSignedCompound = isSignedType(ctype);
+        bool isSignedRHS = isSignedType(rtype);
         
         // Report warning for signed to unsigned cast and signed rvalue
         // in unsigned operation for non-literal
         if (!rinfo.literRadix && (rinfo.castSign == CastSign::UCAST ||
-            (!isSignedCompound && isSignedType(rtype))))
+            (!isSignedCompound && isSignedRHS && rinfo.castSign != CastSign::BCAST)))
         {
             if (arithmOper) {
                 ScDiag::reportScDiag(stmt->getBeginLoc(),
                                      ScDiag::SYNTH_SIGN_UNSIGN_MIX);
             }
+        }
+        
+        if (checkUnsigned && isSignedRHS) {
+            if (!rinfo.literRadix && rinfo.castSign != CastSign::BCAST) {
+                //cout << hex << "stmt " << stmt << endl;
+                ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                     ScDiag::SYNTH_UNSIGNED_MODE_BINARY);
+            }
+        }
+        
+        if (!rinfo.literRadix && rinfo.castSign == CastSign::BCAST) {
+            ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                 ScDiag::CPP_BOOL_BITWISE_BINARY);
         }
         
         // Report warning for negative literal casted to unsigned in / and %
@@ -2728,6 +2780,15 @@ void ScVerilogWriter::putUnary(const Stmt* stmt, string opcode, const Expr* rhs,
         SCT_TOOL_ASSERT (uexpr, "No expression for unary operation");
         QualType utype = uexpr->getType();
         bool isSignedUnary = isSignedType(utype);
+        bool isSignedRHS = isSignedType(rhs->getType());
+        
+        // Check operand is unsigned, skip literals and cast to boolean
+        if (checkUnsigned && isSignedRHS && opcode != "|") {
+            if (!rinfo.literRadix && rinfo.castSign != CastSign::BCAST) {
+                ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                     ScDiag::SYNTH_UNSIGNED_MODE_UNARY);
+            }
+        }
         
         // For signed unary operation set SACAST for operand if its unsigned
         if (doSignCast && isSignedUnary) {

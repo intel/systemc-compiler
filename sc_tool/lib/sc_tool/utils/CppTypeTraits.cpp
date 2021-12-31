@@ -52,6 +52,14 @@ bool isPointer(QualType type)
     return (!type.isNull() && type.getTypePtr()->isPointerType());
 }
 
+// Constant type pointer: const T*
+bool isConstPointer(QualType type) 
+{
+    return (!type.isNull() && 
+            type.getTypePtr()->isPointerType() &&
+            type.getTypePtr()->getPointeeType().isConstQualified());
+}
+
 // Check array of any type, return number of array dimension
 bool isArray(QualType type) 
 {

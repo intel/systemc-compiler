@@ -109,9 +109,11 @@ public:
     /// Parse and evaluate one expression/statement as constant integer
     /// \param checkConst -- get value for variable if it is constant only
     ///                      used in ScTraverseProc, not used in ScTraverseConst
+    /// \param checkRecOnly -- get zero instead of unknown index for record/MIF array
     /// \return <result, integer value of result>
     std::pair<SValue, SValue> evaluateConstInt(clang::Expr* expr, 
-                          bool checkConst = true) override;
+            bool checkConst = true,
+            bool checkRecOnly = false) override;
     
     /// Try to get integer from state, return NO_VALUE if not.
     SValue evaluateConstInt(clang::Expr* expr, const SValue& val, 

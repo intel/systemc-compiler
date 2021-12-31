@@ -114,14 +114,15 @@ void ScParseExprValue::parseSvaDecl(const clang::FieldDecl* fdecl)
 // contains only constant value to operate with
 // \return <result, integer value of result>
 std::pair<SValue, SValue> 
-ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst)
+ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst, bool checkRecOnly)
 {
     // Suspend debug to ignore parsing expressions done for constant evaluation
     // and prevent user defined function calls
     EvalMode em(evaluateConstMode);
     
     SValue val = evalSubExpr(expr);
-    //cout << "evaluateConstInt val " << val << " rval " << getValueFromState(val) << endl;
+//    cout << "evaluateConstInt val " << val << " rval "
+//         << getValueFromState(val, returnUnknown) << endl;
     
     // Return integer value
     if (val.isInteger()) {
@@ -131,7 +132,9 @@ ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst)
     // Do not check @checkConst here as under @checkConst it is evaluated 
     // from constants in state
     if (val.isTmpVariable()) {
-        SValue rval = getValueFromState(val);
+        SValue rval = getValueFromState(val, checkRecOnly ? 
+                                        ArrayUnkwnMode::amFirstElementRec :
+                                        ArrayUnkwnMode::amNoValue);
         return make_pair(val, rval);
     }
 
@@ -143,7 +146,9 @@ ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst)
     
     // Get value from constant variable
     if (isConst || !checkConst) {
-        SValue rval = getValueFromState(val);
+        SValue rval = getValueFromState(val, checkRecOnly ? 
+                                        ArrayUnkwnMode::amFirstElementRec :
+                                        ArrayUnkwnMode::amNoValue);
         return make_pair(val, rval);
     }
     

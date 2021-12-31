@@ -35,6 +35,9 @@ bool isConstReference(clang::QualType type);
 /// Check if the type is pure pointer 
 bool isPointer(clang::QualType type);
 
+/// Constant type pointer: const T*
+bool isConstPointer(clang::QualType type);
+
 /// Check array of any type
 bool isArray(clang::QualType type);
 

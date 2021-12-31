@@ -129,7 +129,9 @@ struct VerilogVarTraits
 enum class ArrayUnkwnMode {
     amNoValue,          // Return NO_VALUE
     amArrayUnknown,     // Return the same array unknown element
-    amFirstElement      // Return first (zero index) element
+    amFirstElement,     // Return first (zero index) element
+    amFirstElementRec   // Return first element for record/MIF array 
+                        // unknown index,NO_VALUE otherwise
 };
 
 /// State of class, structure or module
@@ -487,9 +489,10 @@ public:
     /// Get bottommost array for given value which can be element in array or 
     /// field in record array element.
     /// \param unkwIndex -- unknown index for bottommost array
+    /// \param checkRecOnly -- provide unkwIndex for record/MIF array only
     /// \return bottom array value or NO_VALUE
     SValue getBottomArrayForAny(const SValue& val, bool& unkwIndex,
-                                unsigned crossModule = 0) const;
+                unsigned crossModule = 0, bool checkRecOnly = false) const;
     
     /// Get topmost array and field declaration for given value which can be 
     /// element in array or field in record array element.

@@ -65,6 +65,14 @@ public:
         cerr << "Some error" << a << endl;
         cerr << !a << endl;
     }    
+    
+    int f() {
+        return 42;
+    }
+    int g(int par) {
+        return (++par);
+    }
+    
 
     void meth_cout() {
         int i;
@@ -72,6 +80,14 @@ public:
         if (dummy)  {
             cout << "dummy " << dummy.read() << endl;
         }
+        
+        cout << "a" << f() << endl;
+        cout << "b" << f() << g(f()) << endl;
+        
+        unsigned computeEn = 1;
+        cout << "\tlce_comp_stub "<< this->name() << " WRITE CSR"
+            << ", wdata 0x" << hex << this->dummy.read() << dec
+            << "; compute_en = " << computeEn << endl;
     }    
 
     void meth_cin() {

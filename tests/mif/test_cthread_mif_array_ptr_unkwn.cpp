@@ -40,9 +40,8 @@ struct mod_if : public sc_module, sc_interface
         SC_CTHREAD(thread_member_comb, clk.pos());
         async_reset_signal_is(rst, 1);
         
-        // TODO: Fix me, #194
-        //SC_CTHREAD(thread_member_ro, clk.pos());
-        //async_reset_signal_is(rst, 1);
+        SC_CTHREAD(thread_member_ro, clk.pos());
+        async_reset_signal_is(rst, 1);
 
         SC_CTHREAD(thread_member_reg, clk.pos());
         async_reset_signal_is(rst, 1);

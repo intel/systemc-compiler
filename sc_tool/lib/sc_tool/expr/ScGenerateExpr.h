@@ -51,6 +51,9 @@ protected:
     /// Check if argument is SC channel
     bool isArgChannel(const clang::Expr* argExpr);
     
+    /// Check if statement is operator of IO stream cin/cout
+    bool isIoStreamStmt(const clang::Stmt* stmt);
+
     /// Check if stmt is wait(n) 
     bool isWaitNStmt(const clang::Stmt* stmt);
     
@@ -89,8 +92,9 @@ protected:
     /// \param checkConst -- get value for variable if it is constant only
     ///                      used in ScTraverseProc, not used in ScTraverseConst
     /// \return <result, integer value of result>
-    std::pair<SValue, SValue> evaluateConstInt(clang::Expr* expr, 
-                                               bool checkConst = true) override;
+    std::pair<SValue, SValue> evaluateConstInt(
+            clang::Expr* expr, bool checkConst = true,
+            bool checkRecOnly = false) override;
 
     /// The same as previous one, just return integer value only
     /// \return <integer value of result>

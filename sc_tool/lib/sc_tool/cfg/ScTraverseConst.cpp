@@ -26,6 +26,7 @@ using namespace llvm;
 
 // ---------------------------------------------------------------------------
 // Creates constant value in global state if necessary
+// Used for constant and constant array belong to template parameter class
 SValue ScTraverseConst::parseGlobalConstant(const SValue& val)
 {
     //cout << "parseGlobalConstant val " << val << endl;
@@ -39,8 +40,7 @@ SValue ScTraverseConst::parseGlobalConstant(const SValue& val)
         auto valDecl = const_cast<clang::ValueDecl*>(val.getVariable().getDecl());
         auto varDecl = dyn_cast<clang::VarDecl>(valDecl);
 
-        // @exprEval used in createStaticVariable() to evaulate 
-        // initializer expressions as constant
+        // Create VerilogVar object in VerilogModule
         auto newElabObj = elabDB->createStaticVariable(currentModule, varDecl);
 
         if (elabDB->hasVerilogModule(currentModule)) {
@@ -196,7 +196,11 @@ void ScTraverseConst::evaluateTermCond(Stmt* stmt, SValue& val)
 
         //cout << "Condition #" << hex << stmt << dec << endl;
         //cond->dumpColor();
-        auto condvals = evaluateConstInt(const_cast<Expr*>(cond), false);
+        
+        // Use @checkRecOnly to have pointer null/not null value for record/MIF
+        // array element accessed at unknown index, required for condition of
+        // pointer initialized: if (p) p->f();
+        auto condvals = evaluateConstInt(const_cast<Expr*>(cond), false, true);
         readFromValue(condvals.first);
         val = condvals.second;
         

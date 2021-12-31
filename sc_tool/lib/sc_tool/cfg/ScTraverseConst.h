@@ -262,6 +262,7 @@ public:
     
 protected:
     /// Creates constant value in global state if necessary
+    /// Used for constant and constant array belong to template parameter class
     SValue parseGlobalConstant(const SValue& val) override;
 
     /// Register variables accessed in and after reset section,

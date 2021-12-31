@@ -24,6 +24,9 @@ struct A : public sc_module
         SC_METHOD(constLiter);
         sensitive << s;
         
+        SC_METHOD(constLiterOverflow);
+        sensitive << s;
+        
         SC_METHOD(declMeth);
         sensitive << s;
         
@@ -67,6 +70,7 @@ struct A : public sc_module
         const int i5 = -0xFF;       // -9'shFF
         const int i6 = -0x100;      // -10'sh100
         const int i7 = -0x101;      // -10'sh101
+        const int i8  = -(42);
         
         sc_bigint<65> b0 = 0x0;
         b0 = 0;
@@ -80,12 +84,50 @@ struct A : public sc_module
         //cout << "-0x0FFFFFFFFFFFFFFFF " << b0 << endl;
         //b0 = -0x10000000000000000ULL;  -- gcc error
         
-        uint64_t u = 10000000000;
-        u = 0x100000000;
-        u = 0x200000000;
+        uint64_t uu = 10000000000;
+        uu = 0x100000000;
+        uu = 0x200000000;
+        
+        // Almost max values
+        unsigned u = 0x40000000;
+        u = 1073741824;
+        u = 0xFFFFFFFF;
+        u = 0xFFFFFFFE;
+        u = 4294967295;
+        u = 4294967294;
+        
+        sc_uint<32> x = 0x40000000;
+        sc_biguint<32> bx = 0x40000000;
+        
+        int i = 0x40000000;
+        i = 1073741824;
+        i = -0x40000000;
+        i = -1073741824;
                 
+        sc_int<32> y = 0x40000000;
+        y = -0x40000000;
+        
+        sc_bigint<32> by = 0x40000000;
+        by = -0x40000000;
+
         const long l1 = -(1UL << 63);
-        const int i8  = -(42);
+    }
+    
+    
+    void constLiterOverflow() {
+        // Overflow builtin types, Clang report warning
+        unsigned u; int i; 
+        u = 0x100000000UL;
+        i = 0x100000000UL;
+        i = -0x80000000UL;
+        i = -0x100000000UL;
+        
+        // Overflow SC types, no warnings for now
+        sc_uint<32> x; sc_int<32> y;
+        x = 0x100000000UL;
+        y = 0x100000000UL;
+        y = -0x80000000UL;
+        y= -0x100000000UL;
     }
     
     // Simple declaration

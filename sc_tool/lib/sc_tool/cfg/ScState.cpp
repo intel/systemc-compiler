@@ -685,18 +685,29 @@ ScState::getValue(const SValue& lval, SValue& rval, bool deReference,
         
         // For array access at unknown index any element could be accessed
         if (isArr && unkwIndex) {
-            switch (returnUnknown) {
-                case ArrayUnkwnMode::amNoValue:
-                    rval = NO_VALUE;
-                    return std::pair<bool, bool>(false, false);
+            bool unkwIndexRec = false;
+            if (returnUnknown == ArrayUnkwnMode::amFirstElementRec) {
+                getBottomArrayForAny(llval, unkwIndexRec, 0, true);
+            }
 
-                case ArrayUnkwnMode::amArrayUnknown:
-                    rval = llval;
-                    return std::pair<bool, bool>(true, true);
+            if (unkwIndexRec) {
+                llval = getFirstArrayElementForAny(llval);
+                
+            } else {
+                switch (returnUnknown) {
+                    case ArrayUnkwnMode::amNoValue:
+                    case ArrayUnkwnMode::amFirstElementRec:
+                        rval = NO_VALUE;
+                        return std::pair<bool, bool>(false, false);
 
-                case ArrayUnkwnMode::amFirstElement:
-                    llval = getFirstArrayElementForAny(llval);
-                    break;
+                    case ArrayUnkwnMode::amArrayUnknown:
+                        rval = llval;
+                        return std::pair<bool, bool>(true, true);
+
+                    case ArrayUnkwnMode::amFirstElement:
+                        llval = getFirstArrayElementForAny(llval);
+                        break;
+                }
             }
         }
         
@@ -1438,9 +1449,10 @@ bool ScState::isArray(const SValue& val, bool& unkwIndex) const
 // Get bottommost array for given value which can be element in array or 
 // field in record array element.
 // \param unkwIndex -- unknown index for bottommost array
+// \param checkRecOnly -- provide unkwIndex for record/MIF array only
 // \return bottom array value or NO_VALUE
 SValue ScState::getBottomArrayForAny(const SValue& eval, bool& unkwIndex,
-                                     unsigned crossModule) const
+                                     unsigned crossModule, bool checkRecOnly) const
 {
     //cout << "getBottomArrayForAny eval " << eval << endl;
     
@@ -1452,6 +1464,14 @@ SValue ScState::getBottomArrayForAny(const SValue& eval, bool& unkwIndex,
     unkwIndex = false;
     for (const SValue& mval : valStack) {
         if (mval.isArray()) {
+            if (checkRecOnly) {
+                QualType elmtype = getArrayElementType(mval.getType());
+                if (isPointer(elmtype)) {
+                    elmtype = elmtype->getPointeeType();
+                }
+                if (!isScModularInterface(elmtype) &&
+                    !isUserDefinedClass(elmtype)) continue;
+            }
             unkwIndex = unkwIndex || mval.getArray().isUnknown();
         }
     }

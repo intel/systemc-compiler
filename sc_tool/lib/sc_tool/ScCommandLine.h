@@ -21,13 +21,11 @@ extern llvm::cl::opt<std::string>   verilogFileName;
 extern llvm::cl::opt<bool>          noSvaGenerate;
 extern llvm::cl::opt<bool>          portMapGenerate;
 extern llvm::cl::opt<bool>          noRemoveExtraCode;
+extern llvm::cl::opt<bool>          checkUnsigned;
 extern llvm::cl::opt<bool>          initLocalVars;
 extern llvm::cl::opt<bool>          initResetLocalVars;
 extern llvm::cl::opt<bool>          replaceConstByValue;
 extern llvm::cl::opt<std::string>   modulePrefix;
-
-// Planned to remove
-extern llvm::cl::opt<bool>          noProcessAnalysis;
 
 // Remove unusable variables in reset section of CTHREAD
 inline bool REMOVE_RESET_UNUSED() {

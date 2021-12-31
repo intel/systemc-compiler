@@ -419,23 +419,19 @@ void VerilogModule::serializeToStream(llvm::raw_ostream &os) const
 
     if (!dataVars.empty()) {
         bool first = true;
-        std::unordered_set<std::string> varNames;
-        for (auto& var : dataVars) {
+        for (const VerilogVar& var : dataVars) {
             // Skip not required variables
             if (requiredVars.count(&var) == 0) {
                 continue;
             }
             // Print constants with filtering duplicates
             if (var.isConstant()) {
-                if (varNames.count(var.getName()) == 0) {
-                    if (first) {
-                        os << "// Local parameters generated for C++ constants\n";
-                        first = false;
-                    }
-                    serializeVerVar(os, var);
-                    varNames.insert(var.getName());
-                    os << ";\n";
+                if (first) {
+                    os << "// Local parameters generated for C++ constants\n";
+                    first = false;
                 }
+                serializeVerVar(os, var);
+                os << ";\n";
             }
         }
         if (!first) os << "\n";
@@ -911,8 +907,10 @@ VerilogVar *VerilogModule::createDataVariable(ObjectView cppObject,
                                               APSIntVec initVals,
                                               const std::string& comment)
 {
-    //std::cout << "    createDataVariable suggestedName " << std::string(suggestedName) << std::endl;    
-    //std::cout << "    VerilogModule::createDataVariable arrayDims.size " << arrayDims.size() << std::endl;
+//    cout << "    createDataVariable suggestedName " 
+//         << std::string(suggestedName) << " ";    
+//    for(auto i : initVals) cout << i.toString(10) << " ";
+//    cout << " arrayDims.size " << arrayDims.size() << endl;
 
     VerilogVar *var = &dataVars.emplace_back(VerilogVar(
                             nameGen.getUniqueName(suggestedName), 
@@ -928,7 +926,7 @@ VerilogVar *VerilogModule::createDataVariable(ObjectView cppObject,
 
 // The same as previous, but for member variable of MIF array element,
 // provides the same name for all array instances
-VerilogVar *VerilogModule::createDataVariableMIFArray(ObjectView cppObject,
+VerilogVar* VerilogModule::createDataVariableMIFArray(ObjectView cppObject,
                                               ObjectView parentObject,
                                               const std::string& suggestedName,
                                               size_t bitwidth,
@@ -937,13 +935,14 @@ VerilogVar *VerilogModule::createDataVariableMIFArray(ObjectView cppObject,
                                               APSIntVec initVals,
                                               const std::string& comment)
 {
-//    std::cout << "    createDataVariableMIFArray parentObject " 
-//              << parentObject.getID() << ", cppObject " 
-//              << cppObject.getID() << ", suggestedName " 
-//              << std::string(suggestedName) << std::endl;
-    
     using namespace sc;
-    std::string uniqueName;
+    
+//    cout << "    createDataVariableMIFArray parentObject " 
+//         << parentObject.getID() << ", cppObject " 
+//         << cppObject.getID() << ", suggestedName " 
+//         << std::string(suggestedName) << ", InitVals = ";
+//    for(auto i : initVals) cout << i.toString(10) << " ";
+//    cout << " arrayDims.size " << arrayDims.size() << endl;
     
     // Get variable for dynamic object to have field declaration
     ObjectView varObj = cppObject;
@@ -959,8 +958,8 @@ VerilogVar *VerilogModule::createDataVariableMIFArray(ObjectView cppObject,
     // Create name key with parent module/MIF and all parent records
     ObjectView objView = varObj;
     RecordMemberNameKey nameKey(parentObject, varObj.getValueDecl()); 
-    //std::cout << "    parent to key " << parentObject.getID() << std::endl;
-    
+    //std::cout << "    parent to key " << parentObject.getDebugString() << std::endl;
+        
     while (objView.isDataMember() || objView.isArrayElement()) {
         objView = objView.getParent();
         if (objView.isModule() || objView.isModularInterface()) break;
@@ -969,25 +968,26 @@ VerilogVar *VerilogModule::createDataVariableMIFArray(ObjectView cppObject,
         //std::cout << "    add to key " << objView.getDebugString() << " " << objView.getID() << std::endl;
     }
     
-    auto i = memberMIFArrayNames.find(nameKey);
-    if (i == memberMIFArrayNames.end()) {
-        uniqueName = nameGen.getUniqueName(suggestedName);
-        memberMIFArrayNames[nameKey] = uniqueName;
-    } else {
-        uniqueName = i->second;
-    }
-        
-    //std::cout << "    createDataVariable suggestedName " << std::string(suggestedName) 
-    //          << ", name " << uniqueName << std::endl;    
-    //std::cout << "    VerilogModule::createDataVariable arrayDims.size " << arrayDims.size() << std::endl;
-    
-    VerilogVar* var = &dataVars.emplace_back( VerilogVar(
+    VerilogVar* var;
+    auto i = memberMIFArrayVars.find(nameKey);
+    if (i == memberMIFArrayVars.end()) {
+        // Create new variable
+        std::string uniqueName = nameGen.getUniqueName(suggestedName);
+        var = &dataVars.emplace_back( VerilogVar(
                                 uniqueName, bitwidth, std::move(arrayDims),
                                 isSigned, std::move(initVals), comment) );
-
+        memberMIFArrayVars[nameKey] = var;
+        memMifArrVars.insert(var);
+        
+        //cout << "  create var, name " << uniqueName << endl;
+    } else {
+        // Add initialization value to existing variable
+        var = i->second;
+        var->addInitVals( std::move(initVals) );
+        //cout << "  add init vals to existing name  " << var->getName() << endl;
+    }
+        
     dataVarMap[cppObject] = var;
-    memMifArrVars.insert(var);
-    
     return var;
 }
 
@@ -1241,8 +1241,8 @@ static void serializeVerilogInt(llvm::raw_ostream &os, llvm::APSInt val)
 
 static void serializeInitVals(llvm::raw_ostream &os,
                               IndexVec dims,
-                              const APSIntVec &initVals,
-                              size_t &initIdx,
+                              const APSIntVec& initVals,
+                              size_t& initIdx,
                               bool isBool)
 {
 
@@ -1251,14 +1251,18 @@ static void serializeInitVals(llvm::raw_ostream &os,
     for (size_t i = 0; i < dims[0]; ++i) {
         bool last = (i == dims[0] - 1);
         if (dims.size() == 1) {
+            if (initVals.size() <= initIdx) {
+                cout << "Size " << initVals.size() << " index " << initIdx << endl;
+                assert (false);
+            }
+            
             if (isBool) {
                 serializeVerilogBool(os, initVals[initIdx]);
             } else {
                 serializeVerilogInt(os, initVals[initIdx]);
             }
             initIdx++;
-        }
-        else {
+        } else {
             auto newDims = dims;
             newDims.erase(newDims.begin());
             serializeInitVals(os, newDims, initVals, initIdx, isBool);
@@ -1325,25 +1329,33 @@ static void serializeVerVar(llvm::raw_ostream &os, const VerilogVar &var)
 
 }
 
-static void fillInitVals(APSIntVec &initVals, ArrayView arrayView)
+// Use @isSigned as @sc_bigint has uint64Val instead of int64Val
+void VerilogModule::fillInitVal(APSIntVec& initVals, 
+                                bool isSigned, ValueView valueView)
 {
-
-    for (size_t i = 0; i < arrayView.size(); ++i) {
-
+    size_t bitwidth = valueView.bitwidth();
+    
+    if (valueView.int64Val()) {
+        initVals.emplace_back(
+            llvm::APSInt(llvm::APInt(bitwidth,*valueView.int64Val()), !isSigned));
+    } else 
+    if (valueView.uint64Val()) {
+        initVals.emplace_back(
+            llvm::APSInt(llvm::APInt(bitwidth,*valueView.uint64Val()), !isSigned));
+    }
+}
+    
+void VerilogModule::fillInitVals(APSIntVec& initVals, 
+                                 bool isSigned, ArrayView arrayView)
+{
+   for (size_t i = 0; i < arrayView.size(); ++i) {
         ObjectView elem = arrayView.at(i);
-
         if (elem.isArrayLike())
-            fillInitVals(initVals, elem);
+            fillInitVals(initVals, isSigned, elem);
+        
         else {
             ValueView valueView = *elem.primitive()->value();
-
-            llvm::APSInt initVal;
-            if (valueView.int64Val())
-                initVal = llvm::APSInt::get(*valueView.int64Val());
-            else
-                initVal = llvm::APSInt::get(*valueView.uint64Val());
-
-            initVals.push_back(initVal);
+            fillInitVal(initVals, isSigned, valueView);
         }
     }
 }
@@ -1352,24 +1364,22 @@ void VerilogModule::addConstDataVariable(ObjectView objView,
                                          const std::string &name)
 {
     using namespace sc;
+    //cout << "addConstDataVariable " << name << endl;
     
     if (auto primitive = objView.primitive()) {
         SCT_TOOL_ASSERT(primitive->isValue(), "No value found");
-        ValueView val = *primitive->value();
+        ValueView valueView = *primitive->value();
+        size_t bitwidth = valueView.bitwidth();
+        bool isSigned = isSignedOrArrayOfSigned(objView.getType());
 
-        APSIntVec initVal;
-        if (val.int64Val()) {
-            initVal.push_back(llvm::APSInt::get(*val.int64Val()));
-        }
-        else {
-            initVal.push_back(llvm::APSInt::get(*val.uint64Val()));
-        }
+        APSIntVec initVals;
+        fillInitVal(initVals, isSigned, valueView);
         createDataVariable(objView,
                            name,
-                           val.bitwidth(),
+                           bitwidth,
                            {},
-                           initVal[0].isSigned(),
-                           initVal);
+                           isSigned,
+                           initVals);
     } else {
         SCT_TOOL_ASSERT(objView.isArrayLike(), "No array found");
         ArrayView arrayView = *objView.array();
@@ -1377,19 +1387,17 @@ void VerilogModule::addConstDataVariable(ObjectView objView,
                         "Non-constant array");
 
         IndexVec arrayDims;
-
         ObjectView childObj = arrayView;
         while (childObj.isArrayLike()) {
             ArrayView childArray = *childObj.array();
             arrayDims.push_back(childArray.size());
             childObj = childArray.at(0);
         }
-
         size_t bitwidth = childObj.primitive()->value()->bitwidth();
-        bool isSigned = childObj.primitive()->value()->int64Val().hasValue();
+        bool isSigned = isSignedOrArrayOfSigned(childObj.getType());
 
         APSIntVec initVals;
-        fillInitVals(initVals, arrayView);
+        fillInitVals(initVals, isSigned, arrayView);
         createDataVariable(objView,
                            name,
                            bitwidth,

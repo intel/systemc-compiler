@@ -80,7 +80,7 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
     if (varType->isArrayType()) 
     {
         if (!varType->isConstantArrayType()) {
-            varDecl->dump(llvm::outs());
+            varType->dump();
             SCT_TOOL_ASSERT(false, "Not a constant array");
         }
 

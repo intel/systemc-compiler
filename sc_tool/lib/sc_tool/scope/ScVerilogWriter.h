@@ -48,7 +48,8 @@ enum class CastSign : char {
     NOCAST = 0, 
     UCAST = 1, 
     SCAST = 2,  // original signed cast added in ImplicitCast operator
-    SACAST = 3  // artificially signed cast added in VerilogWriter, signed+1bit
+    SACAST = 3, // artificially signed cast added in VerilogWriter, signed+1bit
+    BCAST = 4   // cast from @bool to @int, used in @bool comparison
 };
 
 enum class ExprSign : char {
@@ -389,6 +390,9 @@ public:
     /// Put sign cast for literals and expressions
     void putSignCast(const clang::Stmt* stmt, CastSign castSign);
     
+    /// Put cast from boolean to signed integer
+    void putBoolCast(const clang::Stmt* stmt);
+
     /// Set cast width for variables/expressions replaced by value,
     /// used in concatenation
     void setReplacedCastWidth(const clang::Stmt* stmt, 

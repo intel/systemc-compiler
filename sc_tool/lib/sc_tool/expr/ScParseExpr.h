@@ -125,7 +125,7 @@ public:
     /// \return channel value or NO_VALUE
     SValue getChannelFromState(const SValue& val);
     
-    /// Get record value from the given value
+    /// Get record/MIF value from the given value
     SValue getRecordFromState(const SValue& val,
                 ArrayUnkwnMode returnUnknown = ArrayUnkwnMode::amNoValue);
     
@@ -220,9 +220,12 @@ protected:
     /// Overridden in inheritors
     /// \param checkConst -- get value for variable if it is constant only
     ///                      used in ScTraverseProc, not used in ScTraverseConst
+    /// \param checkRecOnly -- get zero instead of unknown index for record/MIF array
     // \return <result, integer value of result>
     virtual std::pair<SValue, SValue>   
-    evaluateConstInt(clang::Expr* expr, bool checkConst = true) {
+    evaluateConstInt(clang::Expr* expr, bool checkConst = true,
+                     bool checkRecOnly = false) 
+    {
         return std::make_pair(NO_VALUE, NO_VALUE);
     }
     

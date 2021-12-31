@@ -192,6 +192,19 @@ bool ScGenerateExpr::isArgChannel(const Expr* argExpr) {
     return false;
 }
 
+// Check if statement is operator of IO stream cin/cout
+bool ScGenerateExpr::isIoStreamStmt(const Stmt* stmt) 
+{
+    if (auto callExpr = dyn_cast<CXXOperatorCallExpr>(stmt)) {
+        if (callExpr->getNumArgs() > 0) {
+            QualType thisType = callExpr->getArg(0)->getType();
+            return isIoStream(thisType);
+        }
+    }
+    return false;
+}
+
+
 // Check if stmt is wait(n) 
 bool ScGenerateExpr::isWaitNStmt(const Stmt* stmt)
 {
@@ -277,7 +290,8 @@ ScGenerateExpr::evaluateConstIntNoCheck(Expr* expr)
 // returns NO_VALUE for expression with references
 // \return <result, integer value of result>
 std::pair<SValue, SValue>  
-ScGenerateExpr::evaluateConstInt(Expr* expr, bool checkConst)
+ScGenerateExpr::evaluateConstInt(Expr* expr, bool checkConst,
+                                 bool checkRecOnly)
 {
     return evaluateConstIntNoCheck(expr);
 }
@@ -954,7 +968,10 @@ void ScGenerateExpr::parseExpr(ImplicitCastExpr* expr, SValue& rval, SValue& val
         if (!isBool && isOrigSigned != isSigned) { 
             codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
                                                      CastSign::UCAST);
-        }
+        } else 
+        if (isBool && isOrigSigned != isSigned) {
+            codeWriter->putBoolCast(expr);
+        }  
         return;
     }
     
@@ -1834,23 +1851,7 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
             
         } else 
         if (rval.isVariable() || rval.isTmpVariable()) {
-            // Try to get integer value from constant variable or dynamic pointe
-            if (val.isVariable() || val.isSimpleObject()) {
-                // Check pointer and pointe both are constant type, 
-                // for dynamic object constantness specified by pointer only
-                bool replaceConst = 
-                    isPointerToConst(rval.getType()) && (val.isSimpleObject() || 
-                    (replaceConstByValue && val.getType().isConstQualified()));
-                // Replace pointer with integer value
-                if (replaceConst) {
-                    SValue ival = state->getValue(val);
-                    if (ival.isInteger()) {
-                        codeWriter->putLiteral(stmt, ival);
-                        return;
-                    }
-                }
-            }
-            
+            //cout << "Deref : rval " << rval << " val " << val << endl;
             if (val.isVariable()) {
                 // Put de-referenced pointer variable 
                 putPtrDerefExpr(stmt, rvar, rval, val);

@@ -22,6 +22,8 @@ public:
     sc_signal<bool> dummy{"dummy"};
 
     SC_CTOR(A) {
+        SC_METHOD(github_16); sensitive << sa << sb;
+        
         SC_METHOD(liter_suff_U); sensitive << dummy;
         SC_METHOD(liter_suff_L); sensitive << dummy;
         SC_METHOD(liter_suff_var); sensitive << dummy;
@@ -44,12 +46,28 @@ public:
         SC_METHOD(sc_type_neg_comp); sensitive << dummy;
         SC_METHOD(cpp_sc_type_mix); sensitive << dummy;
         SC_METHOD(compl_expr_mix); sensitive << dummy;
-        
     }
     
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
 
+    sc_signal<uint16_t> sa;
+    sc_signal<uint16_t> sb;
 
+    void github_16() {
+        uint16_t ua;
+        uint16_t ub;
+        sc_uint<16> usa;
+        sc_uint<16> usb;
+        uint16_t result;
+        sc_uint<16> us_result;
+
+        // signed` in SV 
+        result = ua - ub;
+        result = sa.read() - sb.read();
+        // No signed` in SV
+        us_result = usa - usb;
+    }
+    
     // Literal suffix @U just ignored
     void liter_suff_U() 
     {

@@ -792,12 +792,14 @@ void ScTraverseProc::run()
                         isStmt = true;
                         
                     } else 
-                    if (auto stmtLevel = stmtInfo.getSubStmtLevel(currStmt)) {
-                        level = *stmtLevel;
-                        isCallSubStmt = isUserCallExpr(currStmt); 
-                        isStmt = isCallSubStmt;
+                    if (auto superStmt = stmtInfo.getSuperStmt(currStmt)) {
+                        if (auto superStmtLevel = stmtInfo.getLevel(superStmt)) {
+                            level = *superStmtLevel;
+                            isCallSubStmt = isUserCallExpr(currStmt); 
+                            isStmt = isCallSubStmt && !isIoStreamStmt(superStmt);
+                        }
                         //cout << hex << "getSubStmtLevel " << currStmt << endl;
-
+                        
                     } else {
                         cout << hex << "#" << currStmt << dec << endl;
                         currStmt->dumpColor();

@@ -163,11 +163,12 @@ SValue ScParseExpr::getChannelFromState(const SValue &val)
     return lval;
 }
 
+// Get record/MIF value from the given value
 SValue ScParseExpr::getRecordFromState(const SValue& val,
                                        ArrayUnkwnMode returnUnknown)
 {
     SValue lval = val;
-
+    
     while (lval && !lval.isRecord()) {
         SValue llval = lval;
         auto flags = state->getValue(llval, lval, true, returnUnknown);

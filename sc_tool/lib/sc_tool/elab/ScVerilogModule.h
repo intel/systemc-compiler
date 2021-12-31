@@ -94,6 +94,9 @@ public:
 
     bool isConstant() const { return !initVals.empty(); }
     const APSIntVec & getInitVals() const { return initVals; };
+    
+    template<class T>
+    void addInitVals(T&& vals) { initVals.append(vals); }
 
     bool operator == (const VerilogVar &other) const
     {
@@ -456,7 +459,14 @@ public:
     
     /// Makes existing variable process-local
     void convertToProcessLocalVar(const VerilogVar* var, ProcessView procView);
+    
+    /// Fill initialization values for constant value
+    void fillInitVal(APSIntVec& initVals, bool isSigned, ValueView valueView);
+    /// Fill initialization values for constant array
+    void fillInitVals(APSIntVec& initVals, bool isSigned, ArrayView arrayView);
 
+    /// Create constant and constant array belong to a record passed as
+    /// template parameter, called from ScTraverseConst
     void addConstDataVariable(ObjectView objView, const std::string &name);
 
     /// sc_signal
@@ -685,7 +695,7 @@ public:
     
     /// Names for member variables of MIF array elements
     /// <parent, variable>
-    std::unordered_map<RecordMemberNameKey, std::string> memberMIFArrayNames;
+    std::unordered_map<RecordMemberNameKey, VerilogVar*> memberMIFArrayVars;
 
     llvm::Optional<std::string> verilogIntrinsic;
     

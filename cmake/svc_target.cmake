@@ -12,19 +12,19 @@ function(svc_target exe_target)
     # REPLACE_CONST_VALUE  -- replace constant with its number value if possible
     # NO_SVA_GENERATE      -- disable SVA generating for SCT assertions
     # PORT_MAP_GENERATE    -- generate port map file and top module wrapper
+    # UNSIGNED             -- design uses unsigned arithmetic only
     # NO_REMOVE_EXTRA_CODE -- disable removing unused variable and extra code
     # INIT_LOCAL_VARS      -- initialize local variables at declaration with zero
     # INIT_RESET_LOCAL_VARS-- initialize CTHREAD reset section local variables 
     #                         at declaration with zero
-    # ELAB_ONLY  -- run elaboration without process generation
     # WILL_FAIL  -- test will fail on non-synthesizable code
     set(boolOptions REPLACE_CONST_VALUE 
                     NO_SVA_GENERATE
                     PORT_MAP_GENERATE
+                    UNSIGNED
                     NO_REMOVE_EXTRA_CODE
                     INIT_LOCAL_VARS
                     INIT_RESET_LOCAL_VARS
-                    ELAB_ONLY 
                     WILL_FAIL)
 
     # Arguments with one value
@@ -42,16 +42,16 @@ function(svc_target exe_target)
     cmake_parse_arguments(PARAM "${boolOptions}" "${oneValueArgs}" 
                                 "${multiValueArgs}" ${ARGN} )
 
-    if (${PARAM_ELAB_ONLY})
-        set(ELAB_ONLY -elab_only)
-    endif()
-
     if (${PARAM_NO_SVA_GENERATE})
         set(NO_SVA_GENERATE -no_sva_generate)
     endif()
 
     if (${PARAM_PORT_MAP_GENERATE})
         set(PORT_MAP_GENERATE -portmap_generate)
+    endif()
+
+    if (${PARAM_UNSIGNED})
+        set(UNSIGNED -check_unsigned)
     endif()
 
     if (${PARAM_NO_REMOVE_EXTRA_CODE})
@@ -162,10 +162,10 @@ function(svc_target exe_target)
             ${REPLACE_CONST_VALUE}
             ${NO_SVA_GENERATE}
             ${PORT_MAP_GENERATE}
+            ${UNSIGNED}
             ${NO_REMOVE_EXTRA_CODE}
             ${INIT_LOCAL_VARS}
             ${INIT_RESET_LOCAL_VARS}
-            ${ELAB_ONLY}
             --
             -D__SC_TOOL__ -D__SC_TOOL_ANALYZE__ -DNDEBUG
             -Wno-logical-op-parentheses
