@@ -446,3 +446,6 @@ svc_target(misc_module_prefix GOLDEN misc_module_prefix.sv MODULE_PREFIX MPREF_)
 add_executable(misc_empty_process test_empty_process.cpp)
 svc_target(misc_empty_process GOLDEN misc_empty_process.sv) 
 
+add_executable(misc_unsigned_mode test_unsigned_mode.cpp)
+svc_target(misc_unsigned_mode UNSIGNED GOLDEN misc_unsigned_mode.sv) 
+
