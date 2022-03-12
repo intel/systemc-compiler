@@ -8,6 +8,8 @@ Intel&reg; Compiler for SystemC* (ICSC) translates synthesizable SystemC design 
 
 ICSC supports SystemC synthesizable subset in method and thread processes and arbitrary C++ code in module constructors. The tool produces human-readable SystemVerilog for complex multi-module designs in tens of seconds. ICSC performs design checks to detect non-synthesizable code and common coding mistakes. 
 
+ICSC generates SystemVerilog ([IEEE 1800-2017](https://ieeexplore.ieee.org/servlet/opac?punumber=8299593)) code. To convert SystemVerilog to Verilog ([IEEE 1364-2005](https://ieeexplore.ieee.org/servlet/opac?punumber=10779)) there is [SV2V](https://github.com/zachjs/sv2v) tool which is compatible with ICSC.
+
 See more information at [Intel Compiler for SystemC wiki](https://github.com/intel/systemc-compiler/wiki).
 
 ## License
