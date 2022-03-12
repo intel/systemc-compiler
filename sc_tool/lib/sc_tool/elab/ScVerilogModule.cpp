@@ -1707,7 +1707,7 @@ void VerilogModule::serializeProcSplit(llvm::raw_ostream &os,
 
     os << "endfunction\n\n";
 
-    os << "// Syncrhonous register update\n";
+    os << "// Synchronous register update\n";
 
     os << "always_ff @(";
     serializeSensList(os, procObj);
