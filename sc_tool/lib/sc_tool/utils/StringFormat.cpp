@@ -70,19 +70,22 @@ llvm::Optional<std::vector<std::string>> splitString(const std::string& str)
 }
 
 void printSplitString(std::ostream &os, const std::string& str, 
-                      const std::string& tabStr) 
+                      const std::string& tabStr, const std::string& comment) 
 {
     // Do not add ";" if string finishes with "begin" and "{" 
+    bool comm = !comment.empty();
     
     if (auto strVec = sc::splitString(str)) {
+        if (comm) os << tabStr << comment << std::endl;
+        
         for (const auto& s : strVec.getValue()) {
             bool noSem = sc::getTail(s, 5) == "begin" || sc::getTail(s, 1) == "{";
             os << tabStr << s << (noSem ? "" : ";") << std::endl;
         }
     } else {
-        
         bool noSem = sc::getTail(str, 5) == "begin" || sc::getTail(str, 1) == "{";
-        os << tabStr << str << (noSem ? "" : ";") << std::endl;
+        os << tabStr << str << (noSem ? "" : ";") 
+           << ((!noSem && comm) ? (std::string("    ")+comment) : "") << std::endl;
     }
 }
 

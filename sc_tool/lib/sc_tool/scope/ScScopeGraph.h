@@ -157,6 +157,9 @@ public:
     void storeStmt(const clang::Stmt* stmt, const std::string& s,  
                    bool artifIf = false);
     
+    // Add comment for statement
+    void addComment(const clang::Stmt* stmt, const std::string& comment);
+    
     /// Store @sct_assert statement in the current scope
     void storeAssertStmt(const clang::Stmt* stmt, const std::string& s);
 
@@ -319,6 +322,8 @@ protected:
     
     /// Statements belong to METHOD with empty sensitive
     std::unordered_set<const clang::Stmt*>  emptySensStmt;
+    /// Comments for statements
+    std::unordered_map<const clang::Stmt*, std::string> stmtComments;
     
     /// Variables and constants not replaced by integer values
     static std::unordered_set<SValue> notReplacedVars;

@@ -26,7 +26,7 @@ public:
     }
     
     bool f() {
-        return true;
+        return s.read();
     }
     
     void sct_assert_call() 

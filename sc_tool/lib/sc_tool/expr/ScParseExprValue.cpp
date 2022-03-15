@@ -41,6 +41,7 @@ void ScParseExprValue::declareValue(const SValue& var)
     }
 }
 
+// TODO: add @definedInDecl
 void ScParseExprValue::writeToValue(const SValue& val, bool isDefined) 
 {
     SValue var = state->writeToValue(val, isDefined);
@@ -51,6 +52,20 @@ void ScParseExprValue::writeToValue(const SValue& val, bool isDefined)
         if (!i.second) {
             i.first->second.insert(currStmt);
         }
+        
+        // Check is this variable is local in the current function
+        // Function parameters not considered, so function with internal calls
+        // cannot be evaluated as constant
+        auto declContext = var.getVariable().getDecl()->getDeclContext();
+        bool localVar = isa<clang::FunctionDecl>(declContext) && 
+                        funcDecl == declContext;
+
+        // If variable is non-local set side-effect for current function 
+        sideEffectFunc = sideEffectFunc || !localVar;
+        
+    } else {
+        // Any kind of object except variable and temporary considered as non-local
+        sideEffectFunc = sideEffectFunc || !var.isTmpVariable();
     }
 }
 
@@ -293,7 +308,7 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
         
         // If parameter is not pointer or reference, it passed by value
         // Array passed by pointer, reference on argument is used
-        if (!isRef && !isPtr && !isArray || isConstRefInit || isConstRefArrUnkw) {
+        if ((!isRef && !isPtr && !isArray) || isConstRefInit || isConstRefArrUnkw) {
             // Put parameter passed by value to @defined
             writeToValue(pval, true);
             
@@ -849,15 +864,18 @@ void ScParseExprValue::parseImplExplCast(CastExpr* expr, SValue& rval,
     {
         //ScParseExpr::chooseExprMethod(expr->getSubExpr(), rval);
         SValue rrval = getValueFromState(rval, ArrayUnkwnMode::amNoValue);
+        //cout << " rval " << rval << "rrval " << rrval << endl;
         
         // Check for null and dangling pointer
         SValue rvalzero = state->getFirstArrayElementForAny(
                                 rval, ScState::MIF_CROSS_NUM);
         SValue valzero = getValueFromState(
                                 rvalzero, ArrayUnkwnMode::amArrayUnknown);
+        //cout << "rvalzero " << rvalzero << " valzero " << valzero << endl;
+        
         if (valzero.isUnknown()) {
             SValue rvar = state->getVariableForValue(rval);
-            ScDiag::reportScDiag(expr->getBeginLoc(), 
+            ScDiag::reportScDiag(expr->getBeginLoc(),
                                  ScDiag::CPP_DANGLING_PTR_CAST) << 
                                  rvar.asString(rvar.isObject());
         }
@@ -948,7 +966,7 @@ void ScParseExprValue::parseExpr(ExplicitCastExpr* expr, SValue& rval, SValue& v
             // No underlying implicit cast
             auto castKind = expr->getCastKind();
             if (castKind == CK_ConstructorConversion || castKind == CK_ToVoid ||
-                castKind == CK_NoOp) {
+                castKind == CK_NoOp || castKind == CK_IntegralCast) {
                 // No cast required
             } else 
             if (castKind == CK_LValueBitCast) {
@@ -2819,6 +2837,13 @@ void ScParseExprValue::parseReturnStmt(ReturnStmt* stmt, SValue& val)
     } else {
         SCT_TOOL_ASSERT (false, "Unexpected kind of return variable value");
     }
+    
+    if (returnStmtFunc) {
+        simpleReturnFunc = false;
+    } else {
+        returnStmtFunc = stmt;
+    }
+
     isRequiredStmt = true;
 }
 

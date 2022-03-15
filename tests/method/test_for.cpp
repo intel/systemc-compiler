@@ -90,6 +90,9 @@ public:
         for (int i = 0; i < 2; i++) {
             int l = a.read();
         }
+        for (unsigned i = 0; i < 2; i++) {
+            int l = a.read();
+        }
         int k = 0;
     }
 

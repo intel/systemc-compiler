@@ -45,22 +45,25 @@ public:
     /// \param modval -- current module/class, may be base class value
     /// \param procView -- updated inside, @latchInMethod is set
     /// \return generated Verilog code
-    sc_elab::VerilogProcCode analyzeMethodProcess(const SValue& modval,
-                                                  const SValue& dynmodval,
-                                                  sc_elab::ProcessView& procView);
+    sc_elab::VerilogProcCode analyzeMethodProcess(
+                        const SValue& modval,
+                        const SValue& dynmodval,
+                        sc_elab::ProcessView& procView);
 
     /// Analyze CTHREAD process body and print equivalent Verilog.
     /// \param modval -- current module/class, may be base class value
     /// \param dynmodval -- dynamic class of the module (most child class type)
     /// \param methodDecl -- method declaration with body
     /// \return generated Verilog code
-    sc_elab::VerilogProcCode   analyzeCthreadProcess(const SValue& modval,
-                               const SValue& dynmodval,
-                               sc_elab::ProcessView procView);
+    sc_elab::VerilogProcCode   analyzeCthreadProcess(
+                        const SValue& modval,
+                        const SValue& dynmodval,
+                        sc_elab::ProcessView procView);
 
     /// Generated SVA property code from module scope SCT_ASSERT
     std::string analyzeSvaProperties(
-                        sc_elab::VerilogModule& verMod, const SValue& modval,
+                        sc_elab::VerilogModule& verMod, 
+                        const SValue& modval,
                         const std::vector<const clang::FieldDecl*>& properties);
     
 };

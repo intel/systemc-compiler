@@ -197,7 +197,12 @@ sc::SValue ProcBuilder::traverseRecord(RecordView recView, bool isVerModule)
                 // Support only module/MIF object for now
                 if (pointee->isModule() || pointee->isModularInterface()) {
                     SValue pointeeSVal = RecordValues::getRecordView(*pointee);
-                    SCT_TOOL_ASSERT (pointeeSVal.isRecord(), "No record found");
+                    if (!pointeeSVal.isRecord()) {
+                        cout << "Unresolved ptr " << unresolvedPtr.getDebugString()
+                             << " pointee " << pointee->getDebugString()
+                             << " pointeeSVal " << pointeeSVal << endl;
+                        SCT_TOOL_ASSERT (false, "No record found");
+                    }
                     moduleState->putValue(pointerSVal, pointeeSVal, true, false);
                     //cout << "Add value " << pointerSVal << " " << pointeeSVal << endl;
                 }

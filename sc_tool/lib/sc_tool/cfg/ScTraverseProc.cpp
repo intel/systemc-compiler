@@ -279,6 +279,7 @@ void ScTraverseProc::parseCall(CallExpr* expr, SValue& val)
     SCT_TOOL_ASSERT (funcDecl, "No function found for call expression");
     
     string fname = funcDecl->getNameAsString();
+    QualType retType = funcDecl->getReturnType();
     auto nsname = getNamespaceAsStr(funcDecl);
 
     if (fname == "__assert" || fname == "__assert_fail") {
@@ -318,17 +319,40 @@ void ScTraverseProc::parseCall(CallExpr* expr, SValue& val)
             cout << "-------------------------------------" << endl;
         }
         
-        if (codeWriter->isParseSvaArg()) {
-            ScDiag::reportScDiag(expr->getBeginLoc(), 
-                                 ScDiag::SYNTH_FUNC_IN_ASSERT);
-        }
+        auto callStack = contextStack.getStmtStack();
+        callStack.push_back(expr);
+        auto i = constEvalFuncs.find(callStack);
         
-        // Generate function parameter assignments
-        prepareCallParams(expr, modval, funcDecl);
-        // Register return value and prepare @lastContext
-        prepareCallContext(expr, modval, NO_VALUE, funcDecl, retVal);
-        // Return value variable has call point level
-        state->setValueLevel(retVal, level);
+        if (i != constEvalFuncs.end()) {
+            // Function call evaluated as constant
+            SValue rval = i->second;
+            codeWriter->putLiteral(expr, rval);
+            constReplacedFunc.emplace(expr, expr);
+            
+            if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
+                cout << "Replace call with evaluated constant " << rval << endl;
+            }
+            
+        } else {
+            // Normal processing of function call 
+            if (codeWriter->isParseSvaArg()) {
+                ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                     ScDiag::SYNTH_FUNC_IN_ASSERT);
+            }
+            
+            // Declare temporal variable if it is not a pointer
+            if (!isVoidType(retType) && !isPointer(retType)) {
+                codeWriter->putVarDecl(nullptr, retVal, retType, nullptr, false, 
+                                       level);
+            }
+            
+            // Generate function parameter assignments
+            prepareCallParams(expr, modval, funcDecl);
+            // Register return value and prepare @lastContext
+            prepareCallContext(expr, modval, NO_VALUE, funcDecl, retVal);
+            // Return value variable has call point level
+            state->setValueLevel(retVal, level);
+        }
     }
 }
 
@@ -342,8 +366,9 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
     SValue retVal = val;
 
     // Get method
-    FunctionDecl* funcDecl = expr->getMethodDecl()->getAsFunction();
-    string fname = funcDecl->getNameAsString();
+    FunctionDecl* methodDecl = expr->getMethodDecl()->getAsFunction();
+    string fname = methodDecl->getNameAsString();
+    QualType retType = methodDecl->getReturnType();
     
     // Get @this expression and its type
     Expr* thisExpr = expr->getImplicitObjectArgument();
@@ -378,69 +403,92 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             cout << "-------------------------------------" << endl;
         }
         
-        if (codeWriter->isParseSvaArg()) {
-            ScDiag::reportScDiag(expr->getBeginLoc(), 
-                                 ScDiag::SYNTH_FUNC_IN_ASSERT);
-        }
+        auto callStack = contextStack.getStmtStack();
+        callStack.push_back(expr);
+        auto i = constEvalFuncs.find(callStack);
         
-        // Get record from variable/dynamic object, no unknown index here
-        SValue ttval = getRecordFromState(tval, ArrayUnkwnMode::amNoValue);
-        //cout << "parseMemberCall tval " << tval << ", ttval " << ttval << endl;
-        
-        // This value *this must be a kind of record
-        if (!ttval.isRecord()) {
-            cout << "parseMemberCall tval " << tval << ", ttval " << ttval << endl;
-            SCT_TOOL_ASSERT (false, "This expression is not record value");
-        }
-        
-        // Call with cast this object to specific class with "::",
-        // function call is not virtual in this case
-        bool hasClassCast = false;
-        if (auto memberExpr = dyn_cast<MemberExpr>(expr->getCallee())) {
-            hasClassCast = memberExpr->hasQualifier();
-        }
+        if (i != constEvalFuncs.end()) {
+            // Function call evaluated as constant
+            SValue rval = i->second;
+            codeWriter->putLiteral(expr, rval);
+            constReplacedFunc.emplace(expr, expr);
+            
+            if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
+                cout << "Replace call with evaluated constant " << rval << endl;
+            }
+            
+        } else {
+            // Normal processing of function call
+            if (codeWriter->isParseSvaArg()) {
+                ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                     ScDiag::SYNTH_FUNC_IN_ASSERT);
+            }
+            
+            // Declare temporal variable if it is not a pointer
+            if (!isVoidType(retType) && !isPointer(retType)) {
+                codeWriter->putVarDecl(nullptr, retVal, retType, nullptr, false, 
+                                       level);
+            }
 
-        // Dynamic class for member record
-        SValue dyntval = ttval;
-        // @modval for called function analysis
-        SValue funcModval = ttval;
+            // Get record from variable/dynamic object, no unknown index here
+            SValue ttval = getRecordFromState(tval, ArrayUnkwnMode::amNoValue);
+            //cout << "parseMemberCall tval " << tval << ", ttval " << ttval << endl;
 
-        // Get best virtual function and its dynamic class for @funcDecl
-        if (funcDecl->isVirtualAsWritten() && !hasClassCast) {
-            // Get dynamic class for member record
-            state->getMostDerivedClass(ttval, dyntval);
-            // Get best virtual function for dynamic class
-            auto virtPair = getVirtualFunc(dyntval, funcDecl);
-            funcModval = virtPair.first;
-            funcDecl = virtPair.second;
-        }
+            // This value *this must be a kind of record
+            if (!ttval.isRecord()) {
+                cout << "parseMemberCall tval " << tval << ", ttval " << ttval << endl;
+                SCT_TOOL_ASSERT (false, "This expression is not record value");
+            }
 
-        // Check function is not pure
-        if (funcDecl->isPure()) {
-            ScDiag::reportScDiag(expr->getSourceRange().getBegin(), 
-                                 ScDiag::CPP_PURE_FUNC_CALL) << fname;
-            // Pure function call leads to SIGSEGV in cfg->dump(), 
-            // so do not create function call
-            return;
-        }
+            // Call with cast this object to specific class with "::",
+            // function call is not virtual in this case
+            bool hasClassCast = false;
+            if (auto memberExpr = dyn_cast<MemberExpr>(expr->getCallee())) {
+                hasClassCast = memberExpr->hasQualifier();
+            }
 
-        if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
-            cout << "Function call this class value " << ttval.asString()
-                 << ", dynamic class value " << dyntval.asString() 
-                 << ", funcModval " << funcModval.asString() << endl;
-        }
+            // Dynamic class for member record
+            SValue dyntval = ttval;
+            // @modval for called function analysis
+            SValue funcModval = ttval;
 
-        // Generate function parameter assignments
-        prepareCallParams(expr, funcModval, funcDecl);
-        // Register return value and prepare @lastContext
-        prepareCallContext(expr, funcModval, NO_VALUE, funcDecl, retVal);
-        // Return value variable has call point level
-        state->setValueLevel(retVal, level);
+            // Get best virtual function and its dynamic class for @funcDecl
+            if (methodDecl->isVirtualAsWritten() && !hasClassCast) {
+                // Get dynamic class for member record
+                state->getMostDerivedClass(ttval, dyntval);
+                // Get best virtual function for dynamic class
+                auto virtPair = getVirtualFunc(dyntval, methodDecl);
+                funcModval = virtPair.first;
+                methodDecl = virtPair.second;
+            }
 
-        // Set record expression (record name and indices) to use in called function
-        if (auto thisStr = codeWriter->getStmtString(thisExpr)) {
-            codeWriter->setRecordName(funcModval, thisStr.getValue());
-            //cout << "   thisStr : " << thisStr.getValue() << endl;
+            // Check function is not pure
+            if (methodDecl->isPure()) {
+                ScDiag::reportScDiag(expr->getSourceRange().getBegin(), 
+                                     ScDiag::CPP_PURE_FUNC_CALL) << fname;
+                // Pure function call leads to SIGSEGV in cfg->dump(), 
+                // so do not create function call
+                return;
+            }
+
+            if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
+                cout << "Function call this class value " << ttval.asString()
+                     << ", dynamic class value " << dyntval.asString() 
+                     << ", funcModval " << funcModval.asString() << endl;
+            }
+
+            // Generate function parameter assignments
+            prepareCallParams(expr, funcModval, methodDecl);
+            // Register return value and prepare @lastContext
+            prepareCallContext(expr, funcModval, NO_VALUE, methodDecl, retVal);        
+            // Return value variable has call point level
+            state->setValueLevel(retVal, level);
+
+            // Set record expression (record name and indices) to use in called function
+            if (auto thisStr = codeWriter->getStmtString(thisExpr)) {
+                codeWriter->setRecordName(funcModval, thisStr.getValue());
+                //cout << "   thisStr : " << thisStr.getValue() << endl;
+            }
         }
     }
 }
@@ -481,6 +529,7 @@ void ScTraverseProc::initContext()
     SCT_TOOL_ASSERT (delayed.empty(), "@delayed is not empty");
     SCT_TOOL_ASSERT (loopStack.empty(), "@loopStack is not empty");
     SCT_TOOL_ASSERT (calledFuncs.empty(), "@calledFuncs is not empty");
+    SCT_TOOL_ASSERT (constReplacedFunc.empty(), "@constReplacedFunc is not empty");
     SCT_TOOL_ASSERT (funcDecl, "Function declaration and context stack not set");
 
     // Clear temporary variable index generator
@@ -712,6 +761,15 @@ void ScTraverseProc::run()
     {
         Stmt* currStmt = nullptr;
         
+        unsigned isNotLibrarySpace = 1;
+        if (funcDecl) {
+            auto nsname = getNamespaceAsStr(funcDecl);
+            if (nsname && (*nsname == "std" || *nsname == "sc_core" || 
+                           *nsname == "sct_ss")) {
+                isNotLibrarySpace = 0;
+            }
+        }
+        
         // Unreachable block can be not dead code after &&/|| condition        
         // Do not generate statement for dead code block
         if (!deadCond && !skipOneBlock) {
@@ -761,6 +819,7 @@ void ScTraverseProc::run()
                 // Add current loop into loop stack
                 loopStack.pushLoop({doterm, scopeGraph->getCurrLevel(), ifStmt});
                 //cout << "Loop level "<< scopeGraph->getCurrLevel() << endl;
+                if (isNotLibrarySpace) statTerms.insert(doterm);
             }
 
             // CFG block body analysis, preformed for not dead state only
@@ -805,6 +864,14 @@ void ScTraverseProc::run()
                         currStmt->dumpColor();
                         SCT_INTERNAL_ERROR(currStmt->getBeginLoc(), 
                                            "No level found for sub-statement");
+                    }
+                    
+                    // Check function call is not evaluated as constant
+                    if (isStmt) {
+                        auto callStack = contextStack.getStmtStack();
+                        callStack.push_back(currStmt);
+                        isStmt = constEvalFuncs.count(callStack) == 0;
+                        //cout << "isCallSubStmt " << isStmt << " " << hex << currStmt << dec << endl;
                     }
 
                     // Set level for statement and sub-statement
@@ -863,6 +930,7 @@ void ScTraverseProc::run()
                                 ScDiag::reportScDiag(currStmt->getBeginLoc(),
                                                 ScDiag::SYNTH_SVA_IN_MAIN_LOOP);
                             }
+                            if (isNotLibrarySpace) statAsrts.insert(currStmt);
 
                         } else 
                         if (isSctAssert(currStmt)) {
@@ -871,6 +939,7 @@ void ScTraverseProc::run()
                             if (emptySensitivity) {
                                 scopeGraph->setEmptySensStmt(currStmt);
                             }
+                            if (isNotLibrarySpace) statAsrts.insert(currStmt);
                         
                         } else {
                             // Normal statement or sub-statement with call
@@ -911,10 +980,22 @@ void ScTraverseProc::run()
                             } else {
                                 // Normal statement, store it in scope graph
                                 scopeGraph->storeStmt(currStmt, *stmtStr);  
+                                
+                                // Add comment for constant evaluated function
+                                auto i = constReplacedFunc.find(currStmt);
+                                if (i != constReplacedFunc.end()) {                   
+                                    auto callExpr = dyn_cast<CallExpr>(i->second);
+                                    auto funcDecl = callExpr->getDirectCallee();
+                                    SCT_TOOL_ASSERT(funcDecl, "No function declaration found");
+                                    
+                                    string s = "Call of "+funcDecl->getNameAsString()+"()";
+                                    scopeGraph->addComment(currStmt, s);
+                                }
                             }
                             if (emptySensitivity) {
                                 scopeGraph->setEmptySensStmt(currStmt);
                             }
+                            if (isNotLibrarySpace) statStmts.insert(currStmt);
                         }
                         
                         if (DebugOptions::isEnabled(DebugComponent::doGenRTL)) {
@@ -960,6 +1041,8 @@ void ScTraverseProc::run()
                                     getFileName(currStmt->getSourceRange().
                                     getBegin().printToString(sm)));
                         }
+                        
+                        if (isNotLibrarySpace) statWaits.insert(currStmt);
                         
                         // Skip analysis rest of the block after wait()
                         break;
@@ -1153,6 +1236,7 @@ void ScTraverseProc::run()
                 if (!emptySensitivity) {
                     scopeGraph->storeStmt(term, stmtStr.getValue());
                 }
+                if (isNotLibrarySpace) statTerms.insert(term);
 
             } else
             if (SwitchStmt* swstmt = dyn_cast<SwitchStmt>(term))
@@ -1250,6 +1334,7 @@ void ScTraverseProc::run()
                 if (cfgBlock->succ_size() > 1) {
                     scopeGraph->storeStmt(term, stmtStr.getValue());
                 }
+                if (isNotLibrarySpace) statTerms.insert(term);
 
             } else 
             if (BinaryOperator* binstmt = dyn_cast<BinaryOperator>(term))
@@ -1317,6 +1402,7 @@ void ScTraverseProc::run()
                                      loopStack);
                     blockSuccs.push_back({argBlock2, argSI2});
                 }
+                if (isNotLibrarySpace) statTerms.insert(term);
                 
             } else                 
             if (isa<ForStmt>(term) || isa<WhileStmt>(term) || isa<DoStmt>(term))
@@ -1551,6 +1637,8 @@ void ScTraverseProc::run()
                     scopeGraph->addScopeSucc(elseScope);
                 }
                 
+                if (!loopVisited && isNotLibrarySpace) statTerms.insert(term);
+                
             } else
             if ( isa<BreakStmt>(term) ) {
                 SCT_TOOL_ASSERT (cfgBlock->succ_size() == 1, 
@@ -1589,6 +1677,8 @@ void ScTraverseProc::run()
                     ScopeInfo si(scopeGraph->getCurrScope(), nextScope, loopStack);
                     blockSuccs.push_back({succBlock, si});
                 }
+                if (isNotLibrarySpace) statTerms.insert(term);
+                
             } else
             if ( isa<ContinueStmt>(term) ) {
                 SCT_TOOL_ASSERT (cfgBlock->succ_size() == 1, 
@@ -1623,6 +1713,8 @@ void ScTraverseProc::run()
                     ScopeInfo si(scopeGraph->getCurrScope(), nextScope, loopStack);
                     blockSuccs.push_back({succBlock, si});
                 }
+                if (isNotLibrarySpace) statTerms.insert(term);
+                
             } else    
             if (isa<GotoStmt>(term)) {
                 ScDiag::reportScDiag(term->getSourceRange().getBegin(), 
@@ -1934,5 +2026,26 @@ void ScTraverseProc::setTermConds(const unordered_map<CallStmtStack, SValue>& co
     }
 }
 
+void ScTraverseProc::setConstEvalFuncs(const std::unordered_map<
+                                             CallStmtStack, SValue>& funcs) 
+{
+    for (const auto& entry : funcs) {
+        // Skip NO_VALUE first as it could be for non-function call
+        if (!entry.second.isInteger()) continue;
+        
+        SCT_TOOL_ASSERT (!entry.first.empty(), "Empty call stack");
+        auto callStmt = entry.first.back(); 
+        auto callExpr = dyn_cast<CallExpr>(callStmt);
+        
+        if (!callExpr) {
+            SCT_INTERNAL_ERROR (callStmt->getBeginLoc(), "No call expression found");
+        }
+        // Skip functions with @wait()
+        auto funcDecl = callExpr->getDirectCallee();
+        if (hasWaitFuncs.count(funcDecl) != 0) continue;
+
+        constEvalFuncs.insert(entry);
+    }
+}
 
 }

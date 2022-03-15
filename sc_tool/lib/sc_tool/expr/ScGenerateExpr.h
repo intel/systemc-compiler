@@ -33,8 +33,7 @@ public:
                             ScVerilogWriter* codeWriter_);
 
     virtual ~ScGenerateExpr() {}
-    
-protected:
+    protected:
     // ------------------------------------------------------------------------
     // Utility functions
     
@@ -279,6 +278,9 @@ protected:
 
     /// Name for temporal assertion    
     llvm::Optional<std::string> assertName = llvm::None;
+    
+    /// Function calls replaced by constant
+    std::unordered_map<clang::Stmt*, clang::Stmt*> constReplacedFunc;
 };
 }
 

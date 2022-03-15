@@ -407,6 +407,9 @@ public:
     /// Get evaluated terminator condition values
     void setTermConds(const std::unordered_map<CallStmtStack, SValue>& conds);
     
+    /// Filter and set functions evaluated as constants
+    void setConstEvalFuncs(const std::unordered_map<CallStmtStack, SValue>& funcs);
+    
     /// Current process has reset signal
     void setHasReset(bool hasReset_) {
         hasReset = hasReset_;
@@ -492,6 +495,9 @@ protected:
     /// To distinguish FOR/WHILE first iteration loop terminator is 
     /// placed into #CallStmtStack twice, and once for other iterations
     std::unordered_map<CallStmtStack, SValue> termConds;
+    /// Functions evaluated as constants if stored SValue is integer or 
+    /// not eligible if NO_VALUE stored
+    std::unordered_map<CallStmtStack, SValue> constEvalFuncs;
     
     /// THREAD wait states and constant propagation result providers
     const ScCThreadStates* cthreadStates = nullptr;
@@ -510,6 +516,14 @@ protected:
     
     /// Functions with wait()
     std::unordered_set<const clang::FunctionDecl*>  hasWaitFuncs;
+
+ public:    
+    /// Normal statements, terminators, assertions, wait calls
+    std::unordered_set<const clang::Stmt*> statStmts;
+    std::unordered_set<const clang::Stmt*> statTerms;
+    std::unordered_set<const clang::Stmt*> statAsrts;
+    std::unordered_set<const clang::Stmt*> statWaits;
+    
 };
 
 }

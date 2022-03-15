@@ -169,6 +169,12 @@ struct ConstFuncContext {
     ConstLoopStack loopStack;
     /// Function directly called from this function <func expr, return value>
     std::unordered_map<clang::Stmt*, SValue>  calledFuncs;
+    /// Current function has one return from function scope and return statement
+    bool simpleReturnFunc;
+    clang::Stmt* returnStmtFunc;
+    /// Current function and all called functions change some non-local
+    /// variables/channels through parameters or directly
+    bool sideEffectFunc;
    
     explicit ConstFuncContext(
                     const CfgCursor& callPoint_,
@@ -178,12 +184,17 @@ struct ConstFuncContext {
                     const std::list< std::pair<AdjBlock, 
                           std::vector<ConstScopeInfo> > >& delayed_,
                     const ConstLoopStack& loopStack_,
-                    const std::unordered_map<clang::Stmt*, SValue>& calledFuncs_
+                    const std::unordered_map<clang::Stmt*, SValue>& calledFuncs_,
+                    bool simpleReturnFunc_,
+                    clang::Stmt* returnStmtFunc_,
+                    bool sideEffectFunc_
                     ) :
             callPoint(callPoint_), returnValue(returnValue_), 
             modval(modval_), recval(recval_),
             delayed(delayed_), loopStack(loopStack_), 
-            calledFuncs(calledFuncs_)
+            calledFuncs(calledFuncs_), 
+            simpleReturnFunc(simpleReturnFunc_), returnStmtFunc(returnStmtFunc_),
+            sideEffectFunc(sideEffectFunc_)
     {}
 };
 
@@ -291,6 +302,9 @@ protected:
     /// Parse and return integer value of wait()/wait(N) argument
     unsigned parseWaitArg(clang::CallExpr* expr);
     
+    /// Return statement
+    void parseReturnStmt(clang::ReturnStmt* stmt, SValue& val) override;
+
     /// Function call expression
     void parseCall(clang::CallExpr* expr, SValue& val) override;
 
@@ -309,9 +323,6 @@ protected:
     void restoreContext();
     
 public:
-    /// Preset CFG for run analysis
-    void setFunction(const clang::FunctionDecl* fdecl);
-    
     /// Remove unused variable definition statements in METHODs and CTHREADs
     void removeUnusedStmt();
     
@@ -319,7 +330,7 @@ public:
     void run();
     
     /// Run for function declaration, the same as @setFunction() and @run()
-    void run(const clang::FunctionDecl* fdecl);
+    void run(sc_elab::VerilogModule* verMod, const clang::FunctionDecl* fdecl);
     
     ///
     const std::unordered_set<clang::Stmt*>& getLiveStmts() const {
@@ -404,6 +415,9 @@ public:
         return usedVals;
     }
     
+    std::unordered_map<CallStmtStack, SValue> getConstEvalFuncs() {
+        return constEvalFuncs;
+    }
     
     /// Get main loop terminator for CTHREAD
     const clang::Stmt* getMainLoopStmt() const {
@@ -456,8 +470,8 @@ protected:
     /// Exit from function CFG block ID
     unsigned exitBlockId;
     
-    /// Current function 
-    const clang::FunctionDecl* funcDecl = nullptr;
+    /// ...
+    sc_elab::VerilogModule* verMod = nullptr;
     /// Current function CFG
     clang::CFG* cfg;
 
@@ -506,6 +520,9 @@ protected:
     
     /// Evaluated terminator condition values, use in ScTraverseProc
     std::unordered_map<CallStmtStack, SValue> termConds;
+    /// Functions evaluated as constants if stored SValue is integer or 
+    /// not eligible if NO_VALUE stored
+    std::unordered_map<CallStmtStack, SValue> constEvalFuncs;
 
     /// CTHREAD wait states and constant propagation result providers
     ScCThreadStates* cthreadStates = nullptr;

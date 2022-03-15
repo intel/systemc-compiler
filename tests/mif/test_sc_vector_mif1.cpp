@@ -23,6 +23,9 @@ struct Producer : sc_module, sc_interface {
     {
         SC_CTHREAD(threadProc, clk.pos());
         async_reset_signal_is(rstn, false);
+        
+//        SC_METHOD(methProc);
+//        for (int i = 0; i < N; ++i) sensitive << req[i];
     }
     
     void threadProc() {
@@ -36,6 +39,12 @@ struct Producer : sc_module, sc_interface {
                 data[i] = req[i] ? i : 0;
             }
             wait();
+        }
+    }
+    
+    void methProc() {
+        for(int i = 0; i < N; ++i) {
+            data[i] = req[i] ? i : 0;
         }
     }
     
@@ -54,16 +63,18 @@ SC_MODULE(Top) {
     sc_vector<sc_signal<bool>> req{"req", N};
 
     const static unsigned M = 2;
-    sc_vector<Producer<N>> p{"prod", M};
+    sc_vector<Producer<N>> p{"pp", M};
+    //Producer<N>* p[M];
     
     SC_CTOR(Top) 
     {
         for (int i = 0; i < M; ++i) {
+            //p[i] = new Producer<N>("pp");
             p[i].clk(clk);
             p[i].rstn(rstn);
             p[i].req.bind(req);
         }
-
+        
         SC_CTHREAD(mainProc, clk.pos());
         async_reset_signal_is(rstn, false);
     }

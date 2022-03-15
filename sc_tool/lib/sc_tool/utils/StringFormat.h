@@ -34,7 +34,7 @@ llvm::Optional<std::vector<std::string>> splitString(const std::string& str);
 
 /// Split given string by "\n" and print it to os
 void printSplitString(std::ostream &os, const std::string& str,
-                      const std::string& tabStr);
+                      const std::string& tabStr, const std::string& comment = "");
 
 /// Remove all substrings @pattern in given string @str
 void removeAllSubstr(std::string& str, const std::string& pattern);

@@ -120,6 +120,10 @@ add_executable(misc_comb_signal test_comb_signal.cpp)
 svc_target(misc_comb_signal ELAB_TOP tb.mod
            GOLDEN misc_comb_signal.sv)
 
+#add_executable(misc_comb_signal_clear test_comb_signal_clear.cpp)
+#svc_target(misc_comb_signal_clear ELAB_TOP tb.mod
+#           GOLDEN misc_comb_signal_clear.sv)
+
 add_executable(misc_comb_signal_fail test_comb_signal_fail.cpp)
 svc_target(misc_comb_signal_fail ELAB_TOP tb.mod)
 
@@ -442,10 +446,32 @@ svc_target(misc_init_reset_local_var_comb GOLDEN misc_init_reset_local_var_comb.
 add_executable(misc_module_prefix test_module_prefix.cpp)
 svc_target(misc_module_prefix GOLDEN misc_module_prefix.sv MODULE_PREFIX MPREF_)
 
+#message ($ENV{PROJECTS}/sct_common/sctcommon)
+#add_executable(misc_proc_kind test_proc_kind.cpp)
+#target_include_directories(misc_proc_kind PUBLIC $ENV{PROJECTS}/sct_common/sctcommon)
+#svc_target(misc_proc_kind GOLDEN misc_proc_kind.sv)
+
 ## Empty process function
 add_executable(misc_empty_process test_empty_process.cpp)
 svc_target(misc_empty_process GOLDEN misc_empty_process.sv) 
 
+## Unsigned mode
 add_executable(misc_unsigned_mode test_unsigned_mode.cpp)
-svc_target(misc_unsigned_mode UNSIGNED GOLDEN misc_unsigned_mode.sv) 
+svc_target(misc_unsigned_mode GOLDEN misc_unsigned_mode.sv UNSIGNED) 
 
+## Check sct_common library
+#add_executable(misc_single_source test_single_source.cpp)
+#svc_target(misc_single_source ELAB_TOP test_top.dut.a GOLDEN misc_single_source.sv) 
+
+## Design statistic
+add_executable(misc_statistic test_statistic.cpp)
+svc_target(misc_statistic GOLDEN misc_statistic.sv) 
+
+add_executable(misc_multi_bind1 test_multi_bind1.cpp)
+svc_target(misc_multi_bind1 GOLDEN misc_multi_bind1.sv) 
+
+add_executable(misc_multi_bind2 test_multi_bind2.cpp)
+svc_target(misc_multi_bind2 GOLDEN misc_multi_bind2.sv) 
+
+add_executable(misc_multi_bind_fail test_multi_bind_fail.cpp)
+svc_target(misc_multi_bind_fail WILL_FAIL) 

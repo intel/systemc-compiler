@@ -141,6 +141,8 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
                   << entryFuncDecl->getNameAsString() << endl;
     }
     
+    auto parentModView = procView.getParentModule();
+    auto verMod  = elabDB.getVerilogModule(parentModView);
 
     // Run global CPA, used to provide initial state for local CPA
     std::shared_ptr<ScState> globalStateClone(globalState->clone());
@@ -151,7 +153,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     
     bool hasReset = !procView.resets().empty();
     travConst->setHasReset(hasReset);
-    travConst->run(entryFuncDecl);
+    travConst->run(verMod, entryFuncDecl);
     
     // Check for empty process and return empty process code
     if (travConst->getLiveStmts().empty()) {
@@ -176,6 +178,20 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
             entry.second.filterUseDef(defVals, useVals);
         }
     }
+    
+//    bool first = true;
+//    for (auto entry : travConst->getConstEvalFuncs()) {
+//        if (!entry.second.isInteger()) continue;
+//        
+//        if (first) {
+//            cout << "THREAD " << entryFuncDecl->getNameAsString() << endl;
+//            cout << "   functions evaluated as constant :" << endl;
+//        }
+//
+//        auto callExpr = dyn_cast<const CallExpr>(entry.first.back());
+//        cout << "    " << callExpr->getDirectCallee()->getNameAsString() 
+//             << " " << entry.second << endl;
+//    }
     
     // Fill UseDef for all states
     for (const auto& entry : travConst->getWaitStates()) {
@@ -248,9 +264,6 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     
     //globalState->print();
     
-    auto parentModView = procView.getParentModule();
-    auto verMod  = elabDB.getVerilogModule(parentModView);
-
     // Name generator with all member names for current module
     UniqueNamesGenerator& nameGen = verMod->getNameGen();
 
@@ -269,6 +282,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     travProc->setLiveStmts(travConst->getLiveStmts());
     travProc->setLiveTerms(travConst->getLiveTerms());
     travProc->setWaitFuncs(travConst->getWaitFuncs());
+    travProc->setConstEvalFuncs(travConst->getConstEvalFuncs());
     
     // Traverse context stack, used to run TraverseProc
     traverseContextMap[RESET_ID] = ScProcContext();
@@ -284,8 +298,19 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     for (const SValue& val : procWriter->getNotReplacedVars()) {
         verMod->addNotReplacedVar(val);
     }
+    
+    bool noneZeroElmntMIF = travConst->isNonZeroElmtMIF();
+    VerilogProcCode procCode = getVerilogCode(isSingleState);
 
-    return getVerilogCode(isSingleState);
+    // Skip MIF non-zero elements to get number of unique statements
+    if (!noneZeroElmntMIF) {
+        procCode.statStmtNum = travProc->statStmts.size();
+        procCode.statTermNum = travProc->statTerms.size();
+        procCode.statAsrtNum = travProc->statAsrts.size();
+        procCode.statWaitNum = travProc->statWaits.size();
+    }
+    
+    return procCode;
 }
 
 // Fill @traverseContextMap and return reachable wait IDs

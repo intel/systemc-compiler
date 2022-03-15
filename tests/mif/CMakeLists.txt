@@ -67,6 +67,9 @@ svc_target(mif_array3 GOLDEN mif_array3.sv)
 add_executable(mif_array4 test_mif_array4.cpp)
 svc_target(mif_array4 GOLDEN mif_array4.sv)
 
+add_executable(mif_array_sens test_mif_array_sens.cpp)
+svc_target(mif_array_sens GOLDEN mif_array_sens.sv)
+
 add_executable(mif_array_ptr test_mif_array_ptr.cpp)
 svc_target(mif_array_ptr GOLDEN mif_array_ptr.sv)
 
@@ -132,7 +135,6 @@ svc_target(mif_var_multiple_use GOLDEN mif_var_multiple_use.sv)
 #add_executable(mif_access_violation1 test_access_violation1.cpp)
 #svc_target(mif_access_violation1 WILL_FAIL)
 
-
 ## sc_vector of MIF
 add_executable(mif_sc_vector_mif1 test_sc_vector_mif1.cpp)
 svc_target(mif_sc_vector_mif1 GOLDEN mif_sc_vector_mif1.sv)
@@ -145,6 +147,12 @@ svc_target(mif_sc_vector_mif3 GOLDEN mif_sc_vector_mif3.sv)
 
 add_executable(mif_sc_vector_mif4 test_sc_vector_mif4.cpp)
 svc_target(mif_sc_vector_mif4 GOLDEN mif_sc_vector_mif4.sv)
+
+add_executable(mif_sc_vector_ptr test_sc_vector_ptr.cpp)
+svc_target(mif_sc_vector_ptr GOLDEN mif_sc_vector_ptr.sv)
+
+add_executable(mif_glob_const test_glob_const.cpp)
+svc_target(mif_glob_const GOLDEN mif_glob_const.sv)
 
 add_executable(dttc2021 test_dttc2021.cpp)
 svc_target(dttc2021 GOLDEN dttc2021.sv)

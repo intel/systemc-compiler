@@ -314,6 +314,41 @@ struct VerilogProcCode {
     std::string resetSection = "";
     std::string tempAsserts = "";
     std::string tempRstAsserts = "";
+    
+    unsigned long statStmtNum = 0;
+    unsigned long statTermNum = 0;
+    unsigned long statAsrtNum = 0;
+    unsigned long statWaitNum = 0;
+};
+
+struct VerilogModStatistic {
+    
+    void add(const VerilogModStatistic& other) {
+        stmtNum += other.stmtNum;
+        termNum += other.termNum;
+        asrtNum += other.asrtNum;
+        waitNum += other.waitNum;
+        varBits += other.varBits;
+        regBits += other.regBits;
+    }
+    
+    template <class Stream_t>
+    void print(Stream_t& os) {
+        os << "  General statements  " << stmtNum << "\n";
+        os << "  Control statements  " << termNum << "\n";
+        os << "  Assertions          " << asrtNum << "\n";
+        os << "  Wait statements     " << waitNum << "\n";
+        //os << "  Variable bits       " << varBits << "\n";
+        //os << "  Signal bits         " << regBits << "\n";
+    }
+    
+    unsigned long stmtNum = 0;
+    unsigned long termNum = 0;
+    unsigned long asrtNum = 0;
+    unsigned long waitNum = 0;
+    
+    unsigned long regBits = 0;      // Signals and process registers
+    unsigned long varBits = 0;      // Process combinational variables
 };
 
 //=============================================================================
@@ -353,7 +388,9 @@ public:
     
     /// Generate port map file
     void createPortMap(llvm::raw_ostream &os) const;
-
+    
+    /// Get module statistic
+    VerilogModStatistic getStatistic() const;
 
     const ModuleMIFView getModObj() const { return elabModObj; }
     const std::string& getName() const { return name; }

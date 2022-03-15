@@ -29,6 +29,7 @@ using std::cout; using std::endl;
 //-----------------------------------------------------------------------------
 
 static void serializeVerVar(llvm::raw_ostream &os, const VerilogVar &var);
+static unsigned long getVerVarBitNum(const VerilogVar &var);
 
 // Remove assignments for unused variables (@assignments) and 
 // update required variables (@requiredVars)
@@ -251,10 +252,11 @@ void VerilogModule::detectUseDefErrors()
     for (const auto& entry : procDefVars) {
         for (const auto& procVars : entry.second) {
             const VerilogVar* verVar = procVars.first;
-            // Skip variables in MIF array elements
+            // Skip variables/channels in MIF array elements
             if (memMifArrVars.count(verVar) != 0) continue;
+            if (memMifArrChannels.count(verVar) != 0) continue;
+            
             const auto& defRes = defVars.insert(verVar);
-
             bool isChannel = procVars.second == VarKind::vkChannel;
             
             // Variable/channel already defined in other process 
@@ -275,8 +277,8 @@ void VerilogModule::detectUseDefErrors()
             const VerilogVar* verVar = procVars.first;
             // Skip variables in MIF array elements
             if (memMifArrVars.count(verVar) != 0) continue;
-            const auto& useRes = useVars.insert(verVar);
 
+            const auto& useRes = useVars.insert(verVar);
             bool isVariable = procVars.second == VarKind::vkVariable;
 
             // Variable already used in other process 
@@ -709,6 +711,37 @@ void VerilogModule::createPortMap(llvm::raw_ostream &os) const
     os << "\n";
 }
 
+VerilogModStatistic VerilogModule::getStatistic() const {
+    VerilogModStatistic res;
+
+    for (const auto& proc : procBodies) {
+        res.stmtNum += proc.second.statStmtNum;
+        res.termNum += proc.second.statTermNum;
+        res.asrtNum += proc.second.statAsrtNum;
+        res.waitNum += proc.second.statWaitNum;
+    }
+
+    for (auto* var : verilogSignals) {
+        // Skip not required variables
+        if (requiredVars.count(var) == 0) continue;
+        res.regBits += getVerVarBitNum(*var);
+        //cout << "   " << var->getName() << " " << res.regBits << endl;
+    }
+
+    for (const auto& entry : procBodies) {
+        auto i = procVarMap.find(entry.first);
+        if (i != procVarMap.end()) {
+            for (auto* var : i->second) {
+                if (requiredVars.count(var) == 0) continue;
+                res.varBits += getVerVarBitNum(*var);
+                //cout << "   " << var->getName() << " " << res.varBits << endl;
+            }
+        }
+    }
+
+    return res;
+}
+
 // Translate SystemC assertion string into SVA string
 /*llvm::Optional<std::string> VerilogModule::transSvaString(
                                         const std::string& origStr) const
@@ -878,6 +911,10 @@ VerilogVar *VerilogModule::createChannelVariable(sc_elab::ObjectView systemcObje
                                                  sc_elab::APSIntVec initVals,
                                                  const std::string& comment)
 {
+//    cout << "    createDataVariableMIFArray cppObject " << systemcObject.getID() 
+//         << ", suggestedName " << std::string(suggestedName) 
+//         << ", isMIFArrElmnt = " << isMIFArrElmnt << endl;
+
     VerilogVar* var = &channelVars.emplace_back(VerilogVar(
                                 nameGen.getUniqueName(suggestedName),
                                 bitwidth,
@@ -1328,6 +1365,17 @@ static void serializeVerVar(llvm::raw_ostream &os, const VerilogVar &var)
         os << " /*" << var.getComment() << "*/";
 
 }
+
+static unsigned long getVerVarBitNum(const VerilogVar &var)
+{
+    if (var.isConstant()) return 0;
+    
+    unsigned long res = var.getBitwidth();
+    for (auto dim : var.getArrayDims()) res *= dim;
+    
+    return res;
+}
+
 
 // Use @isSigned as @sc_bigint has uint64Val instead of int64Val
 void VerilogModule::fillInitVal(APSIntVec& initVals, 

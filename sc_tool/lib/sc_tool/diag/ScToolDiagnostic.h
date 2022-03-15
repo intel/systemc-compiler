@@ -197,6 +197,8 @@ public:
         SYNTH_UNSIGNED_MODE_UNARY   = 225,
         SYNTH_UNSIGNED_MODE_DECL    = 226,
         CPP_BOOL_BITWISE_BINARY     = 227,
+        SYNTH_MULTI_CROSS_BOUND     = 228,
+        CPP_FOR_WITHOUT_DECL        = 229,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -582,6 +584,10 @@ private:
             {clang::DiagnosticIDs::Remark, 
             "Bitwise operation with boolean, use logical operation instead"};
          
+         idFormatMap[SYNTH_MULTI_CROSS_BOUND] =
+            {clang::DiagnosticIDs::Error, 
+            "Multiple bound at different levels of module hierarchy : signal %0 at module %1 and module %2"};
+         
 
         idFormatMap[CPP_UNKNOWN_STD_FUNC] =
             {clang::DiagnosticIDs::Warning, 
@@ -677,6 +683,11 @@ private:
         idFormatMap[CPP_BIG_INTEGER_LITER] =
             {clang::DiagnosticIDs::Error, 
             "Integer literal is too big : %0 bit, up to 64bit supported"};
+        
+        idFormatMap[CPP_FOR_WITHOUT_DECL] =
+            {clang::DiagnosticIDs::Warning, 
+            "For loop without local counter declaration"};
+        
         
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =

@@ -42,16 +42,7 @@ SValue ScTraverseConst::parseGlobalConstant(const SValue& val)
 
         // Create VerilogVar object in VerilogModule
         auto newElabObj = elabDB->createStaticVariable(currentModule, varDecl);
-
-        if (elabDB->hasVerilogModule(currentModule)) {
-            auto* verilogMod = elabDB->getVerilogModule(currentModule);
-            verilogMod->addConstDataVariable(newElabObj, 
-                                             *(newElabObj.getFieldName()));
-            //cout << " Module : variable added" << endl;
-        } else {
-            // Current module is MIF
-            //cout << " MIF " << endl;
-        }
+        verMod->addConstDataVariable(newElabObj, *(newElabObj.getFieldName()));
 
         // Parse and put initializer into global state, check no such value 
         // in state to avoid replace constant/static array elements
@@ -324,13 +315,17 @@ void ScTraverseConst::prepareCallContext(Expr* expr,
     lastContext = std::make_shared<ConstFuncContext>(
                             CfgCursor(funcDecl, nullptr, 0), 
                             returnValue, modval, recval,
-                            delayed, loopStack, calledFuncs);
+                            delayed, loopStack, calledFuncs,
+                            simpleReturnFunc, returnStmtFunc, sideEffectFunc);
     
     // Set module, dynamic module and return value for called function
     modval = funcModval;
     recval = funcRecval;
     returnValue = retVal;
     funcDecl = callFuncDecl;
+    simpleReturnFunc = true;
+    returnStmtFunc = nullptr;
+    sideEffectFunc = false;
 }
 
 // Parse and return integer value of wait(...) argument
@@ -377,6 +372,28 @@ unsigned ScTraverseConst::parseWaitArg(clang::CallExpr* expr)
     }
 }
 
+void ScTraverseConst::parseReturnStmt(ReturnStmt* stmt, SValue& val)
+{
+    ScParseExprValue::parseReturnStmt(stmt, val);
+
+    // Empty call stack possible for return from process function
+    auto callStack = contextStack.getStmtStack();
+    if (!callStack.empty()) {
+        // Try to get integer value for return value assignment
+        SValue rval = getValueFromState(val);
+
+        if (rval.isInteger()) {
+            auto i = constEvalFuncs.emplace(callStack, rval);
+            if (!i.second) {
+                if (i.first->second != rval) {
+                    i.first->second = NO_VALUE;
+                }
+            }
+        } else {
+            constEvalFuncs[callStack] = NO_VALUE;
+        }
+    }
+}
 
 // Function call expression
 void ScTraverseConst::parseCall(CallExpr* expr, SValue& val) 
@@ -627,6 +644,7 @@ void ScTraverseConst::initContext()
     SCT_TOOL_ASSERT (liveStmts.empty(), "@liveStmts is not empty");
     SCT_TOOL_ASSERT (liveTerms.empty(), "@liveTerms is not empty");
     SCT_TOOL_ASSERT (funcDecl, "Function declaration and context stack not set");
+    SCT_TOOL_ASSERT (constEvalFuncs.empty(), "@constEvalFuncs is not empty");
 
     cfg = cfgFabric->get(funcDecl);
     block = AdjBlock(&cfg->getEntry(), true);
@@ -639,6 +657,9 @@ void ScTraverseConst::initContext()
     aliveLoop = false;
     mainLoopStmt = nullptr;
     hasCodeBeforeMainLoop = false;
+    simpleReturnFunc = false;       // Process function is not considered here
+    returnStmtFunc = nullptr;
+    sideEffectFunc = false;
     
     // Setup first non-MIF module value 
     synmodval = state->getSynthModuleValue(modval, ScState::MIF_CROSS_NUM);
@@ -694,6 +715,10 @@ void ScTraverseConst::restoreContext()
     funcDecl = context.callPoint.getFuncDecl();
     calledFuncs = context.calledFuncs;
     delayed = context.delayed;
+    simpleReturnFunc = context.simpleReturnFunc;
+    returnStmtFunc = context.returnStmtFunc;
+    // Side effects in called functions spread to callee
+    sideEffectFunc = context.sideEffectFunc || sideEffectFunc;
         
     cfg = cfgFabric->get(funcDecl);
     SCT_TOOL_ASSERT (cfg, "No CFG at restore context");
@@ -724,12 +749,6 @@ void ScTraverseConst::restoreContext()
 
 // ------------------------------------------------------------------------
 // Main functions
-
-// Preset function to run analysis, used for entry function analysis
-void ScTraverseConst::setFunction(const FunctionDecl* fdecl)
-{
-    funcDecl = fdecl;
-}
 
 // Remove unused variable definition statements in METHODs and CTHREADs
 void ScTraverseConst::removeUnusedStmt() 
@@ -1088,6 +1107,13 @@ void ScTraverseConst::run()
                     if (Expr* inc = forstmt->getInc()) {
                         SValue val;
                         chooseExprMethod(inc, val);
+                    }
+                }
+                
+                if (Stmt* init = forstmt->getInit()) {
+                    if (!isa<DeclStmt>(init)) {
+                        ScDiag::reportScDiag(term->getBeginLoc(), 
+                                             ScDiag::CPP_FOR_WITHOUT_DECL);
                     }
                 }
             }
@@ -1731,6 +1757,17 @@ void ScTraverseConst::run()
                 break;
             }
             
+            // Mark function as not eligible for evaluation as constant if
+            // it does not have simple return
+            if (sideEffectFunc || !simpleReturnFunc) {
+                auto callStack = contextStack.getStmtStack();
+                // Skip empty stack as there is no function
+                if (!callStack.empty()) {
+                    constEvalFuncs[callStack] = NO_VALUE;
+                }
+                //cout << "Non simple return " << hex << (size_t)callStack.back() << dec << endl;
+            }
+            
             // Restore callee function context
             restoreContext();
             skipOneElement = true;
@@ -1740,9 +1777,12 @@ void ScTraverseConst::run()
 }
 
 // Run for function declaration, the same as @setFunction() and @run()
-void ScTraverseConst::run(const clang::FunctionDecl* fdecl)
+void ScTraverseConst::run(sc_elab::VerilogModule* verMod,
+                          const clang::FunctionDecl* fdecl)
 {
-    setFunction(fdecl);
+    this->verMod = verMod;
+    this->funcDecl = fdecl;
+
     run();
 }
 

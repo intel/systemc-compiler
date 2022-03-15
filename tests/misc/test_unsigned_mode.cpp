@@ -71,7 +71,7 @@ public:
         CHECK (res == 9);
     }
     
-    enum E1 {EA = 0, EB = 1};
+    enum E1 {EA = 31, EB = 32};
     enum class E2 {EC = 42, ED = 44};
     
     void biguint() {
@@ -87,7 +87,8 @@ public:
         
         bres = EA + u;
         // Fix me #282
-        //bres = u - unsigned(E2::EC);   
+        bres = u - sc_uint<12>(int(E2::EC));   
+        bres = u - unsigned(E2::EC);   
     }
     
     void c99types() {

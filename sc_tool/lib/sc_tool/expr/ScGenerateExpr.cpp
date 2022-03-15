@@ -907,6 +907,12 @@ void ScGenerateExpr::parseExpr(ImplicitCastExpr* expr, SValue& rval, SValue& val
     ScParseExpr::parseExpr(expr, rval, val);
     auto castKind = expr->getCastKind();
 
+    auto i = constReplacedFunc.find(expr->getSubExpr());
+    if (i != constReplacedFunc.end()) {
+        constReplacedFunc.emplace(expr, i->second);
+        //cout << "Add ImplicitCast stmt " << hex << expr << " for " << i->second << dec << endl;
+    }
+    
     // Checking cast pointer to boolean and substitute literal if possible
     if (castKind == CK_MemberPointerToBoolean || castKind == CK_PointerToBoolean) {
         // Convert pointer to boolean, true if pointer value is object
@@ -1405,6 +1411,13 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
             } else {
                 codeWriter->putVarDecl(stmt, val, type, iexpr, false, level, 
                                        iival.isInteger());
+
+                // Register this statement to add comment into scope graph
+                auto i = constReplacedFunc.find(iexpr);
+                if (i != constReplacedFunc.end()) {
+                    constReplacedFunc.emplace(stmt, i->second);
+                    //cout << "Add DeclStmt stmt " << hex << stmt << " for " << i->second << dec << endl;
+                }
             }
         }
     }
@@ -1552,6 +1565,12 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                     if (auto multipleAssign = codeWriter->getAssignStmt(rexpr)) {
                         codeWriter->addTerm(stmt, multipleAssign);
                         codeWriter->copyTerm(multipleAssign, stmt);
+                    }
+                    // Register this statement to add comment into scope graph
+                    auto i = constReplacedFunc.find(rexpr);
+                    if (i != constReplacedFunc.end()) {
+                        constReplacedFunc.emplace(stmt, i->second);
+                        //cout << "Add BinaryStmt stmt " << hex << stmt << " for " << i->second << dec << endl;
                     }
                 }
             }
@@ -2224,13 +2243,8 @@ void ScGenerateExpr::parseCall(CallExpr* expr, SValue& val)
 
         // Declare temporary return variable in current module
         if (!isVoidType(retType)) {
-            SValue retVal(retType, modval);
-            codeWriter->putVarDecl(nullptr, retVal, retType, nullptr, false, 
-                                   level);
-            val = retVal;
-            if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
-                cout << "Return value " << retVal.asString() << endl;
-            }
+            val = SValue(retType, modval);
+            // cout << "Return value " << val << endl;
         }
     }
 }
@@ -2535,14 +2549,8 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
 
         // Declare temporary return variable in current module
         if (!isVoidType(retType)) {
-            SValue retVal(retType, modval);
-            // Do not declare temporal variable if pointer is returned
-            if (!sc::isPointer(retType)) {
-                codeWriter->putVarDecl(nullptr, retVal, retType, nullptr, false, 
-                                       level);
-            }
-            val = retVal;
-            //cout << "Return value " << retVal.asString() << endl;
+            val = SValue(retType, modval);
+            //cout << "Return value " << val << endl;
         }
     }
 }
@@ -2653,6 +2661,13 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             if (auto multipleAssign = codeWriter->getAssignStmt(rexpr)) {
                 codeWriter->addTerm(expr, multipleAssign);
                 codeWriter->copyTerm(multipleAssign, expr);
+            }
+            
+            // Register this statement to add comment into scope graph
+            auto i = constReplacedFunc.find(rexpr);
+            if (i != constReplacedFunc.end()) {
+                constReplacedFunc.emplace(expr, i->second);
+                //cout << "Add Operator expr " << hex << expr << " for " << i->second << dec << endl;
             }
         }
     } else 
@@ -3026,6 +3041,13 @@ void ScGenerateExpr::parseReturnStmt(ReturnStmt* stmt, SValue& val)
 
         } else {
             codeWriter->putAssign(stmt, returnValue, expr);
+            
+            // Register this statement to add comment into scope graph
+            auto i = constReplacedFunc.find(retExpr);
+            if (i != constReplacedFunc.end()) {
+                constReplacedFunc.emplace(stmt, i->second);
+                //cout << "Add Return stmt " << hex << stmt << " for " << i->second << dec << endl;
+            }
         }
         
         //cout << codeWriter->getStmtString(stmt).getValue() << endl;

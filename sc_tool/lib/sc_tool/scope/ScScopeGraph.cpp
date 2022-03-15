@@ -48,6 +48,11 @@ void ScScopeGraph::storeStmt(const Stmt* stmt, const string& s, bool artifIf) {
     //     << currScope.get() << ", stmt " << stmt << " : "<< dec << s << endl; 
 }
 
+// Add comment for statement
+void ScScopeGraph::addComment(const Stmt* stmt, const string& comment) {
+    stmtComments.emplace(stmt, comment);
+}
+
 // Store @sct_assert statement in the current scope
 void ScScopeGraph::storeAssertStmt(const Stmt* stmt, const string& s) {
     assertStmts.insert(stmt);
@@ -368,11 +373,12 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
             if ( stmt && isa<SwitchStmt>(stmt) ) {
                 // Print SWITCH statement string, no ";" after
                 //cout << "CASE " << stmtStr << endl;
-                os << getTabString(level) << stmtStr << endl;
                 // Get successors, default case placed last
                 vector<shared_ptr<CodeScope> > succs = scopeSuccs.at(scope);
                 unordered_map<shared_ptr<CodeScope>, stringstream> succStr;
-                
+                // Remove switch if there is no alive cases
+                bool removeSwitch = true;
+                        
                 // Get code string for all successors
                 for (auto succ : succs) {
                     if (succ->isDead()) continue;
@@ -386,9 +392,13 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                             prepared.splice(printCurrentScope(ss, succ, level+1));
                         }
                         succStr.emplace(succ, std::move(ss));
+                        removeSwitch = false;
                         //cout << "  " << i->second.first  << " : " << i->second.second << endl;
                     }
                 }
+                
+                // Print @switch keyword    
+                if (!removeSwitch) os << getTabString(level) << stmtStr << endl;
                 
                 // Print cases
                 for (auto i = succs.begin(); i != succs.end(); ++i) {
@@ -421,7 +431,7 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                 }
                 
                 //cout << "ENDCASE " << stmtStr << endl;
-                os << getTabString(level) << ENDCASE_SYM << endl;
+                if (!removeSwitch) os << getTabString(level) << ENDCASE_SYM << endl;
 
             } else 
             if ( stmt && (isa<ForStmt>(stmt) || isa<WhileStmt>(stmt) || 
@@ -478,8 +488,15 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                 if (!stmtStr.empty() /*&& (!stmt || !isa<CXXConstructExpr>(stmt))*/) {
                     // Split and print one or more lines with tabulation
                     bool noTabStmt = emptySensStmt.count(stmt);
-                    printSplitString(os, stmtStr, noTabStmt ? "" : 
-                                     getTabString(level));
+                    std::string comment;
+                    auto i = stmtComments.find(stmt);
+                    if (i != stmtComments.end()) {
+                        comment = "// "+i->second;
+                    }
+                    printSplitString(os, stmtStr, 
+                                     noTabStmt ? "" : getTabString(level), 
+                                     comment);
+                    
                     if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
                         cout << "   " << stmtStr << endl;
                     }

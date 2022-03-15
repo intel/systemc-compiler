@@ -94,6 +94,12 @@ svc_target(method_fcall_base GOLDEN method_fcall_base.sv)
 add_executable(method_generic_fcall test_generic_fcall.cpp)
 svc_target(method_generic_fcall GOLDEN method_generic_fcall.sv)
 
+add_executable(method_fcall_const_eval test_fcall_const_eval.cpp)
+svc_target(method_fcall_const_eval GOLDEN method_fcall_const_eval.sv)
+
+add_executable(method_fcall_const_eval2 test_fcall_const_eval2.cpp)
+svc_target(method_fcall_const_eval2 GOLDEN method_fcall_const_eval2.sv)
+
 add_executable(method_return test_return.cpp)
 svc_target(method_return GOLDEN method_return.sv)
 

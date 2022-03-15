@@ -104,8 +104,10 @@ private:
     
     /// Bound signals with its auxiliary variable in parent module which used
     /// to bind in-port to out-port (in-port->auxiliary-variable<-out-port)
-    /// <child signal object bound to port, variable for signal in parent module>
-    std::unordered_map<ObjectView, VerilogVar*> boundSigObjs;
+    /// <child signal object bound to port, 
+    ///  <variable for signal in parent module, module where variable is located>>
+    std::unordered_map<ObjectView,
+                       std::pair<VerilogVar*, VerilogModule*>> boundSigObjs;
     /// Bound signals collection, used to avoid multiple bound to auxiliary
     // variable if original signal has multiple binds
     std::unordered_set<ObjectView> boundSignals;
@@ -215,7 +217,7 @@ void ScElabModuleBuilder::run()
     //RecordValues::print();
 
     // Create bindings
-    //std::cout << "--------------------------------------" << std::endl 
+    //std::cout << "------------------------------------------------" << std::endl 
     //          << "Create bindings "<< std::endl;
     for (auto &verMod : elabDB->getVerilogModules()) 
     {
@@ -230,17 +232,19 @@ void ScElabModuleBuilder::run()
         //std::cout << "   " << mod.getName() << std::endl;
         modTypes.insert(mod.getType());
     }
-    std::cout << "--------------------------------------" << std::endl 
-              << "Module number " << modTypes.size()  << std::endl;
+    std::cout << "------------------------------------------------" << std::endl 
+              << "  Module number       " << modTypes.size()  << std::endl;
 
     size_t procNum = 0;
     for (auto &verMod : elabDB->getVerilogModules()) {
         procNum += verMod.getProcesses().size();
     }
-    std::cout << "Process number " << procNum << std::endl
-              << "--------------------------------------" << std::endl 
+    std::cout << "  Process number      " << procNum << std::endl
+              << "------------------------------------------------" << std::endl 
               << std::flush;
 
+    VerilogModStatistic designStat;
+            
     // Fill state, run method and thread process analysis in ScProcAnalyzer
     for (auto &verMod : elabDB->getVerilogModules()) {
         // Process analysis for all threads and methods
@@ -251,7 +255,15 @@ void ScElabModuleBuilder::run()
         
         // Detect multiple used/defined variable/channel in different processes
         verMod.detectUseDefErrors();
+        
+        designStat.add(verMod.getStatistic());
     }
+    if (DebugOptions::isEnabled(DebugComponent::doModuleBuilder)) {
+        std::cout << "------------------------------------------------" << std::endl; 
+    }
+    
+    // Print design statistic
+    designStat.print(std::cout);
     
     DEBUG_WITH_TYPE(DebugOptions::doModuleBuilder,
                     for (auto &verMod : elabDB->getVerilogModules()) {
@@ -1209,13 +1221,21 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
                         auto i = boundSigObjs.find(bindedObj.obj);
                         if (i != boundSigObjs.end()) {
                             // Next binds of the signal, reuse the same variable 
-                            sigVar = i->second;
+                            sigVar = i->second.first;
+                            auto sigVarMod = i->second.second;
+                            if (hostVerMod != sigVarMod) {
+                                ScDiag::reportScDiag(
+                                    ScDiag::SYNTH_MULTI_CROSS_BOUND) 
+                                    << sigVar->getName() << hostVerMod->getName()
+                                    << sigVarMod->getName();
+                            }
                         } else {
                             // First bind of the signal
                             sigVar = hostVerMod->createAuxilarySignal(
                                         verVar->getName(), verVar->getBitwidth(), 
                                         verVar->getArrayDims(), verVar->isSigned());
-                            boundSigObjs.emplace(bindedObj.obj, sigVar);
+                            boundSigObjs.emplace(bindedObj.obj, 
+                                                 std::make_pair(sigVar, hostVerMod));
                         }
                     } else {
                         // Normal mode, port name used for module with the signal,
@@ -1285,7 +1305,7 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
             VerilogModule *hostVerMod = elabDB->getVerilogModule(
                                         bindDownParentMods.at(i - 1));
             VerilogModuleInstance *instance = hostVerMod->getInstance(instModView);
-            //cout << "bindPortCrossAux hostVerMod " << hostVerMod->getName() 
+            //cout << "bindPortCrossAux DOWN hostVerMod " << hostVerMod->getName() 
             //     << " instVerMod " << instVerMod->getName() << endl;
 
             // Create virtual ports for signals inside instance module 

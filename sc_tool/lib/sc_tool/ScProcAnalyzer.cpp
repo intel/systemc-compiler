@@ -43,7 +43,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     using namespace sc_elab;
 
     if (DebugOptions::isEnabled(DebugComponent::doModuleBuilder)) {
-        std::cout << "   Analyze method process: "
+        std::cout << "  Analyze method process: "
         << procView.getLocation().first.getType()->getAsCXXRecordDecl()->getNameAsString()
         << " :: " << procView.getLocation().second->getNameAsString() << std::endl;
     }
@@ -88,7 +88,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     auto constState = shared_ptr<ScState>(globalState->clone());
     ScTraverseConst travConst(astCtx, constState, modval, 
                               globalState, &elabDB, nullptr, nullptr, true);
-    travConst.run(methodDecl);
+    travConst.run(verMod, methodDecl);
     
     // Check for empty process and return empty process code
     if (travConst.getLiveStmts().empty()) {
@@ -114,6 +114,21 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         std::unordered_set<SValue> useVals = travConst.getUsedVals();
         finalState->filterUseDef(defVals, useVals);
     }
+    
+//    bool first = true;
+//    for (auto entry : travConst.getConstEvalFuncs()) {
+//        if (!entry.second.isInteger()) continue;
+//        
+//        if (first) {
+//            cout << "METHOD " << methodDecl->getNameAsString() << endl;
+//            cout << "   functions evaluated as constant :" << endl;
+//        }
+//        first = false;
+//
+//        auto callExpr = dyn_cast<const CallExpr>(entry.first.back());
+//        cout << "    " << callExpr->getDirectCallee()->getNameAsString() 
+//             << " " << entry.second << endl;
+//    }
 
     // Print state after CPA
     //finalState->print();
@@ -418,6 +433,8 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     travProc.setTermConds(travConst.getTermConds());
     travProc.setLiveStmts(travConst.getLiveStmts());
     travProc.setLiveTerms(travConst.getLiveTerms());
+    travProc.setConstEvalFuncs(travConst.getConstEvalFuncs());
+
     travProc.run(methodDecl, emptySensitivity);
     
     // Add constants not replaced with integer value, 
@@ -438,7 +455,18 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         travProc.printFunctionBody(cout);
         std::cout << "---------------------------------------" << endl;
     }
-    return VerilogProcCode(os.str());
+    
+    VerilogProcCode procCode(os.str());
+
+    // Skip MIF non-zero elements to get number of unique statements
+    if (!noneZeroElmntMIF) {
+        procCode.statStmtNum = travProc.statStmts.size();
+        procCode.statTermNum = travProc.statTerms.size();
+        procCode.statAsrtNum = travProc.statAsrts.size();
+        procCode.statWaitNum = 0;
+    }
+    
+    return procCode;
 }
 
 sc_elab::VerilogProcCode ScProcAnalyzer::analyzeCthreadProcess(
@@ -446,7 +474,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeCthreadProcess(
                     sc_elab::ProcessView procView) 
 {
     if (DebugOptions::isEnabled(DebugComponent::doModuleBuilder)) {
-        std::cout << "   Analyze thread process: "
+        std::cout << "  Analyze thread process: "
         << procView.getLocation().first.getType()->getAsCXXRecordDecl()->getNameAsString()
         << " :: " << procView.getLocation().second->getNameAsString() << std::endl;
     }

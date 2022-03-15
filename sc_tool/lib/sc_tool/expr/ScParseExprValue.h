@@ -48,6 +48,9 @@ protected:
     /// Evaluation precision 
     uint32_t EPRECISION = 64;
 
+    /// Current function 
+    const clang::FunctionDecl* funcDecl = nullptr;
+
     /// Current top level statement analyzed
     clang::Stmt* currStmt = nullptr;
     /// Current statements properties
@@ -81,6 +84,13 @@ protected:
     
     /// Parsed condition value stored to avoid re-parse in &&/|| and ?
     std::unordered_map<clang::Stmt*, SValue>   condStoredValue;
+    
+    /// Current function has one return from function scope and return statement
+    bool simpleReturnFunc = true;
+    clang::Stmt* returnStmtFunc = nullptr;
+    /// Current function and all called functions change some non-local
+    /// variables/channels through parameters or directly
+    bool sideEffectFunc = false;
 
 public:
     explicit ScParseExprValue(const clang::ASTContext& context_,

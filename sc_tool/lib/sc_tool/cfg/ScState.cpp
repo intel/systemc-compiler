@@ -753,7 +753,7 @@ void ScState::getDerefVariable(const SValue& lval, SValue& rval,
             // If RValue is constant/constant array element (even at unknown index)
             // then keep reference, required for UseDef
             if (i->second.isInteger() || i->second.isUnknown() || 
-                keepConstRef && ScState::isConstVarOrLocRec(i->second)) {
+                (keepConstRef && ScState::isConstVarOrLocRec(i->second))) {
                 rval = lval;
             } else {
                 // Do de-reference
@@ -1278,6 +1278,7 @@ SValue ScState::writeToValue(SValue lval, bool isDefined)
         } else {
             // No define for array, difficult to prove all elements are defined 
         }
+        // TODO: add element into @redefined
     }
     return zeroVal;
 }

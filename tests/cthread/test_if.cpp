@@ -188,7 +188,6 @@ public:
         }
     }
     
-    // BUG from real design in fullAccessPort.h:640
     void smem_if_binary_const() {
         bool b = 0;
         wait();
