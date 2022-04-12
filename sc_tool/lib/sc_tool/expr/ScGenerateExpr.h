@@ -151,6 +151,9 @@ public:
     /// @nullptr literal
     void parseExpr(clang::CXXNullPtrLiteralExpr* expr, SValue& val) override;
     
+    /// String literal (const char*)
+    void parseExpr(clang::StringLiteral* expr, SValue& val) override;
+    
     /// Any access of member variable
     void parseExpr(clang::MemberExpr* expr, SValue& val) override;
     
@@ -261,9 +264,6 @@ protected:
     /// Code writer, used for process function and called functions
     /// Not need to save/restore in process context
     ScVerilogWriter*   codeWriter;
-    
-    /// Do not evaluate expression to constant for partial selection argument
-    bool calcPartSelectArg = false;
     
     /// Returned pointed object to replace temporary variable returned for
     /// functions returns pointer

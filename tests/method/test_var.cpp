@@ -26,7 +26,7 @@ public:
     sc_out<int>        *oip;
     sc_in<int>         *iip;
 
-    int m;
+    int m = 11;
     int k;
     int n;
     const int* p = nullptr;

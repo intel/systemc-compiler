@@ -227,10 +227,6 @@ public:
     void addFCallScope(const clang::Stmt* stmt, const clang::Stmt* loopTerm,
                        std::shared_ptr<ScScopeGraph> graph);
     
-    void putNotReplacedVars(const std::unordered_set<SValue>& vars) {
-        notReplacedVars = vars;
-    }
-    
     void putVarAssignStmts(const std::unordered_map<SValue, std::unordered_set<
                            const clang::Stmt*>>& stmts) 
     {

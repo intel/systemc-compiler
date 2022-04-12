@@ -34,8 +34,7 @@ svc_target(cthread_reset_fail GOLDEN cthread_reset_fail.sv
            WILL_FAIL)
 
 add_executable(cthread_reset_noninit_read test_reset_noninit_read.cpp)
-svc_target(cthread_reset_noninit_read GOLDEN cthread_reset_noninit_read.sv
-           WILL_FAIL)
+svc_target(cthread_reset_noninit_read GOLDEN cthread_reset_noninit_read.sv)
 
 add_executable(cthread_reset_after test_cthread_reset_after.cpp)
 svc_target(cthread_reset_after GOLDEN cthread_reset_after.sv)

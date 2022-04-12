@@ -194,43 +194,66 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
 //    }
     
     // Fill UseDef for all states
+    std::unordered_set<SValue> useVals;
+    std::unordered_set<SValue> defVals;
     for (const auto& entry : travConst->getWaitStates()) {
-        analyzeUseDefResults(&entry.second);
+        analyzeUseDefResults(&entry.second, useVals, defVals);
     }
     
+    // Add initialization values for non-modified member variables
+    auto memInitVals = initNonDefinedVars(useVals, defVals);
+    
     // Report read not initialized warning
-    auto notInitReport = [&](const InsertionOrderSet<SValue>& values) {
-        for (auto sval : values) {
+    auto notInitReport = [&](const InsertionOrderSet<SValue>& values, 
+                             ScDiag::ScDiagID diagId) 
+    {
+        for (auto val : values) {
             // Skip constants, channels and pointers to channel
-            QualType type = sval.getType();
+            QualType type = val.getType();
             if (type.isConstQualified() || isConstReference(type) || 
                 isPointerToConst(type) ||
                 isScChannel(type) || isScVector(type) || 
-                isScChannelArray(type) || 
-                isScToolCombSignal(type)) continue;
-
+                isScChannelArray(type) || isScToolCombSignal(type)) continue;
+            
             // Skip null pointer
             if (isPointer(type)) {
-                SValue rval = globalState->getValue(sval);
+                SValue rval = globalState->getValue(val);
                 if (rval.isInteger() && rval.getInteger().isNullValue()) {
                     continue;
                 }
             }
+            // Skip member variables generated as @localparam
+            if (memInitVals.count(val) != 0) continue;
 
-            std::string varName = sval.isVariable() ? 
-                                  sval.getVariable().asString(false) : "---";
+            std::string varName = val.isVariable() ? 
+                                  val.getVariable().asString(false) : "---";
             // Do not check duplicates
             ScDiag::reportScDiag(entryFuncDecl->getBeginLoc(), 
-                                 ScDiag::CPP_READ_NOTDEF_VAR, false) << varName;
+                                 diagId, false) << varName;
         }
     };
     
+    // Report warning for read not initialized at reset section
+    if (hasReset) {
+        auto i = travConst->getWaitStates().find(0);
+        if (i != travConst->getWaitStates().end()) {
+            const ScState& resetState = i->second;
+
+            notInitReport(resetState.getReadNotInitValues(), 
+                          ScDiag::CPP_READ_NOTDEF_VAR_RESET);
+        }
+    }
+    
     // Report warning for read not initialized in the same cycle where declared
     for (const auto& entry : travConst->getWaitStates()) {
-        notInitReport(entry.second.getReadNotInitValues());
+        // Skip reset section to avoid duplicate warnings
+        if (hasReset && entry.first == 0) continue;
+
+        notInitReport(entry.second.getReadNotInitValues(), 
+                      ScDiag::CPP_READ_NOTDEF_VAR);
     }
     // Report warning for read and never initialized in the following cycles 
-    notInitReport(threadReadNotDefVars);
+    notInitReport(threadReadNotDefVars, ScDiag::CPP_READ_NOTDEF_VAR);
     threadReadNotDefVars.clear();
 
     // Pass over all states, if first statement after wait() is infinite loop
@@ -291,12 +314,6 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     for (WaitID i : travConst->getWaitStatesInOrder()) {
         generateVerilogForState(i);
         if (isSingleState) break;
-    }
-    
-    // Add constants not replaced with integer value, 
-    // used to determine required variables
-    for (const SValue& val : procWriter->getNotReplacedVars()) {
-        verMod->addNotReplacedVar(val);
     }
     
     bool noneZeroElmntMIF = travConst->isNonZeroElmtMIF();
@@ -499,8 +516,11 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
 }
 
 
-void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
+void ThreadBuilder::analyzeUseDefResults(const ScState* finalState, 
+                                         std::unordered_set<SValue>& useVals,
+                                         std::unordered_set<SValue>& defVals)
 {
+    using namespace std;
     //  Analyzing Use-Def analysis results
     //
     //  SystemC channels:
@@ -537,6 +557,7 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
             SCT_TOOL_ASSERT (false, "Unexpected UD value type");
             continue;
         }
+        useVals.insert(val);
         
         // Skip constants, channels and pointers to channel
         if (!val.getType().isConstQualified() &&
@@ -604,10 +625,8 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
                 // Such local constant considered as read only, no register
                 bool readOnlyConst = false;
                 if (!isMember) {
-                    const SValue& rval = finalState->getValue(val);
-                    readOnlyConst = (replaceConstByValue && rval.isInteger()) || 
-                                    (isConsVal && travConst->
-                                     getResetDefConsts().count(val));
+                    readOnlyConst = isConsVal && 
+                                    travConst->getResetDefConsts().count(val);
                 }
 
                 if (isMember || readOnlyConst) {
@@ -649,6 +668,7 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
             SCT_TOOL_ASSERT (false, "Unexpected UD value type");
             continue;
         }
+        defVals.insert(val);
         
         if (combSignClearRnDs.count(val)) {
             ScDiag::reportScDiag(
@@ -696,7 +716,7 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
         }
     }
     
-
+    
     /*if (!threadRegVars.empty()) {
         cout << endl << "threadRegVars :" << endl;
         for (auto v : threadRegVars) {
@@ -722,7 +742,84 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState)
     }*/
 }
 
+// Add initialization values for non-modified member variables to 
+// generate them as @localparam
+std::unordered_set<SValue>
+ThreadBuilder::initNonDefinedVars(const std::unordered_set<SValue>& useVals,
+                                  const std::unordered_set<SValue>& defVals)
+{
+    using namespace std;
+    auto parentModView = procView.getParentModule();
+    auto verMod  = elabDB.getVerilogModule(parentModView);
+    std::unordered_set<SValue> memInitVals;
+    
+    // Add initialization values for non-modified member variables to 
+    // generate them as @localparam
+    for (const SValue& val : useVals) {
+        // Skip non-variables
+        if (!val.isVariable()) continue;
+        // Skip defined variables
+        if (defVals.count(val) != 0) continue;
+        // Skip access from top module process
+        if (val.getVariable().getParent() != dynModSval) continue;
+        
+        // Skip pointers and arrays
+        const QualType& type = val.getType();
+        bool isPtr = sc::isPointer(type);
+        bool isRef = sc::isReference(type);
+        bool isArr = sc::isArray(type);
+        if (isArr || isPtr || isRef) continue;
+        
+        // Skip constant variable it is declared as @localparam
+        bool isConst = type.isConstQualified();
+        if (isConst) continue;
+        
+        // Skip array and record elements
+        vector<SValue> valStack;
+        globalState->parseValueHierarchy(val, 0, valStack);
+        bool skip = false;
+        for (const SValue& mval : valStack) {
+            if (mval.isArray() || mval.isRecord()) {
+                skip = true; break;
+            }
+        }
+        if (skip) continue;
+        
+        // Class field must be in this map, no local variables here
+        if (auto elabObj = globalState->getElabObject(val)) {
+            //cout << "  elabObj" << elabObj->getDebugString() << endl;
+            if (auto elabOwner = elabObj->getVerilogNameOwner()) {
+                elabObj = elabOwner;
+            }
 
+            // Skip non-primitive objects
+            if (!elabObj->isPrimitive() || elabObj->isChannel()) continue;
+            
+            auto verVars = verMod->getVerVariables(*elabObj);
+            
+            for (auto* verVar : verVars) {
+                if (auto valView = elabObj->primitive()->value()) {
+                    APSIntVec initVals;
+                    bool isSigned = isSignedOrArrayOfSigned(elabObj->getType());
+                    verMod->fillInitVal(initVals, isSigned, *valView);
+                    // Append initialization values into variable
+                    verVar->addInitVals(initVals, val);
+                    memInitVals.insert(val);
+
+//                    cout << "  verVar " << verVar->getName() << endl;
+//                    if (!initVals.empty()) {
+//                        cout << "  add localparam for " << val;
+//                        for (auto& iv : initVals) cout << " " << iv.toString(10);
+//                        cout << endl;
+//                    } else {
+//                        cout << "  add localparam for EMPTY" << endl;
+//                    }
+                }
+            }
+        }
+    }
+    return memInitVals;
+}
 
 void ThreadBuilder::generateThreadLocalVariables()
 {

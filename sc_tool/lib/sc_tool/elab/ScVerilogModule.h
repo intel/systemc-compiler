@@ -95,8 +95,35 @@ public:
     bool isConstant() const { return !initVals.empty(); }
     const APSIntVec & getInitVals() const { return initVals; };
     
+    // Check if size of @initVals equals to @dims
+    bool checkInitVals() const
+    {
+        if (initValVars.empty()) {
+            return true;
+        } else 
+        if (arrayDims.empty()) {
+            return (initVals.size() == 1); 
+        } else {
+            size_t size = 1;
+            for (unsigned i = 0; i < arrayDims.size(); ++i) {
+                size = size * arrayDims[i];
+            }
+            return (initVals.size() == size);
+        }
+    }
+    
     template<class T>
     void addInitVals(T&& vals) { initVals.append(vals); }
+
+    template<class T>
+    void addInitVals(T&& vals, const sc::SValue& var) { 
+        auto i = initValVars.insert(var);
+        // Add initVals only once per variable value to avoid multiple adding
+        // from multiple processes using the variable
+        if (i.second) {
+            initVals.append(vals); 
+        }
+    }
 
     bool operator == (const VerilogVar &other) const
     {
@@ -128,6 +155,9 @@ private:
     APSIntVec initVals;
     bool isSignedVal;
     std::string comment;
+    
+    // Variables which using leads to add initVals
+    std::unordered_set<sc::SValue>  initValVars;
 };
 
 /// Reference to Verilog variable, unpacked array element
@@ -537,6 +567,8 @@ public:
 
     void addProcessBody(ProcessView proc, VerilogProcCode code);
 
+    void serializeVerVar(llvm::raw_ostream& os, const VerilogVar& var) const;
+
     /// Add code for all module level SVA properties
     void addSvaPropertyCode(const std::string& code) {
         svaPropCode = code; 
@@ -599,10 +631,6 @@ public:
 
     void addVarBindedInMod(const VerilogVar* var) {
         procBindVars.insert(var);
-    }
-    
-    void addNotReplacedVar(const sc::SValue& val) {
-        notReplacedVars.insert(val);
     }
     
     void putValueForVerVar(const VerilogVar* var, const sc::SValue& val) {
@@ -721,10 +749,6 @@ public:
     /// Variables not eligible to remove, will be declared in the module
     std::unordered_set<const VerilogVar*> requiredVars;
     
-    /// Variables and constants not replaced by integer values, 
-    /// used to detect required variables
-    std::unordered_set<sc::SValue> notReplacedVars;
-
     // Continous assignments
     std::vector<Assignment> assignments;
 

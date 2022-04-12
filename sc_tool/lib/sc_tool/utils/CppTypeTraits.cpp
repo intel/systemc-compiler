@@ -22,6 +22,34 @@ namespace sc {
 using namespace clang;
 using namespace std;
 
+// Not used for now
+char getRadix(const std::string& s) 
+{
+    auto i = s.begin();
+    if (i == s.end()) return 10;
+    
+    if (*i == '-') {
+        i++;
+        if (i == s.end()) return 10;
+    }
+    
+    if (*i == '0') {
+        i++;
+        if (i == s.end()) return 10;
+        
+        if (*i == 'x' || *i == 'X') {
+            return 16;
+        } else 
+        if (*i == 'b' || *i == 'B') {
+            return 2;
+        } else 
+        if (isdigit(*i)) {
+            return 8;
+        }
+    }
+    return 10;
+}
+
 // Is constant or constant reference type
 bool isConstOrConstRef(QualType type) 
 {

@@ -23,6 +23,9 @@ namespace sc
 /// Evaluation precision 
 const uint32_t EPRECISION = 64;
 
+/// Get radix from number in the string, string must contain correct number
+char getRadix(const std::string& s); 
+
 /// Is constant or constant reference type
 bool isConstOrConstRef(clang::QualType type);
 

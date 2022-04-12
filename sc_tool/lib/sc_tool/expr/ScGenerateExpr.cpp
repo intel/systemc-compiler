@@ -43,19 +43,6 @@ ScGenerateExpr::ScGenerateExpr(
     using namespace std;
     using namespace clang;
 
-    // Radix updated for some tuples, it needs more iteration to spread changes
-    bool updated = false;
-    
-    do {
-        // Use cloned state as modified in @parseValue and used in @initConstRadix
-        ScParseExprValue parseValue(astCtx, shared_ptr<ScState>(state->clone()), 
-                                    true, modval, false, recval);
-        
-        // Evaluate member integer constants to get radix and store it in state
-        updated = state->initConstRadix(parseValue);
-        
-    } while (updated);
-    
     {
         auto typeInfo = getIntTraits(astCtx.CharTy);  
         SCT_TOOL_ASSERT(typeInfo, "No type info found");
@@ -301,9 +288,7 @@ ScGenerateExpr::evaluateConstInt(Expr* expr, bool checkConst,
 SValue ScGenerateExpr::evaluateConstInt(clang::Expr* expr, const SValue& val, 
                                         bool checkConst)
 {
-    if (val.isInteger()) {
-        return val;
-    }
+    if (val.isInteger()) return val;
     
     // Do not try to get value from @state as it does not have values for 
     // all array elements, only for first one
@@ -508,14 +493,6 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
             if (ival.isInteger()) {
                 // Put constant integer for the initializer expression
                 codeWriter->putLiteral(arg, ival);
-            } else {
-                iival = (replaceConstByValue && !calcPartSelectArg) ?
-                         evaluateConstInt(arg, true).second : NO_VALUE;
-                if (iival.isInteger()) {
-                    // Do not put literal
-                } else {
-                    iival = ival;
-                }
             }
         }
         
@@ -769,6 +746,12 @@ void ScGenerateExpr::parseExpr(CXXNullPtrLiteralExpr* expr, SValue& val)
     codeWriter->putLiteral(expr, val);
 }
 
+void ScGenerateExpr::parseExpr(clang::StringLiteral* expr, SValue& val) 
+{
+    ScParseExpr::parseExpr(expr, val);
+    codeWriter->putLiteral(expr, val);
+}
+
 // Used for local variables access in left/right parts
 void ScGenerateExpr::parseExpr(DeclRefExpr* expr, SValue& val)
 {
@@ -781,8 +764,6 @@ void ScGenerateExpr::parseExpr(DeclRefExpr* expr, SValue& val)
         reportReadRegister(val, expr);
     }
     
-    // Non-integer expression/variable replaced by integer, type cast required
-    bool replacedByValue = false;    
     // Do de-reference for reference and pointer type 
     if (val.isReference()) {
         // Try to put local reference
@@ -810,26 +791,13 @@ void ScGenerateExpr::parseExpr(DeclRefExpr* expr, SValue& val)
         }
         // Module/global pointer 
         
-    } else {
-        // Non-reference and non-pointer
-        // Try to evaluate expression as integer constant
-        SValue ival = (replaceConstByValue && !calcPartSelectArg) ?
-                       evaluateConstInt(expr, true).second : NO_VALUE;
-        if (ival.isInteger()) {
-            if (!val.isInteger()) replacedByValue = true;
-            val = ival;
-        }
     }
     
     // Local variable declared w/o record prefix, no @recvecs and no @tval used
     codeWriter->putValueExpr(expr, val);
-    // Add type cast for replaced integer, required for concatenation        
-    if (replacedByValue) {
-        codeWriter->setReplacedCastWidth(expr, expr->getType());
-    }
 }
 
-// Any access of member variable
+// Any access of member variable or method 
 void ScGenerateExpr::parseExpr(MemberExpr* expr, SValue& val) 
 {
     // Set @keepArrayIndices to do not erase them from @arraySubIndices
@@ -853,8 +821,6 @@ void ScGenerateExpr::parseExpr(MemberExpr* expr, SValue& val)
         reportReadRegister(val, expr);
     }
     
-    // Non-integer expression/variable replaced by integer, type cast required
-    bool replacedByValue = false;    
     // Do de-reference for reference type 
     if (val.isReference()) {
         // Try to put local reference
@@ -870,23 +836,10 @@ void ScGenerateExpr::parseExpr(MemberExpr* expr, SValue& val)
     if (val.isPointer()) {
         // Do not try to put pointer value as it is not local one
         
-    } else {
-        // Non-reference and non-pointer
-        // Try to evaluate expression as integer constant
-        SValue ival = (replaceConstByValue && !calcPartSelectArg) ?
-                       evaluateConstInt(expr, true).second : NO_VALUE;
-        if (ival.isInteger()) {
-            if (!val.isInteger()) replacedByValue = true;
-            val = ival;
-        }
     }
     
     // Put expression into code writer
     putMemberExpr(expr, val, refRecarrIndx);
-    // Add type cast for replaced integer, required for concatenation        
-    if (replacedByValue) {
-        codeWriter->setReplacedCastWidth(expr, expr->getType());
-    }
     // Clear indices suffix after use
     refRecarrIndx = "";
     
@@ -943,7 +896,7 @@ void ScGenerateExpr::parseExpr(ImplicitCastExpr* expr, SValue& rval, SValue& val
         }
     } else
     // May be some other cast types should be added
-    if (castKind == CK_IntegralCast || castKind == CK_NoOp) {
+    if (castKind == CK_IntegralCast) {
         
         QualType type = expr->getType();
         QualType origType = expr->getSubExpr()->getType();
@@ -1096,22 +1049,44 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
         if (expr->getNumArgs() == 1) {
             // Parse initialization expression, it can have arbitrary type
             Expr* iexpr = expr->getArg(0);
-            SValue rval; chooseExprMethod(iexpr, rval);
-            
             QualType origType = iexpr->getType();
-            bool isBool = origType->isBooleanType();
-            bool isSigned = isSignedType(type);
-            bool isOrigSigned = isSignedType(origType);
             
-            // No type cast required, in Verilog RHS implicitly narrowed to LHS
-            codeWriter->copyTerm(iexpr, expr); 
-            
-            // Skip boolean type conversion as it considered as unsigned
-            if (!isBool && isOrigSigned != isSigned) { 
-                codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
-                                                         CastSign::UCAST);
+            if (isAnyIntegerRef(origType)) {
+                SValue rval; 
+                chooseExprMethod(iexpr, rval);
+
+                bool isBool = origType->isBooleanType();
+                bool isSigned = isSignedType(type);
+                bool isOrigSigned = isSignedType(origType);
+
+                // No type cast required, in Verilog RHS implicitly narrowed to LHS
+                codeWriter->copyTerm(iexpr, expr); 
+
+                // Skip boolean type conversion as it considered as unsigned
+                if (!isBool && isOrigSigned != isSigned) { 
+                    codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
+                                                             CastSign::UCAST);
+                }
+            } else 
+            if (isConstCharPtr(origType)) {
+                // Parse expression with string literal inside
+                unsigned lastWidth = strLiterWidth;
+                bool lastUnsigned = strLiterUnsigned;
+                if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
+                    strLiterWidth = typeInfo.getValue().first;
+                    strLiterUnsigned = typeInfo.getValue().second;
+                } else {
+                    strLiterWidth = 0;  // Provides no string literal parsing
+                }
+                
+                SValue rval; 
+                chooseExprMethod(iexpr, rval);
+
+                strLiterWidth = lastWidth;
+                strLiterUnsigned = lastUnsigned;
+                
+                codeWriter->putLiteral(expr, rval); 
             }
-            
         } else {
             SCT_TOOL_ASSERT (false, "Unexpected argument number");
         }
@@ -1328,19 +1303,6 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                 if (ival.isInteger()) {
                     // Put constant integer for the initializer expression
                     codeWriter->putLiteral(iexpr, ival);
-                    
-                } else {
-                    iival = (replaceConstByValue && !calcPartSelectArg) ?
-                             evaluateConstInt(iexpr, ival, true) : NO_VALUE;
-
-                    if (iival.isInteger()) {
-                        // Put literal for loop counter initialization only
-                        if (codeWriter->isForLoopInit()) {
-                            codeWriter->putLiteral(iexpr, iival);
-                        }
-                    } else {
-                        iival = ival;
-                    }
                 }
             }
         }
@@ -1952,10 +1914,6 @@ SValue ScGenerateExpr::parseArraySubscript(Expr* expr,
     SValue bval;  // Array variable 
     chooseExprMethod(baseExpr, bval);
     
-    // Disable part selection limitation to evaluate constants for index
-    bool calcPartSelectArgOrig = calcPartSelectArg;
-    calcPartSelectArg = false;
-    
     // Skip sign cast for array index
     bool skipSignCastOrig = codeWriter->isSkipSignCast();
     codeWriter->setSkipSignCast(true);
@@ -1966,7 +1924,6 @@ SValue ScGenerateExpr::parseArraySubscript(Expr* expr,
     chooseExprMethod(indxExpr, ival);
     assignLHS = lastAssignLHS;
     
-    calcPartSelectArg = calcPartSelectArgOrig;
     codeWriter->setSkipSignCast(skipSignCastOrig);
     
     // Get referenced variable for array (reference to array: T (&a)[N])
@@ -2014,17 +1971,7 @@ SValue ScGenerateExpr::parseArraySubscript(Expr* expr,
             ScDiag::reportScDiag(expr->getBeginLoc(), ScDiag::SYNTH_NO_CHANNEL);
         }
     } else {
-        // Try to evaluate expression as integer constant
-        SValue rval = (replaceConstByValue && !calcPartSelectArg) ?
-                       evaluateConstInt(expr, true).second : NO_VALUE;
-        if (rval.isInteger()) {
-            // Put literal instead of array element
-            codeWriter->putValueExpr(expr, rval);
-            
-        } else {
-            // Non-constant expression 
-            codeWriter->putArrayIndexExpr(expr, baseExpr, indxExpr);
-        }
+        codeWriter->putArrayIndexExpr(expr, baseExpr, indxExpr);
     }
     return val;
 }
@@ -2271,16 +2218,12 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
     // Method called for this pointer "->"
     bool isPointer = thisType->isAnyPointerType();
     bool isScIntegerType = isAnyScIntegerRef(thisType, true);
-    
-    // Do not replace constants with literal for part selection operator
-    bool calcPartSelectArgOrig = calcPartSelectArg;
-    calcPartSelectArg = isScIntegerType && 
-                        (fname == "bit" || fname == "operator[]" ||
-                         fname == "range" || fname == "operator()");
-    
-    // Get value for @this
-    chooseExprMethod(thisExpr, tval);
-    calcPartSelectArg = calcPartSelectArgOrig;
+    bool isCharPtrFunc = isConstCharPtr(expr->getType());
+        
+    // Get value for @this if it is not string function converted to integer
+    if (!(isCharPtrFunc && fname == "c_str") || strLiterWidth != 0) {
+        chooseExprMethod(thisExpr, tval);
+    }
     
     if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
         cout << "CXXMemberCallExpr this = " << thisType.getAsString() << ", fname = " 
@@ -2308,11 +2251,8 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         // for dynamic object constantness specified by pointer only
         bool constPtr = isPointerToConst(tval.getType());
         replacePtrObj = constPtr && ttval.isSimpleObject();
-        bool replaceConst = 
-                replacePtrObj || (constPtr && replaceConstByValue && 
-                ttval.isVariable() && ttval.getType().isConstQualified());
         // Replace pointer with integer value
-        if (replaceConst) {
+        if (replacePtrObj) {
             pival = state->getValue(ttval);
             //cout << "   ival " << ival << endl;
         }
@@ -2540,6 +2480,13 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             // Do nothing for other @sc_core functions
         }
 
+    } else 
+    if (isCharPtrFunc) {
+        if (fname == "c_str") {
+            codeWriter->copyTerm(thisExpr, expr);
+            val = ttval;
+        }
+        
     } else {
         // General methods, most logic is in ScTraverseProc 
         if (codeWriter->isEmptySensitivity()) {
@@ -2622,9 +2569,21 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             lrecSuffix = codeWriter->getRecordIndxs(lrecvecs);
         }
 
+        unsigned lastWidth = strLiterWidth;
+        bool lastUnsigned = strLiterUnsigned;
+        if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
+            strLiterWidth = typeInfo.getValue().first;
+            strLiterUnsigned = typeInfo.getValue().second;
+        } else {
+            strLiterWidth = 0;  // Provides no string literal parsing
+        }
+        
         SValue rval;
         Expr* rexpr = args[1];
         chooseExprMethod(rexpr, rval);
+
+        strLiterWidth = lastWidth;
+        strLiterUnsigned = lastUnsigned;
         
         SValue rrec; state->getValue(rval, rrec);
         string rrecSuffix;
@@ -2711,17 +2670,11 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
     } else 
     if (nsname && *nsname == "sc_dt") {
         // SC data type operators
-        
-        // Do not replace constants with literal for part selection operator
-        bool calcPartSelectArgOrig = calcPartSelectArg;
-        calcPartSelectArg = (opcode == OO_Subscript || opcode == OO_Call);
-
         bool lastAssignLHS = assignLHS; 
         if (isIncrDecr || isCompoundAssign) assignLHS = true;
         SValue lval;
         chooseExprMethod(lexpr, lval);
         assignLHS = lastAssignLHS;
-        calcPartSelectArg = calcPartSelectArgOrig;
         
         if (opcode == OO_Subscript) { // "[]"
             SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
@@ -2938,7 +2891,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             Expr* rexpr = args[1];
             SValue rval; 
             chooseExprMethod(rexpr, rval);
-
+            
             if (opcode == OO_GreaterGreaterEqual) {
                 opStr = ">>>";
             } else

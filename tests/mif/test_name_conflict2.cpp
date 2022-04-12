@@ -36,7 +36,7 @@ public:
     }
 
     
-    bool a;
+    bool a = false;
     int j;
     long sum;
     

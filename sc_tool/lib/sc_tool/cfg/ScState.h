@@ -172,7 +172,7 @@ protected:
     /// It contains variables, specific array elements and record fields
     InsertionOrderSet<SValue>    defined;
     /// Declared variables, can be defined or not, used to avoid registers
-    /// for declared but not defined variables 
+    /// for declared but not defined variables, not included SC types
     InsertionOrderSet<SValue>    declared;
     
     /// All the collections below are filtered: 
@@ -208,13 +208,14 @@ protected:
                            std::vector<SValue>& valStack) const; 
     void parseParentForObj(SValue val, unsigned crossModule,
                            std::vector<SValue>& valStack) const; 
+    
+public:
     /// Parse value hierarchy to topmost module storing all intermediate values 
     /// in @valStack
     /// \param crossModule -- number of module/MIF border cross
     void parseValueHierarchy(SValue val, unsigned crossModule, 
                              std::vector<SValue>& valStack) const;
-    
-public:
+
     /// Find array where @val is element, bottom to top search
     /// \param crossModule -- cross module/MIF border number
     /// \return first (most inner) array value
@@ -421,7 +422,7 @@ public:
     /// \return <hasAnyArray, hasArrayAtUnknIndx>
     std::pair<bool, bool> isArrElemUnkwn(const SValue& val) const;
     
-    /// Add declared but not initialized variable
+    /// Add declared but not initialized variable, not included SC types
     void declareValue(const SValue &lval);
 
     /// Add value to @defined for non-zero array elements, 

@@ -6,9 +6,12 @@
 \subtitle{version 1.4}
 
 \author{Mikhail Moiseev}
+\ifdefined\INTEL
+\else
 \affiliation[obeypunctuation=true]{
 	\institution{Intel Corporation}
 }
+\fi
 
 %\email{mikhail.moiseev at intel.com}
 
@@ -23,8 +26,6 @@
 
 \pagebreak
 
-%\newif\INTEL
- 
 \section{Preface}
 
 Intel\textregistered Compiler for SystemC* (ICSC) is open source tool distributed under \href{https://github.com/intel/systemc-compiler/blob/main/LICENSE.txt}{Apache License v2.0 with LLVM Exceptions}. The source codes are available at \href{https://github.com/intel/systemc-compiler}{github.com/intel/systemc-compiler}.
@@ -69,10 +70,17 @@ In this document the following abbreviations are used:
 \else
 \include{install}
 \fi
+\include{tool_options}
 
 \include{prepare}
 
 \include{trans_flow}
+
+\section{Extensions}\label{section:extensions}
+
+\ifdefined\INTEL
+\include{extensions_intel} 
+\fi
 
 \include{extensions}
 

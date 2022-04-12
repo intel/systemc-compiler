@@ -672,11 +672,6 @@ public:
     void printDeclString(std::ostream &os, const SValue& val, 
                          const std::string& sizeSuff = "");
     
-    /// Get declared variables/constants not replaced by integer values
-    inline std::unordered_set<SValue> getNotReplacedVars() {
-        return notReplacedVars;
-    }
-    
     /// Get initializer statement for constant/variables locally declared
     inline std::unordered_map<SValue, 
            std::unordered_set<const clang::Stmt*>> getVarAssignStmts() {
@@ -780,9 +775,6 @@ protected:
     /// Local variables initialization with zero, required to avoid latch
     /// detection by lint and logic synthesis tools (@INIT_LOCAL_VARS required)
     std::vector< std::pair<SValue, std::string> > localDeclInitVerilog;
-    /// Variables and constants not replaced by integer values, 
-    /// in future any objects which name is used in generated code
-    std::unordered_set<SValue> notReplacedVars;
     /// Variable assignment statements, used to remove variable initialization 
     /// for removed variables/constants, currently for local variables only
     std::unordered_map<SValue, std::unordered_set<

@@ -246,24 +246,3 @@ target_include_directories(mydesign PUBLIC $ENV{ICSC_HOME}/examples/template)
 svc_target(mydesign ELAB_TOP tb.dut_inst)
 \end{lstlisting}
  
-
-\subsection{Tool options and defines}\label{section:tool_options}
-
-To run ICSC tool for the custom project it needs to create CMakeList.txt file. SystemVeriog code generation is done with {\tt svc\_target} function. {\tt svc\_target} is CMake function defined in {\tt \$ICSC\_HOME/lib64/cmake/SVC/svc\_target.cmake}.
-
-ICSC has several options, which can be specified as {\tt svc\_target} parameters:
-
-\begin{itemize}
-\item {\tt ELAB\_TOP} – design top module name, it needs to be specified if top module is instantiated outside of {\tt sc\_main()} or if there are more than one modules in {\tt sc\_main()};
-\item {\tt MODULE\_PREFIX} – module prefix string, no prefix if not specified, prefix applied for every module excluding Verilog intrinsic (module with {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_}) and memory modules (modules with {\tt \_\_SC\_TOOL\_MEMORY\_NAME\_\_});
-\item {\tt REPLACE\_CONST\_VALUE} – replace constant with its evaluated value if possible, by default constant variable is used;
-\item {\tt INIT\_LOCAL\_VARS} – initialize non-initialized process local variables with zero to avoid latches, that related to CPP data types only, SC data types always initialized with 0;
-\item {\tt NO\_SVA\_GENERATE} – do not generate SVA from immediate and temporal SystemC assertions, normally SVA are generated;
-\item {\tt NO\_REMOVE\_EXTRA\_CODE} – do not remove unused variable and unused code in generated SV, normally such code is removed to improve readability.
-\end{itemize}
-
-ICSC tool provides {\tt \_\_SC\_TOOL\_\_} define for input SystemC project translation. This define used in temporal assertions and other ICSC library modules to have different behavior for simulation and SV generation. {\tt \_\_SC\_TOOL\_\_} can also be used in project code to hide pieces of code which is not targeted for translation to SystemVerilog.
-
-To completely disable SystemC temporal assertion macro {\tt SCT\_ASSERT\_OFF} can be defined. That allows to hide all assertion specific code to meet SystemC synthesizable standard requirements. {\tt SCT\_ASSERT\_OFF} is required if the SystemC design is passed through a tool which includes its own (not patched) SystemC library.
-
-

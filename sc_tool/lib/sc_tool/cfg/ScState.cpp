@@ -87,6 +87,8 @@ void ScState::parseParentForRec(SValue val, unsigned crossModule,
     parseParentForObj(dval, crossModule, valStack);
 }
 
+// ===========================================================================
+// Public methods
 
 void ScState::parseValueHierarchy(SValue val, unsigned crossModule,
                                   vector<SValue>& valStack) const
@@ -103,9 +105,6 @@ void ScState::parseValueHierarchy(SValue val, unsigned crossModule,
         parseParentForObj(val, crossModule, valStack);
     }
 }
-
-// ===========================================================================
-// Public methods
 
 /// Find array where @val is element, bottom to top search
 SValue ScState::findArray(SValue val, unsigned crossModule,
@@ -1204,7 +1203,7 @@ std::pair<bool, bool> ScState::isArrElemUnkwn(const SValue& val) const
     return std::make_pair(true, true);
 }
 
-// Add declared but not initialized variable
+// Add declared but not initialized variable, not included SC types
 void ScState::declareValue(const SValue &lval) 
 {
     declared.insert(lval);
@@ -1278,7 +1277,6 @@ SValue ScState::writeToValue(SValue lval, bool isDefined)
         } else {
             // No define for array, difficult to prove all elements are defined 
         }
-        // TODO: add element into @redefined
     }
     return zeroVal;
 }

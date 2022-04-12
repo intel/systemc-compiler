@@ -24,9 +24,9 @@ public:
     }
         
     
-    bool a;
+    bool a = true;
     int i;
-    sc_uint<4> x;
+    sc_uint<4> x = 11;
     long sum;
     
     sc_signal<int>  t1;

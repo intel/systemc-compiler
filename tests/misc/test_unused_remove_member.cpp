@@ -26,7 +26,7 @@ struct A : public sc_module
 
     int m1;
     int m2;
-    int m;
+    int m = 42;
     int* pm = &m;
     int* q;
     int mm;

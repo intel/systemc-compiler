@@ -18,7 +18,7 @@ public:
     sc_out<bool>        b{"b"};
     sc_out<bool>        c{"c"};
     
-    int                 m;
+    int                 m = 11;
     int                 k;
     int                 n;
 

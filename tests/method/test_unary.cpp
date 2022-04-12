@@ -18,7 +18,7 @@ public:
     sc_signal<int>        c{"c"};
     sc_signal<unsigned>   d{"d"};
     
-    int                   m;
+    int                   m = 11;
     int                   k;
 
     sc_signal<bool> dummy{"dummy"};

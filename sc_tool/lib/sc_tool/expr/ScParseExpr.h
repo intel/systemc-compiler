@@ -61,6 +61,9 @@ protected:
     /// Current expression is LHS which could be modified (assigned), 
     /// required to clear value at bit/range access
     bool assignLHS = false;
+    /// String literal unsigned/width passed down for parse it as a number
+    bool strLiterUnsigned = true;
+    unsigned strLiterWidth = 0;
     
     /// Record variable value from currently analyzed @DeclStmt,
     /// used in record constructor code generation
@@ -104,7 +107,7 @@ public:
     char getLiteralRadix(const clang::IntegerLiteral* intLiteral);
     
     /// Parse global/static constant and put its value to state
-    virtual SValue parseGlobalConstant(const SValue& sVar);
+    virtual void parseGlobalConstant(const SValue& sVar);
 
     /// Put @rval or value of @rval to @lval in the state 
     /// Use in assignment operator in value sensitive analysis
@@ -265,6 +268,12 @@ protected:
     
     /// @nullptr literal
     virtual void parseExpr(clang::CXXNullPtrLiteralExpr* expr, SValue& val);
+
+    /// Convert string to integer SValue, >64bit supported 
+    SValue stringToInt(std::string s, unsigned width, bool usigned);
+    
+    /// String literal (const char*)
+    virtual void parseExpr(clang::StringLiteral* expr, SValue& val);
     
     /// Used for local variables access in left/right parts
     virtual void parseExpr(clang::DeclRefExpr* expr, SValue& val);

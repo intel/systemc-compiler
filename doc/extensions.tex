@@ -1,8 +1,3 @@
-\section{Extensions}\label{section:extensions}
-
-\ifdefined\INTEL
-\include{extensions_intel} 
-\fi
 
 \subsection{Advanced FIFO}\label{section:adv_fifo}
 
@@ -126,13 +121,13 @@ endmodule
 
 \subsection{Memory module name}
 
-This section describes how to create own memory module with module name specified. 
+This section describes how to create a custom memory module with module name specified. 
 
-To support vendor memory it needs to specify memory module name at instantiation point and exclude the SV module code generation (memory module is external one). To exclude SV module code generation empty {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_} should be used. To specify memory module name it needs to define {\tt \_\_SC\_TOOL\_MEMORY\_NAME\_\_} variable in the module body and initialize it with required name string.
+To support vendor memory it needs to specify memory module name at instantiation point and exclude the SV module code generation (memory module is external one). To exclude SV module code generation empty {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_} should be used. To specify memory module name it needs to define {\tt \_\_SC\_TOOL\_MODULE\_NAME\_\_} variable in the module body and initialize it with required name string.
 
 If there are two instances of the same SystemC module, it is possible to give them different names, but {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_} must be declared in the module. If {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_} is not declared the SystemC module, only one SV module with first given name will be generated . 
 
-Module name could be specified for module with non-empty {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_}, but module names in {\tt \_\_SC\_TOOL\_MEMORY\_NAME\_\_} and {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_} should be the same.
+Module name could be specified for module with non-empty {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_}, but module names in {\tt \_\_SC\_TOOL\_MODULE\_NAME\_\_} and {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_} should be the same.
 
 If specified module name in module without {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_} declaration conflicts with another module name, it updated with numeric suffix. Specified name in module with {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_}  declaration never changed, so name uniqueness should be checked by user.
 
@@ -142,10 +137,10 @@ struct memory_stub : sc_module {
     // Disable Verilog module generation
     std::string __SC_TOOL_VERILOG_MOD__[] = "";  
     // Specify module name at instantiation
-    std::string __SC_TOOL_MEMORY_NAME__;             
+    std::string __SC_TOOL_MODULE_NAME__;             
     explicit memory_stub(const sc_module_name& name,
                          const char* verilogName = "") :
-        __SC_TOOL_MEMORY_NAME__(verilogName)
+        __SC_TOOL_MODULE_NAME__(verilogName)
     {}
 };
 

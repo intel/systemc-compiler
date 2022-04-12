@@ -19,7 +19,7 @@ public:
     sc_out<bool>        c{"c"};
     sc_out<bool>*       p;
     
-    int                 m;
+    int                 m = 11;
     int                 k;
     int                 n;
     int*                q;

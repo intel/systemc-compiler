@@ -36,9 +36,9 @@ public:
     }
 
     
-    bool a;
+    bool a = 1;
     int i;
-    sc_uint<4> x;
+    sc_uint<4> x= 11;
     long sum;
     
     void member_var() 

@@ -20,13 +20,13 @@ struct memory_stub : public sc_module
     sc_out<bool>    resp{"resp"};
 
     std::string __SC_TOOL_VERILOG_MOD__ = "";
-    std::string __SC_TOOL_MEMORY_NAME__;
+    std::string __SC_TOOL_MODULE_NAME__;
     
     SC_HAS_PROCESS(memory_stub);
     
     explicit memory_stub(const sc_module_name& name, 
                          const char* verilogName = "") :
-        __SC_TOOL_MEMORY_NAME__(verilogName)
+        __SC_TOOL_MODULE_NAME__(verilogName)
     {
         SC_METHOD(asyncResp);
         sensitive << req;

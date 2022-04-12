@@ -24,7 +24,6 @@ extern llvm::cl::opt<bool>          noRemoveExtraCode;
 extern llvm::cl::opt<bool>          checkUnsigned;
 extern llvm::cl::opt<bool>          initLocalVars;
 extern llvm::cl::opt<bool>          initResetLocalVars;
-extern llvm::cl::opt<bool>          replaceConstByValue;
 extern llvm::cl::opt<std::string>   modulePrefix;
 
 // Remove unusable variables in reset section of CTHREAD
@@ -55,11 +54,6 @@ inline bool REMOVE_EMPTY_IF() {
 // Remove empty loop statement and body 
 inline bool REMOVE_EMPTY_LOOP() {
     return !noRemoveExtraCode;
-}
-
-// Remove constant declaration 
-inline bool REMOVE_CONST_DECL() {
-    return (!noRemoveExtraCode && replaceConstByValue);
 }
 
 // Remove unused variable definition statements in METHODs and CTHREADs, 

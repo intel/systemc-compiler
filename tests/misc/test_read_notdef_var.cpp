@@ -28,6 +28,9 @@ struct mod_if : public sc_module, sc_interface
 
         SC_CTHREAD(thread, clk.pos());
         async_reset_signal_is(rst, 1);
+        
+        v = 1;
+        vv = 1;
     }
 
     void meth() {

@@ -19,9 +19,9 @@ public:
     sc_out<bool>        c{"c"};
     sc_out<bool>*       p;
     
-    int                 m;
-    int                 k;
-    int                 n;
+    int                 m = 11;
+    int                 k = 12;
+    int                 n = 13;
     int*                q;
 
     sc_signal<bool> s{"s"};

@@ -109,7 +109,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     if (REMOVE_UNUSED_VAR_STMTS()) {
         // Delete unused statements
         travConst.removeUnusedStmt();
-        // Delete values from UseDef  which related to  unused statement removed 
+        // Delete values from UseDef which related to unused statement removed 
         std::unordered_set<SValue> defVals = travConst.getDefinedVals();
         std::unordered_set<SValue> useVals = travConst.getUsedVals();
         finalState->filterUseDef(defVals, useVals);
@@ -148,8 +148,10 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     bool noneZeroElmntMIF = travConst.isNonZeroElmtMIF();
 
     // All the variables defined/used in this method process
+    unordered_set<SValue> defVals;
     InsertionOrderSet<SValue> useDefVals;
     for (const auto& sval : finalState->getDefArrayValues()) {
+        defVals.insert(sval);
         useDefVals.insert(sval);
     }
 
@@ -175,6 +177,9 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         }
     }
 
+   // Add initialization values for non-modified member variables    
+   initNonDefinedVars(procView, dynmodval, useVals, defVals);
+
     // Report read not initialized warning
     for (const auto& sval : finalState->getReadNotInitValues()) {
         // Skip constants, channels and pointers to channel
@@ -190,6 +195,8 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
             if (rval.isInteger() && rval.getInteger().isNullValue())
                 continue;
         }
+        
+        // Do no need to skip members generated as @localparam
 
         //cout << "RND sval " << sval << endl;
         std::string varName = sval.isVariable() ? 
@@ -203,7 +210,11 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
 //        for (const auto& v : useDefVals) {
 //            cout << "   " << v << endl;
 //        }
-
+//    cout << "------- defVals" << endl;
+//    for (const auto& v : defVals) {
+//        cout << "   " << v << endl;
+//    }
+    
     // Register used values
     for (SValue val : useVals) {
         // Replace value to array first element
@@ -308,10 +319,11 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
             bool isChannel = zeroVal.isScChannel();
             bool isConst = !isChannel && (zeroVal.getType().isConstQualified()||
                                           isPointerToConst(zeroVal.getType()));
+            bool isPtr = sc::isPointer(val.getType());
             bool isNullPtr = false;
             bool isDanglPtr = false;
 
-            if (isPointer(val.getType())) {
+            if (isPtr) {
                 SValue rval = globalState->getValue(val);
                 isNullPtr = rval.isInteger() && rval.getInteger().isNullValue();
                 isDanglPtr = rval.isUnknown();
@@ -437,12 +449,6 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
 
     travProc.run(methodDecl, emptySensitivity);
     
-    // Add constants not replaced with integer value, 
-    // used to determine required variables
-    for (const SValue& val : procWriter->getNotReplacedVars()) {
-        verMod->addNotReplacedVar(val);
-    }
-    
     // Print function RTL
     std::ostringstream os;
     travProc.printLocalDeclarations(os);
@@ -467,6 +473,85 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     }
     
     return procCode;
+}
+
+
+// Add initialization values for non-modified member variables to 
+// generate them as @localparam
+void ScProcAnalyzer::initNonDefinedVars(sc_elab::ProcessView& procView,
+                                        const SValue& dynmodval,
+                                        const std::unordered_set<SValue>& useVals,
+                                        const std::unordered_set<SValue>& defVals)
+{
+    using namespace std;
+    using namespace sc_elab;
+    auto parentModView = procView.getParentModule();
+    auto verMod  = elabDB.getVerilogModule(parentModView);
+    
+    // Add initialization values for non-modified member variables to 
+    // generate them as @localparam
+    for (const SValue& val : useVals) {
+        // Skip non-variables
+        if (!val.isVariable()) continue;
+        // Skip defined variables
+        if (defVals.count(val) != 0) continue;
+        // Skip access from top module process
+        if (val.getVariable().getParent() != dynmodval) continue;
+        
+        // Skip pointers and arrays
+        const QualType& type = val.getType();
+        bool isPtr = sc::isPointer(type);
+        bool isRef = sc::isReference(type);
+        bool isArr = sc::isArray(type);
+        if (isArr || isPtr || isRef) continue;
+        
+        // Skip constant variable it is declared as @localparam
+        bool isConst = type.isConstQualified();
+        if (isConst) continue;
+        
+        // Skip array and record elements
+        vector<SValue> valStack;
+        globalState->parseValueHierarchy(val, 0, valStack);
+        bool skip = false;
+        for (const SValue& mval : valStack) {
+            if (mval.isArray() || mval.isRecord()) {
+                skip = true; break;
+            }
+        }
+        if (skip) continue;
+        
+        // Class field must be in this map, no local variables here
+        if (auto elabObj = globalState->getElabObject(val)) {
+            //cout << "  elabObj" << elabObj->getDebugString() << endl;
+            if (auto elabOwner = elabObj->getVerilogNameOwner()) {
+                elabObj = elabOwner;
+            }
+
+            // Skip non-primitive objects
+            if (!elabObj->isPrimitive() || elabObj->isChannel()) continue;
+            
+            auto verVars = verMod->getVerVariables(*elabObj);
+            
+            for (auto* verVar : verVars) {
+                if (auto valView = elabObj->primitive()->value()) {
+                    APSIntVec initVals;
+                    bool isSigned = isSignedOrArrayOfSigned(elabObj->getType());
+                    verMod->fillInitVal(initVals, isSigned, *valView);
+                    // Append initialization values into variable
+                    verVar->addInitVals(initVals, val);
+
+//                    cout << "  verVar " << verVar->getName() << endl;
+//                    if (!initVals.empty()) {
+//                        cout << "  add localparam for " << val;
+//                        for (auto& iv : initVals) cout << " " << iv.toString(10);
+//                        cout << endl;
+//                    } else {
+//                        cout << "  add localparam for EMPTY" << endl;
+//                    }
+                }
+            }
+        }
+    }
 }
 
 sc_elab::VerilogProcCode ScProcAnalyzer::analyzeCthreadProcess(

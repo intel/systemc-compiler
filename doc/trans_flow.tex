@@ -209,10 +209,41 @@ begin : threadProc_ff
 end
 \end{lstlisting}
 
+\subsection{Non-modified member variables generation}\label{section:non_modif_var_gen}
+Module or modular interface member variables which are non-modified in any process, considered as initialized at elaboration phase. Because of dynamic elaborator used in the tool, it is not possible to detect if a variable is not initialized at elaboration phase. 
+
+For such member variables which are scalar (non-array) and non-record type, SV local parameters are generated. 
+No local parameters generated for array and record members, so these variables remain non-initialized. Such member variable should be initialized in reset section of a process where it is used.
+
+\begin{lstlisting}[style=mycpp]
+class MyModule : public sc_module {
+  	bool C = true;
+	int D;
+   	unsigned E;
+
+	CTOR (MyModule) {
+   		D = 42;
+	}
+	void setE(unsigned par) { E = par; }
+}
+...
+MyModule m{"m"};
+...
+m.setE(43);   // In parent module constructor
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// Generated SystemVerilog
+localparam logic C = 1;
+localparam logic signed [31:0] D = 42;
+localparam logic [31:0] E = 43;
+\end{lstlisting}
+
+Nothing is generated if the variable is not used in any process. If such variable is member of array of modular interfaces, it should be used in a process of each modular interface.
 
 \subsection{Constants generation}\label{section:const_gen}
 
-For constants and static constants SV local parameters are generated. There is {\tt KEEP\_CONST\_VARIABLES} option to replace the constants in the code with their values, see~\ref{section:tool_options}. Constant is replaced with its value if the value if there is no reference to the constant. If constant is replaced with its value or not used in the code, no SV local parameter is generated.
+For constants and static constants SV local parameters are generated.
 
 \begin{lstlisting}[style=mycpp]
 static const bool C = true;
@@ -225,6 +256,8 @@ static const int D = 42;
 localparam logic signed C = 'd1;
 localparam logic signed [31:0] D = 'd42;
 \end{lstlisting}
+
+There is {\tt REPLACE\_CONST\_VARIABLES} option to replace the constants in the code with their values, see~\ref{section:tool_options}. A constant is replaced with its value if the value if there is no reference to the constant. If constant is replaced with its value or not used in the code, no SV local parameter is generated.
 
 \subsection{Method process generation}\label{section:method_gen}
 

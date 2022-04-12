@@ -27,7 +27,7 @@ using namespace llvm;
 // ---------------------------------------------------------------------------
 // Creates constant value in global state if necessary
 // Used for constant and constant array belong to template parameter class
-SValue ScTraverseConst::parseGlobalConstant(const SValue& val)
+void ScTraverseConst::parseGlobalConstant(const SValue& val)
 {
     //cout << "parseGlobalConstant val " << val << endl;
     if (val.getVariable().getParent() || 
@@ -47,20 +47,29 @@ SValue ScTraverseConst::parseGlobalConstant(const SValue& val)
         // Parse and put initializer into global state, check no such value 
         // in state to avoid replace constant/static array elements
         if (!globalState->getValue(val)) {
-            globExprEval.parseValueDecl(valDecl, NO_VALUE, nullptr, false);
+            // Evaluate constant value from AST if possible to have clean UseDef 
+            SValue rval;
+            if (getConstASTValue(astCtx, val, rval)) {
+                globalState->putValue(val, rval);
+            } else {
+                globExprEval.parseValueDecl(valDecl, NO_VALUE, nullptr, false);
+            }
         }
 
         // Put the same initializer into current state, to use it in the process
         // For next analyzed processes it is taken from @globalState
         if (!state->getValue(val)) {
-            parseValueDecl(valDecl, NO_VALUE, nullptr, false);
+            // Evaluate constant value from AST if possible to have clean UseDef 
+            SValue rval;
+            if (getConstASTValue(astCtx, val, rval)) {
+                state->putValue(val, rval);
+            } else {
+                parseValueDecl(valDecl, NO_VALUE, nullptr, false);
+            }
         }
         
         globalState->putElabObject(val, newElabObj);
     }
-
-    // Returned value not used
-    return NO_VALUE;
 }
 
 // Register variables accessed in and after reset section, 
@@ -113,27 +122,6 @@ void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt)
                 }
             }
         }
-
-        // Read-not-defined not valid at reset section,
-        // get ReadNotDefined excluding read in SVA (false)
-        for (const auto& val : state->getReadNotDefinedValues(false)) {
-            if (!val.isVariable()) continue;
-            // Skip record field as copy constructor leads to 
-            // read all the fields even if not really used
-            if (ScState::isRecField(val)) continue;
-
-            QualType type = val.getType();
-
-            if (ScState::isConstVarOrLocRec(val) || 
-                isPointerToConst(type) ||
-                isScChannel(type) || isScVector(type) || 
-                isScChannelArray(type) || isScToolCombSignal(type)) continue;
-
-            ScDiag::reportScDiag(stmt->getBeginLoc(),
-                                 ScDiag::CPP_READ_NOTDEF_VAR_RESET, false) << 
-                                 val.asString(false);
-        }
-
     } else {
         // Register variables accessed after CTHREAD reset
         if (!isCombProcess) {
@@ -517,6 +505,10 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         } else {
             // Do nothing for other @sc_core methods
         }
+        
+    } else
+    if (isConstCharPtr(expr->getType())) {
+        // Do nothing, all logic implemented in ScParseExprValue
         
     } else {
         // General method call

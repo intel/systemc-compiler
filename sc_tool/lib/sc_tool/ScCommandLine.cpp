@@ -56,12 +56,6 @@ cl::opt<bool> initResetLocalVars(
     cl::cat(ScToolCategory)
 );
 
-cl::opt<bool> replaceConstByValue(
-    "replace_const_value",
-    cl::desc("Replace constant with its number value if possible"),
-    cl::cat(ScToolCategory)
-);
-
 cl::opt<std::string> modulePrefix (
     "module_prefix",
     cl::desc("Module prefix string"),

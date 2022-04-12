@@ -21,7 +21,7 @@ struct Child : public sc_module
     sc_out<int>             out;
     sc_signal<int>          s;
     sc_uint<3>              v;
-    sc_uint<3>              v2;
+    sc_uint<3>              v2 = 4;
     const int               c;
 
     SC_CTOR(Child) : c(11)

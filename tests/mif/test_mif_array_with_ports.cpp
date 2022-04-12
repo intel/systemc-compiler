@@ -37,13 +37,13 @@ struct mod_if : public sc_module, sc_interface
         async_reset_signal_is(rst, true);
     }
 
-    unsigned m;
+    unsigned m = 0;
     void meth() {
         int i = m + A + B;
         mout = min.read() + i;
     }
     
-    unsigned n;
+    unsigned n = 0;
     void thrd() {
         out = 0;
         wait();

@@ -382,6 +382,10 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         // Do nothing 
        
     } else 
+    if (isConstCharPtr(expr->getType())) {
+        // Do nothing, all logic implemented in ScParseExprValue
+        
+    } else
     if ( isAnyScCoreObject(thisType) ) {
         if (fname == "wait") {
             // SC wait call
@@ -765,7 +769,7 @@ void ScTraverseProc::run()
         if (funcDecl) {
             auto nsname = getNamespaceAsStr(funcDecl);
             if (nsname && (*nsname == "std" || *nsname == "sc_core" || 
-                           *nsname == "sct_ss")) {
+                           *nsname == "sct")) {
                 isNotLibrarySpace = 0;
             }
         }
@@ -1988,7 +1992,6 @@ void ScTraverseProc::printFunctionBody(std::ostream &os)
     } else {
         topGraph = scopeGraph;
     }
-    topGraph->putNotReplacedVars(codeWriter->getNotReplacedVars());
     topGraph->putVarAssignStmts(codeWriter->getVarAssignStmts());
     
     //cout << "--------------------------------------------" << endl;

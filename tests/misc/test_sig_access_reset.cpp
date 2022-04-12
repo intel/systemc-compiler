@@ -94,9 +94,9 @@ struct A : public sc_module
     
     // Assertion with global variables not used/defined
     bool a;
-    int b;
+    int b = 11;
     sc_uint<8> c;
-    sc_bigint<8> d;
+    sc_bigint<8> d = 7;
     sc_uint<8> mm;      // not reg
     
     void assert_global() 

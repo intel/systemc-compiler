@@ -805,15 +805,6 @@ std::string ScVerilogWriter::makeLiteralStr(const Stmt* stmt, APSInt val,
 //         << " val.getActiveBits() " << val.getActiveBits() 
 //         << " APSInt::getBitsNeeded " << APSInt::getBitsNeeded(literStr, 10) << endl;
     
-    if (bitNeeded > 64) {
-        if (stmt) {
-            ScDiag::reportScDiag(stmt->getBeginLoc(),
-                                 ScDiag::CPP_BIG_INTEGER_LITER) << bitNeeded;
-        } else {
-            ScDiag::reportScDiag(ScDiag::CPP_BIG_INTEGER_LITER) << bitNeeded;
-        }
-    }
-    
     // It is possible to have no cast for non-negative literal in integer range
     bool valueCast = minCastWidth;
     // Width >32bit required size
@@ -1513,9 +1504,6 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
             putString(stmt, s, 0);
             clearSimpleTerm(stmt);
             
-            // Loop counter not replaced by value
-            notReplacedVars.insert(val);
-            
             // Register assignment statement, for declared variables only
             putVarAssignStmt(val, stmt);
             
@@ -1539,8 +1527,6 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
     } else {
         // Normal variable declaration
         bool isReg = isRegister(val);
-        bool isConst = val.getType().isConstQualified();
-        bool isConstRef = val.isConstReference();
         bool isRecord = isUserDefinedClass(val.getType(), true);
         // Initialization of local variable required for variables w/o initializer
         // and variables at no-zero level (funcCall variable is initialized)
@@ -1557,23 +1543,12 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                          "Unexpected record variable with initialization");
         
         //cout << "putVarDecl val " << val << " isRecord " << isRecord
-        //     << " isConst " << isConst << " initResetZero " << initResetZero << endl;
+        //     << " initResetZero " << initResetZero << endl;
          
         pair<string, string> names = getVarName(val);
         
         // Do not declare/initialize record as individual fields are declared 
         if (!isRecord) {
-            // Skip constant variable if they are replaced with values
-            // Possible only for non-reference variable initialized with integer,
-            // which is checked in @replaceConstEnable
-            if (!replaceConstByValue || !replaceConstEnable || 
-                (!isConst && !isConstRef))
-            {
-                // Constant/variable not replaced by value
-                //cout << "add to notReplacedVars val " << val << endl;
-                notReplacedVars.insert(val);
-            }
-
             // Register assignment statement, for declared variables only
             putVarAssignStmt(val, stmt);
 
@@ -1628,12 +1603,6 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                 putAssignBase(stmt, val, lhsName, rhsName, 0);
             }
         }
-        
-        if (isRecord) {
-            // Record never replaced by integer value
-            //cout << "    REC added to globalNotReplacedConst" << endl;
-            notReplacedVars.insert(val);
-        }
     }
 }
 
@@ -1664,9 +1633,6 @@ void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val,
     
     // Do not declare record as individual fields are declared
     if (!isReg && !isRecord) {
-        // Constant/variable array not replaced by value
-        notReplacedVars.insert(val);
-        
         // Register assignment statement, for declared variables only
         putVarAssignStmt(val, stmt);
         
@@ -2336,9 +2302,6 @@ void ScVerilogWriter::putPartSelectExpr(const Stmt* stmt,  const SValue& val,
 {
     if (skipTerm) return;
     
-    // Part select not replaced by value, base need to be declared
-    notReplacedVars.insert(val);
-    
     if (terms.count(base) && terms.count(hindx) && terms.count(lindx)) {
         auto baseInfo = terms.at(base);
         if (!baseInfo.simplTerm || baseInfo.literRadix) {
@@ -2415,10 +2378,6 @@ void ScVerilogWriter::putBitSelectExpr(const Stmt* stmt, const SValue& val,
                                        const Expr* index)
 {
     if (skipTerm) return;
-    
-    // Bit select not replaced by value, base need to be declared
-    notReplacedVars.insert(val);
-    //cout << "notReplacedVars add val " << val << endl;
     
     if (terms.count(base) && terms.count(index)) {
         auto baseInfo = terms.at(base);
@@ -3204,9 +3163,6 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
         }
         
         // Remove constant/variable which is replaced by value
-        if (notReplacedVars.count(val) == 0) {
-            continue;
-        }
         declaredVars.insert(val);
 
         printSplitString(os, pair.second, emptySensMethod ? "" : TAB_SYM);
@@ -3317,9 +3273,6 @@ void ScVerilogWriter::printResetCombDecl(std::ostream &os)
             }
         }
             
-        if (!notReplacedVars.count(pair.first)) {
-            continue;
-        }
         declaredVars.insert(pair.first);
 
         // Local constant, static constant, function parameter or

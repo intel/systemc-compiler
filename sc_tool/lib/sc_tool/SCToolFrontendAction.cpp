@@ -112,8 +112,8 @@ Object* getOuterArray(SCDesign& designDB, Object* memberObj)
     return arrayObj;
 }
 
-const std::string SCElabASTConsumer::TOOL_VERSION = "1.4.15";
-const std::string SCElabASTConsumer::TOOL_DATE = "10 Mar,2022";
+const std::string SCElabASTConsumer::TOOL_VERSION = "1.4.18";
+const std::string SCElabASTConsumer::TOOL_DATE = "15 Apr,2022";
 
 void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 {
@@ -125,17 +125,12 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
                   TOOL_VERSION << ", " << TOOL_DATE << endl;
     cout << "--------------------------------------------------------------" << endl;
     
-    //replaceConstByValue.setValue(true);
-    //cout << "replaceConstByValue " << replaceConstByValue << endl;
-    
     //const char* optNames[] = {doElab};
     //const char* optNames[] = {doConstCfg, doGenCfg};
     //const char* optNames[] = {doModuleBuilder, doGenCfg, doGenTerm, doGenRTL, doGenStmt, doGenBlock};
     //const char* optNames[] = {doModuleBuilder, doGenCfg, doGenStmt, doGenFuncCall, doVerWriter};
     //const char* optNames[] = {doModuleBuilder, doGenStmt, doGenName, doGenRTL}; 
     //const char* optNames[] = {doModuleBuilder, doConstCfg, doConstTerm, doConstBlock, doGenCfg};
-    //const char* optNames[] = {doConstStmt}; 
-    //const char* optNames[] = {doConstCfg, doElab};
     //const char* optNames[] = {doGenCfg, doGenLoop, doGenBlock, doModuleBuilder}; 
     //const char* optNames[] = {doModuleBuilder, doConstStmt, doConstCfg/*, doState*/};
     //const char* optNames[] = {doModuleBuilder, doGenStmt};
@@ -143,7 +138,8 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
     //const char* optNames[] = {doConstCfg, doConstLoop, doConstStmt, doConstBlock, doModuleBuilder};
     //const char* optNames[] = {doConstCfg, doConstStmt, doModuleBuilder}; 
     //const char* optNames[] = {doGenFuncCall, doGenStmt, doModuleBuilder};  
-    const char* optNames[] = {doModuleBuilder};  
+    //const char* optNames[] = {doConstStmt, doUseDef, doModuleBuilder};  
+    const char* optNames[] = {doUseDef, doConstStmt, doModuleBuilder};  
     size_t optSize = sizeof(optNames)/sizeof(const char*);
     //DebugOptions::enable(optNames, optSize); 
    

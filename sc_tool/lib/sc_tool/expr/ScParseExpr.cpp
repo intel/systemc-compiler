@@ -27,12 +27,14 @@ char ScParseExpr::getLiteralRadix(const IntegerLiteral* intLiteral)
     // Source Location of current int literal
     SourceLocation loc = intLiteral->getLocation();
     const char* intStr = sm.getCharacterData(loc, nullptr);
-
+    
+    // No leading minus here
+    // Do not need to check end of string
     if (intStr[0] == '0') {
         if (intStr[1] == 'x' || intStr[1] == 'X') {
             return 16;
         } else 
-        if (intStr[1] == 'b') {
+        if (intStr[1] == 'b' || intStr[1] == 'B') {
             return 2;
         } else 
         if (isdigit(intStr[1])) {
@@ -43,22 +45,26 @@ char ScParseExpr::getLiteralRadix(const IntegerLiteral* intLiteral)
 }
 
 // Parse global/static constant and put its value to state
-SValue ScParseExpr::parseGlobalConstant(const SValue &val)
+void ScParseExpr::parseGlobalConstant(const SValue &val)
 {
     SCT_TOOL_ASSERT (val.isVariable(), "No variable value");
     
+    // Try to get integer value from state/AST to avoid multiple evaluation
+    // Try to get value from state
+    SValue rval = state->getValue(val);
+    if (rval.isInteger()) return;
+
+    // Try to get constant value from AST
+    if (getConstASTValue(astCtx, val, rval)) {
+        state->putValue(val, rval);
+        return;
+    }
+    
     // Set skip variable in @ScParseRangeExpr
     skipRangeVar = true;
-    SValue res = parseValueDecl(const_cast<clang::ValueDecl*>(
-                                val.getVariable().getDecl()),
-                                NO_VALUE, nullptr, false).first;
+    auto valDecl = const_cast<ValueDecl*>(val.getVariable().getDecl());
+    parseValueDecl(valDecl, NO_VALUE, nullptr, false);
     skipRangeVar = false;
-
-    if (res.isVariable()) {
-        res = state->getValue(res);
-    }
-
-    return res;
 }
 
 void ScParseExpr::assignValueInState(const SValue &lval, const SValue &rval,
@@ -97,7 +103,6 @@ void ScParseExpr::assignValueInState(const SValue &lval, const SValue &rval,
 SValue ScParseExpr::getValueFromState(const SValue &lval,
                                       ArrayUnkwnMode returnUnknown)
 {
-    //using namespace std;
     SValue rval;
     
     if (lval.isVariable()) {
@@ -106,14 +111,23 @@ SValue ScParseExpr::getValueFromState(const SValue &lval,
         state->getDerefVariable(lval, llval);
         // Try to get value from state
         state->getValue(llval, rval, false, returnUnknown);
-        //cout << "getValueFromState llval " << llval << " rval " << rval << endl;
+        //cout << "getValueFromState llval " << llval << " lval " << lval << " rval " << rval << endl;
             
         if (rval.isUnknown() && llval.isVariable()) {
             // Try to get constant value from AST, for variable only
             // Required for constant reference parameter with default value
             bool isConst = llval.getType().isConstQualified();
             if (isConst) {
-                rval = ScParseExpr::parseGlobalConstant(lval);
+                // Try to get from AST, do not put into state
+                if (getConstASTValue(astCtx, lval, rval)) return rval;
+                
+                // Set skip variable in @ScParseRangeExpr
+                skipRangeVar = true;
+                auto valDecl = const_cast<ValueDecl*>(lval.getVariable().getDecl());
+                rval = parseValueDecl(valDecl, NO_VALUE, nullptr, false).first;
+                skipRangeVar = false;
+
+                if (rval.isVariable()) rval = state->getValue(rval);
             }
         }
         
@@ -633,6 +647,9 @@ void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
     else if (auto expr = dyn_cast<CXXNullPtrLiteralExpr>(stmt)) {
         parseExpr(expr, val);
     }
+    else if (auto expr = dyn_cast<StringLiteral>(stmt)) {
+        parseExpr(expr, val);
+    }
     else if (auto expr = dyn_cast<ImplicitCastExpr>(stmt)) {
         SValue rval;
         parseExpr(expr, rval, val);
@@ -705,7 +722,7 @@ void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
     else if (auto expr = dyn_cast<SubstNonTypeTemplateParmExpr>(stmt)) {
         parseExpr(expr, val);
     }
-    else if (isa<FloatingLiteral>(stmt) || isa<StringLiteral>(stmt)) {
+    else if (isa<FloatingLiteral>(stmt)) {
         // Ignoring unsupported literals (May be used in debug output)
         val = NO_VALUE;
     }
@@ -782,6 +799,55 @@ void ScParseExpr::parseExpr(clang::CXXNullPtrLiteralExpr* expr, SValue& val)
     val = SValue(llvm::APSInt(64, true), 10);
 }
 
+SValue ScParseExpr::stringToInt(std::string s, unsigned width, bool usigned) 
+{
+    auto i = s.begin();
+    if (i == s.end()) return NO_VALUE;
+    
+    bool negative = false;
+    if (*i == '-') {
+        negative = true;
+        i++; 
+        if (i == s.end()) return NO_VALUE;
+    }
+        
+    unsigned radix = 10;
+    if (*i == '0') {
+        i++;
+        if (i != s.end()) {
+            if (*i == 'x' || *i == 'X') {
+                i++; radix = 16;
+            } else 
+            if (*i == 'b' || *i == 'B') {
+                i++; radix = 2;
+            } else {
+                radix = 8;
+            }
+        }
+    }
+
+    if (std::all_of(i, s.end(), ::isxdigit)) {
+        //cout << "StringLiteral " << s << " width " << strLiterWidth 
+        //     << " unsigned " << usigned  << " radix " << radix << endl;
+        if (radix != 10) {
+            s = (negative ? "-" : "") + string(i, s.end());
+        }
+        llvm::APInt literInt(width, s, radix);
+        //cout << "liteInt " << literInt.toString(radix, !usigned) << endl;
+        return SValue(llvm::APSInt(literInt, usigned), radix);
+    }
+    return NO_VALUE;
+}
+
+void ScParseExpr::parseExpr(clang::StringLiteral* expr, SValue& val) 
+{
+    val = NO_VALUE;
+
+    if (strLiterWidth != 0) {
+        val = stringToInt(expr->getString().str(), strLiterWidth, strLiterUnsigned);
+    }
+}
+
 // Used for local variables access in left/right parts
 void ScParseExpr::parseExpr(clang::DeclRefExpr* expr, SValue& val)
 {
@@ -836,6 +902,7 @@ void ScParseExpr::parseExpr(clang::MemberExpr* expr, SValue& val)
     SValue tval = evalSubExpr(expr->getBase());
     SValue ttval = getRecordFromState(tval, ArrayUnkwnMode::amArrayUnknown);
     
+    //cout << "ScParseExpr::MemberExpr # " << hex << expr << dec << endl;
     //cout << "ScParseExpr::MemberExpr tval = " << tval << ", base->getType() = " 
     //     << expr->getBase()->getType().getAsString() << endl;
     //cout << "final ttval = " << ttval << endl;
@@ -861,10 +928,25 @@ void ScParseExpr::parseExpr(clang::MemberExpr* expr, SValue& val)
             }
         }
     }
+    
+    // Try to get string value and convert it into integer value
+    if (isConstCharPtr(expr->getType()) || isStdString(expr->getType())) {
+        auto obj = state->getElabObject(val);
+        if (obj && obj->isPrimitive()) {
+            if (auto primObj = obj->primitive()) {
+                if (primObj->isString()) {
+                    val = NO_VALUE;
+                    if (strLiterWidth != 0) {
+                        val = stringToInt(*primObj->string(), 
+                                          strLiterWidth, strLiterUnsigned);
+                    }
+                }
+            }
+        }
+    }
 
-    //cout << "ScParseExpr::MemberExpr tval = " << tval
-    //     << ", expr->getType() = " << expr->getType().getAsString()
-    //     << ", val = "  << val << endl;
+    //cout << " tval = " << tval << ", val = "  << val 
+    //     << ", expr->getType() = " << expr->getType().getAsString() << endl;
 }
 
 void ScParseExpr::parseExpr(clang::CXXThisExpr* expr, SValue& thisPtrVal)

@@ -188,7 +188,7 @@ public:
         SYNTH_USEDEF_ARR_IN_SAME_PROC = 216,
         SYNTH_COMPARE_SIGN_UNSIGN_MIX = 217,
         SYNTH_SEXPR_UNSIGNED        = 218,    
-        CPP_BIG_INTEGER_LITER       = 219, 
+        CPP_NOT_NUMBER_LITER        = 219, 
         SYNTH_FUNC_CALL_II_LOOP     = 220,
         SYNTH_FUNC_CALL_WAIT_LOOP   = 221,
         SYNTH_MULT_ASSIGN_REC       = 222,
@@ -199,6 +199,8 @@ public:
         CPP_BOOL_BITWISE_BINARY     = 227,
         SYNTH_MULTI_CROSS_BOUND     = 228,
         CPP_FOR_WITHOUT_DECL        = 229,
+        SYNTH_PART_INIT_VAR         = 230,
+        CPP_STRING_BINARY_OPER      = 231,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -521,7 +523,7 @@ private:
             "Read not initialized non-channel variable : %0"};
 
         idFormatMap[CPP_READ_NOTDEF_VAR_RESET] =
-            {clang::DiagnosticIDs::Error, 
+            {clang::DiagnosticIDs::Warning, 
             "Read not initialized non-channel variable in CTHREAD reset section : %0"};
 
         idFormatMap[SYNTH_CONCAT_CAST_BOOL] =
@@ -680,14 +682,21 @@ private:
             {clang::DiagnosticIDs::Error, 
             "Register variable cannot be read-and-modified in reset section"};
 
-        idFormatMap[CPP_BIG_INTEGER_LITER] =
+        idFormatMap[CPP_NOT_NUMBER_LITER] =
             {clang::DiagnosticIDs::Error, 
-            "Integer literal is too big : %0 bit, up to 64bit supported"};
+            "String liter does not contain valid number"};
         
         idFormatMap[CPP_FOR_WITHOUT_DECL] =
             {clang::DiagnosticIDs::Warning, 
             "For loop without local counter declaration"};
         
+        idFormatMap[SYNTH_PART_INIT_VAR] =
+            {clang::DiagnosticIDs::Warning, 
+            "Initialization value number differs from array size : %0"};
+        
+        idFormatMap[CPP_STRING_BINARY_OPER] =
+            {clang::DiagnosticIDs::Error, 
+            "Binary operation with string argument not supported"};
         
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =

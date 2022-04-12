@@ -169,8 +169,8 @@ private:
 
     llvm::Optional<std::string> getVerilogIntrinsic(const ModuleMIFView& modView);
     /// Get vendor memory name to use in Verilog module instead of module name
-    /// @__SC_TOOL_MEMORY_NAME__ string in module 
-    llvm::Optional<std::string> getVerilogMemName(const ModuleMIFView& modView);
+    /// @__SC_TOOL_MODULE_NAME__ string in module 
+    llvm::Optional<std::string> getVerilogModName(const ModuleMIFView& modView);
 
     /// Get assert properties from @SCT_ASSERT macro in module scope
     std::vector<const clang::FieldDecl*> 
@@ -224,6 +224,18 @@ void ScElabModuleBuilder::run()
         createPortBindingsKeepArrays(verMod);
     }
 
+    // Fill state, run method and thread process analysis in ScProcAnalyzer
+    for (auto &verMod : elabDB->getVerilogModules()) {
+        // Process analysis for all threads and methods
+        createProcessBodies(verMod);
+
+        // Remove unused ports and signals declarations and their assignments
+        verMod.removeUnusedVariables();
+        
+        // Detect multiple used/defined variable/channel in different processes
+        verMod.detectUseDefErrors();
+    }
+    
     // Compare and remove redundant modules, only equivalent C++ types compared
     elabDB->uniquifyVerilogModules();
     
@@ -242,28 +254,14 @@ void ScElabModuleBuilder::run()
     std::cout << "  Process number      " << procNum << std::endl
               << "------------------------------------------------" << std::endl 
               << std::flush;
-
+    
+    // Gather and print design statistics
     VerilogModStatistic designStat;
-            
-    // Fill state, run method and thread process analysis in ScProcAnalyzer
     for (auto &verMod : elabDB->getVerilogModules()) {
-        // Process analysis for all threads and methods
-        createProcessBodies(verMod);
-
-        // Remove unused ports and signals declarations and their assignments
-        verMod.removeUnusedVariables();
-        
-        // Detect multiple used/defined variable/channel in different processes
-        verMod.detectUseDefErrors();
-        
         designStat.add(verMod.getStatistic());
     }
-    if (DebugOptions::isEnabled(DebugComponent::doModuleBuilder)) {
-        std::cout << "------------------------------------------------" << std::endl; 
-    }
-    
-    // Print design statistic
     designStat.print(std::cout);
+    std::cout << "------------------------------------------------" << std::endl; 
     
     DEBUG_WITH_TYPE(DebugOptions::doModuleBuilder,
                     for (auto &verMod : elabDB->getVerilogModules()) {
@@ -285,7 +283,7 @@ void ScElabModuleBuilder::traverseModule(ModuleMIFView modView)
     auto intrinsic = getVerilogIntrinsic(modView);
     
     // Try to get Verilog module name, used for vendor memory 
-    auto memory = getVerilogMemName(modView);
+    auto memory = getVerilogModName(modView);
     
     // Replace module name with Verilog module name
     if (memory) {
@@ -357,7 +355,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseDFS(ObjectView obj)
     
     // Skip special variable
     if (obj.isDataMember() && obj.getFieldName() && 
-        !obj.getFieldName()->compare("__SC_TOOL_MEMORY_NAME__"))
+        !obj.getFieldName()->compare("__SC_TOOL_MODULE_NAME__"))
         return false;
 
     if (visitedObj.count(obj) && !(activePort || activeSignal))
@@ -395,7 +393,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseDFS(ObjectView obj)
         else if (prim->isProcess()) {
             flatten = traverseProcess(*prim);
         }
-        else { /* o nothing */}
+        else { /* Do nothing */}
     }
 
     if (obj.isDataMember() || obj.isStatic())
@@ -1941,13 +1939,13 @@ llvm::Optional<std::string> ScElabModuleBuilder::getVerilogIntrinsic(
 }
 
 // Get string value from const std::string and const char*
-llvm::Optional<std::string> ScElabModuleBuilder::getVerilogMemName(
+llvm::Optional<std::string> ScElabModuleBuilder::getVerilogModName(
                                     const ModuleMIFView& modView)
 {
     for (const ObjectView& field : modView.getFields()) {
         
         if (field.getFieldName() && 
-            !field.getFieldName()->compare("__SC_TOOL_MEMORY_NAME__")) 
+            !field.getFieldName()->compare("__SC_TOOL_MODULE_NAME__")) 
         {
             auto strRec = field.string();
             SCT_TOOL_ASSERT (strRec, "Unsupported std::string implementation");
@@ -2017,7 +2015,7 @@ ScElabModuleBuilder::getSvaProperties(const RecordView& recView)
 //    
 //    for (const ObjectView& field : modView.getFields()) {
 //        
-//        if (!field.getFieldName()->compare("__SC_TOOL_MEMORY_NAME__")) {
+//        if (!field.getFieldName()->compare("__SC_TOOL_MODULE_NAME__")) {
 //            
 //            if (auto arrayOpt = field.array()) {
 //                ArrayView array = arrayOpt.getValue();

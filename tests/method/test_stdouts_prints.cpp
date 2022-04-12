@@ -15,7 +15,7 @@ using namespace sc_core;
 class A : public sc_module
 {
 public:
-    int                 m;
+    int                 m = 11;
     sc_signal<bool>     dummy{"dummy"};
 
     SC_CTOR(A) 

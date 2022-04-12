@@ -41,7 +41,6 @@ void ScParseExprValue::declareValue(const SValue& var)
     }
 }
 
-// TODO: add @definedInDecl
 void ScParseExprValue::writeToValue(const SValue& val, bool isDefined) 
 {
     SValue var = state->writeToValue(val, isDefined);
@@ -313,9 +312,9 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
             writeToValue(pval, true);
             
             // Put argument passed by value to @read, apply for constant array 
-            // element at unknown index, but not to general constant if replaced,
+            // element at unknown index,
             // do not apply for record copy as done in parsing @CXXConstructExpr
-            if (ipval && !isRecCopy && (!isConstRefInit || !replaceConstByValue)) {
+            if (ipval && !isRecCopy) {
                 readFromValue(ipval);
             }
         }
@@ -425,7 +424,7 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
 void ScParseExprValue::parseExpr(clang::DeclRefExpr* expr, SValue& val)
 {
     using namespace llvm;
-    auto *decl = expr->getDecl();
+    auto* decl = expr->getDecl();
 
     ScParseExpr::parseExpr(expr, val);
 
@@ -591,10 +590,10 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
             } else 
             if (expr->getNumArgs() == 1) {
                 auto argExpr = expr->getArg(0);
-
+                
                 if (isAnyIntegerRef(argExpr->getType())) {
                     // Parse constructor argument
-                    SValue rval = evalSubExpr(expr->getArg(0));
+                    SValue rval = evalSubExpr(argExpr);
                     readFromValue(rval);
 
                     // Try to get integer value
@@ -621,9 +620,10 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
                                                      type.getAsString();
                             }
 
+                            // This detects sc_uint<0> 
                             if (width != 0) {
                                 initVal = SValue(extrOrTrunc(rrval.getInteger(),
-                                          width, isUnsigned), rrval.getRadix());
+                                                 width, isUnsigned), rrval.getRadix());
                             } else {
                                 ScDiag::reportScDiag(expr->getBeginLoc(), 
                                     ScDiag::SYNTH_ZERO_TYPE_WIDTH) << "";
@@ -632,12 +632,34 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
                     } else {
                         initVal = rval;
                     }
+                } else 
+                if (isConstCharPtr(argExpr->getType())) {
+                    // Parse expression with string literal inside
+                    unsigned lastWidth = strLiterWidth;
+                    bool lastUnsigned = strLiterUnsigned;
+                    if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
+                        strLiterWidth = typeInfo.getValue().first;
+                        strLiterUnsigned = typeInfo.getValue().second;
+                    } else {
+                        strLiterWidth = 0;  // Provides no string literal parsing
+                    }
+                    
+                    SValue rrval = evalSubExpr(argExpr);
+
+                    strLiterWidth = lastWidth;
+                    strLiterUnsigned = lastUnsigned;
+
+                    if (rrval.isInteger()) {
+                        initVal = rrval;
+                    } else {
+                        ScDiag::reportScDiag(argExpr->getBeginLoc(), 
+                                             ScDiag::CPP_NOT_NUMBER_LITER);
+                    }
                 } else {
                     ScDiag::reportScDiag(argExpr->getBeginLoc(),
                                          ScDiag::SYNTH_TYPE_NOT_SUPPORTED)
                                          << expr->getType();
                 }
-
             } else {
                 SCT_TOOL_ASSERT (false, "Unexpected argument number");
             }
@@ -1003,6 +1025,13 @@ void ScParseExprValue::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
     // Operations with pointers have no integer traits
     size_t ltypeWidth = linfo ? linfo->first : 0;
     size_t rtypeWidth = rinfo ? rinfo->first : 0;
+    
+    if (isConstCharPtr(lexpr->getType())) {
+        ScDiag::reportScDiag(lexpr->getBeginLoc(), ScDiag::CPP_STRING_BINARY_OPER);
+    }
+    if (isConstCharPtr(rexpr->getType())) {
+        ScDiag::reportScDiag(rexpr->getBeginLoc(), ScDiag::CPP_STRING_BINARY_OPER);
+    }
     
     // Parse left part
     SValue lval;
@@ -2059,6 +2088,8 @@ void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
             if (assignLHS) {
                 state->putValue(fval, NO_VALUE);
                 state->putValue(sval, NO_VALUE);
+                
+                writeToValue(fval); writeToValue(sval);
             }
             
         } else
@@ -2180,6 +2211,8 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
             // Clear variable value if it in LHS
             if (assignLHS) {
                 state->putValue(ttval, NO_VALUE);
+                
+                writeToValue(ttval);
             }
 
         } else
@@ -2202,6 +2235,8 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
             // Clear variable value if it in LHS
             if (assignLHS) {
                 state->putValue(ttval, NO_VALUE);
+                
+                writeToValue(ttval);
             }
             
         } else 
@@ -2299,6 +2334,12 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
     if (isAnyScCoreObject(thisType)) {
         // Do nothing 
         
+    } else 
+    if (isConstCharPtr(callExpr->getType())) {
+        if (fname == "c_str") {
+            val = ttval;
+        }
+        
     } else {
         // General methods, most logic implemented in ScTraverseConst
         // Declare temporary return variable in current module
@@ -2345,7 +2386,22 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         if ((isAssignOperator || isIncrDecr || isCompoundAssign) && i == 0) 
             assignLHS = true;
         if (isVectorIndex && i == 1) assignLHS = false;
+        
+        unsigned lastWidth = strLiterWidth;
+        bool lastUnsigned = strLiterUnsigned;
+        if (isAssignOperator && i == 1) {
+            if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
+                strLiterWidth = typeInfo.getValue().first;
+                strLiterUnsigned = typeInfo.getValue().second;
+            } else {
+                strLiterWidth = 0;  // Provides no string literal parsing
+            }
+        }
+        
         argsVec.push_back(evalSubExpr(args[i]));
+        
+        strLiterWidth = lastWidth; 
+        strLiterUnsigned = lastUnsigned;
         assignLHS = lastAssignLHS;
     }
     
@@ -2425,6 +2481,8 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             // Clear variable value if it in LHS
             if (assignLHS) {
                 state->putValue(argsVec.at(0), NO_VALUE);
+                
+                writeToValue(argsVec.at(0));
             }
             
         } else 
@@ -2441,6 +2499,8 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             // Clear variable value if it in LHS
             if (assignLHS) {
                 state->putValue(argsVec.at(0), NO_VALUE);
+                
+                writeToValue(argsVec.at(0));
             }
             
         } else 
@@ -2477,6 +2537,8 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             if (assignLHS) {
                 state->putValue(argsVec.at(0), NO_VALUE);
                 state->putValue(argsVec.at(1), NO_VALUE);
+                
+                writeToValue(argsVec.at(0)); writeToValue(argsVec.at(1));
             }
             
         } else 

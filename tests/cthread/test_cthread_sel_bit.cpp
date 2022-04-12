@@ -64,7 +64,7 @@ public:
         async_reset_signal_is(arstn, false);
     }
 
-    // Write some bits does not lead to defined, values is unknown
+
     void bit_select_use_def()
     {
         sc_uint<5> z;
@@ -72,7 +72,7 @@ public:
         
         while (true) { 
             z[1] = 1;
-            sct_assert_defined(z, false);
+            sct_assert_defined(z, true);
             wait();
         }
     }

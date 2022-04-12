@@ -183,7 +183,7 @@ add_executable(misc_const_remove test_const_remove.cpp)
 svc_target(misc_const_remove GOLDEN misc_const_remove.sv)
 
 add_executable(misc_unused_remove_local test_unused_remove_local.cpp)
-svc_target(misc_unused_remove_local GOLDEN misc_unused_remove_local.sv REPLACE_CONST_VALUE)
+svc_target(misc_unused_remove_local GOLDEN misc_unused_remove_local.sv)
 
 add_executable(misc_unused_remove_member test_unused_remove_member.cpp)
 svc_target(misc_unused_remove_member GOLDEN misc_unused_remove_member.sv)

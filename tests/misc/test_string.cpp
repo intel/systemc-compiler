@@ -12,11 +12,11 @@
 template<unsigned N>
 struct memory_stub_str : public sc_module 
 {
-    const std::string __SC_TOOL_MEMORY_NAME__;
+    const std::string __SC_TOOL_MODULE_NAME__;
     
     explicit memory_stub_str(const sc_module_name& name, 
                              const char* verilogName = "") :
-        __SC_TOOL_MEMORY_NAME__(verilogName)
+        __SC_TOOL_MODULE_NAME__(verilogName)
     {
     }
 };
@@ -24,11 +24,11 @@ struct memory_stub_str : public sc_module
 template<unsigned N>
 struct memory_stub_str_noconst : public sc_module 
 {
-    std::string __SC_TOOL_MEMORY_NAME__;
+    std::string __SC_TOOL_MODULE_NAME__;
     
     explicit memory_stub_str_noconst(const sc_module_name& name, 
                              const char* verilogName = "") :
-        __SC_TOOL_MEMORY_NAME__(verilogName)
+        __SC_TOOL_MODULE_NAME__(verilogName)
     {
     }
 };
@@ -36,11 +36,11 @@ struct memory_stub_str_noconst : public sc_module
 template<unsigned N>
 struct memory_stub_char : public sc_module 
 {
-    const char* __SC_TOOL_MEMORY_NAME__;
+    const char* __SC_TOOL_MODULE_NAME__;
     
     explicit memory_stub_char(const sc_module_name& name, 
                               const char* verilogName = "") 
-        : __SC_TOOL_MEMORY_NAME__(verilogName)
+        : __SC_TOOL_MODULE_NAME__(verilogName)
     {
     }
 };

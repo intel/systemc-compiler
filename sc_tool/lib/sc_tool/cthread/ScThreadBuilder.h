@@ -89,7 +89,15 @@ private:
     void runConstPropForState(WaitID stateID);
 
     /// Analyze UseDef analysis results to create registers
-    void analyzeUseDefResults(const ScState *finalState);
+    void analyzeUseDefResults(const ScState* finalState,
+                              std::unordered_set<SValue>& useVals, 
+                              std::unordered_set<SValue>& defVals);
+    
+    /// Add initialization values for non-modified member variables to 
+    /// generate them as @localparam
+    std::unordered_set<SValue> initNonDefinedVars(
+                            const std::unordered_set<SValue>& useVals,
+                            const std::unordered_set<SValue>& defVals);
 
     /// Generate Verilog for a single state
     /// Fill @traverseContextMap and return reachable wait IDs

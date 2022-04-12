@@ -20,7 +20,7 @@ public:
     sc_out<bool>*       p;
     
     int                 m;
-    int                 k;
+    int                 k = 11;
     sc_uint<3>          n;
     sc_uint<3>          l;
     int*                q;

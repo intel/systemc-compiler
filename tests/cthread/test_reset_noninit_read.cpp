@@ -18,11 +18,11 @@ public:
     sc_signal<bool>     nrst{"nrst"};
     
     int* p;
-    int m;
+    int m = 11;
     int* q = &m;
-    int n;
+    int n = 12;
     int& r = n;
-    int mm;
+    int mm = 13;
     
     SC_CTOR(A)
     {
@@ -78,16 +78,17 @@ public:
     void readProc2() 
     {
         int i;
-        i = *p;             // Error
-        i = mm;             // Error
-        int j = *q;         // Error
-        j = r;              // Error
+        i = *p;             // Warning
+        i = mm;             
+        int j = *q;         
+        j = r;              
 
         s1 = i + j;     
         
         wait();
         
         while(1) {
+            s1 = mm + 1;    
             wait();
         }
     }

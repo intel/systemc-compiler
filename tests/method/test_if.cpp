@@ -22,7 +22,7 @@ public:
 
     int                 m;
     int                 k;
-    int                 n;
+    int                 n = 11;
     int                 j;
     int*                q;
 

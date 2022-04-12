@@ -28,7 +28,6 @@ using std::cout; using std::endl;
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-static void serializeVerVar(llvm::raw_ostream &os, const VerilogVar &var);
 static unsigned long getVerVarBitNum(const VerilogVar &var);
 
 // Remove assignments for unused variables (@assignments) and 
@@ -160,18 +159,9 @@ void VerilogModule::removeUnusedVariables()
     using namespace std;
     using namespace sc;
     SCT_TOOL_ASSERT (requiredVars.empty(), "requiredVars is not empty");
-    // Remove constant variables
-    const bool removeConst = REMOVE_CONST_DECL();
 
     //cout << "----- svaUseVars " << endl;
     for (const auto& entry : svaUseVars) {
-        // Skip non-array constant declaration if replaced with integer
-        // If not found in getValueForVerVar it global constant always initialized
-        const sc::SValue& val = getValueForVerVar(entry.first);
-        bool isInit = !val || notReplacedVars.count(val) == 0;
-        //bool isInit = false;
-        if (removeConst && entry.second == VarKind::vkConst && isInit &&
-            !entry.first->isArray()) continue;
         //cout << "   " << entry.first->getName() << " " << unsigned(entry.second) << endl;
         requiredVars.insert(entry.first);
     }
@@ -180,13 +170,6 @@ void VerilogModule::removeUnusedVariables()
     for (const auto& proc : procUseVars) {
         //cout << "Proc #" << proc.first.getID() << endl;
         for (const auto& entry : proc.second) {
-            // Skip non-array constant declaration if replaced with integer
-            // If not found in getValueForVerVar it global constant always initialized
-            const sc::SValue& val = getValueForVerVar(entry.first);
-            bool isInit = !val || notReplacedVars.count(val) == 0;
-            //bool isInit = false;
-            if (removeConst && entry.second == VarKind::vkConst && isInit &&
-                !entry.first->isArray()) continue;
             //cout << "   " << entry.first->getName() << " " << unsigned(entry.second) << endl;
             requiredVars.insert(entry.first);
         }
@@ -196,13 +179,6 @@ void VerilogModule::removeUnusedVariables()
     for (const auto& proc : procDefVars) {
         //cout << "Proc #" << proc.first.getID() << endl;
         for (const auto& entry : proc.second) {
-            // Skip non-array constant declaration if replaced with integer
-            // If not found in getValueForVerVar it global constant always initialized
-            const sc::SValue& val = getValueForVerVar(entry.first);
-            bool isInit = !val || notReplacedVars.count(val) == 0;
-            //bool isInit = false;
-            if (removeConst && entry.second == VarKind::vkConst && isInit &&
-                !entry.first->isArray()) continue;
             //cout << "   " << entry.first->getName() << " " << unsigned(entry.second) << endl;
             requiredVars.insert(entry.first);
         }
@@ -911,7 +887,7 @@ VerilogVar *VerilogModule::createChannelVariable(sc_elab::ObjectView systemcObje
                                                  sc_elab::APSIntVec initVals,
                                                  const std::string& comment)
 {
-//    cout << "    createDataVariableMIFArray cppObject " << systemcObject.getID() 
+//    cout << "    createChannelVariable cppObject " << systemcObject.getID() 
 //         << ", suggestedName " << std::string(suggestedName) 
 //         << ", isMIFArrElmnt = " << isMIFArrElmnt << endl;
 
@@ -1243,34 +1219,6 @@ static void serializeVerilogInt(llvm::raw_ostream &os, llvm::APSInt val)
     using namespace llvm;
     using namespace sc;
     
-    // Previous version of member constant code generation
-/*    bool isNegative = val < 0;
-    unsigned bitNeeded = getBitsNeeded(val);
-
-    if (bitNeeded > 64) {
-        ScDiag::reportScDiag(ScDiag::CPP_BIG_INTEGER_LITER) << bitNeeded;
-    }
-    
-    if (isNegative) {
-        os << "-";
-    }
-    
-    // Maximal/minimal decimal value is 2147483647/-2147483647, 
-    // greater values are represented as hex (required by Lintra)
-    char radix;
-    if (bitNeeded < (isNegative ? 33 : 32)) {
-        os << "'d";
-        radix = 10;
-
-    } else {
-        // Add size for >32bit literals as some tools required that
-        os << bitNeeded << "'h";
-        radix = 16;
-    }
-    
-    // Get absolute value for negative literal
-    os << (isNegative ? APSInt(val.abs()).toString(radix) : val.toString(radix));*/
-    
     std::string s = ScVerilogWriter::makeLiteralStr(nullptr, val, 10, 0, 0, 
                                                     CastSign::NOCAST, false);
     os << s;
@@ -1314,8 +1262,11 @@ static void serializeInitVals(llvm::raw_ostream &os,
 
 }
 
-static void serializeVerVar(llvm::raw_ostream &os, const VerilogVar &var)
+void VerilogModule::serializeVerVar(llvm::raw_ostream& os, 
+                                    const VerilogVar& var) const
 {
+    using namespace sc;
+    
     // empty arrays are not generated
     bool isEmpty = false;
     for (auto dim : var.getArrayDims())
@@ -1325,9 +1276,30 @@ static void serializeVerVar(llvm::raw_ostream &os, const VerilogVar &var)
     if (isEmpty)
         os << "//";
 
-    if (var.isConstant())
-        os << "localparam ";
-
+    bool isConst = var.isConstant();
+    bool fullInitVals = isConst && var.checkInitVals();
+    
+    if (isConst) {
+        if (fullInitVals) {
+            os << "localparam ";
+        } else {
+            auto i = verVar2Value.find(&var);
+            if (i != verVar2Value.end()) {
+                SValue val = i->second; 
+                if (val.isVariable()) {
+                    ScDiag::reportScDiag(val.getVariable().getDecl()->getBeginLoc(),
+                            ScDiag::SYNTH_PART_INIT_VAR) << var.getName();
+                } else {
+                    ScDiag::reportScDiag(ScDiag::SYNTH_PART_INIT_VAR) << 
+                                         var.getName();
+                }
+            } else {
+               ScDiag::reportScDiag(ScDiag::SYNTH_PART_INIT_VAR) << 
+                                 var.getName();
+            }
+        }
+    }
+    
     os << "logic ";
     if (var.isSigned())
         os << "signed ";
@@ -1341,7 +1313,7 @@ static void serializeVerVar(llvm::raw_ostream &os, const VerilogVar &var)
     for (auto dim : dims)
         os << "[" << dim << "]";
 
-    if (var.isConstant()) {
+    if (isConst && fullInitVals) {
 
         bool isBool = !var.isSigned() && var.getBitwidth() == 1;
         
@@ -1392,7 +1364,7 @@ void VerilogModule::fillInitVal(APSIntVec& initVals,
             llvm::APSInt(llvm::APInt(bitwidth,*valueView.uint64Val()), !isSigned));
     }
 }
-    
+
 void VerilogModule::fillInitVals(APSIntVec& initVals, 
                                  bool isSigned, ArrayView arrayView)
 {
@@ -1466,7 +1438,7 @@ bool VerilogModule::isEquivalentTo(VerilogModule &otherMod) const
     if (isIntrinsic() != otherMod.isIntrinsic())
         return false;
 
-    // Different name can be caused by @__SC_TOOL_MEMORY_NAME__
+    // Different name can be caused by @__SC_TOOL_MODULE_NAME__
     if (isIntrinsic()) {
         if (name != otherMod.name)
             return false;
@@ -1721,20 +1693,10 @@ void VerilogModule::serializeProcSplit(llvm::raw_ostream &os,
         os << "\n";
     }
 
-    // Remove constant variables
-    const bool removeConst = REMOVE_CONST_DECL();
-
     // Process-local constants defined in reset section
     if (procConstMap.count(procObj)) {
         os << "// Thread-local constants\n";
         for (const VerilogVar* verVar : procConstMap.at(procObj)) {
-            
-            // For local declared constant @verVar must be in getValueForVerVar, 
-            // so do not set @isInit if no @val found
-            const sc::SValue& val = getValueForVerVar(verVar);
-            bool isInit = val && notReplacedVars.count(val) == 0;
-            if (removeConst && isInit && !verVar->isArray()) continue;
-            
             serializeVerVar(os, *verVar);
             os << ";\n";
         }
