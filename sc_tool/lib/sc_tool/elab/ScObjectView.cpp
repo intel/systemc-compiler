@@ -18,8 +18,9 @@
 #include <sc_tool/elab/ScVerilogModule.h>
 #include <sc_tool/utils/ScTypeTraits.h>
 #include <sc_tool/utils/CppTypeTraits.h>
-#include <clang/AST/DeclTemplate.h>
 #include <sc_tool/dyn_elab/GlobalContext.h>
+#include <clang/AST/DeclTemplate.h>
+#include <llvm/Support/Debug.h>
 #include <variant>
 
 using namespace sc;

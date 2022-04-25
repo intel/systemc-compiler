@@ -30,6 +30,8 @@ public:
     
     A(const sc_module_name& name) : sc_module(name) 
     {
+        SC_METHOD(literFromString); sensitive << s;
+
         SC_METHOD(literSignedWarning);
         sensitive << s;
         
@@ -50,6 +52,37 @@ public:
 
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
     
+    void literFromString() 
+    {
+        sc_uint<6> ux = "0b110011";
+        ux = "42";
+        cout << "42" << ux << endl;
+        ux = sc_uint<5>("42");
+        ux = "0";
+        ux = "0x0";
+        ux = "00";
+        
+        //ux += "42";  -- not supported in SC
+        //bool b = ux == "42"; -- not supported in SC
+        //ux = ux + "42"; // -- lead to string result
+
+        sc_int<10> ix = "-11";
+        ix = "-0x26";
+        ix = "-0";
+        ix = "-01";
+        ix = "-0b1";
+
+        sc_biguint<65> bu;// = "0x1F";
+        bu = "0x1FFFF1111FFFF1111";
+        bu = "36893225441449414929";
+
+        sc_bigint<100> bi = "-0x1F";
+        bi = "-0xAFFFF1111FFFF1111";
+         
+    }
+    
+// ---------------------------------------------------------------------------    
+
     void literSignedWarning() 
     {
         sc_uint<3> a;

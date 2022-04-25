@@ -30,6 +30,7 @@ public:
         sensitive << a;
     }
     
+    // Bug in real design @full_access_port_base.popRespProc()
     void latch1() 
     {
         if (a) {

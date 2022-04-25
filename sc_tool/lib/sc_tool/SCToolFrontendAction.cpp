@@ -112,8 +112,8 @@ Object* getOuterArray(SCDesign& designDB, Object* memberObj)
     return arrayObj;
 }
 
-const std::string SCElabASTConsumer::TOOL_VERSION = "1.4.18";
-const std::string SCElabASTConsumer::TOOL_DATE = "15 Apr,2022";
+const std::string SCElabASTConsumer::TOOL_VERSION = "1.4.19";
+const std::string SCElabASTConsumer::TOOL_DATE = "22 Apr,2022";
 
 void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 {
@@ -139,7 +139,7 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
     //const char* optNames[] = {doConstCfg, doConstStmt, doModuleBuilder}; 
     //const char* optNames[] = {doGenFuncCall, doGenStmt, doModuleBuilder};  
     //const char* optNames[] = {doConstStmt, doUseDef, doModuleBuilder};  
-    const char* optNames[] = {doUseDef, doConstStmt, doModuleBuilder};  
+    const char* optNames[] = {doModuleBuilder};  
     size_t optSize = sizeof(optNames)/sizeof(const char*);
     //DebugOptions::enable(optNames, optSize); 
    

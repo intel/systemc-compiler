@@ -65,6 +65,9 @@ svc_target(method_const_liter GOLDEN method_const_liter.sv)
 add_executable(method_const_liter_compound test_const_liter_compound.cpp)
 svc_target(method_const_liter_compound GOLDEN method_const_liter_compound.sv)
 
+add_executable(method_string_liter test_string_liter.cpp)
+svc_target(method_string_liter GOLDEN method_string_liter.sv)
+
 add_executable(method_const_binary test_const_binary.cpp)
 svc_target(method_const_binary GOLDEN method_const_binary.sv)
 
@@ -311,6 +314,9 @@ svc_target(method_port_array_bind)
 
 add_executable(method_standard_collection test_standard_collection.cpp)
 svc_target(method_standard_collection)
+
+add_executable(method_std_array test_std_array.cpp)
+svc_target(method_std_array GOLDEN method_std_array.sv)
 
 
 ## Empty sensitivity

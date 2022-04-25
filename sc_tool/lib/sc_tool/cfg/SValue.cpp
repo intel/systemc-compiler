@@ -10,6 +10,7 @@
  */
 
 #include "sc_tool/cfg/SValue.h"
+#include "sc_tool/utils/StringFormat.h"
 #include "sc_tool/utils/ScTypeTraits.h"
 #include "sc_tool/utils/CppTypeTraits.h"
 
@@ -513,10 +514,10 @@ string SValue::asString(bool debug) const {
     } else 
     if (isInteger()) {
         char radix = getRadix();
-        if (radix == 10) return getInteger().toString(10);
+        if (radix == 10) return sc::APSintToString(getInteger(), 10);
         
         char prefix = radix == 16 ? 'x' : radix == 8 ? 'o' : 'b';
-        return (prefix + getInteger().toString(radix));
+        return (prefix + sc::APSintToString(getInteger(), radix));
     } else 
     if (isScChannel()) {
         return channel->asString(debug);

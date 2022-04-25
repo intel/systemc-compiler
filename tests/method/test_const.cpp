@@ -251,6 +251,7 @@ public:
         sc_int<64> y7 = sc_int<33>(-2147483648);
     }
     
+    // BUG from real design in fullAccessPort.h:605 -- FIXED
     void smem_if_loop_const() {
         int k = 0;
         // Empty loop inside of dead branch

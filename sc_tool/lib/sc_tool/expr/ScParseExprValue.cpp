@@ -83,14 +83,17 @@ void ScParseExprValue::readFromValue(const SValue& val)
 
 /// Enter and exit constant evaluating mode 
 struct EvalMode {
+    bool lastEvaluateConstMode;
     bool& evaluateConstMode;
-    EvalMode(bool& mode) : evaluateConstMode(mode) {
+    EvalMode(bool& mode) : 
+        lastEvaluateConstMode(mode), evaluateConstMode(mode) 
+    {
         DebugOptions::suspend();
         evaluateConstMode = true;
     }
     ~EvalMode() {
-        evaluateConstMode = false;
-        DebugOptions::resume();
+        evaluateConstMode = lastEvaluateConstMode;
+        if (!lastEvaluateConstMode) DebugOptions::resume();
     }
 };
 
@@ -124,10 +127,7 @@ void ScParseExprValue::parseSvaDecl(const clang::FieldDecl* fdecl)
 }
 
 // Parse and evaluate one expression/statement as constant integer
-// @checkConst applied for result value only as state in generate code stage
-// contains only constant value to operate with
-// \return <result, integer value of result>
-std::pair<SValue, SValue> 
+std::pair<SValue, SValue>  
 ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst, bool checkRecOnly)
 {
     // Suspend debug to ignore parsing expressions done for constant evaluation
@@ -169,6 +169,7 @@ ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst, bool checkRecOnl
     return make_pair(val, NO_VALUE);
 }
 
+// Try to get integer from state, return NO_VALUE if not
 SValue ScParseExprValue::evaluateConstInt(clang::Expr* expr, const SValue& val, 
                                           bool checkConst)
 {
@@ -1153,7 +1154,7 @@ void ScParseExprValue::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
             extendBitWidthBO(val1, val2, ltypeWidth, rtypeWidth);
             // Required by APInt operators
             adjustIntegers(val1, val2, val1, val2);
-            //cout << "After adjust, val1 " << val1.toString(16) << " val2 " << val2.toString(16) << endl;
+            //cout << "After adjust, val1 " << sc::APSintToString(val1, 16) << " val2 " << sc::APSintToString(val2, 16) << endl;
             //cout << "     itwidth, val1 " << val1.getBitWidth() << " val2 " << val2.getBitWidth() << endl;
 
             APSInt res;
@@ -1164,7 +1165,7 @@ void ScParseExprValue::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
             }
             char radix = int1.isInteger() ? int1.getRadix() : 10;
             val = SValue(res, radix);
-            //cout << "res " << res.toString(10) << " val " << val << endl;
+            //cout << "res " << sc::APSintToString(res, 10) << " val " << val << endl;
 
         } else {
             // No value for one of arguments, do nothing
@@ -1232,7 +1233,7 @@ void ScParseExprValue::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
             }
             char radix = int1.isInteger() ? int1.getRadix() : 10;
             val = SValue(res, radix);
-            //cout << "res " << res.toString(16) << endl; 
+            //cout << "res " << sc::APSintToString(res, 16) << endl; 
             
         } else 
         if (obj1 != NO_VALUE) {
@@ -1315,8 +1316,8 @@ void ScParseExprValue::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                 adjustIntegers(literVal, minVal, literVal, minVal);
                 
 //                cout << "varWidth " << varWidth << " isUnsigned " << isUnsigned
-//                     << " literVal " << literVal.toString(10) << " maxVal " << maxVal.toString(10)
-//                     << " minVal " << minVal.toString(10) << endl;
+//                     << " literVal " << sc::APSintToString(literVal, 10) << " maxVal " << sc::APSintToString(maxVal, 10)
+//                     << " minVal " << sc::APSintToString(minVal, 10) << endl;
                      
                 if (literVal > maxVal || literVal < minVal) {
                     val = SValue(SValue::boolToAPSInt(opcode == BO_NE), 10);
@@ -1420,8 +1421,8 @@ void ScParseExprValue::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                 adjustIntegers(literVal, minVal, literVal, minVal);
                 
 //                cout << "BO varWidth " << varWidth << " isUnsigned " << isUnsigned
-//                     << " literVal " << literVal.toString(10) << " maxVal " << maxVal.toString(10)
-//                     << " minVal " << minVal.toString(10) << endl;
+//                     << " literVal " << sc::APSintToString(literVal, 10) << " maxVal " << sc::APSintToString(maxVal, 10)
+//                     << " minVal " << sc::APSintToString(minVal,10) << endl;
                 
                 if (literVal > maxVal) {
                     val = SValue(SValue::boolToAPSInt(!varGreatLiter), 10);
@@ -2378,14 +2379,15 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             opcode == OO_GreaterGreaterEqual || opcode == OO_LessLessEqual ||
             opcode == OO_AmpEqual || opcode == OO_PipeEqual || 
             opcode == OO_CaretEqual;
-    bool isVectorIndex = isScVector(thisType) && opcode == OO_Subscript;
+    bool isAccessAtIndex = (isStdArray(thisType) || isStdVector(thisType) || 
+                            isScVector(thisType)) && opcode == OO_Subscript;
     
     std::vector<SValue> argsVec;
     for (unsigned i = 0; i < argNum; ++i) {
         bool lastAssignLHS = assignLHS;
         if ((isAssignOperator || isIncrDecr || isCompoundAssign) && i == 0) 
             assignLHS = true;
-        if (isVectorIndex && i == 1) assignLHS = false;
+        if (isAccessAtIndex && i == 1) assignLHS = false;
         
         unsigned lastWidth = strLiterWidth;
         bool lastUnsigned = strLiterUnsigned;
@@ -2452,8 +2454,8 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         val = argsVec.at(0);
         
     } else
-    if (isVectorIndex) {
-        // @sc_vector access at index
+    if (isAccessAtIndex) {
+        // std::array, std::vector, @sc_vector access at index
         
         // Parse base and index expression to fill @terms
         SValue bval = argsVec.at(0); // Array variable 
@@ -2630,7 +2632,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
                     // Adjust APSInt to the same sign and maximal bit width
                     adjustIntegers(val1, val2, val1, val2, true);
                     //cout << "OO llval " << llval << " rrval " << rrval << endl;
-                    //cout << "val1 " << val1.toString(16) << " val2 " << val2.toString(16) << endl;
+                    //cout << "val1 " << sc::APSintToString(val1, 16) << " val2 " << sc::APSintToString(val2, 16) << endl;
                 }
             
                 llvm::Optional<APSInt> res;
@@ -2727,8 +2729,8 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
                     adjustIntegers(literVal, minVal, literVal, minVal);
 
 //                    cout << "OO varWidth " << varWidth << " isUnsigned " << isUnsigned
-//                         << " literVal " << literVal.toString(10) << " maxVal " << maxVal.toString(10)
-//                         << " minVal " << minVal.toString(10) << endl;
+//                         << " literVal " << sc::APSintToString(literVal, 10) << " maxVal " << sc::APSintToString(maxVal, 10)
+//                         << " minVal " << sc::APSintToString(minVal, 10) << endl;
 
                     if (equalNotEqual) {
                         if (literVal > maxVal || literVal < minVal) {

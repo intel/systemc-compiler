@@ -14,11 +14,18 @@
 #define STRINGFORMAT_H
 
 #include "llvm/ADT/Optional.h"
+#include "llvm/ADT/APSInt.h"
 #include <vector>
 #include <string>
 
 namespace sc {
+    
+/// Maximal symbols in literal in its radix
+const unsigned LITERAL_MAX_BIT_NUM = 4096;
 
+/// Get string from APSInt, required since LLVM13
+std::string APSintToString(const llvm::APSInt& val, unsigned radix);
+    
 /// Get file name from file path
 std::string getFileName(const std::string& s);
 

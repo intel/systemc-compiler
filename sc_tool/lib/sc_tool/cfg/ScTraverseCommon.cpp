@@ -34,7 +34,8 @@ bool sc::isUserCallExpr(clang::Stmt* stmt)
             (((nsname && *nsname == "std") || isLinkageDecl(funcDecl)) &&
                (fname == "printf" || fname == "fprintf" || 
                 fname == "sprintf" || fname == "snprintf" ||
-                fname == "fopen" || fname == "fclose"))) {
+                fname == "fopen" || fname == "fclose" || 
+                fname == "operator[]"))) {
             return false;
         }
         return true;

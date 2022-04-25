@@ -2657,7 +2657,8 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         }
         
     } else 
-    if (isScVector(thisType) && opcode == OO_Subscript) {
+    if ((isStdArray(thisType) || isStdVector(thisType) || isScVector(thisType)) && 
+        opcode == OO_Subscript) {
         // sc_vector access at index
         SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
         Expr* rexpr = args[1];

@@ -119,6 +119,7 @@ public:
 
     const clang::ClassTemplateDecl *scVectorDecl;
     const clang::ClassTemplateDecl *stdVectorDecl;
+    const clang::ClassTemplateDecl *stdArrayDecl;
     const clang::ClassTemplateDecl *scInDecl;
     const clang::ClassTemplateDecl *scOutDecl;
     const clang::ClassTemplateDecl *scInOutDecl;
@@ -215,6 +216,10 @@ DeclDB::DeclDB(const clang::ASTContext &ctx)
     matches = match(classTemplateDecl(hasName("std::vector")).bind("std::vector"), astCtx);
     SCT_TOOL_ASSERT(matches.size() > 0, "Error declaration match");
     stdVectorDecl = matches[0].getNodeAs<ClassTemplateDecl>("std::vector")->getCanonicalDecl();
+
+    matches = match(classTemplateDecl(hasName("std::array")).bind("std::array"), astCtx);
+    SCT_TOOL_ASSERT(matches.size() > 0, "Error declaration match");
+    stdArrayDecl = matches[0].getNodeAs<ClassTemplateDecl>("std::array")->getCanonicalDecl();
 
     matches = match(classTemplateDecl(hasName("sc_core::sc_in")).bind("sc_core::sc_in"), astCtx);
     SCT_TOOL_ASSERT(matches.size() > 0, "Error declaration match");
@@ -382,10 +387,9 @@ bool isAnyInteger(clang::QualType type)
 bool isSignedOrArrayOfSigned(clang::QualType type)
 {
     if (type.isNull()) return false;
-    
-    while (type->isArrayType()) {
-        type = llvm::dyn_cast<clang::ArrayType>(type)->getElementType();
-    }
+ 
+    // Get array element type
+    type = getArrayElementType(type);
     type = getPureType(type);
 
     if (type->isSignedIntegerType())
@@ -403,17 +407,16 @@ bool isScIntegerArray(QualType type, bool checkPointer)
 {
     if (type.isNull()) return false;
     
+    // Get array element type
+    type = getArrayElementType(type);
+    
     // Remove pointer
     if (checkPointer) {
         while (type->isPointerType()) {
             type = type->getPointeeType();
         }
     }    
-    // Get array element type
-    while (type->isArrayType()) {
-        type = QualType(type->getArrayElementTypeNoTypeQual(), 
-                        type.isConstQualified());
-    }
+
     return isAnyScInteger(type);
 }
 
@@ -489,13 +492,16 @@ llvm::Optional<size_t> getAnyTypeWidth(clang::QualType type, bool checkPointer,
 {
     if (type.isNull()) return llvm::None;
     
+    // Get array element type
+    type = getArrayElementType(type);
+    
+    // Remove pointer
     if (checkPointer) {
-        while (isPointer(type) || isArray(type)) {
-            type = type->getPointeeOrArrayElementType()->
-                         getCanonicalTypeInternal();
+        while (type->isPointerType()) {
+            type = type->getPointeeType();
         }
     }
-
+    
     if (checkChannel) {
         if (isScChannel(type)) {
             if (auto argType = getTemplateArgAsType(type, 0)) {
@@ -504,6 +510,8 @@ llvm::Optional<size_t> getAnyTypeWidth(clang::QualType type, bool checkPointer,
         }
     }
     
+    type = type->getCanonicalTypeInternal();
+
     if (auto typeInfo = getIntTraits(type, false)) {
         return typeInfo->first;
     }
@@ -670,6 +678,14 @@ bool isStdVector(clang::QualType type)
     return (!type.isNull() && getAsClassTemplateDecl(type) == db->stdVectorDecl);
 }
 
+bool isStdArray(clang::QualType type)
+{
+    if (type.isNull()) return false;
+    type = getPureType(type);
+    
+    return (!type.isNull() && getAsClassTemplateDecl(type) == db->stdArrayDecl);
+}
+
 bool isScBasePort(clang::QualType type)
 {
     if (type.isNull()) return false;
@@ -797,11 +813,8 @@ bool isScChannelArray(clang::QualType type, bool checkPointer)
 {
     if (type.isNull()) return false;
     
-    while (type->isArrayType()) {
-        // Qualifiers are not important here
-        type = QualType(type->getArrayElementTypeNoTypeQual(), 0);
-    }
-    
+    // Get array element type
+    type = getArrayElementType(type);
     // sc_port<IF> cannot point to channel
     if (checkPointer && isPointer(type)) {
         type = type->getPointeeType();

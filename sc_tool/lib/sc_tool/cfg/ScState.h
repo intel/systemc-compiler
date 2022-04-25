@@ -336,9 +336,12 @@ public:
     /// re-declaration which required to get variable for value
     void removeSubValues(const SValue& val);
     
-    /// Recursively create multi-dimensional array and its elements at
-    /// specified value level
+    /// Recursively create multi-dimensional array and its elements 
+    /// at specified value level
     SValue createArrayInState(clang::QualType arrayType, unsigned level = 0);
+    /// Recursively create multi-dimensional std::array and its elements 
+    /// at specified value level
+    SValue createStdArrayInState(clang::QualType arrayType, unsigned level = 0);
 
     /// Get value of @lval into @rval, set @rval into @NO_VALUE if no value for
     /// @lval found
@@ -527,7 +530,8 @@ public:
                                 unsigned crossModule = 0) const;
     
     /// Is value simple enough to store its value, if not no value put to state 
-    bool isSimpleValue(const SValue& val) const;
+    /// Not used
+    ///bool isSimpleValue(const SValue& val) const;
     
     /// Get all fields for given record value with 
     InsertionOrderSet<SValue> getRecordFields(const SValue& recval) const;

@@ -41,17 +41,24 @@ bool isPointer(clang::QualType type);
 /// Constant type pointer: const T*
 bool isConstPointer(clang::QualType type);
 
-/// Check array of any type
+/// Check array of any type including std::array and std::vector, 
+/// \return number of array dimension
 bool isArray(clang::QualType type);
 
 /// Get array size from variable declaration or 0 if it is not array
 size_t getArraySize(clang::ValueDecl* decl);
 
-/// Get array size from type or 0 if it is not (constant) array
+/// Get array, std::array size from type 
+/// \return array size in elements or 0, 2 for int[2][3]  
 size_t getArraySize(clang::QualType type);
 
-/// Get array element type
+/// Get array, std::array, std::vector element type
+/// \return int for int[2][3], but not int[3]
 clang::QualType getArrayElementType(clang::QualType type);
+
+// Get array, std::array, std::vector direct element type
+// \return int[3] for int[2][3]
+clang::QualType getArrayDirectElementType(clang::QualType type);
 
 /// Get array/sub-array sizes in multi-dimensional array
 std::vector<std::size_t> getArraySizes(clang::QualType type);

@@ -9,6 +9,8 @@
  * Author: Roman Popov
  */
 
+
+#include <sc_tool/utils/CppTypeTraits.h>
 #include <sc_tool/dyn_elab/Reflection.h>
 #include <sc_tool/dyn_elab/GlobalContext.h>
 
@@ -410,6 +412,9 @@ ArrayObject::getArrayObjectKind(clang::QualType canonicalType)
 
         if (isStdVector(canonicalType))
             return ArrayObject::STD_VECTOR;
+        
+        if (isStdArray(canonicalType))
+            return ArrayObject::STD_ARRAY;
     }
 
     return llvm::None;
@@ -445,6 +450,14 @@ size_t ArrayObject::size() const
             return byteVec->size() / elSize;
         }
 
+        case STD_ARRAY: {
+            auto type = typedObj.getType();
+            auto tempArg = sc::getTemplateArg(type, 1);
+            size_t size = tempArg->getAsIntegral().getZExtValue();
+            
+            return size;
+        }
+
         case SC_VECTOR: {
             return getScVecInner(typedObj)->size();
         }
@@ -475,6 +488,12 @@ TypedObject ArrayObject::operator[](size_t idx) const
 
         case STD_VECTOR: {
             std::vector<uint8_t> *byteVec =(std::vector<uint8_t> *) typedObj.getPtr();
+            startPtr = byteVec->data();
+            elPtr = startPtr + idx * sizeOfEl;
+        } break;
+        
+        case STD_ARRAY: {
+            std::array<uint8_t, 1> *byteVec =(std::array<uint8_t,1>*) typedObj.getPtr();
             startPtr = byteVec->data();
             elPtr = startPtr + idx * sizeOfEl;
         } break;

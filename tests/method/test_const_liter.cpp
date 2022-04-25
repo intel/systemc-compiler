@@ -109,7 +109,7 @@ public:
 
     static const unsigned DAT_WIDTH = 32;
     static const unsigned BYTE_NUMBER = 4;
-    typedef typename sc_suint<DAT_WIDTH>::T Data_t;
+    typedef sc_uint<DAT_WIDTH> Data_t;
     typedef sc_uint<4> Wstrb_t;
 
     Data_t byteEn2bitEn(const Wstrb_t& byteEn)

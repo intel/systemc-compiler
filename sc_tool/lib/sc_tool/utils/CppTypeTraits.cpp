@@ -9,6 +9,7 @@
  * Author: Roman Popov
  */
 
+#include "StringFormat.h"
 #include "CppTypeTraits.h"
 #include "ScTypeTraits.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
@@ -88,10 +89,12 @@ bool isConstPointer(QualType type)
             type.getTypePtr()->getPointeeType().isConstQualified());
 }
 
-// Check array of any type, return number of array dimension
+// Check array of any type including std::array and std::vector, 
+// \return number of array dimension
 bool isArray(QualType type) 
 {
-    return (!type.isNull() && type->isArrayType());
+    return (!type.isNull() && 
+            (type->isArrayType() || sc::isStdArray(type) || sc::isStdVector(type)));
 }
 
 // Get array size from variable declaration or 0 if it is not array
@@ -102,7 +105,8 @@ size_t getArraySize(clang::ValueDecl* decl)
     return getArraySize(type);
 }
 
-// Get array size from type or 0 if it is not (constant) array
+// Get array, std::array size from type 
+// \return array size in elements or 0, 2 for int[2][3] 
 size_t getArraySize(clang::QualType type) 
 {
     using namespace clang;
@@ -111,17 +115,44 @@ size_t getArraySize(clang::QualType type)
     if (type->isConstantArrayType()) {
         auto ctype = static_cast<const ConstantArrayType*>(type.getTypePtr());
         return ctype->getSize().getZExtValue();
+    } else 
+    if (isStdArray(type)) {
+        auto sizeArg = sc::getTemplateArg(type, 1);
+        size_t size = sizeArg->getAsIntegral().getZExtValue();
+        return size;
     }
+    // Cannot extract size for std::vector
     return 0;
 }
 
-// Get array element type
+// Get array, std::array, std::vector bottom element type
+// \return int for int[2][3], but not int[3]
 clang::QualType getArrayElementType(clang::QualType type)
 {
     if (type.isNull()) return type;
 
     while (type->isArrayType()) {
-        type = clang::QualType(type->getArrayElementTypeNoTypeQual(), 0);
+        type = llvm::dyn_cast<clang::ArrayType>(type)->getElementType();
+    }
+    while (isStdArray(type) || isStdVector(type)) {
+        auto elmType = getTemplateArgAsType(type, 0);
+        type = *elmType;
+    }
+    return type;
+}
+
+// Get array, std::array, std::vector direct element type
+// \return int[3] for int[2][3]
+clang::QualType getArrayDirectElementType(clang::QualType type)
+{
+    if (type.isNull()) return type;
+
+    if (type->isArrayType()) {
+        type = llvm::dyn_cast<clang::ArrayType>(type)->getElementType();
+    }
+    if (isStdArray(type) || isStdVector(type)) {
+        auto elmType = getTemplateArgAsType(type, 0);
+        type = *elmType;
     }
     return type;
 }
@@ -136,6 +167,13 @@ std::vector<std::size_t> getArraySizes(clang::QualType type)
     while (type->isArrayType()) {
         arrSizes.push_back(getArraySize(type));
         type = clang::QualType(type->getArrayElementTypeNoTypeQual(), 0);
+    }
+    while (isStdArray(type)) {
+        auto sizeArg = sc::getTemplateArg(type, 1);
+        size_t size = sizeArg->getAsIntegral().getZExtValue();
+        arrSizes.push_back(size);
+        auto elmType = getTemplateArgAsType(type, 0);
+        type = *elmType;
     }
     return arrSizes;
 }
@@ -311,6 +349,9 @@ bool isUserDefinedClass(clang::QualType type, bool checkPointer)
     if (isAnyScIntegerRef(ctype)) {
         return false;
     }
+    if (isStdArray(ctype) || isStdVector(ctype)) {
+        return false;
+    }
     return true;
 }
 
@@ -320,22 +361,18 @@ bool isUserDefinedClassArray(QualType type, bool checkPointer)
 {
     if (type.isNull()) return false;
 
-    QualType ctype = type;
-    while (ctype->isArrayType()) {
-        // Qualifiers are not important here
-        ctype = QualType(ctype->getArrayElementTypeNoTypeQual(), 0);
-    }
+    type = getArrayElementType(type);
 
     if (checkPointer) {
-        if (isPointer(ctype)) {
-            ctype = ctype->getPointeeType();
+        if (isPointer(type)) {
+            type = type->getPointeeType();
         }
-        if (isScPort(ctype)) {
+        if (isScPort(type)) {
             return true;
         }
     }
 
-    return (isUserDefinedClass(ctype));
+    return (isUserDefinedClass(type));
 }
 
 // Get user defined class from array or none
@@ -343,14 +380,10 @@ llvm::Optional<QualType> getUserDefinedClassFromArray(QualType type)
 {
     if (type.isNull()) return llvm::None;
 
-    QualType ctype = type;
-    while (ctype->isArrayType()) {
-        // Qualifiers are not important here
-        ctype = QualType(ctype->getArrayElementTypeNoTypeQual(), 0);
-    }
+    type = getArrayElementType(type);
 
-    if (isUserDefinedClass(ctype)) { 
-        return ctype;
+    if (isUserDefinedClass(type)) { 
+        return type;
     } else {
         return llvm::None;
     }
@@ -366,6 +399,8 @@ llvm::Optional<TemplateArgument> getTemplateArg(clang::QualType type,
 {
     if (type.isNull()) return llvm::None;
     
+    type = getPureType(type);
+
     if (auto stype = type->getAs<clang::TemplateSpecializationType>()) {
         if (stype->getNumArgs() > argIndx) {
             return stype->getArg(argIndx);
@@ -439,8 +474,8 @@ void extendBitWidthOO(llvm::APSInt& val1, llvm::APSInt& val2,
 {
     using namespace llvm;
     // Use given data type width if determined
-    width1 = width1 ? width1 : APSInt::getBitsNeeded(val1.toString(10), 10);
-    width2 = width2 ? width2 : APSInt::getBitsNeeded(val2.toString(10), 10);
+    width1 = width1 ? width1 : getBitsNeeded(val1);
+    width2 = width2 ? width2 : getBitsNeeded(val2);
     unsigned maxwidth = (width1 > width2) ? width1 : width2;
     
     unsigned width = 64;

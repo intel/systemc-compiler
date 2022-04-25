@@ -848,8 +848,8 @@ std::string ScVerilogWriter::makeLiteralStr(const Stmt* stmt, APSInt val,
         minCastWidth = bitNeeded + (isSignCast && !isNegative ? 1 : 0);
     }
 
-    string absVal = isNegative ? APSInt(val.abs()).toString(radix) : 
-                                 val.toString(radix);
+    string absVal = isNegative ? sc::APSintToString(APSInt(val.abs()), radix) : 
+                                 sc::APSintToString(val, radix);
     // Add size for >32bit literals as some tools required that
     string s = (minCastWidth ? to_string(minCastWidth) : 
                 (isBigWidth ? to_string(bitNeeded) : "")) + baseStr + absVal;
@@ -1453,8 +1453,8 @@ void ScVerilogWriter::putLiteral(const Stmt* stmt, const SValue& val)
     if (skipTerm) return;
 
     if (val.isInteger()) {
-        string s = val.getInteger().toString(10);
-        unsigned width = APSInt::getBitsNeeded(s, 10);
+        string s = sc::APSintToString(val.getInteger(), 10);
+        unsigned width = getBitsNeeded(val.getInteger());
         char radix = val.getRadix();
         
 //        cout << "putLiteral stmt #" << hex << stmt << dec << " val " << val 

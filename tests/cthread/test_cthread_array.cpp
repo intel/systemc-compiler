@@ -60,6 +60,7 @@ public:
         async_reset_signal_is(arstn, false);
     }
 
+    // BUG in real design -- in ConfigCtrl.h extra copy of @reqSource in Verilog
     // Shorten version
     sc_signal<sc_uint<2>>   fifo_source;
     sc_signal<sc_uint<2>>   master_resp_data[3];
@@ -85,6 +86,7 @@ public:
         }
     }
     
+    // BUG in real design -- in ConfigCtrl.h extra copy of @reqSource in Verilog
     // Full version
     void bug_in_array_index2() {
         wait();

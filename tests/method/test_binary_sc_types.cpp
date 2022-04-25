@@ -6,7 +6,7 @@
 *****************************************************************************/
 
 #include "systemc.h"
-#include "sc_sel_type.h"
+#include "sct_sel_type.h"
 #include "sct_assert.h"
 #include <iostream>
 
@@ -42,7 +42,7 @@ public:
     static const unsigned ACTIVE_TRANS_NUM = 1;
     static const unsigned ACTIVE_BEAT_NUM = 2;
     
-    typedef sc_suint<STORED_RESP_WIDTH>::T StoredResp_t;
+    typedef sc_biguint<STORED_RESP_WIDTH> StoredResp_t;
     sc_signal<StoredResp_t>    sig;
     
     void tilda() {

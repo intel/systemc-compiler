@@ -666,6 +666,37 @@ SValue ScState::createArrayInState(clang::QualType arrayType, unsigned level)
     }
 }
 
+SValue ScState::createStdArrayInState(clang::QualType arrayType, unsigned level)
+{
+    if (isStdArray(arrayType)) {
+        auto elmType = getTemplateArgAsType(arrayType, 0);
+        SCT_TOOL_ASSERT (elmType, "createStdArrayInState : No type inferred");
+        auto sizeArg = sc::getTemplateArg(arrayType, 1);
+        SCT_TOOL_ASSERT (sizeArg, "createStdArrayInState : No size inferred");
+        size_t size = sizeArg->getAsIntegral().getZExtValue();
+        
+        // Create array object
+        SValue arrayRootVal = SValue(*elmType, size, 0);
+        
+        // Fill array with elements
+        for (unsigned i = 0; i < size; i++) {
+            // Recursive call to create sub-arrays
+            SValue eval = createStdArrayInState(*elmType, level);
+            // Put sub_array value into @aval
+            arrayRootVal.getArray().setOffset(i);
+            putValue(arrayRootVal, eval, false); //@val -> @eval
+            setValueLevel(arrayRootVal, level);
+        }
+        if (arrayRootVal.getArray().getSize() > 0) {
+            arrayRootVal.getArray().setOffset(0);
+        }
+        return arrayRootVal;
+        
+    } else {
+        return NO_VALUE;
+    }
+}
+
 // \return <value found, array with unknown index returned>
 std::pair<bool, bool> 
 ScState::getValue(const SValue& lval, SValue& rval, bool deReference,
@@ -1671,7 +1702,7 @@ vector<SValue>ScState::getAllRecordArrayElementsForAny(const SValue& val,
 
 // Is value simple enough to store its value, if not no value put to state 
 // Not used for now
-bool ScState::isSimpleValue(const SValue& val) const 
+/*bool ScState::isSimpleValue(const SValue& val) const 
 {
     // Go up and count array number
     vector<SValue> valStack;
@@ -1693,7 +1724,7 @@ bool ScState::isSimpleValue(const SValue& val) const
     const QualType& type = val.getType();
     bool comlType = (arrNum == 1) && sc::isArray(type);
     return !comlType;
-}
+}*/
 
 // Get all fields for given record value with 
 // TODO: update for inner records

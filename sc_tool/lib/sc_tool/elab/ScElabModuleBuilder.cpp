@@ -21,6 +21,7 @@
 #include <sc_tool/ScCommandLine.h>
 #include <clang/AST/Type.h>
 #include <clang/AST/Expr.h>
+#include <llvm/Support/Debug.h>
 #include <llvm/Support/raw_ostream.h>
 #include <sc_elab.pb.h>
 #include <iostream>
@@ -440,6 +441,8 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseArray(
                                                         ArrayView arrView)
 {
     //using std::cout; using std::endl;
+    //cout << "traverseArray " << arrView.getID() <<endl;
+    
     bool chanArray = false;
     if (!activeChanArray && arrView.isChannelArray()) {
         chanArray = true;
@@ -630,7 +633,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
     bool noneZeroElmntMIF = false;
     bool recordArrayElmt  = false;
     // Parent module of MIF
-    ObjectView parent; 
+    ObjectView parent;
     // Parent record if exists
     ObjectView record;
 

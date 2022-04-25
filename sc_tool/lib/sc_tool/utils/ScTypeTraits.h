@@ -104,6 +104,7 @@ bool isScObject(clang::QualType type);
 
 bool isScVector(clang::QualType type);
 bool isStdVector(clang::QualType type);
+bool isStdArray(clang::QualType type);
 
 /// @sc_base_port
 bool isScBasePort(clang::QualType type);

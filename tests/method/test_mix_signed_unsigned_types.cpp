@@ -6,7 +6,7 @@
 *****************************************************************************/
 
 #include "systemc.h"
-#include "sc_sel_type.h"
+#include "sct_sel_type.h"
 #include "sct_assert.h"
 #include <iostream>
 using namespace std;

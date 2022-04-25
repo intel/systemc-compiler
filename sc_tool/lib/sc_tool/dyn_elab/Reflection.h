@@ -204,7 +204,7 @@ class ArrayObject
 public:
 
     enum KIND {
-        C_ARRAY, STD_VECTOR, SC_VECTOR
+        C_ARRAY, STD_VECTOR, STD_ARRAY, SC_VECTOR
     };
 
     clang::QualType getType() const;

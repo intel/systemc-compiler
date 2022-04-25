@@ -24,6 +24,7 @@
 #include "sc_tool/ScCommandLine.h"
 #include "sc_tool/utils/BitUtils.h"
 #include "sc_tool/utils/VerilogKeywords.h"
+#include <llvm/Support/Debug.h>
 #include <sstream>
 
 using namespace llvm;

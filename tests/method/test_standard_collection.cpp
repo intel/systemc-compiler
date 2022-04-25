@@ -5,14 +5,9 @@
 * 
 *****************************************************************************/
 
-//
-// Created by ripopov on 11/25/18.
-//
-
 #include <systemc.h>
 
-static int sx = 0;
-
+// Standard C++ template library collections: pair, array
 struct MyPair {
     int x;
     int y;
@@ -25,54 +20,69 @@ struct PairPair {
 
 SC_MODULE(test) {
 
-    sc_signal<bool> dummy;
+    sc_signal<bool> s;
 
-    SC_CTOR(test) {
-        SC_METHOD(test_method);
-        sensitive << dummy;
+    SC_CTOR(test) 
+    {
+        for (int i = 0; i < 10; i++) {
+            intArray[i] = 1+i;
+        }
+        
+        SC_METHOD(pair_test); sensitive << s;
+
+        SC_METHOD(array_test); sensitive << s;
 
         // Not supported for generation yet
         //SC_METHOD(tuple_method);
         //sensitive << dummy;
     }
 
+// ----------------------------------------------------------------------------
     std::pair<int, sc_int<10>> intPair;
-
     std::pair<int, sc_int<10>> intPairArray[2];
-
-    std::tuple<int, int, int> intTuple;
-
-    std::array<int, 10> intArray;
+    const std::pair<int, sc_int<10>> intPair1 = {1, 2};
+    //static constexpr std::pair<int, int> intPair2 = {1, 2};
 
     MyPair mpa[2];
-
     PairPair ppa[2];
 
-    void test_method() {
+    void pair_test() 
+    {
+        int i = intPair1.first + intPair1.second;
         intPair.first = 12;
         intPair.second = 13;
 
-
-        // TODO : FIXME
-        intPairArray[1].second = 12;
+        intPairArray[1].second = 1;
+        auto l = intPairArray[1].second;
+        auto k = intPairArray[l].second;
 
         mpa[0].y = mpa[0].x;
         mpa[1].y = mpa[1].x;
 
         ppa[0].a.x = 1;
         ppa[1].b.y = 0;
-        int idx = dummy;
-        // intPairArray[idx].first = 1;
+        int idx = s;
+        intPairArray[idx].first = 1;
 
-        // TODO:
-        // intArray[0] = 0;
-
-        int idx1 = dummy;
-        int idx2 = dummy;
-
-//        mpa[idx1].x = 1;
+        int idx1 = s;
+        int idx2 = s;
+        mpa[idx1].x = idx2;
+        
+        ppa[1].a.x = 1;
+        idx2 = ppa[1].a.x + ppa[1].b.y;
     }
     
+// ----------------------------------------------------------------------------
+    std::array<int, 10> intArray;
+    
+    void array_test() 
+    {
+        int l = intArray[0];
+    }
+    
+// ----------------------------------------------------------------------------
+    std::tuple<int, int, int> intTuple;
+
     void tuple_method() {
         // Not supported for generation yet
         std::get<0>(intTuple) = 12;

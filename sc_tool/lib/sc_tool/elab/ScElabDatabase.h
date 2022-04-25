@@ -72,7 +72,7 @@ public:
 
 private:
 
-    void initStaticArray(sc_elab::Object* arrayObj, clang::QualType elementType,
+    void initStaticArray(sc_elab::Object* arrayObj, clang::QualType elmType,
                          clang::APValue initVals);
     
     void initStaticArray(sc_elab::Object* arrayObj, clang::QualType elementType,

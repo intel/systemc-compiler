@@ -20,8 +20,8 @@ public:
     sc_in<bool>         in;
     sc_out<bool>        out;
     
-    int                 m;
-    int                 k;
+    int                 m = 11;
+    int                 k = 12;
 
     sc_signal<int> s;
     

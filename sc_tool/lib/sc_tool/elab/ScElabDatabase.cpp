@@ -62,7 +62,7 @@ ElabDatabase::ElabDatabase(sc_elab::SCDesign &scDesign,
 }
 
 ObjectView ElabDatabase::createStaticVariable(RecordView parent, 
-                                              const VarDecl *varDecl) 
+                                              const VarDecl* varDecl) 
 {
     using std::cout; using std::endl;
     QualType varType = varDecl->getType();
@@ -77,20 +77,18 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
         SCT_INTERNAL_FATAL (varDecl->getBeginLoc(), 
                             "Static record is not supported yet");
     } else 
-    if (varType->isArrayType()) 
-    {
-        if (!varType->isConstantArrayType()) {
-            varType->dump();
-            SCT_TOOL_ASSERT(false, "Not a constant array");
+    if (isArray(varType)) {
+        if (isStdVector(varType)) {
+            ScDiag::reportScDiag(varDecl->getBeginLoc(), 
+                                 ScDiag::CPP_STATIC_STD_VECTOR);
         }
-
-        auto* constArrType = dyn_cast<ConstantArrayType>(varType);
-        size_t arraySize = constArrType->getSize().getZExtValue();
+        
+        size_t arraySize = getArraySize(varType);
+        SCT_TOOL_ASSERT(arraySize, "No size extracted for static array");
+        QualType elmType = getArrayDirectElementType(varType).getCanonicalType();
 
         newObj->set_kind(sc_elab::Object::ARRAY);
         newObj->mutable_array()->add_dims(arraySize);
-
-        QualType elType = constArrType->getElementType().getCanonicalType();
 
         Expr* initExpr = const_cast<Expr*>(varDecl->getAnyInitializer());
         initExpr = removeExprCleanups(initExpr);
@@ -99,7 +97,7 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
         bool evaluated = initExpr->EvaluateAsRValue(evalResult, astCtx);
 
         if (evaluated) {
-            initStaticArray(newObj, elType, evalResult.Val);
+            initStaticArray(newObj, elmType, evalResult.Val);
             
         } else {
             if (auto initListExpr = dyn_cast<InitListExpr>(initExpr)) {
@@ -117,7 +115,7 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
                     }
                 }
                 
-                initStaticArray(newObj, elType, intVals);
+                initStaticArray(newObj, elmType, intVals);
                 
             } else {
                 SCT_INTERNAL_FATAL (varDecl->getBeginLoc(), 
@@ -176,10 +174,15 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
 }
 
 
-void ElabDatabase::initStaticArray(sc_elab::Object *arrayObj,
-                                   QualType elementType,
+void ElabDatabase::initStaticArray(sc_elab::Object* arrayObj, QualType elmType,
                                    clang::APValue initVals) 
 {
+    // Cope with std::array initializer, get array from record field
+    if (initVals.isStruct()) {
+        SCT_TOOL_ASSERT (initVals.getStructNumFields(), "No fields in init struct");
+        initVals = initVals.getStructField(0);
+    }
+    
     if (!initVals.isArray()) {
         SCT_INTERNAL_ERROR_NOLOC("Incorrect initializer for static array");
         return;
@@ -192,31 +195,25 @@ void ElabDatabase::initStaticArray(sc_elab::Object *arrayObj,
         if (idx >= initVals.getArrayInitializedElts()) continue;
         auto arrayInit = initVals.getArrayInitializedElt(idx);
 
-        if (elementType->isArrayType()) {
-            SCT_TOOL_ASSERT (elementType->isConstantArrayType(), "");
-            const clang::ConstantArrayType* constElArrType
-                = dyn_cast<ConstantArrayType>(elementType);
+        if (isArray(elmType)) {
+            size_t arraySize = getArraySize(elmType);
+            SCT_TOOL_ASSERT(arraySize, "No size extracted for static array");
+            QualType childType = getArrayDirectElementType(elmType).getCanonicalType(); 
 
-            QualType childType = constElArrType->getElementType();
-            size_t arraySize = constElArrType->getSize().getZExtValue();
-
-            sc_elab::Object * elArrayObj = createStaticArrray(elementType,
-                                                              arrayObj->id(),
-                                                              arraySize);
-
+            auto elArrayObj = createStaticArrray(elmType, arrayObj->id(),
+                                                 arraySize);
+            
             arrayObj->mutable_array()->add_element_ids(elArrayObj->id());
-
             initStaticArray(elArrayObj, childType, arrayInit);
 
         } else {
-            SCT_TOOL_ASSERT (elementType->isBuiltinType(), "");
-            auto *builtinType = dyn_cast<BuiltinType>(elementType);
-            SCT_TOOL_ASSERT (builtinType->isInteger(), "");
-            SCT_TOOL_ASSERT (arrayInit.isInt(), "");
+            SCT_TOOL_ASSERT (elmType->isBuiltinType(), "No builtin type");
+            auto *builtinType = dyn_cast<BuiltinType>(elmType);
+            SCT_TOOL_ASSERT (builtinType->isInteger(), "Builtin type is not integer");
+            SCT_TOOL_ASSERT (arrayInit.isInt(), "Builtin type value is not integer");
 
-            sc_elab::Object * newObj = createStaticPrimitive(elementType,
-                                                             arrayObj->id(),
-                                                             arrayInit.getInt());
+            auto newObj = createStaticPrimitive(elmType, arrayObj->id(),
+                                                arrayInit.getInt());
 
             newObj->set_rel_type(sc_elab::Object::ARRAY_ELEMENT);
             newObj->set_array_idx(idx);

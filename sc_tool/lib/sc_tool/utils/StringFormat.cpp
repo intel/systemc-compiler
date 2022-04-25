@@ -10,9 +10,27 @@
  */
 
 #include "StringFormat.h"
+#include "CppTypeTraits.h"
+#include "llvm/ADT/SmallString.h"
+#include "sc_tool/diag/ScToolDiagnostic.h"
 #include <iostream>
 
 namespace sc {
+    
+std::string APSintToString(const llvm::APSInt& val, unsigned radix) 
+{
+    unsigned bitsNeeded = getBitsNeeded(val);
+    bool overflow = (radix == 2) ? bitsNeeded > LITERAL_MAX_BIT_NUM :
+                    (radix == 16) ? (bitsNeeded >> 4) > LITERAL_MAX_BIT_NUM : 
+                                    (bitsNeeded >> 3) > LITERAL_MAX_BIT_NUM;
+    if (overflow) {
+        ScDiag::reportScDiag(ScDiag::SYNTH_LITER_OVERFLOW);
+    }
+    
+    llvm::SmallString<LITERAL_MAX_BIT_NUM> charVec;
+    val.toString(charVec, radix);
+    return std::string(charVec.data(), charVec.size());
+}
 
 std::string getFileName(const std::string& s) 
 {

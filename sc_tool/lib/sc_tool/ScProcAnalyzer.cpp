@@ -543,7 +543,7 @@ void ScProcAnalyzer::initNonDefinedVars(sc_elab::ProcessView& procView,
 //                    cout << "  verVar " << verVar->getName() << endl;
 //                    if (!initVals.empty()) {
 //                        cout << "  add localparam for " << val;
-//                        for (auto& iv : initVals) cout << " " << iv.toString(10);
+//                        for (auto& iv : initVals) cout << " " << sc::APSintToString(iv, 10);
 //                        cout << endl;
 //                    } else {
 //                        cout << "  add localparam for EMPTY" << endl;

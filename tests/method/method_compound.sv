@@ -20,7 +20,7 @@ logic signed [31:0] s;
 logic bv[3];
 
 // Local parameters generated for C++ constants
-localparam logic signed [31:0] k = 32767;
+localparam logic signed [31:0] k = 12;
 
 //------------------------------------------------------------------------------
 // Method process: compound_array (test_compound.cpp:45:5) 

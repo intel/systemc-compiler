@@ -91,8 +91,8 @@ svc_target(cthread_do_while_const GOLDEN cthread_do_while_const.sv)
 add_executable(cthread_inner_loops test_cthread_inner_loops.cpp)
 svc_target(cthread_inner_loops GOLDEN cthread_inner_loops.sv)
 
-#add_executable(cthread_alive_loop test_cthread_alive_loop.cpp)
-#svc_target(cthread_alive_loop GOLDEN cthread_alive_loop.sv)
+add_executable(cthread_alive_loop test_cthread_alive_loop.cpp)
+svc_target(cthread_alive_loop GOLDEN cthread_alive_loop.sv)
 
 add_executable(cthread_loop_fail test_cthread_loop_fail.cpp)
 svc_target(cthread_loop_fail WILL_FAIL)
@@ -229,6 +229,11 @@ svc_target(cthread_const_fail WILL_FAIL)
 add_executable(cthread_const_prop test_cthread_const_prop.cpp)
 svc_target(cthread_const_prop GOLDEN cthread_const_prop.sv)
 
+add_executable(cthread_mif_array_differ test_mif_array_differ.cpp)
+svc_target(cthread_mif_array_differ GOLDEN cthread_mif_array_differ.sv)
+
+add_executable(cthread_mod_array_differ test_mod_array_differ.cpp)
+svc_target(cthread_mod_array_differ GOLDEN cthread_mod_array_differ.sv)
 
 add_executable(cthread_varname test_cthread_varname.cpp)
 svc_target(cthread_varname GOLDEN cthread_varname.sv)

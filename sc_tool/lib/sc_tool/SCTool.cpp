@@ -90,8 +90,16 @@ namespace sc {
     );
 
     // Pass command line options to Clang tooling for parsing
-    CommonOptionsParser op(args.argc, args.argv, ScToolCategory);
-    ClangTool Tool(op.getCompilations(), op.getSourcePathList());
+    //CommonOptionsParser op(args.argc, args.argv, ScToolCategory);
+    auto op = CommonOptionsParser::create(args.argc, args.argv, ScToolCategory, 
+                                          llvm::cl::OneOrMore);
+        
+    if (!op) {
+        auto error = op.takeError();
+        outs() << "Errors happen during parsing parameters\n";
+    }
+    
+    ClangTool Tool(op.get().getCompilations(), op.get().getSourcePathList());
 
     // Run SVC
     auto factory = getNewSCElabActionFactory();

@@ -363,7 +363,12 @@ sc::SValue ProcBuilder::traverseArray(ArrayView arrayView)
         
     } else {
         auto type = arrayView.getType();
-        return moduleState->createArrayInState(type);
+        if (isStdArray(type)) {
+            return moduleState->createStdArrayInState(type);
+        } else {
+            // Non-constant std:vector not-supported as its size cannot be evaluated 
+            return moduleState->createArrayInState(type);
+        }
     }
 }
 

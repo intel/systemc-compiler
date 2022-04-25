@@ -201,6 +201,8 @@ public:
         CPP_FOR_WITHOUT_DECL        = 229,
         SYNTH_PART_INIT_VAR         = 230,
         CPP_STRING_BINARY_OPER      = 231,
+        CPP_STATIC_STD_VECTOR       = 232,
+        SYNTH_LITER_OVERFLOW        = 233,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -698,6 +700,14 @@ private:
             {clang::DiagnosticIDs::Error, 
             "Binary operation with string argument not supported"};
         
+        idFormatMap[CPP_STATIC_STD_VECTOR] =
+            {clang::DiagnosticIDs::Error, 
+            "Static std::vector is not supportd yet"};
+        
+        idFormatMap[SYNTH_LITER_OVERFLOW] =
+            {clang::DiagnosticIDs::Error, 
+            "Literal is too big, up to 4096 symbols supported"};
+        
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =
             {clang::DiagnosticIDs::Fatal,
@@ -857,5 +867,5 @@ private:
 } // end namespace sc
 
 
-
+    
 #endif //SCTOOL_SCTOOLDIAGNOSTIC_H
