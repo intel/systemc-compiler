@@ -47,8 +47,14 @@ svc_target(record_func_param_cthread GOLDEN record_func_param_cthread.sv)
 add_executable(record_member_func_cthread test_member_func_cthread.cpp)
 svc_target(record_member_func_cthread GOLDEN record_member_func_cthread.sv)
 
-add_executable(record_member_array_cthread test_member_array_cthread.cpp)
-svc_target(record_member_array_cthread GOLDEN record_member_array_cthread.sv)
+add_executable(record_func_in_ctor test_func_in_ctor.cpp)
+svc_target(record_func_in_ctor GOLDEN record_func_in_ctor.sv)
+
+add_executable(record_member_record_func test_member_record_func.cpp)
+svc_target(record_member_record_func GOLDEN record_member_record_func.sv)
+
+#add_executable(record_member_array_cthread test_member_array_cthread.cpp)
+#svc_target(record_member_array_cthread GOLDEN record_member_array_cthread.sv)
 
 add_executable(record_member_array_method test_member_array_method.cpp)
 svc_target(record_member_array_method GOLDEN record_member_array_method.sv)
@@ -128,4 +134,26 @@ svc_target(record_simple_method3 GOLDEN record_simple_method3.sv)
 
 add_executable(record_read_defined test_read_defined.cpp)
 svc_target(record_read_defined GOLDEN record_read_defined.sv)
+
+add_executable(record_base_record0 test_base_record0.cpp)
+svc_target(record_base_record0 GOLDEN record_base_record0.sv)
+
+add_executable(record_base_record1 test_base_record1.cpp)
+svc_target(record_base_record1 GOLDEN record_base_record1.sv)
+
+add_executable(record_base_record2 test_base_record2.cpp)
+svc_target(record_base_record2 GOLDEN record_base_record2.sv)
+
+add_executable(record_base_multi_record test_base_multi_record.cpp)
+svc_target(record_base_multi_record GOLDEN record_base_multi_record.sv)
+
+add_executable(record_member_record1 test_member_record1.cpp)
+svc_target(record_member_record1 GOLDEN record_member_record1.sv)
+
+add_executable(record_wait_call test_wait_call.cpp)
+svc_target(record_wait_call GOLDEN record_wait_call.sv)
+
+## See #290
+#add_executable(record_chan_type test_chan_type.cpp)
+#svc_target(record_chan_type GOLDEN record_chan_type.sv)
 

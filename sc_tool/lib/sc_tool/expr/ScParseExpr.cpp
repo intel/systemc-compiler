@@ -485,6 +485,7 @@ std::pair<SValue, std::vector<SValue> >
             iival = evaluateConstInt(iexpr, ival, checkConst);
             initvals.push_back(ival);
         }
+        //cout << "parseValueDecl val " <<  val << " ival " << ival << endl;
         
         if (isRef) {
             // It needs to put reference value into state
@@ -851,8 +852,12 @@ void ScParseExpr::parseExpr(clang::StringLiteral* expr, SValue& val)
 // Used for local variables access in left/right parts
 void ScParseExpr::parseExpr(clang::DeclRefExpr* expr, SValue& val)
 {
-    using namespace llvm;
-    auto* decl = expr->getDecl();
+    ValueDecl* decl = expr->getDecl();
+    
+    // Parameter variable has @modval parent, local variable has @recval
+    bool isParamVar = isa<ParmVarDecl>(decl);
+    SValue recVal = recval ? recval : modval;
+    //cout << "DeclRefExpr recVal " << recVal << endl;
 
     if (auto* enumConstDecl = dyn_cast<clang::EnumConstantDecl>(decl)) {
         // Enum constants are not stored in state, evaluated immediately
@@ -869,40 +874,38 @@ void ScParseExpr::parseExpr(clang::DeclRefExpr* expr, SValue& val)
                             
                 } else {
                     // Regular data member
-                    val = SValue(decl, modval);
+                    val = SValue(decl, recVal);
                 }
             } else {
                 // This happens for function pointer passed as parameter
                 decl->dumpColor();
                 SCT_TOOL_ASSERT (false, "Record has not variable declaration");
             }
+            //cout << "Record variable val " << val << endl;
 
         } else 
         if (!isa<clang::FunctionDecl>(decl->getDeclContext())) {
             // Global variable
             val = SValue(decl, NO_VALUE);
-            
-        } else 
-        if (isUserDefinedClass(decl->getType())) {
-            // Local record value 
-            val = SValue(decl, modval);
-            //cout << "Local record val " << val << ", modval " << modval << endl;
+            //cout << "Global variable val " << val << endl;
             
         } else {
             // Function local variable
-            val = SValue(decl, modval);
+            val = SValue(decl, isParamVar ? modval : recVal);
+            //cout << "Local variable val " << val << " isParamVar " << isParamVar << endl;
         }
     }
 }
 
 void ScParseExpr::parseExpr(clang::MemberExpr* expr, SValue& val)
 {
+    //cout << "ScParseExpr::MemberExpr # " << hex << expr << dec << endl;
+
     // Get record from variable/dynamic object
     SCT_TOOL_ASSERT (expr->getBase(), "In parseExpr for MemberExpr no base found");
     SValue tval = evalSubExpr(expr->getBase());
     SValue ttval = getRecordFromState(tval, ArrayUnkwnMode::amArrayUnknown);
     
-    //cout << "ScParseExpr::MemberExpr # " << hex << expr << dec << endl;
     //cout << "ScParseExpr::MemberExpr tval = " << tval << ", base->getType() = " 
     //     << expr->getBase()->getType().getAsString() << endl;
     //cout << "final ttval = " << ttval << endl;
@@ -945,13 +948,11 @@ void ScParseExpr::parseExpr(clang::MemberExpr* expr, SValue& val)
         }
     }
 
-    //cout << " tval = " << tval << ", val = "  << val 
-    //     << ", expr->getType() = " << expr->getType().getAsString() << endl;
+    //cout << " tval = " << tval << ", val = "  << val << endl;
 }
 
 void ScParseExpr::parseExpr(clang::CXXThisExpr* expr, SValue& thisPtrVal)
 {
-    using namespace std;
     //cout << "parse CXXThisExpr, recval "  << recval << ", modval " << modval << endl;
     
     thisPtrVal = SValue(expr->getType()); // pointer
@@ -962,8 +963,8 @@ void ScParseExpr::parseExpr(clang::CXXThisExpr* expr, SValue& thisPtrVal)
     //cout << "   level " << level << ", thisPtrVal " << thisPtrVal << endl;
 }
 
-// Create record/module object value and parse its field declarations
-// Used for arrays of record elements
+// Create record/module object value and parse its field declarations, 
+// no constructor function call. Used for arrays of record elements
 SValue ScParseExpr::createRecValue(const clang::CXXRecordDecl* recDecl, 
                                    const SValue& parent, const SValue& var, 
                                    bool parseFields, size_t index) 
@@ -982,7 +983,7 @@ SValue ScParseExpr::createRecValue(const clang::CXXRecordDecl* recDecl,
     // Record value
     SValue currec = SValue(QualType(recDecl->getTypeForDecl(), 0), 
                            bases, parent, var, index); 
-    
+            
     // Current module in @recval required for field initialization
     SValue lastRecval(recval); recval = currec;
 
@@ -1047,30 +1048,32 @@ SValue ScParseExpr::createRecordCopy(CXXConstructExpr* expr,
 SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
                                     SValue currecvar, bool analyzeRecordCtor)
 {
-    //cout << "parseRecordCtor for var " << currecvar << endl;
+    //cout << "parseRecordCtor for currecvar " << currecvar << " parent " << parent << endl;
+    
+    // Prepare constructor parameters before base constructors and 
+    // initialization list because they can be used there, 
+    // parameters declared in previous module
+    prepareCallParams(expr, modval, expr->getConstructor());
     
     // Base classes constructors
+    std::vector<SValue> bases;
     for (auto init : expr->getConstructor()->inits()) {
         if (init->isBaseInitializer()) {
-            
+            auto baseInit = removeExprCleanups(init->getInit());
+            auto baseExpr = dyn_cast<CXXConstructExpr>(baseInit);
+            SCT_TOOL_ASSERT (baseExpr, "No base class constructor found");
             // Parse base constructor
-            if (auto baseExpr = dyn_cast<CXXConstructExpr>(init->getInit())) {
-                parseRecordCtor(baseExpr, currecvar, parent, false);
-            }
+            SValue bval = parseRecordCtor(baseExpr, parent, currecvar, false);
+            bases.push_back(bval);
         }
     }
     
     // Create value for this record and put it into record variable,
     // required to have variable for record in state, replaced in parseValueDecl
-    SValue currec = createRecValue(expr->getBestDynamicClassType(), 
-                                   parent, currecvar, false);
+    SValue currec = SValue(expr->getType(), bases, parent, currecvar, 0);
     state->putValue(currecvar, currec);
     //cout << "currecvar " << currecvar << ", currec " << currec << endl;
     
-    // Prepare constructor parameters before initialization list because 
-    // they can be used there, parameters declared in previous module
-    prepareCallParams(expr, modval, expr->getConstructor());
-
     // Current module in @recval required for field initialization
     SValue lastRecval(recval); recval = currec;
     
@@ -1139,9 +1142,19 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
     // Restore current module before parse constructor call
     recval = lastRecval;
     
-    // Activate call constructor body as function, parameters already prepared
     if (analyzeRecordCtor) {
+        // Activate call constructor body as function, parameters already prepared
         prepareCallContext(expr, modval, currec, expr->getConstructor(), NO_VALUE);
+        
+    } else {
+        // Check constructor is empty
+        auto ctorDecl = expr->getConstructor();
+        if (auto ctorStmt = dyn_cast<CompoundStmt>(ctorDecl->getBody())) {
+            if (!ctorStmt->body_empty()) {
+                ScDiag::reportScDiag(ctorStmt->getBeginLoc(), 
+                                     ScDiag::SYNTH_RECORD_CTOR_NONEMPTY);
+            }
+        }
     }
     
     state->fillDerivedClasses(currec);
@@ -1185,33 +1198,27 @@ void ScParseExpr::parseExpr(clang::ImplicitCastExpr *expr, SValue& rval, SValue 
             }
         }
         
-        // !!! Use getRecordFromState -- need to ensure it really required
         // Get record from variable/dynamic object
-        bool isVariable = !tval.isRecord();
-        if (isVariable) {
-            SValue ttval;
-            state->getValue(tval, ttval, false);
-            tval = ttval;
-        }
+        SValue ttval = getRecordFromState(tval, ArrayUnkwnMode::amFirstElement);
 
-        if (tval.isRecord()) {
+        if (ttval.isRecord()) {
             // CXX class type cast
             if (!isUserDefinedClass(castType)) {
                 SCT_TOOL_ASSERT (false, "Derived cast type is not class");
             }
             
             // Get base class of @tval with @castType type
-            SValue bval = getBaseClass(tval, castType);
-            //cout << "Base class " << bval.asString() << endl;
+            SValue bval = getBaseClass(ttval, castType);
+            //cout << " base class " << bval << " for tval " << ttval << endl;
 
-            // Add variable for base record object
-            if (isVariable) {
+            // Add variable for base record object, required for passing record 
+            // as reference to base class
+            if (tval.isVariable()) {
                 SValue bbval(castType);
                 state->putValue(bbval, bval);
                 state->setValueLevel(bbval, level+1);
-
                 bval = bbval;
-                //cout << "Variable to base class bval = " << bval.asString() << endl;
+                //cout << "   variable to base class bval = " << bval << endl;
             }
 
             // Create pointer to base record object
@@ -1219,11 +1226,11 @@ void ScParseExpr::parseExpr(clang::ImplicitCastExpr *expr, SValue& rval, SValue 
                 val = SValue(exprType);
                 state->putValue(val, bval);
                 state->setValueLevel(val, level+1);
-                //cout << "Pointer to base class variable val = " << val.asString() << endl;
+                //cout << "   pointer to base class variable val = " << val << endl;
             } else {
                 val = bval;
             }
-            //cout << "Return val " << val.asString() << endl;
+            //cout << "   return val " << val << endl;
             
         } else {
             // Do nothing, it can be SC data type cast

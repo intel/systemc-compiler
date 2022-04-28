@@ -20,7 +20,7 @@ public:
 
     SC_CTOR(A) 
     {
-        SC_CTHREAD(mult_array_decl, clk.pos());
+        /*SC_CTHREAD(mult_array_decl, clk.pos());
         async_reset_signal_is(rst, true);
 
         SC_CTHREAD(loc_array_decl1, clk.pos());
@@ -73,6 +73,9 @@ public:
         async_reset_signal_is(rst, true);
         
         SC_CTHREAD(fcall_return, clk.pos());
+        async_reset_signal_is(rst, true);*/
+        
+        SC_CTHREAD(fcall_param_simple, clk.pos());
         async_reset_signal_is(rst, true);
     }
     
@@ -440,7 +443,7 @@ public:
     {
         for (int e = 0; e < 3; ++e) r.a[e] = 0;
 
-        rec_param2_val(r, 0);   // par is reg as its reused after reset
+        rec_param2_val(r, 0);   // par is reg as its reused after reset ???
         wait();
         
         while (true) 
@@ -456,7 +459,25 @@ public:
             wait();
         }
     }
-
+    
+    template<class T>
+    void simple_param(T par) {
+        int j = sig.read();
+        j = par.a[j] ? 1 : 2;
+    }
+    
+    Rec lr;
+    void fcall_param_simple()
+    {
+        simple_param(r);
+        wait();
+        
+        while (true) 
+        {
+            simple_param(r);
+            wait();
+        }
+    }
 
 //----------------------------------------------------------------------------    
 

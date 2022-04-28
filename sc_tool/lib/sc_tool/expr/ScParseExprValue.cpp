@@ -700,7 +700,8 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
             if (isCopyCtor) {
                 // Copy constructor to pass record parameter by value
                 if (!expr->getArg(0)) {
-                    SCT_TOOL_ASSERT (false, "No argument in copy constructor");
+                    SCT_INTERNAL_ERROR (expr->getBeginLoc(), 
+                                        "No argument in copy constructor");
                 }
 
                 SValue rval = evalSubExpr(expr->getArg(0));
@@ -720,8 +721,10 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
                 } else {
                     // Get normal record to create copy
                     state->getValue(rval, rrec);
-                    SCT_TOOL_ASSERT (rrec.isRecord(), 
-                                     "Incorrect value type for copy constructor");
+                    if (!rrec.isRecord()) {
+                        SCT_INTERNAL_ERROR (expr->getBeginLoc(), 
+                                "Incorrect value type for copy constructor");
+                    }
 
                     // Create record copy to avoid sharing the same record value
                     // No set level as record is returned

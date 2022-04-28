@@ -10,6 +10,7 @@
  */
 
 #include "sc_tool/utils/CheckCppInheritance.h"
+#include "sc_tool/utils/ScTypeTraits.h"
 #include "clang/AST/DeclTemplate.h"
 
 namespace sc {
@@ -101,21 +102,24 @@ pair<SValue, FunctionDecl*> getVirtualFunc(const SValue& tval,
 
 // Find given class type in class hierarchy of @tval 
 // \return base class value or NO_VALUE
-SValue getBaseClass(const SValue& tval, const QualType& baseType)
+SValue getBaseClass(const SValue& tval, QualType baseType)
 {
     SCT_TOOL_ASSERT (tval.isRecord(), "No record in getBaseClass()");
     
     // Check if @tval has required type itself
-    if (tval.getRecord().getType().getTypePtr() == baseType.getTypePtr()) {
+    auto thisType = getPureType(tval.getRecord().getType());
+    baseType = getPureType(baseType);
+    if (thisType == baseType) {
         return tval;
     }
     
-    for (const auto& b : tval.getRecord().bases) {
-        if (b.getRecord().getType().getTypePtr() == baseType.getTypePtr()) {
-            return b;
+    for (const auto& bval : tval.getRecord().bases) {
+        thisType = getPureType(bval.getRecord().getType());
+        if (thisType == baseType) {
+            return bval;
         }
         
-        SValue res = getBaseClass(b, baseType);
+        SValue res = getBaseClass(bval, baseType);
         if (res != NO_VALUE) {
             return res;
         }
@@ -162,7 +166,8 @@ void correctParentBaseClass(SValue& val)
 }
 
 // Get direct base classes for module type
-std::vector<clang::Type*> getModuleBases(const clang::CXXRecordDecl* decl) 
+// Not used
+/*std::vector<clang::Type*> getModuleBases(const clang::CXXRecordDecl* decl) 
 {
     std::vector<clang::Type*> bases;
     for (auto&& b: decl->bases()) {
@@ -183,6 +188,6 @@ std::vector<clang::Type*> getModuleBases(const clang::CXXRecordDecl* decl)
         }
     }
     return bases;
-}
+}*/
 
 }

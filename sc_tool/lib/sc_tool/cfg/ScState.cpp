@@ -449,7 +449,7 @@ void ScState::putValue(const SValue& lval, const SValue& rval, bool deReference,
             tuples.erase(llval);
             
             if (DebugOptions::isEnabled(DebugComponent::doState)) {
-                cout << "putValue (" << lval.asString() << ", NO_VALUE)" << endl;
+                cout << "putValue (" << lval << ", NO_VALUE)" << endl;
             }
             
         } else {
@@ -473,12 +473,12 @@ void ScState::putValue(const SValue& lval, const SValue& rval, bool deReference,
                 }
             }
             if (DebugOptions::isEnabled(DebugComponent::doState)) {
-                cout << "putValue (" << lval.asString() << ", " << rrval.asString() << ")" << endl;
+                cout << "putValue (" << lval << ", " << rrval << ")" << endl;
             }
         } 
     } else {
         if (DebugOptions::isEnabled(DebugComponent::doState)) {
-            cout << "putValue (" << lval.asString() << ", " << rval.asString() << ")" << endl;
+            cout << "putValue (" << lval << ", " << rval << ")" << endl;
         }
     }
 }

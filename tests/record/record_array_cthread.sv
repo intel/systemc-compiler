@@ -41,7 +41,7 @@ logic nrst;
 logic [3:0] sig;
 
 // Local parameters generated for C++ constants
-localparam logic signed [31:0] ap_b = 881;
+localparam logic signed [31:0] ap_b = 11;
 
 //------------------------------------------------------------------------------
 // Clocked THREAD: rec_loc_arr_declare (test_array_cthread.cpp:137:5) 

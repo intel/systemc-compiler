@@ -148,7 +148,7 @@ public:
     }
 
     // Add name collision 
-    int ap_b;
+    int ap_b = 11;
     
     // Simple record array
     void rec_loc_arr0() 

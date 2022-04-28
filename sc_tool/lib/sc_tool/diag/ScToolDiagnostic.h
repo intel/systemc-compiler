@@ -203,6 +203,7 @@ public:
         CPP_STRING_BINARY_OPER      = 231,
         CPP_STATIC_STD_VECTOR       = 232,
         SYNTH_LITER_OVERFLOW        = 233,
+        SYNTH_RECORD_CTOR_NONEMPTY  = 234,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -707,6 +708,12 @@ private:
         idFormatMap[SYNTH_LITER_OVERFLOW] =
             {clang::DiagnosticIDs::Error, 
             "Literal is too big, up to 4096 symbols supported"};
+        
+        idFormatMap[SYNTH_RECORD_CTOR_NONEMPTY] =
+            {clang::DiagnosticIDs::Error, 
+            "Base class or member class non-empty constructor not supported"};
+        
+        
         
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =

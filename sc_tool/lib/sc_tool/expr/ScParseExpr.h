@@ -132,7 +132,8 @@ public:
     SValue getRecordFromState(const SValue& val,
                 ArrayUnkwnMode returnUnknown = ArrayUnkwnMode::amNoValue);
     
-    /// Create record/module object value, not module/class variable
+    /// Create record/module object value and parse its field declarations, 
+    /// no constructor function call. Used for arrays of record elements
     /// \param var -- local variable/member owns this record
     /// \param index -- local element number in single/multi dimensional array
     SValue createRecValue(const clang::CXXRecordDecl* recDecl, 

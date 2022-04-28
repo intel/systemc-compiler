@@ -433,7 +433,8 @@ public:
     
     bool operator == (const SRecord& rhs) const {
         if (var) {
-            return (var == rhs.var && index == rhs.index);
+            // Compare type to distinguish base classes of record
+            return (var == rhs.var && type == rhs.type && index == rhs.index);
         } else {
             return (SObject::operator ==(rhs));
         }

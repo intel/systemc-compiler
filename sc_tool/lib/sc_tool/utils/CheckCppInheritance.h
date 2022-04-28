@@ -32,7 +32,7 @@ std::pair<SValue, clang::FunctionDecl*> getVirtualFunc(const SValue& tval,
 
 /// Find given class type in class hierarchy of @tval 
 /// \return base class value or NO_VALUE
-SValue getBaseClass(const SValue& tval, const clang::QualType& baseType);
+SValue getBaseClass(const SValue& tval, clang::QualType baseType);
 
 /// Get parent class from variable @val declaration
 /// \param val -- variable value
@@ -43,7 +43,8 @@ llvm::Optional<clang::QualType> getParentClass(const SValue& val);
 void correctParentBaseClass(SValue& val);
 
 /// Get direct base classes for module type
-std::vector<clang::Type *> getModuleBases(const clang::CXXRecordDecl *decl);
+// Not used
+//std::vector<clang::Type *> getModuleBases(const clang::CXXRecordDecl *decl);
 
 }
 
