@@ -180,6 +180,7 @@ void ScTraverseConst::evaluateTermCond(Stmt* stmt, SValue& val)
         // array element accessed at unknown index, required for condition of
         // pointer initialized: if (p) p->f();
         auto condvals = evaluateConstInt(const_cast<Expr*>(cond), false, true);
+        //cout << "evaluateConstInt " << condvals.first << " " << condvals.second << endl;
         readFromValue(condvals.first);
         val = condvals.second;
         

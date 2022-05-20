@@ -53,11 +53,17 @@ svc_target(record_func_in_ctor GOLDEN record_func_in_ctor.sv)
 add_executable(record_member_record_func test_member_record_func.cpp)
 svc_target(record_member_record_func GOLDEN record_member_record_func.sv)
 
-#add_executable(record_member_array_cthread test_member_array_cthread.cpp)
-#svc_target(record_member_array_cthread GOLDEN record_member_array_cthread.sv)
+add_executable(record_member_array_cthread test_member_array_cthread.cpp)
+svc_target(record_member_array_cthread GOLDEN record_member_array_cthread.sv)
 
-add_executable(record_member_array_method test_member_array_method.cpp)
-svc_target(record_member_array_method GOLDEN record_member_array_method.sv)
+add_executable(record_member_array_method1 test_member_array_method1.cpp)
+svc_target(record_member_array_method1 GOLDEN record_member_array_method1.sv)
+
+add_executable(record_member_array_method2 test_member_array_method2.cpp)
+svc_target(record_member_array_method2 GOLDEN record_member_array_method2.sv)
+
+add_executable(record_member_array_method3 test_member_array_method3.cpp)
+svc_target(record_member_array_method3 GOLDEN record_member_array_method3.sv)
 
 add_executable(record_member_array_unkwn test_member_array_unkwn.cpp)
 svc_target(record_member_array_unkwn GOLDEN record_member_array_unkwn.sv)

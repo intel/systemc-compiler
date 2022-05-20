@@ -204,6 +204,7 @@ public:
         CPP_STATIC_STD_VECTOR       = 232,
         SYNTH_LITER_OVERFLOW        = 233,
         SYNTH_RECORD_CTOR_NONEMPTY  = 234,
+        CPP_DEFINED_LOCAL_PARAM     = 235,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -713,6 +714,9 @@ private:
             {clang::DiagnosticIDs::Error, 
             "Base class or member class non-empty constructor not supported"};
         
+        idFormatMap[CPP_DEFINED_LOCAL_PARAM] =
+            {clang::DiagnosticIDs::Error, 
+            "Member variable used before initialization (re-defined localparam) : %0"};
         
         
         // Elaboration

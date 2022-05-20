@@ -88,6 +88,13 @@ svc_target(misc_array_no_indx_fail WILL_FAIL)
 add_executable(misc_const_array test_const_array.cpp)
 svc_target(misc_const_array GOLDEN misc_const_array.sv)
 
+add_executable(misc_mif_array_differ test_mif_array_differ.cpp)
+svc_target(misc_mif_array_differ GOLDEN misc_mif_array_differ.sv)
+
+add_executable(misc_mod_array_differ test_mod_array_differ.cpp)
+svc_target(misc_mod_array_differ GOLDEN misc_mod_array_differ.sv)
+
+
 add_executable(misc_large_array test_large_array.cpp)
 svc_target(misc_large_array)
 
@@ -120,9 +127,9 @@ add_executable(misc_comb_signal test_comb_signal.cpp)
 svc_target(misc_comb_signal ELAB_TOP tb.mod
            GOLDEN misc_comb_signal.sv)
 
-#add_executable(misc_comb_signal_clear test_comb_signal_clear.cpp)
-#svc_target(misc_comb_signal_clear ELAB_TOP tb.mod
-#           GOLDEN misc_comb_signal_clear.sv)
+add_executable(misc_comb_signal_clear test_comb_signal_clear.cpp)
+svc_target(misc_comb_signal_clear ELAB_TOP tb.mod
+           GOLDEN misc_comb_signal_clear.sv)
 
 add_executable(misc_comb_signal_fail test_comb_signal_fail.cpp)
 svc_target(misc_comb_signal_fail ELAB_TOP tb.mod)
@@ -172,6 +179,9 @@ svc_target(misc_sig_access_reset GOLDEN misc_sig_access_reset.sv)
 ## Constants
 add_executable(misc_const_init test_const_init.cpp)
 svc_target(misc_const_init GOLDEN misc_const_init.sv)
+
+add_executable(misc_const_init_fcall test_const_init_fcall.cpp)
+svc_target(misc_const_init_fcall GOLDEN misc_const_init_fcall.sv)
 
 add_executable(misc_const_radix test_const_radix.cpp)
 svc_target(misc_const_radix GOLDEN misc_const_radix.sv)
@@ -446,11 +456,6 @@ svc_target(misc_init_reset_local_var_comb GOLDEN misc_init_reset_local_var_comb.
 add_executable(misc_module_prefix test_module_prefix.cpp)
 svc_target(misc_module_prefix GOLDEN misc_module_prefix.sv MODULE_PREFIX MPREF_)
 
-#message ($ENV{PROJECTS}/sct_common/sctcommon)
-#add_executable(misc_proc_kind test_proc_kind.cpp)
-#target_include_directories(misc_proc_kind PUBLIC $ENV{PROJECTS}/sct_common/sctcommon)
-#svc_target(misc_proc_kind GOLDEN misc_proc_kind.sv)
-
 ## Empty process function
 add_executable(misc_empty_process test_empty_process.cpp)
 svc_target(misc_empty_process GOLDEN misc_empty_process.sv) 
@@ -458,10 +463,6 @@ svc_target(misc_empty_process GOLDEN misc_empty_process.sv)
 ## Unsigned mode
 add_executable(misc_unsigned_mode test_unsigned_mode.cpp)
 svc_target(misc_unsigned_mode GOLDEN misc_unsigned_mode.sv UNSIGNED) 
-
-## Check sct_common library
-#add_executable(misc_single_source test_single_source.cpp)
-#svc_target(misc_single_source ELAB_TOP test_top.dut.a GOLDEN misc_single_source.sv) 
 
 ## Design statistic
 add_executable(misc_statistic test_statistic.cpp)
@@ -475,3 +476,7 @@ svc_target(misc_multi_bind2 GOLDEN misc_multi_bind2.sv)
 
 add_executable(misc_multi_bind_fail test_multi_bind_fail.cpp)
 svc_target(misc_multi_bind_fail WILL_FAIL) 
+
+## Generate localparam for all non-modified members
+add_executable(misc_localparam test_localparam.cpp)
+svc_target(misc_localparam GOLDEN misc_localparam.sv) 

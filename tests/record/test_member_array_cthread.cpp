@@ -20,7 +20,7 @@ public:
 
     SC_CTOR(A) 
     {
-        /*SC_CTHREAD(mult_array_decl, clk.pos());
+        SC_CTHREAD(mult_array_decl, clk.pos());
         async_reset_signal_is(rst, true);
 
         SC_CTHREAD(loc_array_decl1, clk.pos());
@@ -44,10 +44,10 @@ public:
         SC_CTHREAD(loc_array_copy, clk.pos());
         async_reset_signal_is(rst, true);
         
-//        // Incorrect code as inner record not supported yet, #127
-//        //SC_CTHREAD(loc_array_copy2, clk.pos());
-//        //async_reset_signal_is(rst, true);
-//        
+        // Incorrect code as inner record not supported yet, #141
+        //SC_CTHREAD(loc_array_copy2, clk.pos());
+        //async_reset_signal_is(rst, true);
+        
         SC_CTHREAD(loc_array_init, clk.pos());
         async_reset_signal_is(rst, true);
         
@@ -69,14 +69,15 @@ public:
         SC_METHOD(local_fcall_param_noinit);
         sensitive << sig;
 
-        SC_CTHREAD(fcall_param, clk.pos());
-        async_reset_signal_is(rst, true);
+        // Incorrect code as inner record not supported yet, #141
+        //SC_CTHREAD(fcall_param, clk.pos());
+        //async_reset_signal_is(rst, true);
         
-        SC_CTHREAD(fcall_return, clk.pos());
-        async_reset_signal_is(rst, true);*/
-        
-        SC_CTHREAD(fcall_param_simple, clk.pos());
-        async_reset_signal_is(rst, true);
+        //SC_CTHREAD(fcall_param_simple, clk.pos());
+        //async_reset_signal_is(rst, true);
+
+        //SC_CTHREAD(fcall_return, clk.pos());
+        //async_reset_signal_is(rst, true);
     }
     
     struct Rec {
@@ -260,7 +261,7 @@ public:
         
         while (true) 
         {
-            ArrRecRec xlarr;        
+            ArrRecRec xlarr;            // #141
             rec_param_copy2(xlarr);
             
             wait();
@@ -443,7 +444,7 @@ public:
     {
         for (int e = 0; e < 3; ++e) r.a[e] = 0;
 
-        rec_param2_val(r, 0);   // par is reg as its reused after reset ???
+        rec_param2_val(r, 0);   // par is reg as its reused after reset
         wait();
         
         while (true) 
@@ -459,22 +460,22 @@ public:
             wait();
         }
     }
-    
+
     template<class T>
     void simple_param(T par) {
         int j = sig.read();
-        j = par.a[j] ? 1 : 2;
+        j = par.a ? 1 : 2;
     }
-    
+
     Rec lr;
     void fcall_param_simple()
     {
-        simple_param(r);
+        simple_param(lr);
         wait();
         
         while (true) 
         {
-            simple_param(r);
+            simple_param(lr);
             wait();
         }
     }

@@ -136,10 +136,12 @@ llvm::Optional<QualType> getParentClass(const SValue& val)
     SCT_TOOL_ASSERT (val.isVariable(), "Value is not variable");
     
     auto decl = val.getVariable().getDecl();
-    auto declCtx = decl->getDeclContext();
-    
-    if (auto recDecl = dyn_cast<RecordDecl>(declCtx)) {
-        return QualType(recDecl->getTypeForDecl(), 0);
+    if (decl && !decl->isInvalidDecl()) {
+        auto declCtx = decl->getDeclContext();
+
+        if (auto recDecl = dyn_cast<RecordDecl>(declCtx)) {
+            return QualType(recDecl->getTypeForDecl(), 0);
+        }
     }
     
     return llvm::None;
@@ -151,11 +153,12 @@ llvm::Optional<QualType> getParentClass(const SValue& val)
 void correctParentBaseClass(SValue& val)
 {
     if (val.isVariable()) {
-        if (auto parent = val.getVariable().getParent()) {
+        SValue parent = val.getVariable().getParent();
+        if (parent.isRecord()) {
             if (auto baseParentType = getParentClass(val)) {
                 SValue baseParent = getBaseClass(parent, *baseParentType);
-                SCT_TOOL_ASSERT (baseParent.isRecord(), 
-                                 "Base parent is not record");
+                SCT_TOOL_ASSERT (baseParent.isRecord(), "Base parent is not record");
+
                 // Create variable with updated parent
                 auto varDecl = val.getVariable().getDecl();
                 val = SValue(varDecl, baseParent);

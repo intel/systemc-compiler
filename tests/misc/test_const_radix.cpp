@@ -59,7 +59,7 @@ struct A : public sc_module
         i0 = -0;
         int i1 = -1;
         i1 = -0x1;
-        i1 = -0b1;
+        i1 = -0B1;
         i1 = 1;
         i1 = 0x1;
         i1 = 0b1;

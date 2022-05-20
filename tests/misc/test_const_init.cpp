@@ -66,13 +66,8 @@ struct A : public sc_module
         sct_assert_const(y == -36);
         sct_assert_const(uy == 1ULL << 63);
 
-        // Non-constant fields have no initialization value after elaboration
-        // No @j declaration generated as @sct_assert_unknown is debug function
-        sct_assert_unknown(j);
-        sct_assert_unknown(z);
-        
         if (b) {
-            s = i + x;
+            s = i + x + j + z;
         }
         
         sc_biguint<64> bu = uy + AA + BB;

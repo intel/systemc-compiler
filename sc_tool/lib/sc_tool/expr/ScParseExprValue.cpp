@@ -135,8 +135,7 @@ ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst, bool checkRecOnl
     EvalMode em(evaluateConstMode);
     
     SValue val = evalSubExpr(expr);
-//    cout << "evaluateConstInt val " << val << " rval "
-//         << getValueFromState(val, returnUnknown) << endl;
+    //cout << "evaluateConstInt val " << val << " rval " << getValueFromState(val) << endl;
     
     // Return integer value
     if (val.isInteger()) {
@@ -572,7 +571,8 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
 {
     QualType type = expr->getType();
     auto ctorDecl = expr->getConstructor();
-    bool isCopyCtor = ctorDecl->isCopyOrMoveConstructor();
+    bool isCopyCtor = ctorDecl->isCopyConstructor();
+    bool isMoveCtor = ctorDecl->isMoveConstructor();
     auto nsname = getNamespaceAsStr(ctorDecl);
     
     if (nsname && (*nsname == "sc_dt" || *nsname == "sc_core")) {
@@ -697,7 +697,7 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
                 val = NO_VALUE;
                 
             } else 
-            if (isCopyCtor) {
+            if (isCopyCtor || isMoveCtor) {
                 // Copy constructor to pass record parameter by value
                 if (!expr->getArg(0)) {
                     SCT_INTERNAL_ERROR (expr->getBeginLoc(), 
@@ -720,15 +720,26 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
                     
                 } else {
                     // Get normal record to create copy
-                    state->getValue(rval, rrec);
+                    if (!rval.isRecord()) {
+                        state->getValue(rval, rrec); 
+                    } else {
+                        rrec = rval;
+                    }
+
                     if (!rrec.isRecord()) {
                         SCT_INTERNAL_ERROR (expr->getBeginLoc(), 
                                 "Incorrect value type for copy constructor");
                     }
 
-                    // Create record copy to avoid sharing the same record value
-                    // No set level as record is returned
-                    val = createRecordCopy(expr, rrec, locrecvar);
+                    if (!rval.isRecord()) {
+                        // Create record copy to avoid sharing the same record value
+                        // No set level as record is returned
+                        val = createRecordCopy(expr, rrec, locrecvar);
+                    } else {
+                        // This case is initialization with constructor parameter
+                        // where move constructor is used
+                        val = rrec;
+                    }
                 }
 
                 // Add defined/read for record fields
@@ -2433,10 +2444,12 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
 
         if (isAnyScIntegerRef(thisType, true)) {
-            // Check for integer/unknown required for range in left part 
-            if (!argsVec.at(0).isInteger() && !argsVec.at(0).isUnknown()) {
-                assignValueInState(argsVec.at(0), argsVec.at(1));
-            }
+            assignValueInState(argsVec.at(0), argsVec.at(1));
+            val = argsVec.at(0);
+        } else 
+        if (isUserDefinedClass(thisType)) {
+            // Record pointer not supported yet
+            assignValueInState(argsVec.at(0), argsVec.at(1));
             val = argsVec.at(0);
         }
         

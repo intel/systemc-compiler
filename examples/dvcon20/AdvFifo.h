@@ -125,7 +125,7 @@ class adv_fifo_base : public sc_module
 
    protected:
     // Number of bits in variables store length or index of FIFO
-    static const int FIFO_INDX_WIDE = StaticLog::bits_one<FIFO_LENGTH>::value;
+    static const int FIFO_INDX_WIDE = sct::sct_addrbits1<FIFO_LENGTH>;
 
     // FIFO buffer (one additional element that is not used to prevent
     // read and write of the same cell in one clock tick)

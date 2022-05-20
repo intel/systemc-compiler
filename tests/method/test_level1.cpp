@@ -95,10 +95,11 @@ public:
     
     int m1 = 0;
     int getInit() {
-        return m1++;
+        m1 = 0;
+        return (m1+1);
     }
     int getInit2() {
-        m1++;
+        m1 = 1;
         return 1;
     }
     

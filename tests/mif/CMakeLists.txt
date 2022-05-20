@@ -19,7 +19,10 @@ svc_target(mif_const1 GOLDEN mif_const1.sv)
 add_executable(mif_const2 test_mif_const2.cpp)
 svc_target(mif_const2 GOLDEN mif_const2.sv)
 
+add_executable(mif_array_differ test_mif_array_differ.cpp)
+svc_target(mif_array_differ GOLDEN mif_array_differ.sv)
 
+## sc_vector/array in MIF
 add_executable(mif_sc_vector test_sc_vector.cpp)
 svc_target(mif_sc_vector GOLDEN mif_sc_vector.sv)
 
@@ -78,6 +81,9 @@ svc_target(mif_array_ptr2 GOLDEN mif_array_ptr2.sv)
 
 add_executable(mif_array_unkwn test_mif_array_unkwn.cpp)
 svc_target(mif_array_unkwn GOLDEN mif_array_unkwn.sv)
+
+add_executable(mif_array_const_unkwn test_mif_array_const_unkwn.cpp)
+svc_target(mif_array_const_unkwn GOLDEN mif_array_const_unkwn.sv)
 
 add_executable(mif_array_with_chan test_mif_array_with_chan.cpp)
 svc_target(mif_array_with_chan GOLDEN mif_array_with_chan.sv)

@@ -45,7 +45,7 @@ public:
     void member_var() 
     {
         i = s.read();
-        sum = a ? i : x.to_int();
+        sum = !a ? i : x.to_int();
         t2 = sum;
     }
     

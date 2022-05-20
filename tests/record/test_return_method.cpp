@@ -70,7 +70,7 @@ public:
         if (dummy) {
             s = f();
         }
-        int i = s.b;
+        //int i = s.b;  Uncomment me, #141
     }
 };
     

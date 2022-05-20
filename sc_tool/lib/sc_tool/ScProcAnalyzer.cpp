@@ -84,6 +84,23 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         globalState->printSize();
     }
     
+    // Preliminary CPA
+    DebugOptions::suspend();
+    auto preState = shared_ptr<ScState>(globalState->clone());
+    ScTraverseConst preConst(astCtx, preState, modval, 
+                             globalState, &elabDB, nullptr, nullptr, true);
+    preConst.run(verMod, methodDecl);
+    
+    unordered_set<SValue> defVals;
+    for (const auto& sval : preConst.getFinalState()->getDefArrayValues()) {
+        defVals.insert(sval);
+    }
+
+    // Remove defined member variables from state
+    globalState->removeDefinedValues(defVals);
+    DebugOptions::resume();
+    
+    // Main CPA
     auto start = chrono::system_clock::now();
     auto constState = shared_ptr<ScState>(globalState->clone());
     ScTraverseConst travConst(astCtx, constState, modval, 
@@ -148,7 +165,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     bool noneZeroElmntMIF = travConst.isNonZeroElmtMIF();
 
     // All the variables defined/used in this method process
-    unordered_set<SValue> defVals;
+    defVals.clear();
     InsertionOrderSet<SValue> useDefVals;
     for (const auto& sval : finalState->getDefArrayValues()) {
         defVals.insert(sval);
@@ -176,9 +193,9 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
             useDefVals.insert(sval);
         }
     }
-
-   // Add initialization values for non-modified member variables    
-   initNonDefinedVars(procView, dynmodval, useVals, defVals);
+    
+    // Add initialization values for non-modified member variables    
+    initNonDefinedVars(procView, dynmodval, useVals, defVals);
 
     // Report read not initialized warning
     for (const auto& sval : finalState->getReadNotInitValues()) {
@@ -198,12 +215,9 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         
         // Do no need to skip members generated as @localparam
 
-        //cout << "RND sval " << sval << endl;
-        std::string varName = sval.isVariable() ? 
-                              sval.getVariable().asString(false) : "---";
         // Do not check duplicates
         ScDiag::reportScDiag(methodDecl->getBeginLoc(), 
-                             ScDiag::CPP_READ_NOTDEF_VAR, false) << varName;
+                ScDiag::CPP_READ_NOTDEF_VAR, false) << sval.asString(false);
     }
 
 //        cout << "------- useDefVals" << endl;
@@ -293,8 +307,10 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     // Create process local variables and register defined values
     for (SValue val : useDefVals) {
         // Replace value to array first element
+        //cout << "val " << val << endl;
         SValue zeroVal = finalState->getFirstArrayElementForAny(
                                     val, ScState::MIF_CROSS_NUM);
+        //cout << "zeroval " << zeroVal << endl;
 
         // Class field must be in this map, no local variables there
         if (auto elabObj = globalState->getElabObject(zeroVal)) {
@@ -491,34 +507,10 @@ void ScProcAnalyzer::initNonDefinedVars(sc_elab::ProcessView& procView,
     // Add initialization values for non-modified member variables to 
     // generate them as @localparam
     for (const SValue& val : useVals) {
-        // Skip non-variables
-        if (!val.isVariable()) continue;
         // Skip defined variables
         if (defVals.count(val) != 0) continue;
-        // Skip access from top module process
-        if (val.getVariable().getParent() != dynmodval) continue;
-        
-        // Skip pointers and arrays
-        const QualType& type = val.getType();
-        bool isPtr = sc::isPointer(type);
-        bool isRef = sc::isReference(type);
-        bool isArr = sc::isArray(type);
-        if (isArr || isPtr || isRef) continue;
-        
-        // Skip constant variable it is declared as @localparam
-        bool isConst = type.isConstQualified();
-        if (isConst) continue;
-        
-        // Skip array and record elements
-        vector<SValue> valStack;
-        globalState->parseValueHierarchy(val, 0, valStack);
-        bool skip = false;
-        for (const SValue& mval : valStack) {
-            if (mval.isArray() || mval.isRecord()) {
-                skip = true; break;
-            }
-        }
-        if (skip) continue;
+        // Skip value if it does not meet member variable conditions
+        if (!ScState::isMemberPrimVar(val, globalState.get())) continue;
         
         // Class field must be in this map, no local variables here
         if (auto elabObj = globalState->getElabObject(val)) {
@@ -527,9 +519,6 @@ void ScProcAnalyzer::initNonDefinedVars(sc_elab::ProcessView& procView,
                 elabObj = elabOwner;
             }
 
-            // Skip non-primitive objects
-            if (!elabObj->isPrimitive() || elabObj->isChannel()) continue;
-            
             auto verVars = verMod->getVerVariables(*elabObj);
             
             for (auto* verVar : verVars) {

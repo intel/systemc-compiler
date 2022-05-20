@@ -47,15 +47,15 @@ public:
         SC_METHOD(record_assign1);  
         sensitive << dummy;
         
-  // Inner record not supported yet
-//        SC_METHOD(inner_record1_complex);
-//        sensitive << dummy;
-//        
-//        SC_METHOD(inner_record2);  
-//        sensitive << dummy;
-//        
-//        SC_METHOD(inner_record3);  
-//        sensitive << dummy;
+        // Inner records
+        SC_METHOD(inner_record1_complex);
+        sensitive << dummy;
+        
+        SC_METHOD(inner_record2);  
+        sensitive << dummy;
+        
+        SC_METHOD(inner_record3);  
+        sensitive << dummy;
     }
     
     

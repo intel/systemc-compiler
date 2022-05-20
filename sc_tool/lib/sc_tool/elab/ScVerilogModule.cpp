@@ -258,7 +258,7 @@ void VerilogModule::detectUseDefErrors()
             bool isVariable = procVars.second == VarKind::vkVariable;
 
             // Variable already used in other process 
-            if (!useRes.second && isVariable) {
+            if (!useRes.second && isVariable && !verVar->isConstant()) {
                 auto* procDecl = entry.first.getLocation().second;
                 SCT_TOOL_ASSERT (procDecl, "Process has null declaration");
                 ScDiag::reportScDiag(procDecl->getBeginLoc(),

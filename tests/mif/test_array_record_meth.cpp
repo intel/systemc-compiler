@@ -114,7 +114,7 @@ struct NotSimple {
 SC_MODULE(Top) 
 {
     mod_if*         minst[2];
-
+    
     SC_CTOR(Top) 
     {
         for (int i = 0; i < 2; i++) {
@@ -122,7 +122,7 @@ SC_MODULE(Top)
         }
     }
 };
-
+    
 int sc_main(int argc, char **argv) 
 {
     Top top{"top"};

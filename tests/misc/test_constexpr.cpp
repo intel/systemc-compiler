@@ -36,7 +36,7 @@ template <unsigned N>
 struct A : public sc_module
 {
     constexpr static unsigned M1 = myLog<N>;
-    constexpr static unsigned M2 = myLog2<N>;
+    constexpr static unsigned M2 = 42;
 
     sc_in_clk       clk;
     sc_signal<bool>         rst;
@@ -44,10 +44,17 @@ struct A : public sc_module
     
     SC_CTOR(A) 
     {
+        SC_METHOD(constProc); sensitive << s;
         SC_METHOD(arrProc); sensitive << s;
         SC_METHOD(logProc); sensitive << s;
-    }    
+    }
     
+    void constProc() {
+        cout << "M1 " << M1 << " M2 " << M2 << endl;
+        unsigned i1 = M1;
+        unsigned i2 = M2;
+    }
+
     void arrProc() 
     {
         int arr1[12];
@@ -59,7 +66,6 @@ struct A : public sc_module
     
     void logProc() 
     {
-        cout << "M1 " << M1 << " M2 " << M2 << endl;
         constexpr unsigned i = 42;
         constexpr uint64_t A = 1ULL << 63;
         

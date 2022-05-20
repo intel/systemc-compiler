@@ -38,7 +38,8 @@ std::string getIterStr(Type val, Types... args) {
     std::string s = std::to_string(val) + "_" + getIterStr(args...);
     return s;
 }
-}
+
+} // namespace sct_property_utils
 
 //=============================================================================
     
@@ -83,7 +84,7 @@ protected:
     /// Time specified and intialization done
     bool initalized = false;
 
-    void init(int time) 
+    inline void init(int time) 
     {
         timeInt = 0;
         pastSize = time;
@@ -94,7 +95,7 @@ protected:
         initalized = true;
     }
     
-    void init(int loTime, int hiTime) 
+    inline void init(int loTime, int hiTime) 
     {
         if (loTime > hiTime) {
             int t = hiTime; hiTime = loTime; loTime = t;
@@ -256,7 +257,7 @@ public:
     }
 };
 
-}
+} // namespace sc_core
 
 #endif /* SCT_PROPERTY_H */
 

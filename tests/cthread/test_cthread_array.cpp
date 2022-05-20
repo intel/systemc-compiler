@@ -159,7 +159,7 @@ public:
     sc_signal<sc_uint<2>> addr;
     sc_signal<sc_uint<16>> wdata;
     
-    bool pwrout_;
+    sc_signal<bool> pwrout_;
     
     // No reset process
     void operProc() 

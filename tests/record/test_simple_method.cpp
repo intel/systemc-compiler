@@ -47,14 +47,14 @@ public:
         //sensitive << dummy;
         
         // Inner records not supported yet
-//        SC_METHOD(inner_record1);  
-//        sensitive << dummy;
-//        
-//        SC_METHOD(inner_record2);  
-//        sensitive << dummy;
-//        
-//        SC_METHOD(inner_record3);  
-//        sensitive << dummy;
+        SC_METHOD(inner_record1);  
+        sensitive << dummy;
+        
+        SC_METHOD(inner_record2);  
+        sensitive << dummy;
+        
+        SC_METHOD(inner_record3);  
+        sensitive << dummy;
     }
     
     struct ScSimple {

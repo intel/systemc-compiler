@@ -28,12 +28,12 @@ public:
         SC_METHOD(record_array2); 
         sensitive << sig;
         
-        // Inner record not supported yet
-//        SC_METHOD(inner_record_array1); 
-//        sensitive << sig;
-//        
-//        SC_METHOD(inner_record_array2); 
-//        sensitive << sig;
+        // Inner records
+        SC_METHOD(inner_record_array1); 
+        sensitive << sig;
+        
+        SC_METHOD(inner_record_array2); 
+        sensitive << sig;
     }
     
     struct Simple {
@@ -92,12 +92,13 @@ public:
         rr[i][0].a = false;
         sct_assert_unknown (rr[0][0].a);
         sct_assert_unknown (rr[1][1].a);
-        
+        sct_assert_const (rr[0][1].b == 42);
         sct_assert_const (rr[2][0].b == 43);
+        
         rr[0][i].b = 0;
         sct_assert_unknown (rr[0][1].b);
-        sct_assert_unknown (rr[2][0].b);
-        sct_assert_unknown (rr[2][1].b);
+        sct_assert_const (rr[2][0].b == 43);
+        sct_assert_const (rr[2][1].b == 44);
     }
     
 //-----------------------------------------------------------------------------
@@ -141,6 +142,8 @@ public:
         o[i].r.x = 0;
         sct_assert_unknown (o[1].y);
         sct_assert_unknown (o[2].r.x);
+        
+        i = o[i].r.x;
     }
     
     // Record with array of inner records 
@@ -163,6 +166,8 @@ public:
         sct_assert_unknown (orec.r[0].x);
         sct_assert_unknown (orec.r[1].x);
         sct_assert_unknown (orec.r[2].x);
+        
+        i = orec.r[i].x;
     }    
 };
 

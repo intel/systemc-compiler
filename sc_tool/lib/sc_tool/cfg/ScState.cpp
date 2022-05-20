@@ -283,6 +283,7 @@ void ScState::join(ScState* other)
                 ++ti;
             } else {
                 // Different values, remove this tuple
+                //cout << "Diff " << ti->first << " : " << ti->second << " " << j->second << endl;
                 ti = tuples.erase(ti);
             }
         }
@@ -1437,6 +1438,28 @@ const InsertionOrderSet<SValue>& ScState::getDeclaredValues() const {
     return declared;
 }
 
+// Remove single integer variables which exists in @defined 
+// Used to remove member variables from state after preliminary CPA
+void ScState::removeDefinedValues(std::unordered_set<SValue> defined) 
+{
+    auto i = tuples.begin();
+    while (i != tuples.end()) {
+        // Remove tuple for integer variable only
+        if (i->first.isVariable() && i->second.isInteger()) {
+            // Get zero index element including record arrays
+            SValue zeroVal = getFirstArrayElementForAny(i->first);
+
+            if (defined.count(zeroVal) == 0) {
+                ++i;
+            } else {
+                i = tuples.erase(i);
+            }
+        } else {
+            ++i;
+        }
+    }
+}
+
 // Is the given value an array value or channel as array element, 
 // does not work for array variable or record array
 // \param unkwIndex -- index is non-determinable
@@ -1515,44 +1538,38 @@ SValue ScState::getBottomArrayForAny(const SValue& eval, bool& unkwIndex,
     return NO_VALUE;
 }
 
-// Get topmost array and field declaration for given value which can be 
+// Get topmost value and field declarations for given value which can be 
 // element in array or field in record array element.
 // Only one multidimensional array supported, no record array with array member
 // \param eval -- element which specifies array 
 // \param crossModule -- cross module/MIF border number
-// \param decls -- field declarations of record element
-SValue ScState::getTopArrayForAny(const SValue& eval, unsigned crossModule,
-                                        vector<const ValueDecl*>& decls) const
+// \param decls -- field declarations of record element variables
+SValue ScState::getTopForAny(const SValue& eval, unsigned crossModule,
+                             vector<const ValueDecl*>& decls) const
 {
     //cout << "   parseArrayElement " << endl;
     vector<SValue> valStack;
     parseValueHierarchy(eval, crossModule, valStack);
     
-//    cout << "valStack: ";
-//    for (const SValue& val : valSltack) {
-//        cout << " " << val;
+//    cout << "valStack: " << endl;
+//    for (const SValue& val : valStack) {
+//        cout << "  " << val << endl;;
 //    }
 //    cout << endl;
     
-    SValue mval;
+    // Put declaration for variable or null for others
     for (const SValue& val : valStack) {
-        // Provide topmost array in multidimensional array only 
-        if (!val.isArray() && mval.isArray()) break;
-        // Get all declaration before first array
         if (val.isVariable()) {
             decls.push_back(val.getVariable().getDecl());
-        }
-        // Get topmost array of multidimensional array after, no several arrays
-        if (val.isArray()) {
-            mval = val;
+        } else {
+            decls.push_back(nullptr);
         }
     }
-    //cout << "   mval " << mval << endl;
+    // Last declaration is not required
+    decls.pop_back();
     
-    if (mval.isArray()) {
-        mval.getArray().setOffset(0);
-    }
-    return mval;
+    // Return topmost value
+    return valStack.back();
 }
 
 // Get first non-MIF module in @eval parent hierarchy
@@ -1585,146 +1602,165 @@ SValue ScState::getSynthModuleValue(const SValue& eval, unsigned crossModule) co
 SValue ScState::getFirstArrayElementForAny(const SValue& val, 
                                            unsigned crossModule) const
 {
-    //cout << "   ------- getFirstArrayElementForAny ------" << endl;
+    SValue mval = val;
+    correctUnknownIndexValue(mval);
+    //cout << "correctUnknownIndexValue val " << val << " mval " << mval << endl;
     
     std::vector<const clang::ValueDecl*> decls;
-    SValue mval = getTopArrayForAny(val, crossModule, decls);
-    //cout << "   getTopArrayForAny val " << val << " mval " << mval << endl;
+    mval = getTopForAny(mval, crossModule, decls);
     
-    // If no array found, return original value
-    if (!mval.isArray()) {
-        //cout << "-------------------------------" << endl;
-        mval = val;
-        return mval;
-    }
-
-    if (decls.empty()) {
-        // Traverse down to bottom array with indices [0][0]...[0] and
-        // finish at last array
-        SValue mmval = mval;
-        do {
-            mval = mmval;
-            mmval = getValue(mval);
-        } while (mmval.isArray());
-        
-    } else {
-        // Traverse down to bottom array with indices [0][0]...[0] and 
-        // get array element value
-        while (mval.isArray()) {
-            mval = getValue(mval);
-        }
-        //cout << "mval #2 " << mval << endl;
-
-        // Return from pointer to record value
-        while (mval.isSimpleObject()) {
-            SValue mmval = getValue(mval);
-            mval = mmval; 
-        }
-
-        // Add record fields back to record element
-        //cout << "---- Add record fields " << mval << endl;
-        for (auto i = decls.rbegin(); i != decls.rend(); ++i) {
-            if (i != decls.rbegin()) mval = getValue(mval);
-
-            // Return from pointer to record value
-            if (mval.isSimpleObject()) {
-                SValue mmval = getValue(mval);
-                mval = mmval;
-            }
-            
+//    cout << "  getTopArrayForAny val " << val << " mval " << mval << endl;
+//    for (auto i = decls.rbegin(); i != decls.rend(); ++i) {
+//        cout << "    " << hex << (uint64_t)(*i) << dec << endl;
+//    }
+    
+    // Traverse down recovering variable declaration and clearing array offset
+    //cout << "  Recovering zero value " << endl;
+    for (auto i = decls.rbegin(); i != decls.rend(); ++i) {
+        if (*i) {
             mval = SValue(*i, mval);
-            // Restore correct parent module which can be changed in 
-            // @parseArrayElementForAny() by @getMostDerivedClass()
+            // Restore correct parent module which can be changed
             correctParentBaseClass(mval);
+            //cout << "    " << mval << endl;
+        } else {
+            // Clear array index at get array value or pointer de-reference
+            mval = getValue(mval);
+            //cout << "    " << mval << endl;
         }
-        //cout << "mval #3 " << mval << endl;
     }
     
-    // Restore correct parent module which can be changed in 
-    // @parseArrayElementForAny() by @getMostDerivedClass()
-    correctParentBaseClass(mval); //???
-    
+    //cout << " getFirstArrayElementForAny " << val << " " << mval << endl;
     return mval;
 }
 
-// Get all elements of given record array recursively
-void ScState::getRecordArrayElements(const SValue& val, vector<SValue>& res) const
+// Restore correct parent for record field accessed at unknown index(es)
+// Required for multidimensional array and array in record array
+// For T a[N][M] accessed at unknown indices there is ARR2[UNKW].a which is 
+// corrected here to REC1.a, where state contains (ARR2[0], REC1) tuple
+void ScState::correctUnknownIndexValue(SValue& val) const 
 {
-    SValue aval = val;
+    //cout << "correctUnknownIndexValue " << val << endl;
+    if (!val.isVariable()) return; 
     
-    for (size_t i = 0; i < aval.getArray().getSize(); i++) {
-        aval.getArray().setOffset(i);
-        SValue rval = getValue(aval);
+    SValue parent = val.getVariable().getParent();
+    //cout << "  parent " << parent << endl;
+    if (parent.isVariable() && 
+        parent.getVariable().getDecl() != val.getVariable().getDecl()) {
+        correctUnknownIndexValue(parent);
+        parent = getValue(parent);
+        //cout << "  parent (1) " << parent << endl;
+    }
+    while (parent.isArray() || parent.isSimpleObject()) {
+        if (parent.isArray()) parent.getArray().clearUnknown();
+        parent = getValue(parent);
+        //cout << "  parent (2) " << parent << endl;
+    }
         
-        if (rval.isArray()) {
-            getRecordArrayElements(rval, res);
+    val = SValue(val.getVariable().getDecl(), parent);
+    // Restore correct parent module which can be changed
+    correctParentBaseClass(val);
+    //cout << "  result " << val << endl;
+}
+
+// Get all elements of given record array recursively
+// \return true if it is last lvalue, next one is unknown or integer
+bool ScState::getRecordArrayElements(const SValue& val, vector<SValue>& resvals,
+                                     const std::vector<const clang::ValueDecl*>& decls,
+                                     int declIndx) const
+{
+    if (val.isArray()) {
+        SValue aval = val;
+        // Get all elements as there is no index known
+        for (size_t i = 0; i < aval.getArray().getSize(); i++) {
+            aval.getArray().setOffset(i);
+            SValue rval = getValue(aval);
+            // Do not consider array of pointers as it cannot be written
+            if (getRecordArrayElements(rval, resvals, decls, declIndx)) {
+                resvals.push_back(aval);
+            }
+        }
+        return false;
+    } else 
+    if (val.isRecord()) {
+        if (declIndx < 0) {
+            // All record fields are written
+            return true;
             
         } else {
-            // Get record from pointer
-            while (rval.isSimpleObject()) {
-                SValue rrval = getValue(rval);
-                rval = rrval;
-            }
-            SCT_TOOL_ASSERT (rval.isRecord(), "No record in array found");
-            res.push_back(rval);
+            //auto decl = decls.back(); decls.pop_back();
+            auto decl = decls[declIndx]; declIndx--;
+            SValue rval = SValue(decl, val);
+            // Restore correct parent module which can be changed
+            correctParentBaseClass(rval);
+            // @val is variable which is lvalue, so do not check result
+            getRecordArrayElements(rval, resvals, decls, declIndx);
+            return false;
         }
+    } else 
+    if (val.isSimpleObject() || val.isVariable()) {
+        SValue rval = getValue(val);
+        if (getRecordArrayElements(rval, resvals, decls, declIndx)) {
+            resvals.push_back(val);
+        }
+        return false;
+        
+    } else 
+    if (val.isSimpleObject()) {
+        // Do nothing
+        return false;
+    
+    } else {
+        // Do nothing
+        return true;
     }
 }
 
+// TODO: update me
 // Return all elements of single/multidimensional array/record array 
 // where the given value is stored as element
-vector<SValue>ScState::getAllRecordArrayElementsForAny(const SValue& val,
+vector<SValue> ScState::getAllRecordArrayElementsForAny(const SValue& val,
                                                 unsigned crossModule) const
 {
-    std::vector<const clang::ValueDecl*> decls;
-    SValue mval = getTopArrayForAny(val, crossModule, decls);
+    vector<SValue> valStack;
+    parseValueHierarchy(val, crossModule, valStack);
     
-    // Recursively traverse all the array elements and put them into @res
-    vector<SValue> recElems;
-
-    if (mval.isArray()) {
-        getRecordArrayElements(mval, recElems);
-    }
-    
-    // Add record fields back to record elements
-    for (auto& elem : recElems) {
-        for (auto i = decls.rbegin(); i != decls.rend(); ++i) {
-            if (i != decls.rbegin()) elem = getValue(elem);
-            elem = SValue(*i, elem);
-            // Restore correct parent module which can be changed in 
-            // @parseArrayElementForAny() by @getMostDerivedClass()
-            correctParentBaseClass(elem);
+    // Get topmost array with unknown index
+    SValue mval = val;
+    for (const SValue& v : valStack) {
+        if (v.isArray() && v.getArray().isUnknown()) {
+            mval = v;
         }
     }
-    
-    return recElems;
-}
-
-// Is value simple enough to store its value, if not no value put to state 
-// Not used for now
-/*bool ScState::isSimpleValue(const SValue& val) const 
-{
-    // Go up and count array number
-    vector<SValue> valStack;
-    parseValueHierarchy(val, 0, valStack);
-    
-//    cout << "isSimpleValue val " << val << " valStack:";
-//    for (auto mval : valStack) {
-//        cout << " " << mval;
+//    cout << "valStack: ";
+//    for (const SValue& val : valStack) {
+//        cout << " " << val;
 //    }
 //    cout << endl;
-    
-    unsigned arrNum = 0;
-    for (const SValue& mval : valStack) {
-        arrNum += mval.isArray() ? 1 : 0;
-    }
-    if (arrNum > 1) return false;
 
-    // Go down and count array number
-    const QualType& type = val.getType();
-    bool comlType = (arrNum == 1) && sc::isArray(type);
-    return !comlType;
-}*/
+    SCT_TOOL_ASSERT (mval.isArray() && mval.getArray().isUnknown(), "");
+    
+    // Get all declaration before @mval
+    std::vector<const clang::ValueDecl*> decls;
+    for (const SValue& v : valStack) {
+        if (v == mval) break;
+        if (v.isVariable()) {
+            decls.push_back(v.getVariable().getDecl());
+        }
+    }
+    //cout << "   mval " << mval << endl;
+    
+    // Recursively traverse all the array elements and put them into @recvals
+    vector<SValue> recvals;
+    if (mval.isArray()) {
+        getRecordArrayElements(mval, recvals, decls, decls.size()-1);
+//        cout << "getRecordArrayElements: " << endl;
+//        for (auto& v : recvals) {
+//            cout << "  " << v << endl;
+//        }
+    }
+    
+    return recvals;
+}
 
 // Get all fields for given record value with 
 // TODO: update for inner records
@@ -1908,6 +1944,59 @@ bool ScState::compareStates(const ScState* bigger, const ScState* other)
         }
     }
     return true;
+}
+
+llvm::APSInt ScState::getIntFromView(bool isSigned, sc_elab::ValueView valueView)  
+{
+    size_t bitwidth = valueView.bitwidth();
+    
+    if (valueView.int64Val()) {
+        return llvm::APSInt(llvm::APInt(bitwidth,*valueView.int64Val()), !isSigned);
+    } else 
+    if (valueView.uint64Val()) {
+        return llvm::APSInt(llvm::APInt(bitwidth,*valueView.uint64Val()), !isSigned);
+    }
+}
+
+bool ScState::isMemberPrimVar(const SValue& val, const ScState* state) 
+{
+    // Skip non-variables
+    if (!val.isVariable()) return false;
+
+    // Skip pointers and arrays
+    const QualType& type = val.getType();
+    bool isPtr = sc::isPointer(type);
+    bool isRef = sc::isReference(type);
+    bool isArr = sc::isArray(type);
+    if (isArr || isPtr || isRef) return false;
+
+    // Skip constant variable it already declared as @localparam
+    bool isConst = type.isConstQualified();
+    if (isConst) return false;
+
+    // Class field must be in this map, no local variables here
+    if (auto elabObj = state->getElabObject(val)) {
+        // Skip array and record elements
+        vector<SValue> valStack;
+        state->parseValueHierarchy(val, 0, valStack);
+        bool skip = false;
+        for (const SValue& mval : valStack) {
+            if (mval.isArray() || mval.isRecord()) {
+                skip = true; break;
+            }
+        }
+        if (skip) return false;
+
+        //cout << "  elabObj" << elabObj->getDebugString() << endl;
+        if (auto elabOwner = elabObj->getVerilogNameOwner()) {
+            elabObj = elabOwner;
+        }
+
+        // Skip non-primitive objects
+        return (elabObj->isPrimitive() && !elabObj->isChannel());
+    }
+    
+    return false;
 }
 
 bool ScState::compare(ScState* other) const 

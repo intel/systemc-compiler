@@ -81,7 +81,6 @@ public:
         bool b = ss[1].getA();
         
         sct_assert_const(ss[1].a);
-        sct_assert_unknown(ss[0].a);
         
         sc_uint<2> i = sig;
         ss[i].setA(true);
@@ -124,7 +123,6 @@ public:
     void record_meth3() 
     {
         bool b = xs[1].localVar(1);
-        sct_assert_unknown(xs[1].a);
         sct_assert_const(b);
         
         sc_uint<2> i = sig;

@@ -1036,7 +1036,8 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
     val = NO_VALUE;
     QualType type = expr->getType();
     auto ctorDecl = expr->getConstructor();
-    bool isCopyCtor = ctorDecl->isCopyOrMoveConstructor();
+    bool isCopyCtor = ctorDecl->isCopyConstructor();
+    bool isMoveCtor = ctorDecl->isMoveConstructor();
     
     if (isAnyScInteger(type)) {
         // @sc_uint, @sc_biguint, @sc_int, @sc_bigint
@@ -1109,28 +1110,44 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
         
         // Check @locarecvar to skip sub-statement with @CXXConstructExpr
         if (locrecvar) {
-            if (isCopyCtor) {
+            if (isCopyCtor || isMoveCtor) {
                 // Copy constructor to pass record parameter by value
                 //cout << "CXXConstructExpr " << hex << expr << dec << endl;
                 SCT_TOOL_ASSERT (expr->getArg(0), "No argument in copy constructor");
 
                 // Use copy constructor parameter as result
-                SValue rval; chooseExprMethod(expr->getArg(0), rval);
+                SValue rval; 
+                chooseExprMethod(expr->getArg(0), rval);
+
                 // At this stage for unknown index zero element returned,
                 // so record is always got
-                SValue rrec; state->getValue(rval, rrec);
-                SCT_TOOL_ASSERT(rrec.isRecord(), "Incorrect value type for "
-                                                 "copy constructor");
-                // Create record copy 
-                val = createRecordCopy(expr, rrec, locrecvar);
+                SValue rrec;
+                if (!rval.isRecord()) {
+                    state->getValue(rval, rrec); 
+                } else {
+                    rrec = rval;
+                }
 
-                // Get record indices from @arraySubIndices, erased after
-                auto rrecvecs = getRecVector(rrec);
-                string rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
+                if (!rrec.isRecord()) {
+                    SCT_INTERNAL_ERROR (expr->getBeginLoc(), 
+                            "Incorrect value type for copy constructor");
+                }
+                if (!rval.isRecord()) {
+                    // Create record copy 
+                    val = createRecordCopy(expr, rrec, locrecvar);
 
-                // Assign record fields, LHS indices added inside if need
-                codeWriter->putRecordAssign(expr, locrecvar, val, rval, rrec, 
-                                            "", rrecSuffix);
+                    // Get record indices from @arraySubIndices, erased after
+                    auto rrecvecs = getRecVector(rrec);
+                    string rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
+
+                    // Assign record fields, LHS indices added inside if need
+                    codeWriter->putRecordAssign(expr, locrecvar, val, rval, rrec, 
+                                                "", rrecSuffix);
+                } else {
+                    // This case is initialization with constructor parameter
+                    // where move constructor is used
+                    val = rrec;
+                }
             } else {
                 // Normal constructor of local record
                 // Return created record to assign to its variable

@@ -5,7 +5,6 @@
 * 
 *****************************************************************************/
 
-
 #include "systemc.h"
 
 // Function call in record constructor

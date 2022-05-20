@@ -144,15 +144,34 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     
     auto parentModView = procView.getParentModule();
     auto verMod  = elabDB.getVerilogModule(parentModView);
+    bool hasReset = !procView.resets().empty();
 
+    // Preliminary CPA
+    DebugOptions::suspend();
+    auto preState = std::shared_ptr<ScState>(globalState->clone());
+    ScTraverseConst preConst(astCtx, preState, modSval, 
+                            globalState, &elabDB, &threadStates, 
+                            &findWaitVisitor, false);
+    preConst.setHasReset(hasReset);
+    preConst.run(verMod, entryFuncDecl);
+    
+    std::unordered_set<SValue> defVals;
+    for (const auto& entry : preConst.getWaitStates()) {
+        for (const auto& sval : entry.second.getDefArrayValues()) {
+            defVals.insert(sval);
+        }
+    }
+
+    // Remove defined member variables from state
+    globalState->removeDefinedValues(defVals);
+    DebugOptions::resume();
+    
     // Run global CPA, used to provide initial state for local CPA
     std::shared_ptr<ScState> globalStateClone(globalState->clone());
     travConst = std::make_unique<ScTraverseConst>(astCtx,
                             globalStateClone, modSval, 
                             globalState, &elabDB, &threadStates, 
                             &findWaitVisitor, false);
-    
-    bool hasReset = !procView.resets().empty();
     travConst->setHasReset(hasReset);
     travConst->run(verMod, entryFuncDecl);
     
@@ -163,7 +182,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     
     // Check at least one @wait achieved
     if (travConst->getWaitStates().empty()) {
-        ScDiag::reportScDiag(procView.getLocation().second->getBeginLoc(),
+        ScDiag::reportScDiag(entryFuncDecl->getBeginLoc(),
                              ScDiag::SC_FATAL_THREAD_NO_STATE);
         SCT_INTERNAL_FATAL_NOLOC ("No states found for thread");
     }
@@ -196,7 +215,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     
     // Fill UseDef for all states
     std::unordered_set<SValue> useVals;
-    std::unordered_set<SValue> defVals;
+    defVals.clear();
     for (const auto& entry : travConst->getWaitStates()) {
         analyzeUseDefResults(&entry.second, useVals, defVals);
     }
@@ -757,34 +776,10 @@ ThreadBuilder::initNonDefinedVars(const std::unordered_set<SValue>& useVals,
     // Add initialization values for non-modified member variables to 
     // generate them as @localparam
     for (const SValue& val : useVals) {
-        // Skip non-variables
-        if (!val.isVariable()) continue;
         // Skip defined variables
         if (defVals.count(val) != 0) continue;
-        // Skip access from top module process
-        if (val.getVariable().getParent() != dynModSval) continue;
-        
-        // Skip pointers and arrays
-        const QualType& type = val.getType();
-        bool isPtr = sc::isPointer(type);
-        bool isRef = sc::isReference(type);
-        bool isArr = sc::isArray(type);
-        if (isArr || isPtr || isRef) continue;
-        
-        // Skip constant variable it is declared as @localparam
-        bool isConst = type.isConstQualified();
-        if (isConst) continue;
-        
-        // Skip array and record elements
-        vector<SValue> valStack;
-        globalState->parseValueHierarchy(val, 0, valStack);
-        bool skip = false;
-        for (const SValue& mval : valStack) {
-            if (mval.isArray() || mval.isRecord()) {
-                skip = true; break;
-            }
-        }
-        if (skip) continue;
+        // Skip value if it does not meet member variable conditions
+        if (!ScState::isMemberPrimVar(val, globalState.get())) continue;
         
         // Class field must be in this map, no local variables here
         if (auto elabObj = globalState->getElabObject(val)) {
@@ -793,9 +788,6 @@ ThreadBuilder::initNonDefinedVars(const std::unordered_set<SValue>& useVals,
                 elabObj = elabOwner;
             }
 
-            // Skip non-primitive objects
-            if (!elabObj->isPrimitive() || elabObj->isChannel()) continue;
-            
             auto verVars = verMod->getVerVariables(*elabObj);
             
             for (auto* verVar : verVars) {
@@ -902,7 +894,7 @@ void ThreadBuilder::generateThreadLocalVariables()
                                         regVar, ScState::MIF_CROSS_NUM);
         bool isNonZeroElmt = regVar != regVarZero;
         SCT_TOOL_ASSERT (regVarZero, "No zero element found in global state");
-        //cout << "   regVarZero " << regVarZero << " isNonZeroElemnt " << isNonZeroElmt << endl;
+        //cout << " regVar " << regVar << " regVarZero " << regVarZero << " isNonZeroElemnt " << isNonZeroElmt << endl;
         
         if (auto elabObj = globalState->getElabObject(regVarZero)) {
             // Module/class field

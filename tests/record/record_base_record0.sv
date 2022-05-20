@@ -19,10 +19,10 @@ logic nrst;
 logic signed [31:0] sig;
 
 //------------------------------------------------------------------------------
-// Method process: call_record1 (test_base_record0.cpp:70:5) 
+// Method process: call_record1 (test_base_record0.cpp:69:5) 
 
 always_comb 
-begin : call_record1     // test_base_record0.cpp:70:5
+begin : call_record1     // test_base_record0.cpp:69:5
     integer par;
     logic [7:0] s_bits;
     integer s_m;
@@ -77,7 +77,7 @@ begin : call_record1     // test_base_record0.cpp:70:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: call_record2 (test_base_record0.cpp:93:5) 
+// Clocked THREAD: call_record2 (test_base_record0.cpp:92:5) 
 
 // Thread-local variables
 logic [14:0] bts;
@@ -85,7 +85,7 @@ logic [14:0] r_bits;
 logic [14:0] r_bits_next;
 
 // Next-state combinational logic
-always_comb begin : call_record2_comb     // test_base_record0.cpp:93:5
+always_comb begin : call_record2_comb     // test_base_record0.cpp:92:5
     call_record2_func;
 end
 function void call_record2_func;

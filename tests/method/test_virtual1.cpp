@@ -23,16 +23,16 @@ struct A : public sc_module
     }
     
     virtual void d() {
-        m += 1;
+        m = 1;
     }
     virtual int d(sc_uint<3> val) {
         return (val+1);
     }
     virtual void f() {
-        m++;
+        m = 0;
     }
     virtual void f(int i) {
-        m += i;
+        m = i;
     }
 
     void virt_call() {
@@ -54,17 +54,17 @@ public:
     {}
     
     virtual void d() {
-        m += 2;
+        m = -2;
     }
     virtual int d(sc_uint<3> val) {
-        m++;
+        m = -val;
         return (val-1);
     }
     virtual void f() {
-        m--;
+        m = -1;
     }
     virtual void f(int i) {
-        m -= i;
+        m = -i;
     }
 };
 

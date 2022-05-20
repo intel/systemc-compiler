@@ -375,9 +375,11 @@ sc::SValue ProcBuilder::traverseArray(ArrayView arrayView)
 
 SValue ProcBuilder::createPrimitiveSValue(ValueView value)
 {
-    // If its is constant or pointe of pointer to constant get value here
-    if (!value.isConstant() && !constPointe)
-        return SValue();
+    // Previously values are stored in state for constant or pointe of 
+    // pointer to constant, now all member variables stored
+    // Member variables modified in a process removed from initial state 
+    //if (!value.isConstant() && !constPointe)
+    //    return SValue();
 
     // Use decimal radix here, will be replaced in @ScGenerateExpr constructor
     if (auto uval = value.uint64Val()) {
@@ -386,8 +388,11 @@ SValue ProcBuilder::createPrimitiveSValue(ValueView value)
     if (auto ival = value.int64Val()) {
         return SValue(APSInt(APInt(value.bitwidth(), *ival), false), 10);
     } else {
-        ScDiag::reportScDiag(ScDiag::SC_ERROR_ELAB_UNSUPPORTED_TYPE)
-            << value.getType();
+        // Report error for biguint/bigint constants
+        if (value.isConstant() || constPointe) {
+            ScDiag::reportScDiag(ScDiag::SC_ERROR_ELAB_UNSUPPORTED_TYPE)
+                                 << value.getType();
+        }
 
         return SValue();
     }

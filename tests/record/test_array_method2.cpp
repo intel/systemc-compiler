@@ -25,17 +25,17 @@ public:
         SC_METHOD(rec_mod_inner0);
         sensitive << dummy;
 
-        // Inner records not supported yet
-//        SC_METHOD(rec_mod_inner1);  
-//        sensitive << dummy;
-//
-//        SC_METHOD(rec_mod_inner2);  
-//        sensitive << dummy;
+        // Inner records 
+        SC_METHOD(rec_mod_inner1);  
+        sensitive << dummy;
+
+        SC_METHOD(rec_mod_inner2);  
+        sensitive << dummy;
     }
    
     struct Simple {
-        bool a;
-        int b;
+        bool a = true;
+        int b = 42;
     };
     
     Simple marr1[2];
@@ -43,16 +43,12 @@ public:
     
     void rec_mod_arr1() 
     {
-        sct_assert_unknown(marr1[1].a);
-        sct_assert_unknown(marr2[1][2].a);
-
         marr1[1].a = false;
         marr2[1][2].a = !marr1[1].a;
         int c = marr2[1][0].b + marr1[0].b;
         
         sct_assert_const(!marr1[1].a);
         sct_assert_const(marr2[1][2].a);
-        sct_assert_unknown(marr1[0].a);
         
         sct_assert_array_defined(marr2[1][2].a);
         sct_assert_read(marr2[1][0].b);
@@ -92,7 +88,6 @@ public:
 
         sct_assert_const(!oarr[0].b);
         sct_assert_const(oarr[1].r.a);
-        sct_assert_unknown(oarr[0].r.a);
         
         sct_assert_array_defined(oarr[1].r.a);
         sct_assert_read(oarr[0].b);
@@ -106,7 +101,6 @@ public:
         orec.r[1].a = !orec.b;
 
         sct_assert_const(orec.r[1].a);
-        sct_assert_unknown(orec.r[0].a);
     }    
 };
 

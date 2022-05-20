@@ -18,10 +18,10 @@ struct E : public sc_module, public sc_interface {
     }
     
     void g() {
-        n++;
+        n = 0;
     }
     void g(int i) {
-        n += i;
+        n = i;
     }
 };
 

@@ -68,7 +68,7 @@ public:
             for (int i = 0; i < N; i++) {
                 b = b || r2[i]->getA();
                 
-                if (b) r2[i]->setB(i);
+                if (!b) r2[i]->setB(i);
             }
             wait();
         }

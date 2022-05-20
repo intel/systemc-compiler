@@ -33,11 +33,10 @@ void sct_property_utils::parseTimes(const std::string& s,
 }
 
 //=============================================================================
+namespace sc_core {
 
 // Static container of created @sct_property instances
 std::unordered_map<std::size_t, sct_property*> sct_property_storage::stor;
-
-//=============================================================================
 
 // Put antecedent(left) and consequent (right) expressions every cycle
 void sct_property::check(bool lexpr, bool rexpr) {
@@ -75,4 +74,4 @@ void sct_property::check(bool lexpr, bool rexpr) {
     }
 }
 
-
+} // namespace sc_core

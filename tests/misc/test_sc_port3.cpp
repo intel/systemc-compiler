@@ -71,6 +71,7 @@ struct C : sc_module, my_if<sc_uint<4>>
     }
     
     sc_uint<32> access_var(){
+        cvar = 0;
         return cvar;
     }
 

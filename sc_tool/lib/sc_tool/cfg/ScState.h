@@ -484,6 +484,10 @@ public:
     
     /// Get declared values
     const InsertionOrderSet<SValue>& getDeclaredValues() const;
+    
+    /// Remove single integer variables which exists in @defined 
+    /// Used to remove member variables from state after preliminary CPA
+    void removeDefinedValues(std::unordered_set<SValue> defined);
 
     /// Is the given value an array value or channel as array element, 
     /// does not work for array variable or record array
@@ -504,7 +508,7 @@ public:
     /// \param eval -- element which specifies array 
     /// \param crossModule -- cross module/MIF border number
     /// \param decls -- field declarations of record element
-    SValue getTopArrayForAny(const SValue& eval, unsigned crossModule,
+    SValue getTopForAny(const SValue& eval, unsigned crossModule,
                              std::vector<const clang::ValueDecl*>& decls) const;
     
     /// Get first non-MIF module in @eval parent hierarchy
@@ -519,19 +523,24 @@ public:
     SValue getFirstArrayElementForAny(const SValue& val, 
                                       unsigned crossModule = 0) const;
     
-    /// Get all elements of given record array recursively
-    void getRecordArrayElements(const SValue& val, 
-                                std::vector<SValue>& res) const;
+    /// Restore correct parent for record field accessed at unknown index(es)
+    /// Required for multidimensional array and array in record array
+    /// For T a[N][M] accessed at unknown indices there is ARR2[UNKW].a which is 
+    /// corrected here to REC1.a, where state contains (ARR2[0], REC1) tuple
+    void correctUnknownIndexValue(SValue& val) const;
+    
+   /// Get all elements of given record array recursively
+   /// \return true if it is last lvalue, next one is unknown or integer
+   bool getRecordArrayElements(const SValue& val, 
+                               std::vector<SValue>& resvals,
+                               const std::vector<const clang::ValueDecl*>& decls,
+                               int declIndx) const;
     
     /// Return all elements of single/multidimensional array/record array 
     /// where the given value is stored as element
     std::vector<SValue> getAllRecordArrayElementsForAny(
                                 const SValue& val, 
                                 unsigned crossModule = 0) const;
-    
-    /// Is value simple enough to store its value, if not no value put to state 
-    /// Not used
-    ///bool isSimpleValue(const SValue& val) const;
     
     /// Get all fields for given record value with 
     InsertionOrderSet<SValue> getRecordFields(const SValue& recval) const;
@@ -592,6 +601,13 @@ public:
     
     /// Compare two state, should not be used, use compare() instead 
     static bool compareStates(const ScState* bigger, const ScState* other);
+  
+    /// Get APSInt from ValueView
+    static llvm::APSInt getIntFromView(bool isSigned, sc_elab::ValueView valueView);
+
+    /// Check if value is candidate to localparam: non-constant, member variable, 
+    /// scalar of integral type, not defined in this process
+    static bool isMemberPrimVar(const SValue& val, const ScState* state);
     
 };
 

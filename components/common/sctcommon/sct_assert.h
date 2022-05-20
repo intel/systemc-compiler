@@ -237,7 +237,6 @@ inline void sct_alive_loop() {}
 
 #define SCT_ALIVE_LOOP(X) {sct_alive_loop(); X}
 
-
-}
+} // namespace sc_core
 
 #endif /* SCT_ASSERT_H */
