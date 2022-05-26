@@ -26,7 +26,7 @@ An instruction how to install and run ISCS is given at [Getting started](https:/
 
 [User guide](https://github.com/intel/systemc-compiler/blob/main/doc/ug.pdf) document describes installation procedure, run tool options, preparation of SystemC design for ICSC, and also tool extensions and advanced verification features.
 
-SystemC/C++ various features supported by ICSC described at [SystemC/C++ supported](https://github.com/intel/systemc-compiler/wiki/SystemC--supported).
+SystemC/C++ subset supported by ICSC described at [SystemC/C++ supported](https://github.com/intel/systemc-compiler/wiki/SystemC--supported).
 
 ## Publications
 
