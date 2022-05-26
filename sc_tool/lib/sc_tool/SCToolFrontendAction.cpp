@@ -190,17 +190,17 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
             runVerilogGeneration(elabDB, movedObjs);
 
             std::cout << "----------------------------------------------------------------" << std::endl;
-            std::cout << " SystemC-to-Verilog trasnlation, OK " << std::endl;
+            std::cout << " SystemC-to-Verilog translation, OK " << std::endl;
         
         } catch (std::exception& e) {
             std::cout << "----------------------------------------------------------------" << std::endl;
-            std::cout << " SystemC-to-Verilog trasnlation, ERROR " << std::endl;
+            std::cout << " SystemC-to-Verilog translation, ERROR " << std::endl;
         }
         
     } else {
         std::cout << "Fatal error : Top module is not a record" << std::endl;
         std::cout << "----------------------------------------------------------------" << std::endl;
-        std::cout << " SystemC-to-Verilog trasnlation, ERROR " << std::endl;
+        std::cout << " SystemC-to-Verilog translation, ERROR " << std::endl;
     }
     std::cout << "----------------------------------------------------------------" << std::endl;
     
