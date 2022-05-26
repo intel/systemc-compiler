@@ -648,6 +648,7 @@ public:
     void resetKeepArrayIndices() {keepArrayIndices = false;}
     
     void setRecordName(const SValue& val, std::string str) {
+        str = getIndexFromRecordName(str);
         recordValueName = std::pair<SValue,std::string>(val, str);
     }
     std::pair<SValue,std::string> getRecordName() {
@@ -745,13 +746,13 @@ protected:
     /// Keep array indices, i.e. do not erase them from @arraySubIndices in 
     /// getIndexString(), required for record array with inner record access
     bool keepArrayIndices = false;
-    /// Record name string, used in record method call as field prefix/suffix,
+    /// Record array indices, used in record method call as field prefix/suffix,
     /// required to provide indices as they can be not stored in field value 
-    /// <record value, record expression>
+    /// <record value, record indices>
     std::pair<SValue, std::string> recordValueName{NO_VALUE, ""};
-    /// MIF name string, used in access MIF members from its process,
+    /// MIF array indices, used in access MIF members from its process,
     /// set up at start of MIF process generation
-    /// <record value, record expression>
+    /// <record value, MIF indices>
     std::pair<SValue, std::string> MIFValueName{NO_VALUE, ""};
 
     /// Variable value to external name collection

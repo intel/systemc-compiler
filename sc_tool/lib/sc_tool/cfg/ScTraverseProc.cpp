@@ -552,23 +552,18 @@ void ScTraverseProc::initContext()
     
     // Check if current module if element of array of MIF
     if (isScModularInterface(modval.getType())) {
-        // @modval is array element
-        bool unkwIndex;
-        SValue aval = state->getBottomArrayForAny(modval, unkwIndex,
-                                                  ScState::MIF_CROSS_NUM);
-
-        if (aval.isArray()) {
-            SValue mval;
-            std::vector<int> indxs;
-            state->getArrayIndices(aval, mval, indxs);
-            
-            mval = state->getVariableForValue(mval);
-            string s = mval.asString(false);
-            
-            for (auto i : indxs) {
-                SCT_TOOL_ASSERT (i >= 0, "Unknown index for MIF array element");
-                s += "["+ to_string(i) +"]";
-            }
+        // Get all MIF arrays up to the parent module
+        auto mifarrs = state->getAllMifArrays(modval, ScState::MIF_CROSS_NUM);
+        
+        string s;
+        for (const SValue& val : mifarrs) {
+            SCT_TOOL_ASSERT (val.isArray() && !val.getArray().isUnknown(), 
+                             "Unknown index for MIF array element");
+            auto i = val.getArray().getOffset();
+            s += "["+ to_string(i) +"]";
+        }
+        
+        if (!mifarrs.empty()) {
             //std::cout << "setMIFName " << modval << " " << s << std::endl;
             codeWriter->setMIFName(modval, s);
         }

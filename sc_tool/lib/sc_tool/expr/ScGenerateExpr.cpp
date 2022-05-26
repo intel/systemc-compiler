@@ -648,11 +648,11 @@ void ScGenerateExpr::putMemberExpr(const Expr* expr, const SValue& val,
     // Get record values vector to create name suffix for record member
     auto recvecs = getRecVector(val);
 
-    //cout << "putMemberExpr val " << val << ", recval " << recval 
-    //     << ", modval " << modval << ", recvars size " << recvecs.size() 
-    //     << ", tval " << tval << endl;
-    //cout << "getMIFName " << codeWriter->getMIFName().first << " " << codeWriter->getMIFName().second << endl;
-    //cout << "getRecordName " << codeWriter->getRecordName().first << " " << codeWriter->getRecordName().second << endl;
+//    cout << "\nputMemberExpr val " << val << ", recval " << recval 
+//         << ", modval " << modval << ", recvars size " << recvecs.size() 
+//         << ", tval " << tval << endl;
+//    cout << "getMIFName " << codeWriter->getMIFName().first << " " << codeWriter->getMIFName().second << endl;
+//    cout << "getRecordName " << codeWriter->getRecordName().first << " " << codeWriter->getRecordName().second << endl;
     //state->print();
     
     // Check current MIF array element as a parent of the member
@@ -664,6 +664,15 @@ void ScGenerateExpr::putMemberExpr(const Expr* expr, const SValue& val,
     SValue currecval = codeWriter->getRecordName().first;
     bool elemOfRecArr = tval.isRecord() && currecval.isRecord() &&
                         checkBaseClass(tval, currecval);
+    // check if @tval is member or base class of member of current record (@this)
+    if (SValue tvar = state->getVariableForValue(tval)) {
+        SValue tpar = tvar.getVariable().getParent();
+        elemOfRecArr = elemOfRecArr || (tval.isRecord() && currecval.isRecord() && 
+                       checkBaseClass(tpar, currecval));
+        //cout << "\nputMemberExpr val " << val << ", tval " << tval << ", tvar " << tvar 
+        //     << ", currecval " << currecval << endl;
+    }
+
     //cout << "elemOfMifArr " << elemOfMifArr << " elemOfRecArr " << elemOfRecArr << endl;
     
     SValue cval = getChannelFromState(val);

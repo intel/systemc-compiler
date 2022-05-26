@@ -1173,6 +1173,21 @@ InsertionOrderSet<SValue> ScState::getZeroIndexAllFields(const SValue& val) cons
     return res;
 }
 
+// Check value is array/record array element 
+bool ScState::isArrElem(const SValue& val, unsigned crossModule) const
+{
+    // Get object and variable values into @valStack, 0 -- no cross module
+    std::vector<SValue> valStack;
+    parseValueHierarchy(val, crossModule, valStack);
+    
+    for (const SValue& mval : valStack) {
+        if (mval.isArray()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Check value is array/record array element at unknown index which is 
 // not current module/record
 // \return <hasAnyArray, hasArrayAtUnknIndx>
@@ -1536,6 +1551,28 @@ SValue ScState::getBottomArrayForAny(const SValue& eval, bool& unkwIndex,
         }
     }
     return NO_VALUE;
+}
+
+std::vector<SValue> ScState::getAllMifArrays(const SValue& val, unsigned crossModule) const
+{
+    //cout << "getAllMifArrays val " << val << endl;
+    
+    // Get object and variable values into @valStack
+    std::vector<SValue> valStack;
+    parseValueHierarchy(val, crossModule, valStack);
+
+    // Get unknown from all arrays
+    std::vector<SValue> res;
+    for (const SValue& mval : valStack) {
+        if (isScModule(mval.getType())) break;
+        
+        if (mval.isArray()) {
+            res.push_back(mval);
+            //cout << "  " << mval << endl;
+        }
+    }
+    std::reverse(res.begin(), res.end());
+    return res;
 }
 
 // Get topmost value and field declarations for given value which can be 

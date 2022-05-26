@@ -22,6 +22,7 @@
 #include <sc_tool/utils/NameGenerator.h>
 #include <sc_tool/utils/CfgFabric.h>
 #include <sc_tool/utils/DebugOptions.h>
+#include <sc_tool/utils/StringFormat.h>
 #include <sc_tool/utils/CppTypeTraits.h>
 #include <sc_tool/utils/InsertionOrderSet.h>
 #include <sc_tool/ScCommandLine.h>
@@ -512,9 +513,18 @@ void ScProcAnalyzer::initNonDefinedVars(sc_elab::ProcessView& procView,
         // Skip value if it does not meet member variable conditions
         if (!ScState::isMemberPrimVar(val, globalState.get())) continue;
         
+        const SValue& parent = val.getVariable().getParent();
+        bool isMIF = isScModularInterface(parent.getType());
+        bool isMIFArrElm = isMIF && globalState->isArrElem(parent, ScState::MIF_CROSS_NUM);
+        
+        // Skip MIF array elements accessed from parent module @dynmodval
+        if (parent != dynmodval && isMIFArrElm) {
+            continue;
+        }
+        
         // Class field must be in this map, no local variables here
         if (auto elabObj = globalState->getElabObject(val)) {
-            //cout << "  elabObj" << elabObj->getDebugString() << endl;
+            //cout << "  elabObj " << elabObj->getDebugString() << endl;
             if (auto elabOwner = elabObj->getVerilogNameOwner()) {
                 elabObj = elabOwner;
             }

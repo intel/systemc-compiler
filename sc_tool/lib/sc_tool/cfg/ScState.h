@@ -420,6 +420,9 @@ public:
     /// \return -- all record field values for a record field/record variable
     InsertionOrderSet<SValue> getZeroIndexAllFields(const SValue& val) const;
 
+    /// Check value is array/record array element 
+    bool isArrElem(const SValue& val, unsigned crossModule) const;
+
     /// Check value is array/record array element at unknown index which is 
     /// not current module/record
     /// \return <hasAnyArray, hasArrayAtUnknIndx>
@@ -501,6 +504,8 @@ public:
     /// \return bottom array value or NO_VALUE
     SValue getBottomArrayForAny(const SValue& val, bool& unkwIndex,
                 unsigned crossModule = 0, bool checkRecOnly = false) const;
+    /// ...
+    std::vector<SValue> getAllMifArrays(const SValue& val, unsigned crossModule) const;
     
     /// Get topmost array and field declaration for given value which can be 
     /// element in array or field in record array element.
@@ -529,9 +534,9 @@ public:
     /// corrected here to REC1.a, where state contains (ARR2[0], REC1) tuple
     void correctUnknownIndexValue(SValue& val) const;
     
-   /// Get all elements of given record array recursively
-   /// \return true if it is last lvalue, next one is unknown or integer
-   bool getRecordArrayElements(const SValue& val, 
+    /// Get all elements of given record array recursively
+    /// \return true if it is last lvalue, next one is unknown or integer
+    bool getRecordArrayElements(const SValue& val, 
                                std::vector<SValue>& resvals,
                                const std::vector<const clang::ValueDecl*>& decls,
                                int declIndx) const;

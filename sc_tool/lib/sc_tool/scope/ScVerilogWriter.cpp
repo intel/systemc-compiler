@@ -1815,7 +1815,7 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
             // Access to member of MIF from its process body 
             // No index for local variables 
             if (!isLocalVariable(val)) {
-                string indxSuff = getIndexFromRecordName(MIFValueName.second);
+                string indxSuff = MIFValueName.second;
                 names.first += indxSuff;
                 names.second += indxSuff;
                 //cout << "  MIF array add suffix " << indxSuff << endl;
@@ -1826,12 +1826,14 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
         if (elemOfRecArr) {
             // Access to member of record/MIF from this record method called
             // possible from parent module process
-            string indxSuff = getIndexFromRecordName(recordValueName.second);
+            string indxSuff = recordValueName.second;
             names.first += indxSuff;
             names.second += indxSuff;
             //cout << "  REC from its method suffix " << indxSuff << endl;
             
-        } else 
+        } 
+        
+        // Add record/MIF variable prefix for its member access
         if (!recarrs.empty()) {
             // Access record/MIF member from module function or access 
             // record array element
@@ -1920,7 +1922,7 @@ void ScVerilogWriter::putChannelExpr(const Stmt* stmt, const SValue& cval,
     // Add MIF variable prefix for its member access
     if (elemOfMifArr) {
         // Access to member of MIF from its process body
-        string indxSuff = getIndexFromRecordName(MIFValueName.second);
+        string indxSuff = MIFValueName.second;
         names.first += indxSuff;
         names.second += indxSuff;
         //cout << "  elem of MIF array add suffix " << indxSuff << endl;
@@ -1929,12 +1931,13 @@ void ScVerilogWriter::putChannelExpr(const Stmt* stmt, const SValue& cval,
     // Add record/MIF variable prefix for its member access
     if (elemOfRecArr) {
         // Access to member of record/MIF from this record/MIF called method
-        string indxSuff = getIndexFromRecordName(recordValueName.second);
+        string indxSuff = recordValueName.second;
         names.first += indxSuff;
         names.second += indxSuff;
         //cout << "  REC array add suffix " << indxSuff << endl;
-
-    } else 
+    }  
+    
+    // Add record/MIF variable prefix for its member access
     if ( !recarrs.empty() ) {
         // Access record/MIF member from module function
         // Get indices for most all records

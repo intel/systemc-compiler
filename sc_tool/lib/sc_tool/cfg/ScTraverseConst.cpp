@@ -661,22 +661,19 @@ void ScTraverseConst::initContext()
     zeroElmtMIF = false;
     nonZeroElmtMIF = false;
     if (isScModularInterface(modval.getType())) {
-        // @modval is array element
-        bool unkwIndex;
-        SValue aval = state->getBottomArrayForAny(modval, unkwIndex, 
-                                                  ScState::MIF_CROSS_NUM);
-
-        if (aval.isArray()) {
-            SValue mval;
-            std::vector<int> indxs;
-            state->getArrayIndices(aval, mval, indxs);
-            
-            mifElmtSuffix = "";
-            for (auto i : indxs) {
-                SCT_TOOL_ASSERT (i >= 0, "Unknown index for MIF array element");
-                nonZeroElmtMIF = nonZeroElmtMIF || i != 0;
-                mifElmtSuffix += "["+ to_string(i) +"]";
-            }
+        // Get all MIF arrays up to the parent module
+        auto mifarrs = state->getAllMifArrays(modval, ScState::MIF_CROSS_NUM);
+        
+        mifElmtSuffix = "";
+        for (const SValue& val : mifarrs) {
+            SCT_TOOL_ASSERT (val.isArray() && !val.getArray().isUnknown(), 
+                             "Unknown index for MIF array element");
+            auto i = val.getArray().getOffset();
+            nonZeroElmtMIF = nonZeroElmtMIF || i != 0;
+            mifElmtSuffix += "["+ to_string(i) +"]";
+        }
+        
+        if (!mifarrs.empty()) {
             zeroElmtMIF = !nonZeroElmtMIF;
         }
     }

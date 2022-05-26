@@ -17,13 +17,11 @@
 struct mod_if : public sc_module, sc_interface 
 {
     sc_signal<sc_uint<4>>   s {"s"};
-    sc_uint<4>              v;
+    sc_uint<4>              v;          // No localparam
     unsigned                w;
     const unsigned          c;
     const unsigned          d = 1;
 
-    SC_HAS_PROCESS(mod_if);
-    
     mod_if(const sc_module_name& name, unsigned par) : 
         sc_module(name), c(par), v(par), w(par)
     {}
@@ -35,21 +33,39 @@ struct mod_if : public sc_module, sc_interface
     };
 };
 
+struct mod_if2 : public sc_module, sc_interface 
+{
+    sc_signal<sc_uint<4>>   s {"s"};
+    sc_uint<4>              v;       // localparam as accessed in local method
+
+    SC_HAS_PROCESS(mod_if2);
+    
+    mod_if2(const sc_module_name& name, unsigned par) : 
+        sc_module(name), v(par)
+    {
+        SC_METHOD(mod_meth); sensitive << s;
+    }
+    
+    void mod_meth() {
+        auto ll = v;
+    }
+};
+
 SC_MODULE(Top) {
 
     sc_in_clk       clk{"clk"};
     sc_signal<bool> rst;
     
     sc_signal<int>  t;
-    mod_if*         minsts[2];
+    sc_vector<mod_if>  minsts{"minsts", 2, [](const char* name, size_t i)
+                                          {return new mod_if(name, i);}};
+    sc_vector<mod_if2> minsts2{"minsts2", 2, [](const char* name, size_t i)
+                                          {return new mod_if2(name, i+1);}};
     mod_if          minst{"minst", 1};
     mod_if*         pinst;
 
     SC_CTOR(Top) {
         pinst = new mod_if("mod_if", 1);
-        for (int i = 0; i < 2; i++) {
-            minsts[i] = new mod_if("mod_if", i);
-        }
         
         SC_METHOD(usedef_method); sensitive << t;
         
@@ -76,10 +92,12 @@ SC_MODULE(Top) {
             pinst->w = 1;
         }
         
-        l = minsts[1]->v + minsts[1]->v;
+        l = minsts[1].v + minsts[1].v;
         if (j) {
-            minsts[j]->w = 1;
+            minsts[j].w = 1;
         }
+        
+        l = minsts2[j].v;
     }
     
     void usedef_thread() 
@@ -93,10 +111,10 @@ SC_MODULE(Top) {
     
     void const_meth() {
         int j = t.read();
-        if (minsts[j]->c) {
+        if (minsts[j].c) {
             j++;
         }
-        if (minsts[j]->d) {
+        if (minsts[j].d) {
             j--;
         }
     }

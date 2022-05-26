@@ -1046,6 +1046,11 @@ VerilogVar *VerilogModule::createProcessLocalVariableMIFNonZero(
         VerilogVar(suggestedName, bitwidth, std::move(arrayDims), 
                    isSigned, std::move(initVals), comment) );
 
+//    std::cout << "createProcessLocalVariableMIFNonZero procVar " << procVar->getName() 
+//              << " arrayDims " << procVar->getArrayDims().size() << " arraDims[0] "
+//              << (procVar->getArrayDims().size() > 0 ? 
+//                  std::to_string(procVar->getArrayDims()[0]) : "-") << std::endl;
+
     return procVar;
 }
 
