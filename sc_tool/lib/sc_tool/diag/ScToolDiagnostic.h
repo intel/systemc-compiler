@@ -205,6 +205,7 @@ public:
         SYNTH_LITER_OVERFLOW        = 233,
         SYNTH_RECORD_CTOR_NONEMPTY  = 234,
         CPP_DEFINED_LOCAL_PARAM     = 235,
+        SYNTH_INCORRECT_FUNC_CALL   = 236,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -512,7 +513,7 @@ private:
         
         idFormatMap[SYNTH_INCORRECT_RECORD] =
             {clang::DiagnosticIDs::Error, 
-            "No record object found for member call (not sc_interface inheritor or not statically determined)"};
+            "No record object found for member call : %0 %1"};
         
         idFormatMap[SYNTH_NONTRIVIAL_COPY] =
             {clang::DiagnosticIDs::Fatal, 
@@ -718,6 +719,9 @@ private:
             {clang::DiagnosticIDs::Error, 
             "Member variable used before initialization (re-defined localparam) : %0"};
         
+        idFormatMap[SYNTH_INCORRECT_FUNC_CALL] =
+            {clang::DiagnosticIDs::Error, 
+             "Incorrect user defined method or function : %0"};
         
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =

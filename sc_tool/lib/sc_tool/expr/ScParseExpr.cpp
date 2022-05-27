@@ -913,7 +913,8 @@ void ScParseExpr::parseExpr(clang::MemberExpr* expr, SValue& val)
     
     // Allowed parent kinds
     if (!ttval.isArray() && !ttval.isRecord() && !ttval.isVariable()) {
-        ScDiag::reportScDiag(expr->getBeginLoc(), ScDiag::SYNTH_INCORRECT_RECORD);
+        ScDiag::reportScDiag(expr->getBeginLoc(), 
+                             ScDiag::SYNTH_INCORRECT_RECORD) << tval << ttval;
     }
     
     ValueDecl* decl = expr->getMemberDecl();

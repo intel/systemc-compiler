@@ -89,7 +89,10 @@ const clang::DoStmt* sc::getDoWhileTerm(AdjBlock block)
 bool sc::isDoWhileEmpty(const clang::DoStmt* stmt) 
 {
     const Stmt* doBody = stmt->getBody();
-    SCT_TOOL_ASSERT (doBody, "No body statement in do...while loop");
+    if (!doBody) {
+        SCT_INTERNAL_ERROR (stmt->getBeginLoc(), 
+                            "No body statement in do...while loop");
+    }
 
     if (auto doBodyComp = dyn_cast<CompoundStmt>(doBody)) {
         if (doBodyComp->body_empty()) {
@@ -270,7 +273,7 @@ unsigned sc::getPredsNumber(AdjBlock block)
             if (auto binstmt = dyn_cast<BinaryOperator>(term) ) {
                 BinaryOperatorKind opcode = binstmt->getOpcode();
                 SCT_TOOL_ASSERT (opcode == BO_LOr || opcode == BO_LAnd, 
-                                 "Incorrect operator");
+                                 "getPredsNumber : Incorrect operator");
                 continue;
             }
         }

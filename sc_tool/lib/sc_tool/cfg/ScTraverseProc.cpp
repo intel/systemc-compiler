@@ -276,7 +276,10 @@ void ScTraverseProc::parseCall(CallExpr* expr, SValue& val)
     // Get function/method
     // Get function name and type
     FunctionDecl* funcDecl = expr->getDirectCallee();
-    SCT_TOOL_ASSERT (funcDecl, "No function found for call expression");
+    if (!funcDecl) {
+        ScDiag::reportScDiag(expr->getBeginLoc(),
+                             ScDiag::SYNTH_INCORRECT_FUNC_CALL) << "---";
+    } 
     
     string fname = funcDecl->getNameAsString();
     QualType retType = funcDecl->getReturnType();
@@ -440,8 +443,8 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
 
             // This value *this must be a kind of record
             if (!ttval.isRecord()) {
-                cout << "parseMemberCall tval " << tval << ", ttval " << ttval << endl;
-                SCT_TOOL_ASSERT (false, "This expression is not record value");
+                ScDiag::reportScDiag(expr->getBeginLoc(),
+                                     ScDiag::SYNTH_INCORRECT_RECORD) << tval << ttval;
             }
 
             // Call with cast this object to specific class with "::",
@@ -985,8 +988,11 @@ void ScTraverseProc::run()
                                 if (i != constReplacedFunc.end()) {                   
                                     auto callExpr = dyn_cast<CallExpr>(i->second);
                                     auto funcDecl = callExpr->getDirectCallee();
-                                    SCT_TOOL_ASSERT(funcDecl, "No function declaration found");
-                                    
+                                    if (!funcDecl) {
+                                        ScDiag::reportScDiag(callExpr->getBeginLoc(),
+                                            ScDiag::SYNTH_INCORRECT_FUNC_CALL) << "---";
+                                    }
+
                                     string s = "Call of "+funcDecl->getNameAsString()+"()";
                                     scopeGraph->addComment(currStmt, s);
                                 }

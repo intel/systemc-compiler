@@ -398,7 +398,11 @@ void ScTraverseConst::parseCall(CallExpr* expr, SValue& val)
     // Get function/method
     // Get function name and type
     FunctionDecl* funcDecl = expr->getDirectCallee();
-    SCT_TOOL_ASSERT (funcDecl, "No function found for call expression");
+    if (!funcDecl) {
+        ScDiag::reportScDiag(expr->getBeginLoc(),
+                             ScDiag::SYNTH_INCORRECT_FUNC_CALL) << "---";
+    }
+    
     string fname = funcDecl->getNameAsString();
     auto nsname = getNamespaceAsStr(funcDecl);
 
@@ -457,8 +461,11 @@ void ScTraverseConst::parseCall(CallExpr* expr, SValue& val)
             cout << "-------------------------------------" << endl;
         }
         
-        SCT_TOOL_ASSERT (isUserCallExpr(expr), "Incorrect user defined function");
-        
+        if (!isUserCallExpr(expr)) {
+            ScDiag::reportScDiag(expr->getBeginLoc(),
+                                 ScDiag::SYNTH_INCORRECT_FUNC_CALL) << fname;
+        }
+
         if (nsname && *nsname == "std") {
             ScDiag::reportScDiag(expr->getBeginLoc(), 
                                  ScDiag::CPP_UNKNOWN_STD_FUNC) << fname;
@@ -526,7 +533,10 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             cout << "-------------------------------------" << endl;
         }
         
-        SCT_TOOL_ASSERT (isUserCallExpr(expr), "Incorrect user defined method");
+        if (!isUserCallExpr(expr)) {
+            ScDiag::reportScDiag(expr->getBeginLoc(),
+                                 ScDiag::SYNTH_INCORRECT_FUNC_CALL) << fname;
+        }
 
         // Get record from variable/dynamic object
         SValue ttval = getRecordFromState(tval, ArrayUnkwnMode::amFirstElement);
@@ -534,7 +544,7 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         // Allowed parent kinds
         if (!ttval.isArray() && !ttval.isRecord() && !ttval.isVariable()) {
             ScDiag::reportScDiag(expr->getSourceRange().getBegin(),
-                                 ScDiag::SYNTH_INCORRECT_RECORD);
+                                 ScDiag::SYNTH_INCORRECT_RECORD) << tval << ttval;
             ttval = NO_VALUE;
         }
 

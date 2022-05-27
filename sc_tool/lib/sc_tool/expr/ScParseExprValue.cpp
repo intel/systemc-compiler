@@ -662,7 +662,7 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
                                          << expr->getType();
                 }
             } else {
-                SCT_TOOL_ASSERT (false, "Unexpected argument number");
+                SCT_INTERNAL_ERROR (expr->getBeginLoc(), "Unexpected argument number");
             }
 
             // Create SC type single object value
@@ -965,7 +965,10 @@ void ScParseExprValue::parseImplExplCast(CastExpr* expr, SValue& rval,
             if (val.isInteger()) {
                 QualType type = expr->getType();
                 auto typeInfo = getIntTraits(type, true);
-                SCT_TOOL_ASSERT (typeInfo, "No integral type width extracted");
+                if (!typeInfo) {
+                    SCT_INTERNAL_ERROR (expr->getBeginLoc(), 
+                                        "No integral type width extracted");
+                }
                 size_t width = typeInfo.getValue().first;
                 bool isUnsigned = typeInfo.getValue().second;
 
@@ -1011,9 +1014,8 @@ void ScParseExprValue::parseExpr(ExplicitCastExpr* expr, SValue& rval, SValue& v
                                      ScDiag::SYNTH_LVALUE_BIT_CAST);
             } else {
                 cout << "Cast kind " << expr->getCastKindName(castKind) << endl;
-                expr->getBeginLoc().dump(sm);
-                expr->dumpColor();
-                SCT_TOOL_ASSERT (false, "Unsupported cast kind in ExplicitCastExpr");
+                SCT_INTERNAL_ERROR (expr->getBeginLoc(), 
+                                    "Unsupported cast kind in ExplicitCastExpr");
             }
         }
     } else 
@@ -1579,6 +1581,7 @@ void ScParseExprValue::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
         if (opcode == BO_XorAssign) {
             res = val1 ^ val2;
         } else {
+            cout << "Opcode " << opcode << endl;
             SCT_TOOL_ASSERT (false, "parseCompAssign : Unknown integer opcode");
         }
 
@@ -2206,7 +2209,7 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
                     val = ttval;
                     
                 } else {
-                    SCT_TOOL_ASSERT (false, "Unknown cast");
+                    SCT_INTERNAL_ERROR (callExpr->getBeginLoc(), "Unknown cast");
                 }
             }
         } else 
@@ -2279,7 +2282,10 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
             if (val.isInteger()) {
                 QualType type = callExpr->getType();
                 auto typeInfo = getIntTraits(type, true);
-                SCT_TOOL_ASSERT (typeInfo, "No integral type width extracted");
+                if (!typeInfo) {
+                    SCT_INTERNAL_ERROR (callExpr->getBeginLoc(),
+                                        "No integral type width extracted");
+                }
                 size_t width = typeInfo.getValue().first;
                 bool isUnsigned = typeInfo.getValue().second;
 
@@ -2714,6 +2720,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
                 if (opcode == OO_Pipe) {
                     res = val1 | val2;
                 } else {
+                    cout << "Opcode " << opcode << endl;
                     SCT_TOOL_ASSERT (false, "Unknown opcode for SC type operator");
                 }
                 
@@ -2833,6 +2840,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
                 if (opcode == OO_CaretEqual) {
                     res = val1 ^ val2;
                 } else {
+                    cout << "Opcode " << opcode << endl;
                     SCT_TOOL_ASSERT (false, "Unknown opcode for SC type operator");
                 }
 
@@ -2915,7 +2923,8 @@ void ScParseExprValue::parseReturnStmt(ReturnStmt* stmt, SValue& val)
     if (returnValue.isUnknown()) {
         // Do nothing
     } else {
-        SCT_TOOL_ASSERT (false, "Unexpected kind of return variable value");
+        SCT_INTERNAL_ERROR (stmt->getBeginLoc(), 
+                            "Unexpected kind of return variable value");
     }
     
     if (returnStmtFunc) {
