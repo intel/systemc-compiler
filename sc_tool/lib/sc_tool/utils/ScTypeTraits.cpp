@@ -352,6 +352,30 @@ bool isAnyScIntegerRef(QualType type, bool checkPointer)
             typeStr.find("sc_unsigned") != std::string::npos);
 }
 
+bool isScNotSupported(QualType type, bool checkPointer) 
+{
+    if (type.isNull()) return false;
+
+    if (checkPointer) {
+        while (type->isPointerType()) {
+            type = type->getPointeeType();
+        }
+    }
+    type = getPureType(type);
+
+    std::string typeStr = type.getAsString();
+    return (typeStr.find("sc_bv") != std::string::npos || 
+            typeStr.find("sc_lv") != std::string::npos || 
+            typeStr.find("sc_bit") != std::string::npos || 
+            typeStr.find("sc_logic") != std::string::npos ||
+            typeStr.find("sc_fix") != std::string::npos ||
+            typeStr.find("sc_fxval") != std::string::npos ||
+            typeStr.find("sc_fxnum") != std::string::npos ||
+            typeStr.find("sc_ufix") != std::string::npos ||
+            typeStr.find("sc_fixed") != std::string::npos ||
+            typeStr.find("sc_ufixed") != std::string::npos);
+}
+
 bool isAnyIntegerRef(clang::QualType type)
 {
     if (type.isNull()) return false;

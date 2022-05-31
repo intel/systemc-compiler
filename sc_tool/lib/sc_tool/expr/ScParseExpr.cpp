@@ -901,6 +901,12 @@ void ScParseExpr::parseExpr(clang::MemberExpr* expr, SValue& val)
 {
     //cout << "ScParseExpr::MemberExpr # " << hex << expr << dec << endl;
 
+    // Report all unsupported types for members, for locals reported at declaration
+    if (isScNotSupported(expr->getType(), true)) {
+        ScDiag::reportScDiag(expr->getBeginLoc(),
+                             ScDiag::SYNTH_TYPE_NOT_SUPPORTED) << expr->getType();
+    }
+    
     // Get record from variable/dynamic object
     SCT_TOOL_ASSERT (expr->getBase(), "In parseExpr for MemberExpr no base found");
     SValue tval = evalSubExpr(expr->getBase());

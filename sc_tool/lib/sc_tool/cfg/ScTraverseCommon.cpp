@@ -28,7 +28,7 @@ bool sc::isUserCallExpr(clang::Stmt* stmt)
         auto nsname = getNamespaceAsStr(funcDecl);
 
         // Functions from @sc_core:: and @sc_dt:: not analyzed, 
-        // some function from @std:: not analyzed
+        // some functions from @std:: not analyzed
         if ((fname == "__assert" || fname == "__assert_fail") ||
             (nsname && (*nsname == "sc_core" || *nsname == "sc_dt")) ||
             (((nsname && *nsname == "std") || isLinkageDecl(funcDecl)) &&

@@ -528,7 +528,7 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         if (DebugOptions::isEnabled(DebugComponent::doConstFuncCall)) {
             cout << "-------------------------------------" << endl;
             cout << "| Build CFG for METHOD FUNCTION : " << fname << " (" 
-                 << expr->getSourceRange().getBegin().printToString(sm) 
+                 << expr->getBeginLoc().printToString(sm) 
                  << " retVal " << retVal << ") |" << endl;
             cout << "-------------------------------------" << endl;
         }

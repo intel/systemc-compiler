@@ -396,3 +396,5 @@ svc_target(method_bit_range_access GOLDEN method_bit_range_access.sv)
 add_executable(method_bit_range_fail test_bit_range_fail.cpp)
 svc_target(method_bit_range_fail WILL_FAIL)
 
+add_executable(method_unsupport_types_fail test_unsupport_types_fail.cpp)
+svc_target(method_unsupport_types_fail WILL_FAIL)

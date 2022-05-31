@@ -14,10 +14,6 @@
 class A : public sc_module 
 {
 public:
-    sc_in<bool>         a{"a"};
-    sc_out<bool>        b{"b"};
-    sc_out<bool>        c{"c"};
-    
     int                 m;
     int                 k;
 
@@ -67,6 +63,8 @@ public:
         SC_METHOD(const_sc_type_cast); sensitive << dummy;
         SC_METHOD(var_sc_type_cast); sensitive << dummy;
         SC_METHOD(multi_sc_type_cast); sensitive << s;
+        
+        SC_METHOD(read_to_int); sensitive << s << a << b << c << d;
     }
     
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
@@ -1093,14 +1091,27 @@ public:
               (sc_int<8>)((sc_int<3>)SC));
     }
     
+    sc_in<sc_uint<38>>          a{"a"};
+    sc_in<sc_uint<42>>          b{"b"};
+    sc_in<sc_bigint<67>>        c{"c"};
+    sc_out<sc_biguint<111>>     d{"d"};
+    
+    void read_to_int() {
+        int l;
+        l = a.read().to_int();
+        l = b.read().to_int();
+        l = c.read().to_int();
+        d.write(a.read().to_int() + b.read().to_int() + c.read().to_int() / 4);
+    }
 };
 
 class B_top : public sc_module 
 {
 public:
-    sc_signal<bool>  a{"a"};
-    sc_signal<bool>  b{"b"};
-    sc_signal<bool>  c{"c"};
+    sc_signal<sc_uint<38>>      a{"a"};
+    sc_signal<sc_uint<42>>      b{"b"};
+    sc_signal<sc_bigint<67>>    c{"c"};
+    sc_signal<sc_biguint<111>>  d{"d"};
 
     A a_mod{"a_mod"};
 
@@ -1108,6 +1119,7 @@ public:
         a_mod.a(a);
         a_mod.b(b);
         a_mod.c(c);
+        a_mod.d(d);
     }
 };
 

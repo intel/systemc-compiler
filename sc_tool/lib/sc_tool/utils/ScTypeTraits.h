@@ -57,6 +57,8 @@ bool isScBigUInt(clang::QualType type);
 bool isAnyScInteger(clang::QualType type);
 // Is any of SystemC integer type or SystemC subref/concatref
 bool isAnyScIntegerRef(clang::QualType type, bool checkPointer = false);
+// Is not supported SC integer types
+bool isScNotSupported(clang::QualType type, bool checkPointer);
 
 // Is any of C++ built-in, enum, SystemC integer type or SystemC subref/concatref
 bool isAnyIntegerRef(clang::QualType type);

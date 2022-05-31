@@ -65,14 +65,21 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
                                               const VarDecl* varDecl) 
 {
     using std::cout; using std::endl;
+    
     QualType varType = varDecl->getType();
     sc_elab::Object* newObj = createStaticObject(varType, parent.getID());
-
+    
     newObj->set_field_name(varDecl->getName().str());
 
     sc_elab::Object* parentObj = designDB.mutable_objects(parent.getID());
     parentObj->mutable_record()->add_member_ids(newObj->id());
 
+    // Report all unsupported types 
+    if (isScNotSupported(varType, true)) {
+        ScDiag::reportScDiag(varDecl->getBeginLoc(),
+                             ScDiag::SYNTH_TYPE_NOT_SUPPORTED) << varType;
+    }
+    
     if (isUserDefinedClass(varType)) {
         SCT_INTERNAL_FATAL (varDecl->getBeginLoc(), 
                             "Static record is not supported yet");
