@@ -206,6 +206,7 @@ public:
         SYNTH_RECORD_CTOR_NONEMPTY  = 234,
         CPP_DEFINED_LOCAL_PARAM     = 235,
         SYNTH_INCORRECT_FUNC_CALL   = 236,
+        SYNTH_PARENT_SAME_OBJECT    = 237,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -664,6 +665,10 @@ private:
         idFormatMap[SYNTH_MULTI_POINTER_DIFF] =
             {clang::DiagnosticIDs::Fatal, 
             "Pointers to dynamically allocated object declared in different modules"};
+        idFormatMap[SYNTH_PARENT_SAME_OBJECT] =
+            {clang::DiagnosticIDs::Warning, 
+            "One of dynamically allocated object parent is the same object"};
+        
         idFormatMap[CPP_DIFF_POINTER_COMP] =
             {clang::DiagnosticIDs::Fatal, 
             "Pointers to different objects comparison"};

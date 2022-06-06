@@ -2199,18 +2199,9 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
         if (auto convDecl = dyn_cast<CXXConversionDecl>(methodDecl)) {
             // Type conversion
             QualType convType = convDecl->getConversionType().getCanonicalType();
-
-            if (auto builtinType = dyn_cast<BuiltinType>(convType)) {
-                auto tKind = builtinType->getKind();
-
-                if (tKind == BuiltinType::Kind::ULongLong ||
-                    tKind == BuiltinType::Kind::LongLong ) {
-                    // Return this value, no get value from state here 
-                    val = ttval;
-                    
-                } else {
-                    SCT_INTERNAL_ERROR (callExpr->getBeginLoc(), "Unknown cast");
-                }
+            if ( isa<BuiltinType>(convType) ) {
+                // Return this value, no get value from state here 
+                val = ttval;
             }
         } else 
         if (fname == "bit" || fname == "operator[]") {
@@ -2304,6 +2295,21 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
             if (val.isInteger()) {
                 val = SValue(SValue::boolToAPSInt(val.getBoolValue()), 10);
             }
+            
+        } else     
+        if (fname.find("length") != string::npos) {
+            // Get length form template parameter for @sc_bv/sc_(big)(u)int
+            // not work for channel of these types
+            if (auto length = getTemplateArgAsInt(tval.getType(), 0)) {
+                val = SValue(*length, 10);
+            } else {
+                SCT_INTERNAL_ERROR(callExpr->getBeginLoc(), 
+                                   "Cannot get type width for length()");
+            }
+        } else     
+        if (fname.find("is_01") != string::npos) {
+            // For @sc_bv type, always return true
+            val = SValue(SValue::boolToAPSInt(1), 10);
             
         } else     
         if (fname.find("operator") != string::npos) {

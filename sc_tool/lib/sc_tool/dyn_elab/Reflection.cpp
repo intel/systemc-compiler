@@ -390,6 +390,9 @@ llvm::APSInt IntegerObject::getAPSInt() const
         else if (isScBigUInt(thisType)) {
             return getScBigUIntValue(objPtr);
         }
+        else if (isScBitVector(thisType)) {
+            return getScBitVectorValue(objPtr);
+        }
     }
 
     assert(false);

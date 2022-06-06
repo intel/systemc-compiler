@@ -57,6 +57,7 @@ llvm::APSInt getScIntValue(const void *objPtr);
 llvm::APSInt getScUIntValue(const void *objPtr);
 llvm::APSInt getScBigIntValue(const void *objPtr);
 llvm::APSInt getScBigUIntValue(const void *objPtr);
+llvm::APSInt getScBitVectorValue(const void *objPtr);
 
 /// Get list of processes sensitive to given port
 std::vector<sc_elab::port_sens_proc>

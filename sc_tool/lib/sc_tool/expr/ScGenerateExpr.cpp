@@ -2397,19 +2397,32 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             codeWriter->copyTerm(thisExpr, expr);
             
         } else
+        if (fname.find("length") != string::npos) {
+            // Get length form template parameter for @sc_bv/sc_(big)(u)int
+            // not work for channel of these types
+            if (auto length = getTemplateArgAsInt(tval.getType(), 0)) {
+                codeWriter->putLiteral(expr, SValue(*length, 10));
+            } else {
+                SCT_INTERNAL_ERROR(expr->getBeginLoc(), 
+                                   "Cannot get type width for length()");
+            }
+        } else
+        if (fname.find("is_01") != string::npos) {
+            // For @sc_bv type, always return true
+            codeWriter->putLiteral(expr, SValue(SValue::boolToAPSInt(1), 10));
+            
+        } else
         if (fname.find("operator") != string::npos) {
             // ->operator=, ++, --, +=, -=, ... not supported for now 
             // as it is not widely used form, it difficult to implement for arrays
-            ScDiag::reportScDiag(expr->getSourceRange().getBegin(), 
+            ScDiag::reportScDiag(expr->getBeginLoc(), 
                                  ScDiag::SYNTH_UNSUPPORTED_OPER) << fname 
                                  << "ScGenerateExpr::parseMemberCall";
-
         } else {
-            ScDiag::reportScDiag(expr->getSourceRange().getBegin(), 
+            ScDiag::reportScDiag(expr->getBeginLoc(), 
                                  ScDiag::SYNTH_UNSUPPORTED_OPER) << fname 
                                  << "ScGenerateExpr::parseMemberCall";
         }
-        
     } else 
     if (isScChannel(thisType)) {
         // Channel object
@@ -2567,7 +2580,8 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
     
     // Check LHS is temporary expression materialized into in memory value
     // Required for @sc_biguint/@sc_bigint
-    bool lhsIsTempExpr = isa<MaterializeTemporaryExpr>(lexpr);
+    bool lhsIsTempExpr = isa<MaterializeTemporaryExpr>(lexpr) && 
+                         (isScBigInt(thisType) || isScBigUInt(thisType));
     
     if (isAssignOperator) {
         // Assignment "operator=" for all types including SC data types

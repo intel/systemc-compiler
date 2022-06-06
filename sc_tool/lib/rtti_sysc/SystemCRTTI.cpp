@@ -91,9 +91,9 @@ llvm::APSInt getScUIntValue(const void *objPtr)
 llvm::APSInt getScBigIntValue(const void *objPtr)
 {
     auto* obj = (const sc_signed*)(objPtr);
-    llvm::APSInt val(obj->length(), true);
-    // FIXME:
-    val = obj->to_int64();
+    llvm::APSInt val(obj->length(), false); 
+    // 64bit is OK as no larger integer literls supported in CPP
+    val = obj->to_int64();    
     return val;
 }
 
@@ -101,8 +101,17 @@ llvm::APSInt getScBigUIntValue(const void *objPtr)
 {
     auto* obj = (const sc_unsigned*)(objPtr);
     llvm::APSInt val(obj->length(), true);
-    // FIXME:
+    // 64bit is OK as no larger integer literls supported in CPP
     val = obj->to_uint64();
+    return val;
+}
+
+llvm::APSInt getScBitVectorValue(const void *objPtr)
+{
+    auto* obj = (const sc_bv_base*)(objPtr);
+    llvm::APSInt val(obj->length(), true);
+    // 64bit is OK as no larger integer literls supported in CPP
+    val = obj->to_uint64();     
     return val;
 }
 

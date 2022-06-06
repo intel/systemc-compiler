@@ -103,6 +103,7 @@ public:
     clang::QualType scUIntBaseType;
     clang::QualType scUnsignedType;
     clang::QualType scSignedType;
+    clang::QualType scBitVector;
 
     clang::QualType scModuleType;
     clang::QualType scPortBaseType;
@@ -172,6 +173,10 @@ DeclDB::DeclDB(const clang::ASTContext &ctx)
     matches = match(cxxRecordDecl(hasName("sc_dt::sc_unsigned"), isDefinition()).bind("sc_unsigned"), astCtx);
     SCT_TOOL_ASSERT(matches.size() == 1, "Error declaration match");
     scUnsignedType = matches[0].getNodeAs<CXXRecordDecl>("sc_unsigned")->getTypeForDecl()->getCanonicalTypeInternal();
+
+    matches = match(cxxRecordDecl(hasName("sc_dt::sc_bv_base"), isDefinition()).bind("sc_bv_base"), astCtx);
+    SCT_TOOL_ASSERT(matches.size() == 1, "Error declaration match");
+    scBitVector = matches[0].getNodeAs<CXXRecordDecl>("sc_bv_base")->getTypeForDecl()->getCanonicalTypeInternal();
 
     matches = match(cxxRecordDecl(hasName("sc_core::sc_module"), isDefinition()).bind("sc_module"), astCtx);
     SCT_TOOL_ASSERT(matches.size() == 1, "Error declaration match");
@@ -317,12 +322,18 @@ bool isScBigUInt(clang::QualType type)
     return isDerivedFrom(type, db->scUnsignedType);
 }
 
+bool isScBitVector(clang::QualType type)
+{
+    type = getPureType(type);
+    return isDerivedFrom(type, db->scBitVector);
+}
+
 bool isAnyScInteger(clang::QualType type)
 {
     if (type.isNull()) return false;
     
     return isScInt(type) || isScUInt(type) ||
-           isScBigInt(type) || isScBigUInt(type);
+           isScBigInt(type) || isScBigUInt(type) || isScBitVector(type);
 }
 
 bool isAnyScIntegerRef(QualType type, bool checkPointer) 
@@ -342,6 +353,7 @@ bool isAnyScIntegerRef(QualType type, bool checkPointer)
     std::string typeStr = type.getAsString();
     return (typeStr.find("sc_uint_base") != std::string::npos || 
             typeStr.find("sc_int_base") != std::string::npos || 
+            typeStr.find("sc_bv_base") != std::string::npos ||
             typeStr.find("sc_uint_bitref") != std::string::npos || 
             typeStr.find("sc_int_bitref") != std::string::npos || 
             typeStr.find("sc_uint_subref") != std::string::npos || 
@@ -364,8 +376,7 @@ bool isScNotSupported(QualType type, bool checkPointer)
     type = getPureType(type);
 
     std::string typeStr = type.getAsString();
-    return (typeStr.find("sc_bv") != std::string::npos || 
-            typeStr.find("sc_lv") != std::string::npos || 
+    return (typeStr.find("sc_lv") != std::string::npos || 
             typeStr.find("sc_bit") != std::string::npos || 
             typeStr.find("sc_logic") != std::string::npos ||
             typeStr.find("sc_fix") != std::string::npos ||
@@ -497,7 +508,7 @@ llvm::Optional<std::pair<size_t, bool>> getIntTraits(clang::QualType type,
         return std::pair<size_t, bool>(width, isUnsigned);
         
     } else 
-    if (auto width = getScUintBiguint(type)) {
+    if (auto width = getScUintBiguintBitVec(type)) {
         return std::pair<size_t, bool>(width.getValue(), true);
         
     } else 
@@ -543,13 +554,12 @@ llvm::Optional<size_t> getAnyTypeWidth(clang::QualType type, bool checkPointer,
     return llvm::None;
 }
 
-// Is @sc_uint or @sc_biguint types
-Optional<size_t> getScUintBiguint(QualType type) 
+Optional<size_t> getScUintBiguintBitVec(QualType type) 
 {
     if (type.isNull()) return llvm::None;
     type = getPureType(type);
 
-    if (isScUInt(type) || isScBigUInt(type)) {
+    if (isScUInt(type) || isScBigUInt(type) || isScBitVector(type)) {
         auto rdecl = type->getAsCXXRecordDecl();
         SCT_TOOL_ASSERT (rdecl, "SC integer is not record");
         
@@ -563,7 +573,6 @@ Optional<size_t> getScUintBiguint(QualType type)
     return Optional<size_t>();
 }
 
-// Is @sc_int or @sc_bigint types
 Optional<size_t> getScIntBigint(QualType type) 
 {
     if (type.isNull()) return llvm::None;

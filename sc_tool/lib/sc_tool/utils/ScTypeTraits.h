@@ -52,6 +52,8 @@ bool isScInt(clang::QualType type);
 bool isScUInt(clang::QualType type);
 bool isScBigInt(clang::QualType type);
 bool isScBigUInt(clang::QualType type);
+// Check for @sc_bv
+bool isScBitVector(clang::QualType type);
 
 // Is any of SystemC integer type
 bool isAnyScInteger(clang::QualType type);
@@ -70,8 +72,8 @@ bool isAnyInteger(clang::QualType type);
 /// \param checkPointer -- check if it is pointer to array
 bool isScIntegerArray(clang::QualType type, bool checkPointer = true);
 
-/// Check @sc_uint or @sc_biguint type and optionally return bit number
-llvm::Optional<size_t> getScUintBiguint(clang::QualType type);
+/// Check @sc_uint or @sc_biguint or @sc_bv type and optionally return bit number
+llvm::Optional<size_t> getScUintBiguintBitVec(clang::QualType type);
 /// Check @sc_int or @sc_bigint type and optionally return bit number
 llvm::Optional<size_t> getScIntBigint(clang::QualType type);
 

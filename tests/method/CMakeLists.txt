@@ -182,6 +182,9 @@ svc_target(method_sc_types GOLDEN method_sc_types.sv)
 add_executable(method_sc_types_fail test_sc_types_fail.cpp)
 svc_target(method_sc_types_fail WILL_FAIL)
 
+add_executable(method_sc_bv test_sc_bv.cpp)
+svc_target(method_sc_bv GOLDEN method_sc_bv.sv)
+
 add_executable(method_auto_type test_auto_type.cpp)
 svc_target(method_auto_type GOLDEN method_auto_type.sv)
 

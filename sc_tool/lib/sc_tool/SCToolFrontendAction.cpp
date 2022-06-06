@@ -74,9 +74,20 @@ Object* getParentModule(SCDesign& designDB, Object* memberObj)
         
         if (parentObj == nullptr) {
             parentObj = modParent;
+            
         } else 
+        // TODO: check me
+        if (memberObj == modParent) {
+            // If there is a module inside of MIF, it could have two pointers
+            // and one of them is the same object
+            ScDiag::reportScDiag(ScDiag::SYNTH_PARENT_SAME_OBJECT);
+            continue;
+        //~TODO    
+        } else
         if (parentObj != modParent) {
             // Pointers to this object located in different modules
+            parentObj->PrintDebugString();
+            modParent->PrintDebugString();
             memberObj->PrintDebugString();
             ScDiag::reportScDiag(ScDiag::SYNTH_MULTI_POINTER_DIFF);
             return nullptr;
@@ -112,8 +123,8 @@ Object* getOuterArray(SCDesign& designDB, Object* memberObj)
     return arrayObj;
 }
 
-const std::string SCElabASTConsumer::TOOL_VERSION = "1.4.27";
-const std::string SCElabASTConsumer::TOOL_DATE = "31 May,2022";
+const std::string SCElabASTConsumer::TOOL_VERSION = "1.4.28";
+const std::string SCElabASTConsumer::TOOL_DATE = "Jun 06,2022";
 
 void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 {
