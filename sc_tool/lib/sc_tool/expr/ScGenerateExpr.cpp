@@ -2443,12 +2443,11 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         } else 
         if (cval.isScChannel() && (fname == "read" || 
             (fname.find("operator") != string::npos && (
-             fname.find("sc_int") != string::npos ||
-             fname.find("sc_uint") != string::npos ||  
+             fname.find("int") != string::npos ||    // covers sc_int, sc_uint, ...   
              fname.find("char") != string::npos ||
-             fname.find("int") != string::npos ||
              fname.find("long") != string::npos ||
-             fname.find("bool") != string::npos)))) {
+             fname.find("bool") != string::npos ||
+             fname.find("sc_bv") != string::npos)))) {
             
             // Channel read access method
             SCT_TOOL_ASSERT (argNum == 0, "Incorrect argument number");
@@ -2460,12 +2459,11 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
 
         } else 
         if (fname.find("operator") != string::npos && (
-            fname.find("sc_int") != string::npos ||
-            fname.find("sc_uint") != string::npos ||  
+            fname.find("int") != string::npos ||    // covers sc_int, sc_uint, ...
             fname.find("char") != string::npos ||
-            fname.find("int") != string::npos ||
             fname.find("long") != string::npos ||
-            fname.find("bool") != string::npos)) {
+            fname.find("bool") != string::npos ||
+            fname.find("sc_bv") != string::npos)) {
             
             // Channel read/access operator, used when channel object is unknown
             // like result of ternary operator of channels

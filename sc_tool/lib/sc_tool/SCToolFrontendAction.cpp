@@ -123,8 +123,8 @@ Object* getOuterArray(SCDesign& designDB, Object* memberObj)
     return arrayObj;
 }
 
-const std::string SCElabASTConsumer::TOOL_VERSION = "1.4.28";
-const std::string SCElabASTConsumer::TOOL_DATE = "Jun 06,2022";
+const std::string SCElabASTConsumer::TOOL_VERSION = "1.4.29";
+const std::string SCElabASTConsumer::TOOL_DATE = "Jun 08,2022";
 
 void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 {

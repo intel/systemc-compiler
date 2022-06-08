@@ -2346,12 +2346,11 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
             
         } else
         if ((fname == "read" || (fname.find("operator") != string::npos && (
-             fname.find("sc_int") != string::npos ||
-             fname.find("sc_uint") != string::npos ||
+             fname.find("int") != string::npos ||   // covers sc_int, sc_uint, ...
              fname.find("char") != string::npos ||
-             fname.find("int") != string::npos ||
              fname.find("long") != string::npos ||
-             fname.find("bool") != string::npos))) && cval.isScChannel())
+             fname.find("bool") != string::npos ||
+             fname.find("sc_bv") != string::npos))) && cval.isScChannel())
         {
             // Mark channel variable as read, use @ttval to extract variable
             readFromValue(ttval);

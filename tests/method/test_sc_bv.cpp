@@ -19,14 +19,22 @@ public:
 
     sc_in<sc_bv<11>>        a{"a"};
     sc_out<sc_bv<65>>       b{"b"};
+    sc_signal<sc_bv<11>>    c{"c"};
+    sc_signal<sc_bv<11>>    dr{"dr"};   // read
+    sc_signal<sc_bv<11>>    dw{"dw"};   // written
+    sc_signal<sc_bv<11>>    du{"du"};   // unused
     sc_signal<sc_bv<16>>    s;
     sc_signal<sc_uint<42>>    us;
     sc_signal<sc_biguint<42>> bus;
     sc_signal<sc_int<42>>     is;
     sc_signal<sc_bigint<42>>  bis;
     
+    sc_vector<sc_signal<sc_bv<11>>>  v{"v", 3};
+    
     SC_CTOR(A)
     {
+        SC_METHOD(cast); sensitive << a << b << s << bus << v[0] << v[1] << v[2] << dr;
+        
         SC_METHOD(ctors); sensitive << a << b << us << bus << is << bis;
         SC_METHOD(opers); sensitive << s << a << b;
         SC_METHOD(reduces); sensitive << s << a << b;
@@ -34,6 +42,36 @@ public:
     
     sc_bv<11> J = 42;
     const sc_bv<11> CJ = 42;
+    
+    void cast() {
+        sc_bv<11> i;
+        sc_bv<16> j;
+        sc_biguint<42> bu;
+        bu = bus;
+        
+        i = a;
+        c = a;
+        c.write(a);
+        
+        c = J;
+        c = CJ;
+        c.write(CJ);
+        
+        j = s;
+        s = j;
+        s.write(j);
+        
+        v[0] = i;
+        i = v[1];
+        c = v[i.to_int()];
+        
+        sc_bv<16>& r = j;
+        r = s;
+        s = r;
+        
+        i = dr;
+        dw = i;
+    }
     
     void ctors() {
         int l = 42;
