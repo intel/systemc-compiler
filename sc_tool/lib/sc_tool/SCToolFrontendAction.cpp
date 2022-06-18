@@ -123,8 +123,8 @@ Object* getOuterArray(SCDesign& designDB, Object* memberObj)
     return arrayObj;
 }
 
-const std::string SCElabASTConsumer::TOOL_VERSION = "1.4.29";
-const std::string SCElabASTConsumer::TOOL_DATE = "Jun 08,2022";
+const std::string SCElabASTConsumer::TOOL_VERSION = "1.4.31";
+const std::string SCElabASTConsumer::TOOL_DATE = "Jun 17,2022";
 
 void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 {
@@ -148,7 +148,7 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
     //const char* optNames[] = {doGenTerm, doGenCfg, doGenStmt, doModuleBuilder};
     //const char* optNames[] = {doConstCfg, doConstLoop, doConstStmt, doConstBlock, doModuleBuilder};
     //const char* optNames[] = {doConstStmt, doGenStmt, doModuleBuilder};  
-    const char* optNames[] = {doModuleBuilder};  
+    const char* optNames[] = {doPortBind, doModuleBuilder};  
     size_t optSize = sizeof(optNames)/sizeof(const char*);
     //DebugOptions::enable(optNames, optSize); 
    
@@ -264,8 +264,8 @@ SCElabASTConsumer::moveDynamicObjects(SCDesign& designDB)
                 // Get one parent module 
                 if (parentMod == nullptr) {
                     if (arrParentMod == nullptr) {
-                    // No pointers to this object, do not print error
-                    // as it is possible for SVA
+                        // No pointers to this object, do not print error
+                        // as it is possible for SVA
                         i++; continue;
 
                     } else {

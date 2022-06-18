@@ -553,14 +553,13 @@ public:
 
     VerilogModuleInstance* getInstance(ModuleMIFView modObj);
 
-    // converts existing variable to port
+    // Converts existing variable to port
     void convertToPort(const VerilogVar * var, PortDirection dir);
-
-    // converts existing variable to signal
+    // Converts existing variable to signal
     void convertToSignal(const VerilogVar * var);
-
-    void addVerilogPort(VerilogVar *var, PortDirection dir);
-
+    //
+    void addVerilogPort(VerilogVar* var, PortDirection dir);
+    
     void addProcess(ProcessView proc);
     
     std::deque<ProcessView> &getProcesses() {return processes; }

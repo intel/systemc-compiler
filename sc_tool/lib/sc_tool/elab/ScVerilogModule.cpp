@@ -1081,7 +1081,7 @@ VerilogVar* VerilogModule::createAuxilaryPort(
         VerilogVar(nameGen.getUniqueName(suggestedName), bitwidth, arrayDims,
             isSigned, initVals, comment));
 
-    //cout << this->getName() << " createAuxilaryPort " << suggestedName.data() << " " << newVar->getName() << endl;
+    //cout << "--  " << this->getName() << " createAuxilaryPort " << suggestedName.data() << " " << newVar->getName() << endl;
 
     verilogPorts.emplace_back(dir, newVar);
     return newVar;
@@ -1100,7 +1100,7 @@ VerilogVar* VerilogModule::createAuxilaryPortForSignal(PortDirection dir,
                    verVar->getArrayDims(), verVar->isSigned(), 
                    initVals, comment));
 
-    //cout << this->getName() << " createAuxilaryPortForSignal " << newVar->getName() << endl;
+    //cout << "--  " << this->getName() << " createAuxilaryPortForSignal " << newVar->getName() << endl;
 
     verilogPorts.emplace_back(dir, newVar);
     
@@ -1187,20 +1187,19 @@ void VerilogModule::convertToPort(const VerilogVar *var, PortDirection dir)
                                 }) != channelVars.end(),
                     "Duplicated variable in convertToPort");
     
-    //cout << this->getName() << " convertToPort " << var->getName() << endl;
+    //cout << "--  " << this->getName() << " convertToPort " << var->getName() << endl;
     verilogPorts.emplace_back(dir, var);
 }
 
 void VerilogModule::convertToSignal(const VerilogVar *var)
 {
-    //cout << this->getName() << " convertToSignal " << var->getName() << endl;
+    //cout << "--  " <<this->getName() << " convertToSignal " << var->getName() << endl;
     verilogSignals.push_back(var);
 }
 
-void VerilogModule::addVerilogPort(VerilogVar *var,
-                                   PortDirection dir)
+void VerilogModule::addVerilogPort(VerilogVar *var, PortDirection dir)
 {
-    //cout << this->getName() << " addVerilogPort " << var->getName() << endl;
+    //cout << "--  " << this->getName() << " addVerilogPort " << var->getName() << endl;
     verilogPorts.emplace_back(dir, var);
 }
 

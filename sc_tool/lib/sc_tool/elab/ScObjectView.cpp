@@ -25,6 +25,7 @@
 
 using namespace sc;
 using namespace llvm;
+using std::cout; using std::endl;
 
 namespace sc_elab
 {
@@ -84,6 +85,19 @@ ElabObjVec ObjectView::getPointers() const
     for (auto pointerID : obj->pointer_ids()) {
         ObjectView pointer = db->getObj(pointerID);
         if (!pointer.primitive()->isPort())
+            res.push_back(pointer);
+    }
+
+    return res;
+}
+
+ElabObjVec ObjectView::getPorts() const
+{
+    ElabObjVec res;
+
+    for (auto pointerID : obj->pointer_ids()) {
+        ObjectView pointer = db->getObj(pointerID);
+        if (pointer.primitive()->isPort())
             res.push_back(pointer);
     }
 
@@ -189,7 +203,7 @@ std::deque<NodeT>  getHierarchyNodeVec(ObjectView obj)
                 obj = firstEl.getPointers()[0];
                 resPath.emplace_front(PtrNode());
             } else {
-                llvm_unreachable("ObjectView: Can find pointer to object");
+                llvm_unreachable("ObjectView: Can not find pointer to object");
             }
         } else {
 
@@ -336,6 +350,20 @@ ArrayElemObjWithIndices ObjectView::getAsArrayElementWithIndicies() const
     IndexVec indices = retriveIndices(hierarchyVec);
     ObjectView element = retriveObjects(hierarchyVec, false)[0].obj;
     return ArrayElemObjWithIndices{element, indices};
+}
+
+ArrayElemObjWithIndices ObjectView::getAsArrayElementWithIndicies(PortView port) const
+{
+    if (isSignal() && isDynamic() && getPointers().size() == 0) {
+        for (auto p : getPorts()) {
+            if (p != port) {
+                return p.getAsArrayElementWithIndicies();
+            }
+        }
+        llvm_unreachable("No bound port found for dynamic signal");
+    } else {
+        return getAsArrayElementWithIndicies();
+    }
 }
 
 llvm::Optional<ObjectView> ObjectView::derefRecursively() const
@@ -713,8 +741,13 @@ llvm::Optional<ObjectView> ObjectView::getTopmostParentArray() const
     ObjectView parent;
 
     if (isDynamic()) {
-        SCT_TOOL_ASSERT (getPointers().size() == 1, "Multiples pointers");
-        parent = getPointers()[0];
+        // Dynamically allocated signal with leaked pointer
+        if (getPointers().size() == 0) {
+            parent = getParent();
+        } else {
+            SCT_TOOL_ASSERT (getPointers().size() == 1, "Multiples pointers");
+            parent = getPointers()[0];
+        }
     } else {
         parent = getParent();
     }

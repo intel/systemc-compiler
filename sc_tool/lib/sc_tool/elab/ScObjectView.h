@@ -153,6 +153,8 @@ public:
 
     /// Get list of pointer/reference objects pointing to this object
     ElabObjVec getPointers() const;
+    /// Get list of ports (not-pointers) bound to this object
+    ElabObjVec getPorts() const;
 
     /// If Object is not a top level module, returns parent Object.
     /// otherwise behavior undefined
@@ -197,6 +199,7 @@ public:
     /// Example: Path to this object is  MOD.x.y[2].z[3].bob
     /// Result: ( MOD.x.y[0].z[0].bob , (2,3) )
     ArrayElemObjWithIndices getAsArrayElementWithIndicies() const;
+    ArrayElemObjWithIndices getAsArrayElementWithIndicies(PortView port) const;
 
     /// If Object is pointer or reference, recursively deferefence it
     /// at return pointee object

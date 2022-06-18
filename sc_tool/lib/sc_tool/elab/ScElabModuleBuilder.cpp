@@ -123,6 +123,8 @@ private:
     ObjectView curScObj;
 
     UniqueNamesGenerator modNameGen;
+    // Ports bound to dynamic allocated signal leaked, used for target/initiator 
+    std::unordered_set<PortView> bindedDynamicPorts;
 
 private:
 
@@ -846,16 +848,37 @@ void ScElabModuleBuilder::createPortBindingsKeepArrays(VerilogModule &verMod)
     std::unordered_set<PortView> bindedPortsSet; // set of already bound ports
 
     for (PortView port : verMod.getScPorts()) {
-        
+        //cout << "port " << port.getDebugString() << endl;
         if (bindedPortsSet.count(port)) continue;
         
         // Get directly bound port/signal to this port
         auto directBind = port.getDirectBind();
-        // If port is array element this function returns all elements with indices
-        // Index object is vector contains all indices to support 
-        // multidimensional array 
-        auto allArrayPorts = port.getAllSimilarArrayElements();
-        auto allArrayBinds = directBind.getAllSimilarArrayElements();
+        //cout << "  directBind " << directBind.getDebugString() << endl;  
+       
+        ArrayElemVec allArrayPorts;
+        ArrayElemVec allArrayBinds;
+        if (directBind.isSignal() && directBind.isDynamic() && 
+            directBind.getPointers().size() == 0) {
+            // Port bound to dynamic signal declared as local variable (leaked)
+            allArrayPorts = port.getAllSimilarArrayElements();
+            for (auto p : directBind.getPorts()) {
+                if (p != port) {
+                    //cout << "  portToBind " << p.getDebugString() << endl;
+                    allArrayBinds = p.getAllSimilarArrayElements();
+                    bindedDynamicPorts.insert(p);
+                    break;
+                }
+            }
+            bindedDynamicPorts.insert(port);
+                
+        } else {
+            // If port is array element this function returns all elements with indices
+            // Index object is vector contains all indices to support
+            // multidimensional array
+            allArrayPorts = port.getAllSimilarArrayElements();
+            allArrayBinds = directBind.getAllSimilarArrayElements();
+        }
+        
         // Check each element is bound to element with the same index
         bool isFlattenBind = isFlattenArrayBind(allArrayPorts, allArrayBinds);
 
@@ -878,10 +901,22 @@ void ScElabModuleBuilder::uniformBind(const PortView &port)
     auto verVars = portHostMod->getVerVariables(port);
     auto bindDirection = getBindDirection(port);
 
-    for (auto * verVar : verVars) {
-        if (bindDirection == BIND_UP || bindDirection == BIND_CROSS || bindDirection == BIND_EXTERNAL) {
+    for (auto* verVar : verVars) {
+        if (bindDirection == BIND_EXTERNAL) {
+            //cout << "  bind external" << endl;
             portHostMod->convertToPort(verVar, port.getDirection());
-        } else if (bindDirection == BIND_DOWN || bindDirection == BIND_SAME) {
+            
+        } else
+        if (bindDirection == BIND_CROSS || bindDirection == BIND_UP) {
+            //cout << "  bind up/cross" << endl;
+            if (bindedDynamicPorts.count(port)) {
+                portHostMod->convertToSignal(verVar);
+            } else {
+                portHostMod->convertToPort(verVar, port.getDirection());
+            }
+        } else     
+        if (bindDirection == BIND_DOWN || bindDirection == BIND_SAME) {
+            //cout << "  bind dowm/same" << endl;
             portHostMod->convertToSignal(verVar);
         }
     }
@@ -998,11 +1033,15 @@ void ScElabModuleBuilder::bindPortUpAux(PortView portEl,
     const VerilogVarsVec &verPortVars, bool isUniformArrayBind)
 {
     auto portHostMod = portEl.getParentModule();
-    auto bindedObj = portEl.getDirectBind().getAsArrayElementWithIndicies();
+    auto bindedObj = portEl.getDirectBind().getAsArrayElementWithIndicies(portEl);
     auto topParentMod = bindedObj.obj.getParentModule();
+    
+    auto directBind = portEl.getDirectBind();
+    bool boundDynamicSig = directBind.isSignal() && directBind.isDynamic() && 
+                           directBind.getPointers().size() == 0;
 
     DEBUG_WITH_TYPE(DebugOptions::doPortBind,
-        llvm::outs() << "bindPortUpAux BIND " << portEl << " to " << bindedObj.obj << "\n";
+        llvm::outs() << "  bindPortUpAux BIND " << portEl << " to " << bindedObj.obj << "\n";
     );
     
     auto parentModsList = portEl.getParentModulesList(topParentMod);
@@ -1023,7 +1062,7 @@ void ScElabModuleBuilder::bindPortUpAux(PortView portEl,
                                                 parentModsList.at(i - 1));
         VerilogModuleInstance *instance = hostVerMod->getInstance(
                                                 instanceModObj);
-
+        
         // We need to create auxiliary ports in all host modules except last one
         // which contains a signal we will be binding to
         if (!last) {
@@ -1043,9 +1082,12 @@ void ScElabModuleBuilder::bindPortUpAux(PortView portEl,
 
         SCT_TOOL_ASSERT (hostVars.size() == instanceVars.size(), "");
 
-        for (size_t i = 0; i < hostVars.size(); ++i) {
-            instance->addBinding(instanceVars[i], {hostVars[i], bindedIndexes});
-            hostVerMod->addVarBindedInMod(hostVars[i]);
+        // Do not create duplicating port bindings as its created at parent
+        if (!boundDynamicSig) {
+            for (size_t i = 0; i < hostVars.size(); ++i) {
+                instance->addBinding(instanceVars[i], {hostVars[i], bindedIndexes});
+                hostVerMod->addVarBindedInMod(hostVars[i]);
+            }
         }
 
         // on next iteration current host is an instance
@@ -1058,17 +1100,20 @@ void ScElabModuleBuilder::bindPortSameAux(PortView portEl,
                                           const VerilogVarsVec &verPortVars,
                                           bool isUniformArrayBind)
 {
-    auto bindedObj = portEl.getDirectBind().getAsArrayElementWithIndicies();
+    auto bindedObj = portEl.getDirectBind().getAsArrayElementWithIndicies(portEl);
     IndexVec bindedIndices;
     if (!isUniformArrayBind) {
         bindedIndices = bindedObj.indices;
     }
     
     DEBUG_WITH_TYPE(DebugOptions::doPortBind,
-        llvm::outs() << "bindPortSameAux BIND " << portEl << " to " << bindedObj.obj << "\n";
+        llvm::outs() << "  bindPortSameAux BIND " << portEl << " to " << bindedObj.obj << "\n";
     );
 
-    auto *hostVerMod = elabDB->getVerilogModule(portEl.getParentModule());
+    auto* hostVerMod = elabDB->getVerilogModule(bindedObj.obj.getParentModule());
+    auto* portVerMod = elabDB->getVerilogModule(portEl.getParentModule());
+    //cout << "hostVerMod " << hostVerMod->getName() << endl;
+    
     auto bindedVerVars = hostVerMod->getVerVariables(bindedObj.obj);
     bool isPortInMIF = portEl.getParentModuleOrMIF().isModularInterface();
     bool isIntrinsic = hostVerMod->isIntrinsic();
@@ -1083,14 +1128,18 @@ void ScElabModuleBuilder::bindPortSameAux(PortView portEl,
     SCT_TOOL_ASSERT (bindedVerVars.size() == verPortVars.size(), 
                      "Different sizes of bind and target port variables");
 
-    for (size_t i = 0; i < verPortVars.size(); ++i) {
-        if (portEl.isInput()) {
-            hostVerMod->addAssignment({verPortVars[i], {}},
-                                 {bindedVerVars[i], bindedIndices});
-        }
-        else if (portEl.isOutput()) {
-            hostVerMod->addAssignment({bindedVerVars[i], bindedIndices},
-                                 {verPortVars[i], {}});
+    // Check port variable and bound variable are in the same module
+    // Do not assign variables belongs to different modules, required for target/initiator
+    if (*portVerMod == *hostVerMod) {
+        for (size_t i = 0; i < verPortVars.size(); ++i) {
+            if (portEl.isInput()) {
+                hostVerMod->addAssignment({verPortVars[i], {}},
+                                     {bindedVerVars[i], bindedIndices});
+            }
+            else if (portEl.isOutput()) {
+                hostVerMod->addAssignment({bindedVerVars[i], bindedIndices},
+                                     {verPortVars[i], {}});
+            }
         }
     }
 }
@@ -1099,11 +1148,12 @@ void ScElabModuleBuilder::bindPortDownAux(PortView portEl,
                                           const VerilogVarsVec &verPortVars,
                                           bool isUniformArrayBind)
 {
-    auto bindedObj = portEl.getDirectBind().getAsArrayElementWithIndicies();
-    auto bindedParentMods = bindedObj.obj.getParentModulesList(portEl.getParentModule());
+    auto bindedObj = portEl.getDirectBind().getAsArrayElementWithIndicies(portEl);
+    auto bindedParentMods = bindedObj.obj.getParentModulesList(
+                                            portEl.getParentModule());
 
     DEBUG_WITH_TYPE(DebugOptions::doPortBind,
-        llvm::outs() << "bindPortDownAux BIND " << portEl << " to " << bindedObj.obj << "\n";
+        llvm::outs() << "  bindPortDownAux BIND " << portEl << " to " << bindedObj.obj << "\n";
     );
     
     PortDirection virtualDirection;
@@ -1120,15 +1170,14 @@ void ScElabModuleBuilder::bindPortDownAux(PortView portEl,
 
         ModuleMIFView instModView = bindedParentMods[i];
         VerilogModule *instVerMod = elabDB->getVerilogModule(instModView);
-        VerilogModule *hostVerMod = elabDB->getVerilogModule(
-                                                bindedParentMods[i - 1]);
+        VerilogModule *hostVerMod = elabDB->getVerilogModule(bindedParentMods[i-1]);
         VerilogModuleInstance *instance = hostVerMod->getInstance(instModView);
 
         // create virtual ports inside instance module
         for (const auto *verVar: verPortVars) {
             auto *portVar = instVerMod->createAuxilaryPort(virtualDirection,
-                verVar->getName(), verVar->getBitwidth(), verVar->getArrayDims(), verVar->isSigned());
-
+                                verVar->getName(), verVar->getBitwidth(), 
+                                verVar->getArrayDims(), verVar->isSigned());
             instanceVars.push_back(portVar);
         }
 
@@ -1171,11 +1220,11 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
                                            bool isUniformArrayBind) 
 {
     // First bind up to common Parent, then bind down to bindedObj
-    auto bindedObj = portEl.getDirectBind().getAsArrayElementWithIndicies();
+    auto bindedObj = portEl.getDirectBind().getAsArrayElementWithIndicies(portEl);
     ModuleMIFView commonParentMod = portEl.nearestCommonParentModule(bindedObj.obj);
     
     DEBUG_WITH_TYPE(DebugOptions::doPortBind,
-        llvm::outs() << "bindPortCrossAux BIND " << portEl << " to " << bindedObj.obj << "\n";
+        llvm::outs() << "  bindPortCrossAux BIND " << portEl << " to " << bindedObj.obj << "\n";
     );
 
     VerilogVarsVec hostVars;
@@ -1380,7 +1429,7 @@ void ScElabModuleBuilder::bindPortExternalAux(PortView portEl,
     auto topModView = elabDB->getTopModule();
 
     DEBUG_WITH_TYPE(DebugOptions::doPortBind,
-        llvm::outs() << "bindPortExternalAux BIND " << portEl << "\n";
+        llvm::outs() << "  bindPortExternalAux BIND " << portEl << "\n";
     );
     
     VerilogVarsVec hostVars;
@@ -1478,19 +1527,29 @@ bool ScElabModuleBuilder::isFlattenArrayBind (
     return flattenArrayBind;
 }
 
-ScElabModuleBuilder::BindDirection ScElabModuleBuilder::getBindDirection (
-    PortView portView) const
+ScElabModuleBuilder::BindDirection 
+ScElabModuleBuilder::getBindDirection (PortView port) const
 {
-    auto bindedObj = portView.getDirectBind();
+    auto bindedObj = port.getDirectBind();
 
+    // Replace dynamic signal with ports bound to it, required for target/initiator
+    if (bindedObj.isSignal() && bindedObj.isDynamic() && 
+        bindedObj.getPointers().size() == 0) {
+        for (auto p : bindedObj.getPorts()) {
+            if (p != port) {
+                bindedObj = p;
+            }
+        }
+    }
+    
     if (bindedObj.hasNoParent())
         return BindDirection::BIND_EXTERNAL;
 
-    auto thisParentMod = portView.getParentModule();
+    auto thisParentMod = port.getParentModule();
     auto bindedParentMod = bindedObj.getParentModule();
     // Find common parent
-    auto commonParentMod = portView.nearestCommonParentModule(bindedObj);
-
+    auto commonParentMod = port.nearestCommonParentModule(bindedObj);
+    
     if (bindedParentMod == thisParentMod)
         return BindDirection::BIND_SAME;
     else if (commonParentMod == thisParentMod)
