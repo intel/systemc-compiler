@@ -1173,15 +1173,29 @@ void ScElabModuleBuilder::bindPortDownAux(PortView portEl,
         VerilogModule *hostVerMod = elabDB->getVerilogModule(bindedParentMods[i-1]);
         VerilogModuleInstance *instance = hostVerMod->getInstance(instModView);
 
-        // create virtual ports inside instance module
+        // Create virtual ports inside instance module
+        auto sigVars = instVerMod->getVerVariables(bindedObj.obj);
+        auto instPortIter = sigVars.begin();
+        SCT_TOOL_ASSERT (!last || verPortVars.size() == sigVars.size(), "");
+        
         for (const auto *verVar: verPortVars) {
+            std::string varName;
+            if (last) {
+                // Get original signal/port name in most down instance
+                // That preserves same name for module array elements 
+                // bound to individual modules (not module array)
+                varName = (*instPortIter)->getName()+"_s"; instPortIter++;
+            } else {
+                varName = verVar->getName(); 
+            }
             auto *portVar = instVerMod->createAuxilaryPort(virtualDirection,
-                                verVar->getName(), verVar->getBitwidth(), 
+                                varName, verVar->getBitwidth(), 
                                 verVar->getArrayDims(), verVar->isSigned());
             instanceVars.push_back(portVar);
         }
 
         SCT_TOOL_ASSERT (instanceVars.size() == hostVars.size(), "");
+        
         // bind virtual ports
         for (size_t i = 0; i < instanceVars.size(); i++) {
             instance->addBinding(instanceVars[i], {hostVars[i]});
@@ -1208,7 +1222,7 @@ void ScElabModuleBuilder::bindPortDownAux(PortView portEl,
                 }
             }
         }
-
+        
         // current instance is next host
         hostVars = instanceVars;
         instanceVars.clear();
@@ -1300,19 +1314,11 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
 
             DEBUG_WITH_TYPE(DebugOptions::doPortBind,
                 llvm::outs() << portEl << "\n";
-
-                llvm::outs() << "Host vars: \n";
-
-                for (auto var : hostVars)
-                    llvm::outs() << var->getName() << "\n";
-
-                llvm::outs() << "Instance vars: \n";
-
-                for (auto var : instanceVars)
-                    llvm::outs() << var->getName() << "\n";
-
+                llvm::outs() << "UP  Host vars: \n";
+                for (auto var : hostVars) llvm::outs() << var->getName() << "\n";
+                llvm::outs() << "UP Instance vars: \n";
+                for (auto var : instanceVars) llvm::outs() << var->getName() << "\n";
             );
-
 
             SCT_TOOL_ASSERT (hostVars.size() == instanceVars.size(), "");
 
@@ -1336,11 +1342,11 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
         bindSigVar = boundSignals.insert(bindedObj.obj).second;
     }
 
-    // Bind DOWN
+        // Bind DOWN
     if (bindSigVar) {
         auto bindDownParentMods = bindedObj.obj.
                                   getParentModulesList(commonParentMod);
-        
+
         PortDirection bottomDirection;
         if (portEl.getDirection() == PortDirection::IN)
             bottomDirection = PortDirection::OUT;
@@ -1368,19 +1374,36 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
                                    bottomDirection, verVar);
                     instanceVars.push_back(sigVar);
                 }
-                
+
             } else {
                 // In normal mode module port with bound port name and 
                 // auxiliary variable in signal module created
+                auto sigVars = instVerMod->getVerVariables(bindedObj.obj);
+                auto instPortIter = sigVars.begin();
+                SCT_TOOL_ASSERT (!last || verPortVars.size() == sigVars.size(), "");
+        
                 for (auto* verVar: verPortVars) {
+                    std::string varName;
+                    if (last) {
+                        // Get original signal/port name in most down instance
+                        // That preserves same name for module array elements 
+                        // bound to individual modules (not module array)
+                        varName = (*instPortIter)->getName()+"_s"; instPortIter++;
+                    } else {
+                        varName = verVar->getName(); 
+                    }
                     auto portVar = instVerMod->createAuxilaryPort(bottomDirection,
-                                    verVar->getName(), verVar->getBitwidth(), 
-                                    verVar->getArrayDims(), verVar->isSigned());
-
+                                        varName, verVar->getBitwidth(), 
+                                        verVar->getArrayDims(), verVar->isSigned());
                     instanceVars.push_back(portVar);
                 }
             }
 
+            DEBUG_WITH_TYPE(DebugOptions::doPortBind,
+                llvm::outs() << "DOWN Instance vars: \n";
+                for (auto var : instanceVars) llvm::outs() << var->getName() << "\n";
+            );
+            
             SCT_TOOL_ASSERT (instanceVars.size() == hostVars.size(), "");
 
             // Bind virtual ports, skip duplicate bind for shared signal variable
