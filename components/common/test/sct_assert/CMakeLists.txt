@@ -16,7 +16,7 @@ include_directories(${SYSTEMC_INCLUDE} ${SCT_COMMON}/sctcommon)
 
 add_executable (sct_assert_test
     ${SCT_COMMON}/sctcommon/sct_property.cpp
-    ${SCT_COMMON}/test/sctassert/sc_main.cpp
+    ${SCT_COMMON}/test/sct_assert/sc_main.cpp
 )
 
 target_link_libraries(sct_assert_test systemc)
