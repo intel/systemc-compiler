@@ -272,10 +272,10 @@ struct A : public sc_module
         int j = s.read();
         int k = s.read()+1;
         
-        SCT_ASSERT(i && !j, SCT_TIME(1), s.read());
+        SCT_ASSERT_THREAD(i && !j, SCT_TIME(1), s.read(), clk.pos());
         wait();
         
-        SCT_ASSERT(k == 42, (1,2), t1);
+        SCT_ASSERT_THREAD(k == 42, (1,2), t1, clk.pos());
         
         while (1) {
             

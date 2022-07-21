@@ -66,7 +66,7 @@ public:
     // Non-constant time
     void sct_assert_time1() 
     {
-        SCT_ASSERT(s, SCT_TIME(s.read()), s_d);
+        SCT_ASSERT_THREAD(s, SCT_TIME(s.read()), s_d, clk.pos());
         wait();
 
         while (true) {
@@ -78,7 +78,7 @@ public:
     void sct_assert_time2() 
     {
         int a;
-        SCT_ASSERT(s, SCT_TIME(a, 1), s_d);
+        SCT_ASSERT_THREAD(s, SCT_TIME(a, 1), s_d, clk.pos());
         wait();
 
         while (true) {
@@ -91,7 +91,7 @@ public:
         wait();
 
         while (true) {
-            SCT_ASSERT(s, SCT_TIME(1), s_d);
+            SCT_ASSERT_THREAD(s, SCT_TIME(1), s_d, clk.pos());
             wait();
         }
     }
@@ -104,7 +104,7 @@ public:
             int sum = 0;
             for (int i = 0; i < 5; i++) {
                 sum +=i;
-                SCT_ASSERT(i, SCT_TIME(1), sum);
+                SCT_ASSERT_THREAD(i, SCT_TIME(1), sum, clk.pos());
             }
             wait();
         }
@@ -116,7 +116,7 @@ public:
 
         int i = 0;
         while (i < 3) {
-            SCT_ASSERT_LOOP(s, SCT_TIME(1), s_d, i);
+            SCT_ASSERT_LOOP(s, SCT_TIME(1), s_d, clk.pos(), i);
             i++;
         }
         

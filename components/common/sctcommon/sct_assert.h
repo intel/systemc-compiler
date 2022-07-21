@@ -117,22 +117,22 @@ template<class T1>
 void sct_assert_in_proc_func(bool lhs, bool rhs,\
                              const char* name, T1 time) {}
 
-#define SCT_ASSERT3(LE, TIMES, RE) {\
+#define SCT_ASSERT4_TH(LE, TIMES, RE, EVENT) {\
                         sct_assert_in_proc_start();\
                         sct_assert_in_proc_func(\
                             LE, RE, "sctAssertLine" SCT_ONE(__LINE__),\
                             SCT_ARGS(TIMES)\
                         );}
 
-#define SCT_ASSERT_LOOPN(LE, TIMES, RE, ...) SCT_ASSERT3(LE, TIMES, RE)
+#define SCT_ASSERT_LOOPN(LE, TIMES, RE, EVENT, ...) SCT_ASSERT4_TH(LE, TIMES, RE, EVENT)
 
 #else
 
-#define SCT_ASSERT3(LE, TIMES, RE) {\
+#define SCT_ASSERT4_TH(LE, TIMES, RE, EVENT) {\
                 sct_property_storage::getProperty(\
                     [&]()->bool{return ( LE );},\
                     [&]()->bool{return ( RE );},\
-                    sc_get_current_process_handle(),\
+                    &EVENT,\
                     [&]()->sct_time{return (sct_time(SCT_ARGS(TIMES)));},\
                     #LE " ##" #TIMES " " #RE\
                 );}
@@ -146,11 +146,11 @@ void sct_assert_in_proc_func(bool lhs, bool rhs,\
                                         SCT_ITER2, SCT_ITER1)(__VA_ARGS__)
 
 /// Take variables by value, required for loop counter variable
-#define SCT_ASSERT_LOOPN(LE, TIMES, RE, ...) {\
+#define SCT_ASSERT_LOOPN(LE, TIMES, RE, EVENT, ...) {\
                 sct_property_storage::getProperty(\
                     [&, SCT_ITER_STR(__VA_ARGS__)]()->bool{return ( LE );},\
                     [&, SCT_ITER_STR(__VA_ARGS__)]()->bool{return ( RE );},\
-                    sc_get_current_process_handle(),\
+                    &EVENT,\
                     [&]()->sct_time{return (sct_time(SCT_ARGS(TIMES)));},\
                     #LE " ##" #TIMES " " #RE,\
                     __VA_ARGS__\
@@ -160,17 +160,24 @@ void sct_assert_in_proc_func(bool lhs, bool rhs,\
 /// Immediate assertion activated by event in module scope
 #define SCT_ASSERT2(RE, EVENT) \
         SCT_ASSERT4(true, SCT_TIME(0), RE, EVENT);
+#define SCT_ASSERT2_TH(RE, EVENT) \
+        SCT_ASSERT4_TH(true, SCT_TIME(0), RE, EVENT);
 
 #define SCT_ASSERT1(ARG1) \
         SCT_ASSERT with 1 argument not supported;
+#define SCT_ASSERT3(ARG1, ARG2, ARG3) \
+        SCT_ASSERT with 3 arguments not supported;
 
-/// Disable SCT_ASSERT and SCT_ASSERT_LOOP for HLS tools which not support it
+/// Disable SCT_ASSERT and others for HLS tools which not support it
 #ifdef SCT_ASSERT_OFF
 #define SCT_ASSERT(...) ;
+#define SCT_ASSERT_THREAD(...) ;
 #define SCT_ASSERT_LOOP(...) ;
 #else
 #define SCT_ASSERT(...) SCT_GET_MACRO(__VA_ARGS__, SCT_ASSERT4, SCT_ASSERT3,\
                                       SCT_ASSERT2, SCT_ASSERT1)(__VA_ARGS__)
+#define SCT_ASSERT_THREAD(...) SCT_GET_MACRO(__VA_ARGS__, SCT_ASSERT4_TH, SCT_ASSERT3,\
+                                      SCT_ASSERT2_TH, SCT_ASSERT1)(__VA_ARGS__)
 #define SCT_ASSERT_LOOP(...) SCT_ASSERT_LOOPN(__VA_ARGS__)
 #endif
 

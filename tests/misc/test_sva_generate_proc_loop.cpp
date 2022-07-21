@@ -51,14 +51,14 @@ public:
     void sct_assert_1d() 
     {
         for (int i = 0; i < 3; i++) {
-            SCT_ASSERT_LOOP(sarr[i], (1), sarr_d[i], i);
+            SCT_ASSERT_LOOP(sarr[i], (1), sarr_d[i], clk.pos(), i);
         }
 
         wait();
 
         for (int j = 0; j < 2; j++) {
-            SCT_ASSERT_LOOP(sarr[j], SCT_TIME(N), sarr[j+1], j);
-            SCT_ASSERT_LOOP(sarr[j], SCT_TIME(M, N+2), sarr_d[1], j);
+            SCT_ASSERT_LOOP(sarr[j], SCT_TIME(N), sarr[j+1], clk.pos(), j);
+            SCT_ASSERT_LOOP(sarr[j], SCT_TIME(M, N+2), sarr_d[1], clk.pos(), j);
         }
         
         while (true) {
@@ -72,15 +72,15 @@ public:
         a = false;
         for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
-            SCT_ASSERT_LOOP(sarr2[i][j].read(), (0), (sarr2[i][j] ^ 1) != a, i, j);
-            SCT_ASSERT_LOOP(sarr2[i][j] || s, (1), s_d && sarr2_d[i][j], i, j);
+            SCT_ASSERT_LOOP(sarr2[i][j].read(), (0), (sarr2[i][j] ^ 1) != a, clk.pos(), i, j);
+            SCT_ASSERT_LOOP(sarr2[i][j] || s, (1), s_d && sarr2_d[i][j], clk.pos(), i, j);
         }}
         
         wait();
 
         for (int i = 0; i < M-1; i++) {
         for (int j = 0; j < N; j++) {
-            SCT_ASSERT_LOOP(sarr2[i+1][j] || sarr2_d[i][j], SCT_TIME(1,2), s, i, j);
+            SCT_ASSERT_LOOP(sarr2[i+1][j] || sarr2_d[i][j], SCT_TIME(1,2), s, clk.pos(),  i, j);
         }}
         
         while (true) {

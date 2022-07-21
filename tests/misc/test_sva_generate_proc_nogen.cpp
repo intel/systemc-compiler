@@ -140,7 +140,7 @@ public:
     // One assertion in single wait() thread
     void sct_assert_one() 
     {
-        SCT_ASSERT(s, (1), s_d);
+        SCT_ASSERT_THREAD(s, (1), s_d, clk.pos());
         wait();
 
         while (true) {
@@ -151,9 +151,9 @@ public:
     // two similar assertions
     void sct_assert_two_same() 
     {
-        SCT_ASSERT(s, (1), s_d);
+        SCT_ASSERT_THREAD(s, (1), s_d, clk.pos());
         wait();
-        SCT_ASSERT(s, SCT_TIME(1), s_d);
+        SCT_ASSERT_THREAD(s, SCT_TIME(1), s_d, clk.pos());
 
         while (true) {
             wait();
@@ -164,9 +164,9 @@ public:
     void sct_assert_several()
     {
         a = false; b = true; arr[2] = 1;
-        SCT_ASSERT(s, SCT_TIME(1), s_d.read() == a);
-        SCT_ASSERT(b || s, (2,3), s_d2.read() && ((*ps).read() == 1));
-        SCT_ASSERT(psarr[1]->read(), SCT_TIME(3,0), sarr[0].read() != arr[2]);
+        SCT_ASSERT_THREAD(s, SCT_TIME(1), s_d.read() == a, clk.pos());
+        SCT_ASSERT_THREAD(b || s, (2,3), s_d2.read() && ((*ps).read() == 1), clk.pos());
+        SCT_ASSERT_THREAD(psarr[1]->read(), SCT_TIME(3,0), sarr[0].read() != arr[2], clk.pos());
         wait();
 
         while (true) {
@@ -177,7 +177,7 @@ public:
     // Several assertions in multi-wait() thread
     void sct_assert_several_multi1()
     {
-        SCT_ASSERT(s, SCT_TIME(1), s_d);
+        SCT_ASSERT_THREAD(s, SCT_TIME(1), s_d, clk.pos());
         wait();
 
         while (true) {
@@ -190,7 +190,7 @@ public:
     // Negative edge
     void sct_assert_several_multi2()
     {
-        SCT_ASSERT(s, (1), s_d);
+        SCT_ASSERT_THREAD(s, (1), s_d, clk.pos());
         wait();
 
         while (true) {
@@ -206,9 +206,9 @@ public:
     void sct_assert_several_multi3()
     {
         int k = 0;
-        SCT_ASSERT(s, (1), s_d);
+        SCT_ASSERT_THREAD(s, (1), s_d, clk.pos());
         wait();
-        SCT_ASSERT(s, (2), s_d2);
+        SCT_ASSERT_THREAD(s, (2), s_d2, clk.pos());
 
         while (true) {
             if (s) {
@@ -227,7 +227,7 @@ public:
     {
         d = 7;
         c = s.read();
-        SCT_ASSERT(c, (1), d == 1);
+        SCT_ASSERT_THREAD(c, (1), d == 1, clk.pos());
         wait();
 
         while (true) {
@@ -242,7 +242,7 @@ public:
         rec.a = 0;
         wait();
 
-        SCT_ASSERT(rec.a, (1), rec.b != s);
+        SCT_ASSERT_THREAD(rec.a, (1), rec.b != s, clk.pos());
         
         while (true) {
             rec.b = s_d.read();
@@ -254,7 +254,7 @@ public:
     void sct_assert_thread_loc1() 
     {
         int i = 0;
-        SCT_ASSERT(s, (1), i == s_d);
+        SCT_ASSERT_THREAD(s, (1), i == s_d, clk.pos());
         wait();
 
         while (true) {
@@ -267,7 +267,7 @@ public:
     void sct_assert_thread_loc2() 
     {
         int i = s;
-        SCT_ASSERT(s, (0), i);
+        SCT_ASSERT_THREAD(s, (0), i, clk.pos());
         wait();
 
         while (true) {
@@ -279,10 +279,10 @@ public:
     {
         bool j = false; int i = 0;
         bool k = false; int l = 0;
-        SCT_ASSERT(i && !j, (1), s_d);
+        SCT_ASSERT_THREAD(i && !j, (1), s_d, clk.pos());
         wait();
 
-        SCT_ASSERT(k || l, SCT_TIME(2,3), s);
+        SCT_ASSERT_THREAD(k || l, SCT_TIME(2,3), s, clk.pos());
 
         while (true) {
             wait();
@@ -296,10 +296,10 @@ public:
     // Assert in IF with statically evaluated condition
     void sct_assert_cond() 
     {
-        if (M == N) SCT_ASSERT(s, SCT_TIME(1), s_d);
+        if (M == N) SCT_ASSERT_THREAD(s, SCT_TIME(1), s_d, clk.pos());
         wait();
         
-        if (N) SCT_ASSERT(s, SCT_TIME(2), s_d2);
+        if (N) SCT_ASSERT_THREAD(s, SCT_TIME(2), s_d2, clk.pos());
 
         while (true) {
             wait();

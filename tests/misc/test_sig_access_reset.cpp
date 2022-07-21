@@ -82,10 +82,10 @@ struct A : public sc_module
     void assert_sig() 
     {
         tb = 0; rb = 0;
-        SCT_ASSERT(t, (0), r.read());
-        SCT_ASSERT(tb, (0), rb.read());
+        SCT_ASSERT_THREAD(t, (0), r.read(), clk.pos());
+        SCT_ASSERT_THREAD(tb, (0), rb.read(), clk.pos());
         wait();
-        SCT_ASSERT(ta, (0), ra.read());
+        SCT_ASSERT_THREAD(ta, (0), ra.read(), clk.pos());
 
         while (true) {
             wait();
@@ -102,9 +102,9 @@ struct A : public sc_module
     void assert_global() 
     {
         a = 0; c = 1; mm = 2;
-        SCT_ASSERT(a, (0), c);
+        SCT_ASSERT_THREAD(a, (0), c, clk.pos());
         wait();
-        SCT_ASSERT(b, (0), d == 1);
+        SCT_ASSERT_THREAD(b, (0), d == 1, clk.pos());
 
         while (true) {
             wait();
@@ -120,9 +120,9 @@ struct A : public sc_module
         sc_bigint<8> h;
         sc_uint<8> nn;  // not reg
         
-        SCT_ASSERT(e, (0), h == 1);
+        SCT_ASSERT_THREAD(e, (0), h == 1, clk.pos());
         wait();
-        SCT_ASSERT(f, (0), g);
+        SCT_ASSERT_THREAD(f, (0), g, clk.pos());
 
         while (true) {
             wait();

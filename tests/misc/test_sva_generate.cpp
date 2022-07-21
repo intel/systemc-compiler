@@ -111,7 +111,7 @@ public:
     
     void thread1() 
     {
-        SCT_ASSERT(o, (3), r);
+        SCT_ASSERT_THREAD(o, (3), r, clk.pos());
         wait();
 
         while (true) {
@@ -153,16 +153,16 @@ public:
     // Simple immediate assertion test
     void sct_assert_thread1() 
     {
-        SCT_ASSERT(s, SCT_TIME(1), s_d);
+        SCT_ASSERT_THREAD(s, SCT_TIME(1), s_d, clk.pos());
         sct_assert (s == 1, "Imm assert");
         
         int i = 0;
-        SCT_ASSERT(s, (1), s_d);
-        SCT_ASSERT(s, (M+1,2), s_d);
-        SCT_ASSERT(i == 0, (1), i == 1);
+        SCT_ASSERT_THREAD(s, (1), s_d, clk.pos());
+        SCT_ASSERT_THREAD(s, (M+1,2), s_d, clk.pos());
+        SCT_ASSERT_THREAD(i == 0, (1), i == 1, clk.pos());
         wait();
 
-        SCT_ASSERT(s, (M, M+1), s_d);
+        SCT_ASSERT_THREAD(s, (M, M+1), s_d, clk.pos());
 
         while (true) {
             i = 1;
@@ -178,7 +178,7 @@ public:
     {
         wait();
         if (true) {
-            SCT_ASSERT(s, (1), s_d);
+            SCT_ASSERT_THREAD(s, (1), s_d, clk.pos());
         }
 
         while (true) {
@@ -193,7 +193,7 @@ public:
         //}
         
         for (int i = 0; i < N+1; i++) {
-            SCT_ASSERT_LOOP(sarr[i], (1), sarr_d[i+1], i);
+            SCT_ASSERT_LOOP(sarr[i], (1), sarr_d[i+1], clk.pos(), i);
         }
 
         wait();
@@ -211,7 +211,7 @@ public:
 
         while (true) {
             ii = s;
-            SCT_ASSERT(s, (1), ii);
+            SCT_ASSERT_THREAD(s, (1), ii);
             wait();
             
             //ii++;

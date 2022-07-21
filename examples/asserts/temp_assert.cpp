@@ -6,7 +6,7 @@
  *****************************************************************************/
 
 //
-// SVC tool example. SystemC temporal assertion SCT_PROPERTY and SCT_ASSERT.
+// SystemC temporal assertion SCT_PROPERTY and SCT_ASSERT.
 //
 
 #include "sct_assert.h"
@@ -49,14 +49,14 @@ public:
     {
         s = 0; s_d = 0; s_d2 = 0;
         // Assertion in reset section works during reset if not disabled
-        SCT_ASSERT(s, SCT_TIME(1), s_d);
+        SCT_ASSERT_THREAD(s, SCT_TIME(1), s_d, clk.pos());
         // Assertion can be disabled when reset active (reset is active low)
-        SCT_ASSERT(rstn && s, SCT_TIME(1), s_d);
+        SCT_ASSERT_THREAD(rstn && s, SCT_TIME(1), s_d, clk.pos());
         
         wait();
 
         // Assertion after reset section does not work under reset 
-        SCT_ASSERT(s || s_d, SCT_TIME(1,N), s_d2);
+        SCT_ASSERT_THREAD(s || s_d, SCT_TIME(1,N), s_d2, clk.pos());
         
         while (true) {
             s_d = s; s_d2 = s_d;
@@ -73,7 +73,7 @@ public:
         wait();
 
         // Assertion in process can use member and local variables 
-        SCT_ASSERT(m != i, SCT_TIME(1), s);
+        SCT_ASSERT_THREAD(m != i, SCT_TIME(1), s, clk.pos());
 
         while (true) {
             m = i+1; i++;

@@ -21,7 +21,7 @@ public:
     SC_HAS_PROCESS(top);
     top(sc_module_name)
     {
-        SC_CTHREAD(sct_assert_test, clk.pos());
+        SC_CTHREAD(sct_assert_test, clk.neg());
         async_reset_signal_is(arstn, false);
 
         SC_CTHREAD(var_in_reset_only1, clk.pos());
@@ -96,7 +96,7 @@ public:
     void sct_assert_test()
     {
         c = false;
-        SCT_ASSERT(a, SCT_TIME(1), c);
+        SCT_ASSERT_THREAD(a, SCT_TIME(1), c, clk.neg());
         wait();
 
         while (true) {

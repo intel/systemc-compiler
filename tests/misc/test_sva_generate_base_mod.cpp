@@ -41,7 +41,7 @@ public:
     {
         o = 0;
         wait();
-        SCT_ASSERT(o, (1), o);
+        SCT_ASSERT_THREAD(o, (1), o, clk.pos());
         
         while (true) {
             wait();
@@ -80,7 +80,7 @@ public:
         this->s = 0;
         wait();
         
-        SCT_ASSERT(this->s, (3), !this->s);  
+        SCT_ASSERT_THREAD(this->s, (3), !this->s, clk.pos());  
 
         while (true) {
             this->s = !this->s;

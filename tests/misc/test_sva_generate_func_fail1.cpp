@@ -31,7 +31,7 @@ public:
     
     void sct_assert_call() 
     {
-        SCT_ASSERT(f(), SCT_TIME(1), s);
+        SCT_ASSERT_THREAD(f(), SCT_TIME(1), s, clk.pos());
         wait();
 
         while (true) {

@@ -53,11 +53,11 @@ struct sct_time {
     int lo;
     int hi;
     
-    sct_time(int time) : 
+    inline sct_time(int time) : 
         lo(time), hi(time) 
     {}
 
-    sct_time(int lo, int hi) : lo(lo), hi(hi) 
+    inline sct_time(int lo, int hi) : lo(lo), hi(hi) 
     {}
 };
     
@@ -81,7 +81,7 @@ private:
     std::string msg;
     
 protected:
-    /// Time specified and intialization done
+    /// Time specified and initialization done
     bool initalized = false;
 
     inline void init(int time) 
@@ -112,17 +112,17 @@ protected:
     }
     
 public:
-    explicit sct_property(std::string s) : 
+    inline explicit sct_property(std::string s) : 
         msg(s)
     {}
 
-    explicit sct_property(int time, std::string s) : 
+    inline explicit sct_property(int time, std::string s) : 
         msg(s)
     {
         init(time);
     }
 
-    explicit sct_property(int loTime, int hiTime, std::string s) : 
+    inline explicit sct_property(int loTime, int hiTime, std::string s) : 
         msg(s)
     {
         init(loTime, hiTime);
@@ -186,29 +186,28 @@ private:
 public:
     sct_property_storage() = delete;
     
-    static std::size_t calcHash(const std::string& handle) {
+    inline static std::size_t calcHash(const std::string& handle) {
         return std::hash<std::string>()(handle);
     }
     
     /// Create or get property for given process handle, used in process scope
-    template <class LEXPR, class REXPR, class TIMES>
-    static sct_property* getProperty(LEXPR lexpr, REXPR rexpr, 
-                                     sc_process_b* proc, 
-                                     TIMES times,
-                                     const std::string& propstr) {
-        
-        // Get current thread clock event
-        std::vector<const sc_event*> procEvents = proc->get_static_events();
-        assert (procEvents.size() == 1 && "Incorrect event number");
-        const sc_event* event = procEvents.front();
-        
-        return getProperty(lexpr, rexpr, event, times, propstr);
-    }
+    /// Waiting for SC distribution with @get_static_events()
+//    template <class LEXPR, class REXPR, class TIMES>
+//    static sct_property* getProperty(LEXPR lexpr, REXPR rexpr, sc_process_b* proc, 
+//                                     TIMES times,
+//                                     const std::string& propstr) {
+//        
+//        // Get current thread clock event
+//        std::vector<const sc_event*> procEvents = proc->get_static_events();
+//        assert (procEvents.size() == 1 && "Incorrect event number");
+//        const sc_event* event = procEvents.front();
+//        
+//        return getProperty(lexpr, rexpr, event, times, propstr);
+//    }
     
     /// Create or get property for given process handle, used in loop
-    template <class LEXPR, class REXPR, class TIMES, class... IterTypes>
-    static sct_property* getProperty(LEXPR lexpr, REXPR rexpr, 
-                                     sc_process_b* proc,
+    template <class LEXPR, class REXPR, class EVENT, class TIMES, class... IterTypes>
+    static sct_property* getProperty(LEXPR lexpr, REXPR rexpr, EVENT* event, 
                                      TIMES times,
                                      const std::string& propstr,
                                      IterTypes... iters
@@ -217,7 +216,7 @@ public:
         std::string propIterStr = propstr + "_ITER#" + 
                                   sct_property_utils::getIterStr(iters...);
         
-        return getProperty(lexpr, rexpr, proc, times, propIterStr);
+        return getProperty(lexpr, rexpr, event, times, propIterStr);
     }    
 
     template <class LEXPR, class REXPR, class EVENT, class TIMES>
