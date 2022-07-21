@@ -95,7 +95,7 @@ public:
 
     void sct_assert_thread() 
     {
-        SCT_ASSERT(s, SCT_TIME(1), s_d);
+        SCT_ASSERT(s, SCT_TIME(1), s_d, clk.pos());
         wait();
 
         while (true) {
@@ -107,9 +107,9 @@ public:
     // Simple immediate assertion test
     void sct_assert_thread1() 
     {
-        SCT_ASSERT(s, (0), s);
-        SCT_ASSERT(s, SCT_TIME(1), s_d);
-        SCT_ASSERT(s, SCT_TIME(2,3), s_d3);
+        SCT_ASSERT(s, (0), s, clk.pos());
+        SCT_ASSERT(s, SCT_TIME(1), s_d, clk.pos());
+        SCT_ASSERT(s, SCT_TIME(2,3), s_d3, clk.pos());
         wait();
 
         while (true) {
@@ -120,8 +120,8 @@ public:
     // Multiple-wait thread
     void sct_assert_thread2() {
         wait();
-        SCT_ASSERT(s, SCT_TIME(1), s_d);
-        SCT_ASSERT(s || s_d, (1,2), s_d2);
+        SCT_ASSERT(s, SCT_TIME(1), s_d, clk.pos());
+        SCT_ASSERT(s || s_d, (1,2), s_d2, clk.pos());
 
         while (true) {
             wait();
@@ -132,7 +132,7 @@ public:
     void sct_assert_pointer()
     {
         wait();
-        SCT_ASSERT(ps->read(), (0), s_d);
+        SCT_ASSERT(ps->read(), (0), s_d, clk.pos());
 
         while (true) {
             wait();
@@ -149,9 +149,9 @@ public:
 
         for (int i = 0; i < 3; i++) {
             // Check @k is captured by reference
-            SCT_ASSERT_LOOP(sarr[i], (1), sarr_d[i] || k == 1, i);
+            SCT_ASSERT_LOOP(sarr[i], (1), sarr_d[i] || k == 1, clk.pos(), i);
             for (int j = 0; j < 2; j++) {
-                SCT_ASSERT_LOOP(sarr2[i][j], SCT_TIME(0), sarr2[i][j], i, j);
+                SCT_ASSERT_LOOP(sarr2[i][j], SCT_TIME(0), sarr2[i][j], clk.pos(), i, j);
             }
         }
         
