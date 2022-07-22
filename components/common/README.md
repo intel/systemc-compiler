@@ -13,7 +13,7 @@ Installation and run tests
    
 3. Apply sct_assert.patch to /scr/sysc/kernel/sc_process.h -- skip that for patched SystemC from this repository:
 
-   $ patch $SYSTEMC_HOME/scr/sysc/kernel/sc_process.h $SCT_HOME/components/common/sctcommon/sct_assert.patch
+   $ patch $SYSTEMC_HOME/src/sysc/kernel/sc_process.h $SCT_HOME/components/common/sct_assert.patch
    
 4. Compile and run assertion test:
 
