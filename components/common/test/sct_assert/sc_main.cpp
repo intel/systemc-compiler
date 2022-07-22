@@ -37,22 +37,22 @@ public:
         val = m;
         cout << "M " << M << endl;
         
-        SC_CTHREAD(test_thread, clk);
+        SC_CTHREAD(test_thread, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(sct_assert_thread, clk);
+        SC_CTHREAD(sct_assert_thread, clk.pos());
         async_reset_signal_is(rstn, false);
         
-        SC_CTHREAD(sct_assert_thread1, clk);
+        SC_CTHREAD(sct_assert_thread1, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(sct_assert_thread2, clk);
+        SC_CTHREAD(sct_assert_thread2, clk.pos());
         async_reset_signal_is(rstn, false);
         
-        SC_CTHREAD(sct_assert_pointer, clk);
+        SC_CTHREAD(sct_assert_pointer, clk.pos());
         async_reset_signal_is(rstn, false);
         
-        SC_CTHREAD(sct_assert_loop, clk);
+        SC_CTHREAD(sct_assert_loop, clk.pos());
         async_reset_signal_is(rstn, false);
     }
     
@@ -95,7 +95,7 @@ public:
 
     void sct_assert_thread() 
     {
-        SCT_ASSERT(s, SCT_TIME(1), s_d, clk.pos());
+        SCT_ASSERT_THREAD(s, SCT_TIME(1), s_d, clk.pos());
         wait();
 
         while (true) {
@@ -107,9 +107,9 @@ public:
     // Simple immediate assertion test
     void sct_assert_thread1() 
     {
-        SCT_ASSERT(s, (0), s, clk.pos());
-        SCT_ASSERT(s, SCT_TIME(1), s_d, clk.pos());
-        SCT_ASSERT(s, SCT_TIME(2,3), s_d3, clk.pos());
+        SCT_ASSERT_THREAD(s, (0), s, clk.pos());
+        SCT_ASSERT_THREAD(s, SCT_TIME(1), s_d, clk.pos());
+        SCT_ASSERT_THREAD(s, SCT_TIME(2,3), s_d3, clk.pos());
         wait();
 
         while (true) {
@@ -120,8 +120,8 @@ public:
     // Multiple-wait thread
     void sct_assert_thread2() {
         wait();
-        SCT_ASSERT(s, SCT_TIME(1), s_d, clk.pos());
-        SCT_ASSERT(s || s_d, (1,2), s_d2, clk.pos());
+        SCT_ASSERT_THREAD(s, SCT_TIME(1), s_d, clk.pos());
+        SCT_ASSERT_THREAD(s || s_d, (1,2), s_d2, clk.pos());
 
         while (true) {
             wait();
@@ -132,7 +132,7 @@ public:
     void sct_assert_pointer()
     {
         wait();
-        SCT_ASSERT(ps->read(), (0), s_d, clk.pos());
+        SCT_ASSERT_THREAD(ps->read(), (0), s_d, clk.pos());
 
         while (true) {
             wait();
