@@ -49,8 +49,25 @@ inline void sct_assert(bool expr) {}
 inline void sct_assert(bool expr, const char* msg) {}
 
 #else 
-#define sct_assert1(expr) assert(expr)
-#define sct_assert2(expr, msg) assert(expr && msg)
+    #ifdef NDEBUG
+    #define sct_assert1(expr) \
+        if (!expr) {\
+            std::cout << std::endl << sc_time_stamp() << \
+                ", Error : sct_assert violation " << \
+                std::string(__FILE__) << ":" << \
+                std::to_string(__LINE__) << std::endl;\
+        }
+    #define sct_assert2(expr, msg) \
+        if (!expr) {\
+            std::cout << std::endl << sc_time_stamp() << \
+                ", Error : sct_assert violation " << \
+                std::string(__FILE__) << ":" << \
+                std::to_string(__LINE__) << " " << msg << std::endl;\
+        }
+    #else 
+    #define sct_assert1(expr) assert(expr)
+    #define sct_assert2(expr, msg) assert(expr && msg)
+    #endif
 #define sct_assert(...) SCT_GET_MACRO(__VA_ARGS__, , ,\
                                       sct_assert2, sct_assert1)(__VA_ARGS__)
 #endif
@@ -71,16 +88,18 @@ struct sct_property_mod
     explicit sct_property_mod() {}
     template<class T1, class T2>
     explicit sct_property_mod(bool lexpr, bool rexpr, sc_event_finder& event,
-                              const char* name, T1 lotime, T2 hitime) {}
+                              const char* name, T1 lotime, T2 hitime, 
+                              unsigned stable) {}
     template<class T1>
     explicit sct_property_mod(bool lexpr, bool rexpr, sc_event_finder& event,
-                              const char* name, T1 time) {}
+                              const char* name, T1 time, unsigned stable) {}
     template<class T1, class T2>
     explicit sct_property_mod(bool lexpr, bool rexpr, sc_port_base& event,
-                              const char* name, T1 lotime, T2 hitime) {}
+                              const char* name, T1 lotime, T2 hitime,
+                              unsigned stable) {}
     template<class T1>
     explicit sct_property_mod(bool lexpr, bool rexpr, sc_port_base& event,
-                              const char* name, T1 time) {}
+                              const char* name, T1 time, unsigned stable) {}
 };
 
 /// __SC_TOOL_CLANG__ defined for Clang only, SVC target build without it 
@@ -88,10 +107,34 @@ struct sct_property_mod
     #define SCT_ASSERT4(LE, TIMES, RE, EVENT)\
         sct_property_mod SCT_TWO(sctTmpVar,__LINE__){\
             static_cast<bool>(LE), static_cast<bool>(RE), EVENT,\
-            "sctAssertLine" SCT_ONE(__LINE__), SCT_ARGS(TIMES)};
+            "sctAssertLine" SCT_ONE(__LINE__), SCT_ARGS(TIMES), 0};
+
+    #define SCT_ASSERT4_STABLE(LE, TIMES, RE, EVENT)\
+        sct_property_mod SCT_TWO(sctTmpVar,__LINE__){\
+            static_cast<bool>(LE), static_cast<bool>(RE), EVENT,\
+            "sctAssertLine" SCT_ONE(__LINE__), SCT_ARGS(TIMES), 1};
+
+    #define SCT_ASSERT4_ROSE(LE, TIMES, RE, EVENT)\
+        sct_property_mod SCT_TWO(sctTmpVar,__LINE__){\
+            static_cast<bool>(LE), static_cast<bool>(RE), EVENT,\
+            "sctAssertLine" SCT_ONE(__LINE__), SCT_ARGS(TIMES), 2};
+
+    #define SCT_ASSERT4_FELL(LE, TIMES, RE, EVENT)\
+        sct_property_mod SCT_TWO(sctTmpVar,__LINE__){\
+            static_cast<bool>(LE), static_cast<bool>(RE), EVENT,\
+            "sctAssertLine" SCT_ONE(__LINE__), SCT_ARGS(TIMES), 3};
 #else
     // No parameter passed, LE/RE can use not-bound port/not-allocated pointers
     #define SCT_ASSERT4(LE, TIMES, RE, EVENT)\
+        sct_property_mod SCT_TWO(sctTmpVar,__LINE__);
+
+    #define SCT_ASSERT4_STABLE(LE, TIMES, RE, EVENT)\
+        sct_property_mod SCT_TWO(sctTmpVar,__LINE__);
+
+    #define SCT_ASSERT4_ROSE(LE, TIMES, RE, EVENT)\
+        sct_property_mod SCT_TWO(sctTmpVar,__LINE__);
+
+    #define SCT_ASSERT4_FELL(LE, TIMES, RE, EVENT)\
         sct_property_mod SCT_TWO(sctTmpVar,__LINE__);
 #endif
 
@@ -103,7 +146,40 @@ struct sct_property_mod
                     [&]()->bool{return ( RE );},\
                     &EVENT,\
                     [&]()->sct_time{return (sct_time(SCT_ARGS(TIMES)));},\
-                    #LE " ##" #TIMES " " #RE\
+                    std::string(__FILE__)+":"+std::to_string(__LINE__)\
+            );
+
+#define SCT_ASSERT4_STABLE(LE, TIMES, RE, EVENT)\
+    sct_property* SCT_TWO(sctTmpVar,__LINE__) =\
+            sct_property_storage::getPropertyStable(\
+                    [&]()->bool{return ( LE );},\
+                    [&]()->bool{return ( RE );},\
+                    &EVENT,\
+                    [&]()->sct_time{return (sct_time(SCT_ARGS(TIMES)));},\
+                    std::string(__FILE__)+":"+std::to_string(__LINE__),\
+                    stStable\
+            );
+
+#define SCT_ASSERT4_ROSE(LE, TIMES, RE, EVENT)\
+    sct_property* SCT_TWO(sctTmpVar,__LINE__) =\
+            sct_property_storage::getPropertyStable(\
+                    [&]()->bool{return ( LE );},\
+                    [&]()->bool{return ( RE );},\
+                    &EVENT,\
+                    [&]()->sct_time{return (sct_time(SCT_ARGS(TIMES)));},\
+                    std::string(__FILE__)+":"+std::to_string(__LINE__),\
+                    stRose\
+            );
+
+#define SCT_ASSERT4_FELL(LE, TIMES, RE, EVENT)\
+    sct_property* SCT_TWO(sctTmpVar,__LINE__) =\
+            sct_property_storage::getPropertyStable(\
+                    [&]()->bool{return ( LE );},\
+                    [&]()->bool{return ( RE );},\
+                    &EVENT,\
+                    [&]()->sct_time{return (sct_time(SCT_ARGS(TIMES)));},\
+                    std::string(__FILE__)+":"+std::to_string(__LINE__),\
+                    stFell\
             );
 #endif
 
@@ -134,7 +210,7 @@ void sct_assert_in_proc_func(bool lhs, bool rhs,\
                     [&]()->bool{return ( RE );},\
                     &EVENT,\
                     [&]()->sct_time{return (sct_time(SCT_ARGS(TIMES)));},\
-                    #LE " ##" #TIMES " " #RE\
+                    std::string(__FILE__)+":"+std::to_string(__LINE__)\
                 );}
 
 /// Provide comma separated iteration variables to capture them by value
@@ -152,7 +228,7 @@ void sct_assert_in_proc_func(bool lhs, bool rhs,\
                     [&, SCT_ITER_STR(__VA_ARGS__)]()->bool{return ( RE );},\
                     &EVENT,\
                     [&]()->sct_time{return (sct_time(SCT_ARGS(TIMES)));},\
-                    #LE " ##" #TIMES " " #RE,\
+                    std::string(__FILE__)+":"+std::to_string(__LINE__),\
                     __VA_ARGS__\
                 );}
 #endif
@@ -165,20 +241,38 @@ void sct_assert_in_proc_func(bool lhs, bool rhs,\
 
 #define SCT_ASSERT1(ARG1) \
         SCT_ASSERT with 1 argument not supported;
+#define SCT_ASSERT1_STABLE(ARG1) \
+        SCT_ASSERT_STABLE/ROSE/FELL with 1 argument not supported;
+#define SCT_ASSERT2_STABLE(ARG1, ARG2) \
+        SCT_ASSERT_STABLE/ROSE/FELL with 2 arguments not supported;
 #define SCT_ASSERT3(ARG1, ARG2, ARG3) \
         SCT_ASSERT with 3 arguments not supported;
+#define SCT_ASSERT3_STABLE(ARG1, ARG2, ARG3) \
+        SCT_ASSERT_STABLE/ROSE/FELL with 3 arguments not supported;
 
 /// Disable SCT_ASSERT and others for HLS tools which not support it
 #ifdef SCT_ASSERT_OFF
 #define SCT_ASSERT(...) ;
 #define SCT_ASSERT_THREAD(...) ;
 #define SCT_ASSERT_LOOP(...) ;
+#define SCT_ASSERT_STABLE(...) ;
+#define SCT_ASSERT_ROSE(...) ;
+#define SCT_ASSERT_FELL(...) ;
 #else
 #define SCT_ASSERT(...) SCT_GET_MACRO(__VA_ARGS__, SCT_ASSERT4, SCT_ASSERT3,\
-                                      SCT_ASSERT2, SCT_ASSERT1)(__VA_ARGS__)
+                                SCT_ASSERT2, SCT_ASSERT1)(__VA_ARGS__)
 #define SCT_ASSERT_THREAD(...) SCT_GET_MACRO(__VA_ARGS__, SCT_ASSERT4_TH, SCT_ASSERT3,\
-                                      SCT_ASSERT2_TH, SCT_ASSERT1)(__VA_ARGS__)
+                                SCT_ASSERT2_TH, SCT_ASSERT1)(__VA_ARGS__)
 #define SCT_ASSERT_LOOP(...) SCT_ASSERT_LOOPN(__VA_ARGS__)
+#define SCT_ASSERT_STABLE(...) SCT_GET_MACRO(__VA_ARGS__, \
+                                SCT_ASSERT4_STABLE, SCT_ASSERT3_STABLE,\
+                                SCT_ASSERT2_STABLE, SCT_ASSERT1_STABLE)(__VA_ARGS__)
+#define SCT_ASSERT_ROSE(...) SCT_GET_MACRO(__VA_ARGS__, \
+                                SCT_ASSERT4_ROSE, SCT_ASSERT3_STABLE,\
+                                SCT_ASSERT2_STABLE, SCT_ASSERT1_STABLE)(__VA_ARGS__)
+#define SCT_ASSERT_FELL(...) SCT_GET_MACRO(__VA_ARGS__, \
+                                SCT_ASSERT4_FELL, SCT_ASSERT3_STABLE,\
+                                SCT_ASSERT2_STABLE, SCT_ASSERT1_STABLE)(__VA_ARGS__)
 #endif
 
 //=============================================================================

@@ -394,6 +394,23 @@ bool isTemplateClass(clang::CXXRecordDecl* decl) {
     return decl->getDescribedClassTemplate();
 }
 
+unsigned getTemplateArgNum(clang::QualType type)
+{
+    if (type.isNull()) return 0;
+    
+    type = getPureType(type);
+    
+    if (auto stype = type->getAs<clang::TemplateSpecializationType>()) {
+        return stype->getNumArgs();
+    } else
+    if (auto rdecl = type->getAsCXXRecordDecl()) {
+        if (auto sdecl = dyn_cast<clang::ClassTemplateSpecializationDecl>(rdecl)) {
+            return sdecl->getTemplateArgs().size();
+        }
+     }
+    return 0;
+}
+
 llvm::Optional<TemplateArgument> getTemplateArg(clang::QualType type, 
                                                 std::size_t argIndx)
 {

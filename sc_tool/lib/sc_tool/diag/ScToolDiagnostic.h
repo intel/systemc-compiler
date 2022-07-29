@@ -207,6 +207,7 @@ public:
         CPP_DEFINED_LOCAL_PARAM     = 235,
         SYNTH_INCORRECT_FUNC_CALL   = 236,
         SYNTH_PARENT_SAME_OBJECT    = 237,
+        SYNTH_NO_RESET_PROCESS      = 238,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -668,6 +669,11 @@ private:
         idFormatMap[SYNTH_PARENT_SAME_OBJECT] =
             {clang::DiagnosticIDs::Warning, 
             "One of dynamically allocated object parent is the same object"};
+        
+        idFormatMap[SYNTH_NO_RESET_PROCESS] =
+            {clang::DiagnosticIDs::Warning, 
+            "No process for reset found, reset is not sc_in<> port"};
+        
         
         idFormatMap[CPP_DIFF_POINTER_COMP] =
             {clang::DiagnosticIDs::Fatal, 

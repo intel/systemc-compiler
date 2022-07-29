@@ -32,6 +32,12 @@ void sct_property_utils::parseTimes(const std::string& s,
     }
 }
 
+std::string sct_property_utils::getFileName(const std::string& s)
+{
+  return s.substr(s.find_last_of("/\\") + 1);
+}
+
+
 //=============================================================================
 namespace sc_core {
 
@@ -41,7 +47,7 @@ std::unordered_map<std::size_t, sct_property*> sct_property_storage::stor;
 // Put antecedent(left) and consequent (right) expressions every cycle
 void sct_property::check(bool lexpr, bool rexpr) {
 
-    assert (initalized && "sct_property time is not specified");
+    assert (initalized && "sct_property is not initalized");
 
     // Stored left expression or current one for single time zero
     bool lcond = pastSize ? leftPast[lindx] : lexpr;
@@ -72,6 +78,37 @@ void sct_property::check(bool lexpr, bool rexpr) {
         rightPast[rindx] = rexpr;
         rindx = (rindx+1) % timeInt;
     }
+}
+
+void sct_property::check(StableType stable, bool lexpr, bool rexpr) {
+    
+    assert (initalized && "sct_property is not initalized");
+    assert (stable == stStable || timeInt == 0);
+    
+    bool lcond = pastSize ? leftPast[lindx] : lexpr;
+
+    if (lcond) {
+        
+        bool rcond = stable == stStable ? rexpr == rightPast[0] :
+                     stable == stRose ? rexpr > rightPast[0] : rexpr < rightPast[0];
+        for (size_t i = 0; i < timeInt; i++) {
+            rcond = rcond && rexpr == rightPast[i+1];
+        }
+        if (!rcond) {
+            std::cout << std::endl << sc_time_stamp() 
+                      << ", Error : sct_property " << stableStr 
+                      << " violation " << msg << std::endl;
+            assert (false);
+        }
+    }
+
+    // Store left and right expression values
+    if (pastSize) {
+        leftPast[lindx] = lexpr;
+        if (pastSize > 1) lindx = (lindx+1) % pastSize;
+    }
+    rightPast[rindx] = rexpr;
+    if (timeInt) rindx = (rindx+1) % (timeInt+1);
 }
 
 } // namespace sc_core

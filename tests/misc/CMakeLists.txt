@@ -213,6 +213,9 @@ svc_target(misc_const_keep_var2 GOLDEN misc_const_keep_var2.sv)
 add_executable(misc_const_keep_var3 test_const_keep_var3.cpp)
 svc_target(misc_const_keep_var3 GOLDEN misc_const_keep_var3.sv)
 
+add_executable(misc_keep_template_param test_keep_template_param.cpp)
+svc_target(misc_keep_template_param GOLDEN misc_keep_template_param.sv)
+
 add_executable(misc_const_pointer test_const_pointer.cpp)
 svc_target(misc_const_pointer GOLDEN misc_const_pointer.sv)
 
@@ -311,6 +314,10 @@ svc_target(misc_sva_generate_base_mod GOLDEN misc_sva_generate_base_mod.sv
 
 add_executable(misc_sva_generate_mod_fail test_sva_generate_mod_fail.cpp)
 svc_target(misc_sva_generate_mod_fail ELAB_TOP test_top.a_mod WILL_FAIL)
+
+add_executable(misc_sva_generate_stable test_sva_generate_stable.cpp)
+svc_target(misc_sva_generate_stable GOLDEN misc_sva_generate_stable.sv 
+           ELAB_TOP test_top.a_mod)
 
 add_executable(misc_sva_generate_proc test_sva_generate_proc.cpp)
 svc_target(misc_sva_generate_proc GOLDEN misc_sva_generate_proc.sv 

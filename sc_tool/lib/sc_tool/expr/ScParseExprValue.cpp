@@ -113,7 +113,7 @@ void ScParseExprValue::parseSvaDecl(const clang::FieldDecl* fdecl)
             args.push_back(arg);
         }
     }
-    SCT_TOOL_ASSERT (args.size() == 5 || args.size() == 6, 
+    SCT_TOOL_ASSERT (args.size() == 6 || args.size() == 7, 
                      "Incorrect argument number");
 
     // Parse LHS and RHS to fill read from variables, 

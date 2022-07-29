@@ -6,7 +6,7 @@
  *****************************************************************************/
 
 //
-// SystemC temporal assertion SCT_PROPERTY and SCT_ASSERT.
+// SVC tool example. SystemC temporal assertion SCT_PROPERTY and SCT_ASSERT.
 //
 
 #include "sct_assert.h"
@@ -26,6 +26,12 @@ public:
     sc_signal<bool>     s_d2;
     sc_uint<8>          m;
 
+    
+    sc_signal<bool>         st;
+    sc_signal<sc_uint<4>>   st1;
+    sc_signal<bool>         st2;
+    sc_signal<sc_uint<4>>   cntr;
+    
     const unsigned N = 3;
 
     SC_CTOR(TempAssert)
@@ -43,11 +49,21 @@ public:
     SCT_ASSERT(s, SCT_TIME(N+1), s_d, clk.pos());
     // Assertion can be disabled when reset active (reset is active low)
     SCT_ASSERT(rstn && (s || s_d), SCT_TIME(1,2), s_d2, clk.neg());
+    
+    SCT_ASSERT_STABLE(rstn, (0), st, clk.pos());
+    SCT_ASSERT_ROSE(cntr.read() == 10, (1), st1.read(), clk.pos());
+    SCT_ASSERT_STABLE(cntr.read() > 7 && cntr.read() < 15, (0, 2), st1.read(), clk.pos());
+    SCT_ASSERT_STABLE(cntr.read() > 7 && cntr.read() < 15, (1, 3), st1.read(), clk.pos());
+    SCT_ASSERT_FELL(cntr.read() == 1, (0), s.read(), clk.pos());
+    SCT_ASSERT_FELL(cntr.read() == 2, (1), s.read(), clk.pos());
+    SCT_ASSERT_ROSE(cntr.read() == 2, (0), s.read(), clk.pos());
 
     // Assertion in clocked process
     void sct_assert_sig() 
     {
+        sc_uint<4> cntr_ = 0;
         s = 0; s_d = 0; s_d2 = 0;
+        st = 1;
         // Assertion in reset section works during reset if not disabled
         SCT_ASSERT_THREAD(s, SCT_TIME(1), s_d, clk.pos());
         // Assertion can be disabled when reset active (reset is active low)
@@ -61,6 +77,11 @@ public:
         while (true) {
             s_d = s; s_d2 = s_d;
             s = !s;
+            
+            if (cntr_ >= 7 || cntr_ == 0) st1 = 1; else st1 = s.read();
+            
+            cntr = cntr_;
+            cntr_++;
             
             wait();
         }

@@ -588,11 +588,14 @@ public:
                    const std::string& msgStr);
     
     /// Put temporal assertion in clock thread 
+    /// \param stable  -- stNone = 0, stStable = 1, stRose = 2, stFell = 3
+    /// \param timeInt -- hitime - lotime
     void putTemporalAssert(const clang::Stmt* stmt, 
                            const clang::Expr* lhs,
                            const clang::Expr* rhs,
                            const std::string& timeStr,
-                           const clang::Expr* event = nullptr);
+                           const clang::Expr* event = nullptr,                            
+                           unsigned stable = 0, unsigned timeInt = 0);
 
     
     //=========================================================================

@@ -390,30 +390,37 @@ const clang::Stmt* ScGenerateExpr::parseSvaDecl(const clang::FieldDecl* fdecl)
             args.push_back(arg);
         }
     }
-    SCT_TOOL_ASSERT (args.size() == 5 || args.size() == 6, 
+    SCT_TOOL_ASSERT (args.size() == 6 || args.size() == 7, 
                      "Incorrect argument number");
 
     // Set @parseSvaArg to check function call there
     codeWriter->setParseSvaArg(true);
     
-    SValue fval; SValue sval; 
+    SValue fval; SValue sval; SValue stval;
     chooseExprMethod(args[0], fval);
     chooseExprMethod(args[1], fval);
     chooseExprMethod(args[2], fval);
     assertName = getStringFromArg(args[3]);
     
     fval = evaluateConstIntNoCheck(args[4]).second;
-    if (args.size() == 6) {
+    if (args.size() == 7) {
         sval = evaluateConstIntNoCheck(args[5]).second;
+        stval = evaluateConstIntNoCheck(args[6]).second;
     } else {
         sval = fval;
+        stval = evaluateConstIntNoCheck(args[5]).second;
     }
 
-    if (fval.isInteger() && sval.isInteger()) {
+    if (fval.isInteger() && sval.isInteger() && stval.isInteger()) {
+        unsigned stable = stval.getInteger().getExtValue();
+        unsigned timeInt = abs(sval.getInteger().getExtValue() -
+                               fval.getInteger().getExtValue());
+        
         std::string timeStr = parseSvaTime(fval.getInteger().getExtValue(), 
-                                           sval.getInteger().getExtValue());
-        codeWriter->putTemporalAssert(expr, args[0], args[1], timeStr, args[2]);
-
+                                           sval.getInteger().getExtValue(), 
+                                           stable);
+        codeWriter->putTemporalAssert(expr, args[0], args[1], timeStr, args[2], 
+                                      stable, timeInt);
     } else {
         ScDiag::reportScDiag(expr->getBeginLoc(), 
                              ScDiag::SYNTH_SVA_INCORRECT_TIME);

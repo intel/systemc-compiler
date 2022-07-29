@@ -53,7 +53,7 @@ bool replaceBitRangeStr(std::string& str, const std::string& pattern);
 bool checkArrayAccessStr(const std::string& str);
 
 /// Get temporal assertion time string
-std::string parseSvaTime(int lotime, int hitime);
+std::string parseSvaTime(int lotime, int hitime, unsigned stable = 0);
 
 /// Check temporal assertion time string and convert it into SVA form 
 //llvm::Optional<std::string> parseSvaTime(const std::string& origStr);

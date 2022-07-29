@@ -39,6 +39,8 @@ std::string getIterStr(Type val, Types... args) {
     return s;
 }
 
+std::string getFileName(const std::string& s);
+
 } // namespace sct_property_utils
 
 //=============================================================================
@@ -60,6 +62,12 @@ struct sct_time {
     inline sct_time(int lo, int hi) : lo(lo), hi(hi) 
     {}
 };
+
+// Check @rexpr is true if NONE or check @rexpr is stable/rose/fell
+enum StableType {
+    stNone, 
+    stStable, stRose, stFell
+};
     
 /** 
  * Assertion property class 
@@ -79,16 +87,27 @@ private:
     size_t rindx = 0;
     /// Property expression string or variable name for error message
     std::string msg;
-    
+
 protected:
     /// Time specified and initialization done
     bool initalized = false;
+    /// Check @rexpr is true if NONE or check @rexpr is stable/rose/fell
+    StableType stable;
+    const std::string stableStr;
 
     inline void init(int time) 
     {
         timeInt = 0;
         pastSize = time;
         
+        if (stable != stNone) {
+            assert ((pastSize == 0 || pastSize == 1) && 
+                    "Incorrect time for stable/rose/fell, time must be 0 or 1");
+            if (pastSize) {
+                leftPast.resize(pastSize, false);
+            }
+            rightPast.resize(1, false);
+        } else 
         if (pastSize) {
             leftPast.resize(pastSize, false);
         }
@@ -104,6 +123,14 @@ protected:
         timeInt = hiTime-loTime;
         pastSize = hiTime;
         
+        if (stable != stNone) {
+            assert ((stable == stStable || timeInt == 0) && 
+                    "No time interval for rose/fell, time must be 0 or 1");
+            assert ((loTime == 0 || loTime == 1) && 
+                    "Low time must be 0 or 1 for stable/rose/fell");
+            leftPast.resize(pastSize, false);
+            rightPast.resize(timeInt+1, false);
+        } else 
         if (pastSize) {
             leftPast.resize(pastSize, false);
             if (timeInt) rightPast.resize(timeInt, false);
@@ -112,21 +139,23 @@ protected:
     }
     
 public:
-    inline explicit sct_property(std::string s) : 
-        msg(s)
+    inline explicit sct_property(std::string s, StableType stable) : 
+        msg(s), stable(stable), 
+        stableStr(stable == stNone ? "" : stable == stStable ? "stable" : 
+                  stable == stRose ? "rose" : "fell")
     {}
 
-    inline explicit sct_property(int time, std::string s) : 
-        msg(s)
-    {
-        init(time);
-    }
-
-    inline explicit sct_property(int loTime, int hiTime, std::string s) : 
-        msg(s)
-    {
-        init(loTime, hiTime);
-    }
+//    inline explicit sct_property(int time, std::string s) : 
+//        msg(s)
+//    {
+//        init(time);
+//    }
+//
+//    inline explicit sct_property(int loTime, int hiTime, std::string s) : 
+//        msg(s)
+//    {
+//        init(loTime, hiTime);
+//    }
     
     sct_property(const sct_property&) = default;
     
@@ -136,6 +165,7 @@ public:
     
     /// Put antecedent(left) and consequent (right) expressions every cycle
     void check(bool lexpr, bool rexpr);
+    void check(StableType stable, bool lexpr, bool rexpr);
 };
 
 //=============================================================================
@@ -144,7 +174,7 @@ public:
  * Assertion property with assertion expression lambdas 
  */
 template <class LEXPR, class REXPR, class TIMES>
-class sct_property_expr : public sct_property 
+class sct_property_expr : public sct_property
 {
 private:
     LEXPR lexpr;
@@ -157,19 +187,24 @@ public:
     // SystemC simulation constructor
     // \param propstr -- property string
     explicit sct_property_expr(LEXPR lexpr, REXPR rexpr, TIMES times, 
-                               const std::string& propstr) : 
-        sct_property(propstr),
+                               const std::string& propstr,
+                               StableType stable = stNone) : 
+        sct_property(propstr, stable),
         lexpr(lexpr), rexpr(rexpr), times(times)
     {}
 
-    void operator()() 
+    void operator()()
     {
         if (!initalized) {
             auto t = times();
             this->init(t.lo, t.hi);
         }
         
-        this->check(lexpr(), rexpr());
+        if (stable == stNone) {
+            this->check(lexpr(), rexpr());
+        } else {
+            this->check(stable, lexpr(), rexpr());
+        }
     }
 };
 
@@ -218,10 +253,23 @@ public:
         
         return getProperty(lexpr, rexpr, event, times, propIterStr);
     }    
+    
+    /// Create or get property for stable
+    template <class LEXPR, class REXPR, class EVENT, class TIMES>
+    static sct_property* getPropertyStable(LEXPR lexpr, REXPR rexpr, 
+                                           EVENT* event, TIMES times,
+                                           const std::string& propstr,
+                                           StableType stable
+                                          ) {
+        
+        return getProperty(lexpr, rexpr, event, times, propstr, stable);
+    }
 
     template <class LEXPR, class REXPR, class EVENT, class TIMES>
     static sct_property* getProperty(LEXPR lexpr, REXPR rexpr, EVENT* event, 
-                                     TIMES times, const std::string& propstr) {
+                                     TIMES times, const std::string& propstr,
+                                     StableType stable = stNone
+                                    ) {
         
         // Join object hierarchical name and file name with line
         std::string procname = sc_get_current_process_handle().name();
@@ -232,7 +280,7 @@ public:
         
         if (i == stor.end()) {
             auto propInst = new sct_property_expr<LEXPR, REXPR, TIMES>(
-                                        lexpr, rexpr, times, propstr);
+                                        lexpr, rexpr, times, propstr, stable);
 
             // Remove spaces/dots from @hashStr to provide correct process name
             hashStr.erase(remove_if(hashStr.begin(), hashStr.end(), isspace), 

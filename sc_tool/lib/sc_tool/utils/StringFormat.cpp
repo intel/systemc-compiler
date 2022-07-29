@@ -170,7 +170,7 @@ bool checkArrayAccessStr(const std::string& str)
 }
 
 // \param times -- <loTime, hiTime>
-std::string parseSvaTime(int lotime, int hitime) 
+std::string parseSvaTime(int lotime, int hitime, unsigned stable) 
 {
     if (lotime > hitime) {
         int tmp = lotime; lotime = hitime; hitime = tmp; 
@@ -178,8 +178,18 @@ std::string parseSvaTime(int lotime, int hitime)
     
     std::string time;
     if (lotime != hitime) {
-        time = "|-> ##[" + std::to_string(lotime) + ":" + 
-                           std::to_string(hitime) + "]";
+        if (stable == 0) {
+            time = "|-> ##[" + std::to_string(lotime) + ":" + 
+                               std::to_string(hitime) + "]";
+        } else 
+        if (stable == 1) {
+            // time interval considered in repetition suffix 
+            assert (lotime < 2 && "Low time 0 and 1 allowed for stable");
+            time = lotime == 0 ? "|->" : "|=>";
+        } else {
+            // Unsupported option
+            assert (false && "No time interval allowed for rose/fell");
+        }
     } else 
     if (lotime == 0) {
         time = "|->";
@@ -187,6 +197,7 @@ std::string parseSvaTime(int lotime, int hitime)
     if (lotime == 1) {
         time = "|=>";
     } else {
+        assert (stable == 0 && "Low time 0 and 1 allowed for stable/rose/fell");
         time = "|-> ##" + std::to_string(lotime);
     }
     

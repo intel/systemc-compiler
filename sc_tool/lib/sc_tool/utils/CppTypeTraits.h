@@ -108,6 +108,9 @@ llvm::Optional<clang::QualType> getUserDefinedClassFromArray(clang::QualType typ
 /// Check if a class declaration is template
 bool isTemplateClass(clang::CXXRecordDecl *decl);
 
+/// Get template argument number or zero
+unsigned getTemplateArgNum(clang::QualType type);
+
 /// Get template argument at index argIndx or nothing
 llvm::Optional<clang::TemplateArgument> 
 getTemplateArg(clang::QualType type, std::size_t argIndx);

@@ -3032,15 +3032,31 @@ void ScVerilogWriter::putTemporalAssert(const clang::Stmt* stmt,
                                         const clang::Expr* lhs,
                                         const clang::Expr* rhs,
                                         const std::string& timeStr,
-                                        const clang::Expr* event
+                                        const clang::Expr* event,
+                                        unsigned stable, unsigned timeInt
                                         )
 {
     if (skipTerm) return;
 
     if (terms.count(lhs) && terms.count(rhs)) {
-        string s = (event ? "@("+getTermAsRValue(event).first+") " : "") +
-                   getTermAsRValue(lhs).first + " " + timeStr + " " + 
-                   getTermAsRValue(rhs).first;
+        string s;
+        if (stable == 0) {
+            s = (event ? "@("+getTermAsRValue(event).first+") " : "") +
+                 getTermAsRValue(lhs).first + " " + timeStr + " " + 
+                 getTermAsRValue(rhs).first;
+        } else {
+            if (stable == 1) {
+                s = (event ? "@("+getTermAsRValue(event).first+") " : "") +
+                     getTermAsRValue(lhs).first + " " + timeStr + " " + 
+                     "$stable(" + getTermAsRValue(rhs).first+ ")"+
+                     (timeInt > 0 ? ("[*"+to_string(timeInt+1)+"]") : "");
+            } else {
+                s = (event ? "@("+getTermAsRValue(event).first+") " : "") +
+                     getTermAsRValue(lhs).first + " " + timeStr + " " + 
+                     (stable == 2 ? "$rose(" : "$fell(")+ 
+                     getTermAsRValue(rhs).first+ ")";
+            }
+        }
         
         addString(stmt, s);
         clearSimpleTerm(stmt);

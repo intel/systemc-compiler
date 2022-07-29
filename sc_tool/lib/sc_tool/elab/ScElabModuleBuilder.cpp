@@ -278,8 +278,27 @@ void ScElabModuleBuilder::traverseModule(ModuleMIFView modView)
 {
     curVerMod = elabDB->addVerilogModule(modView);
 
+    // Attempt to create variables for top module template parameters, #299
+//    if (modView.isTopMod()) {
+//        QualType type = modView.getType();
+//        
+//        unsigned argNum = getTemplateArgNum(type);
+//        for (unsigned i = 0; i < argNum; ++i) {
+//            if (auto tmplArg = getTemplateArg(type, i)) {
+//                if (tmplArg->getKind() == TemplateArgument::ArgKind::Integral) {
+//                    tmplArg->dump();
+//                    llvm::APSInt value = tmplArg->getAsIntegral();
+//                    std::string name = tmplArg->getAsDecl()->getName().str();
+//                    size_t bitwidth = 8; // tmplArg->getAsType();
+//                    
+//                    curVerMod->createDataVariable(ObjectView(), name,
+//                                                  bitwidth, IndexVec(), 0);
+//                }
+//            }
+//        }
+//    }
+    
     auto recordDecl = modView.getType()->getAsCXXRecordDecl();
-
     std::string name = recordDecl->getNameAsString();
 
     // Verilog intrinsic

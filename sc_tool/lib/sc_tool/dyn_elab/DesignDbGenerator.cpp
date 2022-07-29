@@ -881,14 +881,21 @@ void DesignDbGenerator::resolveSignalReset(const TypedObject &resetPtrTO,
                 ->getAPSInt().getBoolValue();
 
             auto procPO = *resetTargetTO.findField("m_process_p")->getAs<PtrOrRefObject>();
-            auto procEO = memMap.resolvePointer(procPO)->first;
+            
+            if (auto procVal = memMap.resolvePointer(procPO)) {
+                if (auto procEO = procVal->first) {
+                    auto *reset = procEO->mutable_primitive()->
+                        mutable_proc_val()->add_resets();
 
-            auto *reset = procEO->mutable_primitive()->
-                mutable_proc_val()->add_resets();
-
-            reset->set_source_id(sourceEO.id());
-            reset->set_async(async);
-            reset->set_level(level);
+                    reset->set_source_id(sourceEO.id());
+                    reset->set_async(async);
+                    reset->set_level(level);
+                }
+            } else {
+                // Reset process not found, 
+                // may be reset is not @sc_in, but @sc_signal
+                ScDiag::reportScDiag(ScDiag::SYNTH_NO_RESET_PROCESS);
+            }
         }
     }
 }

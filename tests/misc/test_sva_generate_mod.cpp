@@ -116,7 +116,7 @@ public:
     SCT_ASSERT(psarr[1]->read(), SCT_TIME(1), sarr[2], clk.pos());
 
     // Array access at variable index, may be incorrect if @i is not constant
-    int i;
+    int i = 0;
     SCT_ASSERT(arr[i], SCT_TIME(1), s, clk.pos());
     SCT_ASSERT(sarr[1+i], SCT_TIME(0) , arr[0]+i, clk.pos());
     SCT_ASSERT(psarr[1]->read(), SCT_TIME(1), (*psarr[2+i]).read(), clk.pos());
