@@ -176,6 +176,9 @@ svc_target(misc_module_binds_array GOLDEN misc_module_binds_array.sv)
 add_executable(misc_sig_access_reset test_sig_access_reset.cpp)
 svc_target(misc_sig_access_reset GOLDEN misc_sig_access_reset.sv)
 
+add_executable(misc_signal_reset test_signal_reset.cpp)
+svc_target(misc_signal_reset GOLDEN misc_signal_reset.sv)
+
 ## Constants
 add_executable(misc_const_init test_const_init.cpp)
 svc_target(misc_const_init GOLDEN misc_const_init.sv)

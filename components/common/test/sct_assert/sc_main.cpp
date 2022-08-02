@@ -1,5 +1,8 @@
 #include "sct_assert.h"
+#include "sct_sel_type.h"
 #include "systemc.h"
+
+using namespace sct;
 
 // Assertions and SVA generation test
 class A : public sc_module 
@@ -31,6 +34,9 @@ public:
     
     A(sc_module_name, unsigned m)
     {
+#ifdef __SC_TOOL__
+        cout << "__SC_TOOL__ defined" << endl;
+#endif
         ps = new sc_signal<int>("ps");
         
         auto& val = const_cast<unsigned long&>(M);
@@ -40,7 +46,7 @@ public:
         SC_CTHREAD(test_thread, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        SC_CTHREAD(sct_assert_thread, clk.pos());
+        SC_CTHREAD(integer_thread, clk.pos());
         async_reset_signal_is(rstn, false);
         
         SC_CTHREAD(sct_assert_thread1, clk.pos());
@@ -78,17 +84,103 @@ public:
     SCT_ASSERT(*ps, (1), s_d2, clk.pos());
     SCT_ASSERT((*this ).s, SCT_TIME(0), this->s, clk.pos());
 
+    SCT_ASSERT_STABLE(rstn, (0), st.read(), clk.pos());
+    SCT_ASSERT_STABLE(st_enbl, (1), st1.read(), clk.pos());
+    SCT_ASSERT_ROSE(st_enbl && !st_enbl_d, (1), st2.read(), clk.pos());
+    SCT_ASSERT_FELL(cntr.read() == 1, (0), s.read(), clk.pos());
+    SCT_ASSERT_FELL(cntr.read() == 2, (1), s.read(), clk.pos());
+    SCT_ASSERT_ROSE(cntr.read() == 2, (0), s.read(), clk.pos());
+
+    SCT_ASSERT_STABLE(cntr.read() == 8, (0), st1.read(), clk.pos());
+    SCT_ASSERT_STABLE(cntr.read() == 7, (1), st1.read(), clk.pos());
+    SCT_ASSERT_STABLE(cntr.read() == 8, (0, 1), st1.read(), clk.pos());
+    SCT_ASSERT_STABLE(cntr.read() == 7, (1, 2), st1.read(), clk.pos());
+    
+    SCT_ASSERT_STABLE(cntr.read() == 7, (1, 4), st1.read(), clk.pos());
+    SCT_ASSERT_STABLE(cntr.read() == 15, (1, 2), st1.read(), clk.pos());
+    SCT_ASSERT_STABLE(cntr.read() == 15, (0, 2), st1.read(), clk.pos());
+    
+    SCT_ASSERT_STABLE(cntr.read() > 7 && cntr.read() < 15, (0, 2), st1.read(), clk.pos());
+    SCT_ASSERT_STABLE(cntr.read() > 7 && cntr.read() < 15, (1, 3), st1.read(), clk.pos());
+    
+    SCT_ASSERT_ROSE(cst, (1), cntr.read(), clk.pos());        
+    
+    sc_signal<int>          st;
+    sc_signal<sc_uint<4>>   st1;
+    sc_signal<bool>         st2;
+    sc_signal<bool>         st_enbl;
+    sc_signal<bool>         st_enbl_d;
+    sc_signal<sc_uint<4>>   cntr;
+    sc_signal<bool>         cst;
+    
     // Provide test signals
     void test_thread() 
     {
         s = 0; s_d = 0; s_d2 = 0; s_d3 = 0; *ps = 0;
+        st = 1; st1 = 0; st2 = 0;
+        sc_uint<4> cntr_ = 0;
+        st_enbl = 0;
+        st_enbl_d = 0;
+        cst = 0;
         wait();
 
         while (true) {
             s_d = s; s_d2 = s_d; s_d3 = s_d2;
             *ps = s;
             s = !s;
-            cout << "." << flush;
+            
+            //cout << sc_time_stamp() << " " << cst.read() << " "  << cntr.read() << endl;
+            
+            if (cntr_ > 3 && cntr_ < 12) cst = 1; else cst = 0;
+            if (cntr_ >= 7 || cntr_ == 0) st1 = 1; else st1 = s.read();
+            if (st_enbl) st2 = 1; else st2 = 0;
+            
+            st_enbl = cntr.read() >= 7; 
+            st_enbl_d = st_enbl;
+            cntr = cntr_;
+            cntr_++;
+            //cout << "." << flush;
+            wait();
+        }
+    }
+    
+    SCT_ASSERT_STABLE(rstn, (1), i0.read(), clk.pos());
+    SCT_ASSERT_STABLE(i2.read(), (1), i5.read(), clk.pos());
+    SCT_ASSERT_STABLE(rstn && i7.read() < 18, (1,2), i8.read(), clk.pos());
+    SCT_ASSERT_ROSE(rstn, (1), i1.read(), clk.pos());        
+    SCT_ASSERT_ROSE(i1.read(), (1), i2.read(), clk.pos());        
+    SCT_ASSERT_ROSE(i2.read(), (1), i6.read(), clk.pos());
+    SCT_ASSERT_ROSE(i2.read(), (1), i9.read(), clk.pos());        
+    SCT_ASSERT_FELL(i2.read(), (0), i3.read(), clk.pos());        
+    SCT_ASSERT_FELL(i2.read(), (1), i4.read(), clk.pos());        
+
+    sc_signal<sc_int<12>>   i0;
+    sc_signal<sc_int<12>>   i1;
+    sc_signal<sc_uint<12>>  i2;
+    sc_signal<sct_int<12>>  i3;
+    sc_signal<sct_uint<12>> i4;
+    sc_signal<sct_uint<77>> i5;
+    sc_signal<sc_biguint<77>> i6;
+    sc_signal<unsigned>     i7;
+    sc_signal<long>         i8;
+    sc_signal<int64_t>      i9;
+    
+    void integer_thread() 
+    {
+        i0 = 10;
+        i1 = 0; i2 = 0; i3 = 1000; i4 = 1000; i5 = 0;
+        i6 = 0; i7 = 0; i8 = 12; i9 = 0;
+        wait();
+
+        while (true) {
+            
+            i1 = i1.read() + 1; i2 = i2.read() + 1;
+            i3 = i3.read() - 1; i4 = i4.read() - 1; 
+            i5 = 42; i6 = i6.read() + 1;
+            i7 = i7.read() + 1; 
+            i8 = i7.read() < 20 ? (long)12 : (long)(i7.read() + 1);
+            i9 = i9.read() + 1;
+            
             wait();
         }
     }
@@ -193,7 +285,7 @@ public:
         wait(2);
     	rstn = 1;
         a = 0;
-    	wait(12);
+    	wait(30);
         
         cout << endl;
         cout << "--------------------------------" << endl;

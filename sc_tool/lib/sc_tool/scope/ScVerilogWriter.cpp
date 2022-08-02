@@ -204,6 +204,10 @@ string ScVerilogWriter::getVarDeclVerilog(const QualType& type,
         ctype = ctype->getPointeeOrArrayElementType()->
                 getCanonicalTypeInternal();
     } while (ctype->isPointerType() || ctype->isArrayType());
+    // Remove reference
+    if (ctype->isReferenceType()) {
+        ctype = ctype.getNonReferenceType();
+    }
     
     if (isUserDefinedClass(ctype)) {
         string s;

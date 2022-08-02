@@ -7,8 +7,11 @@
 
 #include "sct_assert.h"
 #include "systemc.h"
+#include "sct_sel_type.h"
 #include <iostream>
 #include <cassert>
+
+using namespace sct;
 
 // Stable/rose//fell assertions and SVA generation test
 template <unsigned N>
@@ -40,9 +43,12 @@ public:
         
         SC_CTHREAD(test_thread, clk.pos());
         async_reset_signal_is(rstn, false);
+
+        SC_CTHREAD(integer_thread, clk.pos());
+        async_reset_signal_is(rstn, false);
     }
 
-    SCT_ASSERT_STABLE(rstn, (0), st, clk.pos());
+    SCT_ASSERT_STABLE(rstn, (0), st.read(), clk.pos());
     SCT_ASSERT_STABLE(st_enbl, (1), st1.read(), clk.pos());
     SCT_ASSERT_ROSE(st_enbl && !st_enbl_d, (1), st2.read(), clk.pos());
     SCT_ASSERT_FELL(cntr.read() == 1, (0), s.read(), clk.pos());
@@ -91,6 +97,47 @@ public:
             wait();
         }
     }
+    
+    sc_signal<sc_int<12>>   i0;
+    sc_signal<sc_int<12>>   i1;
+    sc_signal<sc_uint<12>>  i2;
+    sc_signal<sct_int<12>>  i3;
+    sc_signal<sct_uint<12>> i4;
+    sc_signal<sct_uint<77>> i5;
+    sc_signal<sc_biguint<77>> i6;
+    sc_signal<unsigned>     i7;
+    sc_signal<long>         i8;
+    sc_signal<int64_t>      i9;
+    
+    SCT_ASSERT_STABLE(rstn, (1), i0.read(), clk.pos());
+    SCT_ASSERT_STABLE(i2.read(), (1), i5.read(), clk.pos());
+    SCT_ASSERT_STABLE(rstn && i7.read() < 18, (1,2), i8.read(), clk.pos());
+    SCT_ASSERT_ROSE(rstn, (1), i1.read(), clk.pos());        
+    SCT_ASSERT_ROSE(i1.read(), (1), i2.read(), clk.pos());        
+    SCT_ASSERT_ROSE(i2.read(), (1), i6.read(), clk.pos());
+    SCT_ASSERT_ROSE(i2.read(), (1), i9.read(), clk.pos());        
+    SCT_ASSERT_FELL(i2.read(), (0), i3.read(), clk.pos());        
+    SCT_ASSERT_FELL(i2.read(), (1), i4.read(), clk.pos());        
+
+    void integer_thread() 
+    {
+        i0 = 10;
+        i1 = 0; i2 = 0; i3 = 1000; i4 = 1000; i5 = 0;
+        i6 = 0; i7 = 0; i8 = 12; i9 = 0;
+        wait();
+
+        while (true) {
+            
+            i1 = i1.read() + 1; i2 = i2.read() + 1;
+            i3 = i3.read() - 1; i4 = i4.read() - 1; 
+            i5 = 42; i6 = i6.read() + 1;
+            i7 = i7.read() + 1; 
+            i8 = i7.read() < 20 ? (long)12 : (long)(i7.read() + 1);
+            i9 = i9.read() + 1;
+            
+            wait();
+        }
+    }    
 };
 
 class Test_top : public sc_module

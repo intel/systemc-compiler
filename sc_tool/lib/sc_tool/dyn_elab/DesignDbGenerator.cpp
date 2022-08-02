@@ -892,9 +892,8 @@ void DesignDbGenerator::resolveSignalReset(const TypedObject &resetPtrTO,
                     reset->set_level(level);
                 }
             } else {
-                // Reset process not found, 
-                // may be reset is not @sc_in, but @sc_signal
-                ScDiag::reportScDiag(ScDiag::SYNTH_NO_RESET_PROCESS);
+                // No process for reset signal, that is possible when signal
+                // connected to sc_in<bool> and processes sensitive to that
             }
         }
     }

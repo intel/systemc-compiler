@@ -32,6 +32,11 @@ public:
     sc_signal<bool>         st2;
     sc_signal<sc_uint<4>>   cntr;
     
+    sc_signal<sc_int<12>>   i1;
+    sc_signal<sc_uint<12>>  i2;
+    sc_signal<sc_biguint<77>> i6;
+    sc_signal<long>         i8;
+    
     const unsigned N = 3;
 
     SC_CTOR(TempAssert)
@@ -45,12 +50,12 @@ public:
     }
     
     // Assertions in module scope, clock event required
-    SCT_ASSERT(s, SCT_TIME(0), s, clk);  
-    SCT_ASSERT(s, SCT_TIME(N+1), s_d, clk.pos());
+    SCT_ASSERT(s, SCT_TIME(0), s.read(), clk);  
+    SCT_ASSERT(s, SCT_TIME(N+1), s_d.read(), clk.pos());
     // Assertion can be disabled when reset active (reset is active low)
-    SCT_ASSERT(rstn && (s || s_d), SCT_TIME(1,2), s_d2, clk.neg());
+    SCT_ASSERT(rstn && (s || s_d), SCT_TIME(1,2), s_d2.read(), clk.neg());
     
-    SCT_ASSERT_STABLE(rstn, (0), st, clk.pos());
+    SCT_ASSERT_STABLE(rstn, (0), st.read(), clk.pos());
     SCT_ASSERT_ROSE(cntr.read() == 10, (1), st1.read(), clk.pos());
     SCT_ASSERT_STABLE(cntr.read() > 7 && cntr.read() < 15, (0, 2), st1.read(), clk.pos());
     SCT_ASSERT_STABLE(cntr.read() > 7 && cntr.read() < 15, (1, 3), st1.read(), clk.pos());
@@ -58,12 +63,20 @@ public:
     SCT_ASSERT_FELL(cntr.read() == 2, (1), s.read(), clk.pos());
     SCT_ASSERT_ROSE(cntr.read() == 2, (0), s.read(), clk.pos());
 
+    // Non-boolean REXPR types
+    SCT_ASSERT_STABLE(rstn && i1.read() < 18, (1,2), i8.read(), clk.pos());
+    SCT_ASSERT_ROSE(rstn, (1), i1.read(), clk.pos());        
+    SCT_ASSERT_ROSE(i1.read(), (1), i2.read(), clk.pos());        
+    SCT_ASSERT_FELL(i2.read(), (0), i2.read(), clk.pos());
+    
     // Assertion in clocked process
     void sct_assert_sig() 
     {
         sc_uint<4> cntr_ = 0;
         s = 0; s_d = 0; s_d2 = 0;
         st = 1;
+        i1 = 0; i2 = 1000; i6 = 0; i8 = 12;
+        
         // Assertion in reset section works during reset if not disabled
         SCT_ASSERT_THREAD(s, SCT_TIME(1), s_d, clk.pos());
         // Assertion can be disabled when reset active (reset is active low)
@@ -79,6 +92,11 @@ public:
             s = !s;
             
             if (cntr_ >= 7 || cntr_ == 0) st1 = 1; else st1 = s.read();
+            
+            i1 = i1.read() + 1; 
+            i2 = i2.read() - 1;
+            i6 = i6.read() + 1;
+            i8 = i1.read() < 20 ? (long)12 : (long)(i1.read() + 1);
             
             cntr = cntr_;
             cntr_++;

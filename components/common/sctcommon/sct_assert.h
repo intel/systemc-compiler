@@ -86,19 +86,19 @@ inline void sct_assert(bool expr, const char* msg) {}
 struct sct_property_mod
 {
     explicit sct_property_mod() {}
-    template<class T1, class T2>
-    explicit sct_property_mod(bool lexpr, bool rexpr, sc_event_finder& event,
+    template<class T1, class T2, class RT>
+    explicit sct_property_mod(bool lexpr, RT rexpr, sc_event_finder& event,
                               const char* name, T1 lotime, T2 hitime, 
                               unsigned stable) {}
-    template<class T1>
-    explicit sct_property_mod(bool lexpr, bool rexpr, sc_event_finder& event,
+    template<class T1, class RT>
+    explicit sct_property_mod(bool lexpr, RT rexpr, sc_event_finder& event,
                               const char* name, T1 time, unsigned stable) {}
-    template<class T1, class T2>
-    explicit sct_property_mod(bool lexpr, bool rexpr, sc_port_base& event,
+    template<class T1, class T2, class RT>
+    explicit sct_property_mod(bool lexpr, RT rexpr, sc_port_base& event,
                               const char* name, T1 lotime, T2 hitime,
                               unsigned stable) {}
-    template<class T1>
-    explicit sct_property_mod(bool lexpr, bool rexpr, sc_port_base& event,
+    template<class T1, class RT>
+    explicit sct_property_mod(bool lexpr, RT rexpr, sc_port_base& event,
                               const char* name, T1 time, unsigned stable) {}
 };
 
@@ -111,17 +111,17 @@ struct sct_property_mod
 
     #define SCT_ASSERT4_STABLE(LE, TIMES, RE, EVENT)\
         sct_property_mod SCT_TWO(sctTmpVar,__LINE__){\
-            static_cast<bool>(LE), static_cast<bool>(RE), EVENT,\
+            static_cast<bool>(LE), RE, EVENT,\
             "sctAssertLine" SCT_ONE(__LINE__), SCT_ARGS(TIMES), 1};
 
     #define SCT_ASSERT4_ROSE(LE, TIMES, RE, EVENT)\
         sct_property_mod SCT_TWO(sctTmpVar,__LINE__){\
-            static_cast<bool>(LE), static_cast<bool>(RE), EVENT,\
+            static_cast<bool>(LE), RE, EVENT,\
             "sctAssertLine" SCT_ONE(__LINE__), SCT_ARGS(TIMES), 2};
 
     #define SCT_ASSERT4_FELL(LE, TIMES, RE, EVENT)\
         sct_property_mod SCT_TWO(sctTmpVar,__LINE__){\
-            static_cast<bool>(LE), static_cast<bool>(RE), EVENT,\
+            static_cast<bool>(LE), RE, EVENT,\
             "sctAssertLine" SCT_ONE(__LINE__), SCT_ARGS(TIMES), 3};
 #else
     // No parameter passed, LE/RE can use not-bound port/not-allocated pointers
@@ -140,7 +140,7 @@ struct sct_property_mod
 
 #else
 #define SCT_ASSERT4(LE, TIMES, RE, EVENT)\
-    sct_property* SCT_TWO(sctTmpVar,__LINE__) =\
+    sct_property_base* SCT_TWO(sctTmpVar,__LINE__) =\
             sct_property_storage::getProperty(\
                     [&]()->bool{return ( LE );},\
                     [&]()->bool{return ( RE );},\
@@ -150,10 +150,10 @@ struct sct_property_mod
             );
 
 #define SCT_ASSERT4_STABLE(LE, TIMES, RE, EVENT)\
-    sct_property* SCT_TWO(sctTmpVar,__LINE__) =\
+    sct_property_base* SCT_TWO(sctTmpVar,__LINE__) =\
             sct_property_storage::getPropertyStable(\
                     [&]()->bool{return ( LE );},\
-                    [&]()->bool{return ( RE );},\
+                    [&]()->decltype(RE){return ( RE );},\
                     &EVENT,\
                     [&]()->sct_time{return (sct_time(SCT_ARGS(TIMES)));},\
                     std::string(__FILE__)+":"+std::to_string(__LINE__),\
@@ -161,10 +161,10 @@ struct sct_property_mod
             );
 
 #define SCT_ASSERT4_ROSE(LE, TIMES, RE, EVENT)\
-    sct_property* SCT_TWO(sctTmpVar,__LINE__) =\
+    sct_property_base* SCT_TWO(sctTmpVar,__LINE__) =\
             sct_property_storage::getPropertyStable(\
                     [&]()->bool{return ( LE );},\
-                    [&]()->bool{return ( RE );},\
+                    [&]()->decltype(RE){return ( RE );},\
                     &EVENT,\
                     [&]()->sct_time{return (sct_time(SCT_ARGS(TIMES)));},\
                     std::string(__FILE__)+":"+std::to_string(__LINE__),\
@@ -172,10 +172,10 @@ struct sct_property_mod
             );
 
 #define SCT_ASSERT4_FELL(LE, TIMES, RE, EVENT)\
-    sct_property* SCT_TWO(sctTmpVar,__LINE__) =\
+    sct_property_base* SCT_TWO(sctTmpVar,__LINE__) =\
             sct_property_storage::getPropertyStable(\
                     [&]()->bool{return ( LE );},\
-                    [&]()->bool{return ( RE );},\
+                    [&]()->decltype(RE){return ( RE );},\
                     &EVENT,\
                     [&]()->sct_time{return (sct_time(SCT_ARGS(TIMES)));},\
                     std::string(__FILE__)+":"+std::to_string(__LINE__),\
