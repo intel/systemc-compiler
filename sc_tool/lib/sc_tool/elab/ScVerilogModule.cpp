@@ -1731,6 +1731,14 @@ void VerilogModule::serializeProcSplit(llvm::raw_ostream &os,
     if (!procObj.resets().empty()) {
         serializeResetCondition(os, procObj);
         os << procCode.resetSection;
+        
+        if (!procCode.tempRstAsserts.empty()) {
+            os << "\n    `ifndef INTEL_SVA_OFF\n";
+            os << procCode.tempRstAsserts;
+            os << "    `endif // INTEL_SVA_OFF\n";
+        }
+        
+        os << "    end\n";
         os << "    else ";
     }
     os << "begin\n";
@@ -1752,15 +1760,7 @@ void VerilogModule::serializeProcSplit(llvm::raw_ostream &os,
     }
 
     os << "    end\n";
-    
-    if (!procCode.tempRstAsserts.empty()) {
-        os << "\n`ifndef INTEL_SVA_OFF\n";
-        os << procCode.tempRstAsserts;
-        os << "`endif // INTEL_SVA_OFF\n";
-    }
-
     os << "end\n\n";
-
 }
 
 void VerilogModule::serializeSensList(llvm::raw_ostream &os,

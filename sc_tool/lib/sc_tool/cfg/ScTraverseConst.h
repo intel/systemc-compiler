@@ -264,7 +264,6 @@ public:
         dynmodval(modval_)
     {
         state->getMostDerivedClass(dynmodval, dynmodval);
-        enableCheckAssert();    
     }
 
     /// @state deleted in @ScTraverse destructor
@@ -288,6 +287,9 @@ protected:
 
     /// Evaluate loop iteration number from conditional expression
     llvm::Optional<unsigned> evaluateIterNumber(const clang::Stmt* stmt);
+    
+    /// Store ternary statement condition for SVA property
+    void putSvaCondTerm(const clang::Stmt* stmt, SValue val) override;
     
     /// Prepare next block analysis
     void prepareNextBlock(AdjBlock& nextBlock, std::vector<ConstScopeInfo>& scopeInfos);

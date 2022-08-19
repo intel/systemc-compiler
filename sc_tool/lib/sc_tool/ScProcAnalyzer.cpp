@@ -591,6 +591,7 @@ std::string ScProcAnalyzer::analyzeSvaProperties(
     auto constState = shared_ptr<ScState>(globalState->clone());
     ScTraverseConst travConst(astCtx, constState, modval,  
                               globalState, &elabDB, nullptr, nullptr, true);
+    travConst.setModuleSctAssert();
     
     // Add all used variable to state
     for (const FieldDecl* propDecl : properties) {
@@ -673,6 +674,7 @@ std::string ScProcAnalyzer::analyzeSvaProperties(
     auto procState = shared_ptr<ScState>(globalState->clone());
     ScTraverseProc travProc(astCtx, procState, modval, procWriter.get(),
                             nullptr, nullptr, true);
+    travProc.setTermConds(travConst.getTermConds());
     
     // Generate all properties
     std::string propStr;
@@ -680,7 +682,12 @@ std::string ScProcAnalyzer::analyzeSvaProperties(
         // Get actual parent class, required for assertion in base classes
         QualType partype(propDecl->getParent()->getTypeForDecl(), 0);
         SValue propmodval = getBaseClass(modval, partype);
-        travProc.setModval(propmodval ? propmodval : modval);
+        propmodval = propmodval ? propmodval : modval;
+        travProc.setModval(propmodval);
+        // Setup first non-MIF module value
+        SValue synmodval = globalState->getSynthModuleValue(
+                                        propmodval, ScState::MIF_CROSS_NUM);
+        travProc.setSynModval(synmodval);
         
         if (auto code = travProc.runSvaDecl(propDecl)) {
             propStr += *code;

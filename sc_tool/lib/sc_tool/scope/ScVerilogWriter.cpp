@@ -3084,6 +3084,11 @@ void ScVerilogWriter::startStmt() {
     terms.clear();
 }
 
+// Clear accumulated indices, required in binary operation
+//void ScVerilogWriter::clearSubIndices() {
+//    arraySubIndices.clear();
+//}
+
 // Remove statement from terms
 void ScVerilogWriter::clearStmt(const Stmt* stmt) {
     terms.erase(stmt);

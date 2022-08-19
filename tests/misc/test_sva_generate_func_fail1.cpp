@@ -25,8 +25,12 @@ public:
         async_reset_signal_is(rstn, false);
     }
     
-    bool f() {
-        return s.read();
+    // Function has non-integral C++ type
+    int f() {
+        if (s.read() > 1)
+            return s.read();
+        else 
+            return 0;
     }
     
     void sct_assert_call() 

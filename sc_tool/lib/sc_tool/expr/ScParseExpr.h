@@ -99,6 +99,9 @@ public:
     void setModval(const SValue& val) {
         modval = val;
     }
+    void setSynModval(const SValue& val) {
+        synmodval = val;
+    }
     
     // ---------------------------------------------------------------------------
     // State access functions, can be overloaded in inheritors

@@ -68,8 +68,8 @@ protected:
     /// defined function calls from @evaluateConstInt()/@checkConstRefValue()
     bool evaluateConstMode = false;
     
-    /// Do checking @sct_assert_*
-    bool checkSctAssert = false;
+    /// Processing module scope SCT_ASSERT
+    bool moduleSctAssert = false;
     
     /// The following loop is alive, i.e. has at least one iteration
     bool aliveLoop = false;
@@ -121,13 +121,18 @@ public:
     ///                      used in ScTraverseProc, not used in ScTraverseConst
     /// \param checkRecOnly -- get zero instead of unknown index for record/MIF array
     /// \return <result, integer value of result>
+    std::pair<SValue, SValue> evaluateConstInt(SValue val, bool checkConst,
+                                            bool checkRecOnly);
     std::pair<SValue, SValue> evaluateConstInt(clang::Expr* expr, 
-            bool checkConst = true,
-            bool checkRecOnly = false) override;
+                                            bool checkConst = true,
+                                            bool checkRecOnly = false) override;
     
     /// Try to get integer from state, return NO_VALUE if not.
     SValue evaluateConstInt(clang::Expr* expr, const SValue& val, 
                             bool checkConst = true) override;
+    
+    /// Store ternary statement condition for SVA property
+    virtual void putSvaCondTerm(const clang::Stmt* stmt, SValue val) {}
     
     /// Check if @val is integer or any kind of RValue 
     /// (constant, constant array element)
@@ -138,9 +143,8 @@ public:
     void prepareCallParams(clang::Expr* expr, const SValue& funcModval, 
                            const clang::FunctionDecl* callFuncDecl) override;
 
-    /// Enable checking @sct_assert_*
-    void enableCheckAssert() {
-        checkSctAssert = true;
+    void setModuleSctAssert() {
+        moduleSctAssert = true;
     } 
     
     /// Return registered latches by @sct_assert_latch()

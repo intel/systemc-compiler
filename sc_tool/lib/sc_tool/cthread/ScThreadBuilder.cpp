@@ -476,8 +476,6 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
             if (threadStates.hasWaitNState() && !threadStates.isFirstWaitN()) {
                 vout << "    " << waitNRegNames.first << " <= 0;\n";
             }
-
-            vout << "end\n";
         }
 
         resetSection = verRawOS.str();
@@ -522,12 +520,12 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
     }
     
     // Get temporal assertions
-    std::stringstream ss;
-    travProc->printTemporalAsserts(ss, false);
-    std::string tempAsserts = ss.str();
     std::stringstream ssr;
     travProc->printTemporalAsserts(ssr, true);
     std::string tempRstAsserts = ssr.str();
+    std::stringstream ss;
+    travProc->printTemporalAsserts(ss, false);
+    std::string tempAsserts = tempRstAsserts + ss.str();
     
     //std::cout << "Temporal asserts in proc:\n" << tempAsserts << std::endl;
 

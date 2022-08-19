@@ -208,7 +208,8 @@ public:
         SYNTH_INCORRECT_FUNC_CALL   = 236,
         SYNTH_PARENT_SAME_OBJECT    = 237,
         SYNTH_NO_RESET_PROCESS      = 238,
-
+        SYNTH_FUNC_TYPE_IN_ASSERT   = 239,
+        
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
         SC_WARN_ELAB_DANGLING_PTR,
@@ -410,7 +411,10 @@ private:
             "Incorrect assert expression for : %0"};
         idFormatMap[SYNTH_FUNC_IN_ASSERT] =
             {clang::DiagnosticIDs::Error, 
-            "Function call in temporal assert not allowed"};
+            "Non-trivial function call in temporal assert not allowed"};
+        idFormatMap[SYNTH_FUNC_TYPE_IN_ASSERT] =
+            {clang::DiagnosticIDs::Error, 
+            "Function called in temporal assert should return integral type"};
         
         
         idFormatMap[SC_FATAL_THREAD_NO_STATE] =

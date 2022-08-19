@@ -115,10 +115,11 @@ void ScParseExprValue::parseSvaDecl(const clang::FieldDecl* fdecl)
     }
     SCT_TOOL_ASSERT (args.size() == 6 || args.size() == 7, 
                      "Incorrect argument number");
-
+    state->setParseSvaArg(true);
+    
     // Parse LHS and RHS to fill read from variables, 
     SValue fval = evalSubExpr(args[0]);
-    SValue sval = evalSubExpr(args[1]);
+    SValue sval = evalSubExpr(args[1]); 
     // Do not parse time argument(s) as its evaluated to integer
 
     readFromValue(fval);
@@ -128,15 +129,8 @@ void ScParseExprValue::parseSvaDecl(const clang::FieldDecl* fdecl)
 
 // Parse and evaluate one expression/statement as constant integer
 std::pair<SValue, SValue>  
-ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst, bool checkRecOnly)
+ScParseExprValue::evaluateConstInt(SValue val, bool checkConst, bool checkRecOnly)
 {
-    // Suspend debug to ignore parsing expressions done for constant evaluation
-    // and prevent user defined function calls
-    EvalMode em(evaluateConstMode);
-    
-    SValue val = evalSubExpr(expr);
-    //cout << "evaluateConstInt val " << val << " rval " << getValueFromState(val) << endl;
-    
     // Return integer value
     if (val.isInteger()) {
         return make_pair(val, val);
@@ -166,6 +160,19 @@ ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst, bool checkRecOnl
     }
     
     return make_pair(val, NO_VALUE);
+}
+
+std::pair<SValue, SValue>  
+ScParseExprValue::evaluateConstInt(Expr* expr, bool checkConst, bool checkRecOnly)
+{
+    // Suspend debug to ignore parsing expressions done for constant evaluation
+    // and prevent user defined function calls
+    EvalMode em(evaluateConstMode);
+    
+    SValue val = evalSubExpr(expr);
+    //cout << "evaluateConstInt val " << val << " rval " << getValueFromState(val) << endl;
+    
+    return evaluateConstInt(val, checkConst, checkRecOnly);
 }
 
 // Try to get integer from state, return NO_VALUE if not
@@ -1795,6 +1802,7 @@ SValue ScParseExprValue::parseIncDecStmt(const SValue& rval, bool isPrefix,
 // Ternary operator (...) ? ... : ...
 void ScParseExprValue::parseConditionalStmt(ConditionalOperator* stmt, SValue& val) 
 {
+    //cout << "<<<< parseConditionalStmt " << endl;
     SValue rval;
     auto i = condStoredValue.find(stmt);
     if (i != condStoredValue.end()) {
@@ -1804,7 +1812,14 @@ void ScParseExprValue::parseConditionalStmt(ConditionalOperator* stmt, SValue& v
         rval = evalSubExpr(stmt->getCond());
     }
    
-    SValue cval = getIntOrUnkwn(rval);
+    // Use @checkRecOnly to have pointer null/not null value for record/MIF
+    // array element accessed at unknown index, required for condition of
+    // pointer initialized: p ? p->f() : a;
+    // Do check const for thread scope assert to consider local variables
+    bool checkConst = state->getParseSvaArg() && !moduleSctAssert;
+    auto condvals = evaluateConstInt(rval, checkConst, true);
+    SValue cval = condvals.second;
+    //cout << "cval " << cval << endl;
 
     if (cval) {
         if (cval.getBoolValue()) {
@@ -1823,6 +1838,13 @@ void ScParseExprValue::parseConditionalStmt(ConditionalOperator* stmt, SValue& v
         readFromValue(falseval);
     }
     // ReadDefined properties for condition added in @TraverseConst::evaluateTermCond
+
+    // Store condition to use in ScTraverseProc, different results joined to NO_VALUE
+    // For non-SVA condition that is put in ScTraverseConst::run()
+    if (state->getParseSvaArg()) {
+        putSvaCondTerm(stmt, cval);
+    }
+    //cout << ">>>> parseConditionalStmt " << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -1972,19 +1994,17 @@ void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
         SValue cval = evalSubExpr(args[0]);
         SValue ccval = getValueFromState(cval);
 
-        if (checkSctAssert) {
-            if (fname == "sct_assert_unknown") {
-                if (!ccval.isUnknown()) {
-                    ScDiag::reportScDiag(expr->getBeginLoc(),
-                                         ScDiag::CPP_ASSERT_FAILED);
-                }
-            } else {
-                if (!ccval.isInteger() || !ccval.getBoolValue()) {
-                    ScDiag::reportScDiag(expr->getBeginLoc(),
-                                         ScDiag::CPP_ASSERT_FAILED);
-                    cout << "--------------------------" << endl;
-                    state->print();
-                }
+        if (fname == "sct_assert_unknown") {
+            if (!ccval.isUnknown()) {
+                ScDiag::reportScDiag(expr->getBeginLoc(),
+                                     ScDiag::CPP_ASSERT_FAILED);
+            }
+        } else {
+            if (!ccval.isInteger() || !ccval.getBoolValue()) {
+                ScDiag::reportScDiag(expr->getBeginLoc(),
+                                     ScDiag::CPP_ASSERT_FAILED);
+                cout << "--------------------------" << endl;
+                state->print();
             }
         }
         
@@ -2002,42 +2022,40 @@ void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
         SCT_TOOL_ASSERT (flag.isInteger(), "Flag has no value in sct_assert_*");
         
         // Extract value to check UseDef
-        if (checkSctAssert) {
-            // @extractValue check and return variable value for given @lval
-            SValue llval; 
-            state->getDerefVariable(lval, llval, true); lval = llval;
-            if (lval.isObject() || lval.isScChannel()) {
-                llval = state->getVariableForValue(lval);
-            }
-            
-            if (llval.isVariable()) {
-                // Get first element as it is done in @filterUseDefValues()
-                llval = state->getFirstArrayElementForAny(llval);
-                
-                bool b = (fname == "sct_assert_defined") ?
-                                state->getDefAllPathValues().count(llval) :
-                         (fname == "sct_assert_register") ?       
-                                state->getReadNotDefinedValues().count(llval) :
-                         (fname == "sct_assert_read") ?
-                                state->getReadValues().count(llval) :
-                         (fname == "sct_assert_latch") ?
-                                state->getDefSomePathValues().count(llval) :
-                                state->getDefArrayValues().count(llval);
+        // @extractValue check and return variable value for given @lval
+        SValue llval; 
+        state->getDerefVariable(lval, llval, true); lval = llval;
+        if (lval.isObject() || lval.isScChannel()) {
+            llval = state->getVariableForValue(lval);
+        }
 
-                // Register latch
-                if (fname == "sct_assert_latch" && flag.getBoolValue()) {
-                    assertLatches.insert(llval);
-                }
-                
-                if (flag.getBoolValue() != b) {
-                    cout << "Incorrect assertion for " << llval << endl;
-                    ScDiag::reportScDiag(expr->getBeginLoc(),
-                                         ScDiag::CPP_ASSERT_FAILED);
-                }
-            } else {
-                ScDiag::reportScDiag(expr->getBeginLoc(),
-                            ScDiag::CPP_INCORRECT_ASSERT) << llval.asString();
+        if (llval.isVariable()) {
+            // Get first element as it is done in @filterUseDefValues()
+            llval = state->getFirstArrayElementForAny(llval);
+
+            bool b = (fname == "sct_assert_defined") ?
+                            state->getDefAllPathValues().count(llval) :
+                     (fname == "sct_assert_register") ?       
+                            state->getReadNotDefinedValues().count(llval) :
+                     (fname == "sct_assert_read") ?
+                            state->getReadValues().count(llval) :
+                     (fname == "sct_assert_latch") ?
+                            state->getDefSomePathValues().count(llval) :
+                            state->getDefArrayValues().count(llval);
+
+            // Register latch
+            if (fname == "sct_assert_latch" && flag.getBoolValue()) {
+                assertLatches.insert(llval);
             }
+
+            if (flag.getBoolValue() != b) {
+                cout << "Incorrect assertion for " << llval << endl;
+                ScDiag::reportScDiag(expr->getBeginLoc(),
+                                     ScDiag::CPP_ASSERT_FAILED);
+            }
+        } else {
+            ScDiag::reportScDiag(expr->getBeginLoc(),
+                        ScDiag::CPP_INCORRECT_ASSERT) << llval.asString();
         }
         
     } else 
@@ -2076,12 +2094,14 @@ void ScParseExprValue::parseCall(CallExpr* expr, SValue& val)
     } else 
     if (fname == "sct_is_method_proc") {
         // Get process kind functions in @sct_fifo_if.h
-        val = SValue(SValue::boolToAPSInt(isCombProcess), 10);
+        bool isMethod = isCombProcess && !state->getParseSvaArg(); 
+        val = SValue(SValue::boolToAPSInt(isMethod), 10);
         
     } else
     if (fname == "sct_is_thread_proc") {
         // Get process kind functions in @sct_fifo_if.h
-        val = SValue(SValue::boolToAPSInt(!isCombProcess), 10);
+        bool isThread = !isCombProcess || state->getParseSvaArg(); 
+        val = SValue(SValue::boolToAPSInt(isThread), 10);
         
     } else    
     if (nsname && *nsname == "sc_dt" && isScTypeFunc) {
@@ -2364,6 +2384,40 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
     if (isConstCharPtr(callExpr->getType())) {
         if (fname == "c_str") {
             val = ttval;
+        }
+        
+    } else 
+    if (state->getParseSvaArg()) {
+        // For function call in assert replace it with returned expression
+        // Read the used variables to ensure variable generated for them
+        if (argNum == 0) {
+            SValue curModval = modval;
+            modval = ttval;
+    
+            Stmt* funcBody = methodDecl->getBody();
+            //callExpr->dumpColor(); funcBody->dumpColor();
+            
+            // Get return statement from function body
+            ReturnStmt* retStmt = nullptr;
+            if (auto compStmt = dyn_cast<ReturnStmt>(funcBody)) {
+                retStmt = compStmt;
+            } else 
+            if (auto compStmt = dyn_cast<CompoundStmt>(funcBody)) {
+                retStmt = dyn_cast<ReturnStmt>(compStmt->body_front());
+            }    
+                
+            Expr* retExpr = retStmt ? retStmt->getRetValue() : nullptr;
+            
+            // Parse return expression
+            if (retExpr) {
+                QualType retType = retExpr->getType();
+                if (retType->isIntegerType()) {
+                    SValue val = evalSubExpr(retExpr);
+                    readFromValue(val);
+                }
+            }
+            
+            modval = curModval;
         }
         
     } else {

@@ -655,11 +655,11 @@ void ScGenerateExpr::putMemberExpr(const Expr* expr, const SValue& val,
     // Get record values vector to create name suffix for record member
     auto recvecs = getRecVector(val);
 
-//    cout << "\nputMemberExpr val " << val << ", recval " << recval 
-//         << ", modval " << modval << ", recvars size " << recvecs.size() 
-//         << ", tval " << tval << endl;
-//    cout << "getMIFName " << codeWriter->getMIFName().first << " " << codeWriter->getMIFName().second << endl;
-//    cout << "getRecordName " << codeWriter->getRecordName().first << " " << codeWriter->getRecordName().second << endl;
+    //cout << "\nputMemberExpr(1) val " << val << ", recval " << recval 
+    //     << ", modval " << modval << ", recvars size " << recvecs.size() 
+    //     << ", tval " << tval << endl;
+    //cout << "getMIFName " << codeWriter->getMIFName().first << " " << codeWriter->getMIFName().second << endl;
+    //cout << "getRecordName " << codeWriter->getRecordName().first << " " << codeWriter->getRecordName().second << endl;
     //state->print();
     
     // Check current MIF array element as a parent of the member
@@ -676,7 +676,7 @@ void ScGenerateExpr::putMemberExpr(const Expr* expr, const SValue& val,
         SValue tpar = tvar.getVariable().getParent();
         elemOfRecArr = elemOfRecArr || (tval.isRecord() && currecval.isRecord() && 
                        checkBaseClass(tpar, currecval));
-        //cout << "\nputMemberExpr val " << val << ", tval " << tval << ", tvar " << tvar 
+        //cout << "\nputMemberExpr(2) val " << val << ", tval " << tval << ", tvar " << tvar 
         //     << ", currecval " << currecval << endl;
     }
 
@@ -1465,6 +1465,8 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
     if (opcode == BO_Assign) assignLHS = true;
     SValue lval; 
     chooseExprMethod(lexpr, lval);
+    // Required for lvalue function call in SVA which replaced with integer,
+    // but indices not used, so need to avoid using them in rvalue
     assignLHS = lastAssignLHS;
     
     // Get record indices from @arraySubIndices, it is erased after use
@@ -2121,12 +2123,15 @@ void ScGenerateExpr::parseCall(CallExpr* expr, SValue& val)
     } else 
     if (fname == "sct_is_method_proc") {
         // Get process kind functions in @sct_fifo_if.h
-        codeWriter->putLiteral(expr, SValue(SValue::boolToAPSInt(isCombProcess), 10));
+        // SVA runs at clock edge, so considered as thread
+        bool isMethod = isCombProcess && !codeWriter->isParseSvaArg(); 
+        codeWriter->putLiteral(expr, SValue(SValue::boolToAPSInt(isMethod), 10));
         
     } else
     if (fname == "sct_is_thread_proc") {
         // Get process kind functions in @sct_fifo_if.h
-        codeWriter->putLiteral(expr, SValue(SValue::boolToAPSInt(!isCombProcess), 10));
+        bool isThread = !isCombProcess || codeWriter->isParseSvaArg(); 
+        codeWriter->putLiteral(expr, SValue(SValue::boolToAPSInt(isThread), 10));
         
     } else
     if (fname == "wait") {
@@ -2531,6 +2536,62 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             val = ttval;
         }
         
+    } else    
+    if (codeWriter->isParseSvaArg()) {
+        // For function call in assert replace it with returned expression
+        if (argNum == 0) {
+            if (ttval.isInteger() && ttval.getInteger().isNullValue()) {
+                // No record, @fifo in target is @nullptr, use zero value
+                codeWriter->putLiteral(expr, SValue(APSInt(64, true), 10));
+                
+            } else {
+                // Normal record
+                Stmt* funcBody = methodDecl->getBody();
+                //expr->dumpColor(); funcBody->dumpColor();
+
+                // Get return statement from function body
+                ReturnStmt* retStmt = nullptr;
+                if (auto compStmt = dyn_cast<ReturnStmt>(funcBody)) {
+                    retStmt = compStmt;
+                } else 
+                if (auto compStmt = dyn_cast<CompoundStmt>(funcBody)) {
+                    retStmt = dyn_cast<ReturnStmt>(compStmt->body_front());
+                }
+
+                Expr* retExpr = retStmt ? retStmt->getRetValue() : nullptr;
+
+                // Parse return expression
+                if (retExpr) {
+                    QualType retType = retExpr->getType();
+                    if (retType->isIntegerType()) {
+                        // Get record from variable/dynamic object, no unknown index here
+                        SValue funcModval = getRecordFromState(tval, 
+                                                ArrayUnkwnMode::amNoValue);
+                        // Set @recordValueName to support array of record/MIF
+                        if (auto thisStr = codeWriter->getStmtString(thisExpr)) {
+                            codeWriter->setRecordName(funcModval, thisStr.getValue());
+                            //cout << "   thisStr : " << funcModval << " " << thisStr.getValue() << endl;
+                        }
+                        SValue curModval = modval;
+                        modval = funcModval;
+                        
+                        chooseExprMethod(retExpr, val);
+                        codeWriter->copyTerm(retExpr, expr);
+                        modval = curModval;
+                        
+                    } else {
+                        ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                     ScDiag::SYNTH_FUNC_TYPE_IN_ASSERT);
+                    }
+                } else {
+                    ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                     ScDiag::SYNTH_FUNC_IN_ASSERT);
+                }
+            }
+        } else {
+            ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                 ScDiag::SYNTH_FUNC_IN_ASSERT);
+        }
     } else {
         // General methods, most logic is in ScTraverseProc 
         if (codeWriter->isEmptySensitivity()) {

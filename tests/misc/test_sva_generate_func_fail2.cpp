@@ -27,7 +27,9 @@ public:
     
     SCT_ASSERT(f(), SCT_TIME(1), s, clk.pos());
     
+    // Function has more than one return statements
     bool f() {
+        int i = 1;
         return true;
     }
     

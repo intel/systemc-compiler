@@ -68,7 +68,7 @@ shared_ptr<CodeScope> ScTraverseProc::getScopeForBlock(AdjBlock block, unsigned 
 llvm::Optional<std::string> 
 ScTraverseProc::getSvaInLoopStr(const std::string& svaStr, bool isResetSection) 
 {
-    std::string tabStr = (isResetSection ? "    " : "        ");
+    std::string tabStr = "        ";
     std::string loopStr;
     
     for (auto i = loopStack.begin(); i != loopStack.end(); ++i) {
@@ -126,8 +126,12 @@ void ScTraverseProc::getTermCondValue(const Stmt* stmt, SValue& val, SValue& fva
     i = termConds.find(callStack);
     bool firstIter = (i != termConds.end());
     fval = firstIter ? i->second : NO_VALUE;
+
+//    cout << "Call stack first iter " << hex;
+//    for (auto i : callStack) cout << " " << i;
+//    cout << " fval " << fval << endl;
     
-    if (firstIter && otherIters) { 
+    if (firstIter && otherIters) {
         // Join first iteration value to all other iterations value
         if (val != fval) val = NO_VALUE;
     } else 
@@ -135,6 +139,9 @@ void ScTraverseProc::getTermCondValue(const Stmt* stmt, SValue& val, SValue& fva
         // If there is only one loop iteration
         val = fval;
     }
+    
+    //cout << "getTermConds " << hex << stmt << " stackSize " << callStack.size()  
+    //     << " val " << val << dec << endl;
     //cout << "First iter " << fval.asString() << " " << firstIter 
     //      << ", other iters " << val.asString() << " " << otherIters << endl;
 }
@@ -386,7 +393,7 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
        
     } else 
     if (isConstCharPtr(expr->getType())) {
-        // Do nothing, all logic implemented in ScParseExprValue
+        // Do nothing, all logic implemented in ScGenerateExpr
         
     } else
     if ( isAnyScCoreObject(thisType) ) {
@@ -400,6 +407,9 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         } else {
             // Do nothing for other @sc_core methods
         }
+    } else 
+    if (codeWriter->isParseSvaArg()) {
+        // Do nothing for function call in SVA, all done in ScGenerateExpr
         
     } else {
         // General method call
@@ -425,12 +435,6 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             }
             
         } else {
-            // Normal processing of function call
-            if (codeWriter->isParseSvaArg()) {
-                ScDiag::reportScDiag(expr->getBeginLoc(), 
-                                     ScDiag::SYNTH_FUNC_IN_ASSERT);
-            }
-            
             // Declare temporal variable if it is not a pointer
             if (!isVoidType(retType) && !isPointer(retType)) {
                 codeWriter->putVarDecl(nullptr, retVal, retType, nullptr, false, 
@@ -857,7 +861,8 @@ void ScTraverseProc::run()
                         if (auto superStmtLevel = stmtInfo.getLevel(superStmt)) {
                             level = *superStmtLevel;
                             isCallSubStmt = isUserCallExpr(currStmt); 
-                            isStmt = isCallSubStmt && !isIoStreamStmt(superStmt);
+                            isStmt = isCallSubStmt && !isIoStreamStmt(superStmt) &&
+                                     !codeWriter->isParseSvaArg();
                         }
                         //cout << hex << "getSubStmtLevel " << currStmt << endl;
                         

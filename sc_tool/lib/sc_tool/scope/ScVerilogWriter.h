@@ -602,7 +602,8 @@ public:
     
     /// Clear before next statement 
     void startStmt();
-
+    /// Clear accumulated indices, required in binary operation
+    //void clearSubIndices();
     /// Remove statement from terms
     void clearStmt(const clang::Stmt* stmt);
     

@@ -178,7 +178,7 @@ void ScTraverseConst::evaluateTermCond(Stmt* stmt, SValue& val)
         
         // Use @checkRecOnly to have pointer null/not null value for record/MIF
         // array element accessed at unknown index, required for condition of
-        // pointer initialized: if (p) p->f();
+        // pointer initialized: if (p) p->f(); p ? p->f() : a;
         auto condvals = evaluateConstInt(const_cast<Expr*>(cond), false, true);
         //cout << "evaluateConstInt " << condvals.first << " " << condvals.second << endl;
         readFromValue(condvals.first);
@@ -190,6 +190,7 @@ void ScTraverseConst::evaluateTermCond(Stmt* stmt, SValue& val)
             if (!i.second) {
                 i.first->second = condvals.first;
             }
+            //cout << "condStoredValue " << hex << stmt << " " << condvals.first << dec << endl;
         }
     }
 }
@@ -232,6 +233,26 @@ llvm::Optional<unsigned> ScTraverseConst::evaluateIterNumber(const Stmt* stmt)
         }
     }
     return llvm::None;
+}
+
+// Store ternary statement condition for SVA property
+void ScTraverseConst::putSvaCondTerm(const Stmt* stmt, SValue val) 
+{
+    auto callStack = contextStack.getStmtStack();
+    callStack.push_back(stmt);
+    // Add the same value for first iteration
+    callStack.push_back(stmt);
+
+    auto i = termConds.emplace(callStack, val);
+    if (!i.second) {
+        if (i.first->second != val) {
+            i.first->second = NO_VALUE;
+            val = NO_VALUE;
+        }
+    }
+    
+    //cout << "putSvaCondTerm " << hex << stmt << " stackSize " << callStack.size()  
+    //     << " val " << val << dec << endl;
 }
 
 // Prepare next block analysis
@@ -517,6 +538,10 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
     } else
     if (isConstCharPtr(expr->getType())) {
         // Do nothing, all logic implemented in ScParseExprValue
+        
+    } else  
+    if (state->getParseSvaArg()) {
+        // Do nothing for function call in SVA, all done in ScParseExprValue
         
     } else {
         // General method call
@@ -1175,6 +1200,8 @@ void ScTraverseConst::run()
                     i.first->second = NO_VALUE;
                 }
             }
+            //cout << "putTermConds " << hex << term << " stackSize " << callStack.size()  
+            //     << " val " << termCondValue << dec << endl;
             
             // Register terminator as live
             liveTerms.insert(term);
