@@ -1,19 +1,25 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/******************************************************************************
+ * Copyright (c) 2020, Intel Corporation. All rights reserved.
+ * 
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+ * 
+ *****************************************************************************/
 
-/* 
- * File:   register.h
- * Author: jiachen5
- *
- * Created on July 26, 2022, 1:53 PM
+/**
+ * Directed Memory Access(DMA).
+ * 
+ * Author: Jiacheng Wang
  */
 
 #ifndef REGISTER_H
 #define REGISTER_H
 #include "systemc.h"
+/**
+ * This is a basic register model for DMA device.
+ * All the parameters of DMA device are stored here for read and write.
+ */
+
+
 
 class cfgRegister : sc_module, sc_interface 
 {

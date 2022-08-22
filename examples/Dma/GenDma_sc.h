@@ -1,14 +1,31 @@
-/**
- *
- * Copyright (c) 2017-2019 Intel Corporation. All rights reserved.
- */
+/******************************************************************************
+ * Copyright (c) 2020, Intel Corporation. All rights reserved.
+ * 
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+ * 
+ *****************************************************************************/
 
+/**
+ * Directed Memory Access(DMA).
+ * 
+ * Author: Jiacheng Wang
+ */
 #ifndef GEN_DMA_H
 #define GEN_DMA_H
 
 #include "systemc.h"
 #include "register.h"
 #include <sctcommon/sct_common.h>
+
+/**
+ * This is the basic version of DMA Device.
+ * DMA device helps move data in memory.
+ * It's on Burst mode and can be initialized with different burst size.
+ * Source address and stride, Destination address and stride
+ * and Transfer size of data are the basic input parameters.
+ * Dma_start is the signal to switch on and off the DMA.
+ * After task completed, Dma will raise an interrupt.
+ */
 
 template<unsigned int N>
 class GenDma : sc_module
@@ -43,7 +60,6 @@ class GenDma : sc_module
     sc_out<Data_t>  cfg_rsp_data{"cfg_rsp_data"};
 
     sc_signal<bool> interrupt_set{"interrupt_set"};
-
 
     SC_CTOR(GenDma) {
         cfg.clk(clk);

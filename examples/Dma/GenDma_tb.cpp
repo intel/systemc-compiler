@@ -1,6 +1,14 @@
+/******************************************************************************
+ * Copyright (c) 2020, Intel Corporation. All rights reserved.
+ * 
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+ * 
+ *****************************************************************************/
+
 /**
- *
- * Copyright (c) 2017-2019 Intel Corporation. All rights reserved.
+ * Directed Memory Access(DMA).
+ * 
+ * Author: Jiacheng Wang
  */
 
 #include "systemc.h"
