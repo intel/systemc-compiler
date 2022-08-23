@@ -15,7 +15,6 @@
 #include <iostream>
 #include <chrono>
 #include <vector>
-#include <sctcommon/sct_common.h>
 
 static const unsigned DATA_WIDTH = 32;
 static const unsigned ADDR_WIDTH = 20;

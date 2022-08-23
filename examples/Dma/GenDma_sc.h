@@ -15,7 +15,6 @@
 
 #include "systemc.h"
 #include "register.h"
-#include <sctcommon/sct_common.h>
 
 /**
  * This is the basic version of DMA Device.
@@ -101,8 +100,8 @@ class GenDma : sc_module
                 Addr_t offset = 0;
                 while(toMove > 0){
                     mem_req_oper = 0;
-                    Addr_t steps = sct::sct_min(Addr_t(N),toMove);
-                    
+		    Addr_t steps = Addr_t(N) < toMove? Addr_t(N) : toMove;
+
                     for (Addr_t i = 0; i < steps; ++i) {
                         mem_req_addr = cfg.src_addr.read()
                                 + ((i+offset)*cfg.src_stride.read());
