@@ -1,6 +1,5 @@
 #include <systemc.h>
 #include "AdvFifo.h"
-#include "sct_assert.h"
 
 template<unsigned N>
 struct Dut : public sc_module 
@@ -13,39 +12,37 @@ struct Dut : public sc_module
     sc_in<T>        in{"in"};
     sc_out<T>       out{"out"};
     
-    adv_fifo_mif<T, 1, 1, 1, 6, 3, 1> fifo{"fifo"};
+    adv_fifo_mif<T, 0, 0, 0, 6, 3, 1> fifo{"fifo"};
 
     SC_CTOR(Dut) {
         fifo.clk_nrst(clk, nrst);
         
-        SC_CTHREAD(reqProc, clk.pos());
-        async_reset_signal_is(nrst, 0);
+        SC_METHOD(reqProc);
+        fifo.addTo(sensitive);
+        sensitive << in;
 
-        SC_CTHREAD(respProc, clk.pos());
-        async_reset_signal_is(nrst, 0);
+        SC_METHOD(respProc);
+        fifo.addTo(sensitive);
 
     }
     
     void reqProc() {
-        wait();
-        
-        while(true) {
-            if (fifo.ready()) {
-                fifo.push(in.read());
-            }
-            wait();
+        if (fifo.ready()) {
+            fifo.push(in.read());
+            cout << sc_time_stamp() << " push " << in.read() << endl;
+        } else {
+            fifo.push(0, 0);
         }
     }
     
     void respProc() {
-        wait();
-        
-        while(true) {
-            if (fifo.valid()) {
-                out = fifo.pop();
-            }
-            wait();
-
+        if (fifo.valid()) {
+            T data = fifo.pop();
+            out = data;
+            cout << sc_time_stamp() << " pop " << data << endl;
+        } else {
+            fifo.pop(0);
+            out = 0;
         }
     }
 };
@@ -70,7 +67,7 @@ SC_MODULE(Tb) {
         SC_CTHREAD(tests, clk.pos());
     }
     
-    const unsigned N = 4000000;
+    const unsigned N = 10;
     
     void tests() {
         nrst = 0;
