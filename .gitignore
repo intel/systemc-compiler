@@ -81,3 +81,6 @@ dkms.conf
 
 # Misc
 sc_tool/arc
+build/
+build_*/
+
