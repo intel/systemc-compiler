@@ -5,6 +5,23 @@
 # 
 # *****************************************************************************
 
+cmake_minimum_required(VERSION 3.12)
+
+enable_testing()
+
+if(NOT DEFINED ENV{ICSC_HOME})
+  message("ICSC_HOME is not defined!")
+  return()
+endif()
+
+project(icsc_examples)
+
+## SVC package contains ScTool and SystemC libraries
+find_package(SVC REQUIRED)
+
+# C++ standard must be the same as in ScTool, $(SystemC_CXX_STANDARD) contains 17
+set(CMAKE_CXX_STANDARD 17)
+
 add_subdirectory(asserts)
 add_subdirectory(counter)
 add_subdirectory(decoder)
