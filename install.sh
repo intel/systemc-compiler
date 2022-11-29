@@ -5,6 +5,7 @@ echo "Using ICSC_HOME = $ICSC_HOME"
 
 export CWD_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 export CMAKE_PREFIX_PATH=$ICSC_HOME:$CMAKE_PREFIX_PATH
+export GCC_INSTALL_PREFIX="$(realpath "$(dirname $(which g++))"/..)"
 
 echo "Downloading and building Protobuf/LLVM at $CWD_DIR/build_deps..."
 mkdir build_deps -p && cd build_deps
@@ -15,7 +16,7 @@ tar -xf v3.13.0.tar.gz --skip-old-files
 (
     cd protobuf-3.13.0
     mkdir build -p && cd build
-    cmake ../cmake/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DBUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF
+    cmake ../cmake/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DBUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_CXX_STANDARD=17
     make -j12
     make install
 )
@@ -29,7 +30,7 @@ ln -sf ../../clang-12.0.1.src llvm-12.0.1.src/tools/clang
 (
     cd llvm-12.0.1.src
     mkdir build -p && cd build
-    cmake ../ -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME
+    cmake ../ -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD="X86" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DGCC_INSTALL_PREFIX=$GCC_INSTALL_PREFIX -DCMAKE_CXX_STANDARD=17
     make -j12
     make install
 )
@@ -39,7 +40,7 @@ ln -sf ../../clang-12.0.1.src llvm-12.0.1.src/tools/clang
 #tar -xf gdb-11.2.tar.gz --skip-old-files
 #(
 #    cd gdb-11.2
-#    ./configure --prefix="$ICSC_HOME" --with-python=/usr/bin/python3
+#    ./configure --prefix="$ICSC_HOME" --with-python="$(which python3)"
 #    make -j12
 #    make install
 #)
@@ -49,23 +50,24 @@ ln -sf ../../clang-12.0.1.src llvm-12.0.1.src/tools/clang
 cd $CWD_DIR
 (
     mkdir build_icsc_rel -p && cd build_icsc_rel
-    cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME
+    cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DCMAKE_CXX_STANDARD=17
     make -j12
     make install
     
     cd ..
     
     mkdir build_icsc_dbg -p && cd build_icsc_dbg
-    cmake ../ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DCMAKE_DEBUG_POSTFIX=d
+    cmake ../ -DCMAKE_BUILD_TYPE=Debug   -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DCMAKE_CXX_STANDARD=17 -DCMAKE_DEBUG_POSTFIX=d
     make -j12
     make install
 )
+
 echo "*** ISCC Build and Installation Complete! ***"
 
 
 # ################################################################################
 # Build Tests using ISCC
-echo "*** Build Examples ***"
+echo "*** Building Examples ***"
 cd $CWD_DIR
 (
     source $ICSC_HOME/setenv.sh
