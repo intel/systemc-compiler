@@ -104,7 +104,12 @@ install(DIRECTORY components/common/sctcommon DESTINATION include)
 # Install setenv scripts
 install(FILES cmake/setenv.sh gdb/gdbinit-example.txt
         DESTINATION $ENV{ICSC_HOME})
-        
+
 # Install GDB pretty-printers
 install(FILES gdb/sysc23x_printers/sysc23x_printers.py
         DESTINATION $ENV{ICSC_HOME}/share/gdb/python/sysc23x_printers)
+
+# Install designs
+install(DIRECTORY designs DESTINATION $ENV{ICSC_HOME})
+
+
