@@ -17,9 +17,10 @@
 $ bash
 
 * Setup ICSC environment
-$ source setenv.sh
+$ source icsc/setenv.sh
 
 * Build sources
+$ cd systemc-compiler/designs/examples
 $ mkdir build && cd build
 $ cmake ../
 $ make -j8
@@ -28,10 +29,7 @@ $ make -j8
 $ ctest -j8
 
 * Check the generated SystemVerilog in sv_out folder
-$cd examples/counter/sv_out
-$cat counter.sv
+$ cat counter/sv_out/counter.sv
 
 * Run SystemC simulation for an example
-$ cd examples/counter
-$ ./counter
-
+$ counter/counter

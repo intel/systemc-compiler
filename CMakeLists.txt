@@ -51,7 +51,7 @@ add_custom_command(OUTPUT ${SYSTEMC_PCH}
         COMMAND
         ${CLANG_CXX_EXECUTABLE} -Xclang -emit-pch -x c++-header
         ${CMAKE_SOURCE_DIR}/systemc/src/systemc.h -o ${SYSTEMC_PCH} ${MSVC_FLAGS}
-        -D__SC_TOOL__ -D__SC_TOOL_ANALYZE__ -DNDEBUG -std=c++14 
+        -D__SC_TOOL__ -D__SC_TOOL_ANALYZE__ -DNDEBUG -std=c++17
         -I${CMAKE_SOURCE_DIR}/systemc/src
         DEPENDS systemc
         COMMENT "Generating SystemC precompiled header ${SYSTEMC_PCH}"
@@ -73,12 +73,12 @@ include(cmake/svc_target.cmake)
 enable_testing()
 
 # Compile tests and test designs
-if( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" ) 
-    message (STATUS "Debug mode: add tests and test designs")
-    add_subdirectory(tests)
-    add_subdirectory(examples)
-    add_subdirectory(designs)
-endif()
+#if( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" ) 
+#    message (STATUS "Debug mode: add tests and test designs")
+#    add_subdirectory(tests)
+#    add_subdirectory(examples)
+#    add_subdirectory(designs)
+#endif()
 
 ###############################################################################
 
@@ -101,12 +101,10 @@ install(FILES ${PROJECT_BINARY_DIR}/SVCConfig.cmake cmake/svc_target.cmake
 # Install sctCommon
 install(DIRECTORY components/common/sctcommon DESTINATION include)
 
-# Install release mode CMakeLists and scripts
-if( ${CMAKE_BUILD_TYPE} STREQUAL "Release" ) 
-    message (STATUS "Release mode: copy CMakeLists and scripts")
-    install(FILES cmake/CMakeLists.txt
-                  cmake/setenv.sh
-                  cmake/README
-            DESTINATION $ENV{ICSC_HOME}) 
-
-endif()
+# Install setenv scripts
+install(FILES cmake/setenv.sh gdb/gdbinit-example.txt
+        DESTINATION $ENV{ICSC_HOME})
+        
+# Install GDB pretty-printers
+install(FILES gdb/sysc23x_printers/sysc23x_printers.py
+        DESTINATION $ENV{ICSC_HOME}/share/gdb/python/sysc23x_printers)

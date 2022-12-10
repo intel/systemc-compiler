@@ -18,7 +18,7 @@ ICSC is distributed under the [Apache License v2.0 with LLVM Exceptions](https:/
 
 ## Getting started
 
-ICSC is based on Clang/LLVM frontend and can be installed at most Linux OS. There is ```install.sh``` script that downloads and builds ICSC and the required dependecies at **Ubuntu 20.04**.
+ICSC is based on Clang/LLVM frontend and can be installed at most Linux OS. There is ```install.sh``` script that downloads and builds ICSC and the required dependencies at **Ubuntu 20.04**.
 
 An instruction how to install and run ISCS is given at [Getting started](https://github.com/intel/systemc-compiler/wiki/Getting-started). 
 
