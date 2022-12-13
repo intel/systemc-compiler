@@ -240,8 +240,8 @@ svc_target(method_explicit_type_conv GOLDEN method_explicit_type_conv.sv)
 add_executable(method_unary test_unary.cpp)
 svc_target(method_unary GOLDEN method_unary.sv)
 
-add_executable(method_unary_sc test_unary_sc.cpp)
-svc_target(method_unary_sc GOLDEN method_unary_sc.sv)
+#add_executable(method_unary_sc test_unary_sc.cpp)
+#svc_target(method_unary_sc GOLDEN method_unary_sc.sv)
 
 # Arrays
 

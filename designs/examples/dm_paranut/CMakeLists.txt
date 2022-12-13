@@ -26,11 +26,11 @@
 
 
 # Example Paranut DebugModule
-project(DebugModule)
+project(dm_paranut)
 
 # Add alle the nessesery files here
-add_executable(DebugModule dm_tb.cpp dm.cpp base.cpp)
-target_include_directories(DebugModule PUBLIC "${PROJECT_SOURCE_DIR}")
+add_executable(dm_paranut dm_tb.cpp dm.cpp base.cpp)
+target_include_directories(dm_paranut PUBLIC "${PROJECT_SOURCE_DIR}")
 
 # use cmake -DSYN=ON to enable the debug flag or OFF to disable it
 OPTION(SYN "set the __SYNTHESIS__ Flag" ON) # Enabled by default
@@ -38,12 +38,12 @@ OPTION(SYN "set the __SYNTHESIS__ Flag" ON) # Enabled by default
 # Add compilation options
 # target_compile_options(${PROJECT_NAME} PUBLIC -Wall)
 IF(SYN)
-    target_compile_definitions(DebugModule PUBLIC -D__SYNTHESIS__)
+    target_compile_definitions(dm_paranut PUBLIC -D__SYNTHESIS__)
 ENDIF(SYN)
 
 # svc_target will create ${PROJECT_NAME}_sctool executable that runs code generation 
 # and ${PROJECT_NAME} that runs general SystemC simulation
 # ELAB_TOP parameter accepts hierarchical name of design  
 # (that is SystemC name, returned by sc_object::name() method)
-svc_target(DebugModule INIT_LOCAL_VARS ELAB_TOP tb.dm)
+svc_target(dm_paranut INIT_LOCAL_VARS ELAB_TOP tb.dm)
 
