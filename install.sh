@@ -1,5 +1,12 @@
 #!/bin/bash -e
 
+#################################################################################
+# This bash script downloads and builds Protobuf, Clang/LLVM, GDB (optional),   #
+# builds and installs ICSC, runs ICSCS examples.                                #
+# To build GDB with Python3 compatible with SystemC pretty printers use:        #
+# ./install.sh gdb                                                              #
+#################################################################################
+
 test -z $ICSC_HOME && { echo "ICSC_HOME is not configured"; exit 1; }
 echo "Using ICSC_HOME = $ICSC_HOME"
 
@@ -11,6 +18,7 @@ export GCC_INSTALL_PREFIX="$(realpath "$(dirname $(which g++))"/..)"
 echo "Downloading and building Protobuf/LLVM at $CWD_DIR/build_deps..."
 mkdir build_deps -p && cd build_deps
 
+# ################################################################################
 # Download, unpack, build, install Protobuf 3.13
 wget -N https://github.com/protocolbuffers/protobuf/archive/v3.13.0.tar.gz --no-check-certificate
 tar -xf v3.13.0.tar.gz --skip-old-files
@@ -22,6 +30,7 @@ tar -xf v3.13.0.tar.gz --skip-old-files
     make install
 )
 
+# ################################################################################
 # Download, unpack, build, install Clang and LLVM
 wget -N https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/clang-12.0.1.src.tar.xz --no-check-certificate
 wget -N https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/llvm-12.0.1.src.tar.xz --no-check-certificate
@@ -36,17 +45,21 @@ ln -sf ../../clang-12.0.1.src llvm-12.0.1.src/tools/clang
     make install
 )
 
+# ################################################################################
 # Download, unpack, build, install GDB with Python3
-#wget -N https://ftp.gnu.org/gnu/gdb/gdb-11.2.tar.gz --no-check-certificate
-#tar -xf gdb-11.2.tar.gz --skip-old-files
-#(
-#    cd gdb-11.2
-#    ./configure --prefix="$ICSC_HOME" --with-python="$(which python3)"
-#    make -j12
-#    make install
-#)
+if [[ $1 == gdb ]]
+then
+   wget -N https://ftp.gnu.org/gnu/gdb/gdb-11.2.tar.gz --no-check-certificate
+   tar -xf gdb-11.2.tar.gz --skip-old-files
+   (
+       cd gdb-11.2
+       ./configure --prefix="$ICSC_HOME" --with-python="$(which python3)"
+       make -j12
+       make install
+   )
+fi
 
-
+# ################################################################################
 # Build and install ISCC
 cd $CWD_DIR
 (
@@ -77,6 +90,6 @@ cd $ICSC_HOME
     mkdir build -p && cd build
     cmake ../                          # prepare Makefiles
     cd designs/examples                # run examples only
-    ctest -j4                          # compile and run Verilog generation
+    ctest -j12                         # compile and run Verilog generation
                                        # use "-jN" key to run in "N" processes
 )

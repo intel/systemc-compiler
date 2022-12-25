@@ -3,7 +3,7 @@
 
 python
 import sys, os
-libstdcxx_printers_path = '/usr/intel/pkgs/gcc/10.1.0/share/gcc-10.1.0/python/'
+libstdcxx_printers_path = '/usr/share/gcc/python/'
 sysc23x_printers_path = '$ICSC_HOME/share/gdb/python/sysc23x_printers/'
 libstdcxx_printers_path = os.path.expandvars(libstdcxx_printers_path)
 sysc23x_printers_path = os.path.expandvars(sysc23x_printers_path)
