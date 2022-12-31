@@ -90,6 +90,7 @@ void ScState::parseParentForRec(SValue val, unsigned crossModule,
 // ===========================================================================
 // Public methods
 
+// Parse value hierarchy to topmost module storing all intermediate values 
 void ScState::parseValueHierarchy(SValue val, unsigned crossModule,
                                   vector<SValue>& valStack) const
 {
@@ -104,25 +105,6 @@ void ScState::parseValueHierarchy(SValue val, unsigned crossModule,
     if (val.isObject() || val.isScChannel()) {
         parseParentForObj(val, crossModule, valStack);
     }
-}
-
-/// Find array where @val is element, bottom to top search
-SValue ScState::findArray(SValue val, unsigned crossModule,
-                          vector<const clang::ValueDecl*>& decls) const
-{
-    vector<SValue> valStack;
-    parseValueHierarchy(val, crossModule, valStack);
-    
-    // Return first (most bottom) array or no value
-    for (auto mval : valStack) {
-        if (mval.isVariable()) {
-            decls.push_back(mval.getVariable().getDecl());
-        }
-        if (mval.isArray()) {
-            return mval;
-        }
-    }
-    return NO_VALUE;
 }
 
 // Check if the given element is member of the given record @recval
@@ -378,6 +360,7 @@ void ScState::putValue(const SValue& lval, const SValue& rval, bool deReference,
 {
     // It is prohibited to put value into dead state
     SCT_TOOL_ASSERT (!dead, "Put value to dead state");
+    //cout << "putValue lval " << lval << endl;
     
     if (lval.isVariable() || lval.isTmpVariable() || lval.isObject()) {
         // Get de-referenced variable for @lval
@@ -437,6 +420,7 @@ void ScState::putValue(const SValue& lval, const SValue& rval, bool deReference,
 
                     rrval = SValue(extrOrTrunc(rval.getInteger(), width, 
                                    isUnsigned), rval.getRadix());
+                    //cout << "   rrval " << rrval << " width " << width << endl;
                 } else {
                     type->dump();
                     SCT_TOOL_ASSERT(false, "Cannot determine integral type width");
@@ -475,13 +459,13 @@ void ScState::putValue(const SValue& lval, const SValue& rval, bool deReference,
             }
             if (DebugOptions::isEnabled(DebugComponent::doState)) {
                 cout << "putValue (" << lval << ", " << rrval << ")" << endl;
-            }
+        } 
         } 
     } else {
         if (DebugOptions::isEnabled(DebugComponent::doState)) {
             cout << "putValue (" << lval << ", " << rval << ")" << endl;
-        }
     }
+}
 }
 
 // Create deep copy in state of given value, returns clone of the value and 
@@ -493,6 +477,7 @@ SValue ScState::copyIntSubValues(const SValue& val, unsigned level,
                                  const SValue& parent, const SValue& locvar, 
                                  size_t index) 
 {
+    //cout << "copyIntSubValues " << val << endl;
     // No copy for integer value
     if (val.isUnknown() || val.isInteger()) {
         return val;
@@ -563,10 +548,14 @@ SValue ScState::copyIntSubValues(const SValue& val, unsigned level,
 // Remove tuples with integer values starting with @val in left part and 
 // recursively all tuples with its right parts, no array/record removed 
 // Use to clean up state by write to array element at unknown index
-void ScState::removeIntSubValues(const SValue& lval) 
+// \param lval -- variable value
+void ScState::removeIntSubValues(const SValue& lval, bool doGetValue) 
 {
-    SValue rval;
-    getValue(lval, rval, true, ArrayUnkwnMode::amFirstElement);
+    //cout << "removeIntSubValues " << lval << endl;
+    SValue rval = lval;
+    if (doGetValue) {
+        getValue(lval, rval, true, ArrayUnkwnMode::amFirstElement);
+    }
     
     if (rval.isInteger()) {
         //cout << "   >>> " << lval << endl;
@@ -761,6 +750,7 @@ ScState::getValue(const SValue& lval, SValue& rval, bool deReference,
     return std::pair<bool, bool>(false, false);
 }
 
+// TODO: add bool deReference
 SValue ScState::getValue(const SValue& lval) const
 {
     SValue res;
@@ -895,6 +885,7 @@ void ScState::print() const {
 //    for (auto& i : staticState->elab2SValMap) {
 //        cout << "    " << i.first.getID() << " : " << i.second << endl;
 //    }
+    cout << endl;
 }
 
 void ScState::printSize() const {
@@ -913,43 +904,39 @@ void ScState::printSize() const {
             << "    defsomepath: " << defsomepath.size() << endl;
 }
 
-void ScState::putElabObject(const SValue& sval, sc_elab::ObjectView objView) 
+void ScState::putElabObject(const SValue& sval, sc_elab::ObjectView objView,
+                            const sc_elab::VerilogVar* chanRecFieldVar) 
 {
     using std::cout; using std::endl;
     //cout<< "putElabObject objView " << objView.getDebugString() << endl;
     // Only first @objView for the value is stored, next are ignored
-   staticState->sVal2ElabMap.emplace(sval, objView);
+    staticState->sVal2ElabMap.emplace(sval, objView);
     
     if (auto elabObj = objView.getVerilogNameOwner()) {
         // Get Verilog variables created for object, if vector is empty
         // that means object has no Verilog representation
         auto vars = elabObj->getVerilogVars();
-
+        bool isVar = vars.size() != 0 || chanRecFieldVar;
+        
 //        cout << "    vars for sval " << sval << " : ";
 //        for (auto verVar : vars) {
 //            cout << "  " << verVar.var->getName();
 //        }
 //        cout << endl;
 
-        // No name for module variables, others should have one name
-        if (vars.size() == 0) {
-            if (DebugOptions::isEnabled(DebugComponent::doGenState)) {
-                cout << "No external name for " << sval << endl;
-            }
+        if (isVar) {
+            auto var = chanRecFieldVar ? chanRecFieldVar : vars[0].var;
 
-        } else
-        if (vars.size() > 0) {
             if (staticState->extrValNames.count(sval) == 0) {
                 //std::cout << "Name for " << sval  << " (Id#" << elabObj->getID() << ")"
                 //           << " is " << vars[0].var->getName() << std::endl;
-                staticState->extrValNames.emplace(sval, vars[0].var->getName());
+                staticState->extrValNames.emplace(sval, var->getName());
                 
                 // Add name for channel object also, it is taken by channel object
                 SValue ssval = getValue(sval);
                 if (ssval.isScChannel()) {
-                    staticState->extrValNames.emplace(ssval, vars[0].var->getName());
+                    staticState->extrValNames.emplace(ssval, var->getName());
                 }
-                
             } else {
                 // That is possible if template has several same class parameters 
                 // which contains static constant field, such fields has no
@@ -963,9 +950,14 @@ void ScState::putElabObject(const SValue& sval, sc_elab::ObjectView objView)
                     // That is OK for template parameter class
                 } else {
                     std::cout << "Duplicate state value " << sval 
-                              << " name is " << vars[0].var->getName() << std::endl;
+                              << " name is " << var->getName() << std::endl;
                     SCT_TOOL_ASSERT (false, "Duplicate value in elaborator variables");
                 }
+            }
+        } else {
+            // No name for module variables, others should have one name
+            if (DebugOptions::isEnabled(DebugComponent::doGenState)) {
+                cout << "No external name for " << sval << endl;
             }
         }
     }
@@ -1124,7 +1116,7 @@ InsertionOrderSet<SValue> ScState::getZeroIndexAllFields(const SValue& val) cons
     }
     
     // Variable is record, not record field
-    bool isRec = isUserDefinedClass(mval.getType());
+    bool isRec = isUserClass(mval.getType());
     bool isRecArr = !isRec && isUserDefinedClassArray(mval.getType(), false);
     
     // Try to get record for variable or parent record for field variable
@@ -1538,7 +1530,7 @@ SValue ScState::getBottomArrayForAny(const SValue& eval, bool& unkwIndex,
                     elmtype = elmtype->getPointeeType();
                 }
                 if (!isScModularInterface(elmtype) &&
-                    !isUserDefinedClass(elmtype)) continue;
+                    !isUserClass(elmtype)) continue;
             }
             unkwIndex = unkwIndex || mval.getArray().isUnknown();
         }
@@ -1882,7 +1874,7 @@ void ScState::compareAndSetNovalue(ScState* other)
     if (dead != other->dead) {
         SCT_TOOL_ASSERT (false, "Not implemented yet");
     }
-
+    //cout << "compareAndSetNovalue: " << endl;
     auto i = tuples.begin();
     while (i != tuples.end()) {
         // Ignore temporary variables
@@ -1893,7 +1885,7 @@ void ScState::compareAndSetNovalue(ScState* other)
             if (!i->first.isReference() && !type.isConstQualified()) {
                 auto j = other->tuples.find(i->first);
                 if (j == other->tuples.end() || i->second != j->second) {    
-                    //cout << "Set NO_VALUE for " << i.first.asString() << endl;
+                    //cout << "    " << i->first << endl;
                     i = tuples.erase(i);
                     continue;
                 }

@@ -377,6 +377,9 @@ clang::QualType SValue::getType() const
     if (isObject()) {
         return getObjectPtr()->getType();
     }
+    if (isScChannel()) {
+        return getScChannel()->getType();
+    }
 
     return QualType{};
 }
@@ -497,10 +500,12 @@ bool SValue::operator == (const SValue& rhs) const {
              getVariable() == rhs.getVariable()) ||
             (isTmpVariable() && rhs.isTmpVariable() && 
              getTmpVariable() == rhs.getTmpVariable()) ||
-            (isArray() && rhs.isArray() && getArray() == rhs.getArray()) || 
-            (isRecord() && rhs.isRecord() && getRecord() == rhs.getRecord()) ||
-            (isSimpleObject() && rhs.isSimpleObject() && getSimpleObject() == 
-             rhs.getSimpleObject()) ));
+            (isArray() && rhs.isArray() && 
+             getArray() == rhs.getArray()) || 
+            (isRecord() && rhs.isRecord() && 
+             getRecord() == rhs.getRecord()) ||
+            (isSimpleObject() && rhs.isSimpleObject() && 
+             getSimpleObject() == rhs.getSimpleObject()) ));
 }
 
 bool SValue::operator != (const SValue& rhs) const {

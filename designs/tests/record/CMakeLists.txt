@@ -159,7 +159,16 @@ svc_target(record_member_record1 GOLDEN record_member_record1.sv)
 add_executable(record_wait_call test_wait_call.cpp)
 svc_target(record_wait_call GOLDEN record_wait_call.sv)
 
-## See #290
-#add_executable(record_chan_type test_chan_type.cpp)
-#svc_target(record_chan_type GOLDEN record_chan_type.sv)
+## Record as channel type
+add_executable(record_chan_type_meth test_chan_type_meth.cpp)
+svc_target(record_chan_type_meth GOLDEN record_chan_type_meth.sv)
+
+add_executable(record_chan_type_thrd test_chan_type_thrd.cpp)
+svc_target(record_chan_type_thrd GOLDEN record_chan_type_thrd.sv)
+
+add_executable(record_chan_type_misc test_chan_type_misc.cpp)
+svc_target(record_chan_type_misc GOLDEN record_chan_type_misc.sv)
+
+add_executable(record_use_def test_use_def.cpp)
+svc_target(record_use_def GOLDEN record_use_def.sv)
 

@@ -177,7 +177,12 @@ public:
     void parseExpr(clang::CXXDefaultArgExpr* expr, SValue& val) override;
 
     /// Used for default initializer in constructor or in aggregate initialization
+    /// T{}
     void parseExpr(clang::InitListExpr* expr, SValue& val) override;
+    
+    /// Used for construction temporary record object 
+    /// T()
+    void parseExpr(clang::CXXTemporaryObjectExpr* expr, SValue& val) override;
     
     /// CXX constructor, including @sc_port/@sc_signal
     void parseExpr(clang::CXXConstructExpr* expr, SValue& val) override;
@@ -212,7 +217,6 @@ public:
                        SValue& val, clang::Expr* initExpr) override;
     
     /// Parse field declaration without initialization to put into codeWriter, 
-    /// used in createRecordCopy
     /// \param lfvar -- field variable
     void parseFieldDecl(clang::ValueDecl* decl, const SValue& lfvar) override;
 
@@ -232,7 +236,8 @@ public:
     void parseUnaryStmt(clang::UnaryOperator* stmt, SValue& val) override;
     
     /// Operator call expression
-    void parseOperatorCall(clang::CXXOperatorCallExpr* expr, SValue& val) override;
+    void parseOperatorCall(clang::CXXOperatorCallExpr* expr, SValue& tval,
+                           SValue& val) override;
 
     /// Member function call expression
     void parseMemberCall(clang::CXXMemberCallExpr* expr, SValue& tval,

@@ -280,8 +280,7 @@ protected:
 
     /// Make literal term string in sized form if required
     /// \param addNegBrackets -- add brackets for negative literal
-    std::string makeLiteralStr(const clang::Stmt* stmt,
-                               const std::string& literStr, char radix,
+    std::string makeLiteralStr(const std::string& literStr, char radix,
                                unsigned minCastWidth, unsigned lastCastWidth,
                                CastSign castSign, bool addNegBrackets);
     
@@ -302,8 +301,7 @@ protected:
                                             bool doSignCast = false,
                                             bool doConcat = false);
 public:
-    static std::string makeLiteralStr(const clang::Stmt* stmt, 
-                                llvm::APSInt val, char radix, 
+    static std::string makeLiteralStr(llvm::APSInt val, char radix, 
                                 unsigned minCastWidth, unsigned lastCastWidth,
                                 CastSign castSign, bool addNegBrackets);
     
@@ -425,7 +423,8 @@ public:
     
     /// Put string of @init statement to use instead of the reference variable
     /// Used for any non-constant reference 
-    void storeRefVarDecl(const SValue& val, const clang::Expr* init);
+    void storeRefVarDecl(const SValue& val, const clang::Expr* init,
+                         bool checkNoTerms = true);
 
     /// Put local reference variable (non-array) declaration with initialization
     /// Used for rval temporary variable with constant reference value only
@@ -489,15 +488,23 @@ public:
     void putAssign(const clang::Stmt* stmt, const SValue& lval, 
                    const clang::Expr* rhs);
     
-    /// Assignment for record variable (record copy)
-    /// \param lvar & lrec -- LHS record variable and record value
-    /// \param rvar & rrec -- RHS record variable and record value
+    /// Assignment record variable (record copy)
+    /// \param lvar & lrec -- LHS variable and record/record channel value
+    /// \param rrec        -- RHS record value
     /// \param lrecSuffix & rrecSuffix -- LHS an RHS record indices suffix
+    /// \param chanRecType -- LHS record type for record channel, none for other
     void putRecordAssign(const clang::Stmt* stmt, 
-                         const SValue& lvar, const SValue& lrec, 
-                         const SValue& rvar, const SValue& rrec,
+                         const SValue& lvar, const SValue& lrec, const SValue& rrec,
                          const std::string& lrecSuffix,
-                         const std::string& rrecSuffix);
+                         const std::string& rrecSuffix,
+                         llvm::Optional<clang::QualType> lchanRecType);
+    
+    /// Assignment record variable with temporary record object (T{}, T())
+    void putRecordAssignTemp(const clang::Stmt* stmt, 
+                         const SValue& lvar, const SValue& lrec, const SValue& rrec,
+                         const std::string& lrecSuffix,
+                         llvm::Optional<clang::QualType> lchanRecType,
+                         const ScState* state);
     
     /// Put array element initialization, used for array initializer list for 
     /// local variable

@@ -340,10 +340,14 @@ protected:
     
     /// Function call expression
     void parseCall(clang::CallExpr* expr, SValue& val) override;
-
+    
     /// Member function call expression
     void parseMemberCall(clang::CXXMemberCallExpr* expr, SValue& tval, 
                          SValue& val) override;
+    
+    /// Operator call expression
+    void parseOperatorCall(clang::CXXOperatorCallExpr* expr, SValue& tval,
+                           SValue& val) override;
     
     /// Choose and run DFS step in accordance with expression type.
     /// Remove sub-statements from generator
@@ -427,6 +431,10 @@ public:
     void setMainLoopStmt(const clang::Stmt* stmt) {
         mainLoopStmt = stmt;
     }
+    
+    /// Report error for lack/extra sensitive to SS channels
+    void reportSctChannel(sc_elab::ProcessView procView,
+                          const clang::FunctionDecl* funcDecl);
     
 protected:
     /// CFG fabric singleton
@@ -518,6 +526,11 @@ protected:
     std::unordered_set<const clang::FunctionDecl*>  hasWaitFuncs;
 
  public:    
+    /// SS channels used in the process, should be in sensitivity list
+    std::unordered_set<sc_elab::ObjectView> usedSctChannels;
+    /// SS targets with FIFO inside, should be skipped as FIFO used in sensitivity 
+    std::unordered_set<sc_elab::ObjectView> skipSctTargets;
+
     /// Normal statements, terminators, assertions, wait calls
     std::unordered_set<const clang::Stmt*> statStmts;
     std::unordered_set<const clang::Stmt*> statTerms;

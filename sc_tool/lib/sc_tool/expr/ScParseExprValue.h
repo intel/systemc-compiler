@@ -171,8 +171,13 @@ protected:
     void parseExpr(clang::CXXDefaultInitExpr* expr, SValue& val) override;
 
     /// Used for default initializer in constructor or in aggregate initialization
+    /// T{}
     void parseExpr(clang::InitListExpr* expr, SValue& val) override;
     
+    /// Used for construction temporary record object 
+    /// T()
+    void parseExpr(clang::CXXTemporaryObjectExpr* expr, SValue& val) override;
+
     /// CXX constructor
     void parseExpr(clang::CXXConstructExpr* expr, SValue& val) override;
 
@@ -223,15 +228,16 @@ protected:
     /// Function call expression
     void parseCall(clang::CallExpr* expr, SValue& returnVal) override;
 
-    /// Operator call expression
-    void parseOperatorCall(clang::CXXOperatorCallExpr* expr, SValue& val) override;
-
     /// Member function call expression, used for general function call
     /// This method is override for module/port/signal/clock special methods
     /// \param tval -- this value for user method
     /// \param val -- evaluated value/return value for user method
     void parseMemberCall(clang::CXXMemberCallExpr* callExpr, SValue& tval,
                          SValue& val) override;
+
+    /// Operator call expression
+    void parseOperatorCall(clang::CXXOperatorCallExpr* expr, SValue& tval,
+                           SValue& val) override;
 
     /// Return statement
     void parseReturnStmt(clang::ReturnStmt* stmt, SValue& val) override;

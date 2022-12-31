@@ -200,6 +200,8 @@ public:
     /// Result: ( MOD.x.y[0].z[0].bob , (2,3) )
     ArrayElemObjWithIndices getAsArrayElementWithIndicies() const;
     ArrayElemObjWithIndices getAsArrayElementWithIndicies(PortView port) const;
+    /// The same as previous but return PortView
+    PortView getPortBound(PortView port) const;
 
     /// If Object is pointer or reference, recursively deferefence it
     /// at return pointee object
@@ -513,7 +515,8 @@ public:
     bool isScThread() const;
     bool isScCThread() const;
 
-    //bool isCombinational() const;
+    // Check if method is combinational or sequential
+    bool isCombinational() const;
     
     void setHasLatch() { hasLatch = true; }
     bool getHasLatch() const { return hasLatch; }

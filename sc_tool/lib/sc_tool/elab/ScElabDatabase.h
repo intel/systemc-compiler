@@ -68,6 +68,14 @@ public:
     sc_elab::ObjectView createStaticVariable(RecordView parent,
                                              const clang::VarDecl *varDecl);
  
+    // Add/check ports already bound, used for cross module bound via dynamic signal
+    void addBoundPort(ObjectView port) {
+        boundPorts.insert(port);
+    }
+    bool isPortBound(ObjectView port) {
+        return boundPorts.count(port);
+    }
+
     void dump() const;
 
 private:
@@ -108,6 +116,8 @@ private:
     // Generated Verilog modules in specific representation
     std::list<VerilogModule> verilogMods;
     std::unordered_map<ModuleMIFView, VerilogModule *> verModMap;
+    // Ports already bound, used for cross module bound via dynamic signal
+    std::unordered_set<ObjectView> boundPorts;
 };
 
 }  // namespace sc_elab

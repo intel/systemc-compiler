@@ -91,7 +91,7 @@ public:
 
         SC_METHOD(func_call_params); sensitive << dummy;
         SC_METHOD(child_record_call); sensitive << dummy;
-        SC_METHOD(port_access_call); sensitive << a << c;
+        SC_METHOD(port_access_call); sensitive << a << c << s1[1];
         SC_METHOD(included_func_calls); sensitive << a;
         SC_METHOD(multiple_returns); sensitive << dummy;
         SC_METHOD(return_in_loop); sensitive << dummy;
@@ -298,10 +298,11 @@ public:
     // Function call with port access
     void port_access_call() {
         bool b1;
+        int i = s1[1].read();
         // Port access no parameters
         f6();
         // Port passed by reference
-        b1 = f7(c);
+        b1 = f7(c) + i;
         
         // Port access in child module
         struct_c.f3(3);

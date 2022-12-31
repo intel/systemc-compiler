@@ -10,7 +10,7 @@
 
 using namespace sc_core;
 
-// Record with array member copy 
+// Record with array member copy, array of record with array inside
 class A : public sc_module {
 public:
     sc_in_clk           clk{"clk"};
@@ -31,8 +31,11 @@ public:
         //SC_METHOD(loc_rec_rec_meth);
         //sensitive << s;
 
+        SC_METHOD(loc_arr_rec_arr_meth);
+        sensitive << s;
+        
         // TODO: Fix me, #127
-        //SC_METHOD(loc_arr_rec_meth);
+        //SC_METHOD(loc_rec_arr_rec_meth);
         //sensitive << s;
         
         SC_METHOD(glob_rec_meth);
@@ -78,7 +81,11 @@ public:
     void loc_rec_meth() 
     {
         ArrRec ar;
-        //ar.b[0] = 1; ar.b[1] = 2; ar.b[2] = 4;
+        ar.b[0] = 1; ar.b[1] = 2; ar.b[2] = 4;
+        int i = s.read();
+        ar.b[i] = i;
+        i = ar.b[i+1] + 1;
+        
         ArrRec br(ar);
         
 //        sct_assert_const(br.b[0] == 1);
@@ -97,8 +104,18 @@ public:
         sct_assert_const(brr.rec.b[2] == 4);
     }
 
+    void loc_arr_rec_arr_meth() 
+    {
+        ArrRec ar[2];
+        int i = s.read();
+        int j = s.read()+1;
+        ar[1].b[0] = 1; 
+        ar[i].b[j] = 2; 
+        j = ar[i+1].b[j-1] + ar[i].b[1];
+    }
+    
     // #127, incorrect state for @aar declaration, no array in record in state
-    void loc_arr_rec_meth() 
+    void loc_rec_arr_rec_meth() 
     {
         ArrRecArrRec aar;
         aar.rec[0].b[0] = 3; //aar.rec[1].b[1] = 5; aar.rec[0].b[2] = 7;

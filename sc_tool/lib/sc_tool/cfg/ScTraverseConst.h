@@ -314,6 +314,10 @@ protected:
     void parseMemberCall(clang::CXXMemberCallExpr* expr, SValue& tval,
                          SValue& val) override;
     
+    /// Operator call expression
+    void parseOperatorCall(clang::CXXOperatorCallExpr* expr, SValue& tval,
+                           SValue& val) override;
+    
     /// Choose and run DFS step in accordance with expression type.
     /// Remove sub-statements from generator
     void chooseExprMethod(clang::Stmt *stmt, SValue &val) override;

@@ -72,12 +72,13 @@ void ScParseExpr::assignValueInState(const SValue &lval, const SValue &rval,
 {
     using std::cout; using std::endl;
     //cout << "assignValueInState " << lval << " = " << rval << endl;
+    // Can be applied for records as well
     
     if (rval.isInteger() || rval.isScChannel() || rval.isRecord() || 
         rval.isUnknown()) {
         // If @rval is integer/SC object/NO_VALUE put it as value
         state->putValue(lval, rval);
-
+        
     } else 
     if (rval.isVariable() || rval.isTmpVariable() || rval.isObject()) {
         // Check @lval is reference and it is initialized
@@ -89,7 +90,7 @@ void ScParseExpr::assignValueInState(const SValue &lval, const SValue &rval,
             state->getValue(rval, rrval, true, returnUnknown);   // reference considered inside
             //cout << "   rrval " << rrval << endl;
             state->putValue(lval, rrval);
-
+            
         } else {
             // @lval reference initialization with @rval`s variable
             SValue rrval;
@@ -97,6 +98,56 @@ void ScParseExpr::assignValueInState(const SValue &lval, const SValue &rval,
             state->getDerefVariable(rval, rrval);
             state->putValue(lval, rrval, false);
         }
+    }
+}
+
+// \param @lval -- record variable
+void ScParseExpr::assignRecValueInState(const SValue &lval, const SValue &rval,
+                                        ArrayUnkwnMode returnUnknown)
+{
+    using std::cout; using std::endl;
+    //cout << "assignRecValueInState " << lval << " = " << rval << endl;
+
+    // Can be applied for records only
+    QualType type = getDerefType(lval.getType());
+    SCT_TOOL_ASSERT (isUserClass(type), "assignRecValueInState used for non-record");
+    
+    if (rval.isScChannel() || rval.isUnknown()) {
+        // Clear record fields
+        SValue llval;
+        state->getDerefVariable(lval, llval);
+        state->removeIntSubValues(llval, false);
+        
+    } else 
+    if (rval.isRecord()) {
+        // Assign record fields
+        SValue llval;
+        state->getDerefVariable(lval, llval);
+        SValue lrec = state->getValue(llval);
+        copyRecFieldValues(lrec, rval);
+        
+    } else
+    if (rval.isVariable() || rval.isTmpVariable() || rval.isObject()) {
+        // Check @lval is reference and it is initialized
+        SValue llval;
+        if (!lval.isReference() || 
+            state->getValue(lval, llval, false, returnUnknown).first) {
+            // Put @rval value to @lval non-reference/initialized reference
+            SValue rrval;
+            state->getValue(rval, rrval, true, returnUnknown);   // reference considered inside
+            //cout << "   rrval " << rrval << endl;
+            assignRecValueInState(lval, rrval, returnUnknown);
+            
+        } else {
+            // @lval reference initialization with @rval`s variable
+            SValue rrval;
+            // Do @rval de-reference if required
+            state->getDerefVariable(rval, rrval);
+            state->putValue(lval, rrval, false);
+        }
+    } else 
+    if (rval.isInteger()) {
+        SCT_TOOL_ASSERT (false, "Integer to record assignment");
     }
 }
 
@@ -154,36 +205,27 @@ SValue ScParseExpr::getChannelFromState(const SValue &val)
     SValue lval = val;
     while (lval && !lval.isScChannel()) {
         SValue llval = lval;
+        // Set zero offset as only zero elements of multidimensional array
+        // have channel values
+        if (llval.isArray()) llval.getArray().setOffset(0);
         state->getValue(llval, lval, true, ArrayUnkwnMode::amFirstElement);
     }
     if (lval.isScChannel()) {
         //std::cout << "   " << lval << std::endl;
         return lval;
     }
-
-    // Check first element in array if there is no value for given value
-    vector<const ValueDecl*> decls;
-    // Return most bottom array value or NO_VALUE
-    lval = state->findArray(val, 0, decls); 
-    if (lval.isArray()) {
-        lval.getArray().setOffset(0);
-    }
-    while (lval && !lval.isScChannel()) {
-        SValue llval = lval;
-        state->getValue(llval, lval, true, ArrayUnkwnMode::amFirstElement);
-    }
-    //std::cout << "   " << lval << std::endl;
-    
-    return lval;
+    return NO_VALUE;
 }
 
-// Get record/MIF value from the given value
+// Get record/record channel/MIF value from the given value
 SValue ScParseExpr::getRecordFromState(const SValue& val,
                                        ArrayUnkwnMode returnUnknown)
 {
     SValue lval = val;
-    
-    while (lval && !lval.isRecord()) {
+
+    while (lval && !lval.isRecord() && 
+           !((isUserClass(lval.getType(), false) && lval.isScChannel()) || 
+              isUserClassChannel(lval.getType(), false))) {
         SValue llval = lval;
         auto flags = state->getValue(llval, lval, true, returnUnknown);
         // If @getValue() returns array with unknown index exit from loop
@@ -326,6 +368,7 @@ void ScParseExpr::setArrayElement(const clang::QualType &type,
 
 // Parse any declaration, used for module fields and local variables.
 // Create variable value for @decl and put its initial value into state
+// \return <declared value, initialization value(s)>
 std::pair<SValue, std::vector<SValue> > 
         ScParseExpr::parseValueDecl(clang::ValueDecl* decl,
                                     const SValue& declModval, 
@@ -399,7 +442,7 @@ std::pair<SValue, std::vector<SValue> >
             
             // Put field declarations to @localDeclVerilog for zero array element
             for (auto fdecl : recDecl->fields()) {
-                bool isRecord = isUserDefinedClass(fdecl->getType());
+                bool isRecord = isUserClass(fdecl->getType());
 
                 if (!isRecord) {
                     SValue fval(fdecl, zeroRec);
@@ -471,7 +514,7 @@ std::pair<SValue, std::vector<SValue> >
         bool isPtr = type->isPointerType();
         bool isConst = (isRef) ? type.getNonReferenceType().
                         isConstQualified() : type.isConstQualified();
-        bool isRecord = isUserDefinedClass(type);
+        bool isRecord = isUserClass(getDerefType(type));
 
         // Enable record constructor processing in @evalSubExpr
         if (!isRef && !isPtr && isRecord) {
@@ -559,6 +602,7 @@ std::pair<SValue, std::vector<SValue> >
                 // Put pointer value, it needs to get value from @ival here
                 // Use @amArrayUnknown for channel pointer array element at 
                 // unknown index initialized/passed to function
+                // No record can be here
                 assignValueInState(val, iival, ArrayUnkwnMode::amArrayUnknown);
                 
                 // Check argument is array element at unknown index
@@ -588,7 +632,6 @@ std::pair<SValue, std::vector<SValue> >
                 // Put record for record variable, value from @parseRecordCtor replaced
                 assignValueInState(val, ival);
             }
-            
         } else 
         if ((!checkConst || isConst) && iexpr) {
             // Try to evaluate expression as constant, not applied to reference
@@ -672,7 +715,8 @@ void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
         parseExpr(expr, val);
     }
     else if (auto expr = dyn_cast<CXXOperatorCallExpr>(stmt)) {
-        parseOperatorCall(expr, val);
+        SValue tval;
+        parseOperatorCall(expr, tval, val);
     }
     else if (auto expr = dyn_cast<CXXMemberCallExpr>(stmt)) {
         SValue tval;
@@ -691,6 +735,9 @@ void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
         parseExpr(expr, val);
     }
     else if (auto expr = dyn_cast<InitListExpr>(stmt)) {
+        parseExpr(expr, val);
+    }
+    else if (auto expr = dyn_cast<CXXTemporaryObjectExpr>(stmt)) {
         parseExpr(expr, val);
     }
     else if (auto expr = dyn_cast<ImplicitValueInitExpr>(stmt)) {
@@ -907,18 +954,21 @@ void ScParseExpr::parseExpr(clang::MemberExpr* expr, SValue& val)
                              ScDiag::SYNTH_TYPE_NOT_SUPPORTED) << expr->getType();
     }
     
+    //cout << "synmodval " << synmodval << " modval " << modval << " recval " << recval << endl;
+    
     // Get record from variable/dynamic object
     SCT_TOOL_ASSERT (expr->getBase(), "In parseExpr for MemberExpr no base found");
     SValue tval = evalSubExpr(expr->getBase());
     SValue ttval = getRecordFromState(tval, ArrayUnkwnMode::amArrayUnknown);
     
-    //cout << "ScParseExpr::MemberExpr tval = " << tval << ", base->getType() = " 
-    //     << expr->getBase()->getType().getAsString() << endl;
-    //cout << "final ttval = " << ttval << endl;
-    //state->print();
+//    cout << "ScParseExpr::MemberExpr tval = " << tval << ", base->getType() = " 
+//         << expr->getBase()->getType().getAsString() << endl;
+//    cout << "final ttval = " << ttval << endl;
+//    state->print();
     
     // Allowed parent kinds
-    if (!ttval.isArray() && !ttval.isRecord() && !ttval.isVariable()) {
+    if (!ttval.isArray() && !ttval.isRecord() && !ttval.isVariable() && 
+        !ttval.isScChannel()) {
         ScDiag::reportScDiag(expr->getBeginLoc(), 
                              ScDiag::SYNTH_INCORRECT_RECORD) << tval << ttval;
     }
@@ -971,10 +1021,11 @@ void ScParseExpr::parseExpr(clang::CXXThisExpr* expr, SValue& thisPtrVal)
 }
 
 // Create record/module object value and parse its field declarations, 
-// no constructor function call. Used for arrays of record elements
+// no constructor function call. 
 SValue ScParseExpr::createRecValue(const clang::CXXRecordDecl* recDecl, 
                                    const SValue& parent, const SValue& var, 
-                                   bool parseFields, size_t index) 
+                                   bool parseFields, size_t index, 
+                                   bool checkConst) 
 {
     using namespace clang;
     //cout << "createRecValue for var " << var << " index " << index << endl;
@@ -983,7 +1034,7 @@ SValue ScParseExpr::createRecValue(const clang::CXXRecordDecl* recDecl,
     for (auto base : recDecl->bases()) {
         auto type = base.getType();
         SValue bval = createRecValue(type->getAsCXXRecordDecl(), parent, var, 
-                                     parseFields, index);
+                                     parseFields, index, checkConst);
         bases.push_back(bval);
     }
 
@@ -997,7 +1048,7 @@ SValue ScParseExpr::createRecValue(const clang::CXXRecordDecl* recDecl,
     // Fill field values into state, required for array member of record array
     if (parseFields) {
         for (auto fieldDecl : recDecl->fields()) {
-            parseValueDecl(fieldDecl, currec, nullptr);
+            parseValueDecl(fieldDecl, currec, nullptr, checkConst);
         }
     }
     
@@ -1007,46 +1058,64 @@ SValue ScParseExpr::createRecValue(const clang::CXXRecordDecl* recDecl,
     return currec;
 }
 
-// Create record value for copy constructor with creating tuples for its fields 
-// with copied values
-// \return record value
-SValue ScParseExpr::createRecordCopy(CXXConstructExpr* expr, 
-                                     const SValue& val, const SValue& var) 
+// Copy values of record fields from @rval to @lval
+// \param lval -- target record value 
+// \param rval -- source record value
+void ScParseExpr::copyRecFieldValues(const SValue& lval, const SValue& rval) 
 {
-    //cout << "createRecordCopy of " << val << " for var " << var << endl;
-    
-    // Always create local record, copy of global record is local record
-    SValue cval = SValue(val.getType(), val.getRecord().bases, 
-                         val.getRecord().parent, var);
-    state->putValue(var, cval);
-    
-    auto recDecl = val.getType()->getAsCXXRecordDecl();
+    SCT_TOOL_ASSERT (lval.isRecord(), "No record value found");
+    SCT_TOOL_ASSERT (rval.isRecord(), "No record value found");
+    auto recDecl = lval.getType()->getAsCXXRecordDecl();
     
     for (auto fieldDecl : recDecl->fields()) {
         // Get field value of copied record
-        SValue fval(fieldDecl, val);
-        SValue cfval(fieldDecl, cval);
-
+        SValue rfval(fieldDecl, rval);
+        SValue lfval(fieldDecl, lval);
+        
         // Create deep copy of @ffval in state
-        SValue ffval; state->getValue(fval, ffval);
-        SValue cffval = state->copyIntSubValues(ffval, level, cval, cfval);
+        SValue rffval; state->getValue(rfval, rffval);
+        SValue lffval = state->copyIntSubValues(rffval, level, lval, lfval);
         // Put field value for constructed record object
-        state->putValue(cfval, cffval);
+        state->putValue(lfval, lffval);
         // Set level for record fields, no level for record values itself
-        state->setValueLevel(cfval, level);
-        //cout << "   cval " << cval << " lfval " << lfval << endl;
+        state->setValueLevel(lfval, level);
+
+        //cout << "   lfval " << lfval << " lffval " << lffval << endl;
+        //cout << "   rfval " << rfval << " rffval " << rffval << endl;
 
         // Put field into @codeWriter, does nothing in CPA
         if (fieldDecl->getType()->isArrayType()) {
             std::vector<size_t> arrSizes;
-            parseArrayFieldDecl(fieldDecl, cfval, arrSizes);
+            parseArrayFieldDecl(fieldDecl, lfval, arrSizes);
             
         } else {
-            parseFieldDecl(fieldDecl, cfval);
+            parseFieldDecl(fieldDecl, lfval);
         }
     }
+}
+
+// Put record fields declarations into @codeWriter, used in generate code only 
+// Used for copy/move record constructor where records fields must be declared
+void ScParseExpr::declareRecFields(const SValue& lval) 
+{
+    SCT_TOOL_ASSERT (lval.isRecord(), "No record value found");
+    auto recDecl = lval.getType()->getAsCXXRecordDecl();
     
-    return cval;
+    for (auto fieldDecl : recDecl->fields()) {
+        // Get field value of copied record
+        SValue lfval(fieldDecl, lval);
+        // Set level for record fields, no level for record values itself
+        state->setValueLevel(lfval, level);
+
+        // Put field into @codeWriter, does nothing in CPA
+        if (fieldDecl->getType()->isArrayType()) {
+            std::vector<size_t> arrSizes;
+            parseArrayFieldDecl(fieldDecl, lfval, arrSizes);
+            
+        } else {
+            parseFieldDecl(fieldDecl, lfval);
+        }
+    }
 }
 
 // Create record value for normal constructor with its base class constructor 
@@ -1082,6 +1151,7 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
     //cout << "currecvar " << currecvar << ", currec " << currec << endl;
     
     // Current module in @recval required for field initialization
+    //cout << " set recval " << recval << " to " << currec << endl;
     SValue lastRecval(recval); recval = currec;
     
     // Field declarations
@@ -1099,7 +1169,7 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
                                 init->getMember() == fdecl);
         });
         bool hasInit = i != expr->getConstructor()->inits().end();
-        bool isRecord = isUserDefinedClass(fieldDecl->getType());
+        bool isRecord = isUserClass(fieldDecl->getType());
 
         // @init and @stmt can be @nullptr
         auto init = hasInit ? (*i)->getInit() : nullptr;
@@ -1148,8 +1218,10 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
 
     // Restore current module before parse constructor call
     recval = lastRecval;
+    //cout << " restore recval " << recval << endl;
     
-    if (analyzeRecordCtor) {
+    // Do not analyze constructor body for a function parameter
+    if (analyzeRecordCtor && !inFuncParams) {
         // Activate call constructor body as function, parameters already prepared
         prepareCallContext(expr, modval, currec, expr->getConstructor(), NO_VALUE);
         
@@ -1210,7 +1282,7 @@ void ScParseExpr::parseExpr(clang::ImplicitCastExpr *expr, SValue& rval, SValue 
 
         if (ttval.isRecord()) {
             // CXX class type cast
-            if (!isUserDefinedClass(castType)) {
+            if (!isUserClass(getDerefType(castType))) {
                 SCT_TOOL_ASSERT (false, "Derived cast type is not class");
             }
             

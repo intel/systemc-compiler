@@ -279,8 +279,8 @@ add_executable(misc_sc_port4 test_sc_port4.cpp)
 svc_target(misc_sc_port4 GOLDEN misc_sc_port4.sv)
 
 ## Fix me, see #116
-#add_executable(misc_sc_port_array1 test_sc_port_array1.cpp)
-#svc_target(misc_sc_port_array1 GOLDEN misc_sc_port_array1.sv)
+add_executable(misc_sc_port_array1 test_sc_port_array1.cpp)
+svc_target(misc_sc_port_array1 GOLDEN misc_sc_port_array1.sv)
 
 ## Module port array not supported yet
 #add_executable(misc_sc_port_array2 test_sc_port_array2.cpp)
@@ -490,3 +490,6 @@ svc_target(misc_multi_bind_fail WILL_FAIL)
 ## Generate localparam for all non-modified members
 add_executable(misc_localparam test_localparam.cpp)
 svc_target(misc_localparam GOLDEN misc_localparam.sv) 
+
+add_executable(misc_localparam_mif test_localparam_mif.cpp)
+svc_target(misc_localparam_mif GOLDEN misc_localparam_mif.sv) 

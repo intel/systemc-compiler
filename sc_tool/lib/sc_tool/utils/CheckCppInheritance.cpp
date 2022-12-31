@@ -11,6 +11,7 @@
 
 #include "sc_tool/utils/CheckCppInheritance.h"
 #include "sc_tool/utils/ScTypeTraits.h"
+#include "sc_tool/utils/CppTypeTraits.h"
 #include "clang/AST/DeclTemplate.h"
 
 namespace sc {

@@ -86,13 +86,13 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     }
     
     // Preliminary CPA
+    unordered_set<SValue> defVals;
     DebugOptions::suspend();
     auto preState = shared_ptr<ScState>(globalState->clone());
     ScTraverseConst preConst(astCtx, preState, modval, 
                              globalState, &elabDB, nullptr, nullptr, true);
     preConst.run(verMod, methodDecl);
     
-    unordered_set<SValue> defVals;
     for (const auto& sval : preConst.getFinalState()->getDefArrayValues()) {
         defVals.insert(sval);
     }
@@ -102,6 +102,9 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     DebugOptions::resume();
     
     // Main CPA
+    if (DebugOptions::isEnabled(DebugComponent::doModuleBuilder)) {
+        cout << "\n=========================  MAIN CPA =============================\n";
+    }
     auto start = chrono::system_clock::now();
     auto constState = shared_ptr<ScState>(globalState->clone());
     ScTraverseConst travConst(astCtx, constState, modval, 
@@ -150,6 +153,11 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
 
     // Print state after CPA
     //finalState->print();
+//    static int aaa = 1;
+//    if (aaa) {
+//        globalState->print();
+//        aaa = 0;
+//    }
     
     // All the variables used in this method process
     unordered_set<SValue> useVals;
@@ -157,11 +165,6 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         useVals.insert(sval);
     }
     
-//    cout << "------- useVals" << endl;
-//    for (const auto& v : useVals) {
-//        cout << "   " << v << endl;
-//    }
-
     // Do not generate variable declarations for non-zero elements of MIF array
     bool noneZeroElmntMIF = travConst.isNonZeroElmtMIF();
 
@@ -172,6 +175,16 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         defVals.insert(sval);
         useDefVals.insert(sval);
     }
+    
+//    finalState->print();
+//    cout << "------- useVals" << endl;
+//    for (const auto& v : useVals) {
+//        cout << "   " << v << endl;
+//    }
+//    cout << "------- defVals" << endl;
+//    for (const auto& v : defVals) {
+//        cout << "   " << v << endl;
+//    }
 
     // Add read values which are not defined to create local variable 
     // It needs to generate correct code
@@ -195,8 +208,8 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         }
     }
     
-    // Add initialization values for non-modified member variables    
-    initNonDefinedVars(procView, dynmodval, useVals, defVals);
+    // Clear initialization values for modified member variables
+    clearDefinedVars(procView, dynmodval, defVals);
 
     // Report read not initialized warning
     for (const auto& sval : finalState->getReadNotInitValues()) {
@@ -271,9 +284,12 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
 
             auto verVars = verMod->getVerVariables(*elabObj);
             bool isRecord = elabObj->isRecord();
+            bool isRecChan = val.isVariable() && 
+                             val.getVariable().getParent().isScChannel(); 
 
-            // Constant dangling/null pointer and record have no variable
-            if (verVars.empty() && !isNullPtr && !isDanglPtr && !isRecord) {
+            // Constant dangling/null pointer and record/record channel have no variable
+            if (verVars.empty() && !isNullPtr && !isDanglPtr && 
+                                   !isRecord && !isRecChan) {
                 std::string err = "No variable for elaboration object "+
                                   elabObj->getDebugString() + " (1)";
                 if (zeroVal.isVariable()) {
@@ -348,9 +364,12 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
 
             auto verVars = verMod->getVerVariables(*elabObj);
             bool isRecord = elabObj->isRecord();
+            bool isRecChan = val.isVariable() && 
+                             val.getVariable().getParent().isScChannel(); 
 
             // Constant dangling/null pointer and record have no variable
-            if (verVars.empty() && !isNullPtr && !isDanglPtr && !isRecord) {
+            if (verVars.empty() && !isNullPtr && !isDanglPtr && 
+                                   !isRecord && !isRecChan) {
                 std::string err = "No variable for elaboration object "+
                                   elabObj->getDebugString() + " (2)";
                 if (zeroVal.isVariable()) {
@@ -489,15 +508,15 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         procCode.statWaitNum = 0;
     }
     
+    // Report error for lack/extra sensitive to SS channels
+    travProc.reportSctChannel(procView, methodDecl->getAsFunction());
+    
     return procCode;
 }
 
-
-// Add initialization values for non-modified member variables to 
-// generate them as @localparam
-void ScProcAnalyzer::initNonDefinedVars(sc_elab::ProcessView& procView,
+// Clear initialization for variables which has been defined  
+void ScProcAnalyzer::clearDefinedVars(sc_elab::ProcessView& procView,
                                         const SValue& dynmodval,
-                                        const std::unordered_set<SValue>& useVals,
                                         const std::unordered_set<SValue>& defVals)
 {
     using namespace std;
@@ -505,26 +524,9 @@ void ScProcAnalyzer::initNonDefinedVars(sc_elab::ProcessView& procView,
     auto parentModView = procView.getParentModule();
     auto verMod  = elabDB.getVerilogModule(parentModView);
     
-    // Add initialization values for non-modified member variables to 
-    // generate them as @localparam
-    for (const SValue& val : useVals) {
-        // Skip defined variables
-        if (defVals.count(val) != 0) continue;
-        // Skip value if it does not meet member variable conditions
-        if (!ScState::isMemberPrimVar(val, globalState.get())) continue;
-        
-        const SValue& parent = val.getVariable().getParent();
-        bool isMIF = isScModularInterface(parent.getType());
-        bool isMIFArrElm = isMIF && globalState->isArrElem(parent, ScState::MIF_CROSS_NUM);
-        
-        // Skip MIF array elements accessed from parent module @dynmodval
-        if (parent != dynmodval && isMIFArrElm) {
-            continue;
-        }
-        
+    for (const SValue& val : defVals) {
         // Class field must be in this map, no local variables here
         if (auto elabObj = globalState->getElabObject(val)) {
-            //cout << "  elabObj " << elabObj->getDebugString() << endl;
             if (auto elabOwner = elabObj->getVerilogNameOwner()) {
                 elabObj = elabOwner;
             }
@@ -532,22 +534,7 @@ void ScProcAnalyzer::initNonDefinedVars(sc_elab::ProcessView& procView,
             auto verVars = verMod->getVerVariables(*elabObj);
             
             for (auto* verVar : verVars) {
-                if (auto valView = elabObj->primitive()->value()) {
-                    APSIntVec initVals;
-                    bool isSigned = isSignedOrArrayOfSigned(elabObj->getType());
-                    verMod->fillInitVal(initVals, isSigned, *valView);
-                    // Append initialization values into variable
-                    verVar->addInitVals(initVals, val);
-
-//                    cout << "  verVar " << verVar->getName() << endl;
-//                    if (!initVals.empty()) {
-//                        cout << "  add localparam for " << val;
-//                        for (auto& iv : initVals) cout << " " << sc::APSintToString(iv, 10);
-//                        cout << endl;
-//                    } else {
-//                        cout << "  add localparam for EMPTY" << endl;
-//                    }
-                }
+                verVar->clearInitVals();
             }
         }
     }
@@ -643,9 +630,12 @@ std::string ScProcAnalyzer::analyzeSvaProperties(
 
             auto verVars = verMod.getVerVariables(*elabObj);
             bool isRecord = elabObj->isRecord();
+            bool isRecChan = val.isVariable() && 
+                             val.getVariable().getParent().isScChannel(); 
 
             // Constant dangling/null pointer and record have no variable
-            if (verVars.empty() && !isNullPtr && !isDanglPtr && !isRecord) {
+            if (verVars.empty() && !isNullPtr && !isDanglPtr 
+                                && !isRecord && !isRecChan) {
                 std::string err = "No variable for elaboration object "+
                                   elabObj->getDebugString() + " (3)";
                 if (val.isVariable()) {

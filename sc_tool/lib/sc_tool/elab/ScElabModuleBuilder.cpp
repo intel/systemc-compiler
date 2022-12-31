@@ -110,9 +110,12 @@ private:
     std::unordered_map<ObjectView,
                        std::pair<VerilogVar*, VerilogModule*>> boundSigObjs;
     /// Bound signals collection, used to avoid multiple bound to auxiliary
-    // variable if original signal has multiple binds
+    /// variable if original signal has multiple binds
     std::unordered_set<ObjectView> boundSignals;
 
+    // Do initialize values for primitive non-constant variable 
+    bool initVarValues = true;
+    
     bool activeSignal = false;
     bool activePort = false;
 
@@ -427,9 +430,11 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseDFS(ObjectView obj)
 ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseRecord(
                                                         RecordView record)
 {
+    bool lastVarValues = initVarValues;
     FlattenReq flatten = false;
 
     if (record.isModule()) {
+        initVarValues = true;
         flatten = generateVariable(record);
     } else 
     if (record.isSignal()) {
@@ -440,15 +445,19 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseRecord(
         
     } else 
     if (record.isModularInterface()) {
+        initVarValues = true;
         for (auto member : record.moduleMIF()->getAllMembers())
             flatten |= traverseDFS(member);
         
     } else {
         // Plain record
+        // Base class of MIF (which is really MIF) comes here
+        if (!record.isBaseClass()) initVarValues = false;
         for (auto member : record.getMembers())
             flatten |= traverseDFS(member);
     }
 
+    initVarValues = lastVarValues;
     return flatten;
 }
 
@@ -463,7 +472,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseArray(
 {
     //using std::cout; using std::endl;
     //cout << "traverseArray " << arrView.getID() <<endl;
-    
+    bool lastVarValues = initVarValues; 
     bool chanArray = false;
     if (!activeChanArray && arrView.isChannelArray()) {
         chanArray = true;
@@ -490,6 +499,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseArray(
                                          "",
                                          {arrView.size()},
                                          {0}));
+            initVarValues = false;
             flatten = traverseDFS(arrView.at(0));
             nameStack.pop_back();
             
@@ -505,9 +515,9 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseArray(
                 }
             }
         }
-        
     } else {
         // Non-constant integer array
+        initVarValues = false;
         auto dims = arrView.getOptimizedArrayDims();
         std::vector<size_t> ids(dims.size(), 0);
         nameStack.emplace_back(NameNode::ARRAY, "", dims, ids);
@@ -520,6 +530,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseArray(
         chanArrayView = nullptr;
     }
 
+    initVarValues = lastVarValues;
     return flatten;
 }
 
@@ -772,13 +783,13 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
                 bitwidth = childObj.primitive()->value()->bitwidth();
                 
                 curVerMod->fillInitVals(initVals, isSigned, *arrayView);
-                flatten = true;
+                    flatten = true;
                 
             } else {
                 // Non-constant array or std::vector
                 bitwidth = arrayView->getOptimizedArrayBitwidth();
             }
-            
+                
         } else {
             // Primitive
             SCT_TOOL_ASSERT (objView.isPrimitive() && 
@@ -789,13 +800,15 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
             // Check constant pointer to dynamic memory, constant pointer
             // to non-constant variable not considered here
             bool isConstPtr = false;
-            if (valueView->isDynamic()) {
+            bool isDynamic = valueView->isDynamic();
+            if (initVarValues && isDynamic) {
                 for (auto& i : objView.getPointers()) {
                     isConstPtr = isConstPtr || isConstPointer(i.getType());
                 }
             }
             
-            if (valueView->isConstant() || isConstPtr) {
+            bool isConst = valueView->isConstant();
+            if (isConst || (initVarValues && (!isDynamic || isConstPtr))) {
                 curVerMod->fillInitVal(initVals, isSigned, *valueView);
                 flatten = true;
             }
@@ -876,8 +889,9 @@ void ScElabModuleBuilder::createPortBindingsKeepArrays(VerilogModule &verMod)
        
         ArrayElemVec allArrayPorts;
         ArrayElemVec allArrayBinds;
-        if (directBind.isSignal() && directBind.isDynamic() && 
-            directBind.getPointers().size() == 0) {
+        bool boundDynamicSig = directBind.isSignal() && directBind.isDynamic() && 
+                               directBind.getPointers().size() == 0;
+        if (boundDynamicSig) {
             // Port bound to dynamic signal declared as local variable (leaked)
             allArrayPorts = port.getAllSimilarArrayElements();
             for (auto p : directBind.getPorts()) {
@@ -911,7 +925,7 @@ void ScElabModuleBuilder::createPortBindingsKeepArrays(VerilogModule &verMod)
         } else {
             flattenArrayBind(verMod, port, allArrayPorts);
         }
-    }
+    }        
 }
 
 void ScElabModuleBuilder::uniformBind(const PortView &port)
@@ -921,22 +935,30 @@ void ScElabModuleBuilder::uniformBind(const PortView &port)
     auto bindDirection = getBindDirection(port);
 
     for (auto* verVar : verVars) {
-        if (bindDirection == BIND_EXTERNAL) {
-            //cout << "  bind external" << endl;
-            portHostMod->convertToPort(verVar, port.getDirection());
-            
-        } else
-        if (bindDirection == BIND_CROSS || bindDirection == BIND_UP) {
-            //cout << "  bind up/cross" << endl;
+        if (bindDirection == BIND_UP) {  
             if (bindedDynamicPorts.count(port)) {
                 portHostMod->convertToSignal(verVar);
             } else {
                 portHostMod->convertToPort(verVar, port.getDirection());
             }
         } else     
-        if (bindDirection == BIND_DOWN || bindDirection == BIND_SAME) {
-            //cout << "  bind dowm/same" << endl;
+        if (bindDirection == BIND_DOWN) {
             portHostMod->convertToSignal(verVar);
+            
+        } else
+        if (bindDirection == BIND_CROSS) {
+            // Avoid to duplicate port declaration in Verilog module
+            if (!elabDB->isPortBound(port)) {
+                portHostMod->convertToPort(verVar, port.getDirection());
+            }
+        } else     
+        if (bindDirection == BIND_SAME) {
+            portHostMod->convertToSignal(verVar);
+            
+        } else    
+        if (bindDirection == BIND_EXTERNAL) {
+            portHostMod->convertToPort(verVar, port.getDirection());
+            
         }
     }
 
@@ -981,27 +1003,57 @@ void ScElabModuleBuilder::flattenArrayBind( VerilogModule &portHostMod,
             // BIND_DOWN -- bound to port of child module
             // BIND_SAME -- bound to signal in the same module
             VerilogVar *auxVerVar;
-            if (bindDirection == BIND_UP || bindDirection == BIND_CROSS || 
-                bindDirection == BIND_EXTERNAL) {
+            if (bindDirection == BIND_UP) {
+                // Avoid to duplicate port declaration in Verilog module
+                if (!elabDB->isPortBound(portEl)) {
+                    auxVerVar = portHostMod.createAuxilaryPort(
+                                    portEl.getDirection(),
+                                    portArrElName, verVar->getBitwidth(), 
+                                    {}, verVar->isSigned() );
+                }
+            } else 
+            if (bindDirection == BIND_DOWN) {
+                // Add "!elabDB->isPortBound(portEl)" ???
+                auxVerVar = portHostMod.createAuxilarySignal(portArrElName,
+                    verVar->getBitwidth(), {}, verVar->isSigned());
+                    
+            } else 
+            if (bindDirection == BIND_CROSS) {
+                // Avoid to duplicate port declaration in Verilog module
+                if (!elabDB->isPortBound(portEl)) {
+                    auxVerVar = portHostMod.createAuxilaryPort(
+                                    portEl.getDirection(),
+                                    portArrElName, verVar->getBitwidth(), 
+                                    {}, verVar->isSigned() );
+                }
+            } else                 
+            if (bindDirection == BIND_SAME) {
+                // Avoid to duplicate port declaration in Verilog module
+                if (!elabDB->isPortBound(portEl)) {
+                    auxVerVar = portHostMod.createAuxilarySignal(portArrElName,
+                        verVar->getBitwidth(), {}, verVar->isSigned());
+                }
+            } else 
+            if (bindDirection == BIND_EXTERNAL) {
+                // Add "!elabDB->isPortBound(portEl)" ???
                 auxVerVar = portHostMod.createAuxilaryPort(
                                 portEl.getDirection(),
                                 portArrElName, verVar->getBitwidth(), 
                                 {}, verVar->isSigned() );
-            } else 
-            if (bindDirection == BIND_DOWN || bindDirection == BIND_SAME) {
-                auxVerVar = portHostMod.createAuxilarySignal(portArrElName,
-                    verVar->getBitwidth(), {}, verVar->isSigned());
             } else {
                 SCT_TOOL_ASSERT(false, "Incorrect bind direction");
             }
 
             // Assign generated variable to array element, or vice versa
-            if (portEl.isInput()) {
-                portHostMod.addAssignment({verVar, portArrEl.indices}, 
-                                          {auxVerVar, {}});
-            } else {
-                portHostMod.addAssignment({auxVerVar, {}}, 
-                                          {verVar, portArrEl.indices});
+            if (!elabDB->isPortBound(portEl)) {
+                //llvm::outs() << "   Flatten " << verVar->getName() << " " << auxVerVar->getName() << "\n";
+                if (portEl.isInput()) {
+                    portHostMod.addAssignment({verVar, portArrEl.indices}, 
+                                              {auxVerVar, {}});
+                } else {
+                    portHostMod.addAssignment({auxVerVar, {}}, 
+                                              {verVar, portArrEl.indices});
+                }
             }
             portVerVarVec.push_back(auxVerVar);
         }
@@ -1019,17 +1071,8 @@ void ScElabModuleBuilder::bindAux(PortView portEl,
     bool isArrayBind = !portEl.getAsArrayElementWithIndicies().indices.empty();
     bool isUniformArrayBind = isUniformBind && isArrayBind;
 
-//    if (StringRef(verPortVars[0]->getName()).contains("benable")) {
-//        int x;
-//        x++;
-//    }
-
     // Do binding
     switch (bindDirection) {
-        case BIND_SAME:
-            bindPortSameAux(portEl, verPortVars, isUniformArrayBind);
-            break;
-
         case BIND_DOWN:
             bindPortDownAux(portEl, verPortVars, isUniformArrayBind);
             break;
@@ -1042,9 +1085,23 @@ void ScElabModuleBuilder::bindAux(PortView portEl,
             bindPortCrossAux(portEl, verPortVars, isUniformArrayBind);
             break;
 
+        case BIND_SAME:
+            bindPortSameAux(portEl, verPortVars, isUniformArrayBind);
+            break;
+
         case BIND_EXTERNAL:
             bindPortExternalAux(portEl, verPortVars, isUniformArrayBind);
             break;
+    }
+    
+    // Register port bound to dynamically allocated signal to avoid double binding
+    auto directBind = portEl.getDirectBind();
+    bool boundDynamicSig = directBind.isSignal() && directBind.isDynamic() && 
+                           directBind.getPointers().size() == 0;
+    if (boundDynamicSig) {
+        PortView boundPort = directBind.getPortBound(portEl);
+        if (boundPort != portEl) elabDB->addBoundPort(boundPort);
+        //llvm::outs() << "--- addBoundPort " << boundPort << "\n"; 
     }
 }
 
@@ -1115,54 +1172,6 @@ void ScElabModuleBuilder::bindPortUpAux(PortView portEl,
     }
 }
 
-void ScElabModuleBuilder::bindPortSameAux(PortView portEl, 
-                                          const VerilogVarsVec &verPortVars,
-                                          bool isUniformArrayBind)
-{
-    auto bindedObj = portEl.getDirectBind().getAsArrayElementWithIndicies(portEl);
-    IndexVec bindedIndices;
-    if (!isUniformArrayBind) {
-        bindedIndices = bindedObj.indices;
-    }
-    
-    DEBUG_WITH_TYPE(DebugOptions::doPortBind,
-        llvm::outs() << "  bindPortSameAux BIND " << portEl << " to " << bindedObj.obj << "\n";
-    );
-
-    auto* hostVerMod = elabDB->getVerilogModule(bindedObj.obj.getParentModule());
-    auto* portVerMod = elabDB->getVerilogModule(portEl.getParentModule());
-    //cout << "hostVerMod " << hostVerMod->getName() << endl;
-    
-    auto bindedVerVars = hostVerMod->getVerVariables(bindedObj.obj);
-    bool isPortInMIF = portEl.getParentModuleOrMIF().isModularInterface();
-    bool isIntrinsic = hostVerMod->isIntrinsic();
-
-    if (bindedObj.obj.isSignal() && !isPortInMIF && !isIntrinsic) {
-        ScDiag::reportScDiag(ScDiag::SC_PORT_BOUND_SIGNAL_SAME, false) << 
-                             portEl.getSCName();
-    }
-    
-    SCT_TOOL_ASSERT (bindedVerVars.size() != 0, "No bind port variable found");
-    SCT_TOOL_ASSERT (verPortVars.size() != 0, "No port variable found");
-    SCT_TOOL_ASSERT (bindedVerVars.size() == verPortVars.size(), 
-                     "Different sizes of bind and target port variables");
-
-    // Check port variable and bound variable are in the same module
-    // Do not assign variables belongs to different modules, required for target/initiator
-    if (*portVerMod == *hostVerMod) {
-        for (size_t i = 0; i < verPortVars.size(); ++i) {
-            if (portEl.isInput()) {
-                hostVerMod->addAssignment({verPortVars[i], {}},
-                                     {bindedVerVars[i], bindedIndices});
-            }
-            else if (portEl.isOutput()) {
-                hostVerMod->addAssignment({bindedVerVars[i], bindedIndices},
-                                     {verPortVars[i], {}});
-            }
-        }
-    }
-}
-
 void ScElabModuleBuilder::bindPortDownAux(PortView portEl,
                                           const VerilogVarsVec &verPortVars,
                                           bool isUniformArrayBind)
@@ -1191,7 +1200,8 @@ void ScElabModuleBuilder::bindPortDownAux(PortView portEl,
         VerilogModule *instVerMod = elabDB->getVerilogModule(instModView);
         VerilogModule *hostVerMod = elabDB->getVerilogModule(bindedParentMods[i-1]);
         VerilogModuleInstance *instance = hostVerMod->getInstance(instModView);
-
+        //llvm::outs() << "   Module " << instVerMod->getName() << "\n";
+        
         // Create virtual ports inside instance module
         auto sigVars = instVerMod->getVerVariables(bindedObj.obj);
         auto instPortIter = sigVars.begin();
@@ -1232,11 +1242,9 @@ void ScElabModuleBuilder::bindPortDownAux(PortView portEl,
             SCT_TOOL_ASSERT (bindedVerVars.size() == instanceVars.size(), "");
 
             for (size_t i = 0; i < bindedVerVars.size(); i++) {
-
                 if (portEl.getDirection() == PortDirection::IN) {
                     instVerMod->addAssignment({instanceVars[i]}, { bindedVerVars[i], indexes});
-                }
-                else {
+                } else {
                     instVerMod->addAssignment({bindedVerVars[i], indexes}, {instanceVars[i]});
                 }
             }
@@ -1248,6 +1256,65 @@ void ScElabModuleBuilder::bindPortDownAux(PortView portEl,
     }
 }
 
+void ScElabModuleBuilder::bindPortSameAux(PortView portEl, 
+                                          const VerilogVarsVec &verPortVars,
+                                          bool isUniformArrayBind)
+{
+    auto bindedObj = portEl.getDirectBind().getAsArrayElementWithIndicies(portEl);
+    IndexVec bindedIndices;
+    if (!isUniformArrayBind) {
+        bindedIndices = bindedObj.indices;
+    }
+    
+    DEBUG_WITH_TYPE(DebugOptions::doPortBind,
+        llvm::outs() << "  bindPortSameAux BIND " << portEl << " to " << bindedObj.obj << "\n";
+    );
+
+    auto directBind = portEl.getDirectBind();
+    bool boundDynamicSig = directBind.isSignal() && directBind.isDynamic() && 
+                           directBind.getPointers().size() == 0;
+    // Avoid to binding port already cross-bound to another port via dynamic signal
+    if (boundDynamicSig) {
+        if (elabDB->isPortBound(portEl)) {
+            //llvm::outs() << "--- isPortBound " << portEl << "\n"; 
+            return;
+        }
+    }
+    
+    auto* hostVerMod = elabDB->getVerilogModule(bindedObj.obj.getParentModule());
+    auto* portVerMod = elabDB->getVerilogModule(portEl.getParentModule());
+    //cout << "hostVerMod " << hostVerMod->getName() << endl;
+    
+    auto bindedVerVars = hostVerMod->getVerVariables(bindedObj.obj);
+    bool isPortInMIF = portEl.getParentModuleOrMIF().isModularInterface();
+    bool isIntrinsic = hostVerMod->isIntrinsic();
+
+    if (bindedObj.obj.isSignal() && !isPortInMIF && !isIntrinsic) {
+        ScDiag::reportScDiag(ScDiag::SC_PORT_BOUND_SIGNAL_SAME, false) << 
+                             portEl.getSCName();
+    }
+    
+    SCT_TOOL_ASSERT (bindedVerVars.size() != 0, "No bind port variable found");
+    SCT_TOOL_ASSERT (verPortVars.size() != 0, "No port variable found");
+    SCT_TOOL_ASSERT (bindedVerVars.size() == verPortVars.size(), 
+                     "Different sizes of bind and target port variables");
+
+    // Check port variable and bound variable are in the same module
+    // Do not assign variables belongs to different modules, required for target/initiator
+    if (*portVerMod == *hostVerMod) {
+        for (size_t i = 0; i < verPortVars.size(); ++i) {
+            if (portEl.isInput()) {
+                hostVerMod->addAssignment({verPortVars[i], {}},
+                                     {bindedVerVars[i], bindedIndices});
+            }
+            else if (portEl.isOutput()) {
+                hostVerMod->addAssignment({bindedVerVars[i], bindedIndices},
+                                     {verPortVars[i], {}});
+            }
+        }
+    }
+}
+
 void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
                                            const VerilogVarsVec &verPortVars, 
                                            bool isUniformArrayBind) 
@@ -1255,10 +1322,21 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
     // First bind up to common Parent, then bind down to bindedObj
     auto bindedObj = portEl.getDirectBind().getAsArrayElementWithIndicies(portEl);
     ModuleMIFView commonParentMod = portEl.nearestCommonParentModule(bindedObj.obj);
-    
+
     DEBUG_WITH_TYPE(DebugOptions::doPortBind,
         llvm::outs() << "  bindPortCrossAux BIND " << portEl << " to " << bindedObj.obj << "\n";
     );
+    
+    auto directBind = portEl.getDirectBind();
+    bool boundDynamicSig = directBind.isSignal() && directBind.isDynamic() && 
+                           directBind.getPointers().size() == 0;
+    // Avoid to binding port already cross-bound to another port via dynamic signal
+    if (boundDynamicSig) {
+        if (elabDB->isPortBound(portEl)) {
+            //llvm::outs() << "--- isPortBound " << portEl << "\n"; 
+            return;
+        }
+    }
 
     VerilogVarsVec hostVars;
     VerilogVarsVec instanceVars = verPortVars;
@@ -1277,9 +1355,9 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
             hostVars.clear();
 
             ModuleMIFView instanceModObj = bindUpParentMods.at(i);
-
-            VerilogModule *hostVerMod = elabDB->getVerilogModule(bindUpParentMods.at(i - 1));
-            VerilogModuleInstance *instance = hostVerMod->getInstance(instanceModObj);
+            
+            auto hostVerMod = elabDB->getVerilogModule(bindUpParentMods.at(i-1));
+            auto instance = hostVerMod->getInstance(instanceModObj);
 
             // We need to create auxiliary ports in all host modules,
             // in a topmost module we create an auxiliary signal instead of port
@@ -1361,7 +1439,7 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
         bindSigVar = boundSignals.insert(bindedObj.obj).second;
     }
 
-        // Bind DOWN
+    // Bind DOWN
     if (bindSigVar) {
         auto bindDownParentMods = bindedObj.obj.
                                   getParentModulesList(commonParentMod);
@@ -1393,7 +1471,7 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
                                    bottomDirection, verVar);
                     instanceVars.push_back(sigVar);
                 }
-
+                
             } else {
                 // In normal mode module port with bound port name and 
                 // auxiliary variable in signal module created
@@ -1445,7 +1523,6 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
                 SCT_TOOL_ASSERT (bindedVerVars.size() == instanceVars.size(), "");
 
                 for (size_t i = 0; i < bindedVerVars.size(); i++) {
-
                     if (portEl.getDirection() == PortDirection::IN) {
                         instVerMod->addAssignment({instanceVars[i]}, 
                                                   {bindedVerVars[i], indexes});

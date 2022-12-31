@@ -314,6 +314,9 @@ void ScTraverseConst::prepareCallContext(Expr* expr,
 //         << ", calledFuncs.size = " << calledFuncs.size() << " retVal " 
 //         << retVal << endl;
 
+    SCT_TOOL_ASSERT (!inFuncParams, 
+                     "Function call or constructor in another call parameter");
+    
     // Store return value for the call expression to replace where it used
     auto i = calledFuncs.emplace(expr, retVal);
     if (!i.second) {
@@ -511,8 +514,8 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
     SValue retVal = val;
         
     // Get method
-    FunctionDecl* funcDecl = expr->getMethodDecl()->getAsFunction();
-    string fname = funcDecl->getNameAsString();
+    FunctionDecl* methodDecl = expr->getMethodDecl()->getAsFunction();
+    string fname = methodDecl->getNameAsString();
     
     // Get @this expression and its type
     Expr* thisExpr = expr->getImplicitObjectArgument();
@@ -586,7 +589,7 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         SValue funcModval = ttval;
 
         // Get best virtual function and its dynamic class for @funcDecl
-        if (funcDecl->isVirtualAsWritten() && !hasClassCast) {
+        if (methodDecl->isVirtualAsWritten() && !hasClassCast) {
 //            if (!dyntval.isRecord()) {
 //                //funcDecl->getSourceRange().getBegin().dump(sm);
 //                thisExpr->dumpColor();
@@ -601,13 +604,13 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             // Get dynamic class for member record
             state->getMostDerivedClass(ttval, dyntval);
             // Get best virtual function for dynamic class
-            auto virtPair = getVirtualFunc(dyntval, funcDecl);
+            auto virtPair = getVirtualFunc(dyntval, methodDecl);
             funcModval = virtPair.first;
-            funcDecl = virtPair.second;
+            methodDecl = virtPair.second;
         }
 
         // Check function is not pure
-        if (funcDecl->isPure()) {
+        if (methodDecl->isPure()) {
             ScDiag::reportScDiag(expr->getSourceRange().getBegin(), 
                                  ScDiag::CPP_PURE_FUNC_CALL) << fname;
             // Pure function call leads to SIGSEGV in cfg->dump(), 
@@ -632,9 +635,87 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         }
         
         // Generate function parameter assignments
-        prepareCallParams(expr, fval, funcDecl);
+        prepareCallParams(expr, fval, methodDecl);
         // Register return value and prepare @lastContext
-        prepareCallContext(expr, fval, NO_VALUE, funcDecl, retVal);
+        prepareCallContext(expr, fval, NO_VALUE, methodDecl, retVal);
+        // Return value variable has call point level
+        state->setValueLevel(retVal, level);
+    }
+}
+
+// Operator call expression
+void ScTraverseConst::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
+                                        SValue& val) 
+{
+    // @this value for user function
+    ScParseExprValue::parseOperatorCall(expr, tval, val);
+        
+    // Get operator method
+    FunctionDecl* methodDecl = expr->getCalleeDecl()->getAsFunction();
+    string fname = methodDecl->getNameAsString();
+    
+    OverloadedOperatorKind opcode = expr->getOperator();
+    bool isAssignOperator = expr->isAssignmentOp() && opcode == OO_Equal;
+    bool isSctChan = isAssignOperatorSupported(tval.getType());
+    
+    if (isAssignOperator && isSctChan) {
+        // Operator call in sct namespace
+        // No user-define method call in constant evaluation mode
+        if (evaluateConstMode) {
+            return;
+        }
+        
+        // Return value passed in @val
+        SValue retVal = val;
+        
+        if (DebugOptions::isEnabled(DebugComponent::doConstFuncCall)) {
+            cout << "-------------------------------------" << endl;
+            cout << "| Build CFG for OPERATOR : " << fname << " (" 
+                 << expr->getBeginLoc().printToString(sm) 
+                 << " retVal " << retVal << ") |" << endl;
+            cout << "-------------------------------------" << endl;
+        }
+        
+        // Get record from variable/dynamic object
+        SValue ttval = getRecordFromState(tval, ArrayUnkwnMode::amFirstElement);
+        
+        // Allowed parent kinds
+        if (!ttval.isArray() && !ttval.isRecord() && !ttval.isVariable()) {
+            ScDiag::reportScDiag(expr->getSourceRange().getBegin(),
+                                 ScDiag::SYNTH_INCORRECT_RECORD) << tval << ttval;
+            ttval = NO_VALUE;
+        }
+
+        // Get dynamic class for member record
+        SValue dyntval = ttval; 
+        // @modval for called function analysis
+        SValue funcModval = ttval;
+
+        // Virtual operators not supported
+        if (methodDecl->isVirtualAsWritten()) {
+            SCT_INTERNAL_ERROR(expr->getBeginLoc(), "No virtual operator supported");
+        }
+
+        // Check for array access at unknown index
+        bool unkwIndex;
+        bool isArr = state->isArray(tval, unkwIndex);
+        // @tval can be field or array element
+        isArr = isArr || state->getBottomArrayForAny(tval, unkwIndex);
+
+        // Use array element with unknown index as module value to clear
+        // array elements accessed in called function
+        SValue fval = (isArr && unkwIndex) ? tval : funcModval;
+        
+        if (DebugOptions::isEnabled(DebugComponent::doConstFuncCall)) {
+            cout << "Function call this class value " << ttval
+                 << ", dynamic class value " << dyntval
+                << ", funcModval " << fval << endl;
+        }
+        
+        // Generate function parameter assignments
+        prepareCallParams(expr, fval, methodDecl);
+        // Register return value and prepare @lastContext
+        prepareCallContext(expr, fval, NO_VALUE, methodDecl, retVal);
         // Return value variable has call point level
         state->setValueLevel(retVal, level);
     }
@@ -794,8 +875,9 @@ void ScTraverseConst::removeUnusedStmt()
             if (sc::isPointer(type) || 
                 sc::isScChannel(type) || 
                 sc::isScChannelArray(type) ||
-                sc::isUserDefinedClass(type, true) ||
-                sc::isUserDefinedClassArray(type, true)) {++i; continue;}
+                sc::isUserClass(getDerefType(type), true) ||
+                sc::isUserDefinedClassArray(getDerefType(type), true)) 
+            {++i; continue;}
             
             // Skip used value
             if (useVarStmts.count(i->first)) {++i; continue;}
@@ -1044,8 +1126,8 @@ void ScTraverseConst::run()
                     // Get(create) CFG for function and setup next block
                     cfg = cfgFabric->get(funcDecl);
                     if (!cfg) {
-                        SCT_INTERNAL_ERROR(currStmt->getBeginLoc(), 
-                                           "Function CFG is null");
+                        SCT_INTERNAL_FATAL(currStmt->getBeginLoc(), 
+                            "No function body found, probably STL function");
                     }
                     block = AdjBlock(&cfg->getEntry(), true);
                     prevBlock = block;
@@ -1196,10 +1278,20 @@ void ScTraverseConst::run()
 
             auto i = termConds.emplace(callStack, termCondValue);
             if (!i.second) {
-                if (i.first->second != termCondValue) {
-                    i.first->second = NO_VALUE;
+                SValue& curVal = i.first->second;
+                if (curVal.isInteger() && termCondValue.isInteger()) {
+                    // Compare integer values only, no width/signess considered 
+                    if (!APSInt::isSameValue(curVal.getInteger(), 
+                                             termCondValue.getInteger())) {
+                        curVal = NO_VALUE;
+                    }
+                } else {
+                    if (curVal != termCondValue) {
+                        curVal = NO_VALUE;
+                    }
                 }
             }
+
             //cout << "putTermConds " << hex << term << " stackSize " << callStack.size()  
             //     << " val " << termCondValue << dec << endl;
             

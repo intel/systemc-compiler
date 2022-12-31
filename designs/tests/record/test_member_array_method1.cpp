@@ -52,13 +52,13 @@ public:
     }
     
     struct Rec {
-        bool        a;
-        sc_uint<4>  b;
+        bool        a = 0;
+        sc_uint<4>  b = 0;
     };
     
     struct ArrRec {
-        bool        a[3];
-        sc_uint<4>  b[3];
+        bool        a[3] = {};
+        sc_uint<4>  b[3] = {};
 
         void setA(bool par, int i) {
             a[i] = par;

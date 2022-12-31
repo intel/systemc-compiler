@@ -147,6 +147,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     bool hasReset = !procView.resets().empty();
 
     // Preliminary CPA
+    std::unordered_set<SValue> defVals;
     DebugOptions::suspend();
     auto preState = std::shared_ptr<ScState>(globalState->clone());
     ScTraverseConst preConst(astCtx, preState, modSval, 
@@ -155,7 +156,6 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     preConst.setHasReset(hasReset);
     preConst.run(verMod, entryFuncDecl);
     
-    std::unordered_set<SValue> defVals;
     for (const auto& entry : preConst.getWaitStates()) {
         for (const auto& sval : entry.second.getDefArrayValues()) {
             defVals.insert(sval);
@@ -220,8 +220,10 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
         analyzeUseDefResults(&entry.second, useVals, defVals);
     }
     
-    // Add initialization values for non-modified member variables
-    auto memInitVals = initNonDefinedVars(useVals, defVals);
+    // Clear initialization values for modified member variables
+    clearDefinedVars(defVals);
+    // Get non-modified member variables to avoid error reporting
+    auto memInitVals = getInitNonDefinedVars(useVals, defVals);
     
     // Report read not initialized warning
     auto notInitReport = [&](const InsertionOrderSet<SValue>& values, 
@@ -346,6 +348,9 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
         procCode.statAsrtNum = travProc->statAsrts.size();
         procCode.statWaitNum = travProc->statWaits.size();
     }
+
+    // Report error for lack/extra sensitive to SS channels
+    travProc->reportSctChannel(procView, entryFuncDecl);
     
     return procCode;
 }
@@ -525,7 +530,7 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
     std::string tempRstAsserts = ssr.str();
     std::stringstream ss;
     travProc->printTemporalAsserts(ss, false);
-    std::string tempAsserts = tempRstAsserts + ss.str();
+    std::string tempAsserts = ss.str();
     
     //std::cout << "Temporal asserts in proc:\n" << tempAsserts << std::endl;
 
@@ -760,37 +765,21 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState,
     }*/
 }
 
-// Add initialization values for non-modified member variables to 
-// generate them as @localparam
+// Get initialized variables to skip report read-no-initialized error
 std::unordered_set<SValue>
-ThreadBuilder::initNonDefinedVars(const std::unordered_set<SValue>& useVals,
-                                  const std::unordered_set<SValue>& defVals)
+ThreadBuilder::getInitNonDefinedVars(const std::unordered_set<SValue>& useVals,
+                                     const std::unordered_set<SValue>& defVals)
 {
     using namespace std;
     auto parentModView = procView.getParentModule();
     auto verMod  = elabDB.getVerilogModule(parentModView);
     std::unordered_set<SValue> memInitVals;
     
-    // Add initialization values for non-modified member variables to 
-    // generate them as @localparam
     for (const SValue& val : useVals) {
-        // Skip defined variables
         if (defVals.count(val) != 0) continue;
-        // Skip value if it does not meet member variable conditions
-        if (!ScState::isMemberPrimVar(val, globalState.get())) continue;
-        
-        const SValue& parent = val.getVariable().getParent();
-        bool isMIF = isScModularInterface(parent.getType());
-        bool isMIFArrElm = isMIF && globalState->isArrElem(parent, ScState::MIF_CROSS_NUM);
-        
-        // Skip MIF array elements accessed from parent module @dynmodval
-        if (parent != dynModSval && isMIFArrElm) {
-            continue;
-        }
         
         // Class field must be in this map, no local variables here
         if (auto elabObj = globalState->getElabObject(val)) {
-            //cout << "  elabObj " << elabObj->getDebugString() << endl;
             if (auto elabOwner = elabObj->getVerilogNameOwner()) {
                 elabObj = elabOwner;
             }
@@ -798,27 +787,49 @@ ThreadBuilder::initNonDefinedVars(const std::unordered_set<SValue>& useVals,
             auto verVars = verMod->getVerVariables(*elabObj);
             
             for (auto* verVar : verVars) {
-                if (auto valView = elabObj->primitive()->value()) {
-                    APSIntVec initVals;
-                    bool isSigned = isSignedOrArrayOfSigned(elabObj->getType());
-                    verMod->fillInitVal(initVals, isSigned, *valView);
-                    // Append initialization values into variable
-                    verVar->addInitVals(initVals, val);
-                    memInitVals.insert(val);
-
-//                    cout << "  verVar " << verVar->getName() << endl;
-//                    if (!initVals.empty()) {
-//                        cout << "  add localparam for " << val;
-//                        for (auto& iv : initVals) cout << " " << iv.toString(10);
-//                        cout << endl;
-//                    } else {
-//                        cout << "  add localparam for EMPTY" << endl;
-//                    }
+                if (verVar->isConstant()) {
+                    memInitVals.insert(val); break;
                 }
             }
         }
     }
     return memInitVals;
+}
+
+// Clear initialization for variables which has been defined  
+void ThreadBuilder::clearDefinedVars(const std::unordered_set<SValue>& defVals)
+{
+    using namespace std;
+    auto parentModView = procView.getParentModule();
+    auto verMod  = elabDB.getVerilogModule(parentModView);
+    
+    for (const SValue& val : defVals) {
+        // Class field must be in this map, no local variables here
+        if (auto elabObj = globalState->getElabObject(val)) {
+            if (auto elabOwner = elabObj->getVerilogNameOwner()) {
+                elabObj = elabOwner;
+            }
+
+            auto verVars = verMod->getVerVariables(*elabObj);
+            
+            for (auto* verVar : verVars) {
+                verVar->clearInitVals();
+            }
+        }
+    }
+}
+
+// Create field value for channel record
+// \param fieldObj -- field view
+// \param parent -- parent record channel
+sc::SValue createRecChanField(ObjectView fieldObj, SValue parent) 
+{
+    auto* fieldDecl = fieldObj.getValueDecl();
+    SCT_TOOL_ASSERT(fieldDecl, "No declaration for channel record field");
+    SCT_TOOL_ASSERT(!fieldObj.isStatic(), "Static field in channel record");
+
+    // Field with record channel as parent class
+    return SValue(fieldDecl, parent);
 }
 
 void ThreadBuilder::generateThreadLocalVariables()
@@ -886,7 +897,17 @@ void ThreadBuilder::generateThreadLocalVariables()
         //cout << "Thread Reg: " << regVar << endl;
 
         // Ignore record value, record fields are used instead
-        if (isUserDefinedClass(regVar.getType())) continue;
+        QualType varType = regVar.getType();
+        if (isUserClass(getDerefType(varType))) continue;
+        // Get array/vector element type, for array/vector of record channels
+        if (varType->isArrayType()) {
+            varType = QualType(varType->getArrayElementTypeNoTypeQual(), 0);
+        } else {
+            while (isScVector(varType)) {
+                varType = getTemplateArgAsType(varType, 0).getValue();
+            }
+        }
+        bool isRecordChan = isUserClassChannel(getDerefType(varType)).hasValue();
         
         // Get access place, access after reset includes access in SVA
         bool inResetAccess = travConst->isInResetAccessed(regVar);
@@ -986,28 +1007,54 @@ void ThreadBuilder::generateThreadLocalVariables()
                 continue;
             }
             
-            bool first = true;
-            // Loop required for record
+            // Get record view from record channel
+            ElabObjVec rcFields;
+            //cout << "  isRecordChan " << isRecordChan << "\n";
+            if (isRecordChan) {
+                if (elabObj->isSignal()) {
+                    SignalView signalView = *elabObj;
+                    auto recView = signalView.getSignalValue().record();
+                    rcFields = recView->getFields();
+                } else 
+                if (elabObj->isPrimitive()) {
+                    PortView portView = *elabObj;
+                    SignalView signalView(portView.getBindedSignal());
+                    auto recView = signalView.getSignalValue().record();
+                    rcFields = recView->getFields();
+                }
+                SCT_TOOL_ASSERT(rcFields.size(), "No record fields found");
+            }
+             
+            //cout << "verVars (" << rcFields.size() << ") :\n";
+            // Loop required for record and record channel
+            unsigned i = 0;
             for (auto* verVar : verVars) {
+                bool first = i == 0;
+                //cout << "  " << verVar->getName() << endl;
+                
                 // Add var <= var_next in @always_ff body
                 if (sctCombSignal && sctCombSignClear) {
                     // Add to verVarTraits
-                    if (first) {
+                    if (first || isRecordChan) {
                         // Swap current and next name (next name is empty)
                         // Put suffix to @varTraits to use in @var_next = @var
-                        globalState->putVerilogTraits(regVar,
+                        SValue vval; 
+                        vval = isRecordChan ? 
+                               createRecChanField(rcFields[i], regVar) : regVar;
+                        globalState->putVerilogTraits(vval,
                             VerilogVarTraits(VerilogVarTraits::COMBSIGCLEAR, 
                             accessPlace, true, isNonZeroElmt, false,
                             verVar->getName(), llvm::Optional<std::string>(""),
                             mifElemSuffix));
-                        globalState->putVerilogTraits(regVarZero,
+                        
+                        vval = isRecordChan ? 
+                               createRecChanField(rcFields[i], regVarZero) : regVarZero;
+                        globalState->putVerilogTraits(vval,
                             VerilogVarTraits(VerilogVarTraits::COMBSIGCLEAR, 
                             accessPlace, true, !isNonZeroElmt, false,
                             verVar->getName(), llvm::Optional<std::string>(""),
                             mifElemSuffix));
-                        first = false;
                     }
-
                 } else {
                     std::string nextName = verVar->getName();
                     if (VerilogKeywords::check(nextName)) {
@@ -1057,23 +1104,28 @@ void ThreadBuilder::generateThreadLocalVariables()
                     }
                     
                     // Add to verVarTraits
-                    if (first) {
+                    if (first || isRecordChan) {
                         // Put suffix to @varTraits to use in @var_next = @var
-                        globalState->putVerilogTraits(regVar,
+                        SValue vval; 
+                        vval = isRecordChan ? 
+                               createRecChanField(rcFields[i], regVar) : regVar;
+                        globalState->putVerilogTraits(vval,
                             VerilogVarTraits(
                             sctCombSignal ? VerilogVarTraits::COMBSIG : 
                             sctClearSignal ? VerilogVarTraits::CLEARSIG : 
                                              VerilogVarTraits::REGISTER, 
                             accessPlace, true, isNonZeroElmt, false,
                             verVar->getName(), nextVar->getName(), mifElemSuffix));
-                        globalState->putVerilogTraits(regVarZero,
+                        
+                        vval = isRecordChan ? 
+                               createRecChanField(rcFields[i], regVarZero) : regVarZero;
+                        globalState->putVerilogTraits(vval,
                             VerilogVarTraits(
                             sctCombSignal ? VerilogVarTraits::COMBSIG : 
                             sctClearSignal ? VerilogVarTraits::CLEARSIG : 
                                              VerilogVarTraits::REGISTER, 
                             accessPlace, true, !isNonZeroElmt, false,
                             verVar->getName(), nextVar->getName(), mifElemSuffix));
-                        first = false;
                     }
 
                     // Register used and defined values
@@ -1084,9 +1136,9 @@ void ThreadBuilder::generateThreadLocalVariables()
                 
                 // Register used and defined values
                 verMod->addVarUsedInProc(procView, verVar, isConst, isChannel);
-                    verMod->addVarDefinedInProc(procView, verVar, isConst, 
-                                                isChannel);
+                verMod->addVarDefinedInProc(procView, verVar, isConst, isChannel);
                 verMod->putValueForVerVar(verVar, regVarZero);
+                i++;
             }
             
         } else {
@@ -1179,7 +1231,7 @@ void ThreadBuilder::generateThreadLocalVariables()
         //cout << "Thread Comb val: " << combVar << endl;
         
         // Ignore record value, record fields are used instead
-        if (isUserDefinedClass(combVar.getType())) continue;
+        if (isUserClass(getDerefType(combVar.getType()))) continue;
         
         if (!combVar.isVariable()) {
             SCT_TOOL_ASSERT (false, "Combinational variable is not a variable");
@@ -1294,7 +1346,7 @@ void ThreadBuilder::generateThreadLocalVariables()
         //cout << "Thread Read-only val: " << roVar << endl;
 
         // Ignore record value, record fields are used instead
-        if (isUserDefinedClass(roVar.getType())) continue;
+        if (isUserClass(getDerefType(roVar.getType()))) continue;
         
         // Get access place
         bool inResetAccess = travConst->isInResetAccessed(roVar);

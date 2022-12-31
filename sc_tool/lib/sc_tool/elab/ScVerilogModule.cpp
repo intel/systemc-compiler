@@ -384,14 +384,22 @@ void VerilogModule::serializeToStream(llvm::raw_ostream &os) const
 
     if (!verilogSignals.empty()) {
         os << "// Variables generated for SystemC signals\n";
+        //bool firstVar = true;
+        //bool lastVar = false;
         for (auto *var : verilogSignals) {
             // Skip not required variables
             if (requiredVars.count(var) == 0) {
                 continue;
             }
+            //if (firstVar) {
+            //    os << "// Variables generated for SystemC signals\n";
+            //    firstVar = false;
+            //}
             serializeVerVar(os, *var);
             os << ";\n";
+            //lastVar = true;
         }
+        //if (lastVar) os << "\n"; 
         os << "\n";
     }
 
@@ -1223,7 +1231,7 @@ static void serializeVerilogInt(llvm::raw_ostream &os, llvm::APSInt val)
     using namespace llvm;
     using namespace sc;
     
-    std::string s = ScVerilogWriter::makeLiteralStr(nullptr, val, 10, 0, 0, 
+    std::string s = ScVerilogWriter::makeLiteralStr(val, 10, 0, 0, 
                                                     CastSign::NOCAST, false);
     os << s;
 }
@@ -1789,7 +1797,11 @@ void VerilogModule::serializeSensList(llvm::raw_ostream &os,
 
             for (auto idx : source.indices)
                 os << "[" << idx << "]";
+            // Only one clock is required
+            break;  
         }
+        // Only one clock is required
+        break;
     }
 
     for (auto reset : procObj.resets()) {

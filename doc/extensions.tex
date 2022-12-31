@@ -198,10 +198,10 @@ SVA for {\tt sct\_assert} generated in {\tt always\_comb} block that requires to
 Temporal assertions in SystemC intended to be used for advanced verification of design properties with specified delays. These assertions looks similar to System Verilog assertions (SVA). The assertions can be added in SystemC design in module scope and clocked thread process:
 
 \begin{lstlisting}[style=mycpp]
-SCT_ASSERT(EXPR, EVENT);                  // In module scope 
-SCT_ASSERT(LHS, TIME, RHS, EVENT);        // In module scope 
-SCT_ASSERT(LHS, TIME, RHS);               // In clocked thread 
-SCT_ASSERT_LOOP(LHS, TIME, RHS, ITER);    // In for-loop inside of clocked thread
+SCT_ASSERT(EXPR, EVENT);                      // In module scope 
+SCT_ASSERT(LHS, TIME, RHS, EVENT);            // In module scope 
+SCT_ASSERT_THREAD(LHS, TIME, RHS, EVENT);     // In clocked thread 
+SCT_ASSERT_LOOP(LHS, TIME, RHS, EVENT, ITER); // In for-loop inside of clocked thread
 \end{lstlisting}
 
 These ways are complementary. Assertions in module scope avoids polluting process code. Assertions in clock thread allows to use member and local variables. Assertions in loop can access channel and port arrays.
@@ -215,6 +215,9 @@ Temporal assertions in module scope and clocked thread have the same parameters:
 \item EVENT -- cycle event which is clock positive, negative or both edges.
 \item ITER -- loop iteration counter variable(s) in arbitrary order.
 \end{itemize}
+
+If {\tt clk} is clock input, then EVENT specified with {\tt clk.pos()}, {\tt clk.neg()} or {\tt clk} correspondingly. 
+
 Assertion expression can be arithmetical or logical expression, with zero, one or several operands. Assertion expression cannot contain function call and ternary operator {\tt ?}.
 
 Temporal condition specified with:
@@ -239,8 +242,6 @@ SCT_ASSERT(EXPR, EVENT);
 SCT_ASSERT (LHS, TIME, RHS, EVENT);
 \end{lstlisting}
 %
-If {\tt clk} is clock input, then EVENT specified with {\tt clk.pos()}, {\tt clk.neg()} or {\tt clk} correspondingly. 
-
 Assertion expression can operate with signals, ports, template parameters, constants and literals. Member data variables (not signals/ports) access in assertion leads to data race and therefore not supported. 
 
 There are several examples:
@@ -255,11 +256,11 @@ sc_uint<16> arr[N];
 ...
 SCT_ASSERT(req || val == 0, clk.pos());             // OK
 SCT_ASSERT(req, SCT_TIME(1), resp, clk.pos());      // OK
-SCT_ASSERT(req, SCT_TIME(N+1), resp, clk.neg());    // OK, constant in time parameter
+SCT_ASSERT(req, SCT_TIME(N+1), resp, clk.neg());    // OK
 SCT_ASSERT(req, (2), val.read(), clk);              // OK, brackets only form
 SCT_ASSERT(val, SCT_TIME(2,3), *pval, clk.pos());   // OK, time interval
 SCT_ASSERT(arr[0], (N,2*N), arr[N-1], clk.pos());   // OK, brackets only form
-SCT_ASSERT(val == N, SCT_TIME(1), resp, clk.pos()); // OK, constant in assertion expression 
+SCT_ASSERT(val == N, (1), resp, clk.pos());         // OK, constant in assertion expression 
 SCT_ASSERT(m == 0, (1), resp, clk.pos());           // Error, member data variable used
 SCT_ASSERT(resp, (0,2), arr[m+1], clk.pos());       // Error, access array at non-literal index
 \end{lstlisting}
@@ -283,10 +284,9 @@ sctAssertLine83 : assert property (
 
 Temporal assertions in clocked thread added with 
 \begin{lstlisting}[style=mycpp]
-SCT_ASSERT (LHS, TIME, RHS);
+SCT_ASSERT_THREAD (LHS, TIME, RHS, EVENT);
 \end{lstlisting}
 %
-No clock parameter required, as clock cycle determined by the current process sensitivity.
 These assertions can operate with local data variables and local/member constants. They also can operate with module member data variables which are modified in this process.
 
 Assertion in thread process can be placed in reset section (before first {\tt wait()}) or after reset section before main infinite loop. Assertions in main loop not supported. Assertions can be placed in {\tt if} branch scopes, but this {\tt if} must have statically evaluated condition. Variable condition of assertion should be considered in its antecedent (left) expression. 
@@ -295,9 +295,9 @@ Assertion in thread process can be placed in reset section (before first {\tt wa
 void thread_proc() {
    // Reset section
    ...
-   SCT_ASSERT(req, SCT_TIME(1), ready);     // Assertions in reset section
+   SCT_ASSERT_THREAD(req, SCT_TIME(1), ready, clk.pos());  // Assertion in reset section
    wait();                        
-   SCT_ASSERT(req, SCT_TIME(2,3), resp);    // Assertions after reset section
+   SCT_ASSERT_THREAD(req, SCT_TIME(2,3), resp, clk.pos()); // Assertion after reset
 
    // Main loop 
    while (true) { 
@@ -316,9 +316,9 @@ always_ff @(posedge clk or negedge nrst) begin
    end else 
    begin 
       ... 
-      assert property (req |-> ##[2:3] resp);  // Assertions after reset section 
+      assert property (req |-> ##[2:3] resp);  // Assertion after reset section 
    end 
-   assert property (req |=> ready);            // Assertions from reset section 
+   assert property (req |=> ready);   // Assertion from reset  
 end
 \end{lstlisting}
 
@@ -333,17 +333,17 @@ sc_uint<8> m;
 ...
 void thread_proc() {
    int i = 0;
-   SCT_ASSERT(req, SCT_TIME(0), ready);           // OK
-   SCT_ASSERT(req, SCT_TIME(N+1), ready);         // OK, constant in time parameter
-   SCT_ASSERT(req, (2,3), i == 0);                // OK, local variable used
+   SCT_ASSERT_THREAD(req, SCT_TIME(0), ready, clk.pos());     // OK
+   SCT_ASSERT_THREAD(req, SCT_TIME(N+1), ready, clk.pos());   // OK 
+   SCT_ASSERT_THREAD(req, (2,3), i == 0, clk.pos());          // OK, local variable used
    wait();
    if (N > 1) {
-       SCT_ASSERT(req, SCT_TIME(1), resp);        // OK, statically evaluated condition
+       SCT_ASSERT_THREAD(req, SCT_TIME(1), resp, clk.pos());  // OK, statically evaluated
    }
-   SCT_ASSERT(m > 1, (2), ready);                 // OK, member variable used
+   SCT_ASSERT_THREAD(m > 1, (2), ready, clk.pos())            // OK, member variable used
    while (true) {   
       ...
-      SCT_ASSERT(req, SCT_TIME(0), ready);         // Error, assertion in main loop
+      SCT_ASSERT_THREAD(req, SCT_TIME(0), ready, clk.pos());  // Error
       wait();
 }}
 \end{lstlisting}
@@ -352,7 +352,7 @@ void thread_proc() {
 
 Temporal assertions in loop inside of clocked thread added with 
 \begin{lstlisting}[style=mycpp]
-SCT_ASSERT_LOOP (LHS, TIME, RHS, ITER);
+SCT_ASSERT_LOOP (LHS, TIME, RHS, EVENT, ITER);
 \end{lstlisting}
 %
 ITER parameter is loop variable name or multiple names separated by comma.
@@ -364,9 +364,9 @@ void thread_proc() {
    // Reset section
    ...
    for (int i = 0; i < N; ++i) {
-      SCT_ASSERT_LOOP(req[i], SCT_TIME(1), ready[i], i);
+      SCT_ASSERT_LOOP(req[i], SCT_TIME(1), ready[i], clk.pos(), i);
       for (int j = 0; j < M; ++j) {
-         SCT_ASSERT_LOOP(req[i][j], SCT_TIME(2), resp[i][N-j+1], i, j);
+         SCT_ASSERT_LOOP(req[i][j], SCT_TIME(2), resp[i][N-j+1], clk.pos(), i, j);
    }}
    wait();                        
    while (true) { 

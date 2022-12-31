@@ -51,6 +51,24 @@ char getRadix(const std::string& s)
     return 10;
 }
 
+// Get canonical type with qualifiers removed
+clang::QualType getPureType(clang::QualType type) 
+{
+    type = type.getNonReferenceType();  // Remove reference
+    type = type.getCanonicalType();
+    type = type.getUnqualifiedType();
+    return type;
+}
+
+// Get de-referenced type if this type is reference or this type otherwise
+clang::QualType getDerefType(clang::QualType type) 
+{
+    if (!type.isNull() && type->isReferenceType()) {
+        return type.getNonReferenceType();
+    }
+    return type;
+}
+
 // Is constant or constant reference type
 bool isConstOrConstRef(QualType type) 
 {
@@ -324,7 +342,7 @@ bool isIoStream(QualType type)
 
 // Check SC module or CXX class/structure, but not SC channel or SC data type
 // Do not check reference, use type.getNonReferenceType() if required
-bool isUserDefinedClass(clang::QualType type, bool checkPointer) 
+bool isUserClass(clang::QualType type, bool checkPointer) 
 {
     if (type.isNull()) return false;
 
@@ -336,13 +354,9 @@ bool isUserDefinedClass(clang::QualType type, bool checkPointer)
     }
     
     // Record types, union type is not supported
-    if (!ctype->isStructureType() && !ctype->isClassType()) {
+    if (!ctype->isStructureOrClassType()) {
         return false;
     }
-    // TODO: check me!!!
-//    if (isAnyScCoreObject(ctype)) {
-//        return false;
-//    }
     if (isScChannel(ctype) || isScVector(ctype)) {
         return false;
     }
@@ -372,7 +386,7 @@ bool isUserDefinedClassArray(QualType type, bool checkPointer)
         }
     }
 
-    return (isUserDefinedClass(type));
+    return (isUserClass(type));
 }
 
 // Get user defined class from array or none
@@ -382,7 +396,7 @@ llvm::Optional<QualType> getUserDefinedClassFromArray(QualType type)
 
     type = getArrayElementType(type);
 
-    if (isUserDefinedClass(type)) { 
+    if (isUserClass(type)) { 
         return type;
     } else {
         return llvm::None;
@@ -665,12 +679,6 @@ bool isBoolArgument(const Expr* expr)
     }
     
     return false;
-}
-
-// Get temporary expression for @MaterializeTemporaryExpr
-// There are different API for Clang 7.0.0 and 10.0.0
-clang::Expr* getTemporaryExpr(clang::MaterializeTemporaryExpr* expr) {
-    return expr->getSubExpr();
 }
 
 }

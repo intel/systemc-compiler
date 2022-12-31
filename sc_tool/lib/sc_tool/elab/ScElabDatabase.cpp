@@ -80,7 +80,7 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
                              ScDiag::SYNTH_TYPE_NOT_SUPPORTED) << varType;
     }
     
-    if (isUserDefinedClass(varType)) {
+    if (isUserClass(getDerefType(varType))) {
         SCT_INTERNAL_FATAL (varDecl->getBeginLoc(), 
                             "Static record is not supported yet");
     } else 

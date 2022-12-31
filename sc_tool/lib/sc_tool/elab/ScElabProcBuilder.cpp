@@ -88,14 +88,12 @@ VerilogProcCode ProcBuilder::generateVerilogProcess(ProcessView& procView)
 
     SCT_TOOL_ASSERT (procHostClass.isRecord(), "No record value for module");
     SCT_TOOL_ASSERT (hostModuleDynClass.isRecord(), "No record value for module");
-
-    moduleState->putElabObject(hostModuleDynClass, hostModule);
-
     SCT_TOOL_ASSERT (classHierStack.empty(), "Parent hierarchy is not empty");
 
 //    using std::cout; using std::endl;
 //    cout << "procRecordView " << procRecordView.getDebugString() << " isMIF "
 //         << procRecordView.isModularInterface() << procRecordView.isArrayElement() << endl;
+//    cout << "procView " << procView.procName << " " << procView.isCombinational() << endl;
 
     if (procView.isScMethod()) {
         return procAnalyzer->analyzeMethodProcess(procHostClass,
@@ -117,7 +115,7 @@ void ProcBuilder::prepareState(ModuleMIFView hostModule)
     }
     moduleState->fillDerivedClasses(hostModuleDynClass);
     //moduleState->updateStaticClasses();   Not required
-
+    
     if (DebugOptions::isEnabled(DebugComponent::doElabState)) {
         llvm::outs() << "INITIAL_STATE\n";
         moduleState->print();
@@ -162,7 +160,7 @@ sc::SValue ProcBuilder::traverseRecord(RecordView recView, bool isVerModule)
         moduleState->putValue(objectSVal, currentModSVal, false, false);
         objSValMap[recView] = objectSVal;
     }
-
+    
 //    cout << "   traverseField ... " << endl;
 //    auto start = chrono::system_clock::now();
     for (ObjectView memberObj : recView.getFields()) {
@@ -225,6 +223,19 @@ sc::SValue ProcBuilder::traverseRecord(RecordView recView, bool isVerModule)
     classHierStack.pop_back();
 
     objSValMap[recView] = currentModSVal;
+    
+    // Register modules and MIFs
+    if (recView.isModule() || recView.isModularInterface()) {
+        // Get base class for @sct_comb_target, it is @sct_target contains all members
+        if ( isSctCombTarg(currentModSVal.getType()) ) {
+            SCT_TOOL_ASSERT(!currentModSVal.getRecord().bases.empty(), 
+                            "No base class for sct_comb_target found");
+            SValue baseTargVal = currentModSVal.getRecord().bases.front();
+            moduleState->putElabObject(baseTargVal, recView);
+        } else {
+            moduleState->putElabObject(currentModSVal, recView);
+        }
+    }
     
     return currentModSVal;
 }
@@ -405,38 +416,69 @@ sc::SValue ProcBuilder::createPortSValue(PortView portView)
         // Return pointer to module/MIF
         if (auto pointee = portView.pointee()) {
             SValue pointeeVal = RecordValues::getRecordView(*pointee);
-            SCT_TOOL_ASSERT (pointeeVal.isRecord(), "No record found");
+            
+            if (!pointeeVal.isRecord()) {
+                cout << "Port " <<  portView.getDebugString()
+                     << " pointee " << pointee->getDebugString()
+                     << " pointeeSVal " << pointeeVal << endl;
+                SCT_TOOL_ASSERT (false, "No record found");
+            }
             return pointeeVal;
         }
         return SValue();
     }
 
-    SignalView signalView(portView.getBindedSignal());
-    auto clangType = signalView.getSignalValue().getType();
-
-    auto verVars = portView.getVerilogVars();
-    std::string verName;
-
-    if (verVars.size() > 0)
-        verName = verVars[0].var->getName();
-    else {
-        // Port of record not supported yet
-        verName = "UNNAMED";
-    }    
     SValue res;
+    auto verVars = portView.getVerilogVars();
+    SignalView signalView(portView.getBindedSignal());
+    auto sigValue  = signalView.getSignalValue();
+    auto clangType = sigValue.getType();
 
-    if (portView.isInput())
-        res = SValue(new ScInPort(verName, clangType));
-    else if (portView.isOutput())
-        res = SValue(new ScOutPort(verName, clangType));
-    else if (portView.isInout()) {
-        ScDiag::reportScDiag(ScDiag::SC_ERROR_ELAB_UNSUPPORTED_TYPE)
-            << clangType->getCanonicalTypeInternal().getAsString();
-        res = SValue(new ScOutPort(verName, clangType));
+    if (auto recView = sigValue.record()) {
+        // Record port
+        std::string verName = portView.getSCName()+std::string("_REC");
+        
+        if (portView.isInput())
+            res = SValue(new ScInPort(verName, clangType));
+        else if (portView.isOutput())
+            res = SValue(new ScOutPort(verName, clangType));
+        else {
+            ScDiag::reportScDiag(ScDiag::SC_ERROR_ELAB_UNSUPPORTED_TYPE)
+                << clangType->getCanonicalTypeInternal().getAsString();
+            res = SValue();
+        }
+        
+        unsigned i = 0;
+        for (ObjectView fieldObj : recView->getFields()) {
+            auto* fieldDecl = fieldObj.getValueDecl();
+            SCT_TOOL_ASSERT(fieldDecl, "No declaration for channel record field");
+            SCT_TOOL_ASSERT(!fieldObj.isStatic(), "Static field in channel record");
+            
+            // Field with record signal as parent class
+            SValue fval(fieldDecl, res);
+            moduleState->putElabObject(fval, fieldObj, verVars[i].var);
+            i++;
+            //cout << "  fval " << fval << endl;
+        }
     } else {
-        ScDiag::reportScDiag(ScDiag::SC_ERROR_ELAB_UNSUPPORTED_TYPE)
-            << clangType->getCanonicalTypeInternal().getAsString();
-        res = SValue();
+        // Normal port
+        std::string verName;
+        if (verVars.size() > 0)
+            verName = verVars[0].var->getName();
+        else {
+            // Port of record not supported yet
+            verName = "UNNAMED";
+        }    
+
+        if (portView.isInput())
+            res = SValue(new ScInPort(verName, clangType));
+        else if (portView.isOutput())
+            res = SValue(new ScOutPort(verName, clangType));
+        else {
+            ScDiag::reportScDiag(ScDiag::SC_ERROR_ELAB_UNSUPPORTED_TYPE)
+                << clangType->getCanonicalTypeInternal().getAsString();
+            res = SValue();
+        }
     }
 
     return res;
@@ -444,18 +486,41 @@ sc::SValue ProcBuilder::createPortSValue(PortView portView)
 
 sc::SValue ProcBuilder::createSignalSValue(SignalView signalView)
 {
-    auto clangType = signalView.getSignalValue().getType();
+    SValue res;
+    auto verVars   = signalView.getVerilogVars();
+    auto sigValue  = signalView.getSignalValue();
+    auto clangType = sigValue.getType();
+    //cout << "sigValue " << sigValue.getID() << " " << sigValue.getDebugString() << endl;
+    
+    if (auto recView = sigValue.record()) {
+        // Record signal
+        std::string verName = signalView.getName()+std::string("_REC");
+        res = SValue(new ScSignal(verName, clangType));
 
-    auto verVars = signalView.getVerilogVars();
-    std::string verName;
-
-    if (verVars.size() > 0)
-        verName = verVars[0].var->getName();
-    else {
-        // Signal of record not supported yet
-        verName = "UNNAMED";
+        unsigned i = 0;
+        for (ObjectView fieldObj : recView->getFields()) {
+            auto* fieldDecl = fieldObj.getValueDecl();
+            SCT_TOOL_ASSERT(fieldDecl, "No declaration for channel record field");
+            SCT_TOOL_ASSERT(!fieldObj.isStatic() || fieldObj.isConstant(), 
+                            "Static non-constant field in channel record");
+            
+            // Field with record signal as parent class
+            SValue fval(fieldDecl, res);
+            moduleState->putElabObject(fval, fieldObj, verVars[i].var);
+            i++;
+            //cout << "  fval " << fval << endl;
+        }
+    } else {
+        // Normal signal
+        std::string verName;
+        if (verVars.size() > 0) {
+            verName = verVars[0].var->getName();
+        } else {
+            verName = "UNNAMED";
+            SCT_INTERNAL_ERROR_NOLOC("No variable for signal " + signalView.getName());
+        }
+        res = SValue(new ScSignal(verName, clangType));
     }
-    SValue res = SValue(new ScSignal(verName, clangType));
 
     return res;
 }
@@ -551,7 +616,11 @@ void RecordValues::fillTopModValue()
 {
     for (auto& i : recordMap) {
         const ObjectView& objView = elabDB->getObj(i.first);
-        SCT_TOOL_ASSERT (objView.record(), "No record found");
+        
+        if (!objView.isRecord()) {
+            cout << "Record " <<  objView.getDebugString() << endl;
+            SCT_TOOL_ASSERT (false, "No record found");
+        }
         
         if (objView.record()->isTopMod()) {
             // No parent for top module

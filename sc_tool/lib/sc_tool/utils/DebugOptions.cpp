@@ -34,6 +34,12 @@ void DebugOptions::enable(const char **optNames, unsigned count)
 #endif
 }
 
+bool DebugOptions::isDebug() {
+#ifndef NDEBUG
+    return ::llvm::DebugFlag;
+#endif
+}
+
 void DebugOptions::suspend() {
 #ifndef NDEBUG
     ::llvm::DebugFlag = false;

@@ -23,10 +23,10 @@ cd $CWD_DIR
 
     cd ..
 
-    mkdir build_icsc_dbg -p && cd build_icsc_dbg
-    cmake ../ -DCMAKE_BUILD_TYPE=Debug   -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DCMAKE_CXX_STANDARD=17 -DCMAKE_DEBUG_POSTFIX=d
-    make -j12
-    make install
+#    mkdir build_icsc_dbg -p && cd build_icsc_dbg
+#    cmake ../ -DCMAKE_BUILD_TYPE=Debug   -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DCMAKE_CXX_STANDARD=17 -DCMAKE_DEBUG_POSTFIX=d
+#    make -j12
+#    make install
 
     cp $CWD_DIR/cmake/CMakeLists.top $ICSC_HOME/CMakeLists.txt
 )

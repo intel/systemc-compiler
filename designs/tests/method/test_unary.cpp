@@ -19,7 +19,7 @@ public:
     sc_signal<unsigned>   d{"d"};
     
     int                   m = 11;
-    int                   k;
+    int                   k = 11;
 
     sc_signal<bool> dummy{"dummy"};
 

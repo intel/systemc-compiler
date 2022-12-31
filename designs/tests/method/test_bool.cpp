@@ -19,8 +19,8 @@ public:
     sc_signal<bool>     s{"s"};
     sc_signal<bool>*    ps;
     
-    int                 m;
-    int                 k;
+    int                 m = 1;
+    int                 k = 2;
     int*                p;
     int*                p1;
     int*                p2;

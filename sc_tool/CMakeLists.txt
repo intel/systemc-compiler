@@ -5,11 +5,15 @@
 # 
 # *****************************************************************************
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-comment")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-comment")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -fsanitize=address")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-class-memaccess")
 endif()
+
+message(STATUS "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}")
 
 add_library(SysCRTTI
         lib/rtti_sysc/SystemCRTTI.cpp
@@ -137,6 +141,8 @@ add_library(SCTool
         lib/sc_tool/SCToolFrontendAction.h
 
         )
+
+#target_link_options(SCTool PUBLIC "-fsanitize=address")
 
 target_link_libraries(SCTool
         PUBLIC

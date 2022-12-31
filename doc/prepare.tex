@@ -396,6 +396,7 @@ sc\_uint<N> & logic [N] & \\
 sc\_biguint<N> & logic [N] & \\
 sc\_int<N> & logic signed [N] & \\
 sc\_bigint<N> & logic signed [N] & \\
+sc\_bv<N> & logic [N] & \\
 bool & logic & \\
 char, signed char & logic signed [8] & \\
 unsigned char & logic [8] & \\
@@ -418,7 +419,7 @@ unsigned long long & logic [64] & 64bit \\
 Uninitialized local variable of SystemC types (sc\_uint, sc\_biguint, sc\_int, sc\_biguint) has got zero value in generated code as it got this value in the default constructor.
 That means declaration of such variable leads to its initialization by {\tt 0}.
 
-Not supported SystemC data types: {\tt sc\_bv}, {\tt sc\_lv}, {\tt sc\_logic}, {\tt sc\_signed}, {\tt sc\_unsigned}, {\tt sc\_fix}, {\tt sc\_ufix}, {\tt sc\_fixed}, {\tt sc\_ufixed}. 
+Not supported SystemC data types: {\tt sc\_lv}, {\tt sc\_logic}, {\tt sc\_signed}, {\tt sc\_unsigned}, {\tt sc\_fix}, {\tt sc\_ufix}, {\tt sc\_fixed}, {\tt sc\_ufixed}. 
 Not supported floating point C++ data types: {\tt float}, {\tt double}.
 
 C++ types can be used together with SC types. Signed and unsigned types should never be mixed, as that can lead to unexpected result for operations with negative values. For operations with mix of signed and unsigned arguments of {\tt sc\_int}/{\tt sc\_uint} types SystemC simulation can differ from generated SystemVerilog simulation. See more details in Section~\ref{section:arithmetic_gen}.
@@ -541,14 +542,19 @@ SC_CTOR(MyModule) {
 
 
 
-\subsection{Record and union types}
+\subsection{Record type}
 
 This section describes usage of record which are C++ structures or classes which are not modules and modular interfaces. Records intended to represent set of plain data fields. Record can be module member as well as local variables in process functions. 
 
-Records are supported with limitations. Record can have member functions and data type members. Record cannot have another record members, signal/port or module/modular interface members. Record cannot have any pointer or array members. Record cannot have any base classes.
-Record can have constructor, field in-place initialization and initializer list. Record constructor cannot have function calls.
+Records are supported with limitations. Record can have member functions and data members. Record member functions can contain wait() calls. Record can have members of C++/SC data types. Record cannot have another record members. Record cannot have signal/port or module/modular interface members. Record cannot have any pointer members. Record can have array members of C++/SC data types. Record cannot have array members of record. Record cannot have non-default copy/move constructors and operators.
 
-Array of records supported. Array of pointers to record supported.
+Record can have constructor, field in-place initialization and initializer list. Record constructor can contain function calls. Record field in-place initialization and constructor initializer list cannot contain function calls.
+
+Record can have one or multiple base classes. Record base class cannot have constructor body (constructor body should be empty), but can have initialization list and in-place initialization. Virtual functions in records are not supported.
+
+Array of records supported. Array of pointers to record is not supported. 
+
+Record reference supported. Pointer to record is not supported.
 
 Record can be passed to function by value as well as by reference/constant reference, such record must have trivial copy constructor. Record can be returned from function by value, such record must have trivial copy constructor.
 %
@@ -568,7 +574,51 @@ struct Rec2 {
 };
 \end{lstlisting}
 
+Record declaration with and without parameters supported in the following forms:
+%
+\begin{lstlisting}[style=mycpp]
+Rec1 r1;        	// OK
+Rec1 r1();        	// OK
+Rec1 r1{};        	// OK
+Rec1 r1 = Rec1{}; 	// Error
+Rec1 r1 = Rec1();  	// Error
+Rec2 r2(42);    	// OK
+Rec2 r2{42};    	// OK
+\end{lstlisting}
+
+Signal and port of record type are supported. Record used as signal and ports type should have a constructor without parameters. This constructor is used for the signal/ports initialization. Such a record should have {\tt operator==()} and {\tt operator<<(std::ostream)} and {\tt sc\_trace()} defined.
+Signal and ports of record can be read/written and assigned to a record variable.
+%
+\begin{lstlisting}[style=mycpp]
+struct SRec {
+    int x;
+    sc_int<2> y;
+    bool operator == (const SRec& other) {
+        return (x == other.x && y == other.y);
+    } 
+};
+::std::ostream& operator << (::std::ostream& os, const SRec& s) {
+    os << s.x << s.y;
+    return os;
+}
+...
+sc_in<SRec>     in{"in"};
+sc_out<SRec>    out{"out"};
+sc_signal<SRec> s{"s"};
+...
+SRec r1;          // OK
+r1 = in.read();   // OK
+r1 = s;           // OK
+s = Rec1();       // OK
+s.write(r1);      // OK
+out = r1;         // OK
+out = Rec1{};     // OK
+int x = in.read().x;   // OK
+\end{lstlisting}
+ 
 Code generation rules for record described in Section~\ref{section:record_gen}. 
+
+\subsection{Union type}
 
 Union type not supported.
 
@@ -608,10 +658,10 @@ Type cast to cast negative value to unsigned is prohibited. Type cast unsigned w
 %
 % method_cast.cpp
 \begin{lstlisting}[style=mycpp]
- unsigned u = 0x1FFFFFFFFUL;
- int i = -1;
- long l = (int)u;                    // Prohibited as result is negative value
- unsigned long ul = (unsigned)i;     // Prohibited as operand has negative value
+unsigned u = 0x1FFFFFFFFUL;
+int i = -1;
+long l = (int)u;                    // Prohibited as result is negative value
+unsigned long ul = (unsigned)i;     // Prohibited as operand has negative value
 \end{lstlisting}
 
 Type cast to base class supported for function call (T::f()) and member access (T::m).

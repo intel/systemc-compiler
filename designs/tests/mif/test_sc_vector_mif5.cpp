@@ -16,7 +16,7 @@ struct A : sc_module, sc_interface {
 
     sc_in<bool>  req;
     sc_signal<unsigned>  resp{"resp"};
-    unsigned mm;
+    unsigned mm = 2;
     
     SC_HAS_PROCESS(A);
     

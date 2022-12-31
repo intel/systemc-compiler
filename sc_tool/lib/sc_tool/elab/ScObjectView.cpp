@@ -366,6 +366,20 @@ ArrayElemObjWithIndices ObjectView::getAsArrayElementWithIndicies(PortView port)
     }
 }
 
+PortView ObjectView::getPortBound(PortView port) const
+{
+    if (isSignal() && isDynamic() && getPointers().size() == 0) {
+        for (auto p : getPorts()) {
+            if (p != port) {
+                return p;
+            }
+        }
+        llvm_unreachable("No bound port found for dynamic signal");
+    } else {
+        return port;
+    }
+}
+
 llvm::Optional<ObjectView> ObjectView::derefRecursively() const
 {
     Optional<ObjectView> res = *this;
@@ -1321,11 +1335,13 @@ PortDirection PortView::getDirection() const
         auto typeName = getType().getAsString();
         llvm::StringRef ty(typeName);
 
-        if (ty.contains("sc_core::sc_out<"))
+        if (ty.contains("sc_core::sc_out<") || ty.contains("sct::sct_out<"))
             dir =  PortDirection::OUT;
-        else if (ty.contains("sc_core::sc_in<"))
+        else 
+        if (ty.contains("sc_core::sc_in<") || ty.contains("sct::sct_in<"))
             dir = PortDirection::IN;
-        else if (ty.contains("sc_core::sc_inout<")) {
+        else 
+        if (ty.contains("sc_core::sc_inout<")) {
             ScDiag::reportErrAndDie("inout ports are not supported");
             dir = PortDirection::INOUT;
         }
@@ -1370,7 +1386,7 @@ bool ProcessView::isScCThread() const
 }
 
 // Does not work well for methods in MIF
-/*bool ProcessView::isCombinational() const
+bool ProcessView::isCombinational() const
 {
     bool isCombinational = true;
 
@@ -1380,7 +1396,7 @@ bool ProcessView::isScCThread() const
     }
 
     return isCombinational;
-}*/
+}
 
 std::vector<ProcessView::SensEvent> ProcessView::staticSensitivity() const
 {

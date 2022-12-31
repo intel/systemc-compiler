@@ -216,12 +216,6 @@ public:
     void parseValueHierarchy(SValue val, unsigned crossModule, 
                              std::vector<SValue>& valStack) const;
 
-    /// Find array where @val is element, bottom to top search
-    /// \param crossModule -- cross module/MIF border number
-    /// \return first (most inner) array value
-    SValue findArray(SValue val, unsigned crossModule,
-                     std::vector<const clang::ValueDecl*>& decls) const;
-    
     // Check if the given element is member of the given record @recval
     // It can be not direct member, i.e.member of its member
     bool checkRecord(const SValue& val, const SValue& recval,
@@ -329,7 +323,8 @@ public:
     /// Remove tuples with integer values starting with @val in left part and 
     /// recursively all tuples with its right parts, no array/record removed 
     /// Use to clean up state by write to array element at unknown index
-    void removeIntSubValues(const SValue& lval);
+    /// \param lval -- variable value
+    void removeIntSubValues(const SValue& lval, bool doGetValue = true);
     
     /// Remove tuples with @val in left part and recursively all tuples with its 
     /// right parts, used to remove old record/array values at variable 
@@ -379,7 +374,8 @@ public:
     void printSize() const;
 
     /// Add elaboration object for SValue
-    void putElabObject(const SValue &sval, sc_elab::ObjectView objView);
+    void putElabObject(const SValue &sval, sc_elab::ObjectView objView,
+                       const sc_elab::VerilogVar* chanRecFieldVar = nullptr);
 
     /// Put VerilogVarTraits for SValue
     void putVerilogTraits(const SValue &sval, VerilogVarTraits traits);
@@ -406,7 +402,7 @@ public:
     
     /// Get variable traits including names
     const std::unordered_map<SValue, const VerilogVarTraits>& getVarTraits() const;
-    
+
     /// Is @val array variable or pointer which owns of an object, 
     /// return false for temporary variable
     bool isObjectOwner(const SValue& val) const;

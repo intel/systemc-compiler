@@ -17,7 +17,7 @@
 struct mod_if : public sc_module, sc_interface 
 {
     sc_signal<sc_uint<4>>   s {"s"};
-    sc_uint<4>              v;          // No localparam
+    sc_uint<4>              v;          // localparam
     unsigned                w;
     const unsigned          c;
     const unsigned          d = 1;
@@ -36,7 +36,7 @@ struct mod_if : public sc_module, sc_interface
 struct mod_if2 : public sc_module, sc_interface 
 {
     sc_signal<sc_uint<4>>   s {"s"};
-    sc_uint<4>              v;       // localparam as accessed in local method
+    sc_uint<4>              v;       // localparam
 
     SC_HAS_PROCESS(mod_if2);
     
@@ -120,7 +120,7 @@ SC_MODULE(Top) {
     }
     
     struct Simple {
-        bool a;
+        bool a = false;
         int b = 42;
     };
     

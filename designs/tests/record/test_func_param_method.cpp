@@ -133,6 +133,7 @@ public:
     {
         Simple r;
         r.b = 4;
+        gs.a = true;
         f4(gs, r);
     }
 

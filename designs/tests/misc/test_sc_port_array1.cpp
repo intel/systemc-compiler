@@ -11,6 +11,8 @@
 
 #include <systemc.h>
 
+// Fix me, see #116
+
 // Module with @sc_port to dynamically allocated module object
 template<typename T>
 struct port_if : public sc_interface {
@@ -34,7 +36,7 @@ struct AhbSlave : public sc_module, sc_interface
     
     void methProc() 
     {
-        slave_port->f(s.read());
+        slave_port->f(s.read());   // Incorrect code: targ_r instead of targ_r[0]
     }
 };
 
@@ -68,8 +70,8 @@ struct Dut : public sc_module
         }
     };
 
-    AhbSlave<T>         slave{"slave"};
-    Target<T>*          tars[2];
+    AhbSlave<T>             slave{"slave"};
+    sc_vector< Target<T> >  tars{"tars", 2};
     
     SC_HAS_PROCESS(Dut);
     
@@ -77,11 +79,7 @@ struct Dut : public sc_module
     {
         slave.clk(clk);
         slave.nrst(nrst);
-
-        for (int i = 0; i < 2; ++i) {
-            tars[i] = new Target<T>("tar");
-        }
-        slave.slave_port(*tars[0]);
+        slave.slave_port(tars[0]);
     }
 };
 

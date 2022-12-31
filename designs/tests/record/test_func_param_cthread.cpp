@@ -38,10 +38,9 @@ public:
 
         SC_CTHREAD(record_fcall_two_ref2, clk.pos());
         async_reset_signal_is(rstn, false);
-        
-        // TODO: Fix me, #185
-        //SC_CTHREAD(record_fcall_const_ref1, clk.pos());
-        //async_reset_signal_is(rstn, false);
+
+        SC_CTHREAD(record_fcall_const_ref1, clk.pos());
+        async_reset_signal_is(rstn, false);
 
         SC_CTHREAD(record_fcall_const_ref2, clk.pos());
         async_reset_signal_is(rstn, false);
@@ -174,7 +173,7 @@ public:
     // Constant reference parameters
     
     void cref_copy(Simple& par1, const Simple& par2) {
-        par1 = par2;        // Incorrect code generated, #185
+        par1 = par2;        
     }
     
     void record_fcall_const_ref1() 
@@ -183,6 +182,7 @@ public:
         wait();
         while (true) {
             cref_copy(r, t);
+            r = t;
             wait();
             bool b = cref_cmp(r,t);
         }

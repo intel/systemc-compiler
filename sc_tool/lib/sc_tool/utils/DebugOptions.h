@@ -77,6 +77,8 @@ namespace DebugOptions {
     
     void enable(const char **optNames, unsigned count);
 
+    bool isDebug();
+    
     void suspend();
 
     void resume();

@@ -68,6 +68,9 @@ svc_target(method_const_liter_compound GOLDEN method_const_liter_compound.sv)
 add_executable(method_string_liter test_string_liter.cpp)
 svc_target(method_string_liter GOLDEN method_string_liter.sv)
 
+add_executable(method_liter_width test_liter_width.cpp)
+svc_target(method_liter_width GOLDEN method_liter_width.sv)
+
 add_executable(method_const_binary test_const_binary.cpp)
 svc_target(method_const_binary GOLDEN method_const_binary.sv)
 
@@ -240,8 +243,8 @@ svc_target(method_explicit_type_conv GOLDEN method_explicit_type_conv.sv)
 add_executable(method_unary test_unary.cpp)
 svc_target(method_unary GOLDEN method_unary.sv)
 
-#add_executable(method_unary_sc test_unary_sc.cpp)
-#svc_target(method_unary_sc GOLDEN method_unary_sc.sv)
+add_executable(method_unary_sc test_unary_sc.cpp)
+svc_target(method_unary_sc GOLDEN method_unary_sc.sv)
 
 # Arrays
 
@@ -401,3 +404,7 @@ svc_target(method_bit_range_fail WILL_FAIL)
 
 add_executable(method_unsupport_types_fail test_unsupport_types_fail.cpp)
 svc_target(method_unsupport_types_fail WILL_FAIL)
+
+## Not supported yet, see #304
+#add_executable(method_clock_sensitive test_clock_sensitive.cpp)
+#svc_target(method_clock_sensitive GOLDEN method_clock_sensitive.sv)

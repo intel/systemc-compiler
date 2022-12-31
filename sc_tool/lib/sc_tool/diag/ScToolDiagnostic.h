@@ -209,6 +209,9 @@ public:
         SYNTH_PARENT_SAME_OBJECT    = 237,
         SYNTH_NO_RESET_PROCESS      = 238,
         SYNTH_FUNC_TYPE_IN_ASSERT   = 239,
+        SYNTH_NON_SENSTIV_THREAD    = 240,
+        SYNTH_EXTRA_SENSTIV_THREAD  = 241,
+        SYNTH_RECORD_INIT_LIST      = 242,
         
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -642,7 +645,7 @@ private:
             {clang::DiagnosticIDs::Fatal, 
             "Dangling pointer dereference : %0"};
         idFormatMap[CPP_DANGLING_PTR_CAST] =
-            {clang::DiagnosticIDs::Error, 
+            {clang::DiagnosticIDs::Fatal, 
             "Dangling pointer casted to bool : %0"};
         idFormatMap[SYNTH_NONCOST_PTR_CONST] =
             {clang::DiagnosticIDs::Error, 
@@ -738,6 +741,19 @@ private:
             {clang::DiagnosticIDs::Error, 
              "Incorrect user defined method or function : %0"};
         
+        idFormatMap[SYNTH_NON_SENSTIV_THREAD] =
+            {clang::DiagnosticIDs::Warning, 
+            "Process is not sensitive to SS channel used : %0"};
+        
+        idFormatMap[SYNTH_EXTRA_SENSTIV_THREAD] =
+            {clang::DiagnosticIDs::Warning, 
+            "Process is sensitive to SS channel not used : %0"};
+        
+        idFormatMap[SYNTH_RECORD_INIT_LIST] =
+            {clang::DiagnosticIDs::Error, 
+            "List initializer for record is not supported"};
+        
+
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =
             {clang::DiagnosticIDs::Fatal,

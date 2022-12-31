@@ -54,7 +54,7 @@ SC_MODULE(Top)
     
     SC_CTOR(Top) {
         for (int i = 0; i < 2; ++i) {
-            ar[i].V = i;
+            ar[i].V = i+1;
         }
     }
 };

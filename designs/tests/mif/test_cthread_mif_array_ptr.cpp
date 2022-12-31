@@ -100,7 +100,7 @@ struct mod_if : public sc_module, sc_interface
         v = s;
     }
 
-    bool  vf;
+    bool  vf = 0;
     
     void f_loc_reg() {
         bool a = vf;

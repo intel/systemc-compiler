@@ -133,6 +133,13 @@ public:
     SCT_ASSERT(nrarr[1], SCT_TIME(1), nrptr->read(), clk.pos());
     SCT_ASSERT(s.read() == N, SCT_TIME(1), ps->read() != NN, clk.pos());
     
+    static const unsigned   CC1 = 42;
+    static const unsigned   CC2 = 0;
+    sc_signal<int>          nu1; // not used
+    sc_signal<bool>         nu2; // not used
+    
+    SCT_ASSERT(!CC1 || s.read() || nu1.read() == 11, SCT_TIME(1), !CC2 && nu2.read(), clk.pos());
+    
     // Name collisions
     SCT_ASSERT(reg, SCT_TIME(1), r || B::r, clk.pos());
 

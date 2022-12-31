@@ -224,10 +224,8 @@ public:
     /// Compare two APSInt including bit width and signedness 
     static bool exactEqual(const llvm::APSInt& int1, const llvm::APSInt& int2) 
     {
-        if (int1.getBitWidth() != int2.getBitWidth()) 
-            return false;
-        if (int1.isUnsigned() != int2.isUnsigned()) 
-            return false;
+        if (int1.getBitWidth() != int2.getBitWidth()) return false;
+        if (int1.isUnsigned() != int2.isUnsigned()) return false;
         return (int1 == int2);
     }
     
@@ -447,6 +445,10 @@ public:
     bool isLocal() const {
         return var;
     };
+    
+    bool isTemp() const {
+        return var.isTmpVariable();
+    }
     
     /// Get string with all base class names including this class name
     static std::string getBaseString(const SRecord& obj) 

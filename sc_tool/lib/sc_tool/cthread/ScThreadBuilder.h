@@ -93,11 +93,12 @@ private:
                               std::unordered_set<SValue>& useVals, 
                               std::unordered_set<SValue>& defVals);
     
-    /// Add initialization values for non-modified member variables to 
-    /// generate them as @localparam
-    std::unordered_set<SValue> initNonDefinedVars(
+    /// Get initialized variables to skip report read-no-initialized error
+    std::unordered_set<SValue> getInitNonDefinedVars(
                             const std::unordered_set<SValue>& useVals,
                             const std::unordered_set<SValue>& defVals);
+    /// Clear initialization for variables which has been defined  
+    void clearDefinedVars(const std::unordered_set<SValue>& defVals);
 
     /// Generate Verilog for a single state
     /// Fill @traverseContextMap and return reachable wait IDs

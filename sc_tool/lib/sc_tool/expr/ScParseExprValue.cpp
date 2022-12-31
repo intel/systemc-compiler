@@ -43,57 +43,112 @@ void ScParseExprValue::declareValue(const SValue& var)
 
 void ScParseExprValue::writeToValue(const SValue& val, bool isDefined) 
 {
-    SValue var = state->writeToValue(val, isDefined);
+    QualType valType = getDerefType(val.getType());
+    bool isRecord = !val.isScChannel() && isUserClass(valType, false);
+    //cout << "writeToValue val " << val << " isDefined " << isDefined 
+    //     << " isRecord " << isRecord << endl;
     
-    if (var.isVariable()) {
-        //cout << "WR " << var << endl;
-        auto i = defVarStmts.emplace(var, unordered_set<Stmt*>({currStmt}));
-        if (!i.second) {
-            i.first->second.insert(currStmt);
+    // Write all record fields, do not consider record channel
+    // Do not consider record reference 
+    // Record/record channel value is also written together with its fields
+    if (isRecord) {
+        auto recDecl = valType->getAsRecordDecl();
+        SCT_TOOL_ASSERT (recDecl, "No record declaration found");
+        
+        SValue parent = val;
+        if (val.isVariable()) state->getValue(val, parent);
+        //cout << "  parent " << parent << endl;
+        
+        // Skip temporary record
+        if (!parent.isRecord() || !parent.getRecord().isTemp()) {
+            for (auto fieldDecl : recDecl->fields()) {
+                SValue fval(fieldDecl, parent);
+                writeToValue(fval, isDefined);
+            }
         }
-        
-        // Check is this variable is local in the current function
-        // Function parameters not considered, so function with internal calls
-        // cannot be evaluated as constant
-        auto declContext = var.getVariable().getDecl()->getDeclContext();
-        bool localVar = isa<clang::FunctionDecl>(declContext) && 
-                        funcDecl == declContext;
-
-        // If variable is non-local set side-effect for current function 
-        sideEffectFunc = sideEffectFunc || !localVar;
-        
     } else {
-        // Any kind of object except variable and temporary considered as non-local
-        sideEffectFunc = sideEffectFunc || !var.isTmpVariable();
+
+        SValue var = state->writeToValue(val, isDefined);
+
+        if (var.isVariable()) {
+        //cout << "WR " << var << endl;
+            auto i = defVarStmts.emplace(var, unordered_set<Stmt*>({currStmt}));
+            if (!i.second) {
+                i.first->second.insert(currStmt);
+            }
+
+            // Check is this variable is local in the current function
+            // Function parameters not considered, so function with internal calls
+            // cannot be evaluated as constant
+            auto declContext = var.getVariable().getDecl()->getDeclContext();
+            bool localVar = isa<clang::FunctionDecl>(declContext) && 
+                            funcDecl == declContext;
+
+            // If variable is non-local set side-effect for current function 
+            sideEffectFunc = sideEffectFunc || !localVar;
+
+        } else {
+            // Any kind of object except variable and temporary considered as non-local
+            sideEffectFunc = sideEffectFunc || !var.isTmpVariable();
+        }
     }
 }
 
 void ScParseExprValue::readFromValue(const SValue& val) 
 {
-    SValue var = state->readFromValue(val);
+    QualType valType = getDerefType(val.getType());
+    bool isRecord = !val.isScChannel() && isUserClass(valType, false);
+    //cout << "readFromValue val " << val << " isRecord " << isRecord << endl;
     
-    if (var.isVariable()) {
+    // Read all record fields, do not consider record channel
+    // Do not consider record reference 
+    // Record/record channel value is also read together with its fields
+    if (isRecord) {
+        auto recDecl = valType->getAsRecordDecl();
+        SCT_TOOL_ASSERT (recDecl, "No record declaration found");
+        
+        SValue parent = val;
+        if (val.isVariable()) state->getValue(val, parent);
+        //cout << "  parent " << parent << endl;
+
+        // Skip temporary record
+        if (!parent.isRecord() || !parent.getRecord().isTemp()) {
+            for (auto fieldDecl : recDecl->fields()) {
+                SValue fval(fieldDecl, parent);
+                readFromValue(fval);
+            }
+        }
+    } else {
+
+        SValue var = state->readFromValue(val);
+
+        if (var.isVariable()) {
         //cout << "RD " << var << endl;
-        auto i = useVarStmts.emplace(var, unordered_set<Stmt*>({currStmt}));
-        if (!i.second) {
-            i.first->second.insert(currStmt);
+            auto i = useVarStmts.emplace(var, unordered_set<Stmt*>({currStmt}));
+            if (!i.second) {
+                i.first->second.insert(currStmt);
+            }
         }
     }
 }
 
 /// Enter and exit constant evaluating mode 
 struct EvalMode {
+    bool isDebug;
     bool lastEvaluateConstMode;
     bool& evaluateConstMode;
     EvalMode(bool& mode) : 
         lastEvaluateConstMode(mode), evaluateConstMode(mode) 
     {
-        DebugOptions::suspend();
+        isDebug = DebugOptions::isDebug();
+        if (isDebug) DebugOptions::suspend();
         evaluateConstMode = true;
     }
     ~EvalMode() {
         evaluateConstMode = lastEvaluateConstMode;
-        if (!lastEvaluateConstMode) DebugOptions::resume();
+        if (isDebug && !lastEvaluateConstMode) {
+            DebugOptions::resume();
+        }
     }
 };
 
@@ -247,14 +302,21 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
     auto callExpr = isCall ? dyn_cast<CallExpr>(expr) : nullptr;
     auto ctorExpr = isCtor ? dyn_cast<CXXConstructExpr>(expr) : nullptr;
     
+    bool isOperator = callFuncDecl->isOverloadedOperator();
     unsigned paramIndx = 0;
     unsigned paramNum = callFuncDecl->getNumParams();
     auto arguments = isCall ? callExpr->arguments() : ctorExpr->arguments();
     
     // Increase level to create function parameters at the function level
     level += 1;
+    // Set function parameters flag to avoid another function/constructor call 
+    bool lastFuncParams = inFuncParams; inFuncParams = true;
     
     for (auto arg : arguments) {
+        // Skip first argument for operator which is this
+        if (isOperator) {
+            isOperator = false; continue;
+        }
         SCT_TOOL_ASSERT (paramIndx < paramNum, "Incorrect parameter index");
 
         // Remove @ExprWithCleanups from @CXXConstructExpr
@@ -282,7 +344,7 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
         bool isConstRef = sc::isConstReference(type);
         bool isPtr = type->isPointerType();
         bool isArray = type->isArrayType();
-        bool isRecord = isUserDefinedClass(type);
+        bool isRecord = isUserClass(getDerefType(type));
         
         // Fill state with parameter and corresponding argument value @arg
         // Parameter variable, can be array variable
@@ -328,7 +390,8 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
         
         //cout << "  pval " << pval << " : " << ipval << " isConstRefInit " << isConstRefInit << endl;
     }
-    
+
+    inFuncParams = lastFuncParams;
     level -= 1;
 }
 
@@ -354,7 +417,7 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
     bool isRef = type->isReferenceType();
     bool isPtr = type->isPointerType();
     bool isArr = type->isArrayType();
-    bool isRec = isUserDefinedClass(type);
+    bool isRec = isUserClass(getDerefType(type));
     bool isRecArr = !isRec && getUserDefinedClassFromArray(type);
     
     if (iexpr) {
@@ -528,7 +591,7 @@ void ScParseExprValue::parseExpr(CXXDefaultInitExpr* expr, SValue& val)
     }
 }
 
-// Used for default initializer in constructor or in aggregate initialization
+// Used for default initializer in constructor or aggregate initialization, T{}
 void ScParseExprValue::parseExpr(InitListExpr* expr, SValue& val)
 {
     QualType type = expr->getType();
@@ -564,6 +627,21 @@ void ScParseExprValue::parseExpr(InitListExpr* expr, SValue& val)
                                  ScDiag::SYNTH_UNSUPPORTED_INIT) << " no values";
         }    
     } else {
+        if (isUserClass(type)) {
+            if (auto recDecl = type->getAsCXXRecordDecl()) {
+                if (locrecvar) {
+                    ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                         ScDiag::SYNTH_RECORD_INIT_LIST);
+                }
+                SValue var(type, NO_VALUE);
+                val = createRecValue(recDecl, NO_VALUE, var, true, 0, false);
+            } else {
+                SCT_INTERNAL_ERROR(expr->getBeginLoc(), "Incorrect class type");
+            }
+        } else
+        if (expr->getNumInits() == 0) {
+            val = SValue(SValue::zeroValue(type));
+        } else
         if (expr->getNumInits() == 1) {
             val = evalSubExpr(expr->getInit(0));
         } else {
@@ -572,6 +650,28 @@ void ScParseExprValue::parseExpr(InitListExpr* expr, SValue& val)
         }
     }
 }
+
+// Used for construction temporary record object, T()
+void ScParseExprValue::parseExpr(CXXTemporaryObjectExpr* expr, SValue& val)
+{
+    QualType type = expr->getType();
+    
+    if (isUserClass(type)) {
+        if (auto recDecl = type->getAsCXXRecordDecl()) {
+            if (locrecvar) {
+                ScDiag::reportScDiag(expr->getBeginLoc(), 
+                             ScDiag::SYNTH_RECORD_INIT_LIST);
+            }
+            SValue var(type, NO_VALUE);
+            val = createRecValue(recDecl, NO_VALUE, var, true, 0, false);
+        } else {
+            SCT_INTERNAL_ERROR(expr->getBeginLoc(), "Incorrect class type");
+        }
+    } else {
+        parseExpr((CXXConstructExpr*)expr, val);
+    }
+}
+
 
 // CXX constructor, including @sc_in/@sc_out/@sc_signal/@sc_uint/...
 void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
@@ -691,7 +791,7 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
         }
 
     } else 
-    if (isUserDefinedClass(type)) {
+    if (isUserClass(type)) {
         // User defined class or structure
         if (isScModuleOrInterface(type)) {
             ScDiag::reportScDiag(expr->getBeginLoc(), 
@@ -711,52 +811,34 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
                                         "No argument in copy constructor");
                 }
 
-                SValue rval = evalSubExpr(expr->getArg(0));
+                // Created record value 
+                SValue lrec = createRecValue(type->getAsCXXRecordDecl(), 
+                                             modval, locrecvar, true, 0, false);
                 
+                // Get record from constructor argument
+                SValue rval = evalSubExpr(expr->getArg(0));
+                SValue rrec = rval; 
+                if (!rval.isRecord()) state->getValue(rval, rrec);
+
+                // Copy values of record fields or clear if @rrec is unknown
+                if (rrec.isRecord()) {
+                    copyRecFieldValues(lrec, rrec);
+                } else {
+                    // Record channel and others
+                    state->removeIntSubValues(lrec, false);
+                }
+
+                // Use array element with unknown index instead of record
                 bool unkwIndex;
                 bool isArr = state->isArray(rval, unkwIndex);
-                SValue rrec; 
-                
                 if (isArr && unkwIndex) {
-                    // Use array element with unknown index instead of record
                     rrec = rval;
-                    //cout << "RecUnknwIndx : rval " << rval << " rrec " << rrec << endl;
-                    
-                    // Return created record to assign to its variable
-                    val = parseRecordCtor(expr, modval, locrecvar, false);
-                    
-                } else {
-                    // Get normal record to create copy
-                    if (!rval.isRecord()) {
-                        state->getValue(rval, rrec); 
-                    } else {
-                        rrec = rval;
-                    }
-
-                    if (!rrec.isRecord()) {
-                        SCT_INTERNAL_ERROR (expr->getBeginLoc(), 
-                                "Incorrect value type for copy constructor");
-                    }
-
-                    if (!rval.isRecord()) {
-                        // Create record copy to avoid sharing the same record value
-                        // No set level as record is returned
-                        val = createRecordCopy(expr, rrec, locrecvar);
-                    } else {
-                        // This case is initialization with constructor parameter
-                        // where move constructor is used
-                        val = rrec;
-                    }
                 }
-
+                
                 // Add defined/read for record fields
-                auto recDecl = val.getType()->getAsCXXRecordDecl();
-                for (auto fieldDecl : recDecl->fields()) {
-                    SValue fval(fieldDecl, rrec);
-                    readFromValue(fval);
-                    fval = SValue(fieldDecl, val);
-                    writeToValue(fval);
-                }
+                readFromValue(rrec);
+                writeToValue(lrec, true); 
+                val = lrec;
                 
             } else {
                 // Normal constructor of local record
@@ -871,6 +953,7 @@ SValue ScParseExprValue::parseArraySubscript(Expr* expr, const SValue& bval,
                 val = eval;
             }
         } else {
+            cout << "parseArraySubscript, iival " << iival << endl; 
             SCT_INTERNAL_ERROR(expr->getBeginLoc(), 
                                "Incorrect array index value");
         }
@@ -1934,6 +2017,13 @@ SValue ScParseExprValue::getConcatVal(const SValue& fval, const SValue& sval)
         unsigned resWidth = fInfo.first + sInfo.first;
         bool resUnsign = fInfo.second && sInfo.second; 
         //cout << "resWidth " << resWidth << ", resSign " << !resUnsign << endl;
+        //cout << "sInt " << sInt.toString(10) << " fInt " << fInt.toString(10) << endl;
+        
+        // Ensure value has the same width as its type
+        fInt = fInt.extOrTrunc(fInfo.first);
+        sInt = sInt.extOrTrunc(sInfo.first);
+        SCT_TOOL_ASSERT(fInt.getBitWidth() == fInfo.first &&
+                        sInt.getBitWidth() == sInfo.first, "Bit width mismatched");
         
         APSInt resInt(resWidth, resUnsign);
         resInt.insertBits(sInt, 0);
@@ -2200,9 +2290,10 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
     tval = evalSubExpr(thisExpr);
     
     if (DebugOptions::isEnabled(DebugComponent::doConstFuncCall)) {
-        cout << "CXXMemberCallExpr this = " << thisType.getAsString() << ", fname = " 
-             << fname  << ", return type = " << retType.getAsString() 
-             << ", tval " << tval << ", module is " << modval << endl;
+        cout << "CXXMemberCallExpr this = " << thisType.getAsString() 
+             << ",\n fname = " << fname  << ", return type = " 
+             << retType.getAsString() << ", tval " << tval << ", module is " 
+             << modval << endl;
     }
     
     bool isScInteger = isAnyScIntegerRef(thisType, true);
@@ -2366,12 +2457,15 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
             
         } else
         if ((fname == "read" || (fname.find("operator") != string::npos && (
-             fname.find("int") != string::npos ||   // covers sc_int, sc_uint, ...
+             fname.find("const") != string::npos ||  // for operator const T&
+             fname.find("int") != string::npos ||    // covers sc_int, sc_uint, ...
              fname.find("char") != string::npos ||
              fname.find("long") != string::npos ||
              fname.find("bool") != string::npos ||
              fname.find("sc_bv") != string::npos))) && cval.isScChannel())
         {
+            // For record channel return channel value to access its fields
+            if (isUserClass(cval.getType(), false)) val = cval;
             // Mark channel variable as read, use @ttval to extract variable
             readFromValue(ttval);
         }
@@ -2432,7 +2526,8 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
 }
 
 // Operator call expression
-void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
+void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
+                                         SValue& val)
 {
     // There is generally no value for operator call
     val = NO_VALUE;
@@ -2447,6 +2542,14 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
     // Get first argument type, it can be this object
     Expr* thisExpr = args[0];
     QualType thisType = thisExpr->getType();
+    FunctionDecl* methodDecl = expr->getCalleeDecl()->getAsFunction();
+    if (methodDecl == nullptr) {
+        SCT_INTERNAL_FATAL(expr->getBeginLoc(),
+                           "No function found for call expression");
+    }
+    QualType retType = methodDecl->getReturnType();
+    auto nsname = getNamespaceAsStr(methodDecl);
+    
     // Method called for this pointer "->"
     bool isPointer = thisType->isAnyPointerType();
 
@@ -2461,43 +2564,16 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
     bool isAccessAtIndex = (isStdArray(thisType) || isStdVector(thisType) || 
                             isScVector(thisType)) && opcode == OO_Subscript;
     
-    std::vector<SValue> argsVec;
-    for (unsigned i = 0; i < argNum; ++i) {
-        bool lastAssignLHS = assignLHS;
-        if ((isAssignOperator || isIncrDecr || isCompoundAssign) && i == 0) 
-            assignLHS = true;
-        if (isAccessAtIndex && i == 1) assignLHS = false;
-        
-        unsigned lastWidth = strLiterWidth;
-        bool lastUnsigned = strLiterUnsigned;
-        if (isAssignOperator && i == 1) {
-            if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
-                strLiterWidth = typeInfo.getValue().first;
-                strLiterUnsigned = typeInfo.getValue().second;
-            } else {
-                strLiterWidth = 0;  // Provides no string literal parsing
-            }
-        }
-        
-        argsVec.push_back(evalSubExpr(args[i]));
-        
-        strLiterWidth = lastWidth; 
-        strLiterUnsigned = lastUnsigned;
-        assignLHS = lastAssignLHS;
-    }
-    
-    FunctionDecl* funcDecl = expr->getDirectCallee();
-    if (funcDecl == nullptr) {
-        SCT_INTERNAL_FATAL(expr->getBeginLoc(), 
-                         "No function found for call expression");
-    }
-    auto nsname = getNamespaceAsStr(funcDecl);
+    // Get value for @this 
+    bool lastAssignLHS = assignLHS;
+    if (isAssignOperator || isIncrDecr || isCompoundAssign) assignLHS = true;
+    tval = evalSubExpr(thisExpr);
+    assignLHS = lastAssignLHS;
     
     if (isPointer) {
         // There are no real examples for operator for pointer argument,
         // If found, use pointer dereference like in parseMemberCall():
         //SValue ttval = derefPointer(tval, callExpr, isScInteger || isChannel);
-
         ScDiag::reportScDiag(expr->getSourceRange().getBegin(), 
                      ScDiag::SYNTH_UNSUPPORTED_OPER) << "operator for pointer"
                      << opcodeStr;
@@ -2508,90 +2584,128 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         // Assignments with add, subtract, ... processed below
         SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
 
-        if (isAnyScIntegerRef(thisType, true)) {
-            assignValueInState(argsVec.at(0), argsVec.at(1));
-            val = argsVec.at(0);
-        } else 
-        if (isUserDefinedClass(thisType)) {
-            // Record pointer not supported yet
-            assignValueInState(argsVec.at(0), argsVec.at(1));
-            val = argsVec.at(0);
+        if (isAssignOperatorSupported(thisType)) {
+            // Declare temporary return variable in current module
+            val = NO_VALUE;
+            if (!isVoidType(retType)) {
+                val = SValue(retType, modval);
+            }
+            isUserCallStmt = true;
+            isRequiredStmt = true;
+            
+        } else {
+            bool isInt = isAnyScIntegerRef(thisType, true);
+            bool isRef = !thisType.isNull() && thisType->isReferenceType();
+            thisType = getDerefType(thisType);
+            bool isRecord = !isInt && isUserClass(thisType, true);
+            
+            // @strLiterWidth/@strLiterUnsigned work for integer argument only
+            unsigned lastWidth = strLiterWidth;
+            bool lastUnsigned = strLiterUnsigned;
+            if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
+                strLiterWidth = typeInfo.getValue().first;
+                strLiterUnsigned = typeInfo.getValue().second;
+            } else {
+                strLiterWidth = 0;  // Provides no string literal parsing
+            }
+            
+            // Set @locrecvar to provide owner to record value created for @rval
+            if (isRecord && !isRef) locrecvar = tval;
+            SValue rval = evalSubExpr(args[1]);
+            if (isRecord && !isRef) locrecvar = NO_VALUE;
+            
+            strLiterWidth = lastWidth; 
+            strLiterUnsigned = lastUnsigned;
+        
+            if (isInt) {
+                assignValueInState(tval, rval);
+                val = tval;
+            } else 
+            if (isRecord) {
+                // Record pointer not supported yet
+                assignRecValueInState(tval, rval);
+                val = tval;
+            }
+
+            // Mark variable/object/channel as written/read
+            readFromValue(rval);
+            writeToValue(tval);
+
+            isAssignStmt   = true;
+            isRequiredStmt = (sc::isScChannel(thisType) || 
+                              sc::isScChannelArray(thisType)) ? 
+                              true : isRequiredStmt;
         }
-        
-        // Mark variable/object/channel as written/read
-        readFromValue(argsVec.at(1));
-        writeToValue(argsVec.at(0));
-        
-        isAssignStmt   = true;
-        isRequiredStmt = (sc::isScChannel(thisType) || 
-                          sc::isScChannelArray(thisType)) ? 
-                          true : isRequiredStmt;
-        
     } else 
     if (isScPort(thisType) && opcode == OO_Arrow) {
         // Operator "->" for @sc_port<IF>
+        SCT_TOOL_ASSERT (argNum == 1, "Incorrect argument number");
 
         // Get value for @this which points-to module/MIF object
-        val = argsVec.at(0);
+        val = tval;
         
     } else
     if (isAccessAtIndex) {
         // std::array, std::vector, @sc_vector access at index
+        SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
         
-        // Parse base and index expression to fill @terms
-        SValue bval = argsVec.at(0); // Array variable 
-        SValue ival = argsVec.at(1); // Index value
-        readFromValue(ival);
-        
-        val = parseArraySubscript(expr, bval, ival);
+        bool lastAssignLHS = assignLHS;
+        assignLHS = false;
+        SValue rval = evalSubExpr(args[1]);
+        assignLHS = lastAssignLHS;
+        readFromValue(rval);
+
+        val = parseArraySubscript(expr, tval, rval);
         
     } else
     if (isIoStream(thisType)) {
-        // Do nothing for @cout << and @cin >>
+        // Do nothing for @cout << and @cin >>, do not parse other arguments
         
     } else 
     if (nsname && *nsname == "sc_dt") {
         // SC data types
         if (opcode == OO_Subscript) { // "[]"
             SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
-            readFromValue(argsVec.at(1));
+            
+            SValue rval = evalSubExpr(args[1]);
+            readFromValue(rval);
             // Read value for any usage, that can lead to extra register for LHS
-            readFromValue(argsVec.at(0));
+            readFromValue(tval);
             
             // Get bit value
-            val = evalRangeSelect(expr, argsVec.at(0), argsVec.at(1), argsVec.at(1));
+            val = evalRangeSelect(expr, tval, rval, rval);
 
             // Clear variable value if it in LHS
             if (assignLHS) {
-                state->putValue(argsVec.at(0), NO_VALUE);
-                
-                writeToValue(argsVec.at(0));
+                state->putValue(tval, NO_VALUE);
+                writeToValue(tval);
             }
             
         } else 
         if (opcode == OO_Call) {  // "()"
             SCT_TOOL_ASSERT (argNum == 3, "Incorrect argument number");
-            readFromValue(argsVec.at(1));
-            readFromValue(argsVec.at(2));
+            SValue rval = evalSubExpr(args[1]);
+            SValue rrval = evalSubExpr(args[2]);
+            readFromValue(rval);
+            readFromValue(rrval);
             // Read value for any usage, that can lead to extra register for LHS
-            readFromValue(argsVec.at(0));
+            readFromValue(tval);
             
             // Get range value
-            val = evalRangeSelect(expr, argsVec.at(0), argsVec.at(1), argsVec.at(2));
+            val = evalRangeSelect(expr, tval, rval, rrval);
 
             // Clear variable value if it in LHS
             if (assignLHS) {
-                state->putValue(argsVec.at(0), NO_VALUE);
-                
-                writeToValue(argsVec.at(0));
+                state->putValue(tval, NO_VALUE);
+                writeToValue(tval);
             }
             
         } else 
         if (opcode == OO_Exclaim) { // "!"
             SCT_TOOL_ASSERT (argNum == 1, "Incorrect argument number");
             
-            val = evalUnaryLNot(argsVec.at(0));
-            readFromValue(argsVec.at(0));
+            val = evalUnaryLNot(tval);
+            readFromValue(tval);
 
         } else 
         if (opcode == OO_Tilde) { // "~"
@@ -2599,29 +2713,30 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             // Get traits from expression (not argument) type
             if (auto i = getIntTraits(expr->getType())) {
                 // Bit width required to extend result of "~"
-                val = evalUnaryBNot(argsVec.at(0), i->first);
+                val = evalUnaryBNot(tval, i->first);
             } else {
                 // Do not use @evalUnaryBNot as it does not propagate MSB 
             }
-            readFromValue(argsVec.at(0));
+            readFromValue(tval);
 
         } else 
         if (opcode == OO_Comma) { // ","
             SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
 
+            SValue rval = evalSubExpr(args[1]);
             // Read value for any usage, that can lead to extra register for LHS
-            readFromValue(argsVec.at(0)); 
-            readFromValue(argsVec.at(1));
+            readFromValue(tval); 
+            readFromValue(rval);
             
             // Put concatenation expression
-            val = getConcatVal(argsVec.at(0), argsVec.at(1));
+            val = getConcatVal(tval, rval);
             
             // Clear variables if they are in LHS
             if (assignLHS) {
-                state->putValue(argsVec.at(0), NO_VALUE);
-                state->putValue(argsVec.at(1), NO_VALUE);
+                state->putValue(tval, NO_VALUE);
+                state->putValue(rval, NO_VALUE);
                 
-                writeToValue(argsVec.at(0)); writeToValue(argsVec.at(1));
+                writeToValue(tval); writeToValue(rval);
             }
             
         } else 
@@ -2631,11 +2746,11 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             SCT_TOOL_ASSERT (argNum == 1 || argNum == 2, 
                              "Incorrect argument number");
             
-            readFromValue(argsVec.at(0));
-            writeToValue(argsVec.at(0));
+            readFromValue(tval);
+            writeToValue(tval);
 
             bool isPrefix = (argNum == 1);
-            val = parseIncDecStmt(argsVec.at(0), isPrefix, opcode == OO_PlusPlus);
+            val = parseIncDecStmt(tval, isPrefix, opcode == OO_PlusPlus);
             
             // Not required to clear value if @assignLHS as it is normally assigned
             if (assignLHS) {
@@ -2649,12 +2764,12 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             
         } else    
         // Unary "-" and "+"
-        if (argNum == 1 && (opcode == OO_Plus || opcode == OO_Minus)) 
-        {
-            readFromValue(argsVec.at(0));
+        if (argNum == 1 && (opcode == OO_Plus || opcode == OO_Minus)) {
+            
+            readFromValue(tval);
             
             if (opcode == OO_Minus) {
-                SValue rrval = getValueFromState(argsVec.at(0));
+                SValue rrval = getValueFromState(tval);
                 
                 if (rrval.isInteger()) {
                     // Minus operation, result is signed
@@ -2663,7 +2778,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
                     //cout << "Minus rval " << rrval << " val " << val << endl;
                 }
             } else {
-                val = argsVec.at(0);
+                val = tval;
             }
             
         } else 
@@ -2682,12 +2797,13 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             SCT_TOOL_ASSERT (opcode != OO_AmpAmp && opcode != OO_PipePipe,
                              "No &&/|| for SC data types supported");
                     
-            readFromValue(argsVec.at(0));
-            readFromValue(argsVec.at(1));
+            SValue rval = evalSubExpr(args[1]);
+            readFromValue(tval);
+            readFromValue(rval);
 
             // Prepare values for @lval and @rval for arithmetic operations
-            SValue llval = getValueFromState(argsVec.at(0));
-            SValue rrval = getValueFromState(argsVec.at(1));
+            SValue llval = getValueFromState(tval);
+            SValue rrval = getValueFromState(rval);
             // Get referenced variable for @llval and @rrval
             SValue tmp;
             state->getDerefVariable(rrval, tmp); rrval = tmp;
@@ -2791,7 +2907,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
             if (llval.isInteger() || rrval.isInteger()) {
                 val = NO_VALUE;
                 SValue int1 = (llval.isInteger()) ? llval : rrval;
-                SValue uval = (llval.isInteger()) ? argsVec.at(1) : argsVec.at(0);
+                SValue uval = (llval.isInteger()) ? rval : tval;
                 // Variable GE or GT than literal
                 bool equalNotEqual = opcode == OO_EqualEqual || 
                                      opcode == OO_ExclaimEqual;
@@ -2835,14 +2951,15 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
         {
             SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
             
+            SValue rval = evalSubExpr(args[1]);
             // Add @lval to @read first to produce @readndef if required
-            readFromValue(argsVec.at(1));
-            readFromValue(argsVec.at(0));
-            writeToValue(argsVec.at(0));
+            readFromValue(rval);
+            readFromValue(tval);
+            writeToValue(tval);
             
             // Prepare values for @lval and @rval for arithmetic operations
-            SValue llval = getValueFromState(argsVec.at(0));
-            SValue rrval = getValueFromState(argsVec.at(1));
+            SValue llval = getValueFromState(tval);
+            SValue rrval = getValueFromState(rval);
             // Get referenced variable for @llval and @rrval
             SValue tmp;
             state->getDerefVariable(rrval, tmp); rrval = tmp;
@@ -2904,16 +3021,16 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& val)
                 }
 
                 // Update the @lval and return it
-                state->putValue(argsVec.at(0), SValue(res, llval.getRadix())); 
+                state->putValue(tval, SValue(res, llval.getRadix())); 
                 
             } else {
                 // Remove LHS variable value (de-reference inside)
                 // Remove values for all array elements by unknown element access
-                state->putValue(argsVec.at(0), NO_VALUE);
+                state->putValue(tval, NO_VALUE);
             }
             
             // Return @lval anyway
-            val = argsVec.at(0);
+            val = tval;
             isSideEffStmt  = true;
             isAssignStmt   = true;
             isRequiredStmt = true;

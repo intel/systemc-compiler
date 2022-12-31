@@ -124,6 +124,10 @@ public:
             initVals.append(vals); 
         }
     }
+    
+    void clearInitVals() {
+        initVals.clear();
+    }
 
     bool operator == (const VerilogVar &other) const
     {
@@ -210,8 +214,7 @@ public:
     {
         return bindings;
     }
-
-
+    
     /// Creates port binding in Verilog in form
     /// .instancePort( hostVar[x][y][z] )
     void addBinding(VerilogVar* instancePort, VerilogVarRef hostVarRef);
@@ -550,6 +553,19 @@ public:
     }
 
     VerilogVarsVec getVerVariables(ObjectView scObj) const;
+    
+    void printVars() const
+    {
+        using std::cout; using std::endl;
+        cout << "channelVarMap" << endl;
+        for (const auto& entry : channelVarMap) {
+            cout << entry.first.getDebugString() << endl;
+        }
+        cout << "dataVarMap" << endl;
+        for (const auto& entry : dataVarMap) {
+            cout << entry.first.getDebugString() << endl;
+        }
+    }
 
     VerilogModuleInstance* getInstance(ModuleMIFView modObj);
 

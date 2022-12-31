@@ -60,13 +60,10 @@ public:
                         const SValue& dynmodval,
                         sc_elab::ProcessView procView);
     
-    /// Add initialization values for non-modified member variables to 
-    /// generate them as @localparam
-    void initNonDefinedVars(sc_elab::ProcessView& procView,
+    /// Clear initialization for variables which has been defined  
+    void clearDefinedVars(sc_elab::ProcessView& procView,
                             const SValue& dynmodval,
-                            const std::unordered_set<SValue>& useVals,
                             const std::unordered_set<SValue>& defVals);
-
 
     /// Generated SVA property code from module scope SCT_ASSERT
     std::string analyzeSvaProperties(

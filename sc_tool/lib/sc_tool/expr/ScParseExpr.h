@@ -56,6 +56,9 @@ protected:
     /// only for design elaboration, for constant propagation not used
     bool checkNoValue;
     
+    /// Inside of function parameters parsing, used to avoid function/constructor
+    /// call inside of parameter s of another call
+    bool inFuncParams = false;
     /// Do not add variable in ScParseRangeExpr 
     bool skipRangeVar = false;
     /// Current expression is LHS which could be modified (assigned), 
@@ -68,6 +71,8 @@ protected:
     /// Record variable value from currently analyzed @DeclStmt,
     /// used in record constructor code generation
     SValue locrecvar = NO_VALUE;
+    /// Temporary constructed record with InitListExpr and CXXTemporaryObjectExpr
+    SValue temprec = NO_VALUE;
     
 public:
 
@@ -112,13 +117,17 @@ public:
     /// Parse global/static constant and put its value to state
     virtual void parseGlobalConstant(const SValue& sVar);
 
-    /// Put @rval or value of @rval to @lval in the state 
-    /// Use in assignment operator in value sensitive analysis
+    /// Variable value assignment or clear
+    /// Used in assignment operator in value sensitive analysis
     /// Support references initialization and assignment
     /// if @rval is variable or object get its value, else use @rval as value
     ///    @rval is SC object : @lval -> @rval
     ///    otherwise          : @lval = @rval 
-    virtual void assignValueInState(const SValue& lval, const SValue& rval,
+    void assignValueInState(const SValue& lval, const SValue& rval,
+                ArrayUnkwnMode returnUnknown = ArrayUnkwnMode::amNoValue);
+    /// Record fields values assignment or clear
+    /// \param @lval -- record variable
+    void assignRecValueInState(const SValue &lval, const SValue &rval,
                 ArrayUnkwnMode returnUnknown = ArrayUnkwnMode::amNoValue);
 
     ///  Get @lval or value of @lval from the state 
@@ -136,19 +145,25 @@ public:
                 ArrayUnkwnMode returnUnknown = ArrayUnkwnMode::amNoValue);
     
     /// Create record/module object value and parse its field declarations, 
-    /// no constructor function call. Used for arrays of record elements
+    /// no constructor function call. 
     /// \param var -- local variable/member owns this record
     /// \param index -- local element number in single/multi dimensional array
+    /// \param checkConst -- get only constant variables in expression and 
+    ///                      put value to state for constant variable only
     SValue createRecValue(const clang::CXXRecordDecl* recDecl, 
                           const SValue& parent, const SValue& var, 
-                          bool parseFields, size_t index = 0);
+                          bool parseFields, size_t index = 0, 
+                          bool checkConst = true);
     
-    /// Create record value copy and also create tuples for its fields 
-    /// with copied values
-    /// \param var -- local variable/member owns this record
-    /// \return record value
-    SValue createRecordCopy(clang::CXXConstructExpr* expr,
-                            const SValue& val, const SValue& var);
+    /// Copy values of record fields from @rval to @lval
+    /// \param lval -- target record value 
+    /// \param rval -- source record value
+    void copyRecFieldValues(const SValue& lval, const SValue& rval);
+    
+    /// Put record fields declarations into @codeWriter, used in generate code only 
+    /// Used for copy/move record constructor where records fields must be declared
+    /// \param lval -- record value to put into codeWriter
+    void declareRecFields(const SValue& lval); 
     
     /// Generate record constructor including its base class constructor, 
     /// member initialization
@@ -202,7 +217,7 @@ public:
     ///                      but funcModval for method call (can differ from modval)
     /// \param checkConst -- get only constant variables in expression and 
     ///                      put value to state for constant variable only
-    /// \return declared value
+    /// \return <declared value, initialization value(s)>
     std::pair<SValue, std::vector<SValue> >  
             parseValueDecl(clang::ValueDecl* decl,
                           const SValue& declModval, 
@@ -303,7 +318,12 @@ protected:
     virtual void parseExpr(clang::CXXDefaultInitExpr* expr, SValue& val) {}
 
     /// Used for default initializer in constructor or in aggregate initialization
+    /// T{}
     virtual void parseExpr(clang::InitListExpr* expr, SValue& val) {}
+    
+    /// Used for default constructor 
+    /// T()
+    virtual void parseExpr(clang::CXXTemporaryObjectExpr* expr, SValue& val) {}
     
     /// C++ type default initializer (0), used for array filler 
     virtual void parseExpr(clang::ImplicitValueInitExpr* expr, SValue& val);
@@ -326,7 +346,6 @@ protected:
                                SValue& val, clang::Expr* initExpr = nullptr) {}
     
     /// Parse field declaration without initialization to put into codeWriter, 
-    /// used in createRecordCopy
     /// \param lfvar -- field variable
     virtual void parseFieldDecl(clang::ValueDecl* decl, const SValue& lfvar) {}
     
@@ -355,20 +374,20 @@ protected:
     /// Function call expression
     virtual void parseCall(clang::CallExpr* expr, SValue& val) {}
 
-    /// Operator call expression
-    virtual void parseOperatorCall(clang::CXXOperatorCallExpr* expr, 
-                                   SValue& val) {}
-
     /// Member function call expression
     virtual void parseMemberCall(clang::CXXMemberCallExpr* expr,
                                  SValue& tval, SValue& val) {}
+
+    /// Operator call expression
+    virtual void parseOperatorCall(clang::CXXOperatorCallExpr* expr, 
+                                   SValue& tval, SValue& val) {}
 
     /// Return statement
     virtual void parseReturnStmt(clang::ReturnStmt* stmt, SValue& val) {}
     
     /// Transform temporary that is written to memory so that a reference can bind it
     virtual void parseExpr(clang::MaterializeTemporaryExpr* expr, SValue& val) {
-        val = evalSubExpr(getTemporaryExpr(expr));
+        val = evalSubExpr(expr->getSubExpr());
     }
 
     /// Expression with cleanup

@@ -22,10 +22,6 @@
 
 namespace sc {
     
-// Get canonical type with qualifiers removed, 
-// must be used to identify "const T" as T with @DeclDB
-clang::QualType getPureType(clang::QualType type);
-    
 struct IntTraits {
     IntTraits (size_t width, bool isSigned)
     : width(width), isSigned(isSigned) {}
@@ -137,11 +133,27 @@ bool isScChannel(clang::QualType type, bool checkPointer = true);
 /// \param checkPointer -- check array of pointers to channel
 bool isScChannelArray(clang::QualType type, bool checkPointer = true);
 
+/// Get record type if it is SC channel of record type, or none
+llvm::Optional<clang::QualType>  
+isUserClassChannel(clang::QualType type, bool checkPointer = true);
+
 /// Any the type in sc_core namespace
 bool isAnyScCoreObject(clang::QualType type);
 
 /// \return true if type is in sc_core namespace
 bool isScCoreType(clang::QualType type);
+
+/// ...
+bool isSctFifo(clang::QualType type);
+bool isSctTarg(clang::QualType type);
+bool isSctCombTarg(clang::QualType type);
+
+/// Check for SS channels used in sensitivity lists
+/// For ff_synchronizer only read()/operator bool() required to add in sensitivity 
+bool isSctChannelSens(clang::QualType type, const clang::FunctionDecl* funcDecl);
+
+/// Check if operator = is supported for type, sct_register and sct_ff_synchronizer
+bool isAssignOperatorSupported(clang::QualType type);
 
 bool isScProcess(clang::QualType type);
 bool isScMethod(clang::QualType type);

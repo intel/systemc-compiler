@@ -259,6 +259,25 @@ localparam logic signed [31:0] D = 'd42;
 
 There is {\tt REPLACE\_CONST\_VARIABLES} option to replace the constants in the code with their values, see~\ref{section:tool_options}. A constant is replaced with its value if the value if there is no reference to the constant. If constant is replaced with its value or not used in the code, no SV local parameter is generated.
 
+\subsection{Integer variable initialization from string}\label{section:string_to_int}
+
+Integer variable of SC type ({\tt sc\_uint}, {\tt sc\_int}, {\tt sc\_biguint}, {\tt sc\_bigint}) can be initialized from string literal or string variable. The string should contain correct integer value in any radix supported. For {\tt sc\_biguint} and {\tt sc\_bigint} initialization value could be more than 64 bits. String variable should be initialized at elaboration phase (in a module constructor).
+
+\begin{lstlisting}[style=mycpp]
+const char* cstr = "43";
+std::string str;                    // Initialized in constructor or a method call
+
+void someProc() {
+    sc_uint<16> ux = "0b110011";    // Initialization with string literal
+    ux = "42";                      // String literal assignment    
+    ux = sc_uint<5>("0x42");        // Cast at initialization supported
+    ux = cstr;                      // C string assignment
+    ux = str.c_str();               // std::string assignment
+    sc_biguint<65> bu;  
+    bu = "0x1FFFF1111FFFF1111";     // More than 64bit literal
+}
+\end{lstlisting}
+
 \subsection{Method process generation}\label{section:method_gen}
 
 Method process is directly translated into {\tt always\_comb} block. All the local variables of the method are translated into local variables in the {\tt always\_comb} block. 
@@ -716,7 +735,7 @@ endcase
 
 \subsection{Records generation}\label{section:record_gen}
 
-Records can be used as member and local non-channel variables. Record cannot be used as type parameter of a channel. Record fields are generated in SV code as separate variables. Field variable name in SV code is field name with record variable name prefix.
+Records can be used as member and local variables. Record can be type parameter of a channel. Record fields are generated in SV code as separate variables. Field variable name in SV code is field name with record variable name prefix.
 
 In the following example there is local record variable with non-empty constructor. Constructor code inserted after record field variables declaration.
 %
@@ -746,6 +765,77 @@ begin : record_local_var1     // test_simple_method.cpp:110:5
     r_x = 2;
     // Call Rec1() end
     r_x = r_y + 2;
+end
+\end{lstlisting}
+
+Record variable can be assigned to another variable, references to records are supported. \begin{lstlisting}[style=mycpp]
+// Local variables record type
+struct Rec1 {
+    int x;
+    sc_int<2> y;       
+};
+void record_assignment() {
+    Rec1 r; Rec1 p;
+    r = p;
+    Rec1& ref = r;
+    r = p;  
+} 
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+always_comb 
+begin : record_assignment     // test_chan_type_meth.cpp:89:5
+    integer r_x;
+    logic signed [1:0] r_y;
+    integer p_x;
+    logic signed [1:0] p_y;
+    r_y = 0;
+    p_y = 0;
+    r_x = p_x; r_y = p_y;
+    r_x = p_x; r_y = p_y;
+end
+\end{lstlisting}
+
+Records can be used as signal/port type. Such record should have {\tt operator==()}, {\tt operator<<(std::ostream) and {\tt sc\_trace()} implemented.
+\begin{lstlisting}[style=mycpp]
+// Local variables record type
+struct Rec1 {
+    int x;
+    sc_int<2> y;       
+    bool operator == (const Rec1& other) {
+        return (x == other.x && y == other.y);
+    }
+};
+inline ::std::ostream& operator << (::std::ostream& os, const Rec1& s) {
+    os << s.x << s.y;
+    return os;
+}
+namespace sc_core {
+void sc_trace(sc_trace_file* , const Rec1&, const std::string&) {}
+}
+
+sc_signal<Rec1>   sig{"sig"};
+void record_channels() {
+    Rec1 r;
+    r = sig.read();
+    r = sig;
+    sig.write(r);
+    sig = r;
+    int x = sig.read().x;
+}  
+\end{lstlisting}
+\begin{lstlisting}[style=myverilog]
+always_comb 
+begin : record_channels     // test_chan_type_meth.cpp:97:5
+    integer r_x;
+    logic signed [1:0] r_y;
+    integer x;
+    r_y = 0;
+    r_x = sig_x; r_y = sig_y;
+    r_x = sig_x; r_y = sig_y;
+    sig_x = r_x; sig_y = r_y;
+    sig_x = r_x; sig_y = r_y;
+    x = sig_x;
 end
 \end{lstlisting}
 

@@ -26,6 +26,13 @@ const uint32_t EPRECISION = 64;
 /// Get radix from number in the string, string must contain correct number
 char getRadix(const std::string& s); 
 
+// Get canonical type with qualifiers removed, 
+// must be used to identify "const T" as T with @DeclDB
+clang::QualType getPureType(clang::QualType type);
+
+/// Get de-referenced type if this type is reference or this type otherwise
+clang::QualType getDerefType(clang::QualType type);
+
 /// Is constant or constant reference type
 bool isConstOrConstRef(clang::QualType type);
 
@@ -96,7 +103,7 @@ bool isIoStream(clang::QualType type);
 
 /// Check SC module or CXX class/structure, but not SC channel or SC data type
 /// Do not check reference, use type.getNonReferenceType() if required
-bool isUserDefinedClass(clang::QualType type, bool checkPointer = false);
+bool isUserClass(clang::QualType type, bool checkPointer = false);
 
 /// Check any class/structure/module type
 /// \param checkPointer -- check array of pointers to class
@@ -163,10 +170,6 @@ clang::Stmt* removeExprCleanups(clang::Stmt* stmt);
 
 /// Check if expression contains a sub-expression of boolean type
 bool isBoolArgument(const clang::Expr* expr);
-
-/// Get temporary expression for @MaterializeTemporaryExpr
-/// There are different API for Clang 7.0.0 and 10.0.0
-clang::Expr* getTemporaryExpr(clang::MaterializeTemporaryExpr* expr);
 
 }
 
