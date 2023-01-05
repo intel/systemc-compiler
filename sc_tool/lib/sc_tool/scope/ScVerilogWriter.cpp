@@ -802,10 +802,9 @@ std::string ScVerilogWriter::makeLiteralStr(APSInt val,
     bool isOne = val == 1;
     bool isNegative = val < 0;
     unsigned bitNeeded = getBitsNeeded(val);
-//    cout << "literStr" << literStr << " getBitsNeeded " << bitNeeded 
+//    cout << "  getBitsNeeded " << bitNeeded 
 //         << " val.abs().getActiveBits() " << val.abs().getActiveBits() 
-//         << " val.getActiveBits() " << val.getActiveBits() 
-//         << " APSInt::getBitsNeeded " << APSInt::getBitsNeeded(literStr, 10) << endl;
+//         << " val.getActiveBits() " << val.getActiveBits() << endl;
     
     // It is possible to have no cast for non-negative literal in integer range
     bool valueCast = minCastWidth;
@@ -840,7 +839,7 @@ std::string ScVerilogWriter::makeLiteralStr(APSInt val,
                        radix == 8 ? "o" : "b");
     }
     
-//    cout << "literStr " << literStr << " isCast " << isCast << " minCastWidth "
+//    cout << "  isCast " << isCast << " minCastWidth "
 //         << minCastWidth << " isSignCast " << isSignCast << " isUnsignCast " 
 //         << isUnsignCast << endl;
 
@@ -864,7 +863,7 @@ std::string ScVerilogWriter::makeLiteralStr(APSInt val,
     if (isNegative && addNegBrackets) {
         s = '(' + s + ')';
     }
-    //cout << "makeLiteralStr " << literStr << " => "  << s << endl;
+//    cout << "  result " << s << endl;
 
     return s;
 }
