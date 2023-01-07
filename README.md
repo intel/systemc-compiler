@@ -32,6 +32,8 @@ ICSC mostly supports [SystemC Synthesizable Subset](https://www.accellera.org/im
 
 * [SystemC-to-Verilog Compiler: a productivity-focused tool for hardware design in cycle-accurate SystemC](https://github.com/intel/systemc-compiler/blob/main/doc/papers/icsc.pdf) at DvCon'2019
 * [Temporal assertions in SystemC](https://github.com/intel/systemc-compiler/blob/main/doc/papers/sct_assert.pdf) at DvCon'2020 and SystemC evolution day'2020
+* [Intel Compiler for SystemC and SystemC common library](https://github.com/intel/systemc-compiler/blob/main/doc/papers/common_library_2022.pdf) at CHIPS tech summit 2022
+
 
 ## Help
 
