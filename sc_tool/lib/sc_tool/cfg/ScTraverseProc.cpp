@@ -372,6 +372,18 @@ void ScTraverseProc::parseCall(CallExpr* expr, SValue& val)
 void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval, 
                                      SValue& val) 
 {
+    // Get @this expression and its type
+    Expr* thisExpr = expr->getImplicitObjectArgument();
+    QualType thisType = thisExpr->getType();
+    bool isZeroWidth = isScZeroWidth(thisType);
+    
+    if (isZeroWidth) {
+        // No function call for @sct_zero_width
+        val = SValue(APSInt(32, true), 10);
+        codeWriter->putLiteral(expr, val);
+        return;
+    }
+    
     // Parse this expression inside and put result into @tval
     ScGenerateExpr::parseMemberCall(expr, tval, val);
     // Return value passed in @val
@@ -381,10 +393,6 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
     FunctionDecl* methodDecl = expr->getMethodDecl()->getAsFunction();
     string fname = methodDecl->getNameAsString();
     QualType retType = methodDecl->getReturnType();
-    
-    // Get @this expression and its type
-    Expr* thisExpr = expr->getImplicitObjectArgument();
-    QualType thisType = thisExpr->getType();
     
     if ( isAnyScIntegerRef(thisType, true) ) {
         // Do nothing 
@@ -524,6 +532,15 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
 void ScTraverseProc::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                                        SValue& val) 
 {
+    SCT_TOOL_ASSERT (expr->getNumArgs() != 0, "Operator without arguments");
+    Expr* thisExpr = expr->getArgs()[0];
+    bool isZeroWidth = isScZeroWidth(thisExpr->getType());
+
+    if (isZeroWidth) {
+        val = SValue(APSInt(32, true), 10);
+        return;
+    }
+    
     // Parse this expression inside and put result into @tval
     ScGenerateExpr::parseOperatorCall(expr, tval, val);
 
@@ -941,21 +958,23 @@ void ScTraverseProc::run()
                     // Get statement level and check if it is sub-statement
                     bool isStmt = false; 
                     bool isCallSubStmt = false;
+                    bool isZeroWidth = isZeroWidthCall(currStmt);
                     if (auto stmtLevel = stmtInfo.getLevel(currStmt)) {
-                        level = *stmtLevel; 
-                        isStmt = true;
+                        level = *stmtLevel;
+                        isStmt = !isZeroWidth;
 
                     } else 
                     if (auto stmtLevel = stmtInfo.getDeclGroupLevel(currStmt)) {
                         level = *stmtLevel;
-                        isStmt = true;
+                        isStmt = !isZeroWidth;
                         
                     } else 
                     if (auto superStmt = stmtInfo.getSuperStmt(currStmt)) {
                         if (auto superStmtLevel = stmtInfo.getLevel(superStmt)) {
                             level = *superStmtLevel;
-                            isCallSubStmt = isUserCallExpr(currStmt); 
-                            isStmt = isCallSubStmt && !isIoStreamStmt(superStmt) &&
+                            isCallSubStmt = isUserCallExpr(currStmt);
+                            isStmt = isCallSubStmt && !isZeroWidth &&
+                                     !isIoStreamStmt(superStmt) &&
                                      !codeWriter->isParseSvaArg();
                         }
                         //cout << hex << "getSubStmtLevel " << currStmt << endl;

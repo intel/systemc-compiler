@@ -33,6 +33,8 @@ namespace sc
 {
 
 namespace {
+    
+using std::cout; using std::endl; using std::hex; using std::dec;
 
 auto getDeclContexts(const clang::NamedDecl *decl)
 {
@@ -286,6 +288,7 @@ bool isWaitDecl(const clang::FunctionDecl *funcDecl)
 // Check is type is any signed type
 bool isSignedType(clang::QualType type) 
 {
+    if (type.isNull()) return false;
     type = getPureType(type);
     
     // Boolean is considered as logic unsigned
@@ -297,32 +300,56 @@ bool isSignedType(clang::QualType type)
 
 bool isScInt(clang::QualType type)
 {
+    if (type.isNull()) return false;
     type = getPureType(type);
     return isDerivedFrom(type, db->scIntBaseType);
 }
 
 bool isScUInt(clang::QualType type)
 {
+    if (type.isNull()) return false;
     type = getPureType(type);
     return isDerivedFrom(type, db->scUIntBaseType);
 }
 
 bool isScBigInt(clang::QualType type)
 {
+    if (type.isNull()) return false;
     type = getPureType(type);
     return isDerivedFrom(type, db->scSignedType);
 }
 
 bool isScBigUInt(clang::QualType type)
 {
+    if (type.isNull()) return false;
     type = getPureType(type);
     return isDerivedFrom(type, db->scUnsignedType);
 }
 
 bool isScBitVector(clang::QualType type)
 {
+    if (type.isNull()) return false;
     type = getPureType(type);
     return isDerivedFrom(type, db->scBitVector);
+}
+
+bool isScZeroWidth(clang::QualType type) {
+    if (type.isNull()) return false;
+    type = getPureType(type);
+    if (auto chanType = isUserClassChannel(type)) {
+        type = *chanType;
+    }
+    return (!type.getAsString().compare("struct sc_dt::sct_zero_width"));
+}
+
+bool isScZeroWidthArray(clang::QualType type) {
+    if (type.isNull()) return false;
+    type = getArrayElementType(type);
+    type = getPureType(type);
+    if (auto chanType = isUserClassChannel(type)) {
+        type = *chanType;
+    }
+    return (!type.getAsString().compare("struct sc_dt::sct_zero_width"));
 }
 
 bool isAnyScInteger(clang::QualType type)
@@ -491,6 +518,11 @@ llvm::Optional<std::pair<size_t, bool>> getIntTraits(clang::QualType type,
     }
     type = getPureType(type);
     
+    if (isScZeroWidth(type)) {
+        // ZWI value is 32bit unsigned
+        return std::pair<size_t, bool>(32, true);
+        
+    } else 
     if (auto etype = dyn_cast<EnumType>(type)) {
         auto edecl = etype->getDecl();
         size_t width= edecl->getNumPositiveBits() + edecl->getNumNegativeBits();

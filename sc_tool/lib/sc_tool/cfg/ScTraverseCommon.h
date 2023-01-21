@@ -177,6 +177,9 @@ public:
     }
 };
 
+/// Check if statement is member function of @sct_zero_width
+bool isZeroWidthCall(clang::Stmt* stmt);
+
 /// Check if statement is call expression of user defined function/method
 bool isUserCallExpr(clang::Stmt* stmt);
 

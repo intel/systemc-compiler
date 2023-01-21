@@ -71,6 +71,9 @@ protected:
     /// Record variable value from currently analyzed @DeclStmt,
     /// used in record constructor code generation
     SValue locrecvar = NO_VALUE;
+    /// Is record variable already constructed with normal constructor
+    /// Used in copy/move constructor to avoid double assignment of record fields
+    bool locrecvarCtor = false;
     /// Temporary constructed record with InitListExpr and CXXTemporaryObjectExpr
     SValue temprec = NO_VALUE;
     

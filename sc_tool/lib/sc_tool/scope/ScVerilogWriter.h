@@ -798,7 +798,8 @@ protected:
     /// Array indices for current subscript statement, 
     /// used for record/MIF array access
     std::vector<std::pair<SValue, const clang::Stmt*> >  arraySubIndices;
-    /// Expression/variable strings for reference type value
+    /// Expression/variable strings for reference type value 
+    /// <reference value, <rdName, wrName>>
     std::unordered_map<SValue, std::pair<std::string, 
                                          std::string> > refValueDecl;
     /// Expression/variable strings for pointer type value

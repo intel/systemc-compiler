@@ -43,24 +43,29 @@ bool isWaitDecl(const clang::FunctionDecl *funcDecl);
 /// Check is type is any signed type
 bool isSignedType(clang::QualType type);
 
-// Check if type is SystemC integer
+/// Check if type is SystemC integer
 bool isScInt(clang::QualType type);
 bool isScUInt(clang::QualType type);
 bool isScBigInt(clang::QualType type);
 bool isScBigUInt(clang::QualType type);
-// Check for @sc_bv
+/// Check for @sc_bv
 bool isScBitVector(clang::QualType type);
 
-// Is any of SystemC integer type
+/// Check for @sct_zero_width or sc_signal/sc_in/sc_out of @sct_zero_width type
+/// \return false for SS channel of @sct_zero_width
+bool isScZeroWidth(clang::QualType type);
+bool isScZeroWidthArray(clang::QualType type);
+
+/// Is any of SystemC integer type
 bool isAnyScInteger(clang::QualType type);
-// Is any of SystemC integer type or SystemC subref/concatref
+/// Is any of SystemC integer type or SystemC subref/concatref
 bool isAnyScIntegerRef(clang::QualType type, bool checkPointer = false);
-// Is not supported SC integer types
+/// Is not supported SC integer types
 bool isScNotSupported(clang::QualType type, bool checkPointer);
 
-// Is any of C++ built-in, enum, SystemC integer type or SystemC subref/concatref
+/// Is any of C++ built-in, enum, SystemC integer type or SystemC subref/concatref
 bool isAnyIntegerRef(clang::QualType type);
-// Is any of C++ built-in, enum, SystemC integer type 
+/// Is any of C++ built-in, enum, SystemC integer type 
 bool isAnyInteger(clang::QualType type);
 
 /// Check array of @sc_int/@sc_bigint/@sc_uint/@sc_biguint type or 
@@ -73,11 +78,11 @@ llvm::Optional<size_t> getScUintBiguintBitVec(clang::QualType type);
 /// Check @sc_int or @sc_bigint type and optionally return bit number
 llvm::Optional<size_t> getScIntBigint(clang::QualType type);
 
-// Check type is @sc_signed which is base class for @sc_bigint but not template, 
-// used for operation result of @sc_bigint
+/// Check type is @sc_signed which is base class for @sc_bigint but not template, 
+/// used for operation result of @sc_bigint
 bool isScSigned(clang::QualType type);
-// Check type is @sc_unsigned which is base class for @sc_biguint but not template, 
-// used for operation result of @sc_biguint
+/// Check type is @sc_unsigned which is base class for @sc_biguint but not template, 
+/// used for operation result of @sc_biguint
 bool isScUnsigned(clang::QualType type);
 
 /// Try to get integer type for which width can be obtained by @getIntTraits()

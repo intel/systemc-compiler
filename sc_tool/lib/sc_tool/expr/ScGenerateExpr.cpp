@@ -470,7 +470,10 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
         
         ParmVarDecl* parDecl = const_cast<ParmVarDecl*>(
                                callFuncDecl->getParamDecl(paramIndx++));
-
+        // Skip zero width parameter
+        if (isScZeroWidth(parDecl->getType()) || 
+            isScZeroWidthArray(parDecl->getType())) continue;
+                
         // Get original type, required as array passed to function as pointer
         QualType type = parDecl->getType();
         if (isScPort(type)) {
@@ -526,7 +529,9 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
                    iival.isArray() || iival.isSimpleObject() || isChanRef) )
             {
                 // Constant reference refers to RValue, special variable created
-                SCT_TOOL_ASSERT (!isRecord, "Unexpected record initialization");
+                if (isRecord)
+                    SCT_INTERNAL_ERROR (argExpr->getBeginLoc(), 
+                                        "Unexpected record initialization");
                 SCT_TOOL_ASSERT (isConst, "Incorrect reference initializer");
                 
                 // Put constant reference to itself to use variable name in code
@@ -548,7 +553,12 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
                 // Store indices string for array record passed by reference
                 bool isRecordRef = isUserClass(refType);
                 if (isRecordRef) {
-                    string s = codeWriter->getIndexString(ival);
+                    string s;
+                    if (ival.isReference()) {
+                        s = recarrRefIndices[ival];
+                    } else {
+                        s = codeWriter->getIndexString(ival);
+                    }
                     recarrRefIndices[pval] = s;
                     //cout << "prepareCallParams for isRecordRef pval " << pval 
                     //     << " ival " << ival << " indxStr " << s << endl;
@@ -833,7 +843,6 @@ void ScGenerateExpr::parseExpr(DeclRefExpr* expr, SValue& val)
             return;
         }
         // Module/global pointer 
-        
     }
     
     // Do not put channel, it could be used in reference to channel
@@ -1221,6 +1230,7 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
                                       rrecType.hasValue();
                 bool rhsTempRecord = rhsRecord && rval.isRecord() && 
                                      rval == temprec;
+                bool rhsRefRecord = rhsRecord && isReference(rval.getType());
                 // Clear used temporary record
                 temprec = NO_VALUE;
 
@@ -1232,9 +1242,10 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
                     // Get record or record channel value 
                     state->getValue(rval, rrec);
                 }
-                
+
                 // Copy values of record fields or clear if @rrec is unknown
-                if (rrec.isRecord()) {
+                // Do not copy for reference as it could be array unknown element
+                if (rrec.isRecord() && !rhsRefRecord) {
                     copyRecFieldValues(lrec, rrec);
                 } else {
                     // Record channel and others
@@ -1245,11 +1256,20 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
                 
                 // Get RHS record indices
                 string rrecSuffix;
+                if (rhsRefRecord) {
+                    rrecSuffix = refRecarrIndx;
+                    // Clear indices suffix after use
+                    refRecarrIndx = "";
+                } else 
                 if (rrec.isRecord() || rhsRecordChan) {
                     auto rrecvecs = getRecVector(rrec);
                     rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
                 }
                 
+                if (locrecvarCtor) {
+                    // Do nothing as soon as record already constructed
+                    // Avoid double assignment to record fields
+                } else
                 if (rhsTempRecord) {
                     codeWriter->putRecordAssignTemp(expr, locrecvar, lrec, rrec, 
                                                     "", llvm::None, state.get());
@@ -1269,6 +1289,7 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
                 // Return created record to assign to its variable
                 //cout << "CXXConstructExpr normal " << hex << expr << dec << endl;
                 val = parseRecordCtor(expr, modval, locrecvar, true);
+                locrecvarCtor = true;
             }
             locrecvar = NO_VALUE;
         }
@@ -1424,20 +1445,16 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
         // Single variable 
         
         // SC data type variable has initialization
-        SValue ival; SValue iival;
-        
-        if (iexpr && !isRecord) {
-            // Parse initializer expression to fill @terms
-            ival = (varvals.second.size() == 1) ? varvals.second.front() : NO_VALUE;
-            iival = ival;
-            
-            // For non-reference and constant reference try to evaluate 
-            // expression as constexpr
-            if (!isRef || isConst) {
-                if (ival.isInteger()) {
-                    // Put constant integer for the initializer expression
-                    codeWriter->putLiteral(iexpr, ival);
-                }
+        SValue ival = (varvals.second.size() == 1) ? 
+                       varvals.second.front() : NO_VALUE;
+
+        // For non-reference and constant reference try to evaluate 
+        // expression as constexpr
+        SValue iival = ival;
+        if (!isRecord && (!isRef || isConst)) {
+            if (ival.isInteger()) {
+                // Put constant integer for the initializer expression
+                codeWriter->putLiteral(iexpr, ival);
             }
         }
         
@@ -1471,6 +1488,18 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                 // It is replaced with @iexpr string in generated code
                 // Do not check if there is no terms
                 codeWriter->storeRefVarDecl(val, iexpr, false);
+                
+                if (isRecord) {
+                    string s;
+                    if (ival.isReference()) {
+                        s = recarrRefIndices[ival];
+                    } else {
+                        s = codeWriter->getIndexString(ival);
+                    }
+                    recarrRefIndices[val] = s;
+                    //cout << "parseDeclStmt for isRecordRef val " << val 
+                    //     << " ival " << ival << " indxStr " << s << endl;
+                }
             }
         } else 
         if (isPtr) {
@@ -1647,14 +1676,10 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                 
                 // Put assign for record and others
                 bool isRecord = isUserClass(getDerefType(lval.getType()), true);
-                
+
                 if (isRecord) {
-                    if (codeWriter->getAssignStmt(rexpr)) {
-                        ScDiag::reportScDiag(stmt->getBeginLoc(), 
-                                            ScDiag::SYNTH_MULT_ASSIGN_REC);
-                    }
-                    codeWriter->putRecordAssign(stmt, lvar, lrec, rrec,
-                                                lrecSuffix, rrecSuffix, llvm::None);
+                    SCT_INTERNAL_FATAL(stmt->getBeginLoc(), 
+                                       "No record anticipated in binary operator");
                 } else {
                     codeWriter->putAssign(stmt, lvar, lexpr, rexpr);
                     // Consider multiple assignments
@@ -2578,6 +2603,7 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                                   rrecType.hasValue();            
             bool rhsTempRecord = rhsRecord && rval.isRecord() && 
                                  rval == temprec;
+            bool rhsRefRecord = rhsRecord && isReference(rval.getType());
             // Clear used temporary record
             temprec = NO_VALUE;
             
@@ -2592,6 +2618,11 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
 
             // Get RHS record indices 
             string rrecSuffix;
+            if (rhsRefRecord) {
+                rrecSuffix = refRecarrIndx;
+                // Clear indices suffix after use
+                refRecarrIndx = "";
+            } else 
             if (rrec.isRecord() || rhsRecordChan) {
                 auto rrecvecs = getRecVector(rrec);
                 rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
@@ -2852,6 +2883,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             auto lrecType = isUserClassChannel(ltype, true);
             bool lhsRecordChan = (lhsRecord && lval.isScChannel()) || 
                                  lrecType.hasValue();
+            bool lhsRefRecord = lhsRecord && isReference(lval.getType());
 
             SValue lrec;
             state->getValue(lval, lrec);
@@ -2860,6 +2892,11 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
 
             // Get LHS record indices
             string lrecSuffix;
+            if (lhsRefRecord) {
+                lrecSuffix = refRecarrIndx;
+                // Clear indices suffix after use
+                refRecarrIndx = "";
+            } else 
             if (lrec.isRecord() || lhsRecordChan) {
                 auto lrecvecs = getRecVector(lrec);
                 lrecSuffix = codeWriter->getRecordIndxs(lrecvecs);
@@ -2878,7 +2915,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             SValue rval;
             Expr* rexpr = args[1];
             // Set @locrecvar to provide owner to record value created for @rval
-            if (lrec.isRecord()) locrecvar = lval;
+            if (lrec.isRecord()) {locrecvar = lval; locrecvarCtor = false;}
             chooseExprMethod(rexpr, rval);
             if (lrec.isRecord()) locrecvar = NO_VALUE;
 
@@ -2893,6 +2930,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                                   rrecType.hasValue();
             bool rhsTempRecord = rhsRecord && rval.isRecord() && 
                                  rval == temprec;
+            bool rhsRefRecord = rhsRecord && isReference(rval.getType());
             // Clear used temporary record
             temprec = NO_VALUE;
             
@@ -2912,6 +2950,11 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
 
             // Get RHS record indices
             string rrecSuffix;
+            if (rhsRefRecord) {
+                rrecSuffix = refRecarrIndx;
+                // Clear indices suffix after use
+                refRecarrIndx = "";
+            } else 
             if (rrec.isRecord() || rhsRecordChan) {
                 auto rrecvecs = getRecVector(rrec);
                 rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
@@ -3284,10 +3327,13 @@ void ScGenerateExpr::parseReturnStmt(ReturnStmt* stmt, SValue& val)
         }
         QualType retType = expr->getType();
         bool isPointer = sc::isPointer(retType);
- 
+
+        // Skip zero width parameter
+        if (isScZeroWidth(retType) || isScZeroWidthArray(retType)) return;
+        
         // Set return temporal variable value to analyze @CXXConstructExpr and
         // use as record copy local variable
-        locrecvar = returnValue; 
+        locrecvar = returnValue; locrecvarCtor = false;
 
         // Parse return expression
         chooseExprMethod(expr, val);
@@ -3402,9 +3448,13 @@ void ScGenerateExpr::chooseExprMethod(Stmt *stmt, SValue &val)
 llvm::Optional<string> ScGenerateExpr::parse(const Stmt* stmt)
 {
     codeWriter->startStmt();
+    // Clear indices after previous statement
+    refRecarrIndx = "";
+
     SValue val;
     auto ncstmt = const_cast<Stmt*>(stmt);
     chooseExprMethod(ncstmt, val);
+
     return codeWriter->getStmtString(ncstmt);
 }
 

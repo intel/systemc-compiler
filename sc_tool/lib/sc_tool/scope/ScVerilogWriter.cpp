@@ -980,8 +980,8 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
 void ScVerilogWriter::putString(const Stmt* stmt, 
                                 const TermInfo& info)
 {
-//    cout << "putString #" << hex << stmt << dec << " " << info.str.first
-//         << " exprWidth " << info.exprWidth << endl;
+    //cout << "putString #" << hex << stmt << dec << " " << info.str.first
+    //     << " exprWidth " << info.exprWidth << endl;
     SCT_TOOL_ASSERT (stmt, "putString stmt is NULL");
     auto i = terms.find(stmt);
     
@@ -1694,6 +1694,7 @@ void ScVerilogWriter::storeRefVarDecl(const SValue& val, const Expr* init,
     if (terms.count(init) != 0) {
         // Replace reference with new string, required for second call of the function
         refValueDecl[val] = getTermAsRValue(init);
+        //cout << "storeRefVarDecl val " << val << " init " << refValueDecl[val].first << endl;
         
     } else {
         if (checkNoTerms) {
@@ -1988,7 +1989,8 @@ bool ScVerilogWriter::putLocalRefValueExpr(const Stmt* stmt, const SValue& val)
         
         putString(stmt, names, width);
 
-        //cout << "putLocalPtrValueExpr #" << hex << stmt << dec << " val " << val << " width " << width << endl;
+        //cout << "putLocalPtrValueExpr #" << hex << stmt << dec << " val " << val 
+        //     << " rdName " << names.first << endl;
         return true;
     }
     return false;
@@ -2132,6 +2134,10 @@ void ScVerilogWriter::putRecordAssign(const Stmt* stmt,
     string s;
     bool first = true;
     for (auto fieldDecl : recDecl->fields()) {
+        // Skip zero width type
+        auto ftype = fieldDecl->getType();
+        if (isScZeroWidth(ftype) || isScZeroWidthArray(ftype)) continue;
+        
         // Get name for LHS
         SValue lfval(fieldDecl, lrec);
         //cout << "  lfval " << lfval << endl;
@@ -2185,6 +2191,10 @@ void ScVerilogWriter::putRecordAssignTemp(const Stmt* stmt,
     string s;
     bool first = true;
     for (auto fieldDecl : recDecl->fields()) {
+        // Skip zero width type
+        auto ftype = fieldDecl->getType();
+        if (isScZeroWidth(ftype) || isScZeroWidthArray(ftype)) continue;
+        
         // Get name for LHS
         SValue lfval(fieldDecl, lrec);
         //cout << "  lfval " << lfval << endl;

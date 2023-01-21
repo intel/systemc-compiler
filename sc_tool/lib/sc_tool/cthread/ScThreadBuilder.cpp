@@ -899,6 +899,7 @@ void ThreadBuilder::generateThreadLocalVariables()
         // Ignore record value, record fields are used instead
         QualType varType = regVar.getType();
         if (isUserClass(getDerefType(varType))) continue;
+        if (isScZeroWidth(getDerefType(varType))) continue;
         // Get array/vector element type, for array/vector of record channels
         if (varType->isArrayType()) {
             varType = QualType(varType->getArrayElementTypeNoTypeQual(), 0);
@@ -1232,6 +1233,7 @@ void ThreadBuilder::generateThreadLocalVariables()
         
         // Ignore record value, record fields are used instead
         if (isUserClass(getDerefType(combVar.getType()))) continue;
+        if (isScZeroWidth(getDerefType(combVar.getType()))) continue;
         
         if (!combVar.isVariable()) {
             SCT_TOOL_ASSERT (false, "Combinational variable is not a variable");
@@ -1347,6 +1349,7 @@ void ThreadBuilder::generateThreadLocalVariables()
 
         // Ignore record value, record fields are used instead
         if (isUserClass(getDerefType(roVar.getType()))) continue;
+        if (isScZeroWidth(getDerefType(roVar.getType()))) continue;
         
         // Get access place
         bool inResetAccess = travConst->isInResetAccessed(roVar);

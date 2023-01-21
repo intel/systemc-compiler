@@ -523,9 +523,7 @@ void ScParseExprValue::parseExpr(clang::DeclRefExpr* expr, SValue& val)
 // Any access of member variable
 void ScParseExprValue::parseExpr(clang::MemberExpr* expr, SValue& val)
 {
-    using namespace llvm;
     ValueDecl* decl = expr->getMemberDecl();
-
     ScParseExpr::parseExpr(expr, val);
 
     // Initialization of static constant variables
@@ -680,8 +678,14 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
     auto ctorDecl = expr->getConstructor();
     bool isCopyCtor = ctorDecl->isCopyConstructor();
     bool isMoveCtor = ctorDecl->isMoveConstructor();
+    bool isZeroWidth = isScZeroWidth(type);
     auto nsname = getNamespaceAsStr(ctorDecl);
     
+    if (isZeroWidth) {
+        // Return unsigned 32bit zero
+        val = SValue(APSInt(32, true), 10);
+                
+    } else
     if (nsname && (*nsname == "sc_dt" || *nsname == "sc_core")) {
         if (isScChannel(type, false)) {
             // Channels considered unknown during expression evaluation
@@ -919,6 +923,8 @@ SValue ScParseExprValue::parseArraySubscript(Expr* expr, const SValue& bval,
                     } else {
                         ScDiag::reportScDiag(expr->getBeginLoc(), 
                                              ScDiag::CPP_ARRAY_OUT_OF_BOUND);
+                        cout << "setOffset offset " << arrOffset << ", size " 
+                             << eval.getArray().getSize() << endl;
                     }
                 }
                 val = eval;
@@ -1235,10 +1241,11 @@ void ScParseExprValue::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
             if (shiftIndx >= 0 && (size_t)shiftIndx < obj1.getArray().getSize()) {
                 obj1.getArray().setOffset(shiftIndx);
             } else {
-                //cout << "offset/size " << shiftIndx << " "  << obj1.getArray().getSize() << endl;
                 obj1 = NO_VALUE;
                 ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                      ScDiag::CPP_ARRAY_OUT_OF_BOUND);
+                cout << "setOffset offset " << shiftIndx << ", size " 
+                     << obj1.getArray().getSize() << endl;
             }
             // Return value
             QualType type = (obj1.isObject()) ? obj1.getObjectPtr()->getType() : 
@@ -1984,6 +1991,11 @@ bool ScParseExprValue::getIntValueInfo(const SValue& val,
                                        APSInt& intVal) 
 {    
     if (val.isVariable() || val.isObject()) {
+        if (isScZeroWidth(val.getType())) {
+            intVal = llvm::APSInt(llvm::APInt(1, 0), true);
+            info = std::pair<size_t, bool>(0, true);
+            return true;
+        }
         auto optInfo = getIntTraits(val.getType(), true);
         SValue ival = getValueFromState(val);
         //cout << "ival(1) " << ival << " type " << val.getType().getAsString() << endl;
@@ -2017,20 +2029,28 @@ SValue ScParseExprValue::getConcatVal(const SValue& fval, const SValue& sval)
         unsigned resWidth = fInfo.first + sInfo.first;
         bool resUnsign = fInfo.second && sInfo.second; 
         //cout << "resWidth " << resWidth << ", resSign " << !resUnsign << endl;
-        //cout << "sInt " << sInt.toString(10) << " fInt " << fInt.toString(10) << endl;
+        //cout << "fInt " << fInt.toString(10) << " sInt " << sInt.toString(10) << endl;
+        //cout << "fInfo.first " << fInfo.first << " sInfo.first " << sInfo.first << endl;
         
         // Ensure value has the same width as its type
-        fInt = fInt.extOrTrunc(fInfo.first);
-        sInt = sInt.extOrTrunc(sInfo.first);
-        SCT_TOOL_ASSERT(fInt.getBitWidth() == fInfo.first &&
-                        sInt.getBitWidth() == sInfo.first, "Bit width mismatched");
+        if (fInfo.first) fInt = fInt.extOrTrunc(fInfo.first);
+        if (sInfo.first) sInt = sInt.extOrTrunc(sInfo.first);
+        SCT_TOOL_ASSERT((fInt.getBitWidth() == fInfo.first || !fInfo.first) &&
+                        (sInt.getBitWidth() == sInfo.first || !sInfo.first), 
+                        "Bit width mismatched");
         
-        APSInt resInt(resWidth, resUnsign);
-        resInt.insertBits(sInt, 0);
-        resInt.insertBits(fInt, sInfo.first);
-        
-        char radix = fval.isInteger() ? fval.getRadix() : 10;
-        val = SValue(resInt, radix);
+        if (resWidth == 0) {
+            // Return unsigned 32bit zero
+            val = SValue(APSInt(32, true), 10);
+        } else {
+            APSInt resInt(resWidth, resUnsign);
+            if (sInfo.first) resInt.insertBits(sInt, 0);
+            if (fInfo.first) resInt.insertBits(fInt, sInfo.first);
+
+            char radix = fInfo.first ? (fval.isInteger() ? fval.getRadix() : 10) :
+                         sInfo.first ? (sval.isInteger() ? sval.getRadix() : 10) : 10;
+            val = SValue(resInt, radix);
+        }
     }
     //cout << "getConcatVal sval " << sval << ", fval " << fval << ", val " << val << endl;
     return val;
@@ -2298,7 +2318,7 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
     
     bool isScInteger = isAnyScIntegerRef(thisType, true);
     bool isChannel = isScChannel(thisType);
-    
+
     SValue ttval = tval;
     if (isPointer) {
         // Pointer dereference preserving array unknown index
@@ -2319,7 +2339,7 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
             SCT_TOOL_ASSERT (argNum == 1, "Incorrect argument number");
             Expr* indxExpr = args[0];
             SValue rval = evalSubExpr(indxExpr);
-
+            
             // Read index value
             readFromValue(rval);
             // Read value for any usage, that can lead to extra register for LHS

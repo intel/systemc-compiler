@@ -15,6 +15,16 @@ using namespace sc;
 // For loop visitor instance
 ForLoopVisitor ForLoopVisitor::signleton;
 
+// Check if statement is member function of @sct_zero_width
+bool sc::isZeroWidthCall(clang::Stmt* stmt)
+{
+    if (auto expr = dyn_cast<CXXMemberCallExpr>(stmt)) {
+        Expr* thisExpr = expr->getImplicitObjectArgument();
+        return isScZeroWidth(thisExpr->getType());
+    }    
+    return false;
+}
+
 // Check if statement is call expression of user defined function/method
 bool sc::isUserCallExpr(clang::Stmt* stmt)
 {

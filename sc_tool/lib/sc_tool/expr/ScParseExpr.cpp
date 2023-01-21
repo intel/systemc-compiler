@@ -124,8 +124,12 @@ void ScParseExpr::assignRecValueInState(const SValue &lval, const SValue &rval,
         SValue llval;
         state->getDerefVariable(lval, llval);
         SValue lrec = state->getValue(llval);
-        copyRecFieldValues(lrec, rval);
-        
+        if (lrec.isRecord()) {
+            copyRecFieldValues(lrec, rval);
+        } else {
+            // Used for @llval record array at unknown index, clear array elements
+            state->putValue(llval, rval, false);
+        }
     } else
     if (rval.isVariable() || rval.isTmpVariable() || rval.isObject()) {
         // Check @lval is reference and it is initialized
@@ -404,7 +408,11 @@ std::pair<SValue, std::vector<SValue> >
                    fieldDecl->getInClassInitializer()) : nullptr);
     // Initializer values
     std::vector<SValue> initvals;
-            
+
+    if (isScZeroWidth(type) || isScZeroWidthArray(type)) {
+        // Do nothing for zero width variable
+        
+    } else 
     if (type->isArrayType()) {
         // Array value
         SValue aval;
@@ -442,9 +450,11 @@ std::pair<SValue, std::vector<SValue> >
             
             // Put field declarations to @localDeclVerilog for zero array element
             for (auto fdecl : recDecl->fields()) {
-                bool isRecord = isUserClass(fdecl->getType());
-
-                if (!isRecord) {
+                if (isScZeroWidth(fdecl->getType()) ||
+                    isScZeroWidthArray(fdecl->getType())) {
+                    // Do nothing
+                } else
+                if (!isUserClass(fdecl->getType())) {
                     SValue fval(fdecl, zeroRec);
                     parseArrayFieldDecl(fdecl, fval, arrSizes);
                     
@@ -515,10 +525,10 @@ std::pair<SValue, std::vector<SValue> >
         bool isConst = (isRef) ? type.getNonReferenceType().
                         isConstQualified() : type.isConstQualified();
         bool isRecord = isUserClass(getDerefType(type));
-
+                    
         // Enable record constructor processing in @evalSubExpr
         if (!isRef && !isPtr && isRecord) {
-            locrecvar = val;
+            locrecvar = val; locrecvarCtor = false;
         }
 
         // Parse initializer
@@ -562,13 +572,16 @@ std::pair<SValue, std::vector<SValue> >
                 bool unkwIndex;
                 bool isArr = state->isArray(irval, unkwIndex);
                 if (isArr && unkwIndex) {
-                    ScDiag::reportScDiag(argExpr->getBeginLoc(), 
-                                         ScDiag::SYNTH_ARRAY_ELM_REFERENCE);
+                    if (argExpr) {
+                        ScDiag::reportScDiag(argExpr->getBeginLoc(), 
+                                             ScDiag::SYNTH_ARRAY_ELM_REFERENCE);
+                    } 
                 }
-
             } else {
-                ScDiag::reportScDiag(argExpr->getSourceRange().getBegin(),
-                                     ScDiag::CPP_REFER_NO_INIT) << val.asString();
+                if (argExpr) {
+                    ScDiag::reportScDiag(argExpr->getSourceRange().getBegin(),
+                                         ScDiag::CPP_REFER_NO_INIT) << val.asString();
+                }
             }
         } else 
         if (isPtr) {
