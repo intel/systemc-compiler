@@ -1,11 +1,11 @@
-#*******************************************************************************
-# Copyright (c) 2020, Intel Corporation. All rights reserved.
-# 
-# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
-# 
-#*******************************************************************************
-
 #!/bin/bash -e
+
+#********************************************************************************
+# Copyright (c) 2020, Intel Corporation. All rights reserved.                   #
+#                                                                               #
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.                      #
+#                                                                               #
+#********************************************************************************
 
 #################################################################################
 # This bash script downloads and builds Protobuf, Clang/LLVM, GDB (optional),   #

@@ -1,3 +1,10 @@
+/******************************************************************************
+ * Copyright (c) 2023, Intel Corporation. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+ *
+ *****************************************************************************/
+
 /*
  * FIFO used inside of single process
  */
