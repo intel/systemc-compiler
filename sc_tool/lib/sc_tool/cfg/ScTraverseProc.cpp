@@ -375,14 +375,7 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
     // Get @this expression and its type
     Expr* thisExpr = expr->getImplicitObjectArgument();
     QualType thisType = thisExpr->getType();
-    bool isZeroWidth = isScZeroWidth(thisType);
-    
-    if (isZeroWidth) {
-        // No function call for @sct_zero_width
-        val = SValue(APSInt(32, true), 10);
-        codeWriter->putLiteral(expr, val);
-        return;
-    }
+    bool isZeroWidth = isZeroWidthType(thisType);
     
     // Parse this expression inside and put result into @tval
     ScGenerateExpr::parseMemberCall(expr, tval, val);
@@ -394,7 +387,7 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
     string fname = methodDecl->getNameAsString();
     QualType retType = methodDecl->getReturnType();
     
-    if ( isAnyScIntegerRef(thisType, true) ) {
+    if ( isAnyScIntegerRef(thisType, true) || isZeroWidth ) {
         // Do nothing 
         
     } else 
@@ -534,12 +527,7 @@ void ScTraverseProc::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
 {
     SCT_TOOL_ASSERT (expr->getNumArgs() != 0, "Operator without arguments");
     Expr* thisExpr = expr->getArgs()[0];
-    bool isZeroWidth = isScZeroWidth(thisExpr->getType());
-
-    if (isZeroWidth) {
-        val = SValue(APSInt(32, true), 10);
-        return;
-    }
+    bool isZeroWidth = isZeroWidthType(thisExpr->getType());
     
     // Parse this expression inside and put result into @tval
     ScGenerateExpr::parseOperatorCall(expr, tval, val);
@@ -553,6 +541,10 @@ void ScTraverseProc::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
     bool isAssignOperator = expr->isAssignmentOp() && opcode == OO_Equal;
     bool isSctChan = isAssignOperatorSupported(tval.getType());
     
+    if (isZeroWidth) {
+        // Do nothing 
+        
+    } else 
     if (isAssignOperator && isSctChan) {
         // Operator call in sct namespace
         if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {

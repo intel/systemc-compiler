@@ -1456,7 +1456,7 @@ void ScVerilogWriter::putLiteral(const Stmt* stmt, const SValue& val)
     if (val.isInteger()) {
         string s = sc::APSintToString(val.getInteger(), 10);
         unsigned width = getBitsNeeded(val.getInteger());
-        char radix = val.getRadix();
+        char radix = val.getRadix() == 100 ? 10 : val.getRadix();
         
 //        cout << "putLiteral stmt #" << hex << stmt << dec << " val " << val 
 //             << " s " << s << " width " << width << endl;
@@ -2136,7 +2136,7 @@ void ScVerilogWriter::putRecordAssign(const Stmt* stmt,
     for (auto fieldDecl : recDecl->fields()) {
         // Skip zero width type
         auto ftype = fieldDecl->getType();
-        if (isScZeroWidth(ftype) || isScZeroWidthArray(ftype)) continue;
+        if (isZeroWidthType(ftype) || isZeroWidthArrayType(ftype)) continue;
         
         // Get name for LHS
         SValue lfval(fieldDecl, lrec);
@@ -2193,7 +2193,7 @@ void ScVerilogWriter::putRecordAssignTemp(const Stmt* stmt,
     for (auto fieldDecl : recDecl->fields()) {
         // Skip zero width type
         auto ftype = fieldDecl->getType();
-        if (isScZeroWidth(ftype) || isScZeroWidthArray(ftype)) continue;
+        if (isZeroWidthType(ftype) || isZeroWidthArrayType(ftype)) continue;
         
         // Get name for LHS
         SValue lfval(fieldDecl, lrec);
@@ -2209,7 +2209,8 @@ void ScVerilogWriter::putRecordAssignTemp(const Stmt* stmt,
         
         string rhsName;
         if (rrval.isInteger()) {
-            rhsName = makeLiteralStr(rrval.getInteger(), rrval.getRadix(), 
+            char radix = rrval.getRadix() == 100 ? 10 : rrval.getRadix();
+            rhsName = makeLiteralStr(rrval.getInteger(), radix, 
                                      0, 0, CastSign::NOCAST, false);
         } else {
             rhsName = "0";

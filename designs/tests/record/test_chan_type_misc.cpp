@@ -89,6 +89,7 @@ public:
         async_reset_signal_is(nrst, 0);
         
         SC_METHOD(copyCtor); sensitive << s << sim << aim;   // OK
+        SC_METHOD(copyCtorIssue); sensitive << s << sim;   
         SC_METHOD(funcReturn); sensitive << s << sim << aim; // OK 
         
         //SC_METHOD(condOper); sensitive << in << sim << s; // #309
@@ -161,6 +162,16 @@ public:
         ss.b = aa.b;
         ss.b = aa.c[1];
         tt.b = aa.c[j];
+    }
+    
+    void copyCtorIssue() 
+    {   
+        Simple t1 = sim;
+        Simple t2(s.read());
+        Simple t3 = Simple(s.read());
+        Simple t4 = s.read();
+        Simple t5;
+        t5 = Simple(s.read());
     }
 
 // ----------------------------------------------------------------------------

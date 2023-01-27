@@ -16,8 +16,6 @@ SC_MODULE(test_referece_met) {
     sc_signal<bool> sig{"sig"};
     sc_signal<bool> sigArray[2];
 
-    decltype(sigArray) &arrayRef = sigArray;
-
     int x;
     int &xref = x;
 
@@ -31,7 +29,6 @@ SC_MODULE(test_referece_met) {
         x = sig.read();
         xref = 2;
         sigArray[0] = 1;
-        arrayRef[1] = 0;
     }
 
 };

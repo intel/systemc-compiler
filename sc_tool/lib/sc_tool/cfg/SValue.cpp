@@ -20,6 +20,7 @@ using namespace clang;
 using namespace llvm;
 
 const SValue sc::NO_VALUE = SValue();
+const SValue sc::ZW_VALUE = SValue(APSInt(32, true), 100);
 
 // ===========================================================================
 // SValue implementation 
@@ -31,7 +32,7 @@ void SValue::free_members() {
         memory = nullptr;
     } else
     if (type == otIntegerDec || type == otIntegerHex || type == otIntegerBin ||
-        type == otIntegerOct) {
+        type == otIntegerOct || type == otZeroWidth) {
         SCT_TOOL_ASSERT (integer, "Null integer in free");
         delete integer;
         integer = nullptr;
@@ -52,7 +53,7 @@ SValue::SValue() : type(otUnknown), integer(nullptr)
 
 SValue::SValue(const APSInt& val, char radix) : 
     type(radix == 10 ? otIntegerDec : (radix == 16 ? otIntegerHex : 
-         (radix == 8 ? otIntegerOct : otIntegerBin)))
+         (radix == 100 ? otZeroWidth :(radix == 8 ? otIntegerOct : otIntegerBin))))
 {
     integer = new APSInt(val, val.isUnsigned());
 }
@@ -134,8 +135,8 @@ SValue::SValue(const SValue &rhs)
     } else
     if (rhs.isInteger()) {
         SCT_TOOL_ASSERT (rhs.type == otIntegerDec || rhs.type == otIntegerHex || 
-                         rhs.type == otIntegerBin || rhs.type == otIntegerOct, 
-                         "Incorrect SValue type");
+                         rhs.type == otIntegerBin || rhs.type == otIntegerOct ||
+                         rhs.type == otZeroWidth, "Incorrect SValue type");
         integer = new APSInt(rhs.getInteger());
     } else 
     if (rhs.isScChannel()) {
@@ -182,7 +183,8 @@ SValue& SValue::operator = (const SValue &rhs)
     } else 
     if (rhs.isInteger()) {
         SCT_TOOL_ASSERT (rhs.type == otIntegerDec || rhs.type == otIntegerHex || 
-                         rhs.type == otIntegerBin || rhs.type == otIntegerOct, 
+                         rhs.type == otIntegerBin || rhs.type == otIntegerOct ||
+                         rhs.type == otZeroWidth, 
                          "Incorrect SValue type");
         integer = new APSInt(rhs.getInteger());
     } else 
@@ -283,7 +285,7 @@ bool SValue::isUnknown() const {
 
 bool SValue::isInteger() const {
     return (type == otIntegerDec || type == otIntegerHex || 
-            type == otIntegerBin || type == otIntegerOct);
+            type == otIntegerBin || type == otIntegerOct || type == otZeroWidth);
 }
 
 bool SValue::isMemory() const {
@@ -395,8 +397,8 @@ const clang::Type* SValue::getTypePtr() const
 // Use this reference before @this SValue end of life
 APSInt& SValue::getInteger() const {
     SCT_TOOL_ASSERT (type == otIntegerDec || type == otIntegerHex || 
-                     type == otIntegerBin || type == otIntegerOct, 
-                     "Not integer value");
+                     type == otIntegerBin || type == otIntegerOct ||
+                     type == otZeroWidth, "Not integer value");
     return *integer;
 }
 
@@ -407,6 +409,8 @@ char SValue::getRadix() const
         return 10;
     } else if (type == otIntegerHex) {
         return 16;
+    } else if (type == otZeroWidth) {
+        return 100; 
     } else if (type == otIntegerBin) {
         return 2;
     } else if (type == otIntegerOct) {
@@ -414,6 +418,11 @@ char SValue::getRadix() const
     }
     SCT_TOOL_ASSERT(false, "Incorrect radix");
     return 0;
+}
+
+char SValue::isScZeroWidth() const 
+{
+    return type == otZeroWidth;
 }
 
 // Set given radix for integer, ignored if @this is not integer
@@ -426,6 +435,7 @@ void SValue::setRadix(char radix)
         case 8  : type = otIntegerOct; break;
         case 10 : type = otIntegerDec; break;
         case 16 : type = otIntegerHex; break;
+        case 100 : type = otZeroWidth; break;
         default : SCT_TOOL_ASSERT(false, "Incorrect radix");
     }
 }
@@ -519,7 +529,10 @@ string SValue::asString(bool debug) const {
     } else 
     if (isInteger()) {
         char radix = getRadix();
-        if (radix == 10) return sc::APSintToString(getInteger(), 10);
+        if (radix == 10)
+            return sc::APSintToString(getInteger(), 10);
+        if (radix == 100) 
+            return debug ? "zw0" : sc::APSintToString(getInteger(), 10);
         
         char prefix = radix == 16 ? 'x' : radix == 8 ? 'o' : 'b';
         return (prefix + sc::APSintToString(getInteger(), radix));

@@ -21,6 +21,17 @@ namespace sc {
 using namespace std;
 using namespace clang;
 
+// Check if value is integer of ZeroWidth or variable of sct_zero_width 
+// type or element of array of sct_zero_width 
+bool ScParseExpr::isScZeroWidth(const SValue& val) {
+    if (val.isInteger()) {
+        return val.isScZeroWidth();
+    } else {
+        const QualType& type = val.getType();
+        return isZeroWidthType(type) || isZeroWidthArrayType(type);
+    }
+}
+
 // Get integer literal basis
 char ScParseExpr::getLiteralRadix(const IntegerLiteral* intLiteral)
 {
@@ -409,7 +420,7 @@ std::pair<SValue, std::vector<SValue> >
     // Initializer values
     std::vector<SValue> initvals;
 
-    if (isScZeroWidth(type) || isScZeroWidthArray(type)) {
+    if (isZeroWidthType(type) || isZeroWidthArrayType(type)) {
         // Do nothing for zero width variable
         
     } else 
@@ -450,8 +461,8 @@ std::pair<SValue, std::vector<SValue> >
             
             // Put field declarations to @localDeclVerilog for zero array element
             for (auto fdecl : recDecl->fields()) {
-                if (isScZeroWidth(fdecl->getType()) ||
-                    isScZeroWidthArray(fdecl->getType())) {
+                if (isZeroWidthType(fdecl->getType()) ||
+                    isZeroWidthArrayType(fdecl->getType())) {
                     // Do nothing
                 } else
                 if (!isUserClass(fdecl->getType())) {
@@ -914,6 +925,11 @@ void ScParseExpr::parseExpr(clang::DeclRefExpr* expr, SValue& val)
 {
     ValueDecl* decl = expr->getDecl();
     
+    if (isZeroWidthType(decl->getType()) || isZeroWidthArrayType(decl->getType())) {
+        val = ZW_VALUE; 
+        return;
+    }
+    
     // Parameter variable has @modval parent, local variable has @recval
     bool isParamVar = isa<ParmVarDecl>(decl);
     SValue recVal = recval ? recval : modval;
@@ -960,7 +976,6 @@ void ScParseExpr::parseExpr(clang::DeclRefExpr* expr, SValue& val)
 void ScParseExpr::parseExpr(clang::MemberExpr* expr, SValue& val)
 {
     //cout << "ScParseExpr::MemberExpr # " << hex << expr << dec << endl;
-
     // Report all unsupported types for members, for locals reported at declaration
     if (isScNotSupported(expr->getType(), true)) {
         ScDiag::reportScDiag(expr->getBeginLoc(),
@@ -968,6 +983,11 @@ void ScParseExpr::parseExpr(clang::MemberExpr* expr, SValue& val)
     }
     
     //cout << "synmodval " << synmodval << " modval " << modval << " recval " << recval << endl;
+    
+    if (isZeroWidthType(expr->getType()) || isZeroWidthArrayType(expr->getType())) {
+        val = ZW_VALUE; 
+        return;
+    }
     
     // Get record from variable/dynamic object
     SCT_TOOL_ASSERT (expr->getBase(), "In parseExpr for MemberExpr no base found");
@@ -1182,7 +1202,11 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
                                 init->getMember() == fdecl);
         });
         bool hasInit = i != expr->getConstructor()->inits().end();
-        bool isRecord = isUserClass(fieldDecl->getType());
+
+        QualType type = fieldDecl->getType();
+        if (isZeroWidthType(type) || isZeroWidthArrayType(type)) continue;
+
+        bool isRecord = isUserClass(type);
 
         // @init and @stmt can be @nullptr
         auto init = hasInit ? (*i)->getInit() : nullptr;

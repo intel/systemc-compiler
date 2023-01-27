@@ -470,16 +470,16 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
         
         ParmVarDecl* parDecl = const_cast<ParmVarDecl*>(
                                callFuncDecl->getParamDecl(paramIndx++));
-        // Skip zero width parameter
-        if (isScZeroWidth(parDecl->getType()) || 
-            isScZeroWidthArray(parDecl->getType())) continue;
-                
         // Get original type, required as array passed to function as pointer
         QualType type = parDecl->getType();
         if (isScPort(type)) {
             ScDiag::reportScDiag(expr->getBeginLoc(), 
                         ScDiag::SYNTH_SC_PORT_INCORRECT) << "in function parameter";
         }
+
+        // Skip zero width parameter
+        if (isZeroWidthType(type) || isZeroWidthArrayType(type)) continue;
+        
         bool isRef = isReference(type);
         bool isConstRef = sc::isConstReference(type);
         bool isPtr = isPointer(type);
@@ -1138,7 +1138,12 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
     auto ctorDecl = expr->getConstructor();
     bool isCopyCtor = ctorDecl->isCopyConstructor();
     bool isMoveCtor = ctorDecl->isMoveConstructor();
+    bool isZeroWidth = isZeroWidthType(type);
     
+    if (isZeroWidth) {
+        val = ZW_VALUE; codeWriter->putLiteral(expr, val);
+        
+    } else 
     if (isAnyScInteger(type)) {
         // @sc_uint, @sc_biguint, @sc_int, @sc_bigint
         if (expr->getNumArgs() == 0) {
@@ -2091,6 +2096,11 @@ SValue ScGenerateExpr::parseArraySubscript(Expr* expr,
     //cout << "parseExpr(ArraySubscriptExpr) " << hex << expr << dec 
     //     << ", bval " << bval << ", bbval " << bbval << ", ival " << ival << endl;
     
+    if (isScZeroWidth(bbval)) {
+        val = ZW_VALUE; codeWriter->putLiteral(expr, val);
+        return val;
+    }
+    
     // Return value of array element, it can be sub-array
     if (bbval.isVariable() || bbval.isTmpVariable() || bbval.isArray()) {
         // Provide array element, no offset as only zero elements used
@@ -2301,9 +2311,21 @@ void ScGenerateExpr::parseCall(CallExpr* expr, SValue& val)
                 ScDiag::reportScDiag(expr->getBeginLoc(), 
                                      ScDiag::SC_CONCAT_INT_TO_BOOL);
             }
+            bool lhsZeroWidth = isScZeroWidth(lval);
+            bool rhsZeroWidth = isScZeroWidth(rval);
             
-            codeWriter->putConcat(expr, lexpr, rexpr);
-            
+            if (lhsZeroWidth && rhsZeroWidth) {
+                // Put 32bit unsigned 0
+                codeWriter->putLiteral(expr, ZW_VALUE);
+            } else 
+            if (lhsZeroWidth) {
+                codeWriter->copyTerm(rexpr, expr);
+            } else 
+            if (rhsZeroWidth) {
+                codeWriter->copyTerm(lexpr, expr);
+            } else {
+                codeWriter->putConcat(expr, lexpr, rexpr);
+            }
         } else     
         if (fname == "and_reduce" || fname == "or_reduce" || 
             fname == "xor_reduce" || fname == "nand_reduce" || 
@@ -2425,9 +2447,13 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             //cout << "   ival " << ival << endl;
         }
     }
+    
+    bool lhsChannel = isScChannel(thisType);
+    bool lhsZeroWidth = isScZeroWidth(ttval);
+    //cout << "#" << hex << expr << " ttval " << ttval << " " << lhsZeroWidth << endl;
 
     // Parse method function call
-    if (isScIntegerType) {
+    if (isScIntegerType || (!lhsChannel && lhsZeroWidth)) {
         // SC integer type object
         if (fname.find("operator") != string::npos && (
             fname.find("sc_unsigned") != string::npos ||
@@ -2438,13 +2464,17 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             // Implicit SC type conversion to some integer, 
             // not correspondent to any operator in the code
             
-            // Replace constant pointer with its integer value
-            if (pival.isInteger()) {
-                codeWriter->putLiteral(thisExpr, pival);
+            if (lhsZeroWidth) {
+                val = SValue(APSInt(32, true), 10); 
+                codeWriter->putLiteral(expr, val);
+                
+            } else {
+                // Replace constant pointer with its integer value
+                if (pival.isInteger()) {
+                    codeWriter->putLiteral(thisExpr, pival);
+                }
+                codeWriter->copyTerm(thisExpr, expr);
             }
-            
-            codeWriter->copyTerm(thisExpr, expr);
-
         } else 
         if (fname == "bit" || fname == "operator[]") {
             
@@ -2456,16 +2486,20 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                                      ScDiag::SC_BIT_CONSTPTR_BASE);
             }
 
-            // Skip sign cast for part select index
-            bool skipSignCastOrig = codeWriter->isSkipSignCast();
-            codeWriter->setSkipSignCast(true);
-            // Parse argument expression to fill @terms
-            SValue rval;
-            chooseExprMethod(indxExpr, rval);
-            codeWriter->setSkipSignCast(skipSignCastOrig);
-            
-            codeWriter->putBitSelectExpr(expr, ttval, thisExpr, indxExpr);            
-            
+            if (lhsZeroWidth) {
+                val = ZW_VALUE; codeWriter->putLiteral(expr, val);
+                
+            } else {
+                // Skip sign cast for part select index
+                bool skipSignCastOrig = codeWriter->isSkipSignCast();
+                codeWriter->setSkipSignCast(true);
+                // Parse argument expression to fill @terms
+                SValue rval;
+                chooseExprMethod(indxExpr, rval);
+                codeWriter->setSkipSignCast(skipSignCastOrig);
+
+                codeWriter->putBitSelectExpr(expr, ttval, thisExpr, indxExpr);            
+            }
         } else 
         if (fname == "range" || fname == "operator()") {
             
@@ -2478,75 +2512,103 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                                      ScDiag::SC_RANGE_CONSTPTR_BASE);
             }
 
-            // Skip sign cast for part select index
-            bool skipSignCastOrig = codeWriter->isSkipSignCast();
-            codeWriter->setSkipSignCast(true);
-            // Parse to remove sub-statements
-            SValue rval;
-            chooseExprMethod(hiExpr, rval);
-            chooseExprMethod(loExpr, rval);
+            if (lhsZeroWidth) {
+                val = ZW_VALUE; codeWriter->putLiteral(expr, val);
+                
+            } else {
+                // Skip sign cast for part select index
+                bool skipSignCastOrig = codeWriter->isSkipSignCast();
+                codeWriter->setSkipSignCast(true);
+                // Parse to remove sub-statements
+                SValue rval;
+                chooseExprMethod(hiExpr, rval);
+                chooseExprMethod(loExpr, rval);
 
-            // Evaluate range par-select which is possible variable dependent
-            bool useDelta = evaluateRangeExpr(hiExpr, loExpr);
-            codeWriter->setSkipSignCast(skipSignCastOrig);
-            
-            codeWriter->putPartSelectExpr(expr, ttval, thisExpr, hiExpr, 
-                                          loExpr, useDelta);
-            
+                // Evaluate range par-select which is possible variable dependent
+                bool useDelta = evaluateRangeExpr(hiExpr, loExpr);
+                codeWriter->setSkipSignCast(skipSignCastOrig);
+
+                codeWriter->putPartSelectExpr(expr, ttval, thisExpr, hiExpr, 
+                                              loExpr, useDelta);
+            }
         } else 
         if (fname == "and_reduce" || fname == "or_reduce" || 
             fname == "xor_reduce" || fname == "nand_reduce" || 
             fname == "nor_reduce" || fname == "xnor_reduce") {
             
-            string opcode = (fname == "and_reduce") ? "&" :
-                            (fname == "or_reduce") ? "|" : 
-                            (fname == "xor_reduce") ? "^" :
-                            (fname == "nand_reduce") ? "~&" :
-                            (fname == "nor_reduce") ? "~|" : "~^";
-            
-            // Replace constant pointer with its integer value
-            if (pival.isInteger()) {
-                codeWriter->putLiteral(thisExpr, pival);
+            if (lhsZeroWidth) {
+                bool result = fname == "nand_reduce" || fname == "nor_reduce" || 
+                              fname == "xnor_reduce";
+                val = SValue(SValue::boolToAPSInt(result), 10); 
+                codeWriter->putLiteral(expr, val);
+                
+            } else {
+                string opcode = (fname == "and_reduce") ? "&" :
+                                (fname == "or_reduce") ? "|" : 
+                                (fname == "xor_reduce") ? "^" :
+                                (fname == "nand_reduce") ? "~&" :
+                                (fname == "nor_reduce") ? "~|" : "~^";
+
+                // Replace constant pointer with its integer value
+                if (pival.isInteger()) {
+                    codeWriter->putLiteral(thisExpr, pival);
+                }
+
+                // Put reduction unary expression for @this
+                codeWriter->putUnary(expr, opcode, thisExpr);    
             }
-            
-            // Put reduction unary expression for @this
-            codeWriter->putUnary(expr, opcode, thisExpr);    
-            
         } else 
         if (fname.find("to_i") != string::npos ||
             fname.find("to_u") != string::npos ||
             fname.find("to_long") != string::npos) {
             
-            // Replace constant pointer with its integer value
-            if (pival.isInteger()) {
-                codeWriter->putLiteral(thisExpr, pival);
-            }
-            
-            QualType type = expr->getType();
-            codeWriter->putTypeCast(thisExpr, expr, type);
+            if (lhsZeroWidth) {
+                val = SValue(APSInt(32, true), 10); 
+                codeWriter->putLiteral(expr, val);
+                
+            } else {
+                // Replace constant pointer with its integer value
+                if (pival.isInteger()) {
+                    codeWriter->putLiteral(thisExpr, pival);
+                }
 
-            bool isSigned = isSignedType(type);
-            bool isOrigSigned = isSignedType(thisType);
+                QualType type = expr->getType();
+                codeWriter->putTypeCast(thisExpr, expr, type);
 
-            // Set/reset sign cast for literals and expressions
-            if (isOrigSigned != isSigned) { 
-                codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
-                                                         CastSign::UCAST);
+                bool isSigned = isSignedType(type);
+                bool isOrigSigned = isSignedType(thisType);
+
+                // Set/reset sign cast for literals and expressions
+                if (isOrigSigned != isSigned) { 
+                    codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
+                                                             CastSign::UCAST);
+                }
             }
         } else
         if (fname.find("to_bool") != string::npos) {
             // No type cast required for @to_bool as it applied for @bit_ref only
-            codeWriter->copyTerm(thisExpr, expr);
-            
+            if (lhsZeroWidth) {
+                val = SValue(SValue::boolToAPSInt(false), 10); 
+                codeWriter->putLiteral(expr, val);
+                
+            } else {
+                codeWriter->copyTerm(thisExpr, expr);
+            }
         } else
         if (fname.find("length") != string::npos) {
             // Get length form template parameter for @sc_bv/sc_(big)(u)int
             // not work for channel of these types
-            if (auto length = getTemplateArgAsInt(tval.getType(), 0)) {
-                codeWriter->putLiteral(expr, SValue(*length, 10));
+            if (lhsZeroWidth) {
+                val = SValue(APSInt(32, true), 10); 
+                codeWriter->putLiteral(expr, val);
+                
             } else {
-                SCT_INTERNAL_ERROR(expr->getBeginLoc(), 
-                                   "Cannot get type width for length()");
+                if (auto length = getTemplateArgAsInt(tval.getType(), 0)) {
+                    codeWriter->putLiteral(expr, SValue(*length, 10));
+                } else {
+                    SCT_INTERNAL_ERROR(expr->getBeginLoc(), 
+                                       "Cannot get type width for length()");
+                }
             }
         } else
         if (fname.find("is_01") != string::npos) {
@@ -2566,84 +2628,90 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                                  << "ScGenerateExpr::parseMemberCall";
         }
     } else 
-    if (isScChannel(thisType)) {
+    if (lhsChannel) {
         // Channel object
         SValue cval = getChannelFromState(ttval);
         
-        if (fname == "write" && (cval.isScOutPort() || cval.isScSignal())) {
+        if ((cval.isScOutPort() || cval.isScSignal() || lhsZeroWidth) && 
+            (fname == "write")) 
+        {
             // Output port write method
             SCT_TOOL_ASSERT (argNum == 1, "Incorrect argument number");
-            Expr* argExpr = args[0];
             
-            QualType ltype = getDerefType(cval.getType());
-            bool lhsRecord = isUserClass(ltype, true);
-            auto lrecType = isUserClassChannel(ltype, true);
-            bool lhsRecordChan = (lhsRecord && cval.isScChannel()) || 
-                                 lrecType.hasValue();
+            if (lhsZeroWidth) {
+                val = ZW_VALUE; codeWriter->putLiteral(expr, val);
             
-            //cout << "cval " << cval << " " << lhsRecord << lhsRecordChan << endl;
-            //ltype.dump();
-            
-            // Get LHS record indices 
-            string lrecSuffix;
-            if (cval.isRecord() || lhsRecordChan) {
-                auto lrecvecs = getRecVector(cval);
-                lrecSuffix = codeWriter->getRecordIndxs(lrecvecs);
-            }
-            
-            // Parse argument expression to fill @terms
-            SValue rval;
-            chooseExprMethod(argExpr, rval);
-            
-            // Check for record/channel of record
-            QualType rtype = getDerefType(rval.getType());
-            bool rhsRecord = isUserClass(rtype, false);
-            auto rrecType = isUserClassChannel(rtype, false);
-            bool rhsRecordChan = (rhsRecord && rval.isScChannel()) || 
-                                  rrecType.hasValue();            
-            bool rhsTempRecord = rhsRecord && rval.isRecord() && 
-                                 rval == temprec;
-            bool rhsRefRecord = rhsRecord && isReference(rval.getType());
-            // Clear used temporary record
-            temprec = NO_VALUE;
-            
-            SValue rrec;
-            if (rhsTempRecord || rhsRecordChan && rval.isScChannel()) {
-                // Record channel is used instead of parent record
-                rrec = rval;
             } else {
-                // Get record or record channel value 
-                state->getValue(rval, rrec);
-            }
+                Expr* argExpr = args[0];
+                QualType ltype = getDerefType(cval.getType());
+                bool lhsRecord = isUserClass(ltype, true);
+                auto lrecType = isUserClassChannel(ltype, true);
+                bool lhsRecordChan = (lhsRecord && cval.isScChannel()) || 
+                                     lrecType.hasValue();
 
-            // Get RHS record indices 
-            string rrecSuffix;
-            if (rhsRefRecord) {
-                rrecSuffix = refRecarrIndx;
-                // Clear indices suffix after use
-                refRecarrIndx = "";
-            } else 
-            if (rrec.isRecord() || rhsRecordChan) {
-                auto rrecvecs = getRecVector(rrec);
-                rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
-            }
-            
-            if (lhsRecord || lhsRecordChan) {
-                if (rhsTempRecord) {
-                    codeWriter->putRecordAssignTemp(expr, cval, cval, rrec, 
-                                            lrecSuffix, lrecType, state.get());
-                } else {
-                    // Put assign for record channel
-                    codeWriter->putRecordAssign(expr, cval, cval, rrec, 
-                                                lrecSuffix, rrecSuffix, lrecType);
+                //cout << "cval " << cval << " " << lhsRecord << lhsRecordChan << endl;
+                //ltype.dump();
+
+                // Get LHS record indices 
+                string lrecSuffix;
+                if (cval.isRecord() || lhsRecordChan) {
+                    auto lrecvecs = getRecVector(cval);
+                    lrecSuffix = codeWriter->getRecordIndxs(lrecvecs);
                 }
-            } else {
-                // Put assignment instead of method call, use @cval as it is channel
-                codeWriter->putAssign(expr, cval, thisExpr, argExpr);
-            }
 
+                // Parse argument expression to fill @terms
+                SValue rval;
+                chooseExprMethod(argExpr, rval);
+
+                // Check for record/channel of record
+                QualType rtype = getDerefType(rval.getType());
+                bool rhsRecord = isUserClass(rtype, false);
+                auto rrecType = isUserClassChannel(rtype, false);
+                bool rhsRecordChan = (rhsRecord && rval.isScChannel()) || 
+                                      rrecType.hasValue();            
+                bool rhsTempRecord = rhsRecord && rval.isRecord() && 
+                                     rval == temprec;
+                bool rhsRefRecord = rhsRecord && isReference(rval.getType());
+                // Clear used temporary record
+                temprec = NO_VALUE;
+
+                SValue rrec;
+                if (rhsTempRecord || rhsRecordChan && rval.isScChannel()) {
+                    // Record channel is used instead of parent record
+                    rrec = rval;
+                } else {
+                    // Get record or record channel value 
+                    state->getValue(rval, rrec);
+                }
+
+                // Get RHS record indices 
+                string rrecSuffix;
+                if (rhsRefRecord) {
+                    rrecSuffix = refRecarrIndx;
+                    // Clear indices suffix after use
+                    refRecarrIndx = "";
+                } else 
+                if (rrec.isRecord() || rhsRecordChan) {
+                    auto rrecvecs = getRecVector(rrec);
+                    rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
+                }
+
+                if (lhsRecord || lhsRecordChan) {
+                    if (rhsTempRecord) {
+                        codeWriter->putRecordAssignTemp(expr, cval, cval, rrec, 
+                                                lrecSuffix, lrecType, state.get());
+                    } else {
+                        // Put assign for record channel
+                        codeWriter->putRecordAssign(expr, cval, cval, rrec, 
+                                                    lrecSuffix, rrecSuffix, lrecType);
+                    }
+                } else {
+                    // Put assignment instead of method call, use @cval as it is channel
+                    codeWriter->putAssign(expr, cval, thisExpr, argExpr);
+                }
+            }
         } else 
-        if (cval.isScChannel() && (fname == "read" || 
+        if ((cval.isScChannel() || lhsZeroWidth) && (fname == "read" || 
             (fname.find("operator") != string::npos && (
              fname.find("const") != string::npos ||  // for operator const T&
              fname.find("int") != string::npos ||    // covers sc_int, sc_uint, ...   
@@ -2655,11 +2723,15 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             // Channel read access method
             SCT_TOOL_ASSERT (argNum == 0, "Incorrect argument number");
 
-            codeWriter->copyTermRemoveBrackets(thisExpr, expr);
-            // Return channel for read access, required to get channel for 
-            // constant reference parameter to use channel variable
-            val = cval;
-            
+            if (lhsZeroWidth) {
+                val = fname == "read" ? ZW_VALUE : SValue(APSInt(32, true), 10); 
+                codeWriter->putLiteral(expr, val);
+            } else {
+                codeWriter->copyTermRemoveBrackets(thisExpr, expr);
+                // Return channel for read access, required to get channel for 
+                // constant reference parameter to use channel variable
+                val = cval;
+            }
         } else 
         if (fname.find("operator") != string::npos && (
             fname.find("int") != string::npos ||    // covers sc_int, sc_uint, ...
@@ -2676,7 +2748,6 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             // Return channel for read access, required to get channel for 
             // constant reference parameter to use channel variable
             val = cval;
-
         } else 
         if (fname.find("pos") != string::npos || 
             fname.find("neg") != string::npos) {
@@ -2858,9 +2929,15 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         SValue lval;
         chooseExprMethod(lexpr, lval);
         assignLHS = lastAssignLHS;
+        
         val = lval;
         tval = lval;
+        bool lhsZeroWidth = isScZeroWidth(lval);
         
+        if (lhsZeroWidth) {
+            val = ZW_VALUE;
+            
+        } else 
         if (isAssignOperatorSupported(lval.getType())) {
             // SS channel operators, used for operator =() of register and ff_sync
             // General methods, most logic is in ScTraverseProc 
@@ -3008,26 +3085,32 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         // Get value for @this which points-to module/MIF object
         SValue lval;
         chooseExprMethod(lexpr, lval);
-        // Dereferenced value provided in @val
-        state->getValue(lval, val);
-        // Get variable for @rval
-        SValue tvar = state->getVariableForValue(lval);
-        //cout << "Operator -> tval " << tval << " ttval " << val << " tvar " << tvar << endl;
+        bool lhsZeroWidth = isScZeroWidth(lval);
 
-        if (tvar.isArray()) {
-            // Remain array element access, there is array of pointers
-            codeWriter->copyTerm(lexpr, expr);
-            SCT_INTERNAL_ERROR_NOLOC ("Array of sc_port<IF> not supported yet");
+        if (lhsZeroWidth) {
+            val = ZW_VALUE; codeWriter->putLiteral(expr, val);
             
-        } else 
-        if (lval.isVariable() || lval.isTmpVariable()) {
-            // Use variable to pointer variable, required for array of pointers
-            codeWriter->copyTerm(lexpr, expr);
         } else {
-            // Put de-referenced pointer variable 
-            putPtrDerefExpr(expr, tvar, lval, val);
+            // Dereferenced value provided in @val
+            state->getValue(lval, val);
+            // Get variable for @rval
+            SValue tvar = state->getVariableForValue(lval);
+            //cout << "Operator -> tval " << tval << " ttval " << val << " tvar " << tvar << endl;
+
+            if (tvar.isArray()) {
+                // Remain array element access, there is array of pointers
+                codeWriter->copyTerm(lexpr, expr);
+                SCT_INTERNAL_ERROR_NOLOC ("Array of sc_port<IF> not supported yet");
+
+            } else 
+            if (lval.isVariable() || lval.isTmpVariable()) {
+                // Use variable to pointer variable, required for array of pointers
+                codeWriter->copyTerm(lexpr, expr);
+            } else {
+                // Put de-referenced pointer variable 
+                putPtrDerefExpr(expr, tvar, lval, val);
+            }
         }
-        
     } else 
     if ((isStdArray(thisType) || isStdVector(thisType) || isScVector(thisType)) && 
         opcode == OO_Subscript) {
@@ -3048,6 +3131,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         SValue lval;
         chooseExprMethod(lexpr, lval);
         assignLHS = lastAssignLHS;
+        bool lhsZeroWidth = isScZeroWidth(lval);
         
         if (opcode == OO_Subscript) { // "[]"
             SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
@@ -3058,16 +3142,20 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                                      ScDiag::SYNTH_TEMP_EXPR_ARG);
             }
             
-            // Skip sign cast for part select index
-            bool skipSignCastOrig = codeWriter->isSkipSignCast();
-            codeWriter->setSkipSignCast(true);
-            SValue rval; 
-            chooseExprMethod(rexpr, rval);
-            codeWriter->setSkipSignCast(skipSignCastOrig);
-            
-            // Put bit access expression as array index access
-            codeWriter->putBitSelectExpr(expr, lval, lexpr, rexpr);
+            if (lhsZeroWidth) {
+                val = ZW_VALUE; codeWriter->putLiteral(expr, val);
+                
+            } else {
+                // Skip sign cast for part select index
+                bool skipSignCastOrig = codeWriter->isSkipSignCast();
+                codeWriter->setSkipSignCast(true);
+                SValue rval; 
+                chooseExprMethod(rexpr, rval);
+                codeWriter->setSkipSignCast(skipSignCastOrig);
 
+                // Put bit access expression as array index access
+                codeWriter->putBitSelectExpr(expr, lval, lexpr, rexpr);
+            }
         } else 
         if (opcode == OO_Call) {  // "()"
             SCT_TOOL_ASSERT (argNum == 3, "Incorrect argument number");
@@ -3076,20 +3164,24 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                                      ScDiag::SYNTH_TEMP_EXPR_ARG);
             }
 
-            // Skip sign cast for part select index
-            bool skipSignCastOrig = codeWriter->isSkipSignCast();
-            codeWriter->setSkipSignCast(true);
-            SValue rval; SValue rrval;
-            chooseExprMethod(args[1], rval);
-            chooseExprMethod(args[2], rrval);
-            
-            // Evaluate range par-select which is possible variable dependent
-            bool useDelta = evaluateRangeExpr(args[1], args[2]);
-            codeWriter->setSkipSignCast(skipSignCastOrig);
+            if (lhsZeroWidth) {
+                val = ZW_VALUE; codeWriter->putLiteral(expr, val);
+                
+            } else {
+                // Skip sign cast for part select index
+                bool skipSignCastOrig = codeWriter->isSkipSignCast();
+                codeWriter->setSkipSignCast(true);
+                SValue rval; SValue rrval;
+                chooseExprMethod(args[1], rval);
+                chooseExprMethod(args[2], rrval);
 
-            codeWriter->putPartSelectExpr(expr, lval, lexpr, args[1], args[2], 
-                                          useDelta);
-            
+                // Evaluate range par-select which is possible variable dependent
+                bool useDelta = evaluateRangeExpr(args[1], args[2]);
+                codeWriter->setSkipSignCast(skipSignCastOrig);
+
+                codeWriter->putPartSelectExpr(expr, lval, lexpr, args[1], args[2], 
+                                              useDelta);
+            }
         } else 
         // "," which is @concat() here    
         if (opcode == OO_Comma) { 
@@ -3120,15 +3212,32 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                                      ScDiag::SC_CONCAT_INT_TO_BOOL);
             }
             
-            codeWriter->putConcat(expr, lexpr, rexpr);
-
+            bool rhsZeroWidth = isScZeroWidth(rval);
+            if (lhsZeroWidth && rhsZeroWidth) {
+                // Put 32bit unsigned 0
+                val = ZW_VALUE; codeWriter->putLiteral(expr, val);
+            } else 
+            if (lhsZeroWidth) {
+                codeWriter->copyTerm(rexpr, expr);
+            } else 
+            if (rhsZeroWidth) {
+                codeWriter->copyTerm(lexpr, expr);
+            } else {
+                codeWriter->putConcat(expr, lexpr, rexpr);
+            }
+            
         } else 
         // "!" "~" 
         if (opcode == OO_Exclaim || opcode == OO_Tilde) {
             // Postfix ==/-- has artifical argument
             SCT_TOOL_ASSERT (argNum == 1, "Incorrect argument number");
             
-            codeWriter->putUnary(expr, opStr, lexpr);
+            if (lhsZeroWidth) {
+                val = SValue(SValue::boolToAPSInt(true), 10);
+                codeWriter->putLiteral(expr, val);
+            } else {
+                codeWriter->putUnary(expr, opStr, lexpr);
+            }
             
             if (codeWriter->getAssignStmt(lexpr)) {
                 ScDiag::reportScDiag(expr->getBeginLoc(),
@@ -3159,7 +3268,11 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             SValue rval; 
             if (argNum == 2) chooseExprMethod(args[1], rval);
             
-            codeWriter->putUnary(expr, opStr, lexpr, argNum == 1);
+            if (lhsZeroWidth) {
+                val = ZW_VALUE; codeWriter->putLiteral(expr, val);
+            } else {
+                codeWriter->putUnary(expr, opStr, lexpr, argNum == 1);
+            }
             
             if (codeWriter->getAssignStmt(lexpr)) {
                 ScDiag::reportScDiag(expr->getBeginLoc(),
@@ -3169,12 +3282,15 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         // Unary "-" and "+"
         if (argNum == 1 && (opcode == OO_Plus || opcode == OO_Minus)) 
         {
-            if (opcode == OO_Minus) {
-                codeWriter->putUnary(expr, opStr, lexpr, true);
-                
+            if (lhsZeroWidth) {
+                val = ZW_VALUE; codeWriter->putLiteral(expr, val);
             } else {
-                val = lval;
-                codeWriter->copyTerm(lexpr, expr);
+                if (opcode == OO_Minus) {
+                    codeWriter->putUnary(expr, opStr, lexpr, true);
+                } else {
+                    val = lval;
+                    codeWriter->copyTerm(lexpr, expr);
+                }
             }
             
             if (codeWriter->getAssignStmt(lexpr)) {
@@ -3252,48 +3368,53 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                                          ScDiag::SYNTH_MODIFY_REG_IN_RESET);
                 }
             }
-            
-            // Left value is result of assignment statement
-            val = lval;
-            
-            if (lhsIsTempExpr) {
-                ScDiag::reportScDiag(expr->getBeginLoc(), 
-                                     ScDiag::SYNTH_TEMP_EXPR_ARG);
-            }
-            
-            Expr* rexpr = args[1];
-            SValue rval; 
-            chooseExprMethod(rexpr, rval);
-            
-            if (opcode == OO_GreaterGreaterEqual) {
-                opStr = ">>>";
-            } else
-            if (opcode == OO_LessLessEqual) {
-                opStr = "<<<";
+           
+            if (lhsZeroWidth) {
+                val = ZW_VALUE; codeWriter->putLiteral(expr, val);
+                
             } else {
-                // Remove last symbol "=" from @opcode
-                opStr = opStr.substr(0, opStr.length()-1);
-            }
-            
-            // RHS operand is self-determined in Verilog (see LRM 11.6)
-            // 32bit is always enough for shift value
-            if (codeWriter->isIncrWidth(rexpr) && 
-                (opcode == OO_GreaterGreaterEqual || opcode == OO_LessLessEqual)) {
-                // 32bit is always enough for shift value
-                unsigned width = codeWriter->getExprTypeWidth(rexpr, 32);
-                width = (width > 32) ? 32 : width;
-                codeWriter->extendTypeWidth(rexpr, width);
-            }
-            
-            // Get owner variable, required for arrays
-            SValue lvar = state->getVariableForValue(lval);
-            
-            codeWriter->putCompAssign(expr, opStr, lvar, lexpr, rexpr);
+                // Left value is result of assignment statement
+                val = lval;
 
-            // Consider multiple assignments
-            if (auto multipleAssign = codeWriter->getAssignStmt(rexpr)) {
-                codeWriter->addTerm(expr, multipleAssign);
-                codeWriter->copyTerm(multipleAssign, expr);
+                if (lhsIsTempExpr) {
+                    ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                         ScDiag::SYNTH_TEMP_EXPR_ARG);
+                }
+
+                Expr* rexpr = args[1];
+                SValue rval; 
+                chooseExprMethod(rexpr, rval);
+
+                if (opcode == OO_GreaterGreaterEqual) {
+                    opStr = ">>>";
+                } else
+                if (opcode == OO_LessLessEqual) {
+                    opStr = "<<<";
+                } else {
+                    // Remove last symbol "=" from @opcode
+                    opStr = opStr.substr(0, opStr.length()-1);
+                }
+
+                // RHS operand is self-determined in Verilog (see LRM 11.6)
+                // 32bit is always enough for shift value
+                if (codeWriter->isIncrWidth(rexpr) && 
+                    (opcode == OO_GreaterGreaterEqual || opcode == OO_LessLessEqual)) {
+                    // 32bit is always enough for shift value
+                    unsigned width = codeWriter->getExprTypeWidth(rexpr, 32);
+                    width = (width > 32) ? 32 : width;
+                    codeWriter->extendTypeWidth(rexpr, width);
+                }
+
+                // Get owner variable, required for arrays
+                SValue lvar = state->getVariableForValue(lval);
+
+                codeWriter->putCompAssign(expr, opStr, lvar, lexpr, rexpr);
+
+                // Consider multiple assignments
+                if (auto multipleAssign = codeWriter->getAssignStmt(rexpr)) {
+                    codeWriter->addTerm(expr, multipleAssign);
+                    codeWriter->copyTerm(multipleAssign, expr);
+                }
             }
         } else { 
             ScDiag::reportScDiag(expr->getSourceRange().getBegin(), 
@@ -3329,7 +3450,9 @@ void ScGenerateExpr::parseReturnStmt(ReturnStmt* stmt, SValue& val)
         bool isPointer = sc::isPointer(retType);
 
         // Skip zero width parameter
-        if (isScZeroWidth(retType) || isScZeroWidthArray(retType)) return;
+        if (isZeroWidthType(retType) || isZeroWidthArrayType(retType)) {
+            val = ZW_VALUE; return;
+        }
         
         // Set return temporal variable value to analyze @CXXConstructExpr and
         // use as record copy local variable
@@ -3455,6 +3578,8 @@ llvm::Optional<string> ScGenerateExpr::parse(const Stmt* stmt)
     auto ncstmt = const_cast<Stmt*>(stmt);
     chooseExprMethod(ncstmt, val);
 
+    if (val.isScZeroWidth()) return llvm::None;
+    
     return codeWriter->getStmtString(ncstmt);
 }
 

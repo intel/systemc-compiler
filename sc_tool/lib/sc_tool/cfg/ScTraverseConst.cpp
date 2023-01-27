@@ -511,32 +511,7 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
     // Get @this expression and its type
     Expr* thisExpr = expr->getImplicitObjectArgument();
     QualType thisType = thisExpr->getType();
-    bool isZeroWidth = isScZeroWidth(thisType);
-    
-    if (isZeroWidth) {
-        CXXMethodDecl* methodDecl = expr->getMethodDecl();
-        string fname = methodDecl->getNameAsString();        
-        
-        if (fname == "and_reduce" || fname == "or_reduce" || 
-            fname == "xor_reduce" || fname == "test") {
-            // Return boolean @false
-            val = SValue(SValue::boolToAPSInt(false), 10);
-        } else 
-        if (fname == "nand_reduce" || fname == "nor_reduce" || 
-            fname == "xnor_reduce") {
-            // Return boolean @true
-            val = SValue(SValue::boolToAPSInt(true), 10);
-        } else {
-            unsigned width = (fname == "to_long" || fname == "to_ulong" || 
-                              fname == "to_int64" || fname == "to_uint64") ?
-                              64 : 32;
-            bool isUnsigned = (fname == "to_int" || fname == "to_long" || 
-                               fname == "to_int64") ? false : true;
-            // No function call for @sct_zero_width
-            val = SValue(APSInt(width, isUnsigned), 10);
-        }
-        return;
-    }
+    bool isZeroWidth = isZeroWidthType(thisType);
     
     // @this value for user function
     ScParseExprValue::parseMemberCall(expr, tval, val);
@@ -547,7 +522,7 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
     FunctionDecl* methodDecl = expr->getMethodDecl()->getAsFunction();
     string fname = methodDecl->getNameAsString();
     
-    if ( isAnyScIntegerRef(thisType, true) ) {
+    if ( isAnyScIntegerRef(thisType, true) || isZeroWidth ) {
         // Do nothing, all logic implemented in ScParseExprValue
         
     } else 
@@ -675,39 +650,8 @@ void ScTraverseConst::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
 {
     SCT_TOOL_ASSERT (expr->getNumArgs() != 0, "Operator without arguments");
     Expr* thisExpr = expr->getArgs()[0];
-    bool isZeroWidth = isScZeroWidth(thisExpr->getType());
+    bool isZeroWidth = isZeroWidthType(thisExpr->getType());
 
-    if (isZeroWidth) {
-        OverloadedOperatorKind opcode = expr->getOperator();
-        if (opcode == OO_EqualEqual) {
-            Expr** args = expr->getArgs();
-            unsigned argNum = expr->getNumArgs();
-            SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
-            
-            SValue rval = evalSubExpr(args[1]);
-            readFromValue(rval);
-            SValue rrval = getValueFromState(rval);
-            SValue tmp;
-            state->getDerefVariable(rrval, tmp); rrval = tmp;
-            
-            if (isScZeroWidth(rval.getType())) {
-                // Return boolean @true
-                val = SValue(SValue::boolToAPSInt(true), 10);
-            } else 
-            if (rrval.isInteger()) {
-                // Return boolean @true or @false
-                bool result = rrval.getInteger().isNullValue();
-                val = SValue(SValue::boolToAPSInt(result), 10);
-            } else {
-                val = NO_VALUE;
-            }
-        } else {
-            // Return unsigned 32bit zero
-            val = SValue(APSInt(32, true), 10);
-        }
-        return;
-    }
-    
     // @this value for user function
     ScParseExprValue::parseOperatorCall(expr, tval, val);
         
@@ -719,6 +663,10 @@ void ScTraverseConst::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
     bool isAssignOperator = expr->isAssignmentOp() && opcode == OO_Equal;
     bool isSctChan = isAssignOperatorSupported(tval.getType());
     
+    if (isZeroWidth) {
+        // Do nothing 
+        
+    } else 
     if (isAssignOperator && isSctChan) {
         // Operator call in sct namespace
         // No user-define method call in constant evaluation mode

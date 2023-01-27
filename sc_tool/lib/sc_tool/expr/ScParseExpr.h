@@ -114,6 +114,10 @@ public:
     // ---------------------------------------------------------------------------
     // State access functions, can be overloaded in inheritors
     
+    /// Check if value is integer of ZeroWidth or variable of sct_zero_width 
+    /// type or element of array of sct_zero_width 
+    bool isScZeroWidth(const SValue& val);
+    
     /// Get integer literal basis
     char getLiteralRadix(const clang::IntegerLiteral* intLiteral);
     

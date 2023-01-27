@@ -62,7 +62,7 @@ struct Dut : public sc_module
         }
         
         void tarMeth() {
-            T a = r.read();
+            T a = r.read();       // Incorrect code: targ_r instead of targ_r[0]
         }
 
         void f(T val) {

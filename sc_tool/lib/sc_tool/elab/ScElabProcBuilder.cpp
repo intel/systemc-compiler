@@ -455,8 +455,8 @@ sc::SValue ProcBuilder::createPortSValue(PortView portView)
             SCT_TOOL_ASSERT(!fieldObj.isStatic(), "Static field in channel record");
 
             // Skip zero width record field
-            if (isScZeroWidth(fieldDecl->getType()) || 
-                isScZeroWidthArray(fieldDecl->getType())) continue;
+            if (isZeroWidthType(fieldDecl->getType()) || 
+                isZeroWidthArrayType(fieldDecl->getType())) continue;
             
             // Field with record signal as parent class
             SValue fval(fieldDecl, res);
@@ -508,8 +508,8 @@ sc::SValue ProcBuilder::createSignalSValue(SignalView signalView)
             SCT_TOOL_ASSERT(!fieldObj.isStatic() || fieldObj.isConstant(), 
                             "Static non-constant field in channel record");
             // Skip zero width record field
-            if (isScZeroWidth(fieldDecl->getType()) || 
-                isScZeroWidthArray(fieldDecl->getType())) continue;
+            if (isZeroWidthType(fieldDecl->getType()) || 
+                isZeroWidthArrayType(fieldDecl->getType())) continue;
             
             // Field with record signal as parent class
             SValue fval(fieldDecl, res);

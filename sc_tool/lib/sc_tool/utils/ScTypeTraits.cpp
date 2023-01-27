@@ -333,7 +333,7 @@ bool isScBitVector(clang::QualType type)
     return isDerivedFrom(type, db->scBitVector);
 }
 
-bool isScZeroWidth(clang::QualType type) {
+bool isZeroWidthType(clang::QualType type) {
     if (type.isNull()) return false;
     type = getPureType(type);
     if (auto chanType = isUserClassChannel(type)) {
@@ -342,7 +342,7 @@ bool isScZeroWidth(clang::QualType type) {
     return (!type.getAsString().compare("struct sc_dt::sct_zero_width"));
 }
 
-bool isScZeroWidthArray(clang::QualType type) {
+bool isZeroWidthArrayType(clang::QualType type) {
     if (type.isNull()) return false;
     type = getArrayElementType(type);
     type = getPureType(type);
@@ -518,7 +518,7 @@ llvm::Optional<std::pair<size_t, bool>> getIntTraits(clang::QualType type,
     }
     type = getPureType(type);
     
-    if (isScZeroWidth(type)) {
+    if (isZeroWidthType(type)) {
         // ZWI value is 32bit unsigned
         return std::pair<size_t, bool>(32, true);
         

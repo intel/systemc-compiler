@@ -143,7 +143,7 @@ size_t getArraySize(clang::QualType type)
     return 0;
 }
 
-// Get array, std::array, std::vector bottom element type
+// Get array, std::array, std::vector, sc_vector bottom element type
 // \return int for int[2][3], but not int[3]
 clang::QualType getArrayElementType(clang::QualType type)
 {
@@ -152,7 +152,7 @@ clang::QualType getArrayElementType(clang::QualType type)
     while (type->isArrayType()) {
         type = llvm::dyn_cast<clang::ArrayType>(type)->getElementType();
     }
-    while (isStdArray(type) || isStdVector(type)) {
+    while (isStdArray(type) || isStdVector(type) || isScVector(type)) {
         auto elmType = getTemplateArgAsType(type, 0);
         type = *elmType;
     }
@@ -369,7 +369,7 @@ bool isUserClass(clang::QualType type, bool checkPointer)
     return true;
 }
 
-// Check array of any class/structure/module type
+// Check array/vector of any class/structure/module type
 // \param checkPointer -- check array of pointers to class
 bool isUserDefinedClassArray(QualType type, bool checkPointer) 
 {
@@ -389,7 +389,7 @@ bool isUserDefinedClassArray(QualType type, bool checkPointer)
     return (isUserClass(type));
 }
 
-// Get user defined class from array or none
+// Get user defined class from array/vector or none
 llvm::Optional<QualType> getUserDefinedClassFromArray(QualType type) 
 {
     if (type.isNull()) return llvm::None;

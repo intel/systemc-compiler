@@ -59,7 +59,7 @@ size_t getArraySize(clang::ValueDecl* decl);
 /// \return array size in elements or 0, 2 for int[2][3]  
 size_t getArraySize(clang::QualType type);
 
-/// Get array, std::array, std::vector element type
+/// Get array, std::array, std::vector, sc_vector element type
 /// \return int for int[2][3], but not int[3]
 clang::QualType getArrayElementType(clang::QualType type);
 
@@ -105,11 +105,11 @@ bool isIoStream(clang::QualType type);
 /// Do not check reference, use type.getNonReferenceType() if required
 bool isUserClass(clang::QualType type, bool checkPointer = false);
 
-/// Check any class/structure/module type
+/// Check array/vector of any class/structure/module type
 /// \param checkPointer -- check array of pointers to class
 bool isUserDefinedClassArray(clang::QualType type, bool checkPointer);
 
-/// Get user defined class from array or none
+/// Get user defined class from array/vector or none
 llvm::Optional<clang::QualType> getUserDefinedClassFromArray(clang::QualType type);
 
 /// Check if a class declaration is template

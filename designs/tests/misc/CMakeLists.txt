@@ -101,9 +101,14 @@ svc_target(misc_large_array)
 add_executable(misc_array_ptr_noninit test_array_ptr_noninit.cpp)
 svc_target(misc_array_ptr_noninit GOLDEN misc_array_ptr_noninit.sv)
 
-add_executable(misc_zero_width_fail test_zero_width_fail.cpp)
-svc_target(misc_zero_width_fail WILL_FAIL)
+add_executable(misc_zero_width_int test_zero_width_int.cpp)
+svc_target(misc_zero_width_int GOLDEN misc_zero_width_int.sv)
 
+add_executable(misc_zero_width_sig test_zero_width_sig.cpp)
+svc_target(misc_zero_width_sig GOLDEN misc_zero_width_sig.sv)
+
+add_executable(misc_zero_width_func test_zero_width_func.cpp)
+svc_target(misc_zero_width_func GOLDEN misc_zero_width_func.sv)
 
 ## Vectors
 add_executable(misc_vector_in_top test_vector_in_top.cpp)

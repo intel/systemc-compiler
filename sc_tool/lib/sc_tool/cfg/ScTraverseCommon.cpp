@@ -20,7 +20,8 @@ bool sc::isZeroWidthCall(clang::Stmt* stmt)
 {
     if (auto expr = dyn_cast<CXXMemberCallExpr>(stmt)) {
         Expr* thisExpr = expr->getImplicitObjectArgument();
-        return isScZeroWidth(thisExpr->getType());
+        return (isZeroWidthType(thisExpr->getType()) || 
+                isZeroWidthArrayType(thisExpr->getType()));
     }    
     return false;
 }
