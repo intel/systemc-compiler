@@ -387,15 +387,38 @@ There are some limitation to variable use in reset section of clocked thread des
 This section describes types can be used in process functions. 
 SystemC integer types {\tt sc\_int}, {\tt sc\_uint}, {\tt sc\_bigint}, {\tt sc\_biguint} are supported. C++ {\tt bool}, {\tt char}, {\tt short}, {\tt integer}, {\tt long integer} and {\tt long long integer} and their unsigned versions are supported. Generated SystemVerilog data types shown in Table~\ref{tab:data_types}.
 
+There are two special types {\tt sct\_uint<N>} and {\tt sct\_int<N>} provided. They are bit-accurate integer types which support any number of bits:
+\begin{itemize}
+\item {\tt sct\_int<N>} is signed integer with N bits, where N is zero or positive,
+\item {\tt sct\_uint<N>} is unsigned integer with N bits, where N is zero or positive.
+\end{itemize}
+
+{\tt sct\_int<N>} and {\tt sct\_uint<N>} types automatically substitute {\tt sc\_int<N>} or {\tt sct\_bigint<N>} and {\tt sct\_uint<N>} or {\tt sct\_biguint<N>} depends on bit width. These types are implemented in {\tt sct\_sel\_types.h}.
+
+To initialize a variable of {\tt sct\_uint<N>} type with all bits 0 or 1 there are special templates:
+\begin{itemize}
+\item {\tt sct\_zeros<N>} is N-bit zeros literal of {\tt sct\_uint<N>} type,
+\item {\tt sct\_ones<N>} is N-bit ones literal of {\tt sct\_uint<N>} type.
+\end{itemize}
+
+\begin{lstlisting}[style=mycpp]
+// Variable declaration with 0/1 initialization
+sct_uint<12> a = sct_zeros<12>;
+sct_uint<66> b = sct_ones<66>;
+auto c  = sct_zeros<90>;
+\end{lstlisting}
+
 \begin{table}
 \begin{tabular}{|l|l|l|}
 \hline
 SC/C++ type & SV type  & SC synthesizable subset \\
 \hline
-sc\_uint<N> & logic [N] & \\
-sc\_biguint<N> & logic [N] & \\
-sc\_int<N> & logic signed [N] & \\
-sc\_bigint<N> & logic signed [N] & \\
+sct\_uint<N> & logic [N] & N is 0...+inf \\
+sct\_int<N> & logic signed [N] & N is 0...+inf \\
+sc\_uint<N> & logic [N] & N is 1...64 \\
+sc\_biguint<N> & logic [N] & N is 1...+inf \\
+sc\_int<N> & logic signed [N] & N is 1...64 \\
+sc\_bigint<N> & logic signed [N] & N is 1...+inf \\
 sc\_bv<N> & logic [N] & \\
 bool & logic & \\
 char, signed char & logic signed [8] & \\
@@ -415,6 +438,20 @@ unsigned long long & logic [64] & 64bit \\
 \caption{Data type conversion}
 \label{tab:data_types}
 \end{table}
+
+Zero width integer types {\tt sct\_int<0>} and {\tt sct\_uint<0>} intended to represent optional variables, signals, ports and record fields. In the generated SV such variables are not declared, assignment to such variable is not generated, using such variable as RValue replaced with {\tt 0}. The same works for zero width signals, ports and record fields.
+
+\begin{lstlisting}[style=mycpp]
+template <unsigned N>
+struct MyModule : public sc_module {
+  sct_uint<N> optVar;
+  sc_in<sct_uint<N>> optInPort{"optInPort"};
+  sc_signal<sct_uint<N>> optSig{"optSig"};
+  struct Rec {
+     sct_uint<N> optField;     
+  };
+}
+\end{lstlisting}
 
 Uninitialized local variable of SystemC types (sc\_uint, sc\_biguint, sc\_int, sc\_biguint) has got zero value in generated code as it got this value in the default constructor.
 That means declaration of such variable leads to its initialization by {\tt 0}.
