@@ -9,21 +9,12 @@ cmake_minimum_required(VERSION 3.12)
 
 enable_testing()
 
-if(NOT DEFINED ENV{ICSC_HOME})
-  message("ICSC_HOME is not defined!")
-  return()
-endif()
-
 # Design template
 project(mydesign)
 
 ## SVC package contains ScTool and SystemC libraries
+# The SVC package will set CMAKE_CXX_STANDARD and CMAKE_CXX_STANDARD_REQUIRED
 find_package(SVC REQUIRED)
-
-# C++ standard must be the same as in ScTool, $(SystemC_CXX_STANDARD) contains 17
-set(CMAKE_CXX_STANDARD 17)
-
-#include_directories($ENV{ICSC_HOME}/include)
 
 # All synthesizable source files must be listed here (not in libraries)
 add_executable(mydesign example.cpp)

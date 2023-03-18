@@ -9,11 +9,6 @@ cmake_minimum_required(VERSION 3.12)
 
 enable_testing()
 
-if(NOT DEFINED ENV{ICSC_HOME})
-  message("ICSC_HOME is not defined!")
-  return()
-endif()
-
 project(icsc_examples)
 
 ## SVC package contains ScTool and SystemC libraries
@@ -25,10 +20,11 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(asserts)
 add_subdirectory(counter)
 add_subdirectory(decoder)
-add_subdirectory(dma)
 add_subdirectory(dm_paranut)
+add_subdirectory(dma)
 add_subdirectory(dvcon20)
 add_subdirectory(fsm)
+add_subdirectory(int_error)
 add_subdirectory(intrinsic)
 add_subdirectory(latch_ff)
 

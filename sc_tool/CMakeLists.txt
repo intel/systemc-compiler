@@ -184,7 +184,7 @@ target_link_libraries(SCTool
         ${system_libs}
         )
 
-# Include $ICSC_HOME/include, create INTERFACE_INCLUDE_DIRECTORIES
+# Include HOME/include, create INTERFACE_INCLUDE_DIRECTORIES
 target_include_directories(SCTool PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/lib>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/sc_elab>
@@ -199,8 +199,8 @@ add_dependencies(SCTool systemcPCH)
 
 add_library (SVC::SCTool ALIAS SCTool)
 
-# Copy libraries to $ICSC_HOME/lib
+# Copy libraries to HOME/lib
 install(TARGETS SCTool SysCRTTI EXPORT SVCTargets DESTINATION lib)
-# Copy one required header to $ICSC_HOME/include
+# Copy one required header to HOME/include
 # SystemC headers copied by SC make install
 install(FILES lib/sc_tool/SCTool.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sc_tool)

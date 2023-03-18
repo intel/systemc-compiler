@@ -10,7 +10,8 @@ project(sctool)
 
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(LLVM $ENV{LLVM_VER} EXACT REQUIRED CONFIG)
+set(ICSC_LLVM_VER $ENV{LLVM_VER})
+find_package(LLVM ${ICSC_LLVM_VER} EXACT REQUIRED CONFIG)
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -fno-tree-vectorize")
@@ -91,7 +92,7 @@ enable_testing()
 install (EXPORT SVCTargets NAMESPACE SVC::
          DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/SVC)
 
-# Create the SVCConfig.cmake, installed @ICSC_HOME/lib/cmake/SVC
+# Create the SVCConfig.cmake, installed @CMAKE_INSTALL_PREIFX/lib/cmake/SVC
 include(CMakePackageConfigHelpers)
 configure_package_config_file(cmake/SVCConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/SVCConfig.cmake
@@ -105,18 +106,24 @@ install(DIRECTORY components/common/sctcommon DESTINATION include)
 
 # Install setenv scripts
 install(FILES cmake/setenv.sh gdb/gdbinit-example.txt
-        DESTINATION $ENV{ICSC_HOME})
+        DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+# Install the top-level cmake file
+find_package(Protobuf REQUIRED)
+cmake_path(GET Protobuf_LIBRARIES FILENAME Protobuf_LIBRARY)
+
+configure_file(cmake/CMakeLists.top.in ${CMAKE_INSTALL_PREFIX}/CMakeLists.txt)
 
 # Install GDB pretty-printers
 install(FILES gdb/sysc23x_printers/singlsrc_printers.py
         gdb/sysc23x_printers/sysc23x_printers.py
-        DESTINATION $ENV{ICSC_HOME}/share/gdb/python/sysc23x_printers)
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/gdb/python/sysc23x_printers)
 
 # Install designs
-install(DIRECTORY designs DESTINATION $ENV{ICSC_HOME})
+install(DIRECTORY designs DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 # Install docs
 install(FILES doc/ug.pdf doc/papers/icsc_slides.pdf
               doc/papers/sct_assert_slides.pdf
               doc/papers/common_library_2022.pdf
-        DESTINATION $ENV{ICSC_HOME}/doc)
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/doc)

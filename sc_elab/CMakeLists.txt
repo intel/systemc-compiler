@@ -6,18 +6,17 @@
 # *****************************************************************************
 
 # Generate C++ API for protobuf DB
-find_package(Protobuf REQUIRED)
-message("Using Protobuf from ${Protobuf_INCLUDE_DIRS}")
+find_package(protobuf REQUIRED)
+message(STATUS "Protobuf executable is ${Protobuf_PROTOC_EXECUTABLE}")
 
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS sc_elab.proto)
+# Add a target
+add_library(sc_elab_proto)
 
-add_library(sc_elab_proto ${PROTO_SRCS} ${PROTO_HDRS} )
-target_link_libraries(sc_elab_proto ${Protobuf_LIBRARIES})
-target_include_directories(sc_elab_proto PUBLIC ${Protobuf_INCLUDE_DIRS}
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        )
+# Generate the protobuf into the target
+protobuf_generate(LANGUAGE cpp PROTOS sc_elab.proto TARGET sc_elab_proto)
 
-target_compile_definitions(sc_elab_proto PUBLIC GOOGLE_PROTOBUF_NO_RTTI)
+# Must add the include directory for others to find
+target_include_directories(sc_elab_proto PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 
+# Install declaration(s)
 install(TARGETS sc_elab_proto EXPORT SVCTargets DESTINATION lib)

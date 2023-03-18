@@ -5,13 +5,6 @@
 # 
 # *****************************************************************************
 
-#set(COMMON_HOME $ENV{ICSC_HOME}/svc/components/common)
-set(COMMON_TEST $ENV{ICSC_HOME}/svc/components/common/test)
-#include_directories(
-#    ${COMMON_HOME} 
-#    ${COMMON_HOME}/sctcommon
-#)
-
 ## Example for UG section 6
 add_executable(misc_module_sections test_module_sections.cpp)
 svc_target(misc_module_sections ELAB_TOP tb_inst.top_mod 
