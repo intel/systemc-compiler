@@ -36,7 +36,7 @@ ElabDatabase::ElabDatabase(sc_elab::SCDesign &scDesign,
                            clang::ASTContext &astCtx)
     : designDB(scDesign), typeManager(typeManager), astCtx(astCtx),
       parseValue(astCtx, std::make_shared<ScState>(), true, NO_VALUE)
-    {
+{
 
     std::vector<RecordView> records;
 
@@ -51,13 +51,29 @@ ElabDatabase::ElabDatabase(sc_elab::SCDesign &scDesign,
     for (auto &record : records) {
         // static data members are not stored in elaborator state
         // so we need to grab them from clang AST
-        auto *cxxRecordDecl = record.getType().getTypePtr()->getAsCXXRecordDecl();
+        auto* cxxRecordDecl = record.getType().getTypePtr()->getAsCXXRecordDecl();
 
-        for (clang::Decl* decl: cxxRecordDecl->decls())
-            if(clang::VarDecl *varDecl = llvm::dyn_cast<clang::VarDecl>(decl) )
-                if (varDecl->isStaticDataMember()) {
-                    createStaticVariable(record, varDecl);
+        bool isChannelRecord = false;
+        if (!record.isTopMod()) {
+            auto parent =  record.getParent();
+            isChannelRecord = isScChannel(parent.getType(), true);
+
+//            cout << "-------- " << cxxRecordDecl->getDeclName().getAsString() 
+//                 << " " << (record.getFieldName() ? *record.getFieldName() : "")
+//                 << " parent " << (parent.getFieldName() ? *parent.getFieldName() : "") 
+//                 << " isChannelRecord " << isChannelRecord << endl;
+        }
+        
+        // Skip static constant fields in channel record 
+        if (!isChannelRecord) {
+            for (clang::Decl* decl: cxxRecordDecl->decls()) {
+                if (clang::VarDecl *varDecl = llvm::dyn_cast<clang::VarDecl>(decl)) {
+                    if (varDecl->isStaticDataMember()) {
+                        createStaticVariable(record, varDecl);
+                    }
                 }
+            }
+        }
     }
 }
 
@@ -68,6 +84,8 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
     
     QualType varType = varDecl->getType();
     sc_elab::Object* newObj = createStaticObject(varType, parent.getID());
+    //cout << "   createStaticVariable " << varDecl->getName().str() 
+    //     << " parent " << (parent.getFieldName() ? *parent.getFieldName() : "") << endl;
     
     newObj->set_field_name(varDecl->getName().str());
 
@@ -77,7 +95,8 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
     // Report all unsupported types 
     if (isScNotSupported(varType, true)) {
         ScDiag::reportScDiag(varDecl->getBeginLoc(),
-                             ScDiag::SYNTH_TYPE_NOT_SUPPORTED) << varType;
+                             ScDiag::SYNTH_TYPE_NOT_SUPPORTED) 
+                            << varType.getAsString();
     }
     
     if (isUserClass(getDerefType(varType))) {

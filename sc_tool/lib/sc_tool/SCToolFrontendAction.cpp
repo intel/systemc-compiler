@@ -123,8 +123,8 @@ Object* getOuterArray(SCDesign& designDB, Object* memberObj)
     return arrayObj;
 }
 
-const std::string SCElabASTConsumer::TOOL_VERSION = "1.5.5";
-const std::string SCElabASTConsumer::TOOL_DATE = "Jan 27,2023";
+const std::string SCElabASTConsumer::TOOL_VERSION = "1.5.7";
+const std::string SCElabASTConsumer::TOOL_DATE = "Mar 17,2023";
 
 void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 {
@@ -143,7 +143,7 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
     //const char* optNames[] = {doModuleBuilder, doGenStmt};
     //const char* optNames[] = {doGenTerm, doGenCfg, doGenStmt, doModuleBuilder};
     //const char* optNames[] = {doConstCfg, doConstLoop, doConstStmt, doConstBlock, doModuleBuilder};
-    //const char* optNames[] = {doConstStmt, doModuleBuilder};  
+    //const char* optNames[] = {doConstCfg, doConstStmt, doModuleBuilder};  
     //const char* optNames[] = {doGenStmt, doModuleBuilder};  
     const char* optNames[] = {doModuleBuilder};
     size_t optSize = sizeof(optNames)/sizeof(const char*);
@@ -203,6 +203,9 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
         } catch (std::exception& e) {
             std::cout << "----------------------------------------------------------------" << std::endl;
             std::cout << " SystemC-to-Verilog translation, ERROR " << std::endl;
+            
+            // Report exception to return error code at exit
+            reportErrorException();
         }
         
     } else {

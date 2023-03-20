@@ -652,8 +652,20 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
     using std::cout; using std::endl; using std::hex; using std::dec;
     //std::cout << "Generate variable " << objView.getDebugString() << " id " << objView.getID() << std::endl;
 
+    // Check no non-static constant in channels because no constructor parameter 
+    // possible in channels anyway
+    if (activeSignal || activePort || activeChanArray) {
+        bool isConst = objView.getType().isConstQualified();
+        if (isConst) {
+            if (objView.getFieldDecl())
+                ScDiag::reportScDiag(objView.getFieldDecl()->getBeginLoc(),
+                                     ScDiag::SYNTH_CHAN_RECORD_CONST);
+            else 
+                ScDiag::reportScDiag(ScDiag::SYNTH_CHAN_RECORD_CONST);
+        }
+    }
+            
     FlattenReq flatten = false;
-
     if (objView.isModule())
         flatten = true;
 

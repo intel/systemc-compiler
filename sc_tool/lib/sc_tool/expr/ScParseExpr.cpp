@@ -1003,7 +1003,8 @@ void ScParseExpr::parseExpr(clang::MemberExpr* expr, SValue& val)
     if (!ttval.isArray() && !ttval.isRecord() && !ttval.isVariable() && 
         !ttval.isScChannel()) {
         ScDiag::reportScDiag(expr->getBeginLoc(), 
-                             ScDiag::SYNTH_INCORRECT_RECORD) << tval << ttval;
+                             ScDiag::SYNTH_INCORRECT_RECORD) 
+                            << tval.asString() << ttval.asString();
     }
     
     ValueDecl* decl = expr->getMemberDecl();

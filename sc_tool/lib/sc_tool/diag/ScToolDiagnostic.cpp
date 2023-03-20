@@ -43,10 +43,37 @@ public:
                                     scid.second.first, scid.second.second);
         }
     }
+    
+    static void reportErrorException() {
+        auto &scDiag = ScDiag::instance();
+        scDiag.hasException = true;
+    }
+    
+    static int getDiagnosticStatus() {
+        auto &scDiag = ScDiag::instance();
+        if (scDiag.hasException) {
+            return 103;
+        } else 
+        if (scDiag.hasFatal()) {
+            return 102;
+        } else 
+        if (scDiag.hasError()) {
+            return 101;
+        }
+        return 0;
+    }
 };
 
 void initDiagnosticEngine(clang::DiagnosticsEngine *diagEngine) {
     ScDiagBuilder::build(diagEngine);
+}
+
+void reportErrorException() {
+    ScDiagBuilder::reportErrorException();
+}
+
+int getDiagnosticStatus() {
+    return ScDiagBuilder::getDiagnosticStatus();
 }
 
 ScDiag &sc::ScDiag::instance() {

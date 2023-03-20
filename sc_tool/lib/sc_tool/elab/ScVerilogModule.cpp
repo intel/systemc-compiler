@@ -1506,6 +1506,12 @@ bool VerilogModule::isEquivalentTo(VerilogModule &otherMod) const
             thisSrcObj = thisArrayEl.obj;
             otherSrcObj = otherArrayEl.obj;
 
+            // Check for ZWI as it is not in @channelVarMap
+            if ( isZeroWidthType(thisSrcObj.getType()) ) {
+                if ( !isZeroWidthType(otherSrcObj.getType()) ) return false;
+                continue;
+            }
+
             if (!channelVarMap.count(thisSrcObj)) {
                 llvm::outs() << "SENS " << thisSrcObj << "\n";
                 SCT_TOOL_ASSERT(false, "No sensitivity object in object-to-verilog");

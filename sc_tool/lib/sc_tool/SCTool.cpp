@@ -10,6 +10,7 @@
  */
 
 #include <sc_tool/SCTool.h>
+#include <sc_tool/diag/ScToolDiagnostic.h>
 #include <sc_tool/utils/CommandLine.h>
 #include <sc_tool/SCToolFrontendAction.h>
 #include <rtti_sysc/SystemCRTTI.h>
@@ -89,6 +90,9 @@ namespace sc {
         outs().flush();
     );
 
+    // Exit code
+    int exitCode = 0;
+    
     // Pass command line options to Clang tooling for parsing
     //CommonOptionsParser op(args.argc, args.argv, ScToolCategory);
     auto op = CommonOptionsParser::create(args.argc, args.argv, ScToolCategory, 
@@ -97,6 +101,7 @@ namespace sc {
     if (!op) {
         auto error = op.takeError();
         outs() << "Errors happen during parsing parameters\n";
+        exitCode = 100;
     }
     
     ClangTool Tool(op.get().getCompilations(), op.get().getSourcePathList());
@@ -104,8 +109,16 @@ namespace sc {
     // Run SVC
     auto factory = getNewSCElabActionFactory();
     auto exitStatus = Tool.run(factory.get());
+    if (exitCode == 0) exitCode = exitStatus;
+    
+    // Get errors from diagnostic and exception 
+    if (exitCode == 0) {
+        exitCode = getDiagnosticStatus();
+    }
+    
     // We exit here, instead of returning to sc_main
-    exit(exitStatus);
+    //outs() << "\nexitCode " << exitCode << "\n";
+    exit(exitCode);
 }
 
 

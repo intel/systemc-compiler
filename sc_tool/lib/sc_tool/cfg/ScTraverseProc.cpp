@@ -451,7 +451,8 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             // This value *this must be a kind of record
             if (!ttval.isRecord()) {
                 ScDiag::reportScDiag(expr->getBeginLoc(),
-                                     ScDiag::SYNTH_INCORRECT_RECORD) << tval << ttval;
+                                     ScDiag::SYNTH_INCORRECT_RECORD) 
+                                << tval.asString() << ttval.asString();
             }
 
             // Call with cast this object to specific class with "::",
@@ -569,7 +570,8 @@ void ScTraverseProc::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         // This value *this must be a kind of record
         if (!ttval.isRecord()) {
             ScDiag::reportScDiag(expr->getBeginLoc(),
-                                 ScDiag::SYNTH_INCORRECT_RECORD) << tval << ttval;
+                                 ScDiag::SYNTH_INCORRECT_RECORD) 
+                            << tval.asString() << ttval.asString();
         }
 
         // Dynamic class for member record

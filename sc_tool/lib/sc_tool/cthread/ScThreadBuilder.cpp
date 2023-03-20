@@ -826,7 +826,8 @@ sc::SValue createRecChanField(ObjectView fieldObj, SValue parent)
 {
     auto* fieldDecl = fieldObj.getValueDecl();
     SCT_TOOL_ASSERT(fieldDecl, "No declaration for channel record field");
-    SCT_TOOL_ASSERT(!fieldObj.isStatic(), "Static field in channel record");
+    SCT_TOOL_ASSERT(!fieldObj.isStatic() || fieldObj.isConstant(), 
+                    "Static non-constant field in channel record");
 
     // Field with record channel as parent class
     return SValue(fieldDecl, parent);

@@ -938,15 +938,10 @@ void ScState::putElabObject(const SValue& sval, sc_elab::ObjectView objView,
                     staticState->extrValNames.emplace(ssval, var->getName());
                 }
             } else {
-                // That is possible if template has several same class parameters 
-                // which contains static constant field, such fields has no
-                // parent (Unknown) so differs only by clang::Decl
-                SValue parval;
-                if (sval.isVariable()) {
-                    parval = sval.getVariable().getParent();
-                }
-                
-                if (parval.isUnknown()) {
+                // That is possible as there are multiple static constant fields
+                // for 1)channels and 2)template with several same class 
+                // parameters which contains static constant field
+                if (objView.isStatic() && objView.isConstant()) {
                     // That is OK for template parameter class
                 } else {
                     std::cout << "Duplicate state value " << sval 

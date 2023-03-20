@@ -573,7 +573,8 @@ void ScTraverseConst::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         // Allowed parent kinds
         if (!ttval.isArray() && !ttval.isRecord() && !ttval.isVariable()) {
             ScDiag::reportScDiag(expr->getSourceRange().getBegin(),
-                                 ScDiag::SYNTH_INCORRECT_RECORD) << tval << ttval;
+                                 ScDiag::SYNTH_INCORRECT_RECORD) 
+                            << tval.asString() << ttval.asString();
             ttval = NO_VALUE;
         }
 
@@ -691,7 +692,8 @@ void ScTraverseConst::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         // Allowed parent kinds
         if (!ttval.isArray() && !ttval.isRecord() && !ttval.isVariable()) {
             ScDiag::reportScDiag(expr->getSourceRange().getBegin(),
-                                 ScDiag::SYNTH_INCORRECT_RECORD) << tval << ttval;
+                                 ScDiag::SYNTH_INCORRECT_RECORD) 
+                            << tval.asString() << ttval.asString();
             ttval = NO_VALUE;
         }
 

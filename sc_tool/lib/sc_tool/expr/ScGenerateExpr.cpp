@@ -2107,7 +2107,8 @@ SValue ScGenerateExpr::parseArraySubscript(Expr* expr,
         state->getValue(bbval, val, false);
         
     } else {
-        ScDiag::reportScDiag(expr->getBeginLoc(), ScDiag::SYNTH_NO_ARRAY) << bbval;
+        ScDiag::reportScDiag(expr->getBeginLoc(), ScDiag::SYNTH_NO_ARRAY) 
+                << bbval.asString();
         // Required to prevent more errors
         SCT_INTERNAL_FATAL_NOLOC ("No array found");
     }
@@ -2807,7 +2808,7 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 codeWriter->putLiteral(expr, SValue(APSInt(64, true), 10));
                 
             } else {
-                // Normal record
+                // Normal record for channel
                 Stmt* funcBody = methodDecl->getBody();
                 //expr->dumpColor(); funcBody->dumpColor();
 
@@ -2825,26 +2826,23 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 // Parse return expression
                 if (retExpr) {
                     QualType retType = retExpr->getType();
-                    if (retType->isIntegerType()) {
-                        // Get record from variable/dynamic object, no unknown index here
-                        SValue funcModval = getRecordFromState(tval, 
-                                                ArrayUnkwnMode::amNoValue);
-                        // Set @recordValueName to support array of record/MIF
-                        if (auto thisStr = codeWriter->getStmtString(thisExpr)) {
-                            codeWriter->setRecordName(funcModval, thisStr.getValue());
-                            //cout << "   thisStr : " << funcModval << " " << thisStr.getValue() << endl;
-                        }
-                        SValue curModval = modval;
-                        modval = funcModval;
-                        
-                        chooseExprMethod(retExpr, val);
-                        codeWriter->copyTerm(retExpr, expr);
-                        modval = curModval;
-                        
-                    } else {
-                        ScDiag::reportScDiag(expr->getBeginLoc(), 
-                                     ScDiag::SYNTH_FUNC_TYPE_IN_ASSERT);
+                    SCT_TOOL_ASSERT(!isUserClass(retType, false), 
+                        "No record type return for function call in assertion supported");
+
+                    SValue funcModval = getRecordFromState(tval, 
+                                            ArrayUnkwnMode::amNoValue);
+                    // Set @recordValueName to support array of record/MIF
+                    if (auto thisStr = codeWriter->getStmtString(thisExpr)) {
+                        codeWriter->setRecordName(funcModval, thisStr.getValue());
+                        //cout << "   thisStr : " << funcModval << " " << thisStr.getValue() << endl;
                     }
+                    SValue curModval = modval;
+                    modval = funcModval;
+
+                    chooseExprMethod(retExpr, val);
+                    codeWriter->copyTerm(retExpr, expr);
+                    modval = curModval;
+
                 } else {
                     ScDiag::reportScDiag(expr->getBeginLoc(), 
                                      ScDiag::SYNTH_FUNC_IN_ASSERT);
