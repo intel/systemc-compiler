@@ -8,8 +8,6 @@ Intel&reg; Compiler for SystemC* (ICSC) translates synthesizable SystemC design 
 
 ICSC supports SystemC synthesizable subset in method and thread processes and arbitrary C++ code in module constructors. The tool produces human-readable SystemVerilog for complex multi-module designs in tens of seconds. ICSC performs design checks to detect non-synthesizable code and common coding mistakes. 
 
-Intel Compiler for SystemC is a member of [CHIPS Alliance](https://chipsalliance.org/), the project repository at https://github.com/chipsalliance/systemc-compiler.
-
 See more information at [Intel Compiler for SystemC wiki](https://github.com/intel/systemc-compiler/wiki).
 
 ## License
@@ -24,9 +22,9 @@ An instruction how to install and run ISCS is given at [Getting started](https:/
 
 ## Documentation 
 
-[User guide](https://github.com/intel/systemc-compiler/blob/main/doc/ug.pdf) document describes installation procedure, run tool options, preparation of SystemC design for ICSC, and also tool extensions and advanced verification features.
+[User guide](https://github.com/intel/systemc-compiler/blob/main/doc/ug.pdf) document describes installation procedure, run tool options, preparation of SystemC design for synthesis, tool extensions and advanced verification features.
 
-ICSC mostly supports [SystemC Synthesizable Subset](https://www.accellera.org/images/downloads/drafts-review/SystemC_Synthesis_Subset_Draft_1_4.pdf). Details of SystemC/C++ subset supported are described at [SystemC/C++ supported](https://github.com/intel/systemc-compiler/wiki/SystemC--supported).
+ICSC supports [SystemC Synthesizable Subset](https://www.accellera.org/images/downloads/drafts-review/SystemC_Synthesis_Subset_Draft_1_4.pdf). Details of SystemC/C++ subset supported are described at [SystemC/C++ supported](https://github.com/intel/systemc-compiler/wiki/SystemC--supported).
 
 ## Publications
 
