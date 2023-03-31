@@ -18,6 +18,8 @@
 #include "sysc/datatypes/int/sc_uint.h"
 #include "sysc/datatypes/int/sc_signed.h"
 #include "sysc/datatypes/int/sc_unsigned.h"
+#include "sysc/datatypes/bit/sc_bv_base.h"
+#include "sysc/datatypes/bit/sc_bit.h"
 
 /// Zero width integer type, hidden in namespace to avoid implicit cast to it
 namespace sc_dt {
@@ -35,6 +37,15 @@ struct sct_zero_width : public sc_dt::sc_value_base
     sct_zero_width(unsigned int a) {}
     sct_zero_width(int a) {}
     sct_zero_width(double a) {}
+
+    sct_zero_width(const sc_uint_base& a) {}
+    sct_zero_width(const sc_unsigned& a) {}
+    sct_zero_width(const sc_int_base& a) {}
+    sct_zero_width(const sc_signed& a) {}
+    sct_zero_width(const sc_bv_base& a) {}
+    sct_zero_width(const sc_bit& a) {}
+
+    sct_zero_width(const sc_concatref& a) {}
 
     sct_zero_width(const sct_zero_width& a) {}
     

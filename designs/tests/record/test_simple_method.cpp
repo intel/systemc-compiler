@@ -20,7 +20,8 @@ public:
 
     SC_CTOR(A) 
     {
-        SC_METHOD(record_const); sensitive << dummy << s;
+        SC_METHOD(record_const); 
+        sensitive << dummy << s << sa[0] << sa[1] << st1 << st2;
         
         // Check constant in member record is considered as readOnly/useVals
         SC_METHOD(record_decl1);  sensitive << dummy;
@@ -47,29 +48,65 @@ public:
         //sensitive << dummy;
         
         // Inner records not supported yet
-        SC_METHOD(inner_record1);  
-        sensitive << dummy;
+        //SC_METHOD(inner_record1);  
+        //sensitive << dummy;
         
-        SC_METHOD(inner_record2);  
-        sensitive << dummy;
+        //SC_METHOD(inner_record2);  
+        //sensitive << dummy;
         
-        SC_METHOD(inner_record3);  
-        sensitive << dummy;
+        //SC_METHOD(inner_record3);  
+        //sensitive << dummy;
     }
     
     struct ScSimple {
-        const sc_uint<2> A = 1;
+        const sc_uint<2> A = 1; 
         static const unsigned B = 2;
         sc_uint<2> a;
         sc_uint<3> b;
+        
+        ScSimple& operator=(const ScSimple& other)
+        {a = other.a; b = other.b; return *this;}
+        inline friend bool operator==(const ScSimple& lhs, const ScSimple& rhs)
+        {return (lhs.a == rhs.a && lhs.b == rhs.b);}
+        inline friend std::ostream& operator<< (std::ostream& os, const ScSimple &obj)
+        {return os;}
+        inline friend void sc_trace(sc_trace_file*& f, const ScSimple& val, std::string name) 
+        {}
     };
-    
+
+    template <unsigned BB>
+    struct ScTempl {
+        //const unsigned A = 1;   -- not allowed for record in channel, error reported
+        static const unsigned B = BB;
+        sc_uint<2> a;
+
+        // Required for constant field @A
+        ScTempl<BB>& operator=(const ScTempl<BB>& other)
+        {a = other.a; return *this;}
+        
+        inline friend bool operator==(const ScTempl<BB>& lhs, const ScTempl<BB>& rhs)
+        {return lhs.a == rhs.a;}
+        inline friend std::ostream& operator<< (std::ostream& os, const ScTempl<BB> &obj)
+        {return os;}
+        inline friend void sc_trace(sc_trace_file*& f, const ScTempl<BB>& val, std::string name) 
+        {}
+    };
+
     ScSimple scRec;
+    ScSimple scRec_;
     ScSimple scRecArr[2];
     
     sc_signal<unsigned> s;
+    sc_signal<ScTempl<1>> st1;
+    sc_signal<ScTempl<2>> st2;
+    sc_signal<ScTempl<3>> sa[2];
     void record_const() {
         int i;
+    
+        i = st1.read().B;
+        i = st2.read().B;
+        i = sa[0].read().B + sa[1].read().B;
+        
         i = scRec.A + scRec.B + scRec.a;
         i = ScSimple::B + scRecArr[0].a;
         i = scRecArr[0].a + ScSimple::B +  scRecArr[1].b;
@@ -80,6 +117,7 @@ public:
         
         i = scRecArr[s.read()].a + scRecArr[s.read()+1].A;
         i = scRecArr[s.read()].b + scRecArr[s.read()-1].B;
+        i = scRec_.B + scRecArr[0].B;
         
         int m[3];
         m[0] = ScSimple::B + scRecArr[0].B + scRecArr[0].A;

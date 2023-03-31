@@ -413,8 +413,8 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
     bool hasInit = (varDecl && varDecl->hasInit()) || 
                    (fieldDecl && fieldDecl->hasInClassInitializer());
     Expr* iexpr = initExpr ? initExpr : 
-                        (hasInit ? (varDecl ? varDecl->getInit() : 
-                                 fieldDecl->getInClassInitializer()) : nullptr);
+                  (hasInit ? (varDecl ? varDecl->getInit() : 
+                             fieldDecl->getInClassInitializer()) : nullptr);
 
     const QualType& type = decl->getType();
     bool isRef = type->isReferenceType();
@@ -481,9 +481,42 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
         }
     }
     
-    // If declaration has initializer add it as read to @state
-    // Do not need to consider constant reference
+    if (isRec && locrecvar) {
+        // Artificial copy constructor required for function which 
+        // returns record to avoid RVO in C++17
+        if (evaluateConstMode) {
+            // Do nothing
+        } else {
+            // Create record value 
+            SValue lrec = createRecValue(type->getAsCXXRecordDecl(), 
+                                         modval, locrecvar, true, 0, false);
+
+            // Restore initialization expression
+            iexpr = initExpr ? initExpr : 
+                   (hasInit ? (varDecl ? varDecl->getInit() : 
+                              fieldDecl->getInClassInitializer()) : nullptr);
+            SCT_TOOL_ASSERT (iexpr, "No initialization expression for record");
+            
+            // Get record temporary variable from initialization expression
+            SValue rval = evalSubExpr(iexpr);
+            SValue rrec = rval; 
+            if (!rval.isRecord()) state->getValue(rval, rrec);
+
+            // Copy values of record fields and put it to record variable
+            copyRecFieldValues(lrec, rrec);
+            state->putValue(locrecvar, lrec, false, false);
+
+            // Add defined/read for record fields
+            readFromValue(rrec);
+            writeToValue(lrec, true); 
+        }
+        
+        locrecvar = NO_VALUE;
+        
+    } else
     if (iexpr && !isRec && !isRecArr && !isRef && !isPtr) {
+        // If declaration has initializer add it as read to @state
+        // Do not need to consider constant reference
         for (SValue ival : varvals.second) {
             readFromValue(ival);
         }

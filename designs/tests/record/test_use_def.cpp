@@ -5,12 +5,14 @@
 * 
 *****************************************************************************/
 
+#include "sct_sel_type.h"
 #include "sct_assert.h"
 #include "sct_comb_signal.h"
 #include "systemc.h"
 #include <iostream>
 
 using namespace sc_core;
+using namespace sct;
 
 
 // Use/definition analysis and CPA evaluation for record, record array, 
@@ -115,7 +117,11 @@ public:
     SC_CTOR(A) {
         cout << "use_def test\n";
         
-        //SC_METHOD(testMeth); sensitive << s;
+        SC_METHOD(testDefinedMeth); sensitive << s;
+        SC_CTHREAD(testDefined, clk.pos());
+        async_reset_signal_is(nrst, 0);
+        
+        SC_METHOD(testMeth); sensitive << s;
         SC_METHOD(clearMeth); sensitive << sim << s;
         SC_METHOD(clearArrMeth); sensitive << aim << s;
         //SC_METHOD(clearInnMeth); sensitive << iim << s << sim;   // See #127
@@ -129,12 +135,53 @@ public:
         async_reset_signal_is(nrst, 0);
     }
     
+    struct CoreRsp {
+        sct_uint<1>     oper;  // 0 - read, 1 - write
+        sct_uint<1>     error;
+        CoreRsp(const sct_uint<2>& bts) { unpack(bts); }
+        void unpack(const sct_uint<2>& bts) {
+            (oper, error) = bts;
+        }
+        
+        bool operator == (const CoreRsp& other) {
+            return (oper == other.oper && error == other.error);
+        }
+    };
+
+    void testDefinedMeth() {
+        Simple ss;
+        sct_assert_defined(ss.a);
+        sct_assert_defined(ss.b);
+        if (ss.b) {
+            ss.b = s.read()+1;
+        }
+        Par pp(s.read());
+        sct_assert_defined(pp.a);
+        if (pp.a) {
+            pp.a = s.read()+2;
+        }
+    }
+    
+    /// Checking record fields are defined after ctor
+    void testDefined() {
+        wait();
+        while (true) {
+            if (s.read()) {
+                CoreRsp resp(s.read());
+                if (resp.error) {
+                    s.write(resp.oper);
+                }
+            }
+            wait();
+        }
+    }
+
     void testMeth() {
         Simple ss;
         sct_assert_const(ss.b == 0x42);
         ss.b = 0x43;
         sim = Simple();
-        sct_assert_const(ss.b == 0x42);
+        sct_assert_const(ss.b == 0x43);
     }
     
     // Clear values

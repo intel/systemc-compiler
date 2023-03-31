@@ -110,6 +110,9 @@ svc_target(misc_zero_width_sig GOLDEN misc_zero_width_sig.sv)
 add_executable(misc_zero_width_func test_zero_width_func.cpp)
 svc_target(misc_zero_width_func GOLDEN misc_zero_width_func.sv)
 
+add_executable(misc_zero_width_sens test_zero_width_sens.cpp)
+svc_target(misc_zero_width_sens GOLDEN misc_zero_width_sens.sv)
+
 ## Vectors
 add_executable(misc_vector_in_top test_vector_in_top.cpp)
 svc_target(misc_vector_in_top GOLDEN misc_vector_in_top.sv)

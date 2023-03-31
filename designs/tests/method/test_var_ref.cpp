@@ -24,7 +24,7 @@ public:
     static const unsigned CONST_A = N;
     static const unsigned CONST_B = CONST_A << 1;
     static const unsigned CONST_C = CONST_A + CONST_B;
-    
+    // These constants are not used, that is a special case
     static constexpr unsigned CEXPR_A = CONST_A;
     static constexpr unsigned CEXPR_B = CEXPR_A << 1;
     static constexpr unsigned CEXPR_C = CEXPR_A + CEXPR_B;

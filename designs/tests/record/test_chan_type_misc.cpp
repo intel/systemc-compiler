@@ -170,8 +170,15 @@ public:
         Simple t2(s.read());
         Simple t3 = Simple(s.read());
         Simple t4 = s.read();
+        
         Simple t5;
         t5 = Simple(s.read());
+        
+        rim.write(t5);
+        rim.write(Simple());
+        //rim.write(Simple(s.read()));    // error reported, that is OK
+        rim = Simple();
+        //rim = Simple(s.read());       // error reported, that is OK
     }
 
 // ----------------------------------------------------------------------------

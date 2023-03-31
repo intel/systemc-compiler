@@ -38,7 +38,7 @@ class sct_comb_signal : public sc_signal<T>
     typedef sc_signal<T>              base_type;
     typedef sct_comb_signal<T, CLEAR> this_type;
 
-    sct_comb_signal() : base_type(sc_gen_unique_name("signal"), T()) {}
+    sct_comb_signal() : base_type(sc_gen_unique_name("signal"), T{}) {}
 
     sct_comb_signal(const char* name_) : base_type(name_) {}
 
@@ -86,7 +86,7 @@ class sct_clear_signal : public sc_signal<T>
     typedef sc_signal<T>            base_type;
     typedef sct_clear_signal<T>     this_type;
 
-    sct_clear_signal() : base_type(sc_gen_unique_name("signal"), T()) {}
+    sct_clear_signal() : base_type(sc_gen_unique_name("signal"), T{}) {}
 
     sct_clear_signal(const char* name_) : base_type(name_) {}
 

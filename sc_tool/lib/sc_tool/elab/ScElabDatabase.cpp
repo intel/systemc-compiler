@@ -151,34 +151,37 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
         
     } else {
         // Single variable
-        Expr* initExpr = const_cast<Expr*>(varDecl->getAnyInitializer());
-        initExpr = removeExprCleanups(initExpr);
-        
-        // Replace CXXConstructExpr with its argument, required for SC data types
-        if (auto ctorExpr = dyn_cast<CXXConstructExpr>(initExpr)) {
-            if (ctorExpr->getNumArgs() == 1) {
-                initExpr = ctorExpr->getArg(0);
-            }
-        }
-        
-        clang::Expr::EvalResult evalResult;
-        bool evaluated = initExpr->EvaluateAsRValue(evalResult, astCtx);
-        
-        APSInt intVal;
-        if (evaluated) {
-            SCT_TOOL_ASSERT (evalResult.Val.isInt(), 
-                             "No global static constant integer result");
-            intVal = evalResult.Val.getInt();
+        APSInt intVal(64);
+        if (Expr* initExpr = const_cast<Expr*>(varDecl->getAnyInitializer())) {
+            initExpr = removeExprCleanups(initExpr);
 
-        } else {
-            SValue val = parseValue.evaluateConstInt(initExpr, false).second;
-            
-            if (val.isInteger()) {
-                intVal = val.getInteger();
-            } else {
-                SCT_INTERNAL_FATAL (varDecl->getBeginLoc(), 
-                    "Can not get integer for static constant initializer");
+            // Replace CXXConstructExpr with its argument, required for SC data types
+            if (auto ctorExpr = dyn_cast<CXXConstructExpr>(initExpr)) {
+                if (ctorExpr->getNumArgs() == 1) {
+                    initExpr = ctorExpr->getArg(0);
+                }
             }
+
+            clang::Expr::EvalResult evalResult;
+            bool evaluated = initExpr->EvaluateAsRValue(evalResult, astCtx);
+
+            if (evaluated) {
+                SCT_TOOL_ASSERT (evalResult.Val.isInt(), 
+                                 "No global static constant integer result");
+                intVal = evalResult.Val.getInt();
+
+            } else {
+                SValue val = parseValue.evaluateConstInt(initExpr, false).second;
+
+                if (val.isInteger()) {
+                    intVal = val.getInteger();
+                } else {
+                    SCT_INTERNAL_FATAL (varDecl->getBeginLoc(), 
+                        "Can not get integer for static constant initializer");
+                }
+            }
+        } else {
+            // This case when constexpr is not used, value does not matter
         }
 
         // Adjust integer primitive

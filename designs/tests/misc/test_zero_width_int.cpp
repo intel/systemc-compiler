@@ -16,11 +16,13 @@ template <unsigned N>
 struct MyModule : public sc_module 
 {
     sc_signal<sc_uint<8>>  s;
-
+    sc_signal<sc_uint<8>>  t;
+    
     SC_HAS_PROCESS(MyModule);
     
     MyModule(const sc_module_name& name) : sc_module(name) 
     {
+        SC_METHOD(copyCtorIssue); sensitive << s;
         SC_METHOD(varProc); sensitive << s;
         SC_METHOD(concatProc); sensitive << s; 
         SC_METHOD(unaryProc); sensitive << s; 
@@ -36,6 +38,30 @@ struct MyModule : public sc_module
         SC_METHOD(recArrProc); sensitive << s;
     }   
 
+    sct_uint<N> zf() {
+        sct_uint<0> a;
+        sct_uint<0> b;
+        return (a,b);
+    }
+    void copyCtorIssue() {
+        sct_uint<N> a;
+        sct_int<10> b;
+    	sct_uint<16> c;
+        int i;
+        unsigned u;
+        
+        sct_uint<N> d1 = a;
+        
+        sct_uint<N> d2 = b;    // OK
+        sct_uint<N> d3 = c;    // OK
+        sct_uint<N> d4 = i;    // OK
+        sct_uint<N> d5 = u;    // OK
+        sct_uint<N> d6 = (a,a);
+        sct_uint<N> d7 = zf();
+        
+        t.write( 1+d1+d2+d3+d4+d5+d6+d7 );
+    }
+    
     sct_uint<N> m;
     void varProc() {
         sct_uint<N> b;

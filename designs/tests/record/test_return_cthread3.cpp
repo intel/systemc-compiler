@@ -13,7 +13,7 @@
 struct SinCosTuple 
 {
     int sin;
-    int cos;
+    int cos = -1;
 };
 
 struct SinCos : public sc_module, public sc_interface
@@ -29,28 +29,83 @@ struct SinCos : public sc_module, public sc_interface
     }
 };
 
+SinCosTuple f() {
+    SinCosTuple res;
+    res.sin = 1;
+    return res;
+}
+
 class A : public sc_module {
 public:
     sc_in_clk clk;
     sc_signal<bool> rstn;
     
     SinCos scr;
+    sc_signal<int> s{"s"};
     
     SC_CTOR(A) : scr("scr") 
     {
-        SC_CTHREAD(record_return, clk.pos());
+        SC_METHOD(record_return_meth); sensitive << s;
+        
+        SC_CTHREAD(record_return1, clk.pos());
+        async_reset_signal_is(rstn, false);
+
+        SC_CTHREAD(record_return2, clk.pos());
+        async_reset_signal_is(rstn, false);
+
+        SC_CTHREAD(record_return_reset, clk.pos());
         async_reset_signal_is(rstn, false);
     }
     
-    void record_return() {
+    sc_signal<int> t;
+    void record_return_meth() {
+        SinCosTuple r = scr.convert_sin_cos();
+        t = r.sin;
+        SinCosTuple rr = f();
+        t = rr.cos;
+    }
+    
+    void record_return1() {
         
         wait();
         
         while (true) {
             SinCosTuple r = scr.convert_sin_cos();
+            SinCosTuple rr = f();
+            s = r.cos;
             wait();
+            s = r.sin + rr.cos;
+        }
+    }
+
+    void record_return2() {
+        SinCosTuple mm;
+        wait();
+        
+        while (true) {
+            SinCosTuple m;
+            if (s.read()) {
+                m = scr.convert_sin_cos();
+            }
             
-            int b = r.sin + r.cos;
+            wait();
+
+            if (s.read()) {
+                mm = f();
+            }
+            s = m.sin + mm.cos;
+        }
+    }
+    
+     void record_return_reset() {
+        
+        SinCosTuple l  = scr.convert_sin_cos();
+        SinCosTuple ll = f();
+        wait();
+        
+        while (true) {
+            s = l.sin + ll.cos;
+            wait();
         }
     }
 };

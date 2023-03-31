@@ -1239,12 +1239,16 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
                 // Clear used temporary record
                 temprec = NO_VALUE;
 
+                //cout << "rval " << rval << " " << rhsRecord << rhsRecordChan 
+                //     << " rhsTempRecord " << rhsTempRecord 
+                //     << " locrecvarCtor " << locrecvarCtor << endl;
+                
                 SValue rrec;
                 if (rhsTempRecord || rhsRecordChan && rval.isScChannel()) {
                     // Record channel is used instead of parent record
                     rrec = rval;
                 } else {
-                    // Get record or record channel value 
+                    // Get record or record channel value
                     state->getValue(rval, rrec);
                 }
 
@@ -1531,12 +1535,50 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
         } else {
             // Single variable declaration with/without initialization,
             // No record declaration/initialization, that is done for its fields            
+            //cout << "  parseDecl isRecord " << isRecord << " iexpr " 
+            //     << hex << iexpr << " val " << val << " locrecvar " << locrecvar << endl;
             if (isRecord) {
-                // Get field initialization string from @CXXConstructExpr
+                if (locrecvar) {
+                    // Artificial copy constructor required for function which 
+                    // returns record to avoid RVO in C++17
+                    // Create record value 
+                    SValue lrec = createRecValue(type->getAsCXXRecordDecl(), 
+                                                 modval, locrecvar, true, 0, false);
+
+                    // Restore initialization expression
+                    iexpr = initExpr ? initExpr : 
+                            (hasInit ? (varDecl ? varDecl->getInit() : 
+                            fieldDecl->getInClassInitializer()) : nullptr);
+                    SCT_TOOL_ASSERT (iexpr, "No initialization expression for record");
+                    
+                    // Get record temporary variable from initialization expression
+                    SValue rval = evalSubExpr(iexpr);
+
+                    SCT_TOOL_ASSERT (rval != temprec, 
+                                     "No temporary record supported here");
+                    SCT_TOOL_ASSERT (!isReference(rval.getType()), 
+                                     "No reference supported here");
+
+                    // Get record or record channel value
+                    SValue rrec = rval; 
+                    if (!rval.isRecord()) state->getValue(rval, rrec);
+                    //cout << " locrecvar " << locrecvar << " lrec " << lrec 
+                    //     << " rval " << rval << " rrec " << rrec <<  endl;
+
+                    // Copy values of record fields and put it to record variable
+                    copyRecFieldValues(lrec, rrec);
+                    state->putValue(locrecvar, lrec, false, false);
+
+                    // Put assign for records and record channels
+                    codeWriter->putRecordAssign(stmt, locrecvar, lrec, rrec, 
+                                                "", "", llvm::None);
+                    locrecvar = NO_VALUE;
+                    
+                } else 
                 if (iexpr) {
+                    // Get field initialization string from @CXXConstructExpr
                     codeWriter->copyTerm(iexpr, stmt);
                 }
-                
             } else {
                 codeWriter->putVarDecl(stmt, val, type, iexpr, false, level, 
                                        iival.isInteger());
@@ -2676,6 +2718,9 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 // Clear used temporary record
                 temprec = NO_VALUE;
 
+                //cout << "rval " << rval << " " << rhsRecord << rhsRecordChan 
+                //     << " rhsTempRecord " << rhsTempRecord << " locrecvarCtor " << locrecvarCtor << endl;
+                
                 SValue rrec;
                 if (rhsTempRecord || rhsRecordChan && rval.isScChannel()) {
                     // Record channel is used instead of parent record
@@ -2698,6 +2743,11 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 }
 
                 if (lhsRecord || lhsRecordChan) {
+                    if (!rval) {
+                        // No record for RValue, probably ctor with parameters
+                        ScDiag::reportScDiag(argExpr->getBeginLoc(), 
+                                             ScDiag::SYNTH_CHAN_RECORD_TEMP);
+                    } else 
                     if (rhsTempRecord) {
                         codeWriter->putRecordAssignTemp(expr, cval, cval, rrec, 
                                                 lrecSuffix, lrecType, state.get());
@@ -3010,7 +3060,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             temprec = NO_VALUE;
             
             //cout << "rval " << rval << " " << rhsRecord << rhsRecordChan 
-            //     << " rhsTempRecord " << rhsTempRecord << endl;
+            //     << " rhsTempRecord " << rhsTempRecord << " locrecvarCtor " << locrecvarCtor << endl;
             //rtype.dump();
             //state->print();
             
@@ -3044,12 +3094,21 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             }
 
             if (lhsRecord || lhsRecordChan) {
+                // Put assign for records and record channels
+                if (!rval) {
+                    // No record for RValue, probably ctor with parameters
+                    ScDiag::reportScDiag(rexpr->getBeginLoc(), 
+                                         ScDiag::SYNTH_CHAN_RECORD_TEMP);
+                } else 
+                if (locrecvarCtor && !lhsRecordChan) {
+                    // Do nothing as soon as record already constructed
+                    // Avoid double assignment to record fields
+                } else
                 if (rhsTempRecord) {
                     codeWriter->putRecordAssignTemp(expr, lvar, lrec, rrec, 
                                                     lrecSuffix, lrecType, state.get());
                 } else
                 if (rhsRecord || rhsRecordChan) {
-                    // Put assign for records and record channels
                     if (codeWriter->getAssignStmt(rexpr)) {
                         ScDiag::reportScDiag(expr->getBeginLoc(), 
                                             ScDiag::SYNTH_MULT_ASSIGN_REC);

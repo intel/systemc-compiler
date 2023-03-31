@@ -50,8 +50,12 @@ svc_target(record_member_func_cthread GOLDEN record_member_func_cthread.sv)
 add_executable(record_func_in_ctor test_func_in_ctor.cpp)
 svc_target(record_func_in_ctor GOLDEN record_func_in_ctor.sv)
 
-add_executable(record_member_record_func test_member_record_func.cpp)
-svc_target(record_member_record_func GOLDEN record_member_record_func.sv)
+# Inner record not supported
+#add_executable(record_member_record_func test_member_record_func.cpp)
+#svc_target(record_member_record_func GOLDEN record_member_record_func.sv)
+
+#add_executable(record_member_record1 test_member_record1.cpp)
+#svc_target(record_member_record1 GOLDEN record_member_record1.sv)
 
 add_executable(record_member_array_cthread test_member_array_cthread.cpp)
 svc_target(record_member_array_cthread GOLDEN record_member_array_cthread.sv)
@@ -152,9 +156,6 @@ svc_target(record_base_record2 GOLDEN record_base_record2.sv)
 
 add_executable(record_base_multi_record test_base_multi_record.cpp)
 svc_target(record_base_multi_record GOLDEN record_base_multi_record.sv)
-
-add_executable(record_member_record1 test_member_record1.cpp)
-svc_target(record_member_record1 GOLDEN record_member_record1.sv)
 
 add_executable(record_wait_call test_wait_call.cpp)
 svc_target(record_wait_call GOLDEN record_wait_call.sv)

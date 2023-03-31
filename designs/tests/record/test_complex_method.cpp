@@ -48,14 +48,14 @@ public:
         sensitive << dummy;
         
         // Inner records
-        SC_METHOD(inner_record1_complex);
-        sensitive << dummy;
+        //SC_METHOD(inner_record1_complex);
+        //sensitive << dummy;
         
-        SC_METHOD(inner_record2);  
-        sensitive << dummy;
+        //SC_METHOD(inner_record2);  
+        //sensitive << dummy;
         
-        SC_METHOD(inner_record3);  
-        sensitive << dummy;
+        //SC_METHOD(inner_record3);  
+        //sensitive << dummy;
     }
     
     

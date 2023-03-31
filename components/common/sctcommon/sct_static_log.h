@@ -12,7 +12,7 @@
  */
 
 #ifndef SCT_STATIC_LOG_H
-#define	SCT_STATIC_LOG_H
+#define SCT_STATIC_LOG_H
 
 #include <cstdint>
 
@@ -65,7 +65,7 @@ namespace sct {
 
     /// Next power of 2 number greater than X
     template <uint64_t X>
-    constexpr uint64_t sct_next_pow2 = sct_is_pow2<X> ? (2u * X) : (1u << sct_ceil_log2<X>);
+    constexpr uint64_t sct_next_pow2 = (sct_is_pow2<X> && X) ? (2u * X) : (1u << sct_ceil_log2<X>);
 
 } // namespace sct
 

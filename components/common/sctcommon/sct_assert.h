@@ -15,6 +15,10 @@
 #ifndef SCT_ASSERT_H
 #define SCT_ASSERT_H
 
+#ifdef SCT_TLM_MODE
+#define SCT_ASSERT_OFF 1
+#endif
+
 #if !defined(__SC_TOOL__) && !defined(SCT_ASSERT_OFF)
 #include "sct_property.h"
 #endif
@@ -32,7 +36,9 @@ namespace sc_core {
 #define SCT_TWO(X,Y) SCT_TWO_(X,Y)
 
 /// Macro argument number overload
+#ifndef SCT_GET_MACRO
 #define SCT_GET_MACRO(_1,_2,_3,_4,NAME,...) NAME
+#endif
 
 /// Remove brackets from given argument 
 #define SCT_ARGS__(...) __VA_ARGS__
@@ -51,14 +57,14 @@ inline void sct_assert(bool expr, const char* msg) {}
 #else 
     #ifdef NDEBUG
     #define sct_assert1(expr) \
-        if (!expr) {\
+        if (!(expr)) {\
             std::cout << std::endl << sc_time_stamp() << \
                 ", Error : sct_assert violation " << \
                 std::string(__FILE__) << ":" << \
                 std::to_string(__LINE__) << std::endl;\
         }
     #define sct_assert2(expr, msg) \
-        if (!expr) {\
+        if (!(expr)) {\
             std::cout << std::endl << sc_time_stamp() << \
                 ", Error : sct_assert violation " << \
                 std::string(__FILE__) << ":" << \

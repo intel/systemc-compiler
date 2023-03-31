@@ -6,6 +6,7 @@
 *****************************************************************************/
 
 #include <systemc.h>
+#include <array>
 
 // Standard C++ template library collections: pair, array
 struct MyPair {

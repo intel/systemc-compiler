@@ -15,17 +15,17 @@ using namespace sc_core;
 template <unsigned N>
 class A : public sc_module {
 public:
-    sc_signal<bool> dummy{"dummy"};
+    sc_signal<unsigned> t{"t"};
 
     SC_CTOR(A) {
         SC_METHOD(record_return1);
-        sensitive << dummy;
+        sensitive << t;
 
         SC_METHOD(record_return2);
-        sensitive << dummy;
+        sensitive << t;
 
         SC_METHOD(record_return3);
-        sensitive << dummy;
+        sensitive << t;
     }
     
 //-----------------------------------------------------------------------------
@@ -46,19 +46,25 @@ public:
     void record_return1() 
     {
         Simple s = f();
+        sct_assert_defined(s.a);
+        sct_assert_defined(s.b);
+        
         int i = s.b + 1;
     }
 
     Simple g(bool val1, int val2) {
        Simple r;
-       r.a = val1;
-       r.b = val2;
+       r.a = t.read();
+       r.b = val1+val2;
        return r;
     }
     
     void record_return2() 
     {
         Simple s = g(true, 2);
+        sct_assert_defined(s.a);
+        sct_assert_defined(s.b);
+        
         if (s.a) {
             s.b = 1;
         }
@@ -67,11 +73,15 @@ public:
     void record_return3() 
     {
         Simple s;
-        if (dummy) {
+        if (t.read()) {
             s = f();
+            sct_assert_defined(s.a);
         }
-        //int i = s.b;  Uncomment me, #141
+        sct_assert_defined(s.a);
+        
+        int i = s.b;  
     }
+    
 };
     
 class B_top : public sc_module {

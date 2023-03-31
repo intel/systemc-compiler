@@ -1223,6 +1223,10 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
             // Record member
             //cout << "-------- record member" << endl;
             
+            // Inner record error
+            ScDiag::reportScDiag(fieldDecl->getBeginLoc(), 
+                                 ScDiag::SYNTH_INNER_RECORD);
+
             if (isScModuleOrInterface(fieldDecl->getType())) {
                 ScDiag::reportScDiag(expr->getBeginLoc(), 
                                      ScDiag::SYNTH_LOCAL_MODULE_DECL);

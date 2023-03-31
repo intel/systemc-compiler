@@ -219,6 +219,8 @@ public:
         SYNTH_EXTRA_SENSTIV_THREAD  = 241,
         SYNTH_RECORD_INIT_LIST      = 242,
         SYNTH_CHAN_RECORD_CONST     = 243,
+        SYNTH_CHAN_RECORD_TEMP      = 244,
+        SYNTH_INNER_RECORD          = 245,
         
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -764,6 +766,15 @@ private:
             {clang::DiagnosticIDs::Error, 
             "Constant field is not allowed in channel type record, use static constant instead"};
 
+        idFormatMap[SYNTH_CHAN_RECORD_TEMP] =
+            {clang::DiagnosticIDs::Error, 
+            "No record found, temporary object should use default constructor"};
+        
+        idFormatMap[SYNTH_INNER_RECORD] =
+            {clang::DiagnosticIDs::Fatal, 
+            "Inner record is not supported"};
+        
+        
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =
             {clang::DiagnosticIDs::Fatal,
