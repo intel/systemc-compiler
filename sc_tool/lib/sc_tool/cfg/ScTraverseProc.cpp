@@ -491,7 +491,7 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                      << ", dynamic class value " << dyntval.asString() 
                      << ", funcModval " << funcModval.asString() << endl;
             }
-
+            
             // Register SS channels which needs to be added into sensitivity
             if ( isSctChannelSens(funcModval.getType(), methodDecl) ) {
                 //cout << "TraverseProc funcModval " << funcModval << " ttval " << ttval << endl;
@@ -514,9 +514,10 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             state->setValueLevel(retVal, level);
             
             // Set record expression (record name and indices) to use in called function
+            //cout << "\nthisExpr " << hex << thisExpr << dec << endl;
             if (auto thisStr = codeWriter->getStmtString(thisExpr)) {
+                //std::cout << "setRecordName " << funcModval << " " << thisStr.getValue() << std::endl; 
                 codeWriter->setRecordName(funcModval, thisStr.getValue());
-                //cout << "   thisStr : " << thisStr.getValue() << endl;
             }
         }
     }
@@ -602,9 +603,10 @@ void ScTraverseProc::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         Expr* thisExpr = args[0];
 
         // Set record expression (record name and indices) to use in called function
+        //cout << "\nthisExpr " << hex << thisExpr << dec << endl;
         if (auto thisStr = codeWriter->getStmtString(thisExpr)) {
+            //std::cout << "setRecordName " << funcModval << " " << thisStr.getValue() << std::endl; 
             codeWriter->setRecordName(funcModval, thisStr.getValue());
-            //cout << "   thisStr : " << thisStr.getValue() << endl;
         }
     }
 }
@@ -676,7 +678,7 @@ void ScTraverseProc::initContext()
         }
         
         if (!mifarrs.empty()) {
-            //std::cout << "setMIFName " << modval << " " << s << std::endl;
+            //std::cout << "\nsetMIFName " << modval << " " << s << std::endl;
             codeWriter->setMIFName(modval, s);
         }
     }

@@ -5,14 +5,9 @@
 * 
 *****************************************************************************/
 
-//
-// Created by mmoiseev on 06/27/19s.
-//
-
 #include <systemc.h>
 
-// Module with @sc_port to module object on stack.
-// Taken from real design accelerators
+// Module with @sc_port to MIF. Taken from real design accelerators
 
 template<typename T>
 struct port_if : public sc_interface {

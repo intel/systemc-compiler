@@ -134,7 +134,7 @@ bool isScToolClearSignal(clang::QualType type, bool checkPointer = true);
 /// \param checkPointer -- also check if it is pointer to signal
 bool isScChannel(clang::QualType type, bool checkPointer = true);
 
-/// Check array of any SC channel type
+/// Check array, sc_vector, std::array(?), std::vector(?) of any SC channel type
 /// \param checkPointer -- check array of pointers to channel
 bool isScChannelArray(clang::QualType type, bool checkPointer = true);
 

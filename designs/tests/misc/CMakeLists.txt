@@ -276,9 +276,9 @@ svc_target(misc_pointer_dangling2_fail ELAB_TOP b_mod.a_mod WILL_FAIL)
 add_executable(misc_sc_port test_sc_port.cpp)
 svc_target(misc_sc_port GOLDEN misc_sc_port.sv)
 
-## Fix me, see #115
-#add_executable(misc_sc_port2 test_sc_port2.cpp)
-#svc_target(misc_sc_port2 GOLDEN misc_sc_port2.sv)
+## Module port array not supported yet
+add_executable(misc_sc_port2_fail test_sc_port2_fail.cpp)
+svc_target(misc_sc_port2_fail WILL_FAIL)
 
 add_executable(misc_sc_port3 test_sc_port3.cpp)
 svc_target(misc_sc_port3 GOLDEN misc_sc_port3.sv)
@@ -286,13 +286,22 @@ svc_target(misc_sc_port3 GOLDEN misc_sc_port3.sv)
 add_executable(misc_sc_port4 test_sc_port4.cpp)
 svc_target(misc_sc_port4 GOLDEN misc_sc_port4.sv)
 
-## Fix me, see #116
 add_executable(misc_sc_port_array1 test_sc_port_array1.cpp)
 svc_target(misc_sc_port_array1 GOLDEN misc_sc_port_array1.sv)
 
+add_executable(misc_sc_port_array2 test_sc_port_array2.cpp)
+svc_target(misc_sc_port_array2 GOLDEN misc_sc_port_array2.sv)
+
+add_executable(misc_sc_port_array3 test_sc_port_array3.cpp)
+svc_target(misc_sc_port_array3 GOLDEN misc_sc_port_array3.sv)
+
 ## Module port array not supported yet
-#add_executable(misc_sc_port_array2 test_sc_port_array2.cpp)
-#svc_target(misc_sc_port_array2 GOLDEN misc_sc_port_array2.sv)
+add_executable(misc_sc_port_array1_fail test_sc_port_array1_fail.cpp)
+svc_target(misc_sc_port_array1_fail WILL_FAIL)
+
+## Module port array not supported yet
+add_executable(misc_sc_port_array2_fail test_sc_port_array2_fail.cpp)
+svc_target(misc_sc_port_array2_fail WILL_FAIL)
 
 add_executable(misc_sc_port_dyn test_sc_port_dyn.cpp)
 svc_target(misc_sc_port_dyn GOLDEN misc_sc_port_dyn.sv)

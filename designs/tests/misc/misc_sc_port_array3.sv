@@ -16,36 +16,27 @@ module Dut // "dut"
 
 // Variables generated for SystemC signals
 logic [3:0] slave_s;
-logic [3:0] tars_r[2];
+logic [3:0] tars_r[2][3];
 
 //------------------------------------------------------------------------------
-// Method process: slave_methProc (test_sc_port_array1.cpp:52:5) 
+// Method process: slave_methProc (test_sc_port_array3.cpp:53:5) 
 
 always_comb 
-begin : slave_methProc     // test_sc_port_array1.cpp:52:5
+begin : slave_methProc     // test_sc_port_array3.cpp:53:5
     logic [3:0] val;
+    logic [3:0] TMP_0;
+    logic [3:0] val_1;
+    logic [3:0] l;
     val = slave_s;
     // Call f() begin
-    tars_r[1] = val;
+    val = tars_r[1][2];
     // Call f() end
-end
-
-//------------------------------------------------------------------------------
-// Method process: tars_tarMeth (test_sc_port_array1.cpp:29:5) 
-
-always_comb 
-begin : tars_tarMeth     // test_sc_port_array1.cpp:29:5
-    logic [3:0] a;
-    a = tars_r[0];
-end
-
-//------------------------------------------------------------------------------
-// Method process: tars_tarMeth0 (test_sc_port_array1.cpp:29:5) 
-
-always_comb 
-begin : tars_tarMeth0     // test_sc_port_array1.cpp:29:5
-    logic [3:0] a;
-    a = tars_r[1];
+    val_1 = slave_s;
+    // Call g() begin
+    tars_r[1][2] = val_1;
+    TMP_0 = tars_r[1][2];
+    // Call g() end
+    l = TMP_0;
 end
 
 endmodule

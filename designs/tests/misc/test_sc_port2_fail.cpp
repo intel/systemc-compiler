@@ -5,13 +5,9 @@
 * 
 *****************************************************************************/
 
-//
-// Created by mmoiseev on 06/27/19s.
-//
-
 #include <systemc.h>
 
-// Module with array of @sc_port to module object on stack
+// Module with array of @sc_port to module object on stack -- not supported
 template<typename T>
 struct port_if : public sc_interface {
     virtual void f(T val) = 0;

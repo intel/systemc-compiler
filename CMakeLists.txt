@@ -100,9 +100,6 @@ configure_package_config_file(cmake/SVCConfig.cmake.in
 install(FILES ${PROJECT_BINARY_DIR}/SVCConfig.cmake cmake/svc_target.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/SVC)
 
-# Install sctMemory
-#install(DIRECTORY components/memory/sctmemory DESTINATION include)
-
 # Install sctCommon
 install(DIRECTORY components/common/sctcommon DESTINATION include)
 
@@ -111,7 +108,8 @@ install(FILES cmake/setenv.sh gdb/gdbinit-example.txt
         DESTINATION $ENV{ICSC_HOME})
 
 # Install GDB pretty-printers
-install(FILES gdb/sysc23x_printers/sysc23x_printers.py
+install(FILES gdb/sysc23x_printers/singlsrc_printers.py
+        gdb/sysc23x_printers/sysc23x_printers.py
         DESTINATION $ENV{ICSC_HOME}/share/gdb/python/sysc23x_printers)
 
 # Install designs

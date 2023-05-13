@@ -1,11 +1,6 @@
 #!/usr/bin/python3
-
-#******************************************************************************
-# Copyright (c) 2022, Intel Corporation. All rights reserved.
-# 
-# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
-# 
-# *****************************************************************************
+#
+# Copyright (c) [2022] [Leonid Azarenkov, Intel]
 #
 import gdb
 

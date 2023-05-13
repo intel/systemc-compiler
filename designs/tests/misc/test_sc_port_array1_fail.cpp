@@ -7,7 +7,7 @@
 
 #include <systemc.h>
 
-// Module with @sc_port to a MIF vector element
+// Module with array of @sc_port -- not supported
 template<typename T>
 struct port_if : public sc_interface {
     virtual void f(T val) = 0;
@@ -22,36 +22,31 @@ struct Target : public sc_module, port_if<T>
 
     explicit Target (sc_module_name name) : 
         sc_module(name) 
-    {
-        SC_METHOD(tarMeth); sensitive << r;
-    }
+    {}
 
-    void tarMeth() {
-        T a = r.read();       
-    }
-
-    void f(T val) override {
+    void f(T val) {
         r = val;
     }
 };
 
 template<typename T>
-struct AhbSlave : public sc_module, sc_interface 
+struct AhbSlave : public sc_module, sc_interface
 {
     sc_in_clk       clk;
     sc_in<bool>     nrst;
-    
+
     sc_signal<T>    s;
 
-    sc_port<port_if<T> >  slave_port;
+    sc_port<port_if<T> >  slave_ports[2];
     
     SC_CTOR(AhbSlave) {
-        SC_METHOD(methProc); sensitive << s;
+        SC_METHOD(methProc);
+        sensitive << s;
     }
     
     void methProc() 
     {
-        slave_port->f(s.read());   
+        slave_ports[0]->f(2);
     }
 };
 
@@ -71,7 +66,8 @@ struct Dut : public sc_module
     {
         slave.clk(clk);
         slave.nrst(nrst);
-        slave.slave_port(tars[1]);
+        slave.slave_ports[0](tars[0]);
+        slave.slave_ports[1](tars[1]);
     }
 };
 

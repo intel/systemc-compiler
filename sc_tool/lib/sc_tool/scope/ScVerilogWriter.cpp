@@ -1227,8 +1227,7 @@ void ScVerilogWriter::copyTerm(const clang::Stmt* srcStmt,
     } else {
         // Do not check terms as @this/dereference of @this has no term
         /*SCT_INTERNAL_WARNING(stmt->getBeginLoc(), 
-                             "copyTerm : No term for sub-statement " +
-                             llvm::to_hexString((size_t) srcStmt, false));*/
+                               "copyTerm : No term for sub-statement ");*/
     }
 }
 
@@ -1250,8 +1249,7 @@ void ScVerilogWriter::addTerm(const clang::Stmt* srcStmt,
     } else {
         // Do not check terms as @this/dereference of @this has no term
         /*SCT_INTERNAL_WARNING(stmt->getBeginLoc(), 
-                             "addTerm : No term for sub-statement " +
-                             llvm::to_hexString((size_t) srcStmt, false));*/
+                               "addTerm : No term for sub-statement ");*/
     }
 }
 
@@ -1279,8 +1277,7 @@ void ScVerilogWriter::copyTermInBrackets(const clang::Stmt* srcStmt,
     } else {
         // Do not check terms as @this/dereference of @this has no term
         /*SCT_INTERNAL_WARNING(stmt->getBeginLoc(), 
-                             "copyTermInBrackets : No term for sub-statement " +
-                             llvm::to_hexString((size_t) srcStmt, false));*/
+                             "copyTermInBrackets : No term for sub-statement ");*/
     }
 }
 
@@ -1302,8 +1299,7 @@ void ScVerilogWriter::copyTermRemoveBrackets(const clang::Stmt* srcStmt,
     } else {
         // Do not check terms as @this/dereference of @this has no term
         /*SCT_INTERNAL_WARNING(stmt->getBeginLoc(), 
-                             "copyTermRemoveBrackets : No term for sub-statement " +
-                             llvm::to_hexString((size_t) srcStmt, false));*/
+                             "copyTermRemoveBrackets : No term for sub-statement ");*/
     }
 }
 
@@ -1344,9 +1340,9 @@ void ScVerilogWriter::putTypeCast(const clang::Stmt* srcStmt,
         putString(stmt, info);
         
     } else {
+        cout << "putTypeCast : arg " << hex << (size_t)srcStmt << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                         "putTypeCast : No term for sub-statement "+
-                         llvm::to_hexString((size_t)srcStmt, false));
+                           "putTypeCast : No term for sub-statement ");
     }
 }
 
@@ -1366,9 +1362,9 @@ void ScVerilogWriter::putSignCast(const clang::Stmt* stmt, CastSign castSign)
 //                 << (int)castSign << endl;
         }
     } else {
+        cout << "putSignCast : arg " << hex << (size_t)stmt << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(), 
-                           "putSignCast : No term for statement " +
-                           llvm::to_hexString((size_t)stmt, false));
+                           "putSignCast : No term for statement ");
     }
 }
 
@@ -1381,9 +1377,9 @@ void ScVerilogWriter::putBoolCast(const clang::Stmt* stmt)
         info.castSign = CastSign::BCAST;
 
     } else {
+        cout << "putBoolCast : arg " << hex << (size_t)stmt << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(), 
-                           "putBoolCast : No term for statement " +
-                           llvm::to_hexString((size_t)stmt, false));
+                           "putBoolCast : No term for statement ");
     }
 }
 
@@ -1416,9 +1412,9 @@ void ScVerilogWriter::setReplacedCastWidth(const clang::Stmt* stmt,
 //             << " lastCastWidth " << info.lastCastWidth << endl;
         
     } else {
+        cout << "setLastCastWidth : arg " << hex << (size_t)stmt << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                           "setLastCastWidth : No term for statement "+
-                           llvm::to_hexString((size_t)stmt, false));
+                           "setLastCastWidth : No term for statement ");
     }
 }
 
@@ -1442,9 +1438,9 @@ void ScVerilogWriter::extendTypeWidth(const clang::Stmt* stmt,
         putString(stmt, info);
             
     } else {
+        cout << "addTypeCast : arg " << hex << (size_t)stmt << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                           "addTypeCast : No term for sub-statement "+
-                           llvm::to_hexString((size_t)stmt, false));
+                           "addTypeCast : No term for sub-statement ");
     }
 }
 
@@ -1698,9 +1694,9 @@ void ScVerilogWriter::storeRefVarDecl(const SValue& val, const Expr* init,
         
     } else {
         if (checkNoTerms) {
+            cout << "putRefVarDecl : arg " << hex << (size_t)init << dec << endl;
             SCT_INTERNAL_FATAL(init->getBeginLoc(),
-                               "putRefVarDecl : no term for right part " +
-                                llvm::to_hexString((size_t)init, false));
+                               "putRefVarDecl : no term for right part ");
         } else {
             // Do nothing, that is for reference to channel record
         }
@@ -1734,9 +1730,9 @@ void ScVerilogWriter::storePointerVarDecl(const SValue& val, const Expr* init)
         ptrValueDecl[val] = getTermAsRValue(init);
         
     } else {
+        cout << "storePointerVarDecl : arg " << hex << (size_t)init << dec << endl;
         SCT_INTERNAL_FATAL(init->getBeginLoc(),
-                           "storePointerVarDecl : no term for right part " +
-                            llvm::to_hexString((size_t)init, false));
+                           "storePointerVarDecl : no term for right part ");
     }
 }
 
@@ -1793,10 +1789,12 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
 // \param elemOfMifArr -- put member of current element of MIF array 
 // \param elemOfRecArr -- put member of a element of a record/MIF array 
 // \param refRecarrIndxStr -- record array parameter passed by reference indices
+// \param portMifarrIndxStr -- MIF array parent accessed through sc_port
 void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
                                    const vector<SValue>& recarrs, 
                                    bool elemOfMifArr, bool elemOfRecArr,
-                                   const string& refRecarrIndxStr)
+                                   const string& refRecarrIndxStr, 
+                                   const string& portMifarrIndxStr)
 {
     if (skipTerm) return;
 //    cout << "putValueExpr for stmt " << hex << stmt << dec << ", val " << val 
@@ -1860,6 +1858,11 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
             //     << " names.first " << names.first << endl;
         }
         
+        if (!portMifarrIndxStr.empty()) {
+            names.first  += portMifarrIndxStr;
+            names.second += portMifarrIndxStr;
+        }
+        
         // Clear record array indices for static member, required to avoid
         // indices applied to the next term 
         if (val.isVariable()) {
@@ -1913,7 +1916,8 @@ void ScVerilogWriter::putChannelExpr(const Stmt* stmt, const SValue& val,
 // \param elemOfMifArr -- put member of current element of MIF array 
 void ScVerilogWriter::putChannelExpr(const Stmt* stmt, const SValue& cval,
                                      const vector<SValue>& recarrs,
-                                     bool elemOfMifArr, bool elemOfRecArr)
+                                     bool elemOfMifArr, bool elemOfRecArr,
+                                     const std::string& portMifarrIndxStr)
 {
     if (skipTerm) return;
 //    cout << "putChannelExpr for stmt " << hex << stmt << dec << ", cval " << cval 
@@ -1954,6 +1958,11 @@ void ScVerilogWriter::putChannelExpr(const Stmt* stmt, const SValue& cval,
         //cout << "  recvar array add suffix " << indxSuff << endl;
     }
     
+    if (!portMifarrIndxStr.empty()) {
+        names.first  += portMifarrIndxStr;
+        names.second += portMifarrIndxStr;
+    }
+
     // Get variable width, channel must always have determinable width 
     unsigned width = 0;
     QualType ctype = cval.getScChannel()->getType();
@@ -2052,14 +2061,14 @@ void ScVerilogWriter::putAssign(const Stmt* stmt, const SValue& lval,
             //cout << "+++ " << hex << (unsigned long)stmt << dec << endl;
             
         } else {
+            cout << "putAssign : arg " << hex << (size_t)lhs << dec << endl;
             SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                               "putAssign : no term for left part "+ 
-                               llvm::to_hexString((size_t)lhs, false));
+                               "putAssign : no term for left part ");
         }
     } else {
+        cout << "putAssign : arg " << hex << (size_t)rhs << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                           "putAssign : no term for right part " +
-                           llvm::to_hexString((size_t)rhs, false));
+                           "putAssign : no term for right part ");
     }
 }
 
@@ -2097,9 +2106,9 @@ void ScVerilogWriter::putAssign(const Stmt* stmt, const SValue& lval,
         putAssignBase(stmt, lval, lhsName, rhsName, width);
         
     } else {
+        cout << "putAssign : arg " << hex << (size_t)rhs << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                         "putAssign : no term for right part " +
-                         llvm::to_hexString((size_t)rhs, false));
+                         "putAssign : no term for right part ");
     }
 }
 
@@ -2374,10 +2383,10 @@ void ScVerilogWriter::putArrayIndexExpr(const Stmt* stmt, const Expr* base,
         putString(stmt, pair<string,string>(rdName, wrName), width);
         
     } else {
+        cout << "putArrayIndexExpr : arg " << hex 
+             << (size_t(terms.count(base) ? index : base)) << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                         "putArrayIndexExpr : no term for base/index part " +
-                         llvm::to_hexString((size_t)((terms.count(base)) ? 
-                                            index : base),false) );
+                         "putArrayIndexExpr : no term for base/index part ");
     }
 }
 
@@ -2703,10 +2712,10 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
         
         //cout << "putBinary opcode " << opcode << " width " << width << endl;
     } else {
+        cout << "putBinary : arg " << hex 
+             << (size_t(terms.count(lhs) ? rhs : lhs)) << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                         "putBinary : No term for lhs/rhs statement " +
-                         llvm::to_hexString((size_t)(terms.count(lhs) ? 
-                                            rhs : lhs), false) );
+                           "putBinary : No term for lhs/rhs statement ");
     }
 }
 
@@ -2803,10 +2812,10 @@ void ScVerilogWriter::putCompAssign(const Stmt* stmt, string opcode,
         // Do not need to put @exprSign for compound statement
         
     } else {
+        cout << "putCompAssign : arg " << hex 
+             << (size_t(terms.count(lhs) ? rhs : lhs)) << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(), 
-                         "putCompAssign : No term for lhs/rhs statement " +
-                         llvm::to_hexString((size_t)(terms.count(lhs) ? 
-                                             rhs : lhs), false) );
+                         "putCompAssign : No term for lhs/rhs statement ");
     }
 }
 
@@ -2909,9 +2918,9 @@ void ScVerilogWriter::putUnary(const Stmt* stmt, string opcode, const Expr* rhs,
         
         //cout << "putUnary opcode " << opcode << " width " << width << endl;
     } else {
+        cout << "putUnary : arg " << hex << (size_t)rhs << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(), 
-                        "putUnary : No term for rhs statement " +
-                        llvm::to_hexString((size_t)rhs, false));
+                           "putUnary : No term for rhs statement ");
     }
 }
 
@@ -2958,10 +2967,10 @@ void ScVerilogWriter::putCondStmt(const Stmt* stmt, const Stmt* cond,
         setExprSign(stmt, signedExpr);
         
     } else {
+        cout << "putCondStmt : stmt " << hex << (size_t((terms.count(cond)) ?
+                         ((terms.count(lhs)) ? rhs : lhs) : cond)) << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                         "putCondStmt : No term for cond/lhs/rhs statement " +
-                         llvm::to_hexString((size_t)((terms.count(cond)) ?
-                         ((terms.count(lhs)) ? rhs : lhs) : cond), false));
+                          "putCondStmt : No term for cond/lhs/rhs statement ");
     }
 }
 
@@ -2992,10 +3001,10 @@ void ScVerilogWriter::putConcat(const clang::Stmt* stmt,
         putString(stmt, pair<string,string>(rdName, wrName), width);
         
     } else {
+        cout << "putConcat : stmt " << hex 
+             << (size_t((terms.count(first)) ? second : first)) << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                         "putConcat : No term for argument statement " +
-                          llvm::to_hexString((size_t)((terms.count(first)) ? 
-                                             second : first), false) );
+                         "putConcat : No term for argument statement ");
     }
 }
 
@@ -3021,9 +3030,9 @@ void ScVerilogWriter::putFCallParam(const Stmt* stmt, const SValue& pval,
         }
 
     } else {
+        cout << "putFCallParam : arg " << hex << (size_t)arg << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                         "putFCallParams : No term for parameter/argument " +
-                         llvm::to_hexString((size_t)arg, false) );
+                         "putFCallParams : No term for parameter/argument ");
     }
 }
 
@@ -3055,9 +3064,9 @@ void ScVerilogWriter::putWaitNAssign(const clang::Stmt* stmt,
         }
 
     } else {
+        cout << "putWaitNAssign : waitn " << hex << (size_t)waitn << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                         "putWaitAssign : No term for parameter of wait(int N) " +
-                         llvm::to_hexString((size_t)waitn, false) );
+                         "putWaitAssign : No term for parameter of wait(int N) ");
     }
 }
 
@@ -3080,9 +3089,9 @@ void ScVerilogWriter::putClockEdge(const clang::Stmt* stmt,
         }
 
     } else {
+        cout << "putClockEdge : clock " << hex << (size_t)clock << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                          "putClockEdge : No clock parameter of sct_assert() " +
-                          llvm::to_hexString((size_t)clock, false) );
+                          "putClockEdge : No clock parameter of sct_assert() ");
     }
     
 }
@@ -3107,9 +3116,9 @@ void ScVerilogWriter::putAssert(const clang::Stmt* stmt,
         }
 
     } else {
+        cout << "putAssert : expr " << hex << (size_t)arg << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
-                         "putAssert : No term for parameter of sct_assert() " +
-                         llvm::to_hexString((size_t)arg, false) );
+                           "putAssert : No term for parameter of sct_assert() ");
     }
 }
 

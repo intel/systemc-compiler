@@ -19,9 +19,32 @@ struct PairPair {
     MyPair b;
 };
 
+template <class T, unsigned N>
+struct A : public sc_module {
+    SC_HAS_PROCESS(A);
+    
+    sc_signal<bool> s;
+    const std::array<T, N> arr;
+    const std::vector<T> vec;
+    
+    explicit A(const sc_module_name& name, 
+               const std::array<T, N>& arr_, const std::vector<T>& vec_) : 
+        sc_module(name), arr(arr_), vec(vec_)  
+    {
+        SC_METHOD(testMeth); sensitive << s;
+    }
+    
+    void testMeth() {
+        T i = arr[0];
+        i = vec[i];
+    }
+};
+
 SC_MODULE(test) {
 
     sc_signal<bool> s;
+    
+    A<unsigned, 2> a{"a", {1, 2}, {3, 4}};
 
     SC_CTOR(test) 
     {

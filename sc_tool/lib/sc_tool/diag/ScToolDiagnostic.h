@@ -221,6 +221,7 @@ public:
         SYNTH_CHAN_RECORD_CONST     = 243,
         SYNTH_CHAN_RECORD_TEMP      = 244,
         SYNTH_INNER_RECORD          = 245,
+        SYNTH_SC_PORT_ARRAY         = 246,
         
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -774,6 +775,9 @@ private:
             {clang::DiagnosticIDs::Fatal, 
             "Inner record is not supported"};
         
+        idFormatMap[SYNTH_SC_PORT_ARRAY] =
+            {clang::DiagnosticIDs::Fatal, 
+            "Array/vector of sc_port is not supported"};
         
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =

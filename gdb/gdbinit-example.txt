@@ -1,9 +1,9 @@
 # To enable pretty-printing for SystemC/SingleSource data types
-#  copy/move gdbinit-example.txt to ~/.gdbinit
+#  copy/rename gdbinit-example.txt to ~/.gdbinit
 
 python
 import sys, os
-libstdcxx_printers_path = '/usr/share/gcc/python/'
+libstdcxx_printers_path = '/usr/intel/pkgs/gcc/10.1.0/share/gcc-10.1.0/python/'
 sysc23x_printers_path = '$ICSC_HOME/share/gdb/python/sysc23x_printers/'
 libstdcxx_printers_path = os.path.expandvars(libstdcxx_printers_path)
 sysc23x_printers_path = os.path.expandvars(sysc23x_printers_path)
@@ -13,6 +13,8 @@ from libstdcxx.v6.printers import register_libstdcxx_printers
 register_libstdcxx_printers (None)
 from sysc23x_printers import register_sysc23x_printers
 register_sysc23x_printers (None)
+from singlsrc_printers import register_singlsrc_printers
+register_singlsrc_printers (None)
 end
 
 # If you are debugging systemc, the following idioms break in the debugger

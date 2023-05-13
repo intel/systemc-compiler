@@ -9,7 +9,8 @@
 
 #include <systemc.h>
 
-// module A has child B, and B has child C. A has pointer/port on C and run its function, and C run function of A
+// module A has child B, and B has child C. A has pointer/port on C and run 
+// its function, and C run function of A
 
 template<typename T>
 struct my_if : public sc_interface {

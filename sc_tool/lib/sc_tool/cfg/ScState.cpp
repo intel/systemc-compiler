@@ -1007,7 +1007,7 @@ const unordered_map<SValue, const VerilogVarTraits>& ScState::getVarTraits() con
 }
 
 // Is @val array variable or pointer which owns of an object, 
-// return false for temporary variable
+// \return false for @sc_port type variable and temporary variable
 bool ScState::isObjectOwner(const SValue& val) const 
 {
     // Array value is always owner of sub-array
@@ -1021,6 +1021,10 @@ bool ScState::isObjectOwner(const SValue& val) const
     
     // Temporary variable not considered as object owner
     if (val.isVariable()) {
+        // @sc_port is not owner of the MIF object
+        if (isScPort(val.getType())) {
+            return false;
+        }
         // Check if it is global pointer variable
         if (val.getTypePtr()->isPointerType()) {
             const ValueDecl* valDecl = val.getVariable().getDecl();
@@ -1787,7 +1791,6 @@ vector<SValue> ScState::getAllRecordArrayElementsForAny(const SValue& val,
 }
 
 // Get all fields for given record value with 
-// TODO: update for inner records
 InsertionOrderSet<SValue> ScState::getRecordFields(const SValue& recval) const
 {
     //cout << endl << "getRecordFields for " << recval << endl << "   ";
@@ -1808,7 +1811,7 @@ InsertionOrderSet<SValue> ScState::getRecordFields(const SValue& recval) const
 // \param eval -- element which specifies array 
 // \param mval -- topmost array value
 // \param indxs -- array indices, -1 for unknown index
-void ScState::getArrayIndices(const SValue& eval, SValue& mval, 
+/*void ScState::getArrayIndices(const SValue& eval, SValue& mval, 
                               std::vector<int>& indxs) const
 {
     //cout << "getArrayInices eval " << eval << endl;
@@ -1839,7 +1842,7 @@ void ScState::getArrayIndices(const SValue& eval, SValue& mval,
     std::reverse(indxs.begin(), indxs.end());
     // @mval is topmost array if exists
     mval = getValue(mval); 
-}
+}*/
 
 // Get all elements in sub-arrays for given array
 std::vector<SValue> ScState::getSubArrayElements(const SValue& val) const 

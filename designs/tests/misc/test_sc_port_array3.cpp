@@ -7,31 +7,32 @@
 
 #include <systemc.h>
 
-// Module with @sc_port to a MIF vector element
+// Module with @sc_port to a MIF 2D vector element
 template<typename T>
 struct port_if : public sc_interface {
     virtual void f(T val) = 0;
+    virtual T g(T val) = 0;
 };
 
 template<typename T>
 struct Target : public sc_module, port_if<T> 
 {
+    T v;
     sc_signal<T> r;
 
     SC_HAS_PROCESS(Target);
 
     explicit Target (sc_module_name name) : 
         sc_module(name) 
-    {
-        SC_METHOD(tarMeth); sensitive << r;
-    }
-
-    void tarMeth() {
-        T a = r.read();       
-    }
+    {}
 
     void f(T val) override {
+        val = r.read();
+    }
+
+    T g(T val) override {
         r = val;
+        return r.read();
     }
 };
 
@@ -49,9 +50,10 @@ struct AhbSlave : public sc_module, sc_interface
         SC_METHOD(methProc); sensitive << s;
     }
     
-    void methProc() 
+    void methProc()
     {
-        slave_port->f(s.read());   
+        slave_port->f(s.read());
+        T l = slave_port->g(s.read());
     }
 };
 
@@ -63,7 +65,7 @@ struct Dut : public sc_module
     using T = sc_uint<4>;
 
     AhbSlave<T>             slave{"slave"};
-    sc_vector< Target<T> >  tars{"tars", 2};
+    sc_vector< sc_vector< Target<T>>>  tars{"tars", 2};
     
     SC_HAS_PROCESS(Dut);
     
@@ -71,7 +73,10 @@ struct Dut : public sc_module
     {
         slave.clk(clk);
         slave.nrst(nrst);
-        slave.slave_port(tars[1]);
+        tars[0].init(3);
+        tars[1].init(3);
+        
+        slave.slave_port(tars[1][2]);
     }
 };
 

@@ -500,7 +500,9 @@ public:
     /// \return bottom array value or NO_VALUE
     SValue getBottomArrayForAny(const SValue& val, bool& unkwIndex,
                 unsigned crossModule = 0, bool checkRecOnly = false) const;
-    /// ...
+    /// Get all array values for given value which can be element in array or 
+    /// field in record array element.
+    /// \return all array values or NO_VALUE
     std::vector<SValue> getAllMifArrays(const SValue& val, unsigned crossModule) const;
     
     /// Get topmost array and field declaration for given value which can be 
@@ -550,8 +552,8 @@ public:
     /// \param eval -- element which specifies array 
     /// \param mval -- topmost array value
     /// \param indxs -- array indices, -1 for unknown index
-    void getArrayIndices(const SValue& eval, SValue& mval, 
-                         std::vector<int>& indxs) const;
+    //void getArrayIndices(const SValue& eval, SValue& mval, 
+    //                     std::vector<int>& indxs) const;
     
     /// Get all elements in sub-arrays for given array
     /// Not used for now

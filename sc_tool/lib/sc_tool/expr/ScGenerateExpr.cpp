@@ -679,6 +679,15 @@ void ScGenerateExpr::putMemberExpr(const Expr* expr, const SValue& val,
     SValue tval; 
     if (val.isVariable()) {
         tval = val.getVariable().getParent();
+        
+        // Check for array of @sc_port -- not supported 
+        QualType type = val.getType();
+        if (isArray(type) || isScVector(type)) {
+            if ( isScPort(getArrayElementType(type)) ) {
+                ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                     ScDiag::SYNTH_SC_PORT_ARRAY);
+            }
+        }
     }
     tval = getRecordFromState(tval, ArrayUnkwnMode::amNoValue);
     // Get record values vector to create name suffix for record member
@@ -708,7 +717,7 @@ void ScGenerateExpr::putMemberExpr(const Expr* expr, const SValue& val,
         //cout << "\nputMemberExpr(2) val " << val << ", tval " << tval << ", tvar " << tvar 
         //     << ", currecval " << currecval << endl;
     }
-
+    
     //cout << "elemOfMifArr " << elemOfMifArr << " elemOfRecArr " << elemOfRecArr << endl;
     
     // Return NO_VALUE for non-channels including record channel fields
@@ -723,11 +732,11 @@ void ScGenerateExpr::putMemberExpr(const Expr* expr, const SValue& val,
         } else {
             // Put channels to provide different read/write names
             codeWriter->putChannelExpr(expr, cval, recvecs, elemOfMifArr, 
-                                       elemOfRecArr);
+                                       elemOfRecArr, "");
         }
     } else {
-        codeWriter->putValueExpr(expr, val, recvecs, elemOfMifArr, 
-                                 elemOfRecArr, refRecarrIndxStr);
+        codeWriter->putValueExpr(expr, val, recvecs, elemOfMifArr, elemOfRecArr, 
+                                 refRecarrIndxStr, "");
     }
 }
 
@@ -2171,8 +2180,8 @@ SValue ScGenerateExpr::parseArraySubscript(Expr* expr,
     bool isChannelPointer = isPointer(type) ? 
                             isScChannel(type->getPointeeType()) : false;
     
-    // Put statement string to code writer
-    if (isScChannel(type) || isScVector(type) || isChannelPointer) {
+    // Put statement string to code writer  
+    if (isScChannel(type) || isScChannelArray(type) || isChannelPointer) {
         // Get channel value
         SValue cval = getChannelFromState(val);
 
@@ -3150,22 +3159,34 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         } else {
             // Dereferenced value provided in @val
             state->getValue(lval, val);
-            // Get variable for @rval
-            SValue tvar = state->getVariableForValue(lval);
-            //cout << "Operator -> tval " << tval << " ttval " << val << " tvar " << tvar << endl;
 
-            if (tvar.isArray()) {
-                // Remain array element access, there is array of pointers
-                codeWriter->copyTerm(lexpr, expr);
-                SCT_INTERNAL_ERROR_NOLOC ("Array of sc_port<IF> not supported yet");
+            // Get MIF record value from port
+            SValue recval; state->getValue(val, recval);
+            SValue dyntval;
+            state->getMostDerivedClass(recval, dyntval);
+            //cout << "Operator -> dyntval " << dyntval << " recval " << recval 
+            //         << " val " << val << " lval " << lval  << endl;
+            //state->print();
+            
+            if (dyntval.isRecord()) {
+                // Provide MIF variable and array indices to be used in 
+                // TraverseProc to set @recordValueName
+                // Check port bound to an element of record/MIF array 
+                vector<SValue> mifarrs = state->getAllMifArrays(
+                                            dyntval, ScState::MIF_CROSS_NUM);
+                std::string portMifIndicesStr;
+                for (const SValue& mval : mifarrs) {
+                    portMifIndicesStr += "["+std::to_string(mval.getArray().getOffset())+"]";
+                }
 
-            } else 
+                vector<SValue> recarrs;
+                SValue dvar = state->getVariableForValue(dyntval);
+                codeWriter->putValueExpr(expr, dvar, recarrs, false, false, 
+                                         "", portMifIndicesStr);
+            } else
             if (lval.isVariable() || lval.isTmpVariable()) {
                 // Use variable to pointer variable, required for array of pointers
                 codeWriter->copyTerm(lexpr, expr);
-            } else {
-                // Put de-referenced pointer variable 
-                putPtrDerefExpr(expr, tvar, lval, val);
             }
         }
     } else 

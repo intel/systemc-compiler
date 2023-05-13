@@ -51,6 +51,15 @@ MangledTypeDB::MangledTypeDB(clang::ASTContext &astCtx)
                     continue;
             }
 
+            // Skip variable array types as they break @mangleTypeName()
+            // These types could be only in testbench and not supported 
+            // for synthesis anyway
+            if (type->isVariableArrayType()) continue;
+            if (type->isArrayType() || type->isPointerType()) {
+                if (type->getPointeeOrArrayElementType()->isVariableArrayType()) 
+                    continue;
+            }
+            
             auto cannonType = type->getCanonicalTypeInternal();
 
             //llvm::outs() << "Is placeholder? " << cannonType->isPlaceholderType() << " "<< cannonType.getAsString() << "\n";

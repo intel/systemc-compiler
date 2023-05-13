@@ -1626,7 +1626,7 @@ bool ScElabModuleBuilder::isFlattenArrayBind (
                 flattenArrayBind = true;
                 
             } else {
-                // Check port is bound to object with the sam eindex
+                // Check port is bound to object with the same index
                 for (size_t i = 0; i < allArrayPorts.size(); ++i) {
                     auto portEl = *allArrayPorts[i].obj.primitive()->port();
                     if (portEl.getDirectBind() != allArrayBinds[i].obj)

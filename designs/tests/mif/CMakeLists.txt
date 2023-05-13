@@ -163,6 +163,9 @@ svc_target(mif_sc_vector_mif6 GOLDEN mif_sc_vector_mif6.sv)
 add_executable(mif_sc_vector_ptr test_sc_vector_ptr.cpp)
 svc_target(mif_sc_vector_ptr GOLDEN mif_sc_vector_ptr.sv)
 
+add_executable(mif_sc_vector_mif_2d test_sc_vector_mif_2d.cpp)
+svc_target(mif_sc_vector_mif_2d GOLDEN mif_sc_vector_mif_2d.sv)
+
 add_executable(mif_glob_const test_glob_const.cpp)
 svc_target(mif_glob_const GOLDEN mif_glob_const.sv)
 

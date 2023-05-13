@@ -452,10 +452,12 @@ public:
     /// \param recarrs -- vector of record arrays, used to get indices string
     /// \param elemOfMifArr -- put member of current element of MIF array 
     /// \param elemOfRecArr -- put member of a element of a record/MIF array 
+    /// \param portMifarrIndxStr -- MIF array parent accessed through sc_port
     void putValueExpr(const clang::Stmt* stmt, const SValue& val, 
                       const std::vector<SValue>& recarrs, 
                       bool elemOfMifArr, bool elemOfRecArr,
-                      const std::string& refRecarrIndxStr = "");
+                      const std::string& refRecarrIndxStr = "",
+                      const std::string& portMifarrIndxStr = "");
 
     /// Any access to channel
     /// \param recarr -- record array, used to get indices string
@@ -467,9 +469,11 @@ public:
     /// \param recarrs -- vector of record arrays, used to get indices string
     /// \param elemOfMifArr -- put member of current element of MIF array 
     /// \param elemOfRecArr -- put member of a element of a record array 
+    /// \param portMifarrIndxStr -- MIF array parent accessed through sc_port
     void putChannelExpr(const clang::Stmt* stmt, const SValue& cval,
                         const std::vector<SValue>& recarrs, 
-                        bool elemOfMifArr, bool elemOfRecArr);
+                        bool elemOfMifArr, bool elemOfRecArr,
+                        const std::string& portMifarrIndxStr = "");
     
     /// Try to put local reference type variable, return true if @val is 
     /// local reference
