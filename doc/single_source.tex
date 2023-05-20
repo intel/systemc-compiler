@@ -985,7 +985,205 @@ sct_initiator<T, SCT_POSEDGE_NEGRESET>    resp{"resp"};
 \end{lstlisting}
 
 
-\subsection{Design architecture}
-\subsubsection{Target and initiator in top module}
-TBD
+\subsection{Array of SingleSource channels}
 
+Array of SingleSource channels can be implemented with {\tt sc\_vector}. First parameter of {\tt sc\_vector} is name, second parameter is number of elements (should be a compile time constant). To provide additional parameters to single source channels, it needs to use lambda function as third parameter of {\tt sc\_vector}.
+
+\begin{lstlisting}[style=mycpp]
+static const unsigned N = 16;
+using T = sc_uint<16>;
+sc_vector<sct_target<T>>       targ{"targ", N};    // Two parameters 
+sc_vector<sct_initiator<T>>    init{"init", N,     // Three parameters
+   [](const char* name, size_t i) {                // Lambda function         
+        return sc_new<sct_initiator<T>>(name, 1);  // Initiator with sync register
+   }}; 
+\end{lstlisting}
+
+\subsection{Target and initiator in top module}
+
+Target and Initiator can be instantiated in top module to be connected to the correspondent modules in testbench. Such top module is synthesizable with input/output ports for the Target/Initiator instances.
+
+Top module can contain Target which is not always ready and has no synchronous register. Top module can contain initiator which has no synchronous register. Top module cannot contain MultiTarget or MultiInitiator. Vector ({\tt sc\_vector}) of Target/Initiator in top module is supported.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.55\textwidth]{pics/ss_top_mod.jpg}
+\caption{Target and initiator in top module}
+\label{fig:ss_top_mod}
+\end{figure}
+
+To connect testbench Target/Initiator to the correspondent top module Initiator/Target normal {\tt bind()} function is used always except multi-language simulation. For multi-language simulation if DUT is in SystemVerilog and testbench is in SystemC language, the simulation tool generates a special SystemC wrapper for DUT top module. To connect this wrapper to SystemC testbench {\tt SCT\_BIND\_CHANNEL} macro should be used. {\tt  SCT\_BIND\_CHANNEL} macro cannot be applied to Target/Initiator with record type.
+
+\begin{lstlisting}[style=mycpp]
+// Include DUT module generated wrapper or SystemC header 
+#ifdef RTL_SIM
+    #include "DUT.h"          // Multi-language simulation, include generated wrapper
+#else 
+    #include "MyDut.h"        // SystemC simulation and synthesis, include designed header
+#endif
+
+template<class T>
+class MyModule : public sc_module {
+   DUT                       dut{"dut"}; 
+   sct_target<T>             targ{"targ"};
+   SC_CTOR(MyModule) {
+       // Bind targ to init in dut module 
+       #ifdef RTL_SIM
+           SCT_BIND_CHANNEL(dut, init, targ);         // Multi-language simulation
+       #else 
+           targ.bind(dut.init);                       // SystemC simulation and synthesis
+       #endif
+   }
+}
+\end{lstlisting}
+
+\subsection{Array of Target/Initiator in top module}
+
+Array of Targets/Initiators supported in any module including top module. Instead of C++ array {\tt sc\_vector} should be used (C++ array is not supported). To bind the Targets/Initiators {\tt SCT\_BIND\_CHANNEL} macro with 4 parameters is provided.
+
+\begin{lstlisting}[style=mycpp]
+// Include DUT module generated wrapper or SystemC header 
+#ifdef RTL_SIM
+    #include "DUT.h"         // Multi-language simulation, include generated wrapper
+#else 
+    #include "MyDut.h"       // SystemC simulation and synthesis, include designed header
+#endif
+
+template<class T, unsigned N>
+class MyModule : public sc_module {
+   DUT              dut{"dut"}; 
+   sc_vector<sct_target<T>>    targ{"targ", N};
+   SC_CTOR(MyModule) {
+       // Bind all elements of targ to elements of init in dut module 
+       #ifdef RTL_SIM
+           SCT_BIND_CHANNEL(dut, init, targ, N);   // Multi-language simulation
+       #else 
+           for (unsigned i = 0; i != N; ++i)  
+               targ[i].bind(dut.init[i]);          // SystemC simulation and synthesis
+       #endif
+   }
+}
+\end{lstlisting}
+
+\subsection{Hierarchical connection of Target and Initiator}
+
+Target and Initiator can be connected through module hierarchy from child module up to parent module. To do that {\tt sc\_port} of Initiator/Target in parent module should be used. Ports ({\tt sc\_port}) of Target/Initiator contain pointer to them. To bind Initiator to Target through ports it needs to use {\tt get\_instance()} method which provides Target/Initiator from its port.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.4\textwidth]{pics/ss_parent_mod.jpg}
+\caption{Target and initiator ports}
+\label{fig:ss_parent_mod}
+\end{figure}
+
+\begin{lstlisting}[style=mycpp]
+template<class T>
+struct Child : public sc_module {
+    sct_target<T>       run{"run"};
+    sct_initiator<T>    resp{"resp"};
+};
+
+template<class T>
+struct Parent: public sc_module  {
+   // Target/initiator ports
+    sc_port<sct_target<T>>       run;   
+    sc_port<sct_initiator<T>>    resp;   
+
+    Child<T>                     child{"child"};
+  
+    explicit Parent(const sc_module_name& name) : sc_module(name) {
+        // Bind ports to child module target/initiator
+        run(child.run);      
+        resp(child.resp);
+    }
+};
+
+struct Top: public sc_module  {
+    Parent<T>                    parent{"parent"};
+  
+    explicit Parent(const sc_module_name& name) : sc_module(name) {
+        // Bind child target/initiator to eahc other through parent ports
+        // get_instance() provides Initiator from its sc_port   
+        parent.run->bind(parent.resp->get_instance());   
+    }
+};
+\end{lstlisting}
+Process which calls Target/Initiator functions should be in the module where Target/Initiator declared. If a process calls Target/Initiator through its port ({\tt sc\_port<sct\_target>/sc\_port<sct\_initiator>}) the process module and target initiator module should be synthesized in the same parent module.
+
+\subsection{Cycle accurate and SingleSource code mix}
+
+Conventional cycle accurate SystemC modules can be mixed with single source modules without limitations. {\tt sct\_clock} should be used instead of normal {\tt sc\_clock}.
+
+Cycle accurate threads created with {\tt SC\_CTHREAD} macro are activated by clock event. Such processes can use SingleSource channels to communicate to each other and SingleSource threads created with {\tt SCT\_THREAD} macro. Cycle accurate processes should be sensitive to all the SingleSource channels used inside.
+
+\begin{lstlisting}[style=mycpp]
+template<class T>
+class MyModule : sc_module {
+    sct_target<T>       in{"in"};
+    sct_signal<T>       s{"s"};
+    sct_fifo<T, 2>      fifo{"fifo"};
+
+    MyModule(const sc_module_name& name) : sc_module(name) {
+        SC_CTHREAD(threadProc, clk);
+        sensitive << in << fifo.PUT << s;    // sensitivity to all used channels
+        async_reset_signal_is(nrst, 0);
+    }
+    void threadProc() {
+        in.reset_get();
+        fifo.reset_put();
+        wait();
+        while (true) {
+            if (in.request()) {
+                fifo.put(s.read()); 
+                in.get();
+            }
+            wait();
+        }
+    }
+}
+\end{lstlisting}
+
+Instead of {\tt SC\_CTHREAD} special {\tt SCT\_CTHREAD} macro could be used. {\tt SCT\_CTHREAD} supports clock edge with third parameter:
+
+\begin{lstlisting}[style=mycpp]
+SCT_CTHREAD(proc, clk, clk_edge);   // clk_edge 0 -- negedge, 1 -- posedge, 2 -- both edges
+SCT_CTHREAD(proc, clk);             // clk_edge is SCT_CMN_TRAITS::CLOCK
+\end{lstlisting}
+
+\subsection{Record as data type in SingleSource channels}
+
+Record is supported as data type in all SingleSource channels. The record should comply SystemC requirements for records used in signal/port: the record should have default constructor w/o parameters, {\tt operator==()}, {\tt operator<<(std::ostream)} and {\tt sc\_trace()} implemented.
+
+\begin{lstlisting}[style=mycpp]
+struct Rec_t {
+    bool enable;
+    sc_uint<16> addr;
+    // Default constructor
+    Rec_t() : enable(false), addr(0) {}
+    // Another constructor, optional
+    Rec_t(bool enable_, sc_uint<16> addr_) : enable(enable_), addr(addr_) {}    
+    bool operator == (const Rec_t& other) const {
+        return (enable == other.enable && addr == other.addr && indx == other.indx);
+    }
+};
+namespace std {
+inline ::std::ostream& operator << (::std::ostream& os, const Rec_t& r) {
+    os << r.enable << r.addr << r.indx; return os;}
+}
+namespace sc_core {
+void sc_trace(sc_trace_file* , const Rec_t& , const std::string&) {}
+}
+...
+sct_target<Rec_t>   run{"run"};
+void methProc() {
+   run.reset_get();
+   if (run.request()) {
+      Rec_t data = run.get();   // Get record fields from target
+   }
+}
+\end{lstlisting}
+
+See more examples at {\tt design/tests/records}
+
+\begin{lstlisting}[style=mycpp]
+\end{lstlisting}
