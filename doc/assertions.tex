@@ -1,0 +1,285 @@
+\section{Advanced verification features}\label{section:assertions}
+
+\subsection{Immediate assertions}
+
+There are several types of C++, SystemC, and ICSC assertions to use in design verification:
+
+\begin{itemize}
+\item assert(expr) -- general C++ assertion, in case of violation leads to abort SystemC simulation, ignored by ICSC;
+\item sc\_assert(expr) -– SystemC assertion, leads to report fatal error (SC\_REPORT\_FATAL), ignored by ICSC;
+\item sct\_assert(expr [, msg = ""]) -– ICSC assertion, in simulation has the same behavior as assert, SVA generates System Verilog assertion (SVA) for it. Second parameter const char* msg is optional, contains message to print in simulation and used in SVA error message;
+\end{itemize}
+
+Immediate assertions are declared in {\tt sct\_assert.h} ({\tt include/sct\_common/sct\_assert.h}). This assertion can be used for SystemC simulation ans well as for generated Verilog simulation. In generated Verilog there is equivalent SVA assert with error message if specified. Error message should be string literal ({\tt const char*}).
+
+\begin{lstlisting}[style=mycpp]
+// SystemC source
+#include "sct_assert.h"
+void sct_assert_method()  {
+   sct_assert(cntr == 1);
+   sct_assert(!enable, "User error message");
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// Generated SystemVerilog
+assert (cntr == 1) else $error("Assertion failed at test_sva_assert.cpp:55:9");
+assert (!enable) else $error("User error message at test_sva_assert.cpp:56:9");
+\end{lstlisting}
+
+SVA for {\tt sct\_assert} generated in {\tt always\_comb} block that requires to consider exact delta cycle when used in the assertion signals/ports changed their values. That makes using {\tt sct\_assert} more complicated than temporal assertion {\tt SCT\_ASSERT} which described below. So, it is strongly recommended to use {\tt SCT\_ASSERT(expr, clk.pos())} instead of {\tt sct\_assert(expr)}.
+
+\subsection{Temporal assertions}
+
+Temporal assertions in SystemC intended to be used for advanced verification of design properties with specified delays. These assertions looks similar to System Verilog assertions (SVA). The assertions can be added in SystemC design in module scope and clocked thread process:
+
+\begin{lstlisting}[style=mycpp]
+SCT_ASSERT(EXPR, EVENT);                      // In module scope 
+SCT_ASSERT(LHS, TIME, RHS, EVENT);            // In module scope 
+SCT_ASSERT_STABLE(LHS, TIME, RHS, EVENT);     // In module scope 
+SCT_ASSERT_ROSE(LHS, TIME, RHS, EVENT);       // In module scope 
+SCT_ASSERT_FELL(LHS, TIME, RHS, EVENT);       // In module scope 
+SCT_ASSERT_THREAD(EXPR, EVENT);               // In clocked thread 
+SCT_ASSERT_THREAD(LHS, TIME, RHS, EVENT);     // In clocked thread 
+SCT_ASSERT_LOOP(LHS, TIME, RHS, EVENT, ITER); // In for-loop in clocked thread
+\end{lstlisting}
+%
+These ways are complementary. Assertions in module scope avoids polluting process code. Assertions in clock thread allows to use member and local variables. Assertions in loop can access channel and port arrays.
+
+Temporal assertions in module scope and clocked thread have the same parameters:
+\begin{itemize}
+\item EXPR -- assertion expression, checked to be true,
+\item LHS -- antecedent assertion expression which is pre-condition, 
+\item TIME -- temporal condition is specific number of cycles or cycle interval,
+\item RHS -- consequent assertion expression, checked to be true if antecedent expression was true in past,
+\item EVENT -- cycle event which is clock positive, negative or both edges.
+\item ITER -- loop iteration counter variable(s) in arbitrary order.
+\end{itemize}
+
+If {\tt clk} is clock input, then EVENT specified with {\tt clk.pos()}, {\tt clk.neg()} or {\tt clk} correspondingly. 
+
+Assertion expression can be arithmetical or logical expression, with zero, one or several operands. Assertion expression cannot contain function call and ternary operator {\tt ?}.
+
+Temporal condition specified with:
+\begin{lstlisting}[style=mycpp]
+SCT_TIME(TIME)             // time delay, TIME is number of cycles
+SCT_TIME(LO_TIME, HI_TIME) // time interval in number of cycles
+\end{lstlisting}
+
+Temporal condition specifies time delay when RHS checked after LHS is true. Temporal condition is number of cycles or cycle interval, where cycle is clock period. Specific number of cycles is integer non-negative number. Cycle interval has low time and high time, each of them is integer non-negative number. Low time and high time can be the same. There is reduced form of time condition with brackets only.
+
+Temporal assertions are declared in {\tt sct\_assert.h} ({\tt include/sct\_common/sct\_assert.h}), it needs to be included. 
+
+To disable temporal assertions macro {\tt SCT\_ASSERT\_OFF} should be defined. That can be required to use another HLS tools which does not support these assertions.
+To avoid SVA assertion generating {\tt NO\_SVA\_GENERATE} option of {\tt svc\_target} should be used. 
+
+\subsubsection{Temporal assertions in module scope}
+
+Temporal assertions in module scope added with 
+
+\begin{lstlisting}[style=mycpp]
+SCT_ASSERT(EXPR, EVENT);
+SCT_ASSERT (LHS, TIME, RHS, EVENT);
+SCT_ASSERT_STABLE(LHS, TIME, RHS, EVENT);      
+SCT_ASSERT_ROSE(LHS, TIME, RHS, EVENT);        
+SCT_ASSERT_FELL(LHS, TIME, RHS, EVENT); 
+\end{lstlisting}
+%
+Time delay for these assertion means immediate or one cycle delayed checking of stable/rose/fell of the consequent expression. Time interval for {\tt SCT\_ASSERT\_STABLE} specify how long the consequent expression should be stable.
+
+{\tt SCT\_ASSERT\_STABLE}, {\tt SCT\_ASSERT\_ROSE} and {\tt SCT\_ASSERT\_FELL} have some limitation on time parameter:
+\begin{itemize}
+\item {\tt SCT\_ASSERT\_STABLE} can have time delay 0 and 1 and time interval (0,1),
+\item {\tt SCT\_ASSERT\_ROSE} and {\tt SCT\_ASSERT\_FELL} can have time delay 0 and 1 only.
+\end{itemize}
+
+
+Assertion expression can operate with signals, ports, template parameters, constants and literals. Member data variables (not signals/ports) access in assertion leads to data race and therefore not supported. 
+
+There are several examples:
+\begin{lstlisting}[style=mycpp]
+static const unsigned N = 3;
+sc_in<bool> req;
+sc_out<bool> resp;
+sc_signal<sc_uint<8>> val;
+sc_signal<sc_uint<8>>* pval;
+int m;
+sc_uint<16> arr[N];
+...
+77: SCT_ASSERT(req || val == 0, clk.pos());             // OK
+78: SCT_ASSERT(req, SCT_TIME(1), resp, clk.pos());      // OK
+79: SCT_ASSERT(req, SCT_TIME(N+1), resp, clk.neg());    // OK, constant time
+80: SCT_ASSERT(req, (2), val.read(), clk);              // OK, brackets only form
+81: SCT_ASSERT(val, SCT_TIME(2,3), *pval, clk.pos());   // OK, time interval
+82: SCT_ASSERT(arr[0], (N,2*N), arr[N-1], clk.pos());   // OK, brackets only form
+83: SCT_ASSERT(val == N, SCT_TIME(1), resp, clk.pos()); // OK, constant used
+84: SCT_ASSERT(m == 0, (1), resp, clk.pos());           // Error, member variable used
+85: SCT_ASSERT(resp, (0,2), arr[m+1], clk.pos());       // Error, non-constant index
+86: SCT_ASSERT_STABLE(req, (0), resp, clk.pos());       // OK
+87: SCT_ASSERT_STABLE(req, (2), resp, clk.pos());       // Error, delay can be 0 or 1
+88: SCT_ASSERT_STABLE(req, (1,3), resp, clk.pos());     // OK
+89: SCT_ASSERT_ROSE(req, (0), resp, clk.pos());         // OK  
+90: SCT_ASSERT_FELL(req, (1), resp, clk.pos());         // OK  
+91: SCT_ASSERT_ROSE(req, (0,1), resp, clk.pos());       // Error, time interval for rose
+\end{lstlisting}
+%
+Generated SVA:
+\begin{lstlisting}[style=myverilog]
+`ifndef INTEL_SVA_OFF
+sctAssertLine77 : assert property (
+    @(posedge clk) true |-> req || val == 0 );
+sctAssertLine78 : assert property (
+    @(posedge clk) req |=> resp );
+sctAssertLine79 : assert property (
+    @(negedge clk) req |-> ##4 resp );
+sctAssertLine80 : assert property (
+    @(negedge clk) req |-> ##2 val );
+...
+sctAssertLine86 : assert property (
+    @(posedge clk) req |-> $stable(resp) );
+sctAssertLine88 : assert property (
+    @(posedge clk) req |=> $stable(resp)[*3] );
+sctAssertLine89 : assert property (
+    @(posedge clk) req |-> $rose(resp) );
+sctAssertLine90 : assert property (
+    @(posedge clk) req |=> $fell(resp) );
+`endif // INTEL_SVA_OFF
+\end{lstlisting}
+
+Assertion expression can operate with SingleSource library channels. Target method {\tt request()}, initiator method {\tt ready()} and FIFO methods {\tt request()}, {\tt ready()}, {\tt size()}, {\tt elem\_num()} could be used. 
+Assertion expression can contain call of functions which have no parameters, have integral return type and consists of only return statement.
+
+
+\subsubsection{Temporal assertions in clocked thread process}
+
+Temporal assertions in clocked thread added with 
+\begin{lstlisting}[style=mycpp]
+SCT_ASSERT_THREAD(EXPR, EVENT);                
+SCT_ASSERT_THREAD(LHS, TIME, RHS, EVENT);      
+\end{lstlisting}
+%
+These assertions can operate with local data variables and local/member constants. Non-constant member data variables (not signals/ports) access in assertion can lead to data races. Because of that only member data which has stable value after elaboration phase could be used in assertions. Thread process assertions have no advantages over module scope assertions, so modules scope assertions are recommended to use.
+
+These assertions can operate with SingleSource library channels and can contain calls of simple functions like assertions in module scope.
+
+Assertion in thread process can be placed in reset section (before first {\tt wait()}) or after reset section before main infinite loop. Assertions in main loop not supported. Assertions can be placed in {\tt if} branch scopes, but this {\tt if} must have statically evaluated condition. Variable condition of assertion should be considered in its antecedent (left) expression. 
+
+\begin{lstlisting}[style=mycpp]
+void thread_proc() {
+   // Reset section
+   ...
+   SCT_ASSERT_THREAD(req, SCT_TIME(1), ready, clk.pos());  // Assertion in reset section
+   wait();                        
+   SCT_ASSERT_THREAD(req, SCT_TIME(2,3), resp, clk.pos()); // Assertion after reset
+
+   // Main loop 
+   while (true) { 
+      ...                                   // No assertion in main loop 
+      wait();
+}}
+\end{lstlisting}
+
+Assertion in reset section generated in the end of {\tt always\_ff} block, that makes it active under reset. Assertion after reset section generated in else branch of the reset if, that makes it inactive under reset.
+
+\begin{lstlisting}[style=myverilog]
+// Generated Verilog code
+always_ff @(posedge clk or negedge nrst) begin
+   if (~nrst) begin
+      ...
+   end else 
+   begin 
+      ... 
+      assert property (req |-> ##[2:3] resp);  // Assertion after reset section 
+   end 
+   assert property (req |=> ready);   // Assertion from reset  
+end
+\end{lstlisting}
+
+There an example with several assertions:
+
+\begin{lstlisting}[style=mycpp]
+static const unsigned N = 3;
+sc_in<bool> req;
+sc_out<bool> resp;
+sc_signal<bool> resp;
+sc_uint<8> m;
+...
+void thread_proc() {
+   int i = 0;
+   SCT_ASSERT_THREAD(req, SCT_TIME(0), ready, clk.pos());     // OK
+   SCT_ASSERT_THREAD(req, SCT_TIME(N+1), ready, clk.pos());   // OK 
+   SCT_ASSERT_THREAD(req, (2,3), i == 0, clk.pos());          // OK, local variable used
+   wait();
+   if (N > 1) {
+       SCT_ASSERT_THREAD(req, SCT_TIME(1), resp, clk.pos());  // OK, statically evaluated
+   }
+   SCT_ASSERT_THREAD(m > 1, (2), ready, clk.pos())            // OK, member variable used
+   while (true) {   
+      ...
+      SCT_ASSERT_THREAD(req, SCT_TIME(0), ready, clk.pos());  // Error
+      wait();
+}}
+\end{lstlisting}
+
+\subsubsection{Temporal assertions in loop inside of clocked thread}
+
+Temporal assertions in loop inside of clocked thread added with 
+\begin{lstlisting}[style=mycpp]
+SCT_ASSERT_LOOP (LHS, TIME, RHS, EVENT, ITER);
+\end{lstlisting}
+%
+ITER parameter is loop variable name or multiple names separated by comma.
+
+Loop with assertions can be in reset section or after reset section before main infinite loop. The loop should be {\tt for}-loop with statically determined number of iteration and one counter variable. Such loop cannot have {\tt wait()} in its body. 
+
+\begin{lstlisting}[style=mycpp]
+void thread_proc() {
+   // Reset section
+   ...
+   for (int i = 0; i < N; ++i) {
+      SCT_ASSERT_LOOP(req[i], SCT_TIME(1), ready[i], clk.pos(), i);
+      for (int j = 0; j < M; ++j) {
+         SCT_ASSERT_LOOP(req[i][j], SCT_TIME(2), resp[i][N-j+1], clk.pos(), i, j);
+   }}
+   wait();                        
+   while (true) { 
+      ...                        // No assertion in main loop 
+      wait();
+}}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+// Generated Verilog code
+always_ff @(posedge clk or negedge nrst) begin
+   if (~nrst) begin
+      ...
+   end else 
+   begin 
+      ... 
+   end 
+   for (integer i = 0; i < N; i++) begin
+       assert property ( req[i] |=> ready[i] );  
+   end 
+   for (integer i = 0; i < N; i++) begin
+       for (integer j = 0; j < M; j++) begin
+           assert property ( req[i][j] |-> ##2 resp[i][M-j+1] );  
+       end
+   end 
+end
+\end{lstlisting}
+
+\subsection{Special assertions}\label{section:assert_special}
+
+There are special assertions mostly intended for tool developers.
+\begin{itemize}
+\item sct\_assert\_latch(var [, latch = true]) -- assert that given variable, signal or port is latch if second parameter is true (by default), or not latch otherwise. Latch object is defined only at some paths of method process.
+\item sct\_assert\_const(expr) -- check given expression is true in constant propagation analysis
+\item sct\_assert\_level(level) -- check current block level with given one
+\item sct\_assert\_unknown(value) -- check give value is unknown, i.e. not statically evaluated
+\item sct\_assert\_defined(expr) -- check given expression  is defined 
+\item sct\_assert\_read(expr) -- check given expression is read 
+\item sct\_assert\_register(expr) -- check given expression is read before defined 
+\item sct\_assert\_array\_defined(expr) -- check given expression is array and some element is defined at least on some paths
+\end{itemize}
+
+

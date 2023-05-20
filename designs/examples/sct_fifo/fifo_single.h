@@ -39,9 +39,9 @@ struct A : public sc_module
     {
         fifo.clk_nrst(clk, nrst);
 
-        SCT_CTHREAD(threadProc, clk, SCT_DEFAULT_TRAITS::CLOCK);
+        SCT_CTHREAD(threadProc, clk, SCT_CMN_TRAITS::CLOCK);
         sensitive << fifo;
-        async_reset_signal_is(nrst, SCT_DEFAULT_TRAITS::RESET);
+        async_reset_signal_is(nrst, SCT_CMN_TRAITS::RESET);
     }
     
     void threadProc() {
@@ -103,8 +103,8 @@ public:
         a.resp_req(resp_req);
         a.resp_data(resp_data);
         
-        SCT_CTHREAD(init_thread, clk, SCT_DEFAULT_TRAITS::CLOCK);
-        async_reset_signal_is(nrst, SCT_DEFAULT_TRAITS::RESET);
+        SCT_CTHREAD(init_thread, clk, SCT_CMN_TRAITS::CLOCK);
+        async_reset_signal_is(nrst, SCT_CMN_TRAITS::RESET);
     }
     
     const unsigned N = 4;

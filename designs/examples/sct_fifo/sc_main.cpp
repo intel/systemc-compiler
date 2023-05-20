@@ -11,6 +11,9 @@
 #ifdef SINGLE
   #include "fifo_single.h"
 #endif
+#ifdef TARGET_FIFO
+  #include "target_fifo.h"
+#endif
 #include <systemc.h>
 
 class Test_top : public sc_module

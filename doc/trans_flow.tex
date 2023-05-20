@@ -768,7 +768,8 @@ begin : record_local_var1     // test_simple_method.cpp:110:5
 end
 \end{lstlisting}
 
-Record variable can be assigned to another variable, references to records are supported. \begin{lstlisting}[style=mycpp]
+Record variable can be assigned to another variable, references to records are supported. 
+\begin{lstlisting}[style=mycpp]
 // Local variables record type
 struct Rec1 {
     int x;
@@ -796,7 +797,8 @@ begin : record_assignment     // test_chan_type_meth.cpp:89:5
 end
 \end{lstlisting}
 
-Records can be used as signal/port type. Such record should have {\tt operator==()}, {\tt operator<<(std::ostream) and {\tt sc\_trace()} implemented.
+Records can be used as signal/port type. Such record should have {\tt operator==()}, 
+{\tt operator<<(std::ostream)} and {\tt sc\_trace()} implemented.
 \begin{lstlisting}[style=mycpp]
 // Local variables record type
 struct Rec1 {

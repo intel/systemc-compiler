@@ -1,6 +1,7 @@
 %\documentclass[a4paper, screen, nonacm, timestamp]{acmart}
-\documentclass[acmlarge, 12pt, a4paper, screen, nonacm, timestamp]{acmart}
+\documentclass[acmlarge, 11pt, a4paper, screen, nonacm, timestamp]{acmart}
 %\documentclass[10pt,a4paper]{article}
+
 
 \usepackage{booktabs} % For formal tables
 
@@ -14,6 +15,7 @@
 \usepackage{todonotes}
 \usepackage{soul}
 \usepackage{longtable}
+\usepackage{makecell}
 
 \lstdefinestyle{mycpp}{
 	frame=tb,
@@ -31,6 +33,19 @@
 \lstdefinestyle{myverilog}{
 	frame=tb,
 	language=Verilog,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	breaklines=true,
+	breakatwhitespace=true
+}
+
+\lstdefinestyle{mycmake}{
+	frame=tb,
+	language=make,
 	aboveskip=3mm,
 	belowskip=3mm,
 	showstringspaces=false,

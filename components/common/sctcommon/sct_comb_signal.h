@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2020-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
  *
@@ -77,7 +77,6 @@ class sct_comb_signal : public sc_signal<T>
     }
 };
 
-/// CLEAR -- clear signal value in clocked thread process before each cycle
 /// Ignored in method process
 template <typename T>
 class sct_clear_signal : public sc_signal<T>

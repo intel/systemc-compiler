@@ -1,3 +1,10 @@
+/******************************************************************************
+ * Copyright (c) 2023, Intel Corporation. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
+ *
+ *****************************************************************************/
+
 #include "sct_assert.h"
 #include "sct_sel_type.h"
 #include "systemc.h"
@@ -34,6 +41,7 @@ public:
     
     A(sc_module_name, unsigned m)
     {
+        cout << "sct_assert " << endl;
 #ifdef __SC_TOOL__
         cout << "__SC_TOOL__ defined" << endl;
 #endif
@@ -274,12 +282,12 @@ public:
         a_mod.a(a);
         a_mod.b(b);
         a_mod.clk(clk);
-        SC_CTHREAD(testProc, clk);
+        SC_CTHREAD(resetProc, clk);
         a_mod.rstn(rstn);
 
     }
 
-    void testProc() {
+    void resetProc() {
     	rstn = 0;
         a = 0;
         wait(2);

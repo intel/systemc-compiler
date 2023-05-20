@@ -1,1 +1,3 @@
 add_subdirectory(sct_assert)
+add_subdirectory(sct_fifo_shared)
+add_subdirectory(sct_simple)

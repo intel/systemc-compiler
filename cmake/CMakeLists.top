@@ -23,4 +23,5 @@ find_package(SVC REQUIRED)
 ## Add examples, tests and user designs
 add_subdirectory(designs/examples)
 add_subdirectory(designs/tests)
+add_subdirectory(designs/single_source)
 add_subdirectory(designs/template)

@@ -1,73 +1,64 @@
 /******************************************************************************
- * Copyright (c) 2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2021-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
  *
  *****************************************************************************/
 
 /* 
- * FIFO module.
+ * Single Source library. FIFO channel.
  * 
- * The FIFO does push operation when both @push/@ready_to_push asserted.
- * The FIFO does pop operation when both @pop/@out_valid asserted.
+ * The FIFO can be used for inter-process communication between processes 
+ * in the same module and for storing requests inside one process. 
+ * Also the FIFO could be used inside of Target as an extended buffer.
  * 
- * The FIFO allows to pop an element in the same clock it is pushed into 
- * empty FIFO, if ASYNC_VALID is true (@out_valid is asserted combinationally).
- * 
- * The FIFO allows to push an element into full FIFO if there is pop operation 
- * in the same clock, if ASYNC_READY is true (@ready_to_push is asserted 
- * combinationally).
- * 
- * Async @out_valid combinationally depends on @push.
- * Async @ready_to_push combinationally depends on @pop.
- * 
- * Author: Mikhail Moiseev
+ * Author: Mikhail Moiseev, Leonid Azarenkov
  */   
 
 #ifndef SCT_FIFO_H
 #define SCT_FIFO_H
 
+#include "sct_prim_fifo.h"
 #include "sct_static_log.h"
 #include "sct_ipc_if.h"
 #include <systemc.h>
 
 namespace sct {
     
-/// RTL implementation    
+/// Cycle accurate implementation    
 template <
-    typename T,             // FIFO data type
-    unsigned LENGTH,        // Number of FIFO slots
-    class TRAITS
+    typename T,             /// Data type
+    unsigned LENGTH,        /// Size (maximal number of elements)
+    class TRAITS            /// Clock edge and reset level traits
 >
 class sct_fifo<T, LENGTH, TRAITS, 0> : 
     public sc_module,
     public sct_fifo_if<T>
 {
    public:
-    // Assert @out_valid combinationally
+    /// Assert @out_valid combinationally if false
     const bool SYNC_VALID;  
-    // Assert @ready_to_push combinationally
+    /// Assert @ready_to_push combinationally if false
     const bool SYNC_READY;  
-    // Initialize FIFO slots in reset with zeros
+    /// Initialize FIFO slots in reset with zeros
     const bool INIT_BUFFER;  
        
-    // Number of bits in variables store length or index of FIFO
+    /// Number of bits in variables store index and length of FIFO
     static const unsigned INDX_WIDTH = sct_addrbits1<LENGTH>;
     using Indx_t = sc_uint<INDX_WIDTH>;
-    using ElementNum_t = sc_uint<INDX_WIDTH+1>;  
+    static const unsigned ELEM_NUM_WIDTH = sct_nbits<LENGTH>; 
+    using ElemNum_t = sc_uint<ELEM_NUM_WIDTH>;  
     
-    static const unsigned long long ALL_ENABLED = ~0ULL;
-
     sc_in_clk       clk{"clk"};
     sc_in<bool>     nrst{"nrst"};
 
     SC_HAS_PROCESS(sct_fifo);
 
-    /// \param sync_valid    -- request path has synchronous register 
-    /// \param sync_ready    -- response path has synchronous register  
-    /// \param use_elem_num  -- element number/almost full or empty used 
-    /// \param init_buffer   -- initialize all buffer elements with zeros in reset
-    ///                         first element to get is always initialized to zero      
+    /// \param sync_val     -- request path has synchronous register 
+    /// \param sync_ready   -- Response path has synchronous register  
+    /// \param use_elem_num -- Element number/Almost full or empty used 
+    /// \param init_buffer  -- Initialize all buffer elements with zeros in reset
+    ///                        First element to get is always initialized to zero id 
     explicit sct_fifo(const sc_module_name& name, 
                       bool sync_valid = 0, bool sync_ready = 0,
                       bool use_elem_num = 0,
@@ -116,7 +107,7 @@ public:
     
     void clear_get() override {
         if (cthread_get) {
-            get_req = get_req;
+            get_req = get_req.read();
         } else {
             get_req = 0;
         }
@@ -124,7 +115,7 @@ public:
     
     void clear_put() override {
         if (cthread_put) {
-            put_req = put_req;
+            put_req = put_req.read();
         } else {
             put_req = 0;
         }
@@ -135,6 +126,7 @@ public:
         return data_out.read();
     }
     
+    /// \return current request data, if no request last data returned
     T get() override {
         if (out_valid) {
             get_req = cthread_get ? !get_req : 1;
@@ -144,6 +136,7 @@ public:
         return data_out.read();
     }
     
+    /// \return true if request is valid and enable is true
     bool get(T& data, bool enable = true) override {
         data = data_out.read();
         if (out_valid) {
@@ -204,6 +197,7 @@ public:
         }
     }
     
+    /// Maximal number of elements
     unsigned size() const override {
         return LENGTH;
     }
@@ -213,7 +207,7 @@ public:
         return (sct_is_method_proc() ? element_num_d.read() : element_num.read());
     }
     
-    /// FIFO has (LENGTH-N) elements or more
+    /// FIFO has (size()-N) elements or more
     bool almost_full(const unsigned& N = 0) const override {
         assert (N <= LENGTH);
         
@@ -239,36 +233,35 @@ public:
     bool cthread_put = false;
     bool cthread_get = false;
     
-    // This FIFO attached to a processes
+    /// This FIFO attached to a processes
     bool attached_put = false;
     bool attached_get = false;
     
-    // FIFO buffer (one additional element that is not used to prevent
-    // read and write of the same cell in one clock tick)
+    /// FIFO buffer
     sc_vector<sc_signal<T>> buffer{"buffer", LENGTH};
 
-    // Push operation is performed without @enable checking for burst on core clock,
-    // @push may be asserted when @ready_to_push is high only
+    /// Push operation is performed without @enable checking for burst on core clock,
+    /// @push may be asserted when @ready_to_push is high only
     sc_signal<bool>         put_req{"put_req"};
     sc_signal<bool>         put_req_d{"put_req_d"};
-    // @pop may be asserted whenever, pop operation is done when @pop && @out_valid
+    /// @pop may be asserted whenever, pop operation is done when @pop && @out_valid
     sc_signal<bool>         get_req{"get_req"};
     sc_signal<bool>         get_req_d{"get_req_d"};
-    // Push/pop data 
+    /// Push/pop data 
     sc_signal<T>            data_in{"data_in"};
     sc_signal<T>            data_out{"data_out"};
-    // FIFO is ready to @push assert signal
+    /// FIFO is ready to @push assert signal
     sc_signal<bool>         ready_push{"ready_push"};
-    // Output data is valid signal
+    /// Output data is valid signal
     sc_signal<bool>         out_valid{"out_valid"};
-    // Index of element that will be poped
+    /// Index of element that will be poped
     sc_signal<Indx_t>       pop_indx{"pop_indx"};
-    // Index where pushed element will be stored
+    /// Index where pushed element will be stored
     sc_signal<Indx_t>       push_indx{"push_indx"};
     
-    // Number of elements
-    sc_signal<ElementNum_t> element_num{"element_num"};
-    sc_signal<ElementNum_t> element_num_d{"element_num_d"};
+    /// Number of elements
+    sc_signal<ElemNum_t>    element_num{"element_num"};
+    sc_signal<ElemNum_t>    element_num_d{"element_num_d"};
     sc_signal<bool>         not_empty_d{"not_empty_d"};
 
     void asyncProc()
@@ -385,6 +378,7 @@ public:
         }
         PUT.fifo = nullptr;
         GET.fifo = nullptr;
+        PEEK.fifo = nullptr;
     }
     
   public:
@@ -478,10 +472,11 @@ public:
         }
         attached_get = true;
     }
-    
+
     void addPeekTo(sc_sensitive& s) override {
         auto procKind = sc_get_current_process_handle().proc_kind();
-        if (procKind) {
+        bool cthread_peek = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        if (cthread_peek) {
             if (TRAITS::CLOCK == 2) s << clk; 
             else s << (TRAITS::CLOCK ? clk.pos() : clk.neg());
         } else {
@@ -491,6 +486,178 @@ public:
     
     sct_fifo_put<T, LENGTH, TRAITS, false> PUT{this};
     sct_fifo_get<T, LENGTH, TRAITS, false> GET{this};
+    sct_fifo_peek<T, LENGTH, TRAITS, false> PEEK{this};
+};
+
+//==============================================================================
+
+/// Approximate time implementation
+template <
+    typename T,             /// Data type
+    unsigned LENGTH,        /// Size (maximal number of elements)
+    class TRAITS            /// Clock edge and reset level traits
+>
+class sct_fifo<T, LENGTH, TRAITS, 1> : 
+    public sc_module,
+    public sct_fifo_if<T>
+{
+  public:
+    /// Assert @out_valid combinationally
+    const bool SYNC_VALID;  
+    /// Assert @ready_to_push combinationally
+    const bool SYNC_READY;  
+
+    sc_in<bool>     nrst{"nrst"};
+
+    SC_HAS_PROCESS(sct_fifo);
+
+    /// \param sync_val     -- request path has synchronous register 
+    /// \param sync_ready   -- Response path has synchronous register  
+    /// \param use_elem_num -- Element number/Almost full or empty used 
+    /// \param init_buffer  -- Initialize all buffer elements with zeros in reset
+    ///                        First element to get is always initialized to zero id 
+    explicit sct_fifo(const sc_module_name& name, 
+                      bool sync_valid = 0, bool sync_ready = 0,
+                      bool use_elem_num = 0,
+                      bool init_buffer = 0) :
+        sc_module(name),
+        SYNC_VALID(sync_valid), SYNC_READY(sync_ready),
+        fifo("fifo", LENGTH > 1 ? LENGTH : 2, sync_valid, sync_ready, use_elem_num)
+    {
+        //cout << "TLM FIFO " << name << " LENGTH " << LENGTH << endl;
+        static_assert (LENGTH > 0);
+
+        SC_METHOD(resetProc);
+        sensitive << nrst;
+    }
+    
+  protected:
+    // Minimum 2 slots required to have put&get at the same DC
+    sct_prim_fifo<T>   fifo;
+    
+    // Clear FIFO buffer
+    void resetProc() {
+        // Reset is active
+        bool reset = TRAITS::RESET ? nrst : !nrst;
+        fifo.reset_core(reset);
+    }
+    
+  public:
+    void reset() {
+        reset_get();
+        reset_put();
+    }
+
+    bool ready() const override {
+        return fifo.ready();
+    }
+
+    void reset_put() override {
+        fifo.reset_put();
+    }
+    
+    void clear_put() override {
+        fifo.clear_put();
+    }
+    
+    bool put(const T& data) override {
+        return fifo.put(data);
+    }
+    bool put(const T& data, sc_uint<1> mask) override {
+        return fifo.put(data, mask);
+    }
+    
+    void b_put(const T& data) override {
+        while (!fifo.ready()) wait();
+        fifo.put(data, true);
+    }
+
+    bool request() const override {
+        return fifo.request();
+    }
+
+    void reset_get() override {
+        fifo.reset_get();
+    }
+
+    void clear_get() override {
+        fifo.clear_get();
+    }
+    
+    T peek() const override {
+        return fifo.peek();
+    }
+
+    T get() override {
+        return fifo.get();
+    }
+    
+    bool get(T& data, bool enable = true) override {
+        return fifo.get(data, enable);
+    }
+    
+    T b_get() override {
+        while (!fifo.request()) wait();
+        return fifo.get();
+    }
+      
+    unsigned size() const override {
+        return fifo.size();
+    }
+
+    unsigned elem_num() const override {
+        return fifo.elem_num();
+    }
+    bool almost_full(const unsigned& N = 0) const override {
+        return fifo.almost_full(N);
+    }
+    bool almost_empty(const unsigned& N = 0) const override {
+        return fifo.almost_empty(N);
+    }
+    
+  public:
+    template <typename RSTN_t>
+    void clk_nrst(sc_in_clk& clk_in, RSTN_t& nrst_in) {
+        fifo.clk_nrst(clk_in, nrst_in);
+        nrst(nrst_in);
+    }
+    
+    void clk_nrst(sc_in_clk& clk_in, sc_in<bool>& nrst_in) override {
+        fifo.clk_nrst(clk_in, nrst_in);
+        nrst(nrst_in);
+    }
+    
+    /// Add this target to sensitivity list
+    void addTo(sc_sensitive& s) override {
+        fifo.addTo(s);
+    }
+    void addTo(sc_sensitive* s, sc_process_handle* p) override {
+        assert (false);
+    }
+    
+    void addToPut(sc_sensitive& s) override {
+        fifo.addToPut(s);
+    }
+    
+    void addToPut(sc_sensitive* s, sc_process_handle* p) override {
+        fifo.addToPut(s, p);
+    }
+
+    void addToGet(sc_sensitive& s) override {
+        fifo.addToGet(s);
+    }
+    
+    void addToGet(sc_sensitive* s, sc_process_handle* p) override {    
+        fifo.addToGet(s, p);
+    }
+    
+    void addPeekTo(sc_sensitive& s) override {
+        fifo.addPeekTo(s);
+    }
+
+    sct_fifo_put<T, LENGTH, TRAITS, true> PUT{this};
+    sct_fifo_get<T, LENGTH, TRAITS, true> GET{this};
+    sct_fifo_peek<T, LENGTH, TRAITS, true> PEEK{this};
 };
 
 } // namespace sct
@@ -523,6 +690,15 @@ operator << ( sc_sensitive& s,
               sct::sct_fifo_get<T, LENGTH, TRAITS, TLM_MODE>& get )
 {
     get.fifo->addToGet(s);
+    return s;
+}
+
+template<class T, unsigned LENGTH, class TRAITS, bool TLM_MODE>
+sc_sensitive& 
+operator << ( sc_sensitive& s, 
+              sct::sct_fifo_peek<T, LENGTH, TRAITS, TLM_MODE>& get )
+{
+    get.fifo->addPeekTo(s);
     return s;
 }
 

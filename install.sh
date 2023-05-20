@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 #********************************************************************************
-# Copyright (c) 2020, Intel Corporation. All rights reserved.                   #
+# Copyright (c) 2020-2023, Intel Corporation. All rights reserved.              #
 #                                                                               #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.                      #
 #                                                                               #
@@ -93,6 +93,7 @@ echo "*** ISCC Build and Installation Complete! ***"
 echo "*** Building Examples ***"
 cd $ICSC_HOME
 (
+    ln -s $ICSC_HOME/icsc/components/common $ICSC_HOME/designs/single_source/common
     source setenv.sh
     mkdir build -p && cd build
     cmake ../                          # prepare Makefiles

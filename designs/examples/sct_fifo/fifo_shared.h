@@ -145,8 +145,8 @@ public:
         a.resp_req(resp_req);
         a.resp_data(resp_data);
         
-        SCT_CTHREAD(init_thread, clk, SCT_DEFAULT_TRAITS::CLOCK);
-        async_reset_signal_is(nrst, SCT_DEFAULT_TRAITS::RESET);
+        SCT_CTHREAD(init_thread, clk, SCT_CMN_TRAITS::CLOCK);
+        async_reset_signal_is(nrst, SCT_CMN_TRAITS::RESET);
     }
     
     const unsigned N = 1;
