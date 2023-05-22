@@ -177,7 +177,7 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 
     if (auto recordDecl = topType->getAsCXXRecordDecl()) {
 
-        llvm::outs() << "Top-level module is " << recordDecl->getName() << "\n";
+        std::cout << "Top module is " << recordDecl->getName().str() << std::endl;
 
         try { 
             // Run Dynamic elaborator, it will fill Protobuf SCDesign
@@ -189,6 +189,7 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
             // elabDB stores designDB, elabTypeManager, astCtx and generated Verilog modules
             ElabDatabase elabDB(designDB, elabTypeManager, astCtx);
             DEBUG_WITH_TYPE(DebugOptions::doElab, elabDB.dump(););
+            std::cout << "Elaboration database created\n" << std::endl;
 
             // To get Clang AST FieldDecl for Object it needs to create 
             // ObjectView for Object and elabDB and call getFieldDecl():
