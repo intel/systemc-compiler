@@ -173,3 +173,5 @@ svc_target(record_chan_type_misc GOLDEN record_chan_type_misc.sv)
 add_executable(record_use_def test_use_def.cpp)
 svc_target(record_use_def GOLDEN record_use_def.sv)
 
+add_executable(record_use_def_arr test_use_def_arr.cpp)
+svc_target(record_use_def_arr GOLDEN record_use_def_arr.sv)

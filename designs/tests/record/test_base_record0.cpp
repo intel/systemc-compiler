@@ -66,11 +66,13 @@ public:
         }
     };
     
+    sc_signal<int> t0;
     void call_record1() 
     {
         Simple<8> s(sig.read());
         s.bits = 43;
         auto k = (sc_uint<1>)s.bits[3];
+        t0 = k;
     }
     
     struct Simple_ {
@@ -89,6 +91,7 @@ public:
         }
     };    
     
+    sc_signal<int> t1;
     void call_record2() 
     {
         Simple_ r(12);
@@ -99,6 +102,7 @@ public:
             
             auto k = t.bits;
             k = r.bits * 2;
+            t1 = k;
             
             wait();
         }

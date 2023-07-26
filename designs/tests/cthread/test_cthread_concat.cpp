@@ -173,6 +173,7 @@ public:
         }
     }
         
+    sc_signal<int> t0;
     void concat_lhs_rhs3()
     {
         sc_uint<3> x;
@@ -182,6 +183,7 @@ public:
             sc_uint<3> y;
             sc_uint<6> z;
             z = (x, sc_uint<3>(0));     // register for @x
+            t0 = z;
             wait();
             (x, y) = (x, y);            // register for @y
         }

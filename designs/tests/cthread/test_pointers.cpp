@@ -98,6 +98,7 @@ struct A : public sc_module
         int j = *p0;
     }
 
+    sc_signal<int> t0;
     void var_ptr1() {
         *p0 = 0;        // v0 is reg
         *p1 = 1;        // v1 is comb
@@ -107,10 +108,12 @@ struct A : public sc_module
             *p1 = s.read();
             int j = *p0 + *p1;
             *p0 = *p1;
+            t0 = j;
             wait();
         }
     }
 
+    sc_signal<int> t1;
     void var_ptr2() {
         *q0 = 0;        // q0 is reg
         *q1 = 1;        // q1 is comb
@@ -120,12 +123,14 @@ struct A : public sc_module
             *q1 = s.read();
             int j = *q0 + *q1;
             *q0 = *q1;
+            t1 = j;
             wait();
         }
     }
     
 // ----------------------------------------------------------------------------    
     
+    sc_signal<int> t2;
     void sig_ptr1() {
         *ps0 = 0;        // s0 is reg
                          // s1 is comb (read-only)
@@ -134,6 +139,7 @@ struct A : public sc_module
         while (true) {
             int j = ps0->read() + (*ps1).read();
             *ps0 = *ps1;
+            t2 = j;
             wait();
         }
     }

@@ -120,10 +120,12 @@ struct Top : public sc_module
     sc_uint<4>      marr[3][3];     // comb
     
     // Array and multi-dimensional array registers
+    sc_signal<int> t0;
     void intArrThread() 
     {
         initIntArr(arr, marr);
         sc_uint<4> x = marr[1][1];
+        t0 = x;
         wait();
         
         while(true) {
@@ -132,6 +134,7 @@ struct Top : public sc_module
             wait();
             
             intMultArrFunc(arr, marr, 1);
+            t0 = arr[0];
         }
     }
     
@@ -167,6 +170,7 @@ struct Top : public sc_module
     sc_uint<4>*     marrp[3];       // register
     
     // Pointer and pointer array registers
+    sc_signal<int> t1;
     void intPtrArrThread() 
     {
         wait();
@@ -177,6 +181,7 @@ struct Top : public sc_module
             wait();
             
             int l = *pi + *marrp[1];
+            t1 = l;
         }
     }
 
@@ -185,12 +190,14 @@ struct Top : public sc_module
 // Threads with signal/port array
 
     // Channel reference and channel pointer
+    sc_signal<int> t2;
     template<class SIG1_t, class SIG2_t>
     void sigRefPtrFunc (SIG1_t& sig1, SIG2_t* sig2) {
         sig1 = 0;
         auto a1 = sig1.read();
         *sig2 = 0;
         auto a2 = sig2->read();
+        t2 = a1 + a2;
     }
     
     sc_signal<sc_uint<4>>   ss;
@@ -251,6 +258,7 @@ struct Top : public sc_module
 //----------------------------------------------------------------------------
     
     // Local reference to signal, no local pointer to signal allowed
+    sc_signal<int> t3;
     void sigLocRefThread() 
     {
         wait(); 
@@ -260,6 +268,7 @@ struct Top : public sc_module
             sc_signal<sc_uint<4>>& rs = ss;
             rs = 0;
             sc_uint<4> l = rs.read();
+            t3 = l;
             
             wait();
         }

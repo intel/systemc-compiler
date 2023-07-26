@@ -28,10 +28,12 @@ struct mod_if : public sc_module, sc_interface
         SC_METHOD (var_rec); sensitive << s;
     }
     
+    sc_signal<int> t0;
     void var_rec() {
         r.a = s.read()+1;
         r.b = r.a * CR.a;
         int l = s.read() ? r.c : r.a.to_int();
+        t0 = l;
     }
 };
 
@@ -70,25 +72,32 @@ SC_MODULE(Top) {
         SC_METHOD (mif_rec); sensitive << t;
     }
     
+    sc_signal<int> t1;
     void const_ptr() {
         int l;
         i = 41;
         l = *pi;
         l = *pc;
         l = *pd;
+        t1 = l;
     }
 
+    sc_signal<int> t2;
     void const_ptr_arr() {
         unsigned j = t.read();
         unsigned lu;
         lu = ca[j];
+        t2 = lu;
     }
     
+    sc_signal<int> t3;
     void const_rec() {
         int k = R.b ? R.c : t.read();
         k = R.a.to_int();
+        t3 = k;
     }
 
+    sc_signal<int> t4;
     void mif_rec() {
         int k;
         unsigned ii = t.read();
@@ -98,6 +107,7 @@ SC_MODULE(Top) {
         
         k = mif[0]->CR.c;
         k = mif[ii]->CR.a.to_int();
+        t4 = k;
     }
 };
 

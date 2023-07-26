@@ -194,7 +194,7 @@ protected:
     
     /// FOR-loop internal counter variables, used to prevent its transformation to 
     /// register, which is forced for @SCT_ASSERT expression arguments
-    std::unordered_set<SValue> loopCntrVars;
+    std::unordered_set<SValue>   loopCntrVars;
     
     /// Parsing SVA argument mode, consider all read variables as not defined
     /// to make them registers, required as SVA generated in @always_ff
@@ -356,7 +356,7 @@ public:
     /// Do @lval dereference if required to get referenced variable
     /// \param keepConstRef -- do not de-reference constant reference if 
     ///                        it refers to constant, required for UseDef
-    void getDerefVariable(const SValue &lval, SValue &llval, 
+    void getDerefVariable(SValue lval, SValue &llval, 
                           bool keepConstRef = false) const;
 
     /// Get derived class for given base class
@@ -425,7 +425,8 @@ public:
     std::pair<bool, bool> isArrElemUnkwn(const SValue& val) const;
     
     /// Add declared but not initialized variable, not included SC types
-    void declareValue(const SValue &lval);
+    /// \return zero array variable for given variable @lval
+    SValue declareValue(const SValue &lval);
 
     /// Add value to @defined for non-zero array elements, 
     /// for zero element @writeToValue with isDefined = true should be used
@@ -433,11 +434,11 @@ public:
     
     /// Add value to @defined
     /// \param isDefined -- all values for fields or array elements are defined 
-    /// \return variable for given value @lval
+    /// \return zero array variable for given value @lval
     SValue writeToValue(SValue lval, bool isDefined = false);
 
     /// Add value to read not defined if it was not defined yet
-    /// \return variable for given value @lval
+    /// \return zero array variable for given value @lval
     SValue readFromValue(SValue lval);
     
     /// Filter UseDef to remove non-used values eliminated in unused 
@@ -588,18 +589,23 @@ public:
     /// Cross module/MIF border number for looking record array first element
     static const unsigned MIF_CROSS_NUM = 4;
     
-public:    
-    /// Is field in any record
-    static SValue isRecField(const SValue& val);
-
-    /// Is field in local record
-    static SValue isLocalRecField(const SValue& val);
+    /// Get zero array element for unknown record/MIF array element which is given 
+    /// with its field @val, if @val is reference
+    /// Required for Rec/MIF method reference parameters for unknown array element
+    /// to be considered as zero element to do dereference
+    /// \return the correspondent field of the array zero element or @val itself
+    SValue getZeroRecArrRefField(SValue val) const; 
     
+    /// Is @val a field in any record including record array field
+    /// \return parent if the value is a field or NO_VALUE
+    bool isRecField(const SValue& val);
+
+public:    
     /// Get name prefix for local record
     static std::string getLocalRecName(const SValue& val);
     
-    /// Is constant variable/object or field of local record is constant
-    /// variable/object
+    /// Is constant variable/object or field of local record is constant variable/object
+    /// Field of constant record array is not considered as it does not make sense
     static bool isConstVarOrLocRec(const SValue& val);
     
     /// Compare two state, should not be used, use compare() instead 

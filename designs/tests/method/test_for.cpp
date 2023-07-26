@@ -222,13 +222,14 @@ public:
     
 // ----------------------------------------------------------------------------
 
+    sc_signal<int> r0a;
     void sc_type_for() 
     {
         int a[8];
         for (sc_uint<4> i = 0; i < 8; i++) {
             a[i] = i;
         }
-    
+        r0a = a[1];
     }
     
      // For with false and true constant condition

@@ -37,6 +37,9 @@ public:
         SC_CTHREAD(local_const_ref, clk.pos());
         async_reset_signal_is(rstn, 0);
         
+        SC_CTHREAD(local_const_ref_arr, clk.pos());
+        async_reset_signal_is(rstn, 0);
+        
         SC_CTHREAD(local_ref1, clk.pos());
         async_reset_signal_is(rstn, 0);
 
@@ -78,10 +81,34 @@ public:
         wait();
         
         while (true) {
-            const int& cr = i+1; // rnd by plus operation
-            int j = cr;          // comb
-            const int& cr2 = j;  
+            const int& cr = i+1; // comb
+            int j = cr;          
+            const int& cr2 = j;  // not declared
             s0 = cr2;
+            const sc_int<34>& cr3 = j;  // comb
+            s0 = cr3;
+            const sc_biguint<34>& cr4 = 42;  // comb
+            s0 = cr4.to_int();
+            wait();
+        }
+    }
+    
+    sc_signal<int> s00;
+    void local_const_ref_arr()
+    {
+        int i[2] = {42, 43};         // reg   
+        wait();
+        
+        while (true) {
+            sc_uint<12> x[2] = {44, 45};
+            const int& cra = i[0];  // reg, not used, ignore for now 
+            s00 = cra;          
+            const int& cra2 = i[1]+1;  // comb
+            s00 = cra2;
+            const sc_uint<12>& cra3 = x[1];  // not declared
+            s00 = cra3;
+            const sc_uint<12>& cra4 = x[1]+1;  // comb
+            s00 = cra4;
             wait();
         }
     }

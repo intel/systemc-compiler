@@ -74,6 +74,7 @@ public:
 
     
     // Call method for record array with determinable/non-determinable index
+    sc_signal<int> t0;
     void record_meth1()
     {
         Simple s[2];
@@ -87,6 +88,7 @@ public:
         sc_uint<2> i = sig;
         s[i].setA(false);
         b = s[i].getA();
+        t0 = b;
         
         sct_assert_unknown(s[1].a);
         sct_assert_read(s[0].a);
@@ -129,6 +131,7 @@ public:
     }
     
     // Call method with local variable
+    sc_signal<int> t1;
     void record_meth3() 
     {
         Simple s[2];
@@ -139,6 +142,7 @@ public:
         
         sc_uint<2> i = sig;
         b = s[i].localVar(0);
+        t1 = b;
         sct_assert_unknown(b);
 
         sct_assert_read(s[0].a);
@@ -152,6 +156,7 @@ public:
     }
     
     // Multiple method calls
+    sc_signal<int> t2;
     void record_multi_calls() 
     {
         Simple s[2];
@@ -167,7 +172,8 @@ public:
         s[i+1].setA( f(5) );
         sct_assert_unknown(s[1].a);
 
-        f(6);
+        auto res = f(6);
+        t2 = res;
 
         sct_assert_array_defined(s[0].a);
     }

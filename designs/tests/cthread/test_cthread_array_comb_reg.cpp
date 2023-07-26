@@ -75,6 +75,7 @@ public:
 
     // Combinational array with initialization in reset
     // No read from array -- combinational array
+    sc_signal<int> t0;
     void comb_arr_in_reset()
     {
         arr[0] = 0;
@@ -82,6 +83,7 @@ public:
         
         while (true) {
             arr[1] = 3;
+            t0 = arr[1];
             wait();
         }
     }

@@ -65,7 +65,7 @@ public:
         int l;
         i = l + 1;          // Warning
 
-        s0 = i;             
+        s0 = i + aa[0] + bb[0] + cc[0][0] + dd[0];             
         
         wait();
         

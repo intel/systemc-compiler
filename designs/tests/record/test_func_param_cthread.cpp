@@ -63,15 +63,19 @@ public:
         bool b = !par.a;
     }
     
+    sc_signal<int> t1;
     void f2(Simple par) {
         bool b = par.a;
         par.b = 2;
+        t1 = b;
     }
     
+    sc_signal<int> t2;
     void f3(Simple par1, Simple par2) {
         bool b = par1.a || par2.a;
         par1.a = b+1;
         par2.a = b-1;
+        t2 = par2.a;
     }
     
     void f4(Simple& par1, const Simple& par2) {
@@ -80,6 +84,7 @@ public:
     }
 
     // Parameter by reference and constant reference
+    sc_signal<int> t0;
     void record_fcall_ref() 
     {
         Simple s;
@@ -91,6 +96,7 @@ public:
             wait();
             
             f1_const(s);
+            t0 = s.b;
         }
     }
 
@@ -145,6 +151,7 @@ public:
     }
     
     // Two record parameters by reference
+    sc_signal<int> t3;
     void record_fcall_two_ref() 
     {
         wait();
@@ -153,11 +160,13 @@ public:
             wait();
             Simple r;
             f4(s, r);
+            t3 = s.a + r.a;
         }
     }
     
     // Global and local record parameters by reference
     Simple gs;
+    sc_signal<int> t4;
     void record_fcall_two_ref2() 
     {
         Simple r;
@@ -165,6 +174,7 @@ public:
         while (true) {
             r.b = 4;
             f4(gs, r);
+            t4 = r.b;
             wait();
         }
     }
@@ -176,6 +186,7 @@ public:
         par1 = par2;        
     }
     
+    sc_signal<int> t5;
     void record_fcall_const_ref1() 
     {
         Simple r; Simple t;
@@ -185,6 +196,7 @@ public:
             r = t;
             wait();
             bool b = cref_cmp(r,t);
+            t5 = b;
         }
     }
     
@@ -193,6 +205,7 @@ public:
         return (par1.a == par2.a && par1.b == par2.b);
     }
 
+    sc_signal<int> t6;
     void record_fcall_const_ref2() 
     {
         Simple r; Simple t;
@@ -201,6 +214,7 @@ public:
             t.a = 1;
             wait();
             bool b = cref_cmp(r,t);
+            t6 = b;
         }
     }
     
@@ -210,6 +224,7 @@ public:
         return res;
     }
 
+    sc_signal<int> t7;
     void record_fcall_const_ref3() 
     {
         Simple r; 
@@ -218,6 +233,7 @@ public:
             Simple t;
             int i = cref_sum(t);
             i = cref_sum(r);
+            t7 = i;
         }
     }
 };

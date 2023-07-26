@@ -27,9 +27,11 @@ public:
     unsigned V;
     const unsigned C;
     
+    sc_signal<int> t0;
     void proc() 
     {
         unsigned l = V + C;
+        t0 = l;
     }
 };
 
@@ -47,9 +49,11 @@ public:
         
     unsigned V;
     
+    sc_signal<int> t1;
     void proc() 
     {
         unsigned l = V;
+        t1 = l;
     }
 };
 

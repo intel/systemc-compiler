@@ -88,6 +88,7 @@ SC_MODULE(test_mod) {
         async_reset_signal_is(rstn, false);
     }
     
+    sc_signal<int> t2;
     void wait_n_reset_decl() 
     {
         unsigned k = 1;
@@ -95,25 +96,29 @@ SC_MODULE(test_mod) {
         wait();     
 
         while (1) {
-            wait(2);  
+            t2 = k;
+            wait(2);
         }
     }
     
+    sc_signal<int> t3;
     void one_wait_n () {
         sc_uint<2> i = 0;
         wait();
         while (true) {
             wait();
-            i++;
+            t3 = i++;
             wait(2);
         }
     }
 
+    sc_signal<int> t4;
     void thread0 () {
         while (1) {
             wait();
             wait(1);
             wait(2);
+            t4 = 1;
             wait(3);
         }
     }
@@ -172,19 +177,23 @@ SC_MODULE(test_mod) {
         }
     }
 
+    sc_signal<int> t0;
     void thread1b () {
         wait();
         while (true) {
             int i = 0;
+            t0 = i;
             wait(3);
         }
     }
 
+    sc_signal<int> t1;
     void thread1c () {
         wait();
         while (true) {
             wait(3);
             int i = 0;
+            t1 = i;
         }
     }
     

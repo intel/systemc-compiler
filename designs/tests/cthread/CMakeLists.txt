@@ -27,11 +27,10 @@ add_executable(cthread_reset test_cthread_reset.cpp)
 svc_target(cthread_reset GOLDEN cthread_reset.sv)
 
 add_executable(cthread_reset_warning test_cthread_reset_warning.cpp)
-svc_target(cthread_reset_warning GOLDEN cthread_reset_warning.sv)
+svc_target(cthread_reset_warning GOLDEN cthread_reset_warning.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_reset_fail test_cthread_reset_fail.cpp)
-svc_target(cthread_reset_fail GOLDEN cthread_reset_fail.sv
-           WILL_FAIL)
+svc_target(cthread_reset_fail GOLDEN cthread_reset_fail.sv WILL_FAIL )
 
 add_executable(cthread_reset_noninit_read test_reset_noninit_read.cpp)
 svc_target(cthread_reset_noninit_read GOLDEN cthread_reset_noninit_read.sv)
@@ -44,7 +43,7 @@ svc_target(cthread_simple_reset GOLDEN cthread_simple_reset.sv)
 
 add_executable(cthread_mult_resets test_cthread_mult_resets.cpp)
 svc_target(cthread_mult_resets GOLDEN cthread_mult_resets.sv)
-
+ 
 add_executable(cthread_multi_wait_reset test_cthread_multi_wait_reset.cpp)
 svc_target(cthread_multi_wait_reset GOLDEN cthread_multi_wait_reset.sv)
 
@@ -52,7 +51,7 @@ add_executable(cthread_sync_async_reset test_cthread_sync_async_reset.cpp)
 svc_target(cthread_sync_async_reset GOLDEN cthread_sync_async_reset.sv)
 
 add_executable(cthread_fcall_in_reset test_fcall_in_reset.cpp)
-svc_target(cthread_fcall_in_reset GOLDEN cthread_fcall_in_reset.sv)
+svc_target(cthread_fcall_in_reset GOLDEN cthread_fcall_in_reset.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_no_reset_fail test_no_reset_fail.cpp)
 svc_target(cthread_no_reset_fail WILL_FAIL)
@@ -60,9 +59,6 @@ svc_target(cthread_no_reset_fail WILL_FAIL)
 # Loops
 add_executable(cthread_for test_cthread_for.cpp)
 svc_target(cthread_for GOLDEN cthread_for.sv)
-
-add_executable(cthread_fcall_loop_fail test_fcall_loop_fail.cpp)
-svc_target(cthread_fcall_loop_fail WILL_FAIL)
 
 add_executable(cthread_for_other_types test_cthread_for_other_types.cpp)
 svc_target(cthread_for_other_types GOLDEN cthread_for_other_types.sv)
@@ -92,51 +88,57 @@ add_executable(cthread_inner_loops test_cthread_inner_loops.cpp)
 svc_target(cthread_inner_loops GOLDEN cthread_inner_loops.sv)
 
 add_executable(cthread_alive_loop test_cthread_alive_loop.cpp)
-svc_target(cthread_alive_loop GOLDEN cthread_alive_loop.sv)
+svc_target(cthread_alive_loop GOLDEN cthread_alive_loop.sv NO_REMOVE_EXTRA_CODE)
+
+add_executable(cthread_fcall_loop_fail test_fcall_loop_fail.cpp)
+svc_target(cthread_fcall_loop_fail WILL_FAIL NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_loop_fail test_cthread_loop_fail.cpp)
-svc_target(cthread_loop_fail WILL_FAIL)
+svc_target(cthread_loop_fail WILL_FAIL NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_loop_fail2 test_cthread_loop_fail2.cpp)
-svc_target(cthread_loop_fail2 WILL_FAIL)
+svc_target(cthread_loop_fail2 WILL_FAIL NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_loop_fail3 test_cthread_loop_fail3.cpp)
-svc_target(cthread_loop_fail3 WILL_FAIL)
+svc_target(cthread_loop_fail3 WILL_FAIL NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_loop_fail4 test_cthread_loop_fail4.cpp)
-svc_target(cthread_loop_fail4 WILL_FAIL)
+svc_target(cthread_loop_fail4 WILL_FAIL NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_loop_fail5 test_cthread_loop_fail5.cpp)
-svc_target(cthread_loop_fail5 WILL_FAIL)
+svc_target(cthread_loop_fail5 WILL_FAIL NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_loop_fail6 test_cthread_loop_fail6.cpp)
-svc_target(cthread_loop_fail6 WILL_FAIL)
+svc_target(cthread_loop_fail6 WILL_FAIL NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_loop_fail7 test_cthread_loop_fail7.cpp)
-svc_target(cthread_loop_fail7 WILL_FAIL)
+svc_target(cthread_loop_fail7 WILL_FAIL NO_REMOVE_EXTRA_CODE)
 
 ## Control flow
 add_executable(cthread_if test_if.cpp)
-svc_target(cthread_if GOLDEN cthread_if.sv)
+svc_target(cthread_if GOLDEN cthread_if.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_if_const test_if_const.cpp)
 svc_target(cthread_if_const GOLDEN cthread_if_const.sv)
 
 add_executable(cthread_break test_break.cpp)
-svc_target(cthread_break GOLDEN cthread_break.sv)
+svc_target(cthread_break GOLDEN cthread_break.sv NO_REMOVE_EXTRA_CODE)
+
+add_executable(cthread_break_via_func test_cthread_break_via_func.cpp)
+svc_target(cthread_break_via_func GOLDEN cthread_break_via_func.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_continue test_continue.cpp)
-svc_target(cthread_continue GOLDEN cthread_continue.sv)
+svc_target(cthread_continue GOLDEN cthread_continue.sv NO_REMOVE_EXTRA_CODE)
 
 ## Function calls
 add_executable(cthread_fcall test_cthread_fcall.cpp)
-svc_target(cthread_fcall GOLDEN cthread_fcall.sv)
+svc_target(cthread_fcall GOLDEN cthread_fcall.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_fcall_ref test_fcall_ref.cpp)
 svc_target(cthread_fcall_ref GOLDEN cthread_fcall_ref.sv)
 
 add_executable(cthread_fcall_const_eval test_cthread_fcall_const_eval.cpp)
-svc_target(cthread_fcall_const_eval GOLDEN cthread_fcall_const_eval.sv)
+svc_target(cthread_fcall_const_eval GOLDEN cthread_fcall_const_eval.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_return test_return.cpp)
 svc_target(cthread_return GOLDEN cthread_return.sv)
@@ -145,22 +147,19 @@ add_executable(cthread_switch test_cthread_switch.cpp)
 svc_target(cthread_switch GOLDEN cthread_switch.sv)
 
 add_executable(cthread_switch_inside test_cthread_switch_inside.cpp)
-svc_target(cthread_switch_inside GOLDEN cthread_switch_inside.sv)
+svc_target(cthread_switch_inside GOLDEN cthread_switch_inside.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_switch_after test_cthread_switch_after.cpp)
-svc_target(cthread_switch_after GOLDEN cthread_switch_after.sv)
+svc_target(cthread_switch_after GOLDEN cthread_switch_after.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_switch_default test_cthread_switch_default.cpp)
-svc_target(cthread_switch_default GOLDEN cthread_switch_default.sv)
+svc_target(cthread_switch_default GOLDEN cthread_switch_default.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_switch_empty_case test_cthread_switch_empty_case.cpp)
-svc_target(cthread_switch_empty_case GOLDEN cthread_switch_empty_case.sv)
+svc_target(cthread_switch_empty_case GOLDEN cthread_switch_empty_case.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_for_cntr_scint test_cthread_for_cntr_scint.cpp)
 svc_target(cthread_for_cntr_scint GOLDEN cthread_for_cntr_scint.sv)
-
-add_executable(cthread_break_via_func test_cthread_break_via_func.cpp)
-svc_target(cthread_break_via_func GOLDEN cthread_break_via_func.sv)
 
 add_executable(cthread_for_if test_cthread_for_if.cpp)
 svc_target(cthread_for_if GOLDEN cthread_for_if.sv)
@@ -181,43 +180,43 @@ add_executable(cthread_duplicate_states test_cthread_duplicate_states.cpp)
 svc_target(cthread_duplicate_states GOLDEN cthread_duplicate_states.sv)
 
 add_executable(cthread_read_defined_unknown test_cthread_read_defined_unknown.cpp)
-svc_target(cthread_read_defined_unknown GOLDEN cthread_read_defined_unknown.sv)
+svc_target(cthread_read_defined_unknown GOLDEN cthread_read_defined_unknown.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_read_defined test_cthread_read_defined.cpp)
-svc_target(cthread_read_defined GOLDEN cthread_read_defined.sv)
+svc_target(cthread_read_defined GOLDEN cthread_read_defined.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_read_defined_0 test_cthread_read_defined_0.cpp)
-svc_target(cthread_read_defined_0 GOLDEN cthread_read_defined_0.sv)
+svc_target(cthread_read_defined_0 GOLDEN cthread_read_defined_0.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_read_defined_1 test_cthread_read_defined_1.cpp)
-svc_target(cthread_read_defined_1 GOLDEN cthread_read_defined_1.sv)
+svc_target(cthread_read_defined_1 GOLDEN cthread_read_defined_1.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_read_defined_2 test_cthread_read_defined_2.cpp)
-svc_target(cthread_read_defined_2 GOLDEN cthread_read_defined_2.sv)
+svc_target(cthread_read_defined_2 GOLDEN cthread_read_defined_2.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_read_defined_3 test_cthread_read_defined_3.cpp)
-svc_target(cthread_read_defined_3 GOLDEN cthread_read_defined_3.sv)
+svc_target(cthread_read_defined_3 GOLDEN cthread_read_defined_3.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_read_defined_param1 test_cthread_read_defined_param1.cpp)
-svc_target(cthread_read_defined_param1 GOLDEN cthread_read_defined_param1.sv)
+svc_target(cthread_read_defined_param1 GOLDEN cthread_read_defined_param1.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_read_defined_param2 test_cthread_read_defined_param2.cpp)
-svc_target(cthread_read_defined_param2 GOLDEN cthread_read_defined_param2.sv)
+svc_target(cthread_read_defined_param2 GOLDEN cthread_read_defined_param2.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_read_defined_param3 test_cthread_read_defined_param3.cpp)
-svc_target(cthread_read_defined_param3 GOLDEN cthread_read_defined_param3.sv)
+svc_target(cthread_read_defined_param3 GOLDEN cthread_read_defined_param3.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_read_defined_param4 test_cthread_read_defined_param4.cpp)
-svc_target(cthread_read_defined_param4 GOLDEN cthread_read_defined_param4.sv)
+svc_target(cthread_read_defined_param4 GOLDEN cthread_read_defined_param4.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_read_defined_ref test_cthread_read_defined_ref.cpp)
-svc_target(cthread_read_defined_ref GOLDEN cthread_read_defined_ref.sv)
+svc_target(cthread_read_defined_ref GOLDEN cthread_read_defined_ref.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_wait_states test_cthread_wait_states.cpp)
 svc_target(cthread_wait_states GOLDEN cthread_wait_states.sv)
 
 add_executable(cthread_read_only test_cthread_read_only.cpp)
-svc_target(cthread_read_only GOLDEN cthread_read_only.sv)
+svc_target(cthread_read_only GOLDEN cthread_read_only.sv NO_REMOVE_EXTRA_CODE)
 
 ## Constants
 add_executable(cthread_const_array test_cthread_const_array.cpp)

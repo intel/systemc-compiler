@@ -73,6 +73,7 @@ public:
         }
     }
 
+    sc_signal<int> t0;
     void loc_rec_array_meth()
     {
         int j = sig.read();
@@ -86,8 +87,10 @@ public:
         sct_assert_unknown(arr[1].b[2]);
 
         auto l = arr[1].b[2];
+        t0 = l;
     }
     
+    sc_signal<int> t1;
     void loc_array_meth()
     {
         int j = sig.read();
@@ -101,8 +104,10 @@ public:
         sct_assert_unknown(arr[1]);
 
         auto l = arr[1];
+        t1 = l;
     }
 
+    sc_signal<int> t2;
     void loc_array2d_meth()
     {
         int j = sig.read();
@@ -116,6 +121,7 @@ public:
         sct_assert_unknown(arr[1][2]);
 
         auto l = arr[1][1];
+        t2 = l;
     }
 };
 

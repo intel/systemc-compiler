@@ -17,7 +17,7 @@ using namespace sc_core;
 
 struct Simple {
     bool a;
-    int b = 0x42;
+    int b;
     
     bool operator == (const Simple& other) {
         return (a == other.a && b == other.b);
@@ -125,6 +125,7 @@ public:
     }
     
     // Check record in body declaration as registers/comb
+    sc_signal<int> t0;
     void bodyRecord() {
         wait();
         
@@ -133,11 +134,13 @@ public:
             Simple rr;      // reg
             tim = ss;
             ss = tim;
+            t0 = ss.b + rr.b;
             wait();
             tim = rr;
         }
     }
     
+    sc_signal<int> t1;
     void threadSignal() {
         Simple ss;
         sim = ss;
@@ -146,6 +149,7 @@ public:
         while (true) {
             Simple rr;
             rr.a = 1; rr.b = 2;
+            t1 = rr.b;
             
             sim = ss;
             sim = rr;
@@ -168,6 +172,7 @@ public:
     sct_comb_signal<Simple>         ctim{"ctim"};
     sct_comb_signal<Simple, 0>      crim{"crim"};
     
+    sc_signal<int> t2;
     void threadCombSignal() {
         Simple ss;
         cim = 42;
@@ -185,6 +190,7 @@ public:
             ss = ctim;      
             ss = crim;      // @crim is reg
             csim = ss;
+            t2 = i;
 
             csim.write(rr);
             rr = csim;

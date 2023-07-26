@@ -25,9 +25,11 @@ SC_MODULE(test_referece_met) {
         sensitive << sig;
     }
 
+    sc_signal<int> t0;
     void test_method() {
         x = sig.read();
         xref = 2;
+        t0 = x;
         sigArray[0] = 1;
     }
 

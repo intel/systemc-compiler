@@ -59,8 +59,7 @@ inline bool REMOVE_EMPTY_LOOP() {
 // Remove unused variable definition statements in METHODs and CTHREADs, 
 // that works in @ScTraverseConst::removeUnusedStmt()
 inline bool REMOVE_UNUSED_VAR_STMTS() {
-    return false;  // #196
-    //return !noRemoveExtraCode;
+    return !noRemoveExtraCode;
 }
 
 #endif //SCTOOL_SCCOMMANDLINE_H

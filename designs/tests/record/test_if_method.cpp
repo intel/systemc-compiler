@@ -53,8 +53,10 @@ public:
     }
     
     Simple rec;
+    sc_signal<int> t0;
     void record_fcall2()
     {
+        t0 = 0;
         rec.a = dummy.read();              
         Simple s1; 
         seta(s1);
@@ -66,6 +68,7 @@ public:
 
         if (rec.a) {
             int s1 = s2.b;
+            t0 = s1;
         }
     }
 };

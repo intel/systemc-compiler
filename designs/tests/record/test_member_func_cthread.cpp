@@ -30,12 +30,16 @@ public:
     }
     
     // Function call in reset for record 
+    sc_signal<int> t0;
     void f(bool par) {
         bool c = par;
+        t0 = c;
     }
 
+    sc_signal<int> t1;
     void g(int par) {
         int c = par;
+        t1 = c;
     }
     
     void func_call_in_reset() 
@@ -71,6 +75,7 @@ public:
     // Member call in reset for record 
     nco_core  nc;
     
+    sc_signal<int> t2;
     void call_in_reset() 
     {
         nc.acc_init(0);
@@ -78,6 +83,7 @@ public:
         
         while (true) {
             sc_uint<4> i = nc.get_acc();
+            t2 = i;
             wait();
         }
     }

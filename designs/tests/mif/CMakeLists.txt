@@ -24,10 +24,10 @@ svc_target(mif_array_differ GOLDEN mif_array_differ.sv)
 
 ## sc_vector/array in MIF
 add_executable(mif_sc_vector test_sc_vector.cpp)
-svc_target(mif_sc_vector GOLDEN mif_sc_vector.sv)
+svc_target(mif_sc_vector GOLDEN mif_sc_vector.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_array_sc_vector test_array_sc_vector.cpp)
-svc_target(mif_array_sc_vector GOLDEN mif_array_sc_vector.sv)
+svc_target(mif_array_sc_vector GOLDEN mif_array_sc_vector.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_with_chan_array test_mif_with_chan_array.cpp)
 svc_target(mif_with_chan_array GOLDEN mif_with_chan_array.sv)
@@ -49,13 +49,13 @@ svc_target(mif_array_record_cthread GOLDEN mif_array_record_cthread.sv)
 
 
 add_executable(mif_name_conflict1 test_name_conflict1.cpp)
-svc_target(mif_name_conflict1 GOLDEN mif_name_conflict1.sv)
+svc_target(mif_name_conflict1 GOLDEN mif_name_conflict1.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_name_conflict2 test_name_conflict2.cpp)
-svc_target(mif_name_conflict2 GOLDEN mif_name_conflict2.sv)
+svc_target(mif_name_conflict2 GOLDEN mif_name_conflict2.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_name_conflict3 test_name_conflict3.cpp)
-svc_target(mif_name_conflict3 GOLDEN mif_name_conflict3.sv)
+svc_target(mif_name_conflict3 GOLDEN mif_name_conflict3.sv NO_REMOVE_EXTRA_CODE)
 
 
 add_executable(mif_array1 test_mif_array1.cpp)
@@ -97,41 +97,41 @@ add_executable(cthread_mif test_cthread_mif.cpp)
 svc_target(cthread_mif GOLDEN cthread_mif.sv)
 
 add_executable(cthread_mif_array_fcall test_cthread_mif_array_fcall.cpp)
-svc_target(cthread_mif_array_fcall GOLDEN cthread_mif_array_fcall.sv)
+svc_target(cthread_mif_array_fcall GOLDEN cthread_mif_array_fcall.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_mif_array_ptr test_cthread_mif_array_ptr.cpp)
-svc_target(cthread_mif_array_ptr GOLDEN cthread_mif_array_ptr.sv)
+svc_target(cthread_mif_array_ptr GOLDEN cthread_mif_array_ptr.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_mif_array_ptr2 test_cthread_mif_array_ptr2.cpp)
-svc_target(cthread_mif_array_ptr2  GOLDEN cthread_mif_array_ptr2.sv)
+svc_target(cthread_mif_array_ptr2  GOLDEN cthread_mif_array_ptr2.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_mif_array_ptr_unkwn test_cthread_mif_array_ptr_unkwn.cpp)
-svc_target(cthread_mif_array_ptr_unkwn GOLDEN cthread_mif_array_ptr_unkwn.sv)
+svc_target(cthread_mif_array_ptr_unkwn GOLDEN cthread_mif_array_ptr_unkwn.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_mif_array_ptr_unkwn2 test_cthread_mif_array_ptr_unkwn2.cpp)
-svc_target(cthread_mif_array_ptr_unkwn2 GOLDEN cthread_mif_array_ptr_unkwn2.sv)
+svc_target(cthread_mif_array_ptr_unkwn2 GOLDEN cthread_mif_array_ptr_unkwn2.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(cthread_mif_array_ptr_unkwn3 test_cthread_mif_array_ptr_unkwn3.cpp)
-svc_target(cthread_mif_array_ptr_unkwn3 GOLDEN cthread_mif_array_ptr_unkwn3.sv)
+svc_target(cthread_mif_array_ptr_unkwn3 GOLDEN cthread_mif_array_ptr_unkwn3.sv NO_REMOVE_EXTRA_CODE)
 
 ## MIF with METHOD
 add_executable(mif_array_with_ports test_mif_array_with_ports.cpp)
-svc_target(mif_array_with_ports GOLDEN mif_array_with_ports.sv)
+svc_target(mif_array_with_ports GOLDEN mif_array_with_ports.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_array_with_ptr test_mif_array_with_ptr.cpp)
-svc_target(mif_array_with_ptr GOLDEN mif_array_with_ptr.sv)
+svc_target(mif_array_with_ptr GOLDEN mif_array_with_ptr.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_array_with_ptr2 test_mif_array_with_ptr2.cpp)
-svc_target(mif_array_with_ptr2 GOLDEN mif_array_with_ptr2.sv)
+svc_target(mif_array_with_ptr2 GOLDEN mif_array_with_ptr2.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_array_with_ptr3 test_mif_array_with_ptr3.cpp)
-svc_target(mif_array_with_ptr3 GOLDEN mif_array_with_ptr3.sv)
+svc_target(mif_array_with_ptr3 GOLDEN mif_array_with_ptr3.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_array_with_ptr_array test_mif_array_with_ptr_array.cpp)
-svc_target(mif_array_with_ptr_array GOLDEN mif_array_with_ptr_array.sv)
+svc_target(mif_array_with_ptr_array GOLDEN mif_array_with_ptr_array.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_var_multiple_use test_mif_var_multiple_use.cpp)
-svc_target(mif_var_multiple_use GOLDEN mif_var_multiple_use.sv)
+svc_target(mif_var_multiple_use GOLDEN mif_var_multiple_use.sv NO_REMOVE_EXTRA_CODE)
 
 ## Fix me, error not reported yet, see #115
 #add_executable(mif_array_heterogenous test_array_heterogenous.cpp)
@@ -143,31 +143,42 @@ svc_target(mif_var_multiple_use GOLDEN mif_var_multiple_use.sv)
 
 ## sc_vector of MIF
 add_executable(mif_sc_vector_mif1 test_sc_vector_mif1.cpp)
-svc_target(mif_sc_vector_mif1 GOLDEN mif_sc_vector_mif1.sv)
+svc_target(mif_sc_vector_mif1 GOLDEN mif_sc_vector_mif1.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_sc_vector_mif2 test_sc_vector_mif2.cpp)
-svc_target(mif_sc_vector_mif2 GOLDEN mif_sc_vector_mif2.sv)
+svc_target(mif_sc_vector_mif2 GOLDEN mif_sc_vector_mif2.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_sc_vector_mif3 test_sc_vector_mif3.cpp)
-svc_target(mif_sc_vector_mif3 GOLDEN mif_sc_vector_mif3.sv)
+svc_target(mif_sc_vector_mif3 GOLDEN mif_sc_vector_mif3.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_sc_vector_mif4 test_sc_vector_mif4.cpp)
-svc_target(mif_sc_vector_mif4 GOLDEN mif_sc_vector_mif4.sv)
+svc_target(mif_sc_vector_mif4 GOLDEN mif_sc_vector_mif4.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_sc_vector_mif5 test_sc_vector_mif5.cpp)
-svc_target(mif_sc_vector_mif5 GOLDEN mif_sc_vector_mif5.sv)
+svc_target(mif_sc_vector_mif5 GOLDEN mif_sc_vector_mif5.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_sc_vector_mif6 test_sc_vector_mif6.cpp)
-svc_target(mif_sc_vector_mif6 GOLDEN mif_sc_vector_mif6.sv)
+svc_target(mif_sc_vector_mif6 GOLDEN mif_sc_vector_mif6.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_sc_vector_ptr test_sc_vector_ptr.cpp)
-svc_target(mif_sc_vector_ptr GOLDEN mif_sc_vector_ptr.sv)
+svc_target(mif_sc_vector_ptr GOLDEN mif_sc_vector_ptr.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_sc_vector_mif_2d test_sc_vector_mif_2d.cpp)
-svc_target(mif_sc_vector_mif_2d GOLDEN mif_sc_vector_mif_2d.sv)
+svc_target(mif_sc_vector_mif_2d GOLDEN mif_sc_vector_mif_2d.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_glob_const test_glob_const.cpp)
 svc_target(mif_glob_const GOLDEN mif_glob_const.sv)
 
 add_executable(dttc2021 test_dttc2021.cpp)
 svc_target(dttc2021 GOLDEN dttc2021.sv)
+
+
+## UseDef tests
+add_executable(mif_use_def1 test_use_def1.cpp)
+svc_target(mif_use_def1 GOLDEN mif_use_def1.sv)
+
+add_executable(mif_use_def2 test_use_def2.cpp)
+svc_target(mif_use_def2 GOLDEN mif_use_def2.sv)
+
+add_executable(mif_use_def3 test_use_def3.cpp)
+svc_target(mif_use_def3 GOLDEN mif_use_def3.sv)

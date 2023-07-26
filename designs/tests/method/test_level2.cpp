@@ -90,6 +90,7 @@ public:
         }
     }
     
+    sc_signal<int> t0;
     void empty_for() 
     {
         for (int i = 0; i < 3; i++) {
@@ -102,6 +103,7 @@ public:
         int m = 0;
     }
     
+    sc_signal<int> t1;
     void empty_for2() 
     {
         int m = 0;
@@ -120,6 +122,7 @@ public:
     }
     
     // External counter -- no remove loop
+    sc_signal<int> t2;
     void empty_for2_extr() 
     {
         int m = 0;
@@ -127,8 +130,10 @@ public:
         for (i = 0; i < 3; i++) {}
         for (; i < 6; i++) {}
         for (int j = 0; i < 9; i++) {}
+        t2 = i;
     }
     
+    sc_signal<int> t3;
     void empty_for3_extr() 
     {
         int m = 0;
@@ -136,6 +141,7 @@ public:
         for (; i >40; i--) {}
         for (i++; i >38; i--) {}
         for (i = i-1; i > 0; i--) {}
+        t3 = i;
     }
     
     void empty_for4_extr() 
@@ -158,7 +164,7 @@ public:
             
             for (int i = 0; i < 2; i++) {   
                 wait();     // 1
-            }                               
+            }
         }
     }
     
@@ -172,9 +178,11 @@ public:
     static const bool   CONST_A = 1;
     static const unsigned CONST_Z = 0;
     
+    sc_signal<int> t4;
     void complex_logic() {
         bool b3 = CONST_Z && (f(2) || CONST_Z);  
         bool b4 = f(1);
+        t4 = b4 + b3;
     }
     
     void simple_for_wait() {
@@ -246,8 +254,10 @@ public:
         return res;
     }
     
+    sc_signal<int> t5;
     void func_with_loop() {
         int j = f5();
+        t5 = j;
     }
     
     void switch_for2() {
@@ -265,6 +275,7 @@ public:
         }
     }    
 
+    sc_signal<int> t6;
     void switch_if() {
         int i = 0; 
         
@@ -280,8 +291,10 @@ public:
         }
         
         i = 4;   
+        t6 = i;
     }
     
+    sc_signal<int> t7;
     void switch_if_const() {
         int i = 0;
         switch (s.read()) {
@@ -292,8 +305,10 @@ public:
                      break;
         }
         i = 2;
+        t7 = i;
     }
     
+    sc_signal<int> t8;
     void while_wait() 
     {
         int i = 0;
@@ -306,10 +321,12 @@ public:
             wait();
             
             i = 2;
+            t8 = i;
             wait();
         }
     }
 
+    sc_signal<int> t8a;
     void two_do_while()    
     {
         int i = 0;
@@ -320,8 +337,10 @@ public:
         do {
             i++;
         } while (s.read() < 2);
+        t8a = i;
     }
     
+    sc_signal<int> t9;
     void break_in_while_for()
     {
         int k = 0;
@@ -343,6 +362,7 @@ public:
                 k = 3;
             }
             k = 4;
+            t9 = k;
             wait();         // 3
         }
     }
@@ -362,6 +382,7 @@ public:
         }
     }
 
+    sc_signal<int> t10;
     void switch_if3() {
         int i;
         wait();
@@ -371,10 +392,12 @@ public:
                 case 1 : 
                 case 2 : i = 2; break;
             }
+            t10 = i;
             wait();
         }
     }
     
+    sc_signal<int> t11;
     void two_loops() 
     {
         int j = 0;
@@ -387,10 +410,12 @@ public:
                 wait();                 // 1
                 if (s.read()) break;
             }    
+            t11 = j;
             wait();                     // 2
         }
     }
     
+    sc_signal<int> t12;
     void if_and_loop() 
     {
         int j = 0;
@@ -405,6 +430,7 @@ public:
                 wait();                 // 1
                 if (s.read()) break;
             }    
+            t12 = j;
             wait();                     // 2
         }
     }

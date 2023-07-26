@@ -103,6 +103,7 @@ public:
         return 1;
     }
     
+    sc_signal<int> t0;
     void const_init() 
     {
         const int i = getInit();
@@ -111,21 +112,25 @@ public:
         const int k = getInit2();
         int z = i + j + k;
         CHECK(k == 1);
+        t0 = z;
     }
 
     const int B = 4;
+    sc_signal<int> t1;
     void no_iter_loop() 
     {
         int k = 0;
         for (int i = B; i < B; i++) {
             k = 4;
         }
+        t1 = k;
     }
     
     unsigned f() {
         return 0;
     }
     
+    sc_signal<int> t2;
     void fcall_const() {
         int k = 0;
         if (f() == 1) {
@@ -134,17 +139,22 @@ public:
         } else {
             k = 2;
         }
+        t2 = k;
     }
     
     const bool T = true;
+    sc_signal<int> t3;
     void binary_oper1() {
         bool b = T || *p;
+        t3 = b;
     }
     
+    sc_signal<int> t4;
     void binary_oper2() {
         int i = 0, j = 0;
         if (T || j++) { j = i; }
         sct_assert_read(i);
+        t4 = j;
     }
     
     const int CTRL_NUM = 0;
@@ -155,10 +165,11 @@ public:
         }
     }
     
-    
+    sc_signal<int> t5;
     void simple_for() {
         for (int i = 0; i < 3; i++) {
             int k = 1;
+            t5 = k;
         }
     }
     

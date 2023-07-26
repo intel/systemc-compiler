@@ -292,6 +292,7 @@ public:
     }
     
     sc_signal<sc_uint<8>> ssig[2];
+    sc_signal<int> t0a;
     void signal_array_part_sel() 
     {
         bool b = ssig[1].read().bit(2);
@@ -299,6 +300,8 @@ public:
         
         int i = inp.read();
         x = ssig[i].read().range(i+1,i);
+        i = x;
+        t0a = i;
     }
 
     // SC types to_int(), to_uint(), ...
@@ -399,6 +402,7 @@ public:
     
     sc_signal<bool> bsig;
     sc_signal<int> isig;
+    sc_signal<int> t0;
     void int_to_bool() 
     {
         int i = 1;
@@ -408,6 +412,7 @@ public:
         b = 2-c;
         b = isig.read();
         b = (sc_uint<1>)i;
+        t0 = b;
         
         sc_uint<2> x = 1;
         b = x;
@@ -430,6 +435,7 @@ public:
     sc_signal<B_t> bs;
     sc_signal<C_t> cs;
     sc_signal<D_t> ds;
+    sc_signal<int> t1;
 
     void zero_zero_range() 
     {
@@ -439,14 +445,18 @@ public:
         bool ab = as.read().range(WIDTH-1, 0);
         sc_uint<5> j = as.read().range(WIDTH-1, 0);
         sc_biguint<5> jj = (sc_biguint<5>)as.read().range(WIDTH-1, 0);
+        t1 = ab; t1 = j; t1 = jj.to_int();
         
         B_t b;
         B_t bb = b.range(WIDTH-1, 0);
         b.range(WIDTH-1, 0) = 1;
+        t1 = b; t1 = bb;
         int i = bs.read().range(WIDTH-1, 0);
         i = bs.read().range(WIDTH-1, 0) + 1;
+        t1 = i;
     }
     
+    sc_signal<int> t2;
     void zero_zero_range_big() 
     {
         C_t c;
@@ -461,8 +471,11 @@ public:
         d.range(WIDTH-1, 0) = 1;
         int i = ds.read().range(WIDTH-1, 0).to_int();
         i = ds.read().range(WIDTH-1, 0).to_long() + 1;
+        t1 = c.to_int(); t1 = cc.to_int(); t1 = ab; t1 = j; t1 = jj.to_int();
+        t1 = d.to_int(); t1 = dd.to_int(); t1 = i;
     }
 
+    sc_signal<int> t3;
     void zero_zero_bit() 
     {
         A_t a;
@@ -471,8 +484,10 @@ public:
         bool ab = as.read().bit(WIDTH-1);
         int j = as.read().bit(WIDTH-1);
         long jj = as.read().bit(WIDTH-1);
+        t3 = aa; t3 = ab; t3 = j; t3 = jj;
     }
     
+    sc_signal<int> t4;
     void zero_zero_bit_big() 
     {
         C_t c;
@@ -481,6 +496,7 @@ public:
         bool ab = cs.read().bit(WIDTH-1) != 0;
         sc_uint<5> j = (sc_uint<5>)cs.read().bit(WIDTH-1);
         sc_biguint<5> jj = cs.read().bit(WIDTH-1) + j;
+        t4 = c.to_int(); t4 = cc; t4 = ab; t4 = j; t4 = jj.to_int();
     }
     
     void bit_range_sel() 
@@ -497,6 +513,7 @@ public:
     
     const unsigned MC = 2;
     static const unsigned MSC = 3;
+    sc_signal<int> t5;
     void bit_range_array() 
     {
         const unsigned LC = 4;
@@ -507,6 +524,7 @@ public:
         bool b = uarr[MC].bit(0) || uarr[MSC-1].bit(3);
         b = uarr[LC-MSC].range(1,0);
         barr[MC-1].range(64,63) = uarr[MC-2].range(1,0);
+        t5 = b;
     }
     
 };

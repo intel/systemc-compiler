@@ -347,6 +347,10 @@ public:
         return liveTerms;        
     }
     
+    const std::unordered_set<clang::Stmt*>& getRemovedArgExprs() const {
+        return removedArgExprs; 
+    }
+    
     /// Get evaluated terminator condition values
     const std::unordered_map<CallStmtStack, SValue>& getTermConds() const {
         return termConds;        
@@ -523,6 +527,8 @@ protected:
     std::unordered_set<clang::Stmt*> liveTerms;
     /// Not mandatory required statements, can be removed in @removeUnusedStmt()
     std::unordered_set<clang::Stmt*> simpleStmts;
+    /// Removed reference parameter arguments during CPA as unused code
+    std::unordered_set<clang::Stmt*> removedArgExprs;
     
     /// Evaluated terminator condition values, use in ScTraverseProc
     std::unordered_map<CallStmtStack, SValue> termConds;

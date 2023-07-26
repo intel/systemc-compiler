@@ -194,10 +194,6 @@ public:
         return emptySensitivity;
     }
     
-    /// Get any kind of assignment statement/operator
-    /// \return assignment statement or @nullptr
-    const clang::Expr* getAssignStmt(const clang::Stmt* stmt) const;
-
     /// Get LHS for any kind of assignment statement/operator
     /// \return LHS statement of the assignment or @nullptr
     const clang::Expr* getAssignLhs(const clang::Stmt* stmt) const;
@@ -524,6 +520,7 @@ public:
     
     /// Add array subscript index into @arraySubIndices
     void addSubscriptIndex(const SValue& bval, const clang::Expr* indx);
+    void clearSubscriptIndex();
     
     /// Get string from indices "[index1][index2]..." stored in @arraySubIndices
     /// and erase them in @arraySubIndices if no @keepArrayIndices

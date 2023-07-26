@@ -46,6 +46,7 @@ public:
     }
     
     // do..while with IF inside
+    sc_signal<int> t0;
     void do_while2() {
         int j = 1;
         int i = 0;
@@ -60,9 +61,11 @@ public:
         } while (i < 3);
         sct_assert_level(0);
         j = 4;
+        t0 = i; t0 = j;
     }
     
     // While with several inputs from outside
+    sc_signal<int> t1;
     void do_while3() {
         int i = 0;
         int j = 1; int k = 0; int m = dummy.read();
@@ -77,9 +80,11 @@ public:
 
         sct_assert_level(0);
         j = 4;
+        t1 = k; t1 = j;
     }    
 
     // While with several inputs from outside
+    sc_signal<int> t2;
     void do_while4() {
         int i = 0;
         int j = 1; int k = 0; int m = dummy.read();
@@ -93,9 +98,11 @@ public:
 
         sct_assert_level(0);
         j = 3;
+        t2 = k; t2 = j;
     }    
     
     // While with inner while
+    sc_signal<int> t3;
     void do_while5() {
         int k = 0; int m = dummy.read();
         int i = 0;
@@ -108,6 +115,7 @@ public:
             sct_assert_level(1);            
         } while (i < 2);
         sct_assert_level(0);
+        t3 = k; t3 = i;
     }     
     
     // While in IF branch

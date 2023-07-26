@@ -25,14 +25,15 @@ using namespace clang;
 using namespace llvm;
 
 
-void ScParseExprValue::declareValue(const SValue& var) 
+void ScParseExprValue::declareValue(const SValue& val) 
 {
-    if (!var.isVariable()) {
+    if (!val.isVariable()) {
         SCT_INTERNAL_ERROR (currStmt->getBeginLoc(), 
                             "Non variable value in declareValue()");
     }
 
-    state->declareValue(var);
+    // Return zero array/record array variable for given variable
+    SValue var = state->declareValue(val);
     
     //cout << "DL " << var << endl;
     auto i = defVarStmts.emplace(var, unordered_set<Stmt*>({currStmt}));
@@ -71,11 +72,12 @@ void ScParseExprValue::writeToValue(const SValue& val, bool isDefined)
         SValue var = state->writeToValue(val, isDefined);
 
         if (var.isVariable()) {
-        //cout << "WR " << var << endl;
+            // @currStmt can be null for terminator constant condition
             auto i = defVarStmts.emplace(var, unordered_set<Stmt*>({currStmt}));
             if (!i.second) {
                 i.first->second.insert(currStmt);
             }
+            //cout << "WR " << var << " #" << hex << currStmt << dec << endl;
 
             // Check is this variable is local in the current function
             // Function parameters not considered, so function with internal calls
@@ -94,16 +96,26 @@ void ScParseExprValue::writeToValue(const SValue& val, bool isDefined)
     }
 }
 
-void ScParseExprValue::readFromValue(const SValue& val) 
+void ScParseExprValue::readFromValue(SValue val) 
 {
     QualType valType = getDerefType(val.getType());
-    bool isRecord = !val.isScChannel() && isUserClass(valType, false);
-    //cout << "readFromValue val " << val << " isRecord " << isRecord << endl;
     
+    // For record arrays it needs to get an record element to provide fields
+    bool isRecArr = !val.isScChannel() && isUserDefinedClassArray(valType, false);
+    if (isRecArr) {
+        while (val.isArray()) {
+            val.getArray().setOffset(0);
+            val = state->getValue(val);
+        }
+    }
+    
+    valType = getDerefType(val.getType());
+    bool isRec = !val.isScChannel() && isUserClass(valType, false);
+
     // Read all record fields, do not consider record channel
     // Do not consider record reference 
     // Record/record channel value is also read together with its fields
-    if (isRecord) {
+    if (isRec) {
         auto recDecl = valType->getAsRecordDecl();
         SCT_TOOL_ASSERT (recDecl, "No record declaration found");
         
@@ -123,11 +135,12 @@ void ScParseExprValue::readFromValue(const SValue& val)
         SValue var = state->readFromValue(val);
 
         if (var.isVariable()) {
-        //cout << "RD " << var << endl;
+            // @currStmt can be null for terminator constant condition
             auto i = useVarStmts.emplace(var, unordered_set<Stmt*>({currStmt}));
             if (!i.second) {
                 i.first->second.insert(currStmt);
             }
+            //cout << "RD " << var << " #" << hex << currStmt << dec << endl;
         }
     }
 }
@@ -295,6 +308,7 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
                                          const SValue& funcModval, 
                                          const clang::FunctionDecl* callFuncDecl) 
 {
+    //cout << "prepareCallParams " << hex << expr << dec << endl; 
     bool isCall = isa<CallExpr>(expr);
     bool isCtor = isa<CXXConstructExpr>(expr);
     SCT_TOOL_ASSERT (isCall || isCtor, "No function call or constructor");
@@ -347,7 +361,10 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
         bool isConstRef = sc::isConstReference(type);
         bool isPtr = type->isPointerType();
         bool isArray = type->isArrayType();
-        bool isRecord = isUserClass(getDerefType(type));
+        bool isRec = isUserClass(getDerefType(type));
+        
+        //parDecl->dumpColor();
+        //arg->dump();
         
         // Fill state with parameter and corresponding argument value @arg
         // Parameter variable, can be array variable
@@ -364,22 +381,36 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
         bool isArr = state->isArray(ipval, unkwIndex);
         bool isArrUnkwn = isArr && unkwIndex;
          
+        //cout << "  pval " << pval << " ipval " << ipval 
+        //     << " var " << state->getVariableForValue(ipval) << endl;
+        //argExpr->dumpColor();
+        //ipval.getType().dump();
+        //state->print();
+        
+        // Register reference variable expression to be removed if its not used
+        if (isRef) {
+            // Get referenced variable from reference
+            SValue irval; state->getDerefVariable(ipval, irval);
+            SValue ivar = state->getVariableForValue(irval);
+            auto i = refArgStmts.emplace(ivar, unordered_set<Stmt*>({argExpr}));
+            if (!i.second) {
+                i.first->second.insert(argExpr);
+            }
+            //cout << "Add to refArgStmts : ivar " << ivar << " argExpr " 
+            //     << hex << argExpr << dec << endl;
+        }
+        
         // Constant reference initialized with constant value
         bool isConstRefInit = false;
-        // Constant reference initialized with constant array element at unknown index
-        bool isConstRefArrUnkw = false;
-
-        if (!isRecord && isConstRef) {
+        if (!isRec && isConstRef) {
             // Corresponded logic in ScGenerateExpr
-            bool A = checkConstRefValue(ipval);
-            isConstRefInit = A && !isArrUnkwn;
-            isConstRefArrUnkw = A && isArrUnkwn;
-            //cout << " ival " << ival << endl;
+            isConstRefInit = checkConstRefValue(ipval);
         }
+        //cout << "isConstRefInit " << isConstRefInit << endl;
         
         // If parameter is not pointer or reference, it passed by value
         // Array passed by pointer, reference on argument is used
-        if ((!isRef && !isPtr && !isArray) || isConstRefInit || isConstRefArrUnkw) {
+        if ((!isRef && !isPtr && !isArray) || isConstRefInit) {
             // Put parameter passed by value to @defined
             writeToValue(pval, true);
             
@@ -418,6 +449,7 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
 
     const QualType& type = decl->getType();
     bool isRef = type->isReferenceType();
+    bool isConstRef = sc::isConstReference(type);
     bool isPtr = type->isPointerType();
     bool isArr = type->isArrayType();
     bool isRec = isUserClass(getDerefType(type));
@@ -468,11 +500,18 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                     state->declareValue(eval);
             }
         }
+        
+        // Constant reference initialized with constant value
+        bool isConstRefInit = false;
+        if (!isRec && isConstRef) {
+            isConstRefInit = checkConstRefValue(val);
+        }
+        
         // Only initialized variable is defined, SC data type has zero initializer
         // Declare variable to avoid register creation and remove declaration 
         // Declare variable/array variable to remove declaration if not used 
         // Do not define or declare reference/pointer
-        if (!isRef && !isPtr) {
+        if ((!isRef && !isPtr) || isConstRefInit) {
             if (iexpr) {
                 writeToValue(val, true); 
             } else {
@@ -521,6 +560,15 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
             readFromValue(ival);
         }
     }
+    
+    // Register reference and its statement to them if referenced variable removed
+    if (isRef) {
+        auto i = refDeclStmts.emplace(val, stmt);
+        if (!i.second) {
+            SCT_TOOL_ASSERT (i.first->second == stmt, 
+                             "Different declaration statement for reference");
+        }
+    }
 
     // No value for declaration statement
     val = NO_VALUE;
@@ -533,6 +581,10 @@ void ScParseExprValue::parseExpr(clang::DeclRefExpr* expr, SValue& val)
     auto* decl = expr->getDecl();
 
     ScParseExpr::parseExpr(expr, val);
+    // Get zero element in Rec/Mif array for reference parameters here 
+    //cout << "DeclRefExpr val " << val;
+    val = state->getZeroRecArrRefField(val);
+    //cout << " rval " << val << endl;
 
     // Initialization of global and static variables
     if (!isa<clang::EnumConstantDecl>(decl)) {
@@ -561,6 +613,7 @@ void ScParseExprValue::parseExpr(clang::MemberExpr* expr, SValue& val)
 {
     ValueDecl* decl = expr->getMemberDecl();
     ScParseExpr::parseExpr(expr, val);
+    // Do not need to get zero element Rec/Mif array for reference parameters here 
 
     // Initialization of static constant variables
     if (!isa<clang::EnumConstantDecl>(decl)) {
@@ -1024,9 +1077,10 @@ void ScParseExprValue::parseExpr(ArraySubscriptExpr* expr, SValue& val)
 void ScParseExprValue::parseImplExplCast(CastExpr* expr, SValue& rval, 
                                          SValue& val)
 {
-    //cout << "parseImplExplCast val " << val << endl;
+    //cout << "parseImplExplCast #" << hex << expr << dec << " rval " << rval << endl;
     auto castKind = expr->getCastKind();
- 
+    QualType type = expr->getType();
+
     if (castKind == CK_PointerToIntegral) {
         SCT_INTERNAL_FATAL (expr->getBeginLoc(),
                           "PointerToIntegral no supported yet");
@@ -1065,6 +1119,13 @@ void ScParseExprValue::parseImplExplCast(CastExpr* expr, SValue& rval,
                 val = SValue(SValue::boolToAPSInt(irval.getBoolValue()), 10);
             }
         }
+    } else 
+    if (castKind == CK_NoOp) {
+        // Update type to which the expression is casted to, required to keep
+        // constant-ness for cast from constant type
+        if (val.isSimpleObject()) {
+            val.getObjectPtr()->setType(type);
+        }
     } else {
         if (castKind == CK_IntegralToBoolean || castKind == CK_IntegralCast) {
             if (val.isVariable()) {
@@ -1099,7 +1160,6 @@ void ScParseExprValue::parseImplExplCast(CastExpr* expr, SValue& rval,
         } else 
         if (castKind == CK_IntegralCast) {
             if (val.isInteger()) {
-                QualType type = expr->getType();
                 auto typeInfo = getIntTraits(type, true);
                 if (!typeInfo) {
                     SCT_INTERNAL_ERROR (expr->getBeginLoc(), 
@@ -1262,10 +1322,11 @@ void ScParseExprValue::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
         }
         val = lval;
 
-        isAssignStmt   = true;
+        // Multi-assign statements cannot be removed
         isRequiredStmt = (sc::isScChannel(lexpr->getType()) || 
                           sc::isScChannelArray(lexpr->getType())) ? 
-                          true : isRequiredStmt;
+                          true : (isRequiredStmt || getAssignStmt(rexpr));
+        isAssignStmt = true;
         
     } else 
     if (opcode == BO_Add || opcode == BO_Sub) 
@@ -1735,7 +1796,6 @@ void ScParseExprValue::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
     val = lval;
     isSideEffStmt  = true;
     isAssignStmt   = true;
-    isRequiredStmt = true;
 }
 
 void ScParseExprValue::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
@@ -1862,7 +1922,6 @@ void ScParseExprValue::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
         }
         
         isSideEffStmt  = true;
-        isRequiredStmt = true;
         
     } else {
         ScDiag::reportScDiag(expr->getBeginLoc(), 
@@ -2742,10 +2801,11 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
             readFromValue(rval);
             writeToValue(tval);
 
-            isAssignStmt   = true;
+            // Multi-assign statements cannot be removed
             isRequiredStmt = (sc::isScChannel(thisType) || 
                               sc::isScChannelArray(thisType)) ? 
-                              true : isRequiredStmt;
+                              true : (isRequiredStmt || getAssignStmt(args[1]));
+            isAssignStmt = true;
         }
     } else 
     if (isScPort(thisType) && opcode == OO_Arrow) {
@@ -2874,6 +2934,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                 state->putValue(rval, NO_VALUE);
                 
                 writeToValue(tval); writeToValue(rval);
+                isRequiredStmt = true;
             }
             
         } else 
@@ -2900,7 +2961,6 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                 }
 
                 isSideEffStmt  = true;
-                isRequiredStmt = true;
             }
         } else    
         // Unary "-" and "+"
@@ -3180,7 +3240,6 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                 val = tval;
                 isSideEffStmt  = true;
                 isAssignStmt   = true;
-                isRequiredStmt = true;
             }
         } else {
             expr->dumpColor();

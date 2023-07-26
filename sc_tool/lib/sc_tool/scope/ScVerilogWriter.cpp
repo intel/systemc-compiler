@@ -57,73 +57,11 @@ std::size_t hash< std::pair<std::string, sc::SValue> >::operator () (
             std::hash<sc::SValue>()(obj.second));
 }
 
-}
+} // namespace std
 
 //============================================================================
 
 using namespace sc;
-
-// Get any kind of assignment statement/operator
-// \return assignment statement or @nullptr
-const Expr* ScVerilogWriter::getAssignStmt(const Stmt* stmt) const
-{
-    if (auto constExpr = dyn_cast<CXXConstructExpr>(stmt)) {
-        if (constExpr->getNumArgs() != 0) 
-            return getAssignStmt(constExpr->getArg(0));
-        else 
-            return nullptr;
-    } else 
-    if (auto bindExpr = dyn_cast<CXXBindTemporaryExpr>(stmt)) {
-        return getAssignStmt(bindExpr->getSubExpr());
-    } else 
-    if (auto tempExpr = dyn_cast<MaterializeTemporaryExpr>(stmt)) {
-        return getAssignStmt(tempExpr->getSubExpr());
-    } else 
-    if (auto parenExpr = dyn_cast<ParenExpr>(stmt)) {
-        return getAssignStmt(parenExpr->getSubExpr());
-    } else 
-    if (auto castExpr = dyn_cast<CastExpr>(stmt)) {
-        return getAssignStmt(castExpr->getSubExpr());
-    } else 
-    if (auto callExpr = dyn_cast<CXXMemberCallExpr>(stmt)) {
-        Expr* thisExpr = callExpr->getImplicitObjectArgument();
-        bool isScIntegerType = isAnyScIntegerRef(thisExpr->getType(), true);
-        FunctionDecl* methodDecl = callExpr->getMethodDecl()->getAsFunction();
-        string fname = methodDecl->getNameAsString();
-        
-        if (isScIntegerType && fname.find("operator") != string::npos && (
-            fname.find("sc_unsigned") != string::npos ||
-            fname.find("int") != string::npos ||
-            fname.find("long") != string::npos ||  
-            fname.find("bool") != string::npos)) 
-        {
-            return getAssignStmt(thisExpr);
-        }
-    } else 
-    if (auto compundOper = dyn_cast<CompoundAssignOperator>(stmt)) {
-        return compundOper;
-    } else 
-    if (auto binaryOper = dyn_cast<BinaryOperator>(stmt)) {
-        auto opcode = binaryOper->getOpcode();
-        if (opcode == BO_Assign) {
-            return binaryOper;
-        }
-    } else 
-    if (auto callExpr = dyn_cast<CXXOperatorCallExpr>(stmt)) {
-        auto opcode = callExpr->getOperator();
-        if ((callExpr->isAssignmentOp() && opcode == OO_Equal) ||
-            (opcode == OO_PlusEqual || opcode == OO_MinusEqual || 
-             opcode == OO_StarEqual || opcode == OO_SlashEqual ||
-             opcode == OO_PercentEqual || 
-             opcode == OO_GreaterGreaterEqual || opcode == OO_LessLessEqual ||
-             opcode == OO_AmpEqual || opcode == OO_PipeEqual || 
-             opcode == OO_CaretEqual)) 
-        {
-            return callExpr;
-        }
-    }
-    return nullptr;
-}
 
 // Get LHS for any kind of assignment statement/operator
 // \return LHS statement of the assignment or @nullptr
@@ -189,8 +127,6 @@ const Expr* ScVerilogWriter::getAssignLhs(const Stmt* stmt) const
     }
     return nullptr;
 }
-
-    
 
 // Get variable declaration string in Verilog
 string ScVerilogWriter::getVarDeclVerilog(const QualType& type, 
@@ -1835,7 +1771,6 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
             names.first += indxSuff;
             names.second += indxSuff;
             //cout << "  REC from its method suffix " << indxSuff << endl;
-            
         } 
         
         // Add record/MIF variable prefix for its member access
@@ -1896,6 +1831,7 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
         SCT_TOOL_ASSERT (false, "Channel object not expected");
         
     } else {
+        cout << stmt->getBeginLoc().printToString(sm) << endl;
         SCT_TOOL_ASSERT (false, "No value found");
     }
 }
@@ -2314,9 +2250,12 @@ void ScVerilogWriter::addSubscriptIndex(const SValue& aval,
     }
     
     arraySubIndices.push_back(pair<SValue, const clang::Stmt*>(aval, indx));
-    //cout << "addSubscriptIndex for " << aval << hex << " indx " << indx << dec << endl;
+    //cout << "---- addSubscriptIndex for " << aval << hex << " indx " << indx << dec << endl;
 }
 
+void ScVerilogWriter::clearSubscriptIndex() {
+    arraySubIndices.clear();
+}
 
 // Get string from indices "[index1][index2]..." stored in @arraySubIndices
 // and erase them in @arraySubIndices if no @keepArrayIndices
@@ -2334,7 +2273,7 @@ std::string ScVerilogWriter::getIndexString(const SValue& val)
             } else {
                 i = arraySubIndices.erase(i);
             }
-            //cout << "---- " << hex << (unsigned long)(i->second) << dec << endl;
+            //cout << "   " << hex << (unsigned long)(i->second) << dec << " " << res << endl;
         } else {
             ++i;
         }
@@ -3273,11 +3212,11 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
         const SValue& val = pair.first;
         // Skip constant defined in thread reset section declaration in process
         // @varTraits used for CTHREAD variables only
-        if (REMOVE_BODY_UNUSED() && !isCombProcess) {
+        if (!isCombProcess) {
             auto i = varTraits.find(val);
             if (i != varTraits.end()) {
                 if (i->second.isReadOnlyCDR()) continue;
-                if (!i->second.isAccessAfterReset()) continue;
+                if (REMOVE_BODY_UNUSED() && !i->second.isAccessAfterReset()) continue;
             }
         }
         
@@ -3382,13 +3321,13 @@ void ScVerilogWriter::printResetCombDecl(std::ostream &os)
     unordered_set<SValue> declaredVars;
     // Normal local variable declarations
     for (const auto& pair : localDeclVerilog) {
-        if (REMOVE_RESET_UNUSED() && !isCombProcess) {
+        if (!isCombProcess) {
             auto i = varTraits.find(pair.first);
             if (i != varTraits.end()) {
                 if (i->second.isCombSig() || i->second.isCombSigClear() || 
                     i->second.isClearSig() ||     
                     i->second.isRegister() || i->second.isReadOnlyCDR()) continue;
-                if (!i->second.isAccessInReset()) continue;
+                if (REMOVE_RESET_UNUSED() && !i->second.isAccessInReset()) continue;
             }
         }
             

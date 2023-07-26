@@ -491,7 +491,7 @@ public:
 
 //==============================================================================
 
-/// Approximate time implementation
+/// Fast simulation implementation
 template <
     typename T,             /// Data type
     unsigned LENGTH,        /// Size (maximal number of elements)

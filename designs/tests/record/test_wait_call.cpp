@@ -71,6 +71,7 @@ public:
         }
     }
     
+    sc_signal<int> t0;
     void wait_in_record3()
     {
         WaitRec wr3;
@@ -79,6 +80,7 @@ public:
         while (true) {
             int i = sig.read();
             wr3.waitFuncRef(i);
+            t0 = i;
         }
     }
 };

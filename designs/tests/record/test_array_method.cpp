@@ -90,8 +90,10 @@ public:
     int ap_b;
     
     // Simple record array
+    sc_signal<int> t0;
     void rec_loc_arr0() 
     {
+        t0 = 0;
         //Simple ar;
         Simple ap[2];
         ap[0].a = true;
@@ -101,6 +103,7 @@ public:
         ap[0].b = ap[1].b + 1;
         if (ap[1].a) {
             int i = ap[0].b >> ap[1].b;
+            t0 = i;
         }
         
     }
@@ -115,6 +118,7 @@ public:
     }
     
     // Several record arrays
+    sc_signal<int> t1;
     void rec_loc_arr2() 
     {
         Simple ar[2];
@@ -123,6 +127,7 @@ public:
         ar[1].a = false;
         arr[1][2].a = !ar[1].a;
         int c = arr[1][0].b + ar[0].b;
+        t1 = c;
         
         sct_assert_const(!ar[1].a);
         sct_assert_const(arr[1][2].a);
@@ -134,6 +139,7 @@ public:
     }
     
     // Record array access in loop
+    sc_signal<int> t2;
     void rec_loc_arr3() {
         Simple ar[2];
         for (int i = 0; i < 2; i++) {
@@ -145,6 +151,7 @@ public:
         for (int i = 0; i < 2; i++) {
             k += ar[i].a ? ar[i].b : 0;
         }
+        t2 = k;
     }    
     
     void rec_arr_elem_assign()
@@ -158,9 +165,11 @@ public:
 
 //---------------------------------------------------------------------------    
     // Record array element as function parameter by constant value 
-    
-     void ff1(const Simple par) {
+
+    sc_signal<int> t3;
+    void ff1(const Simple par) {
         int i = par.a + par.b;
+        t3 = i;
     }
 
     void rec_arr_elem_const_val1()
@@ -191,21 +200,29 @@ public:
     
 //---------------------------------------------------------------------------    
     // Record array element as function parameter
+    sc_signal<int> t4;
     void f1(Simple par) {
         int i = par.b;
+        t4 = i;
     }
 
+    sc_signal<int> t5;
     void f2(Simple& par) {
         int i;
         i = par.b;
+        t5 = i;
     }
     
+    sc_signal<int> t6;
     void f3(int par1, bool par2) {
         int i = par2 ? par1 : 1;
+        t6 = i;
     }
 
+    sc_signal<int> t7;
     void f4(int& par1, bool& par2) {
         int i = par2 ? par1 : 1;
+        t7 = i;
     }
 
     void rec_arr_elem_func_param_val()
@@ -246,9 +263,10 @@ public:
 
 //---------------------------------------------------------------------------    
     // Record array element as function parameter by constant reference
-    
+    sc_signal<int> t8;
     void cref_sum(const Simple& par) {
         int res = par.a + par.b;
+        t8 = res;
     }
 
     void rec_arr_elem_func_param_cref1()
@@ -264,6 +282,7 @@ public:
     
     void rec_arr_elem_func_param_cref2()
     {
+        t8 = 0;
         int indx = 0;
         Simple cvrr[3];
         if (sig.read()) {

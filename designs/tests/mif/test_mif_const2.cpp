@@ -111,20 +111,24 @@ SC_MODULE(Top)
         }
     }
     
+    sc_signal<int> t1;
     void topProcPtr() 
     {
         unsigned i;
         if (pminst->B == 43) {
             int i = (*pminst).A + pminst->AA;
         }
+        t1 = i;
     }
     
+    sc_signal<int> t2;
     void topProcArr() 
     {
         unsigned i;
         if (aminst[0]->B) {
             int i = aminst[0]->A + aminst[1]->B + aminst[1]->C;
         }
+        t2 = i;
     }
     
 };

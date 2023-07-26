@@ -32,6 +32,7 @@ struct A : public sc_module
         sensitive << s;
     }
     
+    sc_signal<int> t0;
     void array_method() 
     {
         const bool larr[3] = {true, true, false};
@@ -40,6 +41,7 @@ struct A : public sc_module
         b1 = larr[1];
         bool b2 = C1;
         b2 = C2;
+        t0 = b1 + b2;
     }
 };
 

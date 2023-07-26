@@ -41,11 +41,13 @@ public:
     Simple marr1[2];
     Simple marr2[2][3];
     
+    sc_signal<int> t0;
     void rec_mod_arr1() 
     {
         marr1[1].a = false;
         marr2[1][2].a = !marr1[1].a;
         int c = marr2[1][0].b + marr1[0].b;
+        t0 = c;
         
         sct_assert_const(!marr1[1].a);
         sct_assert_const(marr2[1][2].a);
@@ -73,10 +75,12 @@ public:
 
     Outer oo;
 
+    sc_signal<int> t1;
     void rec_mod_inner0() 
     {
         oo.r.a = true;
         bool b = !oo.r.a; 
+        t1 = b;
     }
     
     Outer oarr[2];

@@ -35,6 +35,7 @@ struct mod_if : public sc_module, sc_interface
     }
     
     // Local record
+    sc_signal<int> t0;
     void localRecThread() 
     {
         Simple  t;      // reg
@@ -46,6 +47,7 @@ struct mod_if : public sc_module, sc_interface
             tt.a = s.read();
             tt.b = tt.a ? t.b : (sc_uint<4>)0;
             int i = t.b + tt.b;
+            t0 = i;
             wait();
             
             t.b = t.b + 1;
@@ -53,6 +55,7 @@ struct mod_if : public sc_module, sc_interface
     }
     
     // Local record array
+    sc_signal<int> t1;
     void localRecArrThread() 
     {
         Simple  v[2];      // reg
@@ -71,6 +74,7 @@ struct mod_if : public sc_module, sc_interface
                 vv[i].b = (i < 2) ? v[i].b : (sc_uint<4>)i;
                 sum += vv[i].b;
             }
+            t1 = sum;
             
             wait();
         }
@@ -79,7 +83,7 @@ struct mod_if : public sc_module, sc_interface
     // Member record
     Simple  r;      // reg
     Simple  rr;     // comb
-
+    sc_signal<int> t2;
     void memRecThread() 
     {
         r.a = false; r.b = 1;
@@ -89,6 +93,7 @@ struct mod_if : public sc_module, sc_interface
             rr.a = s.read();
             rr.b = rr.a ? r.b : (sc_uint<4>)0;
             int i = r.b + rr.b;
+            t2 = i;
             wait();
             
             r.b = r.b + 1;
@@ -98,7 +103,7 @@ struct mod_if : public sc_module, sc_interface
     // Member record array
     Simple  w[2];      // reg
     Simple  ww[4];     // comb
-
+    sc_signal<int> t3;
     void memRecArrThread() 
     {
         for (int i = 0; i < 2; ++i) {
@@ -115,6 +120,7 @@ struct mod_if : public sc_module, sc_interface
                 ww[i].b = (i < 2) ? w[i].b : (sc_uint<4>)i;
                 sum += ww[i].b;
             }
+            t3 = sum;
             
             wait();
         }

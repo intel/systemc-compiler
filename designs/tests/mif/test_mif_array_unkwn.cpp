@@ -70,6 +70,7 @@ SC_MODULE(Top) {
         sensitive << minst[0]->s << minst[1]->s << t;
     }
 
+    sc_signal<int> t1;
     void top_method() 
     {
         int i = t;
@@ -83,6 +84,8 @@ SC_MODULE(Top) {
         
         minst[i]->vv = 0;
         for (int j = 0; j < 2; ++j) minst[j]->v = j;
+        t1 = minst[0]->v;
+        t1 = minst[i]->vv;
 
         sc_uint<4> a = minst[i]->s;
         minst[i]->s = minst[i+1]->v + a;

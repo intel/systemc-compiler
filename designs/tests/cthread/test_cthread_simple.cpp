@@ -76,32 +76,40 @@ public:
         }
     }
 
+    sc_signal<int> t0;
     void simple_thread_wo_reset1() {
         while (true) {
             int i = 0;
+            t0 = i;
             wait();
         }
     }
     
+    sc_signal<int> t0a;
     void concat_meth() {
         sc_uint<2> c = ((sc_uint<1>)ps->read(), (sc_uint<1>)0);
+        t0a = c;
         //sc_uint<2> c = ((sc_uint<1>)ps->read());
     }
 
+    sc_signal<int> t1;
     void simple_concat() {
         wait();
         
         while (true) {
             sc_uint<2> c = ((sc_uint<1>)ps->read(), (sc_uint<1>)0);
+            t1 = c;
             wait();
         }
     }
     
+    sc_signal<int> t1a;
     void simple_reg_ro() {
         wait();
         
         while (true) {
             bool b = d;
+            t1a = b;
             wait();
         }
     }

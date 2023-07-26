@@ -75,6 +75,7 @@ public:
     	}
     }
 
+    sc_signal<int> t0;
     template<typename T1>
     void for_stmt_no_wait(T1 par1)
     {
@@ -83,8 +84,10 @@ public:
         for (i = 0; i < 2; i++) {
             k = i.to_int();
         }
+        t0 = k;
     }
     
+    sc_signal<int> t1;
     template<typename T1>
     void for_stmt_wait0(T1 par1)
     {
@@ -94,9 +97,11 @@ public:
         for (i = 0; i < 2; i++) {   // B5
             k = i.to_int()+2;                      // B4
         }                               // B3
-            k = 3;                          // B2
+        k = 3;                          // B2
+        t1 = k;
     }
     
+    sc_signal<int> t2;
     template<typename T1>
     void for_stmt_wait1(T1 par1)
     {
@@ -106,8 +111,10 @@ public:
              k = 1;
         }
         k = 2;
+        t2 = k;
     }
 
+    sc_signal<int> t3;
     template<typename T1>
     void for_stmt_wait2(T1 par1)
     {
@@ -118,6 +125,7 @@ public:
         }
         k = 2;
         k = 3;
+        t3 = k;
     }
     
     // For with wait() no iteration

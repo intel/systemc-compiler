@@ -80,6 +80,7 @@ SC_MODULE(test) {
         return p;
     }
     
+    sc_signal<int> t0;
     void array_return2() 
     {
         int c[3];
@@ -88,6 +89,7 @@ SC_MODULE(test) {
         int* f = arr_ret3();
         
         int i = d[0] + e[1] + f[2];
+        t0 = i;
     }
 };
 

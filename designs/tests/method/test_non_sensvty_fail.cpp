@@ -57,14 +57,17 @@ public:
     
 
     // Check multiple channels non-sensitive are reported
+    sc_signal<int> t0;
     void multi_non_sensitive()
     {
         if (s1.read() || a.read()) {
             int i = s2.read();
+            t0 = i;
         }
     }
     
     // False non-sensitive error, see #84
+    sc_signal<int> t1;
     void false_non_sensitive1() 
     {
         bool tmp;
@@ -73,6 +76,7 @@ public:
             c = tmp;
         }
         b = s1;
+        t1 = c;
     }
     
     // False non-sensitive error, see #84

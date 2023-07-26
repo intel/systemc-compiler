@@ -16,7 +16,7 @@ using namespace sc_core;
 
 struct Simple {
     bool a;
-    int b = 0x42;
+    int b;
     
     Simple() = default;
     Simple(int par) : b(par) {a = false;}
@@ -104,11 +104,13 @@ public:
         a = par;
     }
     
+    sc_signal<int> t0;
     void callSignalParam() {
         Simple a;
         const Simple& r1 = a;             // OK
         const Simple& r2 = sim.read();      // OK
         a = r2;
+        t0 = a.b;
         // const Simple& r3 = Simple();     // Prohibited
         
         put( sim.read() );
@@ -116,18 +118,22 @@ public:
     
 // ----------------------------------------------------------------------------
 
+    sc_signal<int> t1;
     void recordRefDecl() {
         Simple ss;
         Simple& rs = ss; 
         Simple ll1 = rs;
         Simple ll2; ll2 = rs;
+        t1 = ll2.b;
     }
     
+    sc_signal<int> t2;
     void recordDeclUseDef() {
         int i = 42;
         wait();
         
         Simple a(i);   // Check @i is used -- OK
+        t2 = a.b;
         wait();
         
         while (true) {
@@ -135,6 +141,7 @@ public:
         }
     }
     
+    sc_signal<int> t3;
     void localVarInRst() {
         Simple s;
         wait();
@@ -142,6 +149,7 @@ public:
         s.b = 43;
         const Simple& ref = s;
         Simple a; a = ref;       // Check s.a is declared and register
+        t3 = a.b;
         
         wait();
 
@@ -164,6 +172,7 @@ public:
         tt.b = aa.c[j];
     }
     
+    sc_signal<int> tt4;
     void copyCtorIssue() 
     {   
         Simple t1 = sim;
@@ -173,6 +182,7 @@ public:
         
         Simple t5;
         t5 = Simple(s.read());
+        tt4 = t5.b;
         
         rim.write(t5);
         rim.write(Simple());

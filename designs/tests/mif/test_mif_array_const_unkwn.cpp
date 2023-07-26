@@ -46,8 +46,10 @@ struct mod_if2 : public sc_module, sc_interface
         SC_METHOD(mod_meth); sensitive << s;
     }
     
+    sc_signal<int> t0;
     void mod_meth() {
         auto ll = v;
+        t0 = ll;
     }
 };
 
@@ -79,6 +81,7 @@ SC_MODULE(Top) {
     }
 
     // No @localparam for @w
+    sc_signal<int> t1;
     void usedef_method() 
     {
         int j = t.read();
@@ -98,17 +101,21 @@ SC_MODULE(Top) {
         }
         
         l = minsts2[j].v;
+        t1 = l;
     }
     
+    sc_signal<int> t2;
     void usedef_thread() 
     {
         wait();
         while (true) {
             int l = minst.getV();
+            t2 = l;
             wait();
         }
     }
     
+    sc_signal<int> t3;
     void const_meth() {
         int j = t.read();
         if (minsts[j].c) {
@@ -117,6 +124,7 @@ SC_MODULE(Top) {
         if (minsts[j].d) {
             j--;
         }
+        t3 = j;
     }
     
     struct Simple {
@@ -135,6 +143,7 @@ SC_MODULE(Top) {
     }
     
     Simple arr[3];
+    sc_signal<int> t4;
     void record_array() {
         int k;
         int j = t.read();
@@ -148,10 +157,12 @@ SC_MODULE(Top) {
         }
         k = i1 ? 3 : 4;
         k = i2 ? 5 : 6;
+        t4 = k;
     }
     
     Simple marr[3];
     Simple narr[3];
+    sc_signal<int> t5;
     void record_array_def() {
         int k;
         int j = t.read();
@@ -169,6 +180,7 @@ SC_MODULE(Top) {
         }
         marr[0].b = 0;
         narr[j].b = 0;
+        t5 = k;
     }
 };
 

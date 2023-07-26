@@ -40,12 +40,11 @@ public:
         SC_METHOD(cond_oper_compl); sensitive << s;
         SC_METHOD(cond_oper1); sensitive << s;
         SC_METHOD(cond_oper2); sensitive << s;
-        // TODO; Fix me, #142
-        //SC_METHOD(cond_oper3); sensitive << s;
+        SC_METHOD(cond_oper3); sensitive << s;
         
-//        SC_METHOD(cond_oper4); sensitive << s;
-//        SC_METHOD(cond_oper5); sensitive << s;
-//        SC_METHOD(cond_oper6); sensitive << s;
+        SC_METHOD(cond_oper4); sensitive << s;
+        SC_METHOD(cond_oper5); sensitive << s;
+        SC_METHOD(cond_oper6); sensitive << s;
         
         SC_METHOD(cond_oper_const); sensitive << s;
         SC_METHOD(cond_oper_fcall); sensitive << s;
@@ -65,6 +64,7 @@ public:
 
     // Conditional operator for channels
     // BUG in real design -- fixed
+    sc_signal<int> t0;
     void cond_oper_for_channels()
     {
         bool b;
@@ -72,10 +72,12 @@ public:
         int k = s.read();
         b = (k) ? s1 : s2;
         b = k ? s1 : s2;
+        t0 =b;
     }
 
     
     // Logic expression with ||
+    sc_signal<int> t1;
     void logic_expr1() {
         int m = s.read();
         int k = s.read();
@@ -94,9 +96,11 @@ public:
         bool l2 = (m > 1 && k < 1);
         bool l3 = m != k && k != 1;
         bool l4 = (m > 1 && k > 1 && k > m && !(m == k));
+        t1 = l1 + l2 + l3 + l4;
     }
 
     // Logic expression with || and && mixed
+    sc_signal<int> t2;
     void logic_expr3() {
         int m = s.read();
         int k = s.read();
@@ -104,9 +108,11 @@ public:
         bool l2 = m > 1 || k < 1 && k != 1;
         bool l3 = m != k && k != 1 || !(m < k) && k < 1;
         bool l4 = m != k || !(k==m) && m < k || k < 1;
+        t2 = l1 + l2 + l3 + l4;
     }
 
     // Logic expression with || and && mixed with ()
+    sc_signal<int> t3;
     void logic_expr4() {
         int m = s.read();
         int k = s.read();
@@ -114,15 +120,18 @@ public:
         bool l2 = (m > 1 || k < 1) && k != 1;
         bool l3 = m != k && ((k != 1 || !(m < k)) && k < 1);
         bool l4 = m != k || !(k==m) && (m < k || k < 1);
+        t3 = l1 + l2 + l3 + l4;
     }
     
     // Condition operator with complex condition
+    sc_signal<int> t4;
     void cond_oper_compl() {
         int i;
         int m = s.read();
         int k = s.read();
         i = (m + 1) ? m + 1 : m + 2;
         i = (m + 1 > k -1) ? 1 : 2;
+        t4 = i;
     }
  
     // Condition operator in assignment
@@ -139,6 +148,7 @@ public:
     }    
     
     // Condition operator in IF branches
+    sc_signal<int> t5;
     void cond_oper2() {
         int i;
         int m = s.read();
@@ -157,9 +167,11 @@ public:
         } else {
         }
         i = (m == 1) ? m : k;
+        t5 = i;
     }    
 
     // Condition operator in IF condition
+    sc_signal<int> t5a;
     void cond_oper3() {
         int i;
         int m = s.read();
@@ -169,16 +181,12 @@ public:
         } else {
             i = 2;
         }
-        if (i = ((m == 1) ? m : k) > 1) {
-            i = 1;
-        } else {
-            i = 2;
-        }
         if (m == ((m == 1) ? m : k)) {
             i = 1;
         } else {
             i = 2;
         }
+        t5a = i;
     }    
     
     // Condition operator in loop with continue
@@ -250,6 +258,7 @@ public:
     }            
     
     // Condition operator in loop with break exit only
+    sc_signal<int> t5d;
     void cond_oper6() {
         int i;
         int m = s.read();
@@ -280,9 +289,11 @@ public:
                 break;
             }
         }
+        t5d = i;
     }        
     
     // Condition operator with one of block reachable
+    sc_signal<int> t6;
     void cond_oper_const() {
         int i;
         int m = s.read();
@@ -293,6 +304,7 @@ public:
         i = (true && k == m) ? m : k;
         i = (false && k == m) ? m : k;
         i = (true || k == m) ? m : k;
+        t6 = i;
     } 
 
     // Condition operator with constant condition and function call
@@ -300,12 +312,14 @@ public:
         return (l+1);
     }
     
+    sc_signal<int> t7;
     void cond_oper_fcall() {
         int i;
         i = 0 ? f(1) : 1;
         i = 1 ? f(2) : f(3);
         i = (1 || f(1)) ? f(2) : f(3);
         i = (0 && f(4)) ? f(5) : f(6);
+        t7 = i;
     }    
 
 };

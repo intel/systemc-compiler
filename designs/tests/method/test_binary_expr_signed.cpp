@@ -163,40 +163,52 @@ public:
         //CHECK(bz == -5);  
     }
     
+    sc_signal<int> t0;
     void unary() 
     {
         int z;
         sc_bigint<33> bz;
         int i = -5;
         unsigned uu = 7;
+        t0 = uu;
 
         sc_int<7>  x = -4;
         sc_uint<7> ux = 2;
+        t0 = ux;
         z = -x + i - 1;
+        t0 = z;
         std::cout << "z = " << z << std::endl;
         CHECK(z == -2);  
         bz = (-x) * 3 + (-z) * i;
+        t0 = bz.to_int();
         std::cout << "z = " << bz << std::endl;
         CHECK(bz == 2);  
     }
-    
+  
+    sc_signal<int> t1;
     void ternary() 
     {
         int z;
         sc_bigint<33> bz;
         int i = -5;
         unsigned uu = 7;
+        t0 = uu;
         sc_int<7>  x = -4;
         sc_uint<7> ux = 2;
+        t0 = ux;
         
         z = true ? 1 : 2;
         CHECK(z == 1);  
+        t0 = z;
         z = false ? i : i - 1;
+        t0 = z;
         CHECK(z == -6);  
         z = true ? (ux + i) * x : - 1;              // Warning reported
+        t0 = z;
         std::cout << "z = " << z << std::endl;
         //CHECK(z == 12);  
         z = true ? ((-x) * 3 + (-z) * i) : - 1;
+        t0 = z;
         std::cout << "z = " << z << std::endl;
         //CHECK(z == 72);  
     }
@@ -223,4 +235,5 @@ int sc_main(int argc, char* argv[])
     sc_start();
     return 0;
 }
+
 

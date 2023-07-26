@@ -222,6 +222,10 @@ public:
         SYNTH_CHAN_RECORD_TEMP      = 244,
         SYNTH_INNER_RECORD          = 245,
         SYNTH_SC_PORT_ARRAY         = 246,
+        SYNTH_INIT_FIELD_REC_ARRAY  = 247,
+        SYNTH_CTOR_REC_ARRAY        = 248,
+        SYNTH_REC_ARRAY_INIT        = 249,
+        SYNTH_REC_CHAN_NONDEF_CTOR  = 250,
         
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -778,6 +782,22 @@ private:
         idFormatMap[SYNTH_SC_PORT_ARRAY] =
             {clang::DiagnosticIDs::Fatal, 
             "Array/vector of sc_port is not supported"};
+        
+        idFormatMap[SYNTH_INIT_FIELD_REC_ARRAY] =
+            {clang::DiagnosticIDs::Error, 
+            "Record with in-place field initialization cannot be in array : %0"};
+        
+        idFormatMap[SYNTH_CTOR_REC_ARRAY] =
+            {clang::DiagnosticIDs::Error, 
+            "Record with non-default constructor cannot be in array"};
+        
+        idFormatMap[SYNTH_REC_ARRAY_INIT] =
+            {clang::DiagnosticIDs::Error, 
+            "Array of records cannot be initialized with initializer list"};
+
+        idFormatMap[SYNTH_REC_CHAN_NONDEF_CTOR] =
+            {clang::DiagnosticIDs::Error, 
+            "Non-default constructor for record channel is not supported"};
         
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =

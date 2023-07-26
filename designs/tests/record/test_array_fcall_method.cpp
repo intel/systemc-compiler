@@ -69,8 +69,10 @@ public:
         sc_uint<4> b;
     };
 
+    sc_signal<int> t0;
     void f1(MyRec par) {
         int k = par.b;
+        t0 = k;
     }
 
     int f1_two(MyRec par1, MyRec par2) {
@@ -92,6 +94,7 @@ public:
 
 
     // Two record array elements as function parameters by value
+    sc_signal<int> t1;
     void rec_arr_elem_func_param_val2()
     {
         MyRec xr, yr;
@@ -104,11 +107,14 @@ public:
 
         f1_two(xra[2], yr);
         int i = f1_two(yr, xra[1]);
+        t1 = i;
     }    
 
     // Record array element at unknown index as function parameters by value
+    sc_signal<int> t2;
     void rec_arr_elem_func_param_val3()
     {
+        t0 = 0;
         int i = s.read();
         MyRec qr;
         
@@ -121,16 +127,21 @@ public:
         } else {
             if (i == 1) f1(qra[i]);
         }
+        t2 = qra[i].a;
     }    
     
 //-----------------------------------------------------------------------------
 
+    sc_signal<int> t3;
     void f2(MyRec& par) {
         int k = par.b;
+        t3 = k;
     }
 
+    sc_signal<int> t4;
     void f2_two(MyRec& par1, MyRec& par2) {
         int k = par1.b + par2.b;
+        t4 = k;
     }
 
     int f2_two_cond(MyRec& par1, bool a, MyRec& par2) {
@@ -148,6 +159,7 @@ public:
     }
 
     // Two record array elements as function parameters by reference
+    sc_signal<int> t5;
     void rec_arr_elem_func_param_ref2()
     {
         MyRec er[3];
@@ -161,6 +173,7 @@ public:
         int i = s.read();
         a = f2_two_cond(er[i], true, fr);
         f2_two_cond(er[i+1], a, er[i+1]);
+        t5 = a;
     }
 
     int f3_val(sc_uint<4> par) {
@@ -173,6 +186,7 @@ public:
     }
 
     // Record array elements as function parameters in IF, passed by reference
+    sc_signal<int> t6;
     void rec_arr_elem_func_param_ref3()
     {
         MyRec err[3];
@@ -183,6 +197,7 @@ public:
         frr.a = f3_ref(err[i+1].b);
         
         f2_two(err[i], err[frr.a]);
+        t6 = err[frr.a].a;
     }
 
     // Use record array element as index for the same array
@@ -257,10 +272,8 @@ public:
         void setb(sc_uint<16> bval){
             b = bval;
         }
-
-
-
     };
+    
     struct Simple_bitwise {
         sc_uint<32> a;
         sc_uint<16> b;

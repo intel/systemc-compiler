@@ -14,6 +14,7 @@ struct Simple {
     bool a;
     sc_uint<4> b;
 
+    Simple() = default;
     Simple(bool a, sc_uint<4> b) : a(a), b(b) 
     {}
 };
@@ -37,18 +38,13 @@ public:
 
     SC_CTOR(A) 
     {
-        SC_METHOD(const_cond_stmt); 
-        sensitive << s;
-
-        SC_METHOD(const_method); 
-        sensitive << s;
-        
-        SC_METHOD(const_record_method); 
-        sensitive << s;
+        SC_METHOD(const_cond_stmt); sensitive << s;
+        SC_METHOD(const_method); sensitive << s;
+        SC_METHOD(const_record_method); sensitive << s;
+        SC_METHOD(const_record_arr_method); sensitive << s;
         
         SC_CTHREAD(const_record_thread, clk.pos());
         async_reset_signal_is(nrst, 0);
-
         SC_CTHREAD(const_record_thread2, clk.pos());
         async_reset_signal_is(nrst, 0);
     }
@@ -86,8 +82,8 @@ public:
         a = getvar();
         unsigned b = a + C;
         CHECK(b == 2);
-     }
-
+    }
+    
 // ----------------------------------------------------------------------------
     
     // Constant record member and local
@@ -109,16 +105,33 @@ public:
         CHECK(j == 4);
     }
     
-    void const_record_thread() 
+    sc_signal<int> t0;
+    void const_record_arr_method() 
     {
         const Simple rec(false, 1);
+        //const Simple arec[2] = {{false, 1}, {false, 2}};    // Error reported
+        //Simple arec[2] = {{false, 1}, {false, 2}};          // Error reported
+        Simple arec[2];
+        
+        int j = rec.b + arec[0].b;
+        t0 = j;
+    } 
+
+    sc_signal<int> t1;
+    void const_record_thread() 
+    {
+        sc_uint<5> V = 42;
+        const sc_uint<5> A = V;
+        const Simple rec(false, V);
         wait();
         
         while (true) {
-            int j = rec.b + mrec2.b;
+            t1 = rec.b;
+            t1 = mrec2.b;
+            t1 = A;
             wait();
         }
-    } 
+    }
     
     // Check name conflict with @rec from @const_record_thread() 
     void const_record_thread2() 

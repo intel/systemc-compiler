@@ -81,24 +81,29 @@ public:
         SC_METHOD(read_pointer_array_unknown_b2); sensitive << a << *pcb[0];
     }
 
+    sc_signal<int> t0;
     template <typename VarType>
     void f_var_ref(VarType& var) {
         sc_uint<4> z = var;
+        t0 = z;
     }
 
     template <typename ChanType>
     void f_ch_ref(ChanType& chan) {
         bool w = chan.read();
+        t0 = w;
     }
     
     template <typename VarType>
     void f_var_ptr(VarType var) {
         sc_uint<4> x = *var;
+        t0 = x;
     }
 
     template <typename ChanType>
     void f_ch_ptr(ChanType chan) {
         bool y = *chan ^ chan->read();
+        t0 = y;
     }
 
 
@@ -133,14 +138,17 @@ public:
     }
     
     // Passing array of non-channel pointers element to function
+    sc_signal<int> t1;
     void var_pointer_array_param()
     {
         sc_uint<4> c1 = *pia[a];
+        t1 = c1;
         f_var_ref(ia[a]);     
         f_var_ref(*pia[a]); 
         f_var_ptr(pia[a]);
     }
 
+    sc_signal<int> t2;
     void var_pointer_array_param_thread()
     {
         iat[0] = 1;
@@ -149,6 +157,7 @@ public:
         
         while (true) {
             sc_uint<4> c1 = *piat[a];
+            t2 = c1;
             f_var_ref(iat[a]);     
             f_var_ref(*piat[a]); 
             f_var_ptr(piat[a]);
@@ -157,6 +166,7 @@ public:
     }
 
     // Declare and initialize pointer with array unknown element
+    sc_signal<int> t3;
     void var_pointer_array_init()
     {
         sc_uint<4>* d0 = pia1[1];
@@ -168,34 +178,42 @@ public:
         sc_uint<4>* d2 = d1;
         *d2 = 2;
         j = *d2 - *d1;
+        t3 = j;
         
         sc_uint<4>* d3 = nullptr;
         bool b = d3;
+        t3 = b;
         
         sc_uint<4>* d4;     // warning here
     }
     
      // Unary plus for pointer with array unknown element
+    sc_signal<int> t4;
     void var_pointer_array_plus()
     {
         sc_uint<4>* d1 = +pia2[a];
         *d1 = 2;
+        t4 = *d1;
     }
 
 // ---------------------------------------------------------------------------
 
+    sc_signal<int> t5;
     template <typename ArrType>
     void f_arr(ArrType arr) {
         sc_uint<4> y = arr[1];
+        t5 = y;
     }
 
     template <typename ArrType>
     void f_arr_ptr(ArrType arr) {
         sc_uint<4> y = *arr[1];
+        t5 = y;
     }
     
     void f_arr_ref(sc_uint<4> (&arr)[2]) {
         int k = arr[1];
+        t5 = k;
     }
     
     // Array/sub-array passed to function

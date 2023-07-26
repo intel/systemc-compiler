@@ -12,8 +12,8 @@
 // Local records in thread with field used as registers
 struct SinCosTuple 
 {
-    int sin = 1;
-    int cos = 2;
+    int sin;
+    int cos;
 };
 
 class A : public sc_module {
@@ -47,6 +47,7 @@ public:
     
 
     // Global record array register
+    sc_signal<int> t0;
     SinCosTuple gra[2];
     void record_arr_glob_reg() {
         wait();
@@ -55,10 +56,12 @@ public:
             gra[0].sin = 1;
             wait();
             int b = gra[0].sin;
+            t0 = b;
         }
     }
     
-     void arr_reg() {
+    sc_signal<int> t1;
+    void arr_reg() {
         
         int r[2];
         r[0] = 1; r[1] = 2;
@@ -67,6 +70,7 @@ public:
         while (true) {
             int i = s.read();
             int b = r[i];
+            t1 = b;
             wait();
         }
     }

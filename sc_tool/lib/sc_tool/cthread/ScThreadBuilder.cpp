@@ -131,7 +131,7 @@ clang::QualType getLocalArrayDims(const SValue& val, IndexVec& arrayDims)
 
 sc_elab::VerilogProcCode ThreadBuilder::run()
 {
-    using std::cout; using std::endl;
+    using std::cout; using std::endl; using std::hex; using std::dec;
 
     // Run constant propagation for all states
     if (DebugOptions::isEnabled(DebugComponent::doConstStmt) ||
@@ -175,7 +175,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     travConst->setHasReset(hasReset);
     travConst->run(verMod, entryFuncDecl);
     
-    // Check for empty process and return empty process code
+    // Check for empty process w/o @wait`s, return empty process code
     if (travConst->getLiveStmts().empty()) {
         return VerilogProcCode(true);
     }
@@ -197,6 +197,21 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
         for (auto& entry : travConst->getWaitStates()) {
             entry.second.filterUseDef(defVals, useVals);
         }
+    }
+    
+    // Filter @wait`s from live statements
+    bool emptyLiveStmts = true;
+    for (Stmt* stmt : travConst->getLiveStmts()) {
+        if (CallExpr* expr = dyn_cast<CallExpr>(stmt)) {
+            FunctionDecl* funcDecl = expr->getDirectCallee();
+            if (isWaitDecl(funcDecl)) continue;
+        }
+        emptyLiveStmts = false; break;
+    }
+
+    // Check for empty process with @wait`s, return empty process code
+    if (emptyLiveStmts) {
+        return VerilogProcCode(true);
     }
     
 //    bool first = true;
@@ -326,6 +341,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     travProc->setTermConds(travConst->getTermConds());
     travProc->setLiveStmts(travConst->getLiveStmts());
     travProc->setLiveTerms(travConst->getLiveTerms());
+    travProc->setRemovedArgExprs(travConst->getRemovedArgExprs());
     travProc->setWaitFuncs(travConst->getWaitFuncs());
     travProc->setConstEvalFuncs(travConst->getConstEvalFuncs());
     
@@ -1475,7 +1491,6 @@ void ThreadBuilder::generateThreadLocalVariables()
         } else {
             // Process local constants
             //cout << "Local constant defined in reset " << roVar << endl;
-            // TODO: comment me, #247
             if (travConst->getResetDefConsts().count(roVar)) {
                 // Local constant defined in reset section, 
                 // it needs to be declared in module scope
@@ -1520,11 +1535,6 @@ void ThreadBuilder::generateThreadLocalVariables()
                 verMod->addVarUsedInProc(procView, verVar, 1, 0);
                 verMod->putValueForVerVar(verVar, roVarZero);
 
-                // TODO: uncomment me, #247
-//                bool definedInReset = globalConstProp->getResetDefConsts().count(roVar);
-//                auto varKind = definedInReset ? VerilogVarTraits::READONLY_CDR : 
-//                                                VerilogVarTraits::READONLY;
-                 
                 // Add to verVarTraits, this constant not declared in always blocks
                 globalState->putVerilogTraits(roVar, VerilogVarTraits(
                                      VerilogVarTraits::READONLY_CDR, accessPlace,
@@ -1534,7 +1544,6 @@ void ThreadBuilder::generateThreadLocalVariables()
                                      true, !isNonZeroElmt, false, verVar->getName()));
                 
             } else {
-                // TODO: comment me, #247
                 // Other local constant
                 globalState->putVerilogTraits(roVar, VerilogVarTraits(
                                     VerilogVarTraits::READONLY, accessPlace, 

@@ -136,6 +136,7 @@ public:
         I3_ENUM=0
     };
     
+    sc_signal<int> t0;
     void enumOperation() 
     {
         E1 uvar = U1_ENUM;
@@ -144,7 +145,9 @@ public:
         bool b = false;
         int i = 11; 
         sc_uint<4> x = 1;
+        t0 = x;
         sc_int<4> y = -1;
+        t0 = y;
         unsigned u = 1;
         sc_biguint<17> bu = 1;
         sc_bigint<24> bi = -2;
@@ -199,6 +202,7 @@ public:
     }
     
     // Shift
+    sc_signal<int> t1;
     void shift() {
         unsigned i;
         sc_uint<4> x;
@@ -206,6 +210,7 @@ public:
         int m = 3;
         i = m << 2;
         sc_uint<12> ii = concat(x, y) << 2;
+        t1 = ii;
         i = a.read() >> 3;
         s = i << m;
         int k = a.read() << s.read();
@@ -233,6 +238,7 @@ public:
         y = x << sc_biguint<12>(ii);
     }
     
+    sc_signal<int> t2;
     void sc_type_main_neg() 
     {
         sc_uint<5> x = 1;
@@ -245,20 +251,25 @@ public:
        
         // Incorrect as (-3-x) considered as unsigned, no fix here
         z = -3 - x + y;     // Warning reported
+        t2 = z;
         //CHECK(z == -9); // -1 in SV
         
         z = x * y;          // Warning reported
+        t2 = z;
         //CHECK(z == -5);
         // Incorrect as promoted to ULL in SC, no fix here
         z = y / (x + 1);    // Warning reported
+        t2 = z;
         //CHECK(z == -3);  // -2 in SV
         
         bz = (x + y - 1) / bx;  // Warning reported
         cout << bz << endl;
+        t2 = bz.to_int();
         //CHECK(bz == -2); // -1 in SV
         
         bz = (x - 1 + y) / bx;  // Warning reported
         cout << bz << endl;
+        t2 = bz.to_int();
         //CHECK(bz == -2); // -1 in SV
     }
     
@@ -486,6 +497,7 @@ public:
 
 // ---------------------------------------------------------------------------    
 
+    sc_signal<int> t3;
     void sc_relational_ops()
     {
     	unsigned rel_a = 0;
@@ -506,7 +518,9 @@ public:
         rel_c=rel_d;
 
     	 bool rel_less_than_eq = rel_a <= rel_b;
+         t3 = rel_less_than_eq;
     	 bool rel_greater_than_eq = rel_d >= rel_c;
+         t3 = rel_greater_than_eq;
     	 sct_assert_const(rel_less_than_eq==1);
     	 sct_assert_const(rel_greater_than_eq==1);
 

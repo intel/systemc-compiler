@@ -106,6 +106,7 @@ public:
     }    
 
     // Break from inner loop
+    sc_signal<bool> t0;
     void for_break5() {
         int k = 0;
         for (int i = 0; i < 2; i++) {
@@ -122,10 +123,12 @@ public:
             sct_assert_level(1);
             k = 3;
         }
+        t0 = k;
         sct_assert_level(0);
     }  
     
     // Break from two loops
+    sc_signal<bool> t1;
     void for_break6() {
         int k = 0;
         for (int i = 0; i < 2; i++) {
@@ -137,6 +140,7 @@ public:
             sct_assert_level(1);
             k = 3;
         }
+        t1 = k;
         sct_assert_level(0);
     }  
     

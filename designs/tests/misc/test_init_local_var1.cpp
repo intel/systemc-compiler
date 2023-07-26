@@ -34,7 +34,7 @@ public:
         
 // ----------------------------------------------------------------------------    
     
-    
+    sc_signal<int> t0;
     void var1() {
 	bool a;
         int i;
@@ -50,6 +50,7 @@ public:
             int j;
             sum = b + j;
         }
+        t0 = sum;
     }
     
     void var1_unused() {
@@ -68,6 +69,7 @@ public:
     
 // ----------------------------------------------------------------------------    
     
+    sc_signal<int> t1;
     void var2() {
 	bool b;
         bool bb = true;
@@ -93,6 +95,7 @@ public:
             long n;
             
             sum = b + c + k;
+            t1 = sum;
             
             wait();
             

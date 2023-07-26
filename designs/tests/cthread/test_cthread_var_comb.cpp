@@ -125,6 +125,7 @@ public:
     
 
     // Combinational variable with initialization in reset
+    sc_signal<int> t0;
     void comb_var_in_reset0()
     {
         a = 0;
@@ -132,6 +133,7 @@ public:
         
         while (true) {
             a = 3;
+            t0 = a;
             wait();
         }
     }
@@ -185,6 +187,7 @@ public:
 
     // Combinational variable with initialization in reset
     // Multiple states, variable assigned only at some state
+    sc_signal<int> t1;
     void comb_var_in_reset1b()
     {
         b2 = 0;
@@ -192,22 +195,25 @@ public:
         while (true) {
             wait();
             b2 = 3;
-
+            t1 = b2;
             wait();
         }
     }
     
     // Combinational variable with initialization in reset -- no reset section
+    sc_signal<int> t1a;
     void comb_var_in_reset2()
     {
         while (true) { 
-            c = 3;
+            c = 3; 
+            t1a = c;
             wait();
         }
     }
 
     // Combinational variable with initialization in reset -- no reset section
     // Multiple states
+    sc_signal<int> t2;
     void comb_var_in_reset2a()
     {
         while (true) { 
@@ -215,6 +221,7 @@ public:
             wait();
             
             c1 = 4;
+            t2 = c1;
             wait();
         }
     }

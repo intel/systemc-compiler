@@ -34,9 +34,11 @@ public:
         sensitive << *qs << *ps;
     }
     
+    sc_signal<int> t0;
     void meth() {
         *q = qs->read();
         *p = ps->read() + 1;
+        t0 = *q;
     }     
     
 };

@@ -379,6 +379,7 @@ public:
         unknown = false;
     }
 
+    /// Offset is unknown
     bool isUnknown() { 
         return unknown;
     }

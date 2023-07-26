@@ -41,9 +41,11 @@ struct Top : public sc_module
     
     sc_vector<sc_signal<TileDims_t>>   st_slt_dims{"st_slt_dims", EdmaStoreSlots};
     
+    sc_signal<int> t0;
     void f(int i)
     {
         int l = i;
+        t0 = l;
     }
     
     void methProc1() 

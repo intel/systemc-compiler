@@ -52,6 +52,7 @@ SC_MODULE(inner)
         }
     }
     
+    sc_signal<int> t0;
     void meth1() {
         int l;
         if (req) l = 1;
@@ -65,6 +66,7 @@ SC_MODULE(inner)
         data2 = d;
         req = data1;
         data3 = req;
+        t0 = c+d+b+a;
     }
     
     void meth2() {

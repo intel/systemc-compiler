@@ -46,12 +46,14 @@ struct Child : public sc_module
         }
     }
 
+    sc_signal<int> t0;
     void thrB() {
         out = 0;
         wait();
         
         while (true) {
             int i = v2 + in.read() + s.read();
+            t0 = i;
             wait(2);
         }
     }

@@ -25,12 +25,15 @@ struct mod_if : public sc_module, sc_interface
         sensitive << s;
     }
 
+    sc_signal<int> t0;
     void metProc() {
         v = s.read();
+        t0 = v;
     }
     
     void f() {
         vvv = s;
+        t0 = vvv;
     }
 };
 
@@ -61,9 +64,11 @@ SC_MODULE(Top) {
         minst[0]->s = a + minst[0]->vvv;
     }
 
+    sc_signal<int> t1;
     void top_method2() 
     {
         minst[1]->vv = t;
+        t1 = minst[1]->vv;
     }
 
 };

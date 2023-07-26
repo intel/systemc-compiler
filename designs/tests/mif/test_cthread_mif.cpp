@@ -32,6 +32,7 @@ struct A: public sc_module, sc_interface
     }
     
     // Thread with combinational variable
+    sc_signal<int> t0;
     void thread1()
     {
         s = 1;
@@ -42,16 +43,19 @@ struct A: public sc_module, sc_interface
             v = 3;
             s = 4;
             auto a = v + s.read();
+            t0 = a;
             wait();
         }
     }
     
+    sc_signal<int> t1;
     void thread2()
     {
         wait();
         
         while (true) {
             auto a = ss.read();
+            t1 = a;
             wait();
         }
     }

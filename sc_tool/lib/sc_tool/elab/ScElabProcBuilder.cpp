@@ -602,64 +602,72 @@ std::vector<SValue> RecordValues::getBaseValues(const RecordView& recView)
     return bases;
 }
 
-sc::SValue RecordValues::getOrCreateRecordValue(const RecordView& recView, 
-                                                const SValue& parent) 
+sc::SValue RecordValues::getOrCreateRecordValue(const RecordView& recView) 
 {
     //std::cout << "recView " << recView.getDebugString() << " id " << recView.getID() << std::endl;
     auto i = recordMap.find(recView.getID());
 
     if (i == recordMap.end()) {
         // Base class in not registered
-        SValue val(recView.getType(), getBaseValues(recView), parent);
+        SValue val(recView.getType(), getBaseValues(recView), NO_VALUE);
         recordMap.emplace(recView.getID(), val);
         return val;
+        
     } else 
     if (i->second.isUnknown()) {
         // Module is initial registered in @addRecordView() with NO_VALUE
-        i->second = SValue(recView.getType(), getBaseValues(recView), parent);
+        SValue val(recView.getType(), getBaseValues(recView), NO_VALUE);
+        // Get tuple iterator again as @getBaseValues() updates @recordMap
+        i = recordMap.find(recView.getID());
+        i->second = val;
+        return val;
+        
+    } else {
+        return i->second;
     }
-    return i->second;
 }
+
+void RecordValues::createRecordValue(const RecordView& recView, 
+                                     const SValue& parent) 
+{
+    SValue val(recView.getType(), getBaseValues(recView), parent);
+    auto i = recordMap.find(recView.getID());
+    i->second = val;
+}
+
 
 void RecordValues::fillTopModValue()
 {
-    for (auto& i : recordMap) {
-        const ObjectView& objView = elabDB->getObj(i.first);
-        
-        if (!objView.isRecord()) {
-            cout << "Record " <<  objView.getDebugString() << endl;
-            SCT_TOOL_ASSERT (false, "No record found");
-        }
-        
-        if (objView.record()->isTopMod()) {
-            // No parent for top module
-            i.second = getOrCreateRecordValue(objView.record().getValue());
-            //std::cout << "Top mod " << i.second << std::endl;
+    for (const auto& i : recordMap) {
+        if (i.second.isUnknown()) {
+            const ObjectView& objView = elabDB->getObj(i.first);
+            if (objView.record()->isTopMod()) {
+                // No parent for top module
+                createRecordValue(*objView.record());
+                break;
+            }
         }
     }
 }
 
-bool RecordValues::fillValuesWithParent() 
+void RecordValues::fillValuesWithParent()
 {
-    bool done = true;
-    
-    for (auto& i : recordMap) {
-        if (i.second.isUnknown()) {
-            const ObjectView& objView = elabDB->getObj(i.first);
-            const ModuleMIFView& parjView = objView.getParentModuleOrMIF();
-            auto par = recordMap.find(parjView.getID());
-
-            if (par != recordMap.end() && !par->second.isUnknown()) {
-                // Parent module already has value in @recordMap
-                i.second = getOrCreateRecordValue(objView.record().getValue(), 
-                                                  par->second);
-            } else {
-                // Parent is not ready, one more run is required
-                done = false;
+    bool done;
+    do {
+        done = true;
+        for (const auto& i : recordMap) {
+            if (i.second.isUnknown()) {
+                const ObjectView& objView = elabDB->getObj(i.first);
+                const auto& parView = objView.getParentModuleOrMIF();
+                // Check for parent module is ready
+                auto par = recordMap.find(parView.getID());
+                if (par != recordMap.end() && !par->second.isUnknown()) {
+                    createRecordValue(*objView.record(), par->second);
+                    done = false; break;
+                }
             }
         }
-    }
-    return done;
+    } while (!done);
 }
 
 void RecordValues::addRecordView(const RecordView& recView) 
@@ -682,7 +690,7 @@ const SValue& RecordValues::getRecordView(const RecordView& recView)
 void RecordValues::fillValues() 
 {
     fillTopModValue();
-    while (!fillValuesWithParent()) {}
+    fillValuesWithParent();
 }
 
 void RecordValues::print() 

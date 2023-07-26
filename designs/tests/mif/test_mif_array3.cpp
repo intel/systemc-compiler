@@ -44,9 +44,11 @@ SC_MODULE(Top) {
         sensitive << minst[0]->s << minst[1]->s << t;
     }
 
+    sc_signal<int> t0;
     void top_method() 
     {
         minst[1]->vv = 2;
+        t0 = minst[1]->vv;
     }
 };
 

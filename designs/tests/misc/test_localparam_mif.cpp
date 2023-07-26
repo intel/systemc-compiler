@@ -34,8 +34,10 @@ struct A : public D
     bool B;
     unsigned S;
 
+    sc_signal<int> t0;
     void childProc() {
         int l = S;
+        t0 = l;
     }
     
     bool f() {
@@ -65,6 +67,7 @@ struct Top : public sc_module
         SC_METHOD(topProc); sensitive << t;
     }
     
+    sc_signal<int> t1;
     void topProc() {
         int l;
         int i = t.read();
@@ -74,6 +77,7 @@ struct Top : public sc_module
         for (int i = 0; i < 2; ++i) {
             l = t.read() || aa[i].g();
         }
+        t1 = l;
     }
 };
 

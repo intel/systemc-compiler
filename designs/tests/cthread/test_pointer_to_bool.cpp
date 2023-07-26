@@ -54,6 +54,7 @@ public:
     }
 
     // Pointer comparison to boolean conversion
+    sc_signal<int> t2;
     void test_ptr_comp() {
         wait();
         
@@ -71,6 +72,7 @@ public:
             b = p != q;
             auto x = px;
             bool c = x;
+            t2 = b + c;
 
             wait();
         }
@@ -98,6 +100,7 @@ public:
         }
     }
     
+    sc_signal<int> t3;
     void test_ptr_cond() {
         *p3 = 42;
         wait();
@@ -106,6 +109,7 @@ public:
             int i;
             i = p3 ? *p3 : 0;
             i = q ? *q : 1;
+            t3 = i;
             wait();
         }
     }

@@ -135,6 +135,7 @@ public:
         }
     }
 
+    sc_signal<int> t0;
     void chan_array_read()
     {
         for (int i = 0; i < DOMAIN_NUM; i++) {
@@ -146,6 +147,7 @@ public:
                 b = chans2d[i][j];
                 b = !chans2d[i][j];
             }
+            t0 = b;
         }
     }
     
@@ -162,6 +164,7 @@ public:
     sc_signal<bool> pwrout_;
     
     // No reset process
+    sc_signal<int> t1;
     void operProc() 
     {
         while (true) {
@@ -171,7 +174,7 @@ public:
             if (!pwrout_nenable) {
                 if (renbl) {
                     sc_uint<16> readData = block_memory[addr.read()];
-
+                    t1 = readData;    
                 } else {
                     block_memory[addr.read()] = wdata;
                 }
@@ -182,6 +185,7 @@ public:
     }
     
     // array of pointers to non-channels
+    sc_signal<int> t2;
     void array_of_pointers2() {
         for (int i = 0; i < 3; ++i) *m[i] = 0;
         int i = *m[0];
@@ -191,6 +195,7 @@ public:
             *m[1] = *m[0] + i;
             wait();
             *n[0][1] = *m[1];
+            t2 = *n[1][i];
         }
     }
     

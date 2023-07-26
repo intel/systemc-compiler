@@ -36,6 +36,7 @@ public:
         async_reset_signal_is(rstn, false);
     }
     
+    sc_signal<int> t0;
     void record_return() {
         
         wait();
@@ -45,6 +46,7 @@ public:
             wait();
             
             int a = r.sin;
+            t0 = a;
             sct_assert_const(r.cos == 1);
         }
     }

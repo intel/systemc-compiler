@@ -51,6 +51,7 @@ struct mod_if : public sc_module, sc_interface
     }
 
     // Variables and signal members of MIF
+    sc_signal<int> t0;
     void metProc() {
         v = 1; 
         vv = 2;
@@ -61,9 +62,11 @@ struct mod_if : public sc_module, sc_interface
         
         v = s.read() ? 0 : 1;
         d = !s.read() && v;
+        t0 = d;
     }
     
     // Local record 
+    sc_signal<int> t1;
     void locRecMeth() {
         Simple t;
         Simple tt;
@@ -75,9 +78,11 @@ struct mod_if : public sc_module, sc_interface
         tt.b = 5;
         
         sc_uint<4> x = t.b + tt.b;
+        t1 = x;
     }
     
     // Local record array member of MIF
+    sc_signal<int> t2;
     void locRecArrMeth() {
         Simple t[2];
         Simple tt[3];
@@ -92,12 +97,13 @@ struct mod_if : public sc_module, sc_interface
         }
         
         sc_uint<4> x = t[1].b + tt[2].b;
+        t2 = x;
     }
     
     // Member record and record array member of MIF
     Simple  r;
     Simple  rr;
-
+    sc_signal<int> t3;
     void memRecMeth() {
         r.a = false;
         r.b = 4;
@@ -106,11 +112,12 @@ struct mod_if : public sc_module, sc_interface
         rr.b = 5;
         
         sc_uint<4> x = r.b + rr.b;
+        t3 = x;
     }
 
     Simple  p[2];
     Simple  pp[3];
-    
+    sc_signal<int> t4;
     void memRecArrMeth() {
         p[1].a = false;
         p[1].b = 4;
@@ -119,8 +126,10 @@ struct mod_if : public sc_module, sc_interface
         pp[2].b = 4;
         
         sc_uint<4> x = p[1].b + pp[2].b;
+        t4 = x;
     }
     
+    sc_signal<int> t5;
     void thrProc() {
         sc_uint<3> i = 0;   // Register
         sc_uint<3> j = 1;   // Comb variable
@@ -131,6 +140,7 @@ struct mod_if : public sc_module, sc_interface
         while (1) {
             s = i++;
             j = vvv++;
+            t5 = j;  
             wait();
         }
     }

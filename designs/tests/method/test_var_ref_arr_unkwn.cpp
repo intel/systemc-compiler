@@ -28,6 +28,7 @@ public:
     }
 
     // Array element unknown reference
+    sc_signal<int> t0;
     void reference() {
         unsigned larr[5];
         
@@ -36,17 +37,21 @@ public:
         unsigned& rn = larr[0];    // no warning
         i++;
         r = 1;   // larr[i] = 1; is incorrect as @i was updated before
+        t0 = r;
     }    
     
+    sc_signal<int> t1;
     void reference2() {
         int i = s.read();
         unsigned& r = arr[i][1];
         unsigned& rn = arr[1][1];  // no warning
         i++;
         i = r;   // i = arr[i][1]; is incorrect as @i was updated before
+        t1 = i;
     }
     
     // Array element unknown pointer
+    sc_signal<int> t2;
     void pointer() {
         sc_uint<4> larr[5];
         
@@ -54,6 +59,7 @@ public:
         sc_uint<4>* r = &larr[i];
         i++;
         i = *r;  // i = larr[i]; is incorrect as @i was updated before
+        t2 = i;
     }    
 };
 

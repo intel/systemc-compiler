@@ -61,6 +61,7 @@ public:
         async_reset_signal_is(arstn, false);
     }
 
+    sc_signal<int> t0a;
     void for_stmt_no_wait1()
     {
         int k = 0;
@@ -71,6 +72,7 @@ public:
             for (int i = 0; i < 2; i++) {
                 k = 1;
             }
+            t0a = k;
             
             k = 2;
             wait();
@@ -120,6 +122,7 @@ public:
     }
     
     // No wait() for with continue
+    sc_signal<int> t0b;
     void for_stmt_no_wait4()
     {
         int n = 1;
@@ -136,6 +139,7 @@ public:
                 }
                 m += n;
             }
+            t0b = m;
             
             wait();
             
@@ -145,6 +149,7 @@ public:
     
 // ----------------------------------------------------------------------------
     
+    sc_signal<int> t0;
     void for_stmt_wait0()
     {
         int k = 0;
@@ -159,9 +164,11 @@ public:
                 wait();   // 2
             }                               // B3
             k = 3;                          // B2
+            t0 = k;
         }
     }
     
+    sc_signal<int> t1;
     void for_stmt_wait1()
     {
         int k = 0;
@@ -173,9 +180,11 @@ public:
                 wait();
             }
             k = 2;
+            t1 = k;
         }
     }
 
+    sc_signal<int> t2;
     void for_stmt_wait2()
     {
         int k = 0;
@@ -188,12 +197,13 @@ public:
             }
             k = 2;
             wait();
-            
+            t2 = k;
             k = 3;
         }
     }
     
     // Double loops with break
+    sc_signal<int> t3;
     void for_stmt_wait3()
     {
         int k = 0;
@@ -209,11 +219,13 @@ public:
                 if (in) break;
             }
             k = 3;
+            t3 = k;
             wait();             // 2
         }
     }
     
     // Double loops with continue
+    sc_signal<int> t4;
     void for_stmt_wait4()
     {
         int k = 0;
@@ -228,11 +240,13 @@ public:
                 for (int j = 0; j < 3; j++) {
                     k++;
                 }
+                t4 = k;
             }
         }
     }
     
     // For with wait() no iteration
+    sc_signal<int> t5;
     void for_stmt_wait_noiter()
     {
         int k = 0;
@@ -245,12 +259,14 @@ public:
                 wait();
             }
             k = 3;
+            t5 = k;
             wait();
         }
     }
     
 // ---------------------------------------------------------------------------
     
+    sc_signal<int> t6;
     void for_multi_wait1()
     {
         int k = 0;
@@ -270,10 +286,12 @@ public:
                     wait();     // 3
                 }
             }
+            t6 = k;
             wait();             // 4
         }
     }
     
+    sc_signal<int> t7;
     void for_multi_wait2()
     {
         int k = 0;
@@ -291,9 +309,11 @@ public:
                     wait();     // 3
                 }
             }
+            t7 = k;
         }
     }    
 
+    sc_signal<int> t8;
     void for_multi_wait3()
     {
         int k = 0;
@@ -317,6 +337,7 @@ public:
                 }
 
             } while (in.read() != 42);
+            t8 = k;
         }
     }     
 };

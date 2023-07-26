@@ -45,33 +45,38 @@ public:
         sensitive << a; 
     }
 
-    
+    sc_signal<int> t0;
     void pointer_compare() {
         wait();
         while (true) {
             const bool b1 = (p == nullptr);
             if (b1) {
                 int i = 1;
+                t0 = i;
             }
             sct_assert_const(b1);
 
             bool b2 = (p == nullptr);
+            t0 = b2;
             sct_assert_const(b2);
             
             wait();
         }
     }    
     
+    sc_signal<int> t1;
     void pointer_compare2() {
         wait();
         while (true) {
             const bool b1 = (q != nullptr);
             if (b1) {
                 int i = 1;
+                t1 = i;
             }
             sct_assert_const(b1);
 
             bool b2 = (q != nullptr);
+            t1 = b2;
             sct_assert_const(b2);
             
             wait();
@@ -134,6 +139,7 @@ public:
     
     //----------------------------------------------------------------------
     // Check CP performance on nested loops
+    sc_signal<int> t2;
     void nested_loops() 
     {
         const unsigned SIZE = 5;
@@ -157,6 +163,7 @@ public:
             }
             arr[i] = m;
         }
+        t2 = m + arr[0];
     }
 };
 

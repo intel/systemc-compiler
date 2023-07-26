@@ -104,6 +104,7 @@ public:
     }
 
     // Prefix increment/decrement returns reference which can be in LHS
+    sc_signal<int> t0;
     void incrdecr_lhs() 
     {
         int k; 
@@ -125,6 +126,7 @@ public:
         if (b == 0) {
             k = 3;
         }
+        t0 = k; t0 = i;
     }
     
     // Cast in LHS
@@ -148,6 +150,7 @@ public:
     }
     
     
+    sc_signal<int> t1;
     void concat_return() 
     {
         int k;
@@ -166,6 +169,7 @@ public:
         sc_uint<6> c = 0;
         c.range(4,1) = retConcat(a, b);
         if (c) k = 6;
+        t1 = k;
     }
     
     // Function reference parameter concatenation/range/bit/prefix
@@ -174,6 +178,7 @@ public:
         par = s3.read();
     }
     
+    sc_signal<int> t2;
     void concat_func_param() 
     {
         int k;
@@ -187,6 +192,7 @@ public:
         if (a) k = 1;
         if (b) k = 2;
         if (i) k = 3;
+        t2 = k;
         
         // Error reported:
 //        refParam((a,b));
@@ -261,6 +267,7 @@ public:
     }
 
     // Concat and non-intended comma for SC and CPP types mix
+    sc_signal<int> t3;
     void concat_cpp() 
     {
         bool b = s1.read();
@@ -302,9 +309,11 @@ public:
         bz = (b, by);
         bz = (s4.read(), by);
         bz = (4, by, i);
+        t3 = z; t3 = bz.to_int();
     }
     
     // Multiple concat in one expression
+    sc_signal<int> t4;
     void concat_compl() 
     {
         bool b = s1.read();
@@ -321,6 +330,7 @@ public:
         
         bz = (yy++, by);
         bz = (by, sc_uint<5>(11));
+        t3 = z; t3 = bz.to_int();
     }
     
     void bit_range_sel() 
@@ -337,6 +347,7 @@ public:
         o2 = x2;
     }
     
+    sc_signal<int> t5;
     void bit_range_sel2() 
     {
         sc_int<4> t;  sc_int<4> x;
@@ -345,6 +356,7 @@ public:
         // Type conversion required, else it is casted to boolean in Clang AST
         o3 = (t, sc_uint<4>(t*x)); 
         o4 = (sc_uint<4>(t),sc_uint<4>(t*x));
+        t5 = a;
     }
 
     void bit_range_sel3() 

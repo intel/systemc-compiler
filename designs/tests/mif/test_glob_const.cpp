@@ -31,8 +31,10 @@ struct mif : public sc_module, public sc_interface
         SC_METHOD(methProc); sensitive << s;
     }
     
+    sc_signal<int> t0;
     void methProc() {
         unsigned i = !NS::D ? A : 0;
+        t0 = i;
     }
 };
 
@@ -48,8 +50,10 @@ struct mif2 : public sc_module, public sc_interface
         SC_METHOD(methProc); sensitive << s;
     }
     
+    sc_signal<int> t1;
     void methProc() {
         unsigned i = B ? NS::C : 0;
+        t1 = i;
     }
 };
 
@@ -74,8 +78,10 @@ SC_MODULE(Top)
         SC_METHOD(topProc); sensitive << t;
     }
     
+    sc_signal<int> t0;
     void topProc() {
         unsigned i = E;
+        t0 = i;
     }
 };
 

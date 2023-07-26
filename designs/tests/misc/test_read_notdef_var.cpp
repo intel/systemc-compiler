@@ -33,8 +33,10 @@ struct mod_if : public sc_module, sc_interface
         vv = 1;
     }
 
+    sc_signal<int> t0;
     void meth() {
         bool b = v;
+        t0 = b;
     }
     
     void thread() {

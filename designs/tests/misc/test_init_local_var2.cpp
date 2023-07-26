@@ -121,7 +121,7 @@ public:
         int a;
         bool b;
         sc_uint<4> x;
-        Simple() {}
+        Simple() = default;
         Simple(int par) : a(par), b(par==42), x(par+1) {}
     };
     sc_signal<int> r6;
@@ -141,7 +141,7 @@ public:
     sc_signal<int> r7;
     void method_record_array1() 
     {
-        Simple recarr1[2] = {};
+        Simple recarr1[2];
         
         if (s.read()) {
             Simple recarr2[3];
@@ -216,11 +216,13 @@ public:
     
     // No zero init required for loop counter
     sc_signal<int> r3;
+    sc_signal<int> t0;
     void thread_for1() {
         int a[4];
         for (int i = 0; i < 4; ++i) {
             a[i] = 0;
         }    
+        t0 = a[0];
         wait();
         
         while(true) {
@@ -233,6 +235,7 @@ public:
                     wait();
                 } 
             }
+            t0 = a[0];
             wait();
         }
     }

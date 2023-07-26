@@ -29,6 +29,7 @@ public:
         SC_METHOD(sc_unsigned_to_auto); sensitive << uint_sig; 
     }
     
+    sc_signal<int> t0;
     void cpp_types_to_auto() 
     {
         sc_int<16> a;
@@ -44,8 +45,10 @@ public:
         auto b8 = usig.read() + 2U;
         auto b9 = usig.read() + c;  // unsigned long
         auto b10 = (sc_uint<7>)(usig.read());
+        t0 = b1+b2+b3+b4+b5+b6+b7+b8+b9+b10;
     }
     
+    sc_signal<int> t1;
     void sc_types_to_auto() 
     {
         auto b1 = scisig.read();
@@ -55,8 +58,10 @@ public:
         auto b4 = scusig.read();
         auto b5 = (sc_int<16>)scusig.read();
         auto b6 = (sc_uint<16>)scusig.read();
+        t1 = b1+b2+b3+b4+b5+b6;
     }
     
+    sc_signal<int> t2;
     void sc_signed_to_auto() 
     {
         sc_bigint<66> a;
@@ -66,8 +71,10 @@ public:
         auto b4 = a + 1;
         auto b5 = sc_bigint<67>(a + 1);
         auto b6 = sc_biguint<67>(a + 1);
+        t2 = b1.to_int()+b2.to_int()+b3.to_int()+b4.to_int()+b5.to_int()+b6.to_int();
     }
     
+    sc_signal<int> t3;
     void sc_unsigned_to_auto() 
     {
         sc_biguint<66> a;
@@ -78,6 +85,7 @@ public:
         auto b4 = a >> 2;
         auto b5 = sc_biguint<67>(a >> 2);
         auto b6 = sc_bigint<67>(a >> 2);
+        t3 = b1.to_int()+b2.to_int()+b2a.to_int()+b3.to_int()+b4.to_int()+b5.to_int()+b6.to_int();
     }
 };
 

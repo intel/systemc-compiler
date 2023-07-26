@@ -30,6 +30,9 @@ struct A : public sc_module
         SC_CTHREAD(var_init_reset, clk.pos());
         async_reset_signal_is(rst, true);
         
+        SC_CTHREAD(local_const_ref, clk.pos());
+        async_reset_signal_is(rst, true);
+        
         SC_METHOD(channels0);
         sensitive << a << b << c;
 
@@ -79,6 +82,31 @@ struct A : public sc_module
         while (true) {
             r0 = mi+vi+ci;
             wait();
+        }
+    }
+
+    sc_signal<int> ss;
+    void local_const_ref()
+    {
+        int j = 41;
+        int i[2] = {42, 43};         
+        wait();
+        
+        while (true) {
+            sc_uint<12> x[2] = {44, 45};
+            const int& c0 = j;                // not declared
+            const int& c1 = i[0];             // not declared 
+            const int& c2 = i[1]+1;           // reg
+            const sc_uint<12>& c3 = x[1];     // not declared 
+            const sc_uint<12>& c4 = x[1]+1;   // reg
+            wait();
+
+            const sc_uint<12>& c5 = c3;       // not declared
+            const sc_uint<12>& c6 = c3+1;     // reg
+            ss = c0 + c1 + c2;
+            wait();
+
+            ss = c3 + c4 + c5 + c6;
         }
     }
     
@@ -138,6 +166,7 @@ struct A : public sc_module
     unsigned m;                 // RnD at one path only
     sc_uint<4> n;               // not assigned in reset
     sc_uint<4> p;               // WO, not reg
+    sc_signal<int> s1a;
     void variables1() {
         sc_uint<4> x = 1;
         k = false;              
@@ -154,6 +183,7 @@ struct A : public sc_module
             if (a) z = 0;   
             n = z + (k ? t : 0);
             m++;
+            s1a = m + n;
         }
     }
     

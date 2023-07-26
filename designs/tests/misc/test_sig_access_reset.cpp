@@ -43,24 +43,29 @@ struct A : public sc_module
         async_reset_signal_is(rst, 1);
     }
 
+     sc_signal<int> t0;
      void loc_var_reset() {
         bool j1;
         int j2;
         sc_uint<4> j3;
+        t0 = j3;
         wait();
         
         while (true) {
             j1 = 0;
             j2 = 1;
             j3 = 2;
+            t0 = j3;
             wait();
         }
     }
      
+    sc_signal<int> t1; 
     void loc_var_body() {
         bool j1 = 1;
         int j2 = j1 ? 2 : 3;
         sc_uint<4> j3 = j2 + 1;
+        t1 = j3;
         wait();
         
         while (true) {

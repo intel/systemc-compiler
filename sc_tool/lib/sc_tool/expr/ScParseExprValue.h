@@ -56,13 +56,20 @@ protected:
     /// Current statements properties
     /// Current statement is mandatory required, cannot be removed
     bool isRequiredStmt;
-    bool isUserCallStmt;
+    bool isUserCallStmt;    // TODO: not used for now
     bool isAssignStmt;
     bool isSideEffStmt;
     
     /// Statements for variable value which define/use the variable
     std::unordered_map<SValue, std::unordered_set<clang::Stmt*>> defVarStmts;
     std::unordered_map<SValue, std::unordered_set<clang::Stmt*>> useVarStmts;
+    /// Declaration statement for references to remove if referenced variable removed
+    /// <reference, thre reference declaration>
+    std::unordered_map<SValue, clang::Stmt*> refDeclStmts;
+    /// Function call reference parameter argument expressions
+    /// Multiple argument expression could be for the same referenced variable
+    /// <referenced variable, <argument which reference to the variable>>
+    std::unordered_map<SValue, std::unordered_set<clang::Stmt*>> refArgStmts;
     
     /// Constant evaluation mode for CPA or code generation, prevent user 
     /// defined function calls from @evaluateConstInt()/@checkConstRefValue()
@@ -106,9 +113,9 @@ public:
     
     /// Wrappers around similar methods of @state, 
     /// register variable in @defVarStmts/@useVarStmts
-    void declareValue(const SValue& var);
+    void declareValue(const SValue& val);
     void writeToValue(const SValue& lval, bool isDefined = false);
-    void readFromValue(const SValue& lval);
+    void readFromValue(SValue lval);
 
     /// Parse SCT_ASSERT in module scope to fill read value
     void parseSvaDecl(const clang::FieldDecl* fdecl);

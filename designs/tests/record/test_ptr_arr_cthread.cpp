@@ -47,6 +47,7 @@ public:
         async_reset_signal_is(rst, 0);
     }
     
+    sc_signal<int> t2;
     void rec_ptr_simple() 
     {
         wait();
@@ -54,10 +55,12 @@ public:
         {
             bool b = r1[0]->a;
             b = r1[s.read()]->getA();
+            t2 = b;
             wait();
         }
     }
     
+    sc_signal<int> t0;
     void rec_ptr_loop() 
     {
         wait();
@@ -70,10 +73,12 @@ public:
                 
                 if (!b) r2[i]->setB(i);
             }
+            t0 = b;
             wait();
         }
     }
     
+    sc_signal<int> t1;
     void rec_ptr_unknw() 
     {
         wait();
@@ -83,6 +88,7 @@ public:
             bool b = r3[i]->a;
             sc_uint<4> c = r3[i+1]->b;
             r3[i]->setB(i+2);
+            t1 = b;
             wait();
         }
     }  

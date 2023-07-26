@@ -42,6 +42,7 @@ struct mod_if : public sc_module, sc_interface
     unsigned br[2];
     const unsigned* C = nullptr;
     
+    sc_signal<int> t0;
     void mifMeth() {
         s1 = 0;
         if (B == 11) {
@@ -55,6 +56,7 @@ struct mod_if : public sc_module, sc_interface
         l = AR[r.read()] + BR[r.read()];
         l = B;
         l = BR[0] + br[0];
+        t0 = l;
     }
     
     void f1() {
@@ -140,6 +142,7 @@ SC_MODULE(Top) {
         minst[i]->f3();     // Incorrect
     }
     
+    sc_signal<int> t0;
     void top_method4() {
         unsigned i = t.read();
         unsigned lu;
@@ -148,8 +151,10 @@ SC_MODULE(Top) {
         lu = minst[i]->BR[0] + minst[i]->br[0];
         lu = L[1] + BA[2];
         lu = SA[1] + SB[2] + D::COUPLED_BLOCK_DOMAIN[0];
+        t0 = lu;
         
         bi = mmd[0] + mmd[1] + 1;
+        t0 = bi.to_int();
     }
 };
 

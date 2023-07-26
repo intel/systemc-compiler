@@ -48,12 +48,15 @@ SC_MODULE(test)
     }
 
     // Return from method function
+    sc_signal<int> t0;
     void return_method1() {
         int x = 0;
+        t0 = 0;
         if (s.read()) {
             return;
         } else {
             x = 1;
+            t0 = x;
         }
     }
     
@@ -70,10 +73,12 @@ SC_MODULE(test)
         return (s.read() == 1 || f1());
     }
     
+    sc_signal<int> t1;
     void return_func1() 
     {
         auto a = f1();
         bool b = f2();
+        t1 = a + b;
     }
     
     // Return parameter by value/reference return 
@@ -97,10 +102,12 @@ SC_MODULE(test)
     }
     
    
+    sc_signal<int> t2;
     void return_func2() 
     {
         sc_int<8> val1, val2;
         int c = f3(val1, val2, val1);
+        t2 = c;
     }
         
     sc_uint<8> f4(sc_uint<8> par1, sc_uint<8>& par2, const sc_uint<8>& par3) 
@@ -121,10 +128,12 @@ SC_MODULE(test)
         }
     }
     
+    sc_signal<int> t3;
     void return_func3() 
     {
         sc_uint<8> val3, val4;
         unsigned d = f4(val3, val3, val4);
+        t3 = d;
     }
     
     // Assert before return and conditional in return
@@ -140,9 +149,11 @@ SC_MODULE(test)
             return (s.read() != 0 ? 1 : t.read());
     }
 
+    sc_signal<int> t4;
     void return_func4() 
     {
         auto i = f5();
+        t4 = i;
     }
 
     

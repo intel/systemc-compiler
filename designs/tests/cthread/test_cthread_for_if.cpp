@@ -51,6 +51,7 @@ public:
     sc_signal<sc_uint<TIME_CNTR_WIDTH> >    sleep_time;
     sc_signal<sc_uint<TIME_CNTR_WIDTH> >    wakeup_time;
     
+    sc_signal<int> t0;
     void for_in_if1() 
     {
         int k = 0;
@@ -66,7 +67,8 @@ public:
                 }               
                 k = 1;      
             }
-            k = 2;      
+            k = 2;    
+            t0 = k;
             
             wait();     // 2
         }
@@ -114,6 +116,7 @@ public:
     
     
     // Loop with wait(), BUG in real design -- fixed
+    sc_signal<int> t1;
     void for_in_if_bug() 
     {
         int k = 0;
@@ -141,6 +144,7 @@ public:
                 k = 1;
             }
             k = 2;
+            t1 = k;
             
             wait();                         // 3
         }
@@ -150,6 +154,7 @@ public:
 
     sc_signal<int> s;
     
+    sc_signal<int> t2;
     void for_with_if1() 
     {
         sc_int<8> arr2[4][5];
@@ -165,10 +170,11 @@ public:
                 arr2[i][i+1] += s.read();
                 wait();
             }
-            
+            t2 = arr2[0][0];
         }
     }
     
+    sc_signal<int> t3;
     void for_with_if2() 
     {
         wait();
@@ -182,6 +188,7 @@ public:
 
                 if (i > 2) {
                     for (int j = 0; j < 2; j++) {  
+                        t3 = i;
                         wait();             // 3
                     }
                 }

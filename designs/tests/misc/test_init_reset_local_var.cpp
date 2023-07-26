@@ -85,7 +85,7 @@ public:
         int a;
         bool b;
         sc_uint<4> x;
-        Simple() {}
+        Simple() = default;
         Simple(int par) : a(par), b(par==42), x(par+1) {}
     };
     

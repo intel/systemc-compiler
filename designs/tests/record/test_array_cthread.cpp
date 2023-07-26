@@ -134,12 +134,14 @@ public:
     };
     
     // Record array declaration leads to extra registers, but not a big problem 
+    sc_signal<int> t0;
     void rec_loc_arr_declare() 
     {
         wait(); 
         while (true) {
             Simple ad[2];           // reg even could be comb
             auto i = ad[0].b;
+            t0 = i;
             
             sct_assert_register(ad[0].b);
             sct_assert_register(ad[1].b);
@@ -151,6 +153,7 @@ public:
     int ap_b = 11;
     
     // Simple record array
+    sc_signal<int> t1;
     void rec_loc_arr0() 
     {
         wait(); 
@@ -160,6 +163,7 @@ public:
             ap[1].b = 1;
             ap[0].b = ap[1].b + ap_b;
             int i = ap[0].b;
+            t1 = i;
             
             sct_assert_array_defined(ap[0].b);
             sct_assert_array_defined(ap[1].b);
@@ -169,7 +173,7 @@ public:
     
     // Add name collision 
     int ar_b;
-
+    sc_signal<int> t2;
     void rec_loc_arr0a() 
     {
         wait(); 
@@ -181,10 +185,12 @@ public:
             wait();
 
             ar[0].b = ar[1].b - ar_b;
+            t2 = ar[0].b;
         }
     }
 
     // Record array access at unknown index
+    sc_signal<int> t3;
     void rec_loc_arr1() {
         
         wait(); 
@@ -194,11 +200,13 @@ public:
 
             br[i].a = 1;
             br[i+1].b = br[i].b - 1;
+            t3 = br[i].b;
             wait();
         }
     }
     
     // Several record arrays
+    sc_signal<int> t4;
     void rec_loc_arr2() 
     {
         wait(); 
@@ -210,11 +218,13 @@ public:
             crr[1][2].a = cr[1].a;
             cr[0].b = 42;
             int c = crr[1][0].b + cr[0].b;
+            t4 = c;
             wait();
         }
     }
     
     // Simple code scope, check local variable removed from state by level 
+    sc_signal<int> t5;
     void code_scope_state_clean() 
     {
         int k = sig.read();
@@ -226,7 +236,7 @@ public:
                 dd[k].a = 1;
             }
             int j = k;
-            
+            t5 = j;
             wait();
         }
     }
@@ -308,6 +318,7 @@ public:
     }
     
     // Multidimensional array with various unknown indices
+    sc_signal<int> t6;
     void rec_loc_arr4() 
     {
         wait(); 
@@ -322,11 +333,13 @@ public:
             wait();
             
             i = err[i][j+1][2].b + err[0][1][j].b;
+            t6 = i;
         }
     }
     
 //---------------------------------------------------------------------------    
     // Check register created for unknown index for multidimensional array
+    sc_signal<int> t7;
     void rec_loc_arr5() 
     {
         wait(); 
@@ -338,9 +351,11 @@ public:
             
             frr[i][1].b = 42;
             int j = frr[1][1].b;
+            t7 = j;
         }
     }
 
+    sc_signal<int> t8;
     void rec_loc_arr6() 
     {
         wait(); 
@@ -352,9 +367,11 @@ public:
             
             grr[1][i].b = 42;
             int j = grr[1][1].b;
+            t8 = i + j;
         }
     }
     
+    sc_signal<int> t9;
     void rec_loc_arr7() 
     {
         wait(); 
@@ -366,9 +383,11 @@ public:
             
             hrr[1][1].b = 42;
             int j = hrr[i][1].b;
+            t9 = i+j;
         }
     }
     
+    sc_signal<int> t10;
     void rec_loc_arr8() 
     {
         wait(); 
@@ -380,9 +399,11 @@ public:
             
             jrr[1][1].b = 42;
             int j = jrr[1][i].b;
+            t10 = i+j;
         }
     }
     
+    sc_signal<int> t11;
     void rec_loc_arr9() 
     {
         wait(); 
@@ -394,9 +415,11 @@ public:
             
             irr[i][i].b = 42;
             int j = irr[i][i].b;
+            t11 = i+j;
         }
     }
 
+    sc_signal<int> t12;
     void rec_loc_arr10() 
     {
         wait(); 
@@ -408,6 +431,7 @@ public:
             
             krr[1][2].b = 42;
             int j = krr[1][2].b;
+            t12 = i+j;
         }
     }
     
@@ -447,9 +471,10 @@ public:
 
 //---------------------------------------------------------------------------    
     // Record array element as function parameter by value 
-    
+    sc_signal<int> t13;
     void f1(Simple par) {
         int i = par.b;
+        t13 = i;
     }
 
     // Record as function parameter by value
@@ -493,9 +518,11 @@ public:
 //---------------------------------------------------------------------------    
     // Record array element as function parameter by constant value 
     
-     void ff1(const Simple par) {
+    sc_signal<int> t14;
+    void ff1(const Simple par) {
         wait();
         int i = par.a + par.b;
+        t14 = i;
     }
 
     void rec_arr_elem_const_val1()
@@ -544,8 +571,10 @@ public:
     
 //---------------------------------------------------------------------------    
     // Record array element as function parameter by reference
+    sc_signal<int> t15;
     void f2(Simple& par) {
         int k = par.b;
+        t15 = k;
     }
     
     void rec_arr_elem_func_param_ref()
@@ -584,9 +613,11 @@ public:
         }
     }*/
     
-
+    
+    sc_signal<int> t16;
     void f2_two(Simple& par1, Simple& par2) {
         int k = par1.b + par2.b;
+        t16 = k;
     }
 
     
@@ -608,7 +639,7 @@ public:
         }
     }
     
-    
+    sc_signal<int> t17;
     void f3(Simple& par) {
         par.b = 1;
     }
@@ -626,14 +657,17 @@ public:
             wait();
 
             f3(vr[i-1]);
+            t17 = vr[i].a;
         }
     }
     
 //---------------------------------------------------------------------------    
     // Record array element as function parameter by constant reference
     
+    sc_signal<int> t18;
     void cref_sum(const Simple& par) {
         int res = par.a + par.b;
+        t18 = res;
     }
 
     void rec_arr_elem_func_param_cref1()
@@ -661,6 +695,7 @@ public:
         return res;
     }
 
+    sc_signal<int> t19;
     void rec_arr_elem_func_param_cref2()
     {
         int indx = 0;
@@ -670,11 +705,13 @@ public:
             Simple cvrr[3];
             if (sig.read()) {
                 int res = cref_wait(cvrr[2]);
+                t19 = res;
             }
             wait();                         // 2
         }
     }
     
+    sc_signal<int> t20;
     void rec_arr_elem_func_param_cref3()
     {
         int indx = 0;
@@ -685,6 +722,7 @@ public:
                 indx = sig.read();
                 Simple cwrr[3];
                 cref_wait(cwrr[indx]);
+                t20 = cwrr[indx].a;
             }
             wait();                         // 2
         }
@@ -693,9 +731,11 @@ public:
 
 //---------------------------------------------------------------------------    
     // Record array as function parameter 
+    sc_signal<int> t21;
     void f5(Simple par[2]) {
         int indx = par[1].b;
         bool c = par[indx].a == 2;
+        t21 = c;
     }
 
     void rec_arr_func_param_val()

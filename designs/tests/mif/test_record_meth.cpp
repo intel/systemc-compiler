@@ -33,6 +33,7 @@ struct mod_if : public sc_module, sc_interface
     }
     
     // Local record 
+    sc_signal<int> t0;
     void locRecMeth() {
         Simple t;
         Simple tt;
@@ -44,9 +45,11 @@ struct mod_if : public sc_module, sc_interface
         tt.b = 5;
         
         sc_uint<4> x = t.b + tt.b;
+        t0 = x;
     }
     
     // Local record array 
+    sc_signal<int> t1;
     void locRecArrMeth() 
     {
         Simple v[2];
@@ -63,12 +66,13 @@ struct mod_if : public sc_module, sc_interface
         }
         
         sc_uint<4> x = v[1].b + vv[3].b;
+        t1  = x + sum;
     }
     
     // Member record 
     Simple  r;
     Simple  rr;
-
+    sc_signal<int> t2;
     void memRecMeth() 
     {
         r.b = 4;
@@ -76,12 +80,13 @@ struct mod_if : public sc_module, sc_interface
         rr.b = 5;
         
         sc_uint<4> x = rr.a ? r.b : rr.b;
+        t2 = x;
     }
     
     // Member record array
     Simple  w[2];
     Simple  ww[4];
-
+    sc_signal<int> t3;
     void memRecArrMeth() 
     {
         w[0].a = false;
@@ -95,6 +100,7 @@ struct mod_if : public sc_module, sc_interface
         }
         
         sc_uint<4> x = w[1].b + ww[3].b;
+        t3 = x + sum;
     }
 };
 

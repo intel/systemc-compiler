@@ -1613,7 +1613,7 @@ std::string VerilogModule::getProcName(ProcessView procObj) const
     return procName;
 }
 
-// Generate always block for method process and for thread process in non-split mode 
+// Generate always block for method process 
 void VerilogModule::serializeProcSingle(llvm::raw_ostream &os,
                                         ProcessView procObj) const
 {
@@ -1681,7 +1681,7 @@ void VerilogModule::serializeProcSingle(llvm::raw_ostream &os,
 
 }
 
-// Generate pair of always_comb/always_ff for thread process in split mode
+// Generate pair of always_comb/always_ff for thread process 
 void VerilogModule::serializeProcSplit(llvm::raw_ostream &os,
                                        ProcessView procObj) const
 {

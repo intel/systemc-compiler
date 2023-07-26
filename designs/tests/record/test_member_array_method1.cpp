@@ -52,13 +52,13 @@ public:
     }
     
     struct Rec {
-        bool        a = 0;
-        sc_uint<4>  b = 0;
+        bool        a;
+        sc_uint<4>  b;
     };
     
     struct ArrRec {
-        bool        a[3] = {};
-        sc_uint<4>  b[3] = {};
+        bool        a[3];
+        sc_uint<4>  b[3];
 
         void setA(bool par, int i) {
             a[i] = par;
@@ -119,7 +119,7 @@ public:
 
     // Array of record with array member read/write access
     ArrRec arr[2];
-    
+    sc_signal<int> t1;
     void array_access()
     {
         for (int j = 0; j < 2; ++j) {
@@ -132,12 +132,13 @@ public:
         int j = sig.read();
         auto l = arr[j].b[j+1];
         arr[j].b[j+1] = arr[j].getA(j+1) ? j : 0;
+        t1 = l + j;
     }    
 
 //----------------------------------------------------------------------------    
 
     // Local array of record with array member read/write access
-    
+    sc_signal<int> t0;
     void loc_array_access()
     {
         ArrRec x; 
@@ -154,6 +155,7 @@ public:
         
         int j = sig.read();
         auto l = x.b[j] + xarr[j+1].b[j+2];
+        t0 = l;
 
         x.b[j] = 1;
         xarr[j+1].b[j+2] = 2;
@@ -165,9 +167,11 @@ public:
     // Record with array member as function parameter
 
     // Local record array unknown element passing test
+    sc_signal<int> t3;
     template<class T>
     void rec_param0(T par) {
         auto l = par.b[0];
+        t3 = l;
     }
     
     // Record array passed as pointer
@@ -188,6 +192,7 @@ public:
 
     
     // Local record array unknown element passing test
+    sc_signal<int> t2;
     void local_fcall_param()
     {
         Rec yy[3];
@@ -199,6 +204,7 @@ public:
         rec_param2_ref(y, 1);
 
         int j = sig.read();
+        t2 = j;
         rec_param0(yarr[j]);
         rec_param2_val(yarr[j], 0);
         rec_param2_ref(yarr[j], 1);

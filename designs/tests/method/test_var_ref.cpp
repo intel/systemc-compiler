@@ -38,6 +38,7 @@ public:
     sc_signal<bool> dummy{"dummy"};
 
     SC_CTOR(A) {
+        SC_METHOD(reference0); sensitive << s;
         SC_METHOD(reference1); sensitive << s;
         SC_METHOD(reference2); sensitive << s;
         SC_METHOD(reference3); sensitive << s;
@@ -50,15 +51,56 @@ public:
         SC_METHOD(const_reference_sig); sensitive << s << sig << sig2 << sig3;
         SC_METHOD(const_reference_sig_arr); sensitive << s << sig_arr[0] << sig_arr2[0];
 
-        SC_METHOD(init_list); sensitive << dummy;
+        SC_METHOD(init_list); sensitive << dummy << s;
 
         SC_CTHREAD(array_ref_wait, clk.pos());
         async_reset_signal_is(nrst, 0);
         
         SC_METHOD(reference_init_func); sensitive << s;
     }
+    
+    // unused references
+    sc_signal<int> t0;
+    sc_uint<12> mm[3][2];
+    void reference0() {
+        unsigned l;
+        unsigned &rl = l;
+        rl = 1;
+        
+        {
+            unsigned l;
+            unsigned &rl = l;
+            rl = 1;
+        }
+        
+        sc_uint<12> x;                      // removed
+        sc_uint<12> &rx = x;
+        sc_uint<12> &rrx = x;
+        sc_uint<12> &rrrx = rrx;
+        rrrx = 42;
+        
+        sc_bigint<12> y; y = -42;           // not removed
+        sc_bigint<12>& ry = y;
+        const sc_bigint<12>& cy = y;
+        t0 = cy.to_int();
 
+        int z; z = 42;                      // not removed
+        int& rz = z;
+        const int& cz = z+1;
+        t0 = cz;
+        
+        int w; w = 43;                      // not removed
+        const int& cw = w+1;                // not removed
+        const int& cv = 1 + cw;             // removed
+        t0 = cw;
+
+        sc_uint<12> &rm = mm[s.read()][s.read()];   // removed
+        sc_uint<12> &rrm = mm[s.read()][1];         // removed     
+        sc_uint<12> &rrrm = mm[1][0];               // removed
+    }
+    
     // reference type 
+    sc_signal<int> t1;
     void reference1() {
         int a;
         int &b = a;
@@ -67,11 +109,13 @@ public:
         unsigned m[3];
         unsigned &c = m[1];
         c = 1;
-        
+        const unsigned &d = m[1];
+
         bool bb[5];
         for (int i = 0; i < 5; i++)  {
             bool &b = bb[i];
             b = i;
+            t1 = b;
         }
         
         // Global references
@@ -82,9 +126,11 @@ public:
         i = r1 + r2;
         int j = b;
         j = b + c * a + i;
+        t1 = j;
     }    
     
     // reference for SC data type
+    sc_signal<int> t2;
     void reference2() {
         sc_uint<4> a;
         sc_uint<4> &b = a;
@@ -101,6 +147,7 @@ public:
         r3 = 1;
         
         sc_bigint<66> e = c + b*d - r3;
+        t2 = e.to_int();
     }        
 
     // Array element unknown
@@ -129,6 +176,7 @@ public:
     }    
     
     // constant reference for SC data type
+    sc_signal<int> t3;
     void const_reference() 
     {
         int a;
@@ -153,9 +201,11 @@ public:
         arr[2] = 3;
         
         m = f - 2*d - e*e;
+        t3 = m;
     }        
     
     // constant reference for SC data type
+    sc_signal<int> t4;
     void const_reference2() 
     {
         sc_uint<4> a;
@@ -171,8 +221,10 @@ public:
         const sc_uint<3> &f = 4;
         
         sc_int<10> g = c + d*e - f;
+        t4 = g + m;
     }  
     
+    sc_signal<int> t5;
     void const_reference3()
     {
         sc_uint<3> arr[3];
@@ -183,11 +235,13 @@ public:
         const sc_uint<3>& d = arr[m-1];
         
         int sum = a + b + c + d;
+        t5 = sum;
     }
 
     sc_signal<sc_uint<4>> sig;
     sc_signal<sc_uint<8>> sig2;
     sc_signal<sc_biguint<4>> sig3;
+    sc_signal<int> t6;
     void const_reference_sig()
     {
         const sc_uint<4>& a = sig;
@@ -199,10 +253,12 @@ public:
         const sc_uint<4>& e = sig3.read();
         
         int sum = a + b + c + d + e;
+        t6 = sum;
     }
     
     sc_signal<sc_uint<4>> sig_arr[3];
     sc_signal<sc_uint<8>> sig_arr2[3];
+    sc_signal<int> t7;
     void const_reference_sig_arr()
     {
         const sc_uint<4>& a = sig_arr[1];
@@ -213,6 +269,7 @@ public:
         const sc_uint<4>& e = sig_arr2[s.read()].read();
 
         int sum = a + b + c + d + e;
+        t7 = sum;
     }
 
     
@@ -220,10 +277,11 @@ public:
     const int il1[3] = {1, 2, 3};
     const sc_uint<3> il2[2] = {1, 2};
     const int il3[3] = {1, n, k+1};
-
+    sc_signal<int> t8;
     void init_list() {
         int m = 1;
         int il4[2] = {0, m};
+        t8 = il4[s.read()];
     }
 
 // ----------------------------------------------------------------------------    
@@ -232,12 +290,14 @@ public:
         return (i+1);
     }
     
+    sc_signal<int> t9;
     void reference_init_func() {
         int m = 1;
         const int& r = m++;
         const int& rr = --m;
         const int& rrr = f1(m++);
         int a = r + rr + rrr;
+        t9 = a;
         // return by reference not supported yet
     }
     
@@ -257,7 +317,8 @@ public:
             sig = b;
             wait();
         }
-    }};
+    }
+};
 
 class B_top : public sc_module {
 public:

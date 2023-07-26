@@ -147,6 +147,7 @@ public:
         k <<= a.read().to_int();
     }
     
+    sc_signal<bool> t0;
     void reduces() {
         bool lb;
         sc_bv<11> i;
@@ -157,6 +158,7 @@ public:
         if (a.read().nor_reduce()) {
             lb = a.read().nand_reduce();
         }
+        t0 = lb;
     }
 
 };

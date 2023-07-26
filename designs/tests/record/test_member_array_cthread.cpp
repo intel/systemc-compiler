@@ -107,6 +107,7 @@ public:
         sc_uint<4>  b[3][2];
     };
     
+    sc_signal<int> t0;
     void mult_array_decl()
     {
         ArrRec qarr[5][4];
@@ -120,6 +121,7 @@ public:
         {
             bool aa = qarr[3][2].a[1];
             sc_uint<4> bb = parr[2].b[1][0];
+            t0 = aa + bb;
             wait();
         }
     }
@@ -149,6 +151,7 @@ public:
         }
     }
 
+    sc_signal<int> t1;
     void loc_array_decl3()
     {
         wait();
@@ -159,9 +162,11 @@ public:
             xarr3[1].b[2] = 0;
             wait();
             auto l = xarr3[1].b[1];
+            t1 = l;
         }
     }
 
+    sc_signal<int> t2;
     void loc_array_decl4()
     {
         wait();
@@ -172,11 +177,13 @@ public:
             xarr4[1].b[2] = 0;
             wait();
             auto l = xarr4[1].b[2];
+            t2 = l;
         }
     }
 
     // Unknown index for member array
     ArrRec xarr5[2];         // reg
+    sc_signal<int> t3;
     void loc_array_decl5()
     {
         wait();
@@ -191,10 +198,12 @@ public:
             
             wait();
             auto l = xarr5[1].b[2] + xlarr5[1].b[2];
+            t3 = l;
         }
     }
     
     // Unknown index for record array
+    sc_signal<int> t4;
     void loc_array_decl6()
     {
         wait();
@@ -206,11 +215,13 @@ public:
 
             xarr6[j].b[2] = 0;       
             auto l = xarr6[1].b[2];
+            t4 = l;
 
             wait();
         }
     }
 
+    sc_signal<int> t5;
     void loc_array_decl6_meth()
     {
         int j = sig.read();
@@ -218,9 +229,11 @@ public:
 
         xarr6[j].b[2] = 0;       
         auto l = xarr6[1].b[2];
+        t5 = l;
     }
 
     // Copy of record with array, check @par_b is register
+    sc_signal<int> t6;
     template<class T>
     void rec_param_copy(T par) {    // reg
         int j = sig.read();
@@ -229,6 +242,7 @@ public:
         wait();
         
         auto l = par.b[1];
+        t6 = l;
     }
     
     void loc_array_copy()
@@ -245,6 +259,7 @@ public:
     }
     
     // Copy of record  with record with array, check @par_rec_b is register
+    sc_signal<int> t7;
     template<class T>
     void rec_param_copy2(T par) {    // reg
         int j = sig.read();
@@ -253,6 +268,7 @@ public:
         wait();
         
         auto l = par.rec.b[1];
+        t7 = l;
     }
     
     void loc_array_copy2()
@@ -302,7 +318,7 @@ public:
 
     // Record with array member read/write access
     ArrRec s;
-    
+    sc_signal<int> t8;
     void simple_access()
     {
         for (int i = 0; i < 3; ++i) {
@@ -315,7 +331,7 @@ public:
         {
             int j = sig.read();
             s.b[j] = s.getA(j+1) ? j : 0;
-            
+            t8 = s.b[j];
             wait();
         }
     }
@@ -324,7 +340,7 @@ public:
 
     // Array of record with array member read/write access
     ArrRec arr[2];
-    
+    sc_signal<int> t9;
     void array_access()
     {
         for (int j = 0; j < 2; ++j) {
@@ -340,7 +356,7 @@ public:
             int j = sig.read();
             auto l = arr[j].b[j+1];
             arr[j].b[j+1] = arr[j].getA(j+1) ? j : 0;
-            
+            t9 = l;
             wait();
         }
     }    
@@ -348,7 +364,7 @@ public:
 //----------------------------------------------------------------------------    
 
     // Local array of record with array member read/write access
-    
+    sc_signal<int> t10;
     void loc_array_access()
     {
         ArrRec x; 
@@ -372,6 +388,7 @@ public:
             x.b[j] = 1;
             xarr[j+1].b[j+2] = 2;
             xarr[j].setA(false, 1);
+            t10 = l;
             
             wait();
         }
@@ -381,25 +398,33 @@ public:
     // Record with array member as function parameter
     
     // Local record array unknown element passing test
+    sc_signal<int> t11;
     template<class T>
     void rec_param0(T par) {
         auto l = par.b[0];
+        t11 = l;
     }
 
     // Record array passed as pointer
+    sc_signal<int> t12;
     template<class T>
     void rec_param1(T par, int i) {
         par[i].b = par[i].a ? 1 : 2;
+        t12 = par[i].b;
     }
     
+    sc_signal<int> t13;
     template<class T>
     void rec_param2_val(T par, int j) {
         par.b[j] = par.getA(j) ? 1 : 2;
+        t13 = par.b[j];
     }
     
+    sc_signal<int> t14;
     template<class T>
     void rec_param2_ref(T& par, int k) {
         par.b[k] = par.getA(k) ? 1 : 2;
+        t14 = par.b[k];
     }
     
     void local_fcall_param()

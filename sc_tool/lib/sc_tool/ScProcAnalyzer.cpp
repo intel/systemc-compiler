@@ -111,11 +111,6 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
                               globalState, &elabDB, nullptr, nullptr, true);
     travConst.run(verMod, methodDecl);
     
-    // Check for empty process and return empty process code
-    if (travConst.getLiveStmts().empty()) {
-        return VerilogProcCode(true);
-    }
-    
     ScState* finalState = travConst.getFinalState();
     
     if (DebugOptions::isEnabled(DebugComponent::doConstProfile)) {
@@ -135,6 +130,12 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         std::unordered_set<SValue> useVals = travConst.getUsedVals();
         finalState->filterUseDef(defVals, useVals);
     }
+    
+    // Check for empty process and return empty process code
+    if (travConst.getLiveStmts().empty()) {
+        return VerilogProcCode(true);
+    }
+    
     
 //    bool first = true;
 //    for (auto entry : travConst.getConstEvalFuncs()) {
@@ -481,6 +482,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     travProc.setTermConds(travConst.getTermConds());
     travProc.setLiveStmts(travConst.getLiveStmts());
     travProc.setLiveTerms(travConst.getLiveTerms());
+    travProc.setRemovedArgExprs(travConst.getRemovedArgExprs());
     travProc.setConstEvalFuncs(travConst.getConstEvalFuncs());
 
     travProc.run(methodDecl, emptySensitivity);

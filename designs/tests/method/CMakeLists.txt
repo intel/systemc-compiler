@@ -57,34 +57,34 @@ svc_target(method_while_fcall_fail WILL_FAIL)
 
 ## Constants
 add_executable(method_const test_const.cpp)
-svc_target(method_const GOLDEN method_const.sv)
+svc_target(method_const GOLDEN method_const.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_const_liter test_const_liter.cpp)
-svc_target(method_const_liter GOLDEN method_const_liter.sv)
+svc_target(method_const_liter GOLDEN method_const_liter.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_const_liter_compound test_const_liter_compound.cpp)
-svc_target(method_const_liter_compound GOLDEN method_const_liter_compound.sv)
+svc_target(method_const_liter_compound GOLDEN method_const_liter_compound.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_string_liter test_string_liter.cpp)
-svc_target(method_string_liter GOLDEN method_string_liter.sv)
+svc_target(method_string_liter GOLDEN method_string_liter.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_liter_width test_liter_width.cpp)
-svc_target(method_liter_width GOLDEN method_liter_width.sv)
+svc_target(method_liter_width GOLDEN method_liter_width.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_const_binary test_const_binary.cpp)
-svc_target(method_const_binary GOLDEN method_const_binary.sv)
+svc_target(method_const_binary GOLDEN method_const_binary.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_const_if test_const_if.cpp)
-svc_target(method_const_if GOLDEN method_const_if.sv)
+svc_target(method_const_if GOLDEN method_const_if.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_const_if2 test_const_if2.cpp)
-svc_target(method_const_if2 GOLDEN method_const_if2.sv)
+svc_target(method_const_if2 GOLDEN method_const_if2.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_const_fail test_const_fail.cpp)
-svc_target(method_const_fail WILL_FAIL)
+svc_target(method_const_fail WILL_FAIL NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_const_static_mem test_const_static_mem.cpp)
-svc_target(method_const_static_mem GOLDEN method_const_static_mem.sv)
+svc_target(method_const_static_mem GOLDEN method_const_static_mem.sv NO_REMOVE_EXTRA_CODE)
 
 ## Uncomment me after #223
 #add_executable(method_sc_int_const_array test_sc_int_const_array.cpp)
@@ -101,10 +101,10 @@ add_executable(method_generic_fcall test_generic_fcall.cpp)
 svc_target(method_generic_fcall GOLDEN method_generic_fcall.sv)
 
 add_executable(method_fcall_const_eval test_fcall_const_eval.cpp)
-svc_target(method_fcall_const_eval GOLDEN method_fcall_const_eval.sv)
+svc_target(method_fcall_const_eval GOLDEN method_fcall_const_eval.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_fcall_const_eval2 test_fcall_const_eval2.cpp)
-svc_target(method_fcall_const_eval2 GOLDEN method_fcall_const_eval2.sv)
+svc_target(method_fcall_const_eval2 GOLDEN method_fcall_const_eval2.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_return test_return.cpp)
 svc_target(method_return GOLDEN method_return.sv)
@@ -114,46 +114,46 @@ svc_target(method_return_fail WILL_FAIL)
 
 
 add_executable(method_virtual1 test_virtual1.cpp)
-svc_target(method_virtual1 GOLDEN method_virtual1.sv)
+svc_target(method_virtual1 GOLDEN method_virtual1.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_virtual2 test_virtual2.cpp)
-svc_target(method_virtual2 GOLDEN method_virtual2.sv)
+svc_target(method_virtual2 GOLDEN method_virtual2.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_virtual3 test_virtual3.cpp)
-svc_target(method_virtual3 GOLDEN method_virtual3.sv)
+svc_target(method_virtual3 GOLDEN method_virtual3.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_virtual4 test_virtual4.cpp)
-svc_target(method_virtual4 PDF_GRAPH GOLDEN method_virtual4.sv)
+svc_target(method_virtual4 PDF_GRAPH GOLDEN method_virtual4.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_virtual_field test_virtual_field.cpp)
-svc_target(method_virtual_field PDF_GRAPH GOLDEN method_virtual_field.sv)
+svc_target(method_virtual_field PDF_GRAPH GOLDEN method_virtual_field.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_virtual_cast test_virtual_cast.cpp)
-svc_target(method_virtual_cast GOLDEN method_virtual_cast.sv)
+svc_target(method_virtual_cast GOLDEN method_virtual_cast.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_virtual_pure test_virtual_pure.cpp)
-svc_target(method_virtual_pure GOLDEN method_virtual_pure.sv)
+svc_target(method_virtual_pure GOLDEN method_virtual_pure.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_if test_if.cpp)
-svc_target(method_if GOLDEN method_if.sv)
+svc_target(method_if GOLDEN method_if.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_switch test_switch.cpp)
-svc_target(method_switch GOLDEN method_switch.sv)
+svc_target(method_switch GOLDEN method_switch.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_switch_inside test_switch_inside.cpp)
-svc_target(method_switch_inside GOLDEN method_switch_inside.sv)
+svc_target(method_switch_inside GOLDEN method_switch_inside.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_switch_after test_switch_after.cpp)
-svc_target(method_switch_after GOLDEN method_switch_after.sv)
+svc_target(method_switch_after GOLDEN method_switch_after.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_switch_const test_switch_const.cpp)
-svc_target(method_switch_const GOLDEN method_switch_const.sv)
+svc_target(method_switch_const GOLDEN method_switch_const.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_switch_empty_case test_switch_empty_case.cpp)
-svc_target(method_switch_empty_case GOLDEN method_switch_empty_case.sv)
+svc_target(method_switch_empty_case GOLDEN method_switch_empty_case.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_switch_enum test_switch_enum.cpp)
-svc_target(method_switch_enum GOLDEN method_switch_enum.sv)
+svc_target(method_switch_enum GOLDEN method_switch_enum.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_switch_empty_fail test_switch_empty_fail.cpp)
 svc_target(method_switch_empty_fail WILL_FAIL)
@@ -174,10 +174,10 @@ add_executable(method_var_ref_fail test_var_ref_fail.cpp)
 svc_target(method_var_ref_fail WILL_FAIL)
 
 add_executable(method_fcall_ref test_fcall_ref.cpp)
-svc_target(method_fcall_ref GOLDEN method_fcall_ref.sv)
+svc_target(method_fcall_ref GOLDEN method_fcall_ref.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_fcall_ref_arr_unkwn test_fcall_ref_arr_unkwn.cpp)
-svc_target(method_fcall_ref_arr_unkwn GOLDEN method_fcall_ref_arr_unkwn.sv)
+svc_target(method_fcall_ref_arr_unkwn GOLDEN method_fcall_ref_arr_unkwn.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_sc_types test_sc_types.cpp)
 svc_target(method_sc_types GOLDEN method_sc_types.sv)
@@ -197,13 +197,13 @@ svc_target(method_cast GOLDEN method_cast.sv)
 
 ## Binary operations
 add_executable(method_binary test_binary.cpp)
-svc_target(method_binary GOLDEN method_binary.sv)
+svc_target(method_binary GOLDEN method_binary.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_binary_signed test_binary_signed.cpp)
-svc_target(method_binary_signed GOLDEN method_binary_signed.sv)
+svc_target(method_binary_signed GOLDEN method_binary_signed.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_binary_expr_signed test_binary_expr_signed.cpp)
-svc_target(method_binary_expr_signed GOLDEN method_binary_expr_signed.sv)
+svc_target(method_binary_expr_signed GOLDEN method_binary_expr_signed.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_binary_signed_fail test_binary_signed_fail.cpp)
 svc_target(method_binary_signed_fail)
@@ -227,7 +227,7 @@ add_executable(method_bitwise_not_bool_fail test_bitwise_not_bool_fail.cpp)
 svc_target(method_bitwise_not_bool_fail WILL_FAIL)
 
 add_executable(method_mix_signed_unsigned_types test_mix_signed_unsigned_types.cpp)
-svc_target(method_mix_signed_unsigned_types GOLDEN method_mix_signed_unsigned_types.sv) 
+svc_target(method_mix_signed_unsigned_types GOLDEN method_mix_signed_unsigned_types.sv NO_REMOVE_EXTRA_CODE) 
 
 add_executable(method_shift_type_ext test_shift_type_ext.cpp)
 svc_target(method_shift_type_ext GOLDEN method_shift_type_ext.sv)
@@ -255,7 +255,7 @@ add_executable(method_enum test_enum.cpp)
 svc_target(method_enum GOLDEN method_enum.sv)
 
 add_executable(method_const_array test_const_array.cpp)
-svc_target(method_const_array GOLDEN method_const_array.sv)
+svc_target(method_const_array GOLDEN method_const_array.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_pointers test_pointers.cpp)
 svc_target(method_pointers GOLDEN method_pointers.sv)
@@ -300,34 +300,40 @@ svc_target(method_var_usedef_same_proc
 
 ## Constant propagation
 add_executable(method_const_prop test_const_prop.cpp)
-svc_target(method_const_prop GOLDEN method_const_prop.sv)
+svc_target(method_const_prop GOLDEN method_const_prop.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_const_prop_loop test_const_prop_loop.cpp)
-svc_target(method_const_prop_loop GOLDEN method_const_prop_loop.sv)
+svc_target(method_const_prop_loop GOLDEN method_const_prop_loop.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_const_prop_range test_const_prop_range.cpp)
-svc_target(method_const_prop_range GOLDEN method_const_prop_range.sv)
+svc_target(method_const_prop_range GOLDEN method_const_prop_range.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_const_prop_fail test_const_prop_fail.cpp)
-svc_target(method_const_prop_fail WILL_FAIL)
+svc_target(method_const_prop_fail WILL_FAIL NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_const_prop_fail2 test_const_prop_fail2.cpp)
-svc_target(method_const_prop_fail2 WILL_FAIL)
+svc_target(method_const_prop_fail2 WILL_FAIL NO_REMOVE_EXTRA_CODE)
 
 
 add_executable(method_port_array_bind test_port_array_bind.cpp)
-svc_target(method_port_array_bind)
+svc_target(method_port_array_bind NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_standard_collection test_standard_collection.cpp)
-svc_target(method_standard_collection)
+svc_target(method_standard_collection NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_std_array test_std_array.cpp)
-svc_target(method_std_array GOLDEN method_std_array.sv)
+svc_target(method_std_array GOLDEN method_std_array.sv NO_REMOVE_EXTRA_CODE)
+
+add_executable(method_const_compl_cond test_const_compl_cond.cpp)
+svc_target(method_const_compl_cond GOLDEN method_const_compl_cond.sv NO_REMOVE_EXTRA_CODE)
+
+add_executable(method_const_cond_narrow test_const_cond_narrow.cpp)
+svc_target(method_const_cond_narrow GOLDEN method_const_cond_narrow.sv NO_REMOVE_EXTRA_CODE)
 
 
 ## Empty sensitivity
 add_executable(method_empty_sensvty test_empty_sensvty.cpp)
-svc_target(method_empty_sensvty GOLDEN method_empty_sensvty.sv)
+svc_target(method_empty_sensvty GOLDEN method_empty_sensvty.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_empty_sensvty1_fail test_empty_sensvty1_fail.cpp)
 svc_target(method_empty_sensvty1_fail WILL_FAIL)
@@ -359,16 +365,16 @@ svc_target(method_bool GOLDEN method_bool.sv)
 #svc_target(method_child_module GOLDEN method_child_module.sv WILL_FAIL)
 
 add_executable(method_latch test_latch.cpp)
-svc_target(method_latch GOLDEN method_latch.sv)
+svc_target(method_latch GOLDEN method_latch.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_latch_fail test_latch_fail.cpp)
 svc_target(method_latch_fail WILL_FAIL)
 
 add_executable(method_forloop_other_types test_forloop_other_types.cpp)
-svc_target(method_forloop_other_types GOLDEN method_forloop_other_types.sv)
+svc_target(method_forloop_other_types GOLDEN method_forloop_other_types.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_explicit_specialz_templ test_explicit_specialz_templ.cpp)
-svc_target(method_explicit_specialz_templ GOLDEN method_explicit_specialz_templ.sv)
+svc_target(method_explicit_specialz_templ GOLDEN method_explicit_specialz_templ.sv NO_REMOVE_EXTRA_CODE)
 
 ## Conditions
 add_executable(method_cond_side_effect test_cond_side_effect.cpp)
@@ -383,18 +389,12 @@ svc_target(method_cond_cast GOLDEN method_cond_cast.sv)
 add_executable(method_loop_cond_fail test_loop_cond_fail.cpp)
 svc_target(method_loop_cond_fail WILL_FAIL)
 
-add_executable(method_const_compl_cond test_const_compl_cond.cpp)
-svc_target(method_const_compl_cond GOLDEN method_const_compl_cond.sv)
-
-add_executable(method_const_cond_narrow test_const_cond_narrow.cpp)
-svc_target(method_const_cond_narrow GOLDEN method_const_cond_narrow.sv)
-
 ## Decoder And Encoders
 add_executable(method_decoder test_decoder.cpp)
-svc_target(method_decoder GOLDEN method_decoder.sv)
+svc_target(method_decoder GOLDEN method_decoder.sv NO_REMOVE_EXTRA_CODE)
 ## Flip Flop And Latches
 add_executable(method_ff_latch test_ff_latch.cpp)
-svc_target(method_ff_latch GOLDEN method_ff_latch.sv)
+svc_target(method_ff_latch GOLDEN method_ff_latch.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(method_bit_range_access test_bit_range_access.cpp)
 svc_target(method_bit_range_access GOLDEN method_bit_range_access.sv)

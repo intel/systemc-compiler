@@ -40,6 +40,7 @@ struct mod_if : public sc_module, sc_interface
     Simple  r;
     Simple  rr;
 
+    sc_signal<int> t0;
     void memRecThread() 
     {
         wait();
@@ -52,6 +53,7 @@ struct mod_if : public sc_module, sc_interface
             rr.rec_arr[1].c = 4;
 
             int i = rr.rec_arr[0].c + r.b[1];
+            t0 = i;
             wait();
         }
     }
@@ -60,6 +62,7 @@ struct mod_if : public sc_module, sc_interface
     Simple      w[2];
     Simple      ww[3];
 
+    sc_signal<int> t1;
     void memRecArrThread() 
     {
         wait();
@@ -73,6 +76,7 @@ struct mod_if : public sc_module, sc_interface
             
             int i = w[0].rec_arr[1].c + ww[0].rec_arr[1].c + 
                     w[0].rec.c + ww[0].rec.c;
+            t1  = i;
             // TODO: Uncomment after #158 fixed 
             //int j = w[1].rec_arr[0].c + ww[2].rec_arr[0].c + 
             //        w[1].rec.c + ww[2].rec.c;

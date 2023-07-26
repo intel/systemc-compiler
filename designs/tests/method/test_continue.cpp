@@ -162,6 +162,7 @@ public:
 // ----------------------------------------------------------------------------
 
     // Continue in WHILE loop
+    sc_signal<int> t0;
     void while_continue1() {
         int i = 0;
         int k = 0;
@@ -174,6 +175,7 @@ public:
             }
         }    
         k = 2;
+        t0 = k;
     }        
 
     // Two continue in WHILE loop
@@ -198,6 +200,7 @@ public:
 // ----------------------------------------------------------------------------
 
     // Continue in do/while loop
+    sc_signal<int> t1;
     void do_while_continue1() {
         int i = 0; int k = 0;
         
@@ -208,6 +211,7 @@ public:
 
         sct_assert_level(0);
         k = 2;
+        t1 = k;
     }        
 
     // Two continue in do/while loop

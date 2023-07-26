@@ -74,6 +74,8 @@ protected:
     /// Is record variable already constructed with normal constructor
     /// Used in copy/move constructor to avoid double assignment of record fields
     bool locrecvarCtor = false;
+    /// Record channel variable used to detect non-default constructor called
+    SValue chanrecvar = NO_VALUE;
     /// Temporary constructed record with InitListExpr and CXXTemporaryObjectExpr
     SValue temprec = NO_VALUE;
     
@@ -236,6 +238,10 @@ public:
     virtual void chooseExprMethod(clang::Stmt *stmt, SValue &result);
 
 protected:
+
+    /// Get any kind of assignment statement/operator
+    /// \return assignment statement or @nullptr
+    const clang::Expr* getAssignStmt(const clang::Stmt* stmt) const;
 
     /// Get terminator condition
     const clang::Expr* getTermCond(const clang::Stmt* stmt);

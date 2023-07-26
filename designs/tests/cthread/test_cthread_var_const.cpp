@@ -79,6 +79,7 @@ public:
 // ---------------------------------------------------------------------------
     
     // Constant not defined before read in some state
+    sc_signal<int> t0;
     void local_rnd1() {
         int i = 0;
         const int C = in.read();
@@ -88,6 +89,7 @@ public:
             const sc_uint<3> D = s.read();
             wait();         
             if (C) i = D;
+            t0 = i;
         }
     }
     
@@ -135,14 +137,17 @@ public:
     }
     
     // Constant defined before read in all states
+    sc_signal<int> t1;
     void local_def_read1() {
         const int E = in.read();
         int i = E;
+        t1 = i;
         wait();             
         
         while (true) {
             const sc_uint<3> F = s.read();
             i = F;
+            t1 = i;
             wait();         
         }
     }

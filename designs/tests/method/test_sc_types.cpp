@@ -72,12 +72,14 @@ public:
 
     // SC type range/bit for variable under type cast --
     // BUG from real design fixed
+    sc_signal<int> t0a;
     void partial_select_for_type_cast() 
     {
         sc_uint<4> a = 3;
         bool b = ((sc_uint<3>)a).bit(1);
         b = ((sc_uint<1>)in1.read()).bit(0);
         b = (sc_uint<1>)in1.read();
+        t0a = b;
         
         int i = ((sc_uint<4>)a).range(2,0);
         i = ((sc_uint<2>)in1.read()).range(1,0);
@@ -85,10 +87,12 @@ public:
         
         sc_uint<6> c = ((sc_uint<4>)a).range(3,0);
         i = ((sc_uint<5>)(c)).range(2,1) + a.range(1,0);
+        t0a = i;
     }
     
     // Double expression in conditional statement assignment to channel range --
     // BUG from real design fixed
+    sc_signal<int> t0;
     void loop_range_double() 
     {
         sc_uint<32> val;
@@ -102,6 +106,7 @@ public:
                     (byteEnable.bit(i)) ? wval.range(i * 8 + 7, i * 8) : 
                                           rval.range(i * 8 + 7, i * 8);
         }
+        t0 = val;
     }
     
     // C++ types
@@ -282,6 +287,7 @@ public:
     }     
     
     // @sc_uint special methods : and_reduce() and or_reduce()
+    sc_signal<int> tt1;
     void sc_uint_reduce() {
         int i; 
         sc_uint<2> x; 
@@ -295,6 +301,7 @@ public:
         b = sig1.read().and_reduce();
         b = sig1.read().or_reduce();
         b = sig1.read().xor_reduce();
+        tt1 = (int)b;
     }   
     
     // type cast to get bit/range of argument
@@ -317,19 +324,23 @@ public:
     }   
     
     // type cast for literals
+    sc_signal<int> tt2;
     void sc_literal_cast() {
         int i; bool b;
         sc_uint<2> x = (sc_uint<2>)5;
         x = (sc_uint<2>)3 + (bool)x;
         sc_uint<4> y = 1+(sc_uint<2>)(3+1); 
+        tt2 = x + y;
     }
 
     // type cast for ports/signals
+    sc_signal<int> tt3;
     void sc_channel_cast() {
         sc_uint<2> x;
         sig1 = (sc_uint<3>)in1.read() + (sc_uint<1>)out1.read();
         sig1.write(sc_uint<2>(sig1.read()));
         x = (bool)sig1.read() + static_cast<int>(in1.read());
+        tt3 = x;
         
         sig1.write((sc_uint<2>)sig_arr[2].read());
     }    

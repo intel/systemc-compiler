@@ -433,9 +433,8 @@ void ScState::putValue(const SValue& lval, const SValue& rval, bool deReference,
             // in getValue() for LValue without tuple in state
             tuples.erase(llval);
             
-            if (DebugOptions::isEnabled(DebugComponent::doState)) {
+            if (DebugOptions::isEnabled(DebugComponent::doState))
                 cout << "putValue (" << lval << ", NO_VALUE)" << endl;
-            }
             
         } else {
             // Try to put new value, including reference initialization
@@ -457,15 +456,13 @@ void ScState::putValue(const SValue& lval, const SValue& rval, bool deReference,
                     pair.first->second = rrval;
                 }
             }
-            if (DebugOptions::isEnabled(DebugComponent::doState)) {
+            if (DebugOptions::isEnabled(DebugComponent::doState))
                 cout << "putValue (" << lval << ", " << rrval << ")" << endl;
         } 
-        } 
     } else {
-        if (DebugOptions::isEnabled(DebugComponent::doState)) {
+        if (DebugOptions::isEnabled(DebugComponent::doState))
             cout << "putValue (" << lval << ", " << rval << ")" << endl;
     }
-}
 }
 
 // Create deep copy in state of given value, returns clone of the value and 
@@ -764,7 +761,7 @@ void ScState::removeValue(const SValue& lval)
 }
 
 // Do @lval dereference if required to get referenced variable
-void ScState::getDerefVariable(const SValue& lval, SValue& rval, 
+void ScState::getDerefVariable(SValue lval, SValue& rval, 
                                bool keepConstRef) const
 {
     if (lval.isConstReference()) {
@@ -788,12 +785,16 @@ void ScState::getDerefVariable(const SValue& lval, SValue& rval,
     if (lval.isReference()) {
         // Non-constant reference must refer to valid variable/object
         auto i = tuples.find(lval);
-        SCT_TOOL_ASSERT (i != tuples.end(), "No variable/value for reference");
-        SCT_TOOL_ASSERT (!i->second.isInteger() && !i->second.isUnknown(), 
-                         "Incorrect reference initializer");
-        // Do de-reference
-        rval = i->second;
-        
+        if (i != tuples.end()) {
+            // Do de-reference
+            rval = i->second;
+            SCT_TOOL_ASSERT (!rval.isInteger() && !rval.isUnknown(), 
+                             "Incorrect reference initializer");
+        } else {
+            SCT_TOOL_ASSERT (isZeroWidthType(lval.getType()), 
+                             "No variable/value for reference");
+            rval = lval;
+        }
     } else {
         // No de-reference required
         rval = lval;
@@ -1021,17 +1022,17 @@ bool ScState::isObjectOwner(const SValue& val) const
     
     // Temporary variable not considered as object owner
     if (val.isVariable()) {
-        // @sc_port is not owner of the MIF object
-        if (isScPort(val.getType())) {
+        QualType type = val.getType();
+        if (isReference(type) || isScPort(type)) {
+            // Reference and @sc_port are not owners
             return false;
-        }
-        // Check if it is global pointer variable
-        if (val.getTypePtr()->isPointerType()) {
+        } else
+        if (isPointer(type)) {
+            // Check if it is global pointer variable
             const ValueDecl* valDecl = val.getVariable().getDecl();
             const DeclContext* declContext = valDecl->getDeclContext();
             bool isLocalVar = isa<FunctionDecl>(declContext);
             return !isLocalVar;
-            
         } else {
             // Local variable owns record
             return true;
@@ -1051,8 +1052,7 @@ bool ScState::isObjectOwner(const SValue& val) const
 // For record it also checks derived records
 SValue ScState::getVariableForValue(const SValue& rval) const
 {
-    //cout << "getVariableForValue for " << rval.asString() << endl;
-    
+    //cout << "getVariableForValue for " << rval << endl;
     if (rval.isUnknown()) {
         return NO_VALUE;
     }
@@ -1075,7 +1075,6 @@ SValue ScState::getVariableForValue(const SValue& rval) const
             for (const auto& i : tuples) {
                 // Check left value is object owner, any object has exact one owner
                 //cout << "i.first " << i.first << endl;
-
                 if (i.second == rrval && isObjectOwner(i.first)) {
                     return getVariableForValue(i.first);
                 }
@@ -1242,9 +1241,14 @@ std::pair<bool, bool> ScState::isArrElemUnkwn(const SValue& val) const
 }
 
 // Add declared but not initialized variable, not included SC types
-void ScState::declareValue(const SValue &lval) 
+SValue ScState::declareValue(const SValue &lval) 
 {
     declared.insert(lval);
+    //if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
+    //    cout << "   add to declared " << lval << endl;
+    //}
+    SValue zeroVal = getFirstArrayElementForAny(lval);
+    return zeroVal;
 }
 
 // Add value to @defined for non-zero array elements
@@ -1347,10 +1351,13 @@ SValue ScState::readFromValue(SValue lval)
     // For value which is not array element at unknown index
     bool forLoopCounter = loopCntrVars.count(llval); 
     if ((!parseSvaArg || forLoopCounter) && !isArrElemUnkwn(lval).second) {
-        // Check non-array element variable or record field is defined or declared
-        isDefined = defined.count(lval);
-        isDeclared = declared.count(lval);
-
+        // Check non-array element variable or record field is defined/declared 
+        // (required for pointee objects and array elements)
+        // Also check if variable is already defined/declared 
+        // (required for constant references)
+        isDefined = defined.count(lval) || defined.count(llval);
+        isDeclared = declared.count(lval) || declared.count(llval);
+        
         if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
             cout << "   check defined lval " << lval << " isDefined " 
                  << isDefined << " isDeclared " << isDeclared <<  endl;
@@ -1401,10 +1408,13 @@ void ScState::filterUseDef(const std::unordered_set<SValue>& defVals,
         }
     };
     
-    filter(arraydefined, defVals);
+    // Other collections are not used after CPA
     filter(read, useVals);
     filter(readndef, useVals);
     filter(readsva, useVals);
+    filter(readninit, useVals);
+    filter(arraydefined, defVals);
+    filter(defsomepath, defVals);
 }
 
 const InsertionOrderSet<SValue> ScState::getReadNotDefinedValues(
@@ -1893,34 +1903,63 @@ void ScState::compareAndSetNovalue(ScState* other)
     }
 }
 
-// ===========================================================================
-// Static methods
+// Get zero array element for unknown record/MIF array element which is given 
+// with its field @val, if @val is reference
+// Required for Rec/MIF method reference parameters for unknown array element
+// to be considered as zero element to do dereference
+// \return the correspondent field of the array zero element or @val itself
+SValue ScState::getZeroRecArrRefField(SValue val) const
+{
+    if (val.isVariable() && val.isReference()) {
+        SValue parent = val.getVariable().getParent();
+        
+        // Check for array unknown element
+        if (parent.isArray() && parent.getArray().isUnknown()) {
+            SValue eval = getFirstArrayElementForAny(parent);
+            
+            // Get REC from array element and cope with pointers
+            do {
+                parent = getValue(eval); eval = parent;
+            } while (parent.isArray() || parent.isSimpleObject());
+            
+            if (!parent.isRecord()) {
+                cout << "val " << val << " parent " << parent << endl;
+                SCT_TOOL_ASSERT (false, "Reference field parent is not record");
+            }
 
-// Is field in any record
-SValue ScState::isRecField(const SValue& val) 
+            val = SValue(val.getVariable().getDecl(), parent);
+        }
+    }
+    
+    return val;
+}
+
+// Is @val a field in any record including record array field
+// \return parent if the value is a field or NO_VALUE
+bool ScState::isRecField(const SValue& val)
 {
     if (val.isVariable()) {
         SValue parent = val.getVariable().getParent();
+        // Check for record in array
+        if (parent.isArray()) {
+            SValue eval = getFirstArrayElementForAny(parent);
+            
+            // Get REC from array element and cope with pointers
+            do {
+                parent = getValue(eval); eval = parent;
+            } while (parent.isArray() || parent.isSimpleObject());
+        }
         
         if (parent.isRecord() && !isScModuleOrInterface(parent.getType())) {
-            return parent;
+            return true;
         }
     }
-    return NO_VALUE;
+    return false;
 }
 
-// Is field in local record
-SValue ScState::isLocalRecField(const SValue& val) 
-{
-    if (val.isVariable()) {
-        SValue parent = val.getVariable().getParent();
-        
-        if (parent.isRecord() && parent.getRecord().isLocal()) {
-            return parent;
-        }
-    }
-    return NO_VALUE;
-}
+
+// ===========================================================================
+// Static methods
 
 // Get name prefix for local record
 std::string ScState::getLocalRecName(const SValue& val) 
@@ -1936,6 +1975,7 @@ std::string ScState::getLocalRecName(const SValue& val)
 }
 
 // Is constant variable/object or field of local record is constant variable/object
+// Field of constant record array is not considered as it does not make sense
 bool ScState::isConstVarOrLocRec(const SValue& val) 
 {
     // Empty type returned for channel value
@@ -1943,9 +1983,13 @@ bool ScState::isConstVarOrLocRec(const SValue& val)
     
     bool isConst = val.getType().isConstQualified();
     
-    if (const SValue& pval = ScState::isLocalRecField(val)) {
-        const SValue& pvar = pval.getRecord().var;
-        isConst = isConst || pvar.getType().isConstQualified();
+    if (val.isVariable()) {
+        SValue parent = val.getVariable().getParent();
+        // Do not consider record array here
+        if (parent.isRecord() && parent.getRecord().isLocal()) {
+            const SValue& pvar = parent.getRecord().var;
+            isConst = isConst || pvar.getType().isConstQualified();
+        }
     }
 
     return isConst;

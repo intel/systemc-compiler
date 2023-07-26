@@ -222,6 +222,7 @@ public:
     }
     
     // Member variable in assertions
+    sc_signal<int> t0;
     void sct_assert_thread_var1() 
     {
         c = s.read();
@@ -230,6 +231,7 @@ public:
 
         while (true) {
             d = s_d.read();
+            t0 = d;
             wait();
         }
     }
@@ -249,6 +251,7 @@ public:
     }
 
     // Local variable in assertions
+    sc_signal<int> t1;
     void sct_assert_thread_loc1() 
     {
         int i = 0;
@@ -257,6 +260,7 @@ public:
 
         while (true) {
             i = s;
+            t1 = i;
             wait();
         }
     }
@@ -273,6 +277,7 @@ public:
         }
     }
     
+    sc_signal<int> t2;
     void sct_assert_thread_loc3() 
     {
         bool j = false; int i = 0;
@@ -287,6 +292,7 @@ public:
 
             j = i == s;
             k = l == s;
+            t2 = k+j;
             wait();
         }
     }

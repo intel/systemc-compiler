@@ -68,6 +68,7 @@ public:
         async_reset_signal_is(nrst, 0);
     }
 
+    sc_signal<int> t0;
     void read_pointer()
     {
         int larr[3];
@@ -76,10 +77,12 @@ public:
         i = *pp1;
         i = pp[1];
         i = lp[1];
+        t0 = i;
     }
 
     
     int arr[3][4];
+    sc_signal<int> t1;
     void read_array()
     {
         int i;
@@ -99,8 +102,10 @@ public:
         
         int* lp3 = parr[s.read()][1];
         *lp3 = 44;
+        t1 = i + *lp3;
     }
     
+    sc_signal<int> t2;
     void write_array() 
     {
         for (int i = 0; i < 3; i++) {
@@ -112,6 +117,7 @@ public:
             pc[s.read()] = pj[1];
             wait();
             *pd[s.read()+1] = pc[1];
+            t2 = *pd[s.read()];
         }
     }
  

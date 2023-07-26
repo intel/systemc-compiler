@@ -85,23 +85,27 @@ public:
     }
 
     // Parameter by reference and constant reference
+    sc_signal<int> t0;
     void record_fcall_ref() 
     {
         Simple s;
         s.b = 1;
         f1(s);       
         f1_const(s); 
+        t0 = s.b;
         
         sct_assert_read(s.a);
         sct_assert_defined(s.b);
     }
 
     // Parameter by value
+    sc_signal<int> t1;
     void record_fcall_val() 
     {
         Simple s;
         s.b = 1;
         f2(s);
+        t1 = s.b;
     }
 
     // Two record parameters by value
@@ -187,11 +191,13 @@ public:
         return (par1.a == par2.a && par1.b == par2.b);
     }
 
+    sc_signal<int> t2;
     void record_fcall_const_ref2() 
     {
         Simple r; Simple t;
         t.a = 1;
         bool b = cref_cmp(r,t);
+        t2 = b;
     }
     
     int cref_sum(const Simple& par) {
@@ -199,12 +205,14 @@ public:
         return res;
     }
 
+    sc_signal<int> t3;
     void record_fcall_const_ref3() 
     {
         Simple r; 
         Simple t;
         int i = cref_sum(t);
         i = cref_sum(r);
+        t3 = i;
     }
 };
 

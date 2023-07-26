@@ -53,6 +53,7 @@ public:
     sc_signal<uint16_t> sa;
     sc_signal<uint16_t> sb;
 
+    sc_signal<int> t0;
     void github_16() {
         uint16_t ua;
         uint16_t ub;
@@ -66,41 +67,56 @@ public:
         result = sa.read() - sb.read();
         // No signed` in SV
         us_result = usa - usb;
+        t0 = us_result;
     }
     
     // Literal suffix @U just ignored
+    sc_signal<int> t1;
     void liter_suff_U() 
     {
         sc_int<3> x = 2;
+        t1 = x;
         sc_int<4> y = -6;
+        t1 = y;
         sc_int<8> z;
         z = 6 / 2U;
+        t1 = z;
         CHECK(z == 3);
         z = (-6) / 2U;      // Warning repotred
+        t1 = z;
         //CHECK(z == -3);
 
         z = 12U / 6;
+        t0 = z;
         CHECK(z == 2);
         z = 12U / (-6);     // Warning repotred
+        t1 = z;
         std::cout << "z = " << z << std::endl;
         //CHECK(z == 0);  -2 in SV
     }
     
     // Literal suffix @L just ignored
+    sc_signal<int> t2;
     void liter_suff_L() 
     {
         sc_int<3> x = 2;
+        t2 = x;
         sc_int<4> y = -6;
+        t2 = y;
         sc_int<8> z;
         sc_bigint<70> bz;
         z = 6 / 2L;
+        t2 = z;
         CHECK(z == 3);
         z = (-6) / 2L;
+        t2 = z;
         CHECK(z == -3);
 
         z = 12L / 6;
+        t2 = z;
         CHECK(z == 2);
         z = 12L / (-6);
+        t2 = z;
         std::cout << "z = " << z << std::endl;
         CHECK(z == -2);
         
@@ -156,6 +172,7 @@ public:
 
 //---------------------------------------------------------------------------
     
+    sc_signal<int> t3;
     void liter_neg_non_div_bug() 
     {
         int i; 
@@ -168,6 +185,7 @@ public:
         unsigned uu = 42;
 
         z = bu + (ux + x);      // Warning repotred
+        t3 = z;
         std::cout << "z = " << z << std::endl;
         //CHECK(z == -2); 
         
@@ -179,17 +197,22 @@ public:
         bz = (bu * bz - x);
         
         z = -6 / ux;            // Warning repotred
+        t3 = z;
         bz = (-6) + ux * (-3);
+        t3 = bz.to_int();
         //CHECK(bz == -12);  
         
         // Unsigned division, incorrect expression
         z = (-uu*4) / (-2);     // Warning repotred
+        t3 = z;
         std::cout << "z = " << z << std::endl;
         //CHECK(z == 0); 
         
         // Literal expression
         uu = ux + (1 + 2);      // Warning repotred
+        t3 = uu;
         uu = ux / (1 << 2);     // Warning repotred
+        t3 = uu;
     }
     
     void liter_neg_div() 

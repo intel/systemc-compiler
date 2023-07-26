@@ -873,34 +873,147 @@ void ScTraverseConst::removeUnusedStmt()
 //    cout << "Simple statements: " << endl;
 //    for (Stmt* stmt : simpleStmts) {
 //        cout << "  " << hex << stmt << dec << endl;
-//    } 
+//    }
+//    
+//    cout << "Used values and statements: " << endl;
+//    for (auto entry : useVarStmts) {
+//        cout << "  " << entry.first << " : " << hex;
+//        for (auto stmt : entry.second) cout << stmt << " ";
+//        cout << dec << endl;
+//    }
+    // <referenced var, <references>>
+    std::unordered_map<SValue, std::unordered_set<SValue>>  refVars;
+    //cout << "Ref values and statements: " << endl;
+    for (auto entry : refDeclStmts) {
+        const SValue& val = entry.first;
+        //cout << "  val " << val << endl;
+        SValue rval; state->getDerefVariable(val, rval);
+        SValue rvar = state->getVariableForValue(rval);
+        //cout << "  rval " << rval << " rvar " << rvar << endl;
+        auto i = refVars.emplace(rvar, unordered_set<SValue>({val}));
+        if (!i.second) {
+            i.first->second.insert(val);
+        }
+        //cout << "  " << entry.first << " : " << hex << entry.second << dec << endl;
+    }
     
+//    cout << "Ref vars: " << endl;
+//    for (auto entry : refVars) {
+//        cout << "  " << entry.first << " : ";
+//        for (auto val : entry.second) cout << val << " ";
+//        cout << endl;
+//    }
+//    state->print();
+
     while (true) {
         unordered_set<Stmt*> removeStmts;
-
+            
         // Find defined but not used variables to remove
-        //cout << "Unused val " << endl;
+        // Terminator conditions are not in @defVarStmts, so never be removed
+        //cout << "Removed values " << endl;
         for (auto i = defVarStmts.begin(); i != defVarStmts.end(); ) {
-            const QualType& type = i->first.getType();
-            // Skip pointer, channel and record values
-            if (sc::isPointer(type) || 
-                sc::isScChannel(type) || 
-                sc::isScChannelArray(type) ||
-                sc::isUserClass(getDerefType(type), true) ||
-                sc::isUserDefinedClassArray(getDerefType(type), true)) 
-            {++i; continue;}
+            // Used value is zero array/record array indices variable
+            const SValue& val = i->first;
+            const QualType& type = val.getType();
+            //cout << "defVarStmts val " << val << endl;
             
             // Skip used value
-            if (useVarStmts.count(i->first)) {++i; continue;}
+            auto k = useVarStmts.find(val);
+            if (k != useVarStmts.end()) {
+                // Ignore ++, --, and compound operators
+                bool hasUseStmt = false;
+                for (Stmt* stmt : k->second) {
+                    if (!stmt) {
+                        // Null statement for terminator with constant condition
+                        // Just ignore it and do not remove
+                    } else
+                    if (auto oper = dyn_cast<UnaryOperator>(stmt)) {
+                        if (oper->getOpcode() == UO_PostInc || 
+                            oper->getOpcode() == UO_PreInc ||
+                            oper->getOpcode() == UO_PostDec || 
+                            oper->getOpcode() == UO_PreDec) continue;
+                    } else 
+                    if (auto bind = dyn_cast<CXXBindTemporaryExpr>(stmt)) {
+                        if (auto oper = dyn_cast<CXXOperatorCallExpr>(bind->getSubExpr())) {
+                            if (oper->getOperator() == OO_PlusPlus ||
+                                oper->getOperator() == OO_MinusMinus) continue;
+                        }
+                    } else   
+                    if (auto oper = dyn_cast<CXXOperatorCallExpr>(stmt)) {
+                        if (oper->getOperator() == OO_PlusPlus ||
+                            oper->getOperator() == OO_MinusMinus) continue;
+                        if (oper->getOperator() == OO_PlusEqual ||
+                            oper->getOperator() == OO_MinusEqual ||
+                            oper->getOperator() == OO_StarEqual ||
+                            oper->getOperator() == OO_SlashEqual ||
+                            oper->getOperator() == OO_PercentEqual) {
+                            // Check @val is LValue in the compound statement
+                            if (i->second.count(stmt)) continue;
+                        }
+                    } else 
+                    if (auto oper = dyn_cast<CompoundAssignOperator>(stmt)) {
+                        // Check @val is LValue in the compound statement
+                        if (i->second.count(stmt)) continue;
+                    }
+                    hasUseStmt = true; break;
+                }
+                if (hasUseStmt) {++i; continue;}
+            }
+            
+            bool isPtr = val.isPointer();
+            bool isChan = val.isScChannel() || 
+                          sc::isScChannel(type) || 
+                          sc::isScChannelArray(type);
+            bool isRec = sc::isUserClass(getDerefType(type), true) ||
+                         sc::isUserDefinedClassArray(getDerefType(type), true);
+            bool isField = state->isRecField(val);
+            //cout << "  isRec " << isRec << " isField " << isField << endl;
+            
+            // Skip pointer, channel, record and record field values
+            if (isPtr || isChan || isRec || isField) {++i; continue;}
 
-            //cout << "  " << i->first << endl;
+            // If there is any required statement, do not remove anything
+            bool hasReqStmt = false;    // There is a required statement
             for (Stmt* stmt : i->second) {
-                if (simpleStmts.count(stmt)) {
-                    removeStmts.insert(stmt);
+                if (simpleStmts.find(stmt) == simpleStmts.end()) {
+                    hasReqStmt = true; break;
                 }
             }
+            if (hasReqStmt) {++i; continue;}
+            
+            // Add not required statements to remove collection
+            for (Stmt* stmt : i->second) {
+                // Do not remove null statement
+                if (stmt) removeStmts.insert(stmt);
+            }
+            
+            // Remove reference declaration statements 
+            auto j = refVars.find(val);
+            if (j != refVars.end()) {
+                for (const SValue& rval : j->second) {
+                    auto k = refDeclStmts.find(rval);
+                    if (k != refDeclStmts.end()) {
+                        removeStmts.insert(k->second);
+                    } else {
+                        SCT_TOOL_ASSERT (false, "No declaration statement for reference");
+                    }
+                }
+            }
+            
+            // Remove arguments for reference parameters
+            auto l = refArgStmts.find(val);
+            if (l != refArgStmts.end()) {
+                for (Stmt* stmt : l->second) {
+                    removedArgExprs.insert(stmt);
+                    //cout << "removedArgExprs " << hex << stmt << dec << endl;
+                }
+            } 
+
+            // Remove defined variable @val
+            //cout << "  " << val << endl;
             i = defVarStmts.erase(i);
         }
+        
         // Stop if no statements removed
         if (removeStmts.empty()) break;
 
@@ -917,11 +1030,15 @@ void ScTraverseConst::removeUnusedStmt()
         }
 
         // Remove unused statements from @liveStmts
-        //cout << "Removed statements: " << endl;
+//        cout << "Removed statements: " << endl;
+//        for (Stmt* stmt : removeStmts) {
+//            cout << "  " << hex << stmt << dec << " " << stmt->getBeginLoc().printToString(sm)<< endl;
+//            
+//        }
+
         for (Stmt* stmt : removeStmts) {
             liveStmts.erase(stmt);
-            //cout << "  " << hex << stmt << dec << endl;
-        }
+        }        
     }
 }
 

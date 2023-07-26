@@ -31,18 +31,22 @@ public:
     bool Z;
     const unsigned C;
     
+    sc_signal<int> t0;
     void proc() 
     {
         unsigned l = X;
         if (C) l = V;
         l = (C == 1) ? 42 : W+1;
         l = Z ? 1 : 2;
+        t0 = l;
     }
     
+    sc_signal<int> t1;
     void proc2() 
     {
         unsigned l;
         l = X+1;
+        t1 = l;
     }
 };
 

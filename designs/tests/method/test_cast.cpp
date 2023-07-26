@@ -71,6 +71,7 @@ public:
     
     const sc_uint<16> C1 = 14;
 
+    sc_signal<bool> t0;
     void literals() {
         int i = 10;
         unsigned u = 12;
@@ -100,6 +101,7 @@ public:
         bres = 4611686018427387904LL + u;
         bres = 4611686018427387904LL + x;           // Unsigned, OK
         bres = 4611686018427387904LL + bx;
+        t0 = bres.to_int(); t0 = bx.to_int(); t0 = by.to_int();
     }
     
     // Incorrect/unsupported code checking 
@@ -222,6 +224,7 @@ public:
     }
     
     // Check reported warnings
+    sc_signal<bool> t1;
     void warnings() 
     {
         int i = 13;
@@ -265,6 +268,8 @@ public:
         y = -14UL;              // OK   
         by = -(32U);            // OK 
         
+        t0 = res; t0 = bres.to_int(); t0 = bx.to_int(); t0 = by.to_int();
+        
         // Comparison warnings -- currently commented, #271
 //        res = i + u;            // Warning reported
 //        res = i + 42U;          // Warning reported
@@ -279,6 +284,7 @@ public:
     }
     
     // Warning reported for signed operands of shift
+    sc_signal<unsigned> t1a;
     void shift_signed_warnings() {
         int i = 2;
         unsigned u = 2;
@@ -289,12 +295,16 @@ public:
         unsigned long ures;
         
         ures = i >> u;                  // Warning
+        t1a = ures;
         ures = unsigned(i) >> u;
+        t1a = ures;
         ures = y >> x;                  // Warning
+        t1a = ures;
         ures = unsigned(y) >> x;
+        t1a = ures;
     }
     
-    
+    sc_signal<unsigned> t1b;
     void unary_cast() 
     {
         int i = 13;
@@ -314,6 +324,7 @@ public:
         res = -u;                   // unsigned, OK
         res = -u + u;               // unsigned, OK
         res = -x;                   // unsigned, OK
+        t1b = res;
         bres = -bx;                 // signed, OK
         bres = -bx + 1;             // signed, OK
         bres = -bx + u;             // signed, OK
@@ -322,6 +333,7 @@ public:
         bres = -bx + by;            // signed, OK
         bres = bx--;                // unsigned, OK  
         bres = bx-- + by--;         // unsigned--, signed+, OK  
+        t1b = bres.to_int();
         
         // Complex expressions with unary
         bres = y - (++bx);          // signed, OK    
@@ -339,6 +351,7 @@ public:
         res = y + int(u);           // signed, OK
         res = y + (+(int(u)));      // signed, OK
         res = y + (-(int(u)));      // signed, OK
+        t1b = res;
 
         bres = by + int(u);         // signed, OK
         bres = by + (+(int(u)));    // signed, OK
@@ -353,11 +366,13 @@ public:
         res = i + (-u);     // Warning reported, unsigned, OK
         ul = -u;            // unsigned, OK
         ul = u + (-u);      // unsigned, OK
+        t1b = ul;
 
         by += -bx;      // signed, OK
         by = -bx;       // signed, OK
         bx += -bx;      // signed, OK
         bx = -bx;       // signed, OK
+        t1b = bx.to_int();
     }
     
     void binary_comparison_pos() 
@@ -515,6 +530,7 @@ public:
         CHECK (b);
     }
 
+    sc_signal<bool> t2;
     void binary_shift() 
     {
         int i = 3;
@@ -549,10 +565,12 @@ public:
         int ires2 = 1U << u;        // Positive number
         //cout << ires << " " << ires2 << endl;
         CHECK (ires == ires2);      // Both negative in SC and SV
+        t2 = res; t2 = res2; t2 = ires;
     }
     
     
     // For #274
+    sc_signal<bool> t3;
     void explicit_cast_required() 
     {
         long res;
@@ -571,6 +589,7 @@ public:
         
         ures = (unsigned)i + u;                 // Add 'unsigned
         res = i + (int)u;                       // OK
+        t3 = res; t3 = ures; t2 = i;
     }    
     
     
@@ -768,6 +787,7 @@ public:
         bx &= ll;                           // OK
     }    
     
+    sc_signal<unsigned> t1c;
     void cast_to_unsigned_unary() 
     {
         int i = -13;
@@ -785,16 +805,19 @@ public:
         res = +i;           
         res = u--;
         res = (++i) + x;                // unsigned, OK
+        t1c = res;
         bres = (x++) + ll;              // unsigned, OK
         bres = (u--) + by;              // signed, OK
         bres = (bx--) + by;             // signed, OK
+        t1c = bres.to_int();
         
         // Cast to unsigned in unary
         res = +(unsigned)i;             // OK 
         res = -(unsigned)i;             // OK
+        t1c = res;
         bres = (-(int)u) + bx;          // signed, OK
         bres = (-(int)u) + by;          // signed, OK
-        
+        t1c = bres.to_int();
     }    
     
     // Example for #268

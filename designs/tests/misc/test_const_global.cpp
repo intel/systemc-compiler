@@ -42,12 +42,14 @@ SC_MODULE(MyModule)
         async_reset_signal_is(rst, 0);
     }    
     
+    sc_signal<int> t0;
     void proc() 
     {
         int i = (BOOL_ST_CONST) ? INT_CONST : INT_ST_CONST;
         wait();
         while (true) {
             bool b = struct1.mb_read();
+            t0 = b;
             sig = SC_INT_CONST;
             sig = SC_UINT_ST_CONST;
             wait();

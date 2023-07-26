@@ -45,12 +45,14 @@ public:
     int                 k;
     int                 n;
 
+    sc_signal<int> t0;
     void read_only_reg()
     {
         wait();
         
         while (true) {
             bool b = c;
+            t0 = b;
             wait();
         }
     }

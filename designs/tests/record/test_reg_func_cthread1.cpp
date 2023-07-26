@@ -28,10 +28,12 @@ public:
         async_reset_signal_is(rstn, false);
     }
     
+    sc_signal<int> t0;
     void f(int val) 
     {
         SinCosTuple r;
         int i = r.sin+val;
+        t0 = i;
     }
     
     void record_reg() 

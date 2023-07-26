@@ -55,6 +55,7 @@ public:
         CHECK(x3.nand_reduce());
     }     
     
+    sc_signal<int> t0;
     void or_reduce1() {
         sc_uint<4> x1 = 0xC;
         CHECK(!x1.nor_reduce());
@@ -81,6 +82,7 @@ public:
         i = 1 && ((sc_uint<1>)x1++).nor_reduce();
         i = 0 && ((sc_uint<1>)x1++).nor_reduce();
         i = 1 || x1.or_reduce();
+        t0 = i;
     }     
     
      // Only 0x0 and 0x1 are considered for XOR/XNOR

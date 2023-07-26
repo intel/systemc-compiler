@@ -43,10 +43,12 @@ public:
         sensitive << dummy;
     }
     
+    sc_signal<int> t0;
     void rec_ptr_simple() 
     {
         bool b = r1[0]->a;
         b = r1[1]->getData();
+        t0 = b;
     }
     
     void rec_ptr_loop() 

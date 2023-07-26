@@ -72,18 +72,22 @@ public:
     
 
     // Channel array range -- BUG in real design in cache module fixed
+    sc_signal<int> t0;
     void chan_array_range()
     {
         int i; bool b;
         sc_uint<3> offset = i;
         b = sig1[i].read().range(offset+1, offset); 
+        t0 = b;
     }
     
     // The same channel array double used in the expression --
     // BUG in real design in Flow control module
+    sc_signal<int> t1;
     void chan_array_double_used() 
     {
         bool b = (sig1b[0].read()) ? false : sig1b[0].read();
+        t1 = b;
     }
     
     // Module member array
@@ -162,25 +166,35 @@ public:
         out_ports1[in_ports1[i]] = in_ports2[1][2];
     }    
     
+    sc_signal<int> t2;
     void signal_array_part_sel() {
         int i; int j;
         sc_uint<5> x;
 
         x = sig1[1].read().range(3,2);
+        t2 = x;
         i = sig1[j].read().bit(0);
+        t2 = i;
         i = sig2a[1][2].read().bit(7);
+        t2 = i;
         i = sig2a[1][2].read().range(9,5);
+        t2 = i;
         
         bool b = in_ports_p1[2]->read().bit(3);
+        t2 = b;
         i = in_ports_p1[2]->read().range(2,1);
+        t2 = i;
         
         x = sig_p2a[i][j]->read().range(3,0);
+        t2 = x;
         x = (*sig_p2a[i+j][i-j]).read().range(j+1,j);
+        t2 = x;
         
         sig1[1] = sig1[2].read().range(1,0);
         out_ports1[0] = in_ports_p1[1]->read().bit(2);
         
         x = sig1[0].read().range(j+i+1,j+i);  
+        t2 = x;
     }
 
     // Signal array
@@ -261,6 +275,7 @@ public:
     
     
     // Local array initialization
+    sc_signal<int> t3;
     void array_init() {
         int  y1[3];
         const int  y2[3] = {1,2,3};
@@ -270,6 +285,7 @@ public:
         
         int k1 = y2[1];
         int k2 = x2[1];
+        t3 = k1 + k2 + x1[0] + y1[1];
     }     
     
     // Array of records

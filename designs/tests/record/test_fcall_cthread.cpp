@@ -26,7 +26,6 @@ public:
         SC_CTHREAD(single_rec_call_comb, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        // #261 TODO: no initialization of B
         SC_CTHREAD(rec_arr_call_reg, clk.pos());
         async_reset_signal_is(rstn, false);
         
@@ -39,7 +38,6 @@ public:
         SC_CTHREAD(rec_arr_call_reg2, clk.pos());
         async_reset_signal_is(rstn, false);
 
-        // #261 TODO: no initialization of B
         SC_CTHREAD(rec_arr_call_unknw_reg, clk.pos());
         async_reset_signal_is(rstn, false);
 
@@ -52,18 +50,20 @@ public:
         SC_CTHREAD(rec_arr_call_unknw_loc, clk.pos());
         async_reset_signal_is(rstn, false);
                 
+        SC_METHOD(rec_arr_call_unknw_loc_in_call_m);
+        sensitive << sig;
+        
         SC_CTHREAD(rec_arr_call_unknw_loc_in_call, clk.pos());
         async_reset_signal_is(rstn, false);
     }
     
     struct Simple {
         static const int A = 1;
-        const int B = 2;
         bool a;
         int b;
         
         void reset() {
-            a = A + a; b = B + b;
+            a = A + a; b = A + b;
         }
         
         void setA(bool par) {
@@ -89,12 +89,13 @@ public:
 
         int locFcall() {
             int k;
-            k = locVar();
+            //k = locVar();
             return k;
         }
     };
     
     // Function called in single record, @s is register
+    sc_signal<int> t0;
     void single_rec_call_reg() 
     {
         Simple s;
@@ -105,10 +106,12 @@ public:
             wait();
 
             bool c = s.getA();
+            t0 = c;
         }
     }
 
     // Function called in single record, @s is not register
+    sc_signal<int> t1;
     void single_rec_call_comb() 
     {
         Simple r;
@@ -117,6 +120,7 @@ public:
         while (true) {
             r.setA(1);
             bool c = r.getA();
+            t1 = c;
             
             wait();
         }
@@ -124,6 +128,7 @@ public:
 
 // ----------------------------------------------------------------------------    
     // Function called in record array, @s is register
+    sc_signal<int> t2;
     void rec_arr_call_reg() 
     {
         Simple t[2];
@@ -136,10 +141,12 @@ public:
 
             t[0].reset();
             bool c = t[1].getA();
+            t2 = c;
         }
     }
 
     // Function called in record array, @s is not register
+    sc_signal<int> t3;
     void rec_arr_call_comb() 
     {
         Simple q[2];
@@ -148,24 +155,28 @@ public:
         while (true) {
             q[1].setA(1);
             bool c = q[1].getA();
+            t3 = c;
             wait();
         }
     }
     
     // Function called in record array, @s is register 
     // (no define at declaration for record array)
+    sc_signal<int> t4;
     void rec_arr_call_reset_reg2() 
     {
         Simple w[2];
         w[1].setA(2);
         wait();
         bool c = w[1].getA();
+        t4 = c;
         
         while (true) {
             wait();
         }
     }
 
+    sc_signal<int> t5;
     void rec_arr_call_reg2() 
     {
         wait();
@@ -173,27 +184,31 @@ public:
         while (true) {
             Simple z[2];
             bool c = z[1].getA();
+            t5 = c;
             wait();
         }
     }
 
 // ----------------------------------------------------------------------------    
     // Function called in record array at unknown index, @s is register
+    sc_signal<int> t6;
     void rec_arr_call_unknw_reg() 
     {
         Simple s[2];
         wait();
         
         while (true) {
-            int j = sig.read() + s[1].B;
+            int j = sig.read() + s[1].A;
 
             s[1].setA(1);
             bool c = s[j].getA();
+            t6 = c;
 
             wait();
         }
     }
     
+    sc_signal<int> t7;
     void rec_arr_call_unknw_reg2() 
     {
         Simple s[2];
@@ -204,11 +219,13 @@ public:
 
             s[j].setA(1);
             bool c = s[1].getA();
+            t7 = c;
 
             wait();
         }
     }
     
+    sc_signal<int> t8;
     void rec_arr_call_unknw_reg3() 
     {
         Simple s[2];
@@ -219,6 +236,7 @@ public:
 
             s[j].setA(1);
             bool c = s[j].getA();
+            t8 = c;
 
             wait();
         }
@@ -238,6 +256,16 @@ public:
 
             wait();
         }
+    }
+    
+    void rec_arr_call_unknw_loc_in_call_m() 
+    {
+        Simple s;
+        s.locFcall();
+        
+        int j = sig.read();
+        Simple ss[2];
+        ss[j].locFcall();
     }
     
     // Call function whicch call another function with local variable

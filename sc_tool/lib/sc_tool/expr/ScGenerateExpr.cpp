@@ -435,6 +435,7 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
                                        const SValue& funcModval, 
                                        const clang::FunctionDecl* callFuncDecl) 
 {
+    //cout << "prepareCallParams " << hex << expr << dec << endl; 
     bool isCall = isa<CallExpr>(expr);
     bool isCtor = isa<CXXConstructExpr>(expr);
     SCT_TOOL_ASSERT (isCall || isCtor, "No function call or constructor");
@@ -450,6 +451,9 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
     // Set function parameters flag to avoid another function/constructor call 
     bool lastFuncParams = inFuncParams; inFuncParams = true;
 
+    // Clear @arraySubIndices from @this to avoid using them for arguments
+    codeWriter->clearSubscriptIndex();
+    
     for (auto arg : arguments) {
         // Skip first argument for operator which is this
         if (isOperator) {
@@ -468,6 +472,7 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
             }
         }
         
+        // Increment parameter index
         ParmVarDecl* parDecl = const_cast<ParmVarDecl*>(
                                callFuncDecl->getParamDecl(paramIndx++));
         // Get original type, required as array passed to function as pointer
@@ -475,6 +480,13 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
         if (isScPort(type)) {
             ScDiag::reportScDiag(expr->getBeginLoc(), 
                         ScDiag::SYNTH_SC_PORT_INCORRECT) << "in function parameter";
+        }
+        
+        // Skip removed arguments 
+        //cout << "  argExprs " << hex << argExpr<< dec << endl;
+        if (removedArgExprs.count(argExpr) != 0) {
+            //cout << "  skip argExprs " << hex << argExpr<< dec << endl;
+            continue;
         }
 
         // Skip zero width parameter
@@ -818,6 +830,7 @@ void ScGenerateExpr::parseExpr(clang::StringLiteral* expr, SValue& val)
 void ScGenerateExpr::parseExpr(DeclRefExpr* expr, SValue& val)
 {
     ScParseExpr::parseExpr(expr, val);
+    // Do not need to get zero element Rec/Mif array for reference parameters here 
     
     refRecarrIndx = "";
     
@@ -879,11 +892,12 @@ void ScGenerateExpr::parseExpr(MemberExpr* expr, SValue& val)
     }
     
     ScParseExpr::parseExpr(expr, val);
+    // Do not need to get zero element Rec/Mif array for reference parameters here 
     
     if (setSaveArrayIndices) {
         codeWriter->resetKeepArrayIndices();
     }
-    
+
     // Report warning for read register in reset section
     if (codeWriter->isResetSection() && !assignLHS) {
         reportReadRegister(val, expr);
@@ -1017,7 +1031,7 @@ void ScGenerateExpr::parseExpr(ExplicitCastExpr* expr, SValue& rval, SValue& val
         // Explicit cast to void, remove it from code
         // Used to replace assert in NDEBUG mode, see assert.h
         // Do not put anything for @expr
-            
+        
     } else {
         //cout << hex << (size_t)expr << " " << (size_t)expr->getSubExpr()<< dec << " rval " << rval << " val " << val << endl;
         if (getIntTraits(type, true) && !isBoolType(type) &&
@@ -1310,13 +1324,20 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
                 locrecvarCtor = true;
             }
             locrecvar = NO_VALUE;
+            
+        } else 
+        if (chanrecvar) {
+            // Non-default constructor not supported for record channel, #315
+            ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                 ScDiag::SYNTH_REC_CHAN_NONDEF_CTOR);
+            chanrecvar = NO_VALUE;
         }
     } else 
     if (getUserDefinedClassFromArray(type)) {
         // Do nothing, record array filled in ScParseExpr::parseValueDecl()
         
     } else {
-         ScDiag::reportScDiag(expr->getSourceRange().getBegin(), 
+         ScDiag::reportScDiag(expr->getBeginLoc(), 
                               ScDiag::SC_CXX_CTOR_IN_PROC_FUNC);
     }
 }
@@ -1325,7 +1346,7 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
 void ScGenerateExpr::parseExpr(CXXNewExpr* expr, SValue& val)
 {
     // Cannot be called from process
-    ScDiag::reportScDiag(expr->getSourceRange().getBegin(), 
+    ScDiag::reportScDiag(expr->getBeginLoc(), 
                          ScDiag::SC_NEW_IN_PROC_FUNC);
 }
 
@@ -1333,7 +1354,7 @@ void ScGenerateExpr::parseExpr(CXXNewExpr* expr, SValue& val)
 void ScGenerateExpr::parseExpr(CXXDeleteExpr* expr, SValue& val)
 {
     // Cannot be called from process
-    ScDiag::reportScDiag(expr->getSourceRange().getBegin(), 
+    ScDiag::reportScDiag(expr->getBeginLoc(), 
                          ScDiag::SC_DELETE_IN_PROC_FUNC);
 }
 
@@ -1459,6 +1480,33 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                                      ScDiag::SYNTH_UNSUPPORTED_INIT) << s;
             }    
         }
+        
+        if (iexpr && recType && !isZeroWidthType(*recType)) {
+            if (auto recDecl = (*recType)->getAsCXXRecordDecl()) {
+                if (CXXConstructExpr* ctorExpr = dyn_cast<CXXConstructExpr>(iexpr)) {
+                    // Check for non-trivial constructor
+                    auto ctorFunc = ctorExpr->getConstructor()->getAsFunction();
+                    if (!ctorFunc->isDefaulted() && ctorFunc->isDefined()) {
+                        ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                             ScDiag::SYNTH_CTOR_REC_ARRAY);
+                    }
+                    // Check if this field is in initializer list
+                    for (auto fieldDecl : recDecl->fields()) {
+                        if (fieldDecl->getInClassInitializer()) {
+                            ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                    ScDiag::SYNTH_INIT_FIELD_REC_ARRAY) <<
+                                    fieldDecl->getNameAsString();
+                        }
+                    }
+                }
+            }
+            // No record array initialization with initializer list
+            if (isa<InitListExpr>(iexpr)) {
+                ScDiag::reportScDiag(stmt->getBeginLoc(),
+                                     ScDiag::SYNTH_REC_ARRAY_INIT);
+            }
+        }
+        
     } else {
         // Single variable 
         
@@ -1739,7 +1787,7 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                 } else {
                     codeWriter->putAssign(stmt, lvar, lexpr, rexpr);
                     // Consider multiple assignments
-                    if (auto multipleAssign = codeWriter->getAssignStmt(rexpr)) {
+                    if (auto multipleAssign = getAssignStmt(rexpr)) {
                         codeWriter->addTerm(stmt, multipleAssign);
                         codeWriter->copyTerm(multipleAssign, stmt);
                     }
@@ -1803,8 +1851,7 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                 }
                 codeWriter->putBinary(stmt, opcodeStr, lexpr, rexpr);
                 
-                if (codeWriter->getAssignStmt(lexpr) || 
-                    codeWriter->getAssignStmt(rexpr)) {
+                if (getAssignStmt(lexpr) || getAssignStmt(rexpr)) {
                     ScDiag::reportScDiag(stmt->getBeginLoc(),
                                          ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
                 }
@@ -1829,8 +1876,7 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
             } else {
                 codeWriter->putBinary(stmt, opcodeStr, lexpr, rexpr);
 
-                if (codeWriter->getAssignStmt(lexpr) || 
-                    codeWriter->getAssignStmt(rexpr)) {
+                if (getAssignStmt(lexpr) || getAssignStmt(rexpr)) {
                     ScDiag::reportScDiag(stmt->getBeginLoc(),
                                          ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
                 }
@@ -1908,7 +1954,7 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
             codeWriter->putCompAssign(stmt, opcodeStr, lvar, lexpr, rexpr);
             
             // Consider multiple assignments
-            if (auto multipleAssign = codeWriter->getAssignStmt(rexpr)) {
+            if (auto multipleAssign = getAssignStmt(rexpr)) {
                 codeWriter->addTerm(stmt, multipleAssign);
                 codeWriter->copyTerm(multipleAssign, stmt);
             }
@@ -1942,7 +1988,7 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
     auto rtype = rval.getTypePtr();
     bool isPointer = rtype && rtype->isPointerType();
     
-    if (codeWriter->getAssignStmt(rexpr)) {
+    if (getAssignStmt(rexpr)) {
         ScDiag::reportScDiag(stmt->getBeginLoc(),
                              ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
     }
@@ -3050,9 +3096,11 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             Expr* rexpr = args[1];
             // Set @locrecvar to provide owner to record value created for @rval
             if (lrec.isRecord()) {locrecvar = lval; locrecvarCtor = false;}
+            if (lhsRecordChan) chanrecvar = lval;
             chooseExprMethod(rexpr, rval);
             if (lrec.isRecord()) locrecvar = NO_VALUE;
-
+            if (lhsRecordChan) chanrecvar = NO_VALUE;
+                
             strLiterWidth = lastWidth;
             strLiterUnsigned = lastUnsigned;
 
@@ -3118,7 +3166,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                                                     lrecSuffix, lrecType, state.get());
                 } else
                 if (rhsRecord || rhsRecordChan) {
-                    if (codeWriter->getAssignStmt(rexpr)) {
+                    if (getAssignStmt(rexpr)) {
                         ScDiag::reportScDiag(expr->getBeginLoc(), 
                                             ScDiag::SYNTH_MULT_ASSIGN_REC);
                     }
@@ -3131,7 +3179,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             } else {
                 // Put assign for channels and others
                 codeWriter->putAssign(expr, lvar, lexpr, rexpr);
-                if (auto multipleAssign = codeWriter->getAssignStmt(rexpr)) {
+                if (auto multipleAssign = getAssignStmt(rexpr)) {
                     codeWriter->addTerm(expr, multipleAssign);
                     codeWriter->copyTerm(multipleAssign, expr);
                 }
@@ -3317,7 +3365,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 codeWriter->putUnary(expr, opStr, lexpr);
             }
             
-            if (codeWriter->getAssignStmt(lexpr)) {
+            if (getAssignStmt(lexpr)) {
                 ScDiag::reportScDiag(expr->getBeginLoc(),
                                      ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
             }
@@ -3352,7 +3400,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 codeWriter->putUnary(expr, opStr, lexpr, argNum == 1);
             }
             
-            if (codeWriter->getAssignStmt(lexpr)) {
+            if (getAssignStmt(lexpr)) {
                 ScDiag::reportScDiag(expr->getBeginLoc(),
                                      ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
             }
@@ -3371,7 +3419,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 }
             }
             
-            if (codeWriter->getAssignStmt(lexpr)) {
+            if (getAssignStmt(lexpr)) {
                 ScDiag::reportScDiag(expr->getBeginLoc(),
                                      ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
             }
@@ -3423,8 +3471,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             }
             codeWriter->putBinary(expr, opStr, lexpr, rexpr);
             
-            if (codeWriter->getAssignStmt(lexpr) || 
-                codeWriter->getAssignStmt(rexpr)) {
+            if (getAssignStmt(lexpr) || getAssignStmt(rexpr)) {
                 ScDiag::reportScDiag(expr->getBeginLoc(),
                                      ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
             }
@@ -3489,7 +3536,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 codeWriter->putCompAssign(expr, opStr, lvar, lexpr, rexpr);
 
                 // Consider multiple assignments
-                if (auto multipleAssign = codeWriter->getAssignStmt(rexpr)) {
+                if (auto multipleAssign = getAssignStmt(rexpr)) {
                     codeWriter->addTerm(expr, multipleAssign);
                     codeWriter->copyTerm(multipleAssign, expr);
                 }

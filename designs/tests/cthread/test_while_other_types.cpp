@@ -207,6 +207,7 @@ public:
     }
 
     // While with binary ||/&& operator -- BUG in real design EMC
+    sc_signal<int> t0;
     void while_with_binary_oper_sc_bigint()
     {
         sc_bigint<50> b1, b2;
@@ -219,10 +220,12 @@ public:
                 wait();
                 k = 2;
             }                   // B3
+            t0 = k;
             wait();             // B2, B1
         }
     }
     
+    sc_signal<int> t1;
     void while_with_binary_oper1_sc_biguint()
     {
         sc_biguint<25> b1, b2;
@@ -234,12 +237,14 @@ public:
                 k = 1;          
                 wait();
                 k = 2;
-            }                   
+            }        
+            t1 = k;
             wait();             
         }
     }
     
     // While with binary ||/&& operator -- BUG in real design EMC fixed
+    sc_signal<int> t2;
     void while_with_binary_oper2_sc_int()
     { 
         sc_int<32> b1, b2, b3;
@@ -252,10 +257,12 @@ public:
                 wait();     // B4
                 k = 2;
             }               // B3
+            t2 = k;
             wait();         // B2
         }
     }
     
+    sc_signal<int> t3;
     void while_with_binary_oper3_sc_uint()
     { 
         sc_uint<16> b1, b2, b3;
@@ -268,6 +275,7 @@ public:
                 wait();     
                 k = 2;
             }               
+            t3 = k;
             wait();         
         }
     }

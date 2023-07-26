@@ -120,13 +120,17 @@ public:
     static void print();
 
 private:
+    /// Get base classes values fro given record
     static std::vector<sc::SValue> getBaseValues(const RecordView& recView);
-    static sc::SValue getOrCreateRecordValue(const RecordView& recView, 
-                                    const sc::SValue& parent = sc::NO_VALUE);
+    /// Get record value from @recordMap or create it there and return
+    static sc::SValue getOrCreateRecordValue(const RecordView& recView);
+    /// Create record value in @recordMap and return it
+    static void createRecordValue(const RecordView& recView, 
+                                  const sc::SValue& parent = sc::NO_VALUE);
     /// Add top module SValue into @recordMap
     static void fillTopModValue();
-    /// Add SValue for modules with ready parents into @recordMap
-    static bool fillValuesWithParent();
+    /// Add value for modules with ready parents into @recordMap
+    static void fillValuesWithParent();
     
     /// Mapping record object ID to SValue for all records in the design
     static std::unordered_map<uint32_t, sc::SValue> recordMap;

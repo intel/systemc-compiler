@@ -27,19 +27,23 @@ struct Target : public sc_module, port_if<T>
         sc_module(name) 
     {}
 
+    sc_signal<int> t0;
     void f(T val) override {
         T l = val;
         v = l + 1;
         val = r.read();
+        t0 = v;
     }
 
     T a[2];
+    sc_signal<int> t1;
     void fa(T val) override {
         T l[2];
         l[0] = val;
         l[1] = r.read();
         int i = r.read();
         a[i] = l[i];
+        t1 = a[i];
     }
     
     void g(T val) override {

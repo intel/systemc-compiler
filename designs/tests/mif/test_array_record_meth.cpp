@@ -66,6 +66,7 @@ struct NotSimple {
     Simple  rr;
     NotSimple f;
 
+    sc_signal<int> t0;
     void memRecMeth() 
     {
         int minst_r_b[2];   
@@ -79,12 +80,14 @@ struct NotSimple {
         f.rec_oth_arr[1].c = 6;
         
         int i = f.rec_arr[0].c + rr.rec_arr[0].c + r.b[1];
+        t0 = i;
     }
     
     // Member record array
     Simple      w[2];
     NotSimple   ww[3];
 
+    sc_signal<int> t1;
     void memRecArrMeth() 
     {
         w[0].a = s.read();
@@ -106,6 +109,7 @@ struct NotSimple {
         }
         
         sc_uint<4> x = w[0].rec_arr[1].c + ww[0].rec_oth_arr[0].c;
+        t1 = x + sum;
         // TODO: Uncomment after #158 fixed 
         //sc_uint<4> y = w[1].rec_arr[1].c + ww[2].rec_oth_arr[0].c;
     }

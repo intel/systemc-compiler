@@ -75,11 +75,13 @@ public:
 
     sc_signal<int> sig;
     
+    sc_signal<int> t0;
     void unknown_ref() 
     {
         int i = 1;
         int& ref = i; 
         ref = sig.read();
+        t0 = ref;
     }
     
     

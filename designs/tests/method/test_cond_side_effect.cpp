@@ -45,23 +45,28 @@ public:
     
     // IF condition with function call with side effect
     // This test has incorrect RTL as function body is inlined
+    sc_signal<int> t0;
     void if_side_effect1() {
         int i = 0;
         if (a.read() && f()) {  // inlined body and temporary variable used here
             i = 1;
         }
         i = 2;
+        t0 = i;
     }
     
     // Expression with side effect
+    sc_signal<int> t1;
     void if_side_effect2() {
         int i = 0;
         if (a.read() && m++) {  
             i = m;
         }
         i = 2;
+        t1 = i;
     }
     
+    sc_signal<int> t2;
     void binary_side_effect() {
         int i = 0;
         bool b = a.read() || i++; 
@@ -81,8 +86,10 @@ public:
         
         b = false && i++;
         sct_assert_const(i == 4);
+        t2 = b;
     }
     
+    sc_signal<int> t3;
     void binary_side_effect2() {
         int i = 0;
         bool b = i++ || a.read(); 
@@ -99,9 +106,11 @@ public:
 
         b = a.read() || i++ && false; 
         sct_assert_const(i == 4);
+        t3 = b;
     }
 
     // Side effect in condition
+    sc_signal<int> t4;
     void cond_side_effect()
     {
         int i = 3;
@@ -113,6 +122,7 @@ public:
         res = (i-- == j--) ? b : c;
         sct_assert_const(i == 3);
         sct_assert_const(j == 0);
+        t4 = res;
     }
     
     int g(int par) {
@@ -121,6 +131,7 @@ public:
     int h(int par) {
         return (par+1);
     }
+    sc_signal<int> t5;
     void cond_fcall()
     {
         int i = 3;
@@ -130,8 +141,10 @@ public:
         if (h(1)) {res = 1;}
         res = 1+h(0);
         if (h(1) || h(2)) {res = h(3);}
+        t5 = res;
     }
     
+    sc_signal<int> t6;
     void binary_unary_fcall()
     {
         int res;
@@ -141,6 +154,7 @@ public:
         res = unsigned(h(1));
         res = a.read() ? h(1) : h(2);
         res = sc_uint<4>(h(2));
+        t6 = res;
     }
 };
 

@@ -43,33 +43,42 @@ public:
     }
 
     // Local and global variable declaration
+    sc_signal<int> t0;
     void var1() {
 	int i;
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
                 k = (j != i);
+                t0 = k;
                 bool k = (j == i);
+                t0 = k;
             }
         }
         k = i;
 
         C::m = 0;
         m = 1;
+        t0 = m;
         sc_uint<3> m = 2;
+        t0 = m + C::m + k;
     }
 
     // Base module variables declaration
+    sc_signal<int> t1;
     void var2() {
         C::m2 = 0;
         m2 = 1;
         {
             sc_uint<3> m2 = 2;
             int k = C::m2 + m2;
+            t1 = k;
         }
         j = C::m2 + m2;
+        t1 = j;
     }
 
     // Original and constructed name equivalence
+    sc_signal<int> t2;
     void var3() {
         sc_uint<2> i_1 = 1;
         sc_uint<3> i_2 = 2;
@@ -84,10 +93,12 @@ public:
         sc_uint<4> n;
         {
             sc_uint<5> n;
+            t2 = n;
         }
         
         sc_uint<1> x_1;
         sc_uint<2> x_2;
+        t2 = i_1 + i_2 + i + l + l_1 + n + n_1 + n_2 + n_3 + x_1 + x_2;
     }
 };
 

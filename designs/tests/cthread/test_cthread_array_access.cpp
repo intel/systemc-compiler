@@ -65,16 +65,19 @@ public:
 
     // 1D array access
     sc_uint<3> r[3];
+    sc_signal<int> t0;
     void array_in_method1()
     {
         r[0] = 1; r[1] = 2;
         int i = sig.read();
         r[i] = 3;
         int j = r[i+1] + r[2];
+        t0 = j;
     }
     
     // 2D array access
     sc_uint<4> rr[3][2];
+    sc_signal<int> t1;
     void array_in_method2()
     {
         for (int k = 0; k < 3; k++) {
@@ -85,10 +88,12 @@ public:
         int j = rr[2][1];
         rr[i][j] = 3;
         j = rr[i+1][j-1] + 1;
+        t1 = j;
     }
     
     // 1D array access in CTHREAD
     bool s[3];
+    sc_signal<int> t2;
     void array_in_thread1()
     {
         s[1] = false;
@@ -98,6 +103,7 @@ public:
             int i = sig.read();
             s[i] = i == 1;
             bool b = s[i+1] || s[i];
+            t2 = b;
             wait();
         }
     }
@@ -129,6 +135,7 @@ public:
 
 // ----------------------------------------------------------------------------    
     
+    sc_signal<int> t3;
     void array_use_def0() 
     {
         bool  v[3];
@@ -139,12 +146,14 @@ public:
         while (true) {
             w[1][1] = 1;
             bool c = w[1][1];
+            t3 = c;
 
             wait();
         }
     }
     
     // UseDef checks for arrays
+    sc_signal<int> t4;
     void array_use_def1() 
     {
         wait();
@@ -173,12 +182,14 @@ public:
             x[j] = 0;
             i = x[j];
 
+            t4 = i;
             wait();
         }
     }
     
     
     // UseDef checks for arrays through wait()    
+    sc_signal<int> t5;
     void array_use_def2() 
     {
         wait();
@@ -205,7 +216,7 @@ public:
             
             y[1] = 5;
             i = y[1];
-
+            t5 = i;
             wait();
         }
     }
@@ -218,6 +229,7 @@ public:
     int*  xp[2];    // reg
     int*  qp[2];    // comb
     
+    sc_signal<int> t6;
     void array_use_def_ptr1() 
     {
         int j = sig.read();
@@ -235,7 +247,7 @@ public:
 
             *qp[1] = 7;
             i = *qp[1];
-
+            t6 = i;
             wait();
         }
     }
@@ -246,6 +258,7 @@ public:
     int*  xpp[2][2];    // reg
     int*  qpp[2][2];    // comb
     
+    sc_signal<int> t7;
     void array_use_def_ptr2() 
     {
         int j = sig.read();
@@ -263,6 +276,7 @@ public:
 
             *qpp[1][1] = 7;
             i = *qpp[1][1];
+            t7 = i;
 
             wait();
         }
@@ -275,6 +289,7 @@ public:
     sc_signal<bool>  vs[3][3];
     sc_signal<bool>  ys[3][3];
     
+    sc_signal<int> t8;
     void array_use_def_sig() 
     {
         int j = sig.read();
@@ -288,6 +303,7 @@ public:
             bool c = ws[1][1];
             c = vs[1][0];
             c = ys[0][1];
+            t8 = c;
 
             wait();
         }

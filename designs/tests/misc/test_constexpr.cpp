@@ -49,12 +49,15 @@ struct A : public sc_module
         SC_METHOD(logProc); sensitive << s;
     }
     
+    sc_signal<int> t0;
     void constProc() {
         cout << "M1 " << M1 << " M2 " << M2 << endl;
         unsigned i1 = M1;
         unsigned i2 = M2;
+        t0 = i1 + i2;
     }
 
+    sc_signal<int> t1;
     void arrProc() 
     {
         int arr1[12];
@@ -62,8 +65,10 @@ struct A : public sc_module
         cout << i << endl;
         int arr2[i];
         sc_uint<i> a = arr2[0];
+        t1 = a;
     }
     
+    sc_signal<int> t2;
     void logProc() 
     {
         constexpr unsigned i = 42;
@@ -90,6 +95,7 @@ struct A : public sc_module
         cout << "Log of " << 3122741901 << " is " << j << endl;
         j = myLog2<A>;
         cout << "Log of " << A << " is " << j << endl;
+        t2 = j;
     }
 };
 

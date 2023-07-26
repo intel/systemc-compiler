@@ -51,6 +51,7 @@ public:
         }
     }
     
+    sc_signal<int> t0;
     void if_const1() 
     {
         int k = 0;
@@ -66,8 +67,10 @@ public:
         if ((sc_int<2>)111) {
             k = 4;
         }
+        t0 = k;
     }
     
+    sc_signal<int> t1;
     void switch_var1() 
     {
         int k = 0;
@@ -77,8 +80,10 @@ public:
             case 1 : k = 1; break;
             case 2 : k = 2; break;
         }
+        t1 = k;
     }    
 
+    sc_signal<int> t2;
     void switch_var2() 
     {
         int k = 0;
@@ -88,6 +93,7 @@ public:
             case 1 : k = 1; break;
             case 2 : k = 2; break;
         }
+        t2 = k;
     }    
     
     void for_var1() 

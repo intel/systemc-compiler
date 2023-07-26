@@ -1578,12 +1578,18 @@ void ScElabModuleBuilder::bindPortExternalAux(PortView portEl,
             VerilogModule *hostVerMod = elabDB->getVerilogModule(parentModsList.at(i - 1));
             VerilogModuleInstance *instance = hostVerMod->getInstance(instanceModObj);
 
-            // create auxiliary port in host module
-            for (const auto *verVar : verPortVars) {
+            // Create auxiliary port in host module
+            for (unsigned i = 0; i != verPortVars.size(); ++i) {
+                const auto* verVar = verPortVars[i];
+                const auto* instVar = instanceVars[i];
+                
+                // Promoted port name includes name for all the module instances
+                // For port1 in child1 the name is @child1_port1
                 auto *portVar = hostVerMod->createAuxilaryPort(
-                                portEl.getDirection(), verVar->getName(), 
-                                verVar->getBitwidth(), verVar->getArrayDims(), 
-                                verVar->isSigned());
+                    portEl.getDirection(), /*verVar->getName()*/
+                    instance->getName()+"_"+instVar->getName(),
+                    verVar->getBitwidth(), verVar->getArrayDims(), 
+                    verVar->isSigned());
 
                 hostVars.push_back(portVar);
             }

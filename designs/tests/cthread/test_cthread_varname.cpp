@@ -59,11 +59,13 @@ public:
     }
     
     // Method local variable name
+    sc_signal<int> t0a;
     void local_varname()
     {
         int m = 1;  
         int k = 2;  
         int a;
+        t0a = a + k + m;
     }
     
     // Two variables with the same name one in called function, 
@@ -90,6 +92,7 @@ public:
     }
     
     // Register and combinational
+    sc_signal<int> t1a;
     void doble_varname_scope() 
     {
         wait();
@@ -104,12 +107,14 @@ public:
                 wait(); 
                 m2 = acheck_hiwait_delay; 
             }
+            t1a = m2;
             
             wait();
         }
     }
     
     // Two registers
+    sc_signal<int> t2a;
     void doble_varname_scope_reg() 
     {
         wait();
@@ -125,12 +130,14 @@ public:
                 wait();
                 m3 = bcheck_hiwait_delay; 
             }
+            t2a = m3;
             
             wait();
         }
     }
     
     // Two combinational
+    sc_signal<int> t3a;
     void doble_varname_scope_comb() 
     {
         wait();
@@ -144,6 +151,7 @@ public:
                 sc_uint<3> ccheck_hiwait_delay = 2;
                 m4 = ccheck_hiwait_delay; 
             }
+            t3a = m4;
             
             wait();
         }

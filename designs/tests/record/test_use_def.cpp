@@ -125,8 +125,6 @@ public:
         SC_METHOD(clearMeth); sensitive << sim << s;
         SC_METHOD(clearArrMeth); sensitive << aim << s;
         //SC_METHOD(clearInnMeth); sensitive << iim << s << sim;   // See #127
-        SC_METHOD(setMeth); sensitive << sim << s;
-        SC_METHOD(setArrMeth); sensitive << sim << s;
         SC_METHOD(recRefMeth); sensitive << sim << s;
         SC_METHOD(combSigMeth); sensitive << csim << s;
         
@@ -188,7 +186,7 @@ public:
     void clearMeth() {
         unsigned i = s.read();
         Simple ss;
-        Simple as[3];
+        Simple rr;
         
         sct_assert_const(ss.b == 0x42);
         ss = sim;  
@@ -198,49 +196,35 @@ public:
         sct_assert_read(sim);
         
         ss.b = 0x41;
-        as[1] = ss;
-        sct_assert_array_defined(as[1].a);
-        sct_assert_array_defined(as[1].b);
-        sct_assert_const(as[1].b == 0x41);
-        as[1] = sim;
-        sct_assert_unknown(as[1].b);
+        rr = ss;
+        sct_assert_array_defined(rr.a);
+        sct_assert_array_defined(rr.b);
+        sct_assert_const(rr.b == 0x41);
+        rr = sim;
+        sct_assert_unknown(rr.a);
+        sct_assert_unknown(rr.b);
         
         ss.a = 1; ss.b = 0x43;
-        as[2] = ss;
-        sct_assert_const(as[2].a == 1);
-        sct_assert_const(as[2].b == 0x43);
-        as[i] = sim;
-        sct_assert_unknown(as[2].a);
-        sct_assert_unknown(as[2].b);
+        rr = ss;
+        sct_assert_const(rr.a == 1);
+        sct_assert_const(rr.b == 0x43);
     }
     
     void clearArrMeth() {
         unsigned i = s.read();
         Arr ss;
-        Arr as[3];
+        Arr rr;
         
         sct_assert_const(ss.b == 0x42);
         ss = aim;  
         sct_assert_unknown(ss.b);
         
         ss.b = 0x41;
-        as[1] = ss;
-        sct_assert_const(as[1].b == 0x41);
-        as[1] = aim;
-        sct_assert_unknown(as[1].b);
+        rr = ss;
+        sct_assert_const(rr.b == 0x41);
+        rr = aim;
+        sct_assert_unknown(rr.b);
         
-        ss.b = 0x43; ss.c[0] = 4;
-        as[2] = ss;
-        sct_assert_const(as[2].b == 0x43);
-        sct_assert_const(as[2].c[0] == 4);
-        as[i] = aim;
-        sct_assert_array_defined(as[i].b);
-        sct_assert_array_defined(as[i].c[0]);
-        sct_assert_array_defined(as[i].c[1]);
-        sct_assert_array_defined(as[i].c[2]);
-        sct_assert_unknown(as[2].b);
-        sct_assert_unknown(as[2].c[0]);
-
         ss.c[i] = 5;
         sct_assert_unknown(ss.c[0]);
         sct_assert_unknown(ss.c[1]);
@@ -265,45 +249,6 @@ public:
         sct_assert_unknown(ii.s.b);
         ss = ii.s;
         sct_assert_unknown(ss.b);
-    }
-    
-    // Assign values
-    void setMeth() {
-        unsigned i = s.read();
-        Simple ss;
-        Simple as[3];
-        
-        as[0].a = 1; as[0].b = 2;
-        as[1] = as[0];
-        sct_assert_const(as[1].a == 1);
-        sct_assert_const(as[1].b == 2);
-
-        ss = as[1];
-        sct_assert_const(ss.a == 1);
-        sct_assert_const(ss.b == 2);
-        
-        sim = ss;
-        sct_assert_unknown(sim.read());
-        sct_assert_unknown(sim.read());
-    }
-    
-    void setArrMeth() {
-        unsigned i = s.read();
-        Arr ss;
-        Arr as[3];
-        
-        as[0].c[2] = 5; as[0].b = 2;
-        as[1] = as[0];
-        sct_assert_const(as[1].c[2] == 5);
-        sct_assert_const(as[1].b == 2);
-
-        ss = as[1];
-        sct_assert_const(ss.c[2] == 5);
-        sct_assert_const(ss.b == 2);
-        
-        aim = ss;
-        sct_assert_unknown(aim.read());
-        sct_assert_unknown(aim.read());
     }
     
     void recRefMeth() {

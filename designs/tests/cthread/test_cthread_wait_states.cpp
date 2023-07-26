@@ -40,16 +40,19 @@ public:
         async_reset_signal_is(rst, true);
     }
     
-     void single_state() {
+    sc_signal<int> t0;
+    void single_state() {
         int i = 0;
         wait();
 
         while (true) {
             i = 2;
+            t0 = i;
             wait();
         }
     }
-     
+    
+    sc_signal<int> t1;
     void not_single_state1() {
         int i = 0;
         wait();
@@ -58,10 +61,12 @@ public:
 
         while (true) {
             i = 2;
+            t1 = i;
             wait();
         }
     }
 
+    sc_signal<int> t2;
     void not_single_state2() {
         int i = 0;
         wait();
@@ -71,10 +76,12 @@ public:
 
         while (true) {
             i = 2;
+            t2 = i;
             wait();
         }
     }
     
+    sc_signal<int> t3;
     void not_single_state3() {
         int i = 0;
         wait();
@@ -86,10 +93,12 @@ public:
 
         while (true) {
             i = 2;
+            t3 = i;
             wait();
         }
     }
     
+    sc_signal<int> t4;
     void state_in_if() {
         bool b = 0;
         wait();         // #0
@@ -100,10 +109,12 @@ public:
                 wait(); // #1
             }
             int j = 2;
+            t4 = b;
             wait();     // #2
         }
     }
     
+    sc_signal<int> t5;
     void state_in_for() {
         bool b = 0;
         wait();         // #0
@@ -115,6 +126,7 @@ public:
                 
                 if (a.read()) break;
             }
+            t5 = b;
             wait();     // #2
         }
     }    

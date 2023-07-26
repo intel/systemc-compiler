@@ -65,43 +65,46 @@ SC_MODULE(test_mod) {
         async_reset_signal_is(rstn, false);
         SC_CTHREAD(multistate_thread5, clk);
         async_reset_signal_is(rstn, false);
-
-        
-
     }
 
+    sc_signal<int> t0;
     void single_state_thread0() {
         int x = 0;
         wait();
         while (2 > 1) {
             x++;
+            t0 = x;
             wait();
         }
     }
 
+    sc_signal<int> t1;
     void single_state_thread1() {
         int x = 0;
         wait();
         for(;;) {
-            x++;
+            t1 = x++;
             wait();
         }
     }
 
+    sc_signal<int> t2;
     void single_state_thread2() {
         int x = 0;
         wait();
         do {
             x++;
+            t2 = x;
             wait();
         } while (1 == 1);
     }
 
+    sc_signal<int> t3;
     void single_state_thread3() {
         int x = 0;
         while (1) {
             wait();
-            x++;
+            t3 = x++;
         }
     }
 
@@ -109,31 +112,35 @@ SC_MODULE(test_mod) {
 
     }
 
+    sc_signal<int> t4;
     void single_state_thread4() {
         int x = 0;
         while (1) {
             wait();
             empty_method();
-            x++;
+            t4 = x++;
         }
     }
 
+    sc_signal<int> t5;
     void multistate_thread0() {
         int x = 0;
         wait();
         x++;
         while (1) {
-            x++;
+            x++; t5 = x;
             wait();
         }
     }
 
+    sc_signal<int> t6;
     void multistate_thread1() {
         int x = 0;
         wait();
         while (1) {
             wait();
             x++;
+            t6 = x;
         }
     }
 
@@ -141,30 +148,34 @@ SC_MODULE(test_mod) {
         wait();
     }
 
+    sc_signal<int> t7;
     void multistate_thread2() {
         int x = 0;
         while (1) {
             wait();
             wait_method();
             x++;
+            t7 = x;
         }
     }
 
+    sc_signal<int> t7a;
     void multistate_thread3() {
         int x = 0;
         while (1) {
             wait();
             wait_wrapper();
-            x++;
+            t7a = x++;
         }
     }
 
+    sc_signal<int> t8;
     void multistate_thread4() {
         int x = 0;
         while (1) {
             wait();
             wptr->vwait();
-            x++;
+            x++; t8 = x;
         }
     }
 
@@ -174,12 +185,13 @@ SC_MODULE(test_mod) {
 
     wderived wd;
 
+    sc_signal<int> t9;
     void multistate_thread5() {
         int x = 0;
         while (1) {
             wait();
             wbase_invoker(wd);
-            x++;
+            t9 = x++;
         }
     }
 

@@ -41,10 +41,13 @@ struct A : public sc_module
         async_reset_signal_is(nrst, 0);
     }
     
+    sc_signal<int> t0;
     void no_sens_method() {
         int a = 1;
+        t0 = a;
     }
 
+    sc_signal<int> t1;
     void empty_if_method() {
         int a = 0;
         
@@ -66,8 +69,10 @@ struct A : public sc_module
             a = 3;
         } else {
         }
+        t1 = a;
     }
 
+    sc_signal<int> t2;
     void empty_loop_method() 
     {
         int a = 0;
@@ -83,8 +88,9 @@ struct A : public sc_module
         while (j < 3) {
             ++j;
         }
+        t2 = a + j;
     }
-    
+
     void empty_loop_thread() 
     {
         wait();

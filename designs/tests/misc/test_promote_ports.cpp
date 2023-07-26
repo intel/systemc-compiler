@@ -41,15 +41,23 @@ SC_MODULE(inner) {
     sc_out<sc_int<12>> inner_out{"inner_out"};
 
     bottom bot0{"bot0"};
+    sc_vector<bottom> bot{"bot", 2};
     bottom2 bot2{"bot2"};
+    sc_vector<bottom2> abot{"abot", 2};
 
     sc_signal<int> intsig{"intsig"};
 
 
     SC_CTOR(inner) {
         bot0.clkin(clkin);
+        bot[0].clkin(clkin);
+        bot[1].clkin(clkin);
         bot2.clkin(clkin);
         bot2.intin(intsig);
+        abot[0].clkin(clkin);
+        abot[1].clkin(clkin);
+        abot[0].intin(intsig);
+        abot[1].intin(intsig);
     }
     
 };
@@ -75,6 +83,8 @@ SC_MODULE(tb) {
 
     sc_signal <bool> clkgen{"clkgen"};
     sc_signal <int> dout{"dout"};
+    sc_signal <int> dout1{"dout1"};
+    sc_signal <int> dout2{"dout2"};
 
     sc_signal<bool> rstn{"rstn"};
 
@@ -91,8 +101,16 @@ SC_MODULE(tb) {
         top0.inner0.clkin(clkgen);
         top0.inner0.bot0.din(din);
 
+        top0.inner0.bot[0].din(din);
+        top0.inner0.bot[1].din(din);
+
         top0.inner0.bot2.din(din2);
         top0.inner0.bot2.dout(dout);
+        
+        top0.inner0.abot[0].din(din2);
+        top0.inner0.abot[1].din(din2);
+        top0.inner0.abot[0].dout(dout1);
+        top0.inner0.abot[1].dout(dout2);
     }
 
 };

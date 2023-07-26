@@ -38,11 +38,14 @@ struct mod_if : public sc_module, sc_interface
         async_reset_signal_is(rst, 1);
     }
 
+    sc_signal<int> t0;
     void meth() {
         v[1] = false;
         bool b = *s[1] || r[1] || v[1];
+        t0 = b;
     }
     
+    sc_signal<int> t1;
     void thread() {
         bool c;
         vv[1] = false;
@@ -52,6 +55,7 @@ struct mod_if : public sc_module, sc_interface
             c = *s[1] || r[1] || vv[1];
             wait();
             bool d = c;
+            t1 = d;
         }
     }
 };

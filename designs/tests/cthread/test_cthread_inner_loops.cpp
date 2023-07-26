@@ -32,6 +32,7 @@ public:
         async_reset_signal_is(arstn, false);
     }
     
+    sc_signal<int> out0{"out0"};
     void test_thread1()
     {
         wait();
@@ -40,6 +41,7 @@ public:
             for (size_t i = 0; i < 3; ++i) { 
                 while (in.read() > 10) {     
                     wait();         // 1
+                    out0 = i;
                 }                   
                 wait();             // 2
             }                       

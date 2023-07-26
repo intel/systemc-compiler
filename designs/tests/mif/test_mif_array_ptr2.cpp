@@ -37,6 +37,7 @@ struct B_if : public sc_module, sc_interface
     
     A_if* a = nullptr;
     
+    sc_signal<int> t0;
     void g() {
         int k;
         if (a) {
@@ -44,15 +45,17 @@ struct B_if : public sc_module, sc_interface
         } else {
             k = 1;
         }
+        t0 = k;
     }
     
     const unsigned N;
-    
+    sc_signal<int> t1;
     void f() {
         int k = 0;
         for (int i = 0; i < N; ++i) {
             k += i;
         }
+        t1 = k;
     }
 };
 

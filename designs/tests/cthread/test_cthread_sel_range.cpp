@@ -187,6 +187,7 @@ public:
     }
    
     // @range() used in complex logic expression with &&/||
+    sc_signal<int> t0;
     void range_select_comp_logic()
     {
         int j = s.read();
@@ -202,11 +203,13 @@ public:
             if (false || x(4,2)) k = 4;
             if (false || true && x(5,1) || false) k = 5;
             if (false || true && x(6,1) || true) k = 6;
+            t0 = k;
             wait();
         }
     }
     
     // @range() used in arithmetic expression
+    sc_signal<int> t1;
     void range_select_arithm()
     {
         int j = s.read();
@@ -226,6 +229,7 @@ public:
             zz = z.range(14,10) >> j;
             zz = (z.range(14,10) * 3)>> z.range(5,0);
             zz = z.range(30,10) % z.range(5,0);
+            t1 = zz + yy;
             wait();
         }
     }

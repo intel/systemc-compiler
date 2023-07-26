@@ -159,6 +159,7 @@ public:
     }
     
     // @bit() used in logic expression
+    sc_signal<int> t0;
     void bit_select_logic()
     {
         int j = s.read();
@@ -176,14 +177,17 @@ public:
                 }
                 k = 4;
             }
+            t0 = k;
             
             bool b = x[1] || x[2] && x[3] || !x[4];
             b = x[1] || true && b && !(false || x[5] || x[6]);
+            t0 = b;
             wait();
         }
     }
    
     // @bit() used in complex logic expression with &&/||
+    sc_signal<int> t1;
     void bit_select_comp_logic()
     {
         int j = s.read();
@@ -195,9 +199,11 @@ public:
             int k = 0;
             if (true && x[1]) k = 1;
             if (true || x[2]) k = 2;
+            t1 = k;
             
             bool b = true && x[1];
             b = true || x[2];
+            t1 = b;
             
             wait();
         }

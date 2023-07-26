@@ -100,6 +100,7 @@ public:
     sc_signal<ScTempl<1>> st1;
     sc_signal<ScTempl<2>> st2;
     sc_signal<ScTempl<3>> sa[2];
+    sc_signal<int> t0;
     void record_const() {
         int i;
     
@@ -121,6 +122,7 @@ public:
         
         int m[3];
         m[0] = ScSimple::B + scRecArr[0].B + scRecArr[0].A;
+        t0 = m[0] + i;
     }
 
 //-----------------------------------------------------------------------------
@@ -239,6 +241,7 @@ public:
         }
     }
     
+    sc_signal<int> t1;
     void record_loop_conflict2() 
     {
         int i;
@@ -252,12 +255,16 @@ public:
             i_1 += rr[i].loop();
         }
         int i_3 = i_1;
+        t1 = i_3;
     }
     
+    sc_signal<int> t2;
     void record_loop_conflict3() 
     {
+        t2 = 0;
         for (int i = 0; i < 3; i++) {  
             int i_2 = rrr[i].loop();
+            t2 = i_2;
         }
 
         ff2();

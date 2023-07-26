@@ -100,6 +100,7 @@ public:
     }
 
     // switch with wait() in cases
+    sc_signal<int> t0;
     void test_switch2()
     {
         int j = 0;
@@ -114,12 +115,14 @@ public:
                 case 1: j = 2; wait(); break;   // 2
                 default: j = 3; 
             }
+            t0 = j;
             wait(); // 3
             i = 1;
         }
     }
 
     // switch with wait() and function call in cases
+    sc_signal<int> t1;
     void test_switch3()
     {
         int j = 0;
@@ -137,10 +140,12 @@ public:
                 default: j = 3; wait(); break;      // 4
             }
             i = 1;
+            t1 = j;
         }
     }
     
     // switch with wait() in IF and FOR inside cases
+    sc_signal<int> t2;
     void test_switch4()
     {
         int j = 0;
@@ -165,10 +170,12 @@ public:
                 default: j = 3;      
             }
             i = 1;
+            t2 = j;
         }
     }
     
     // switch in function with wait() 
+    sc_signal<int> t3;
     void test_switch5()
     {
         int j = 0;
@@ -183,6 +190,7 @@ public:
             if (in.read()) {
                 f1(j);
             }
+            t3 = j;
         }
     }
 

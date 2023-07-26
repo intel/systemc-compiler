@@ -52,6 +52,7 @@ public:
     }
 
     // Local records assign
+    sc_signal<int> t0;
     void record_assign() {
         SinCosTuple s;
         wait();
@@ -62,9 +63,11 @@ public:
             wait();
             
             int b = r.sin;
+            t0 = b;
         }
     }
     
+    sc_signal<int> t1;
     void record_usedef_assign() {
         wait();
         
@@ -73,10 +76,12 @@ public:
             wait();
 
             int i = r.sin;
+            t1 = i;
         }
     }
 
     // Global record register
+    sc_signal<int> t2;
     SinCosTuple gr;
     void record_glob_reg() {
         wait();
@@ -85,17 +90,20 @@ public:
             gr.sin = 1;
             wait();
             int b = gr.sin;
+            t2 = b;
         }
     }
     
     // Local/global records assign in initialization
     SinCosTuple grr;
+    sc_signal<int> t3;
     void record_glob_assign1() {
         wait();
         
         while (true) {
             grr.cos = 1;
             SinCosTuple r = grr;
+            t3 = r.sin;
             wait();
             
         }
@@ -103,18 +111,21 @@ public:
     
     // Local/global records assign
     SinCosTuple gp;
+    sc_signal<int> t4;
     void record_glob_assign1a() {
         wait();
         
         while (true) {
             SinCosTuple r;
             r = gp;
+            t4 = r.cos;
             wait();
             
         }
     }
     
     SinCosTuple gpp;
+    sc_signal<int> t5;
     void record_glob_assign2() {
         wait();
         
@@ -123,10 +134,12 @@ public:
             wait();
             
             gpp = r;
+            t5 = gpp.sin;
         }
     }
     
     // Local record not defined
+    sc_signal<int> t6;
     void record_not_defined() {
         wait();
         
@@ -134,16 +147,19 @@ public:
             SinCosTuple rn;
             wait();
             int i = rn.sin;     // @rn must be register
+            t6 = i;
         }
     }
 
     // Global record not defined, no fields initialized see #211
     SinCosTuple gn;
+    sc_signal<int> t7;
     void record_glob_not_defined() {
         wait();
         
         while (true) {
             SinCosTuple r = gn;
+            t7 = r.sin;
             wait();
         }
     }

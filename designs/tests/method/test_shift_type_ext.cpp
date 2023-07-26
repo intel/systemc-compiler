@@ -92,6 +92,7 @@ public:
     sc_vector<sc_signal<sc_uint<4>>> vecsig{"vecsig", 3};
     sc_vector<sc_vector<sc_signal<sc_uint<4>>>> vecsig2d{"vecsig2d", 3};
     
+    sc_signal<int> t0;
     void sc_shift_type_extension_array_binary() 
     {
         int i = s.read();
@@ -135,9 +136,11 @@ public:
         
         // No extension
         la = 2 << (vecsig[i].read() / vecsig2d[i][j].read());
+        t0 = la;
     }
     
     // With binary operations
+    sc_signal<int> t1;
     void sc_shift_type_extension_binary() 
     {
         sc_uint<8> a, b, c, d = 1;
@@ -178,10 +181,12 @@ public:
         int j = s.read();
         a = (b << j) >> 4;  // 64'()
         a = (j << b) >> 4;  // 32'()
+        t1 = a;
         
     }
     
     // With binary operations
+    sc_signal<int> t2;
     void sc_shift_type_extension_big_binary() 
     {
         const unsigned long long M = 1ULL << 50;
@@ -203,9 +208,11 @@ public:
         x = (sc_uint<42>(y << x)) >> 8;
         
         x = ((z + y) * 2) >> 8; 
+        t2 = x.to_int();
     }
     
     // With unary operations
+    sc_signal<int> t2a;
     void sc_shift_type_extension_unary() 
     {
         sc_uint<8> a, b, c, d = 1;
@@ -223,16 +230,18 @@ public:
         a = ((b || c) | c) >> 8;
         a = (~b + 1) >> 8;
         a = (!b + 1) >> 8;
+        t2a = a;
         
         x = (z ^ y) / 42;
         x = (z++ - y) / 42;
+        t2a = x.to_int();
     }
     
     sc_signal<sc_uint<8> > c1{"c1"};
     sc_signal<sc_int<16> > c2{"c2"};
     sc_signal<sc_biguint<66> > c3{"c3"};
     sc_signal<sc_bigint<70> > c4{"c4"};
-    
+    sc_signal<int> t3;
     void sc_shift_type_extension_channel() 
     {
         sc_uint<8> a;
@@ -241,10 +250,12 @@ public:
         a = (c1.read() + c2.read()) >> 8;
         a = (c1.read() * c2.read()) >> 8;   // Warning reported
         x = (c3.read() * c4.read() - c2.read()) >> (c1.read() + c2.read()); // Warning reported
+        t3 = x.to_int();
     }
     
     // References and pointers
     sc_uint<8>* pa;
+    sc_signal<int> t4;
     void sc_shift_type_extension_ref_ptr() 
     {
         sc_uint<8> a, b;
@@ -260,8 +271,10 @@ public:
         sc_uint<8>* pb = pa;
         a = (*pb + 42) >> 8;
         a = (r2 * (*pb)) >> (*pa+1);
+        t4 = a;
     }
     
+    sc_signal<int> t5;
     void sc_shift_type_extension_part_select()
     {
         sc_uint<8> a, b;
@@ -272,9 +285,10 @@ public:
         
         int i;
         a = (c.range(i*8 + 5, i*8) + 1) >> 8;
-        
+        t5 = a;
     }
     
+    sc_signal<int> t6;
     void sc_shift_type_extension_cast()
     {
         sc_uint<8> a, b;
@@ -284,8 +298,10 @@ public:
         a = (sc_uint<10>(sc_uint<12>(b)) + 1) >> 8;
         a = (sc_uint<12>(sc_uint<10>(b)) + 1) >> 8;
         a = (sc_uint<20>(b*c)) >> 8;
+        t6 = a;
     }
     
+    sc_signal<int> t7;
     void sc_shift_type_extension_cond()
     {
         bool cond;
@@ -294,8 +310,10 @@ public:
         
         a = ((cond ? b : c) + 1) >> 8;
         a = ((cond ? (b*c) : (c*b)) + 1) >> 8;
+        t7 = a;
     }
     
+    sc_signal<int> t8;
     void sc_shift_type_extension_concat()
     {
         bool cond;
@@ -312,8 +330,10 @@ public:
         a = (b, c) * a;
         a = ((b, c) * 3) >> 8;  // signed, OK
         a = ((b, sc_uint<6>(42)) * c) >> 8;     
+        t8 = a;
     }
 
+    sc_signal<int> t9;
     void sc_shift_type_extension_comma()
     {
         sc_int<8> a;
@@ -324,12 +344,14 @@ public:
         a = (b++, c * 5) >> 8;   
         a = (b++, c+1) >> 8;   
         a = ((sc_int<5>)(b++, c)) >> 8;   
+        t9 = a;
     }
     
     sc_uint<17> h(sc_uint<16> i) {
         return ++i;
     }
     
+    sc_signal<int> t10;
     void sc_shift_type_extension_fcall()
     {
         bool cond;
@@ -337,6 +359,7 @@ public:
         sc_uint<16> c, b;
         
         a = (h(b)+1) >> 8;
+        t10 = a;
     }
 
     // Shifts with expression in left/right operand, 
@@ -384,6 +407,7 @@ public:
     sc_signal<unsigned> ch0;
     sc_signal<sc_uint<14>> ch1;
     sc_signal<sc_bigint<77>> ch2;
+    sc_signal<unsigned> ch_out;
     
     void chan_shift_type_extension() {
         int a = 3;
@@ -392,6 +416,7 @@ public:
         a = 4 >> (b * ch1.read());
         sc_bigint<77> d = (ch1.read() + 1) >> a;
         d = (ch1.read() * 2) >> a;
+        ch_out = d.to_uint();
     }
     
     void div_type_extension() {

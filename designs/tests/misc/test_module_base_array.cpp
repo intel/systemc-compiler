@@ -30,12 +30,13 @@ struct B : public A<N>
         this->async_reset_signal_is(this->rst, 0);
     }
     
+    sc_signal<int> t0;
     void threadProc() {
         this->a = 1;
         wait();
         
         while(true) {
-            this->a++;
+            this->a++; t0 = this->a;
             wait();
         }
     }

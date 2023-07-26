@@ -123,6 +123,7 @@ public:
     
 
     // Compound assignments
+    sc_signal<int> t0;
     void compound_assign() {
         int k = 2;
         int i = 1;
@@ -137,9 +138,11 @@ public:
         i |= 2;
         i &= 3;
         i ^= 4+i;
+        t0 = i;
     }
     
     // Test shows brackets required
+    sc_signal<int> t1;
     void compound_assign_brackets() 
     {
         int i, e, d;
@@ -154,10 +157,12 @@ public:
         CHECK(i == 1);
         i = 5;
         i %= 1 + 1;
+        t1 = i;
         CHECK(i == 1);
     }
 
     sc_vector<sc_signal<bool>> bv{"bv", 3};
+    sc_signal<int> t2;
     void compound_bool_bitwise() 
     {
         bool b = bool(s.read());
@@ -189,8 +194,10 @@ public:
         b ^= bb;        // Warning reported
         b ^= i;         // Warning reported
         b ^= bv[1];     // Warning reported
+        t2 = b;
     }
     
+    sc_signal<int> t3;
     void compound_bool_arithm() 
     {
         bool b = bool(s.read());
@@ -214,8 +221,10 @@ public:
         b %= bb;        // Warning reported
         b >>= i;
         b <<= bv[1];
+        t3 = b;
     }    
     
+    sc_signal<int> t4;
     void compound_ref_compound() 
     {
         int k;
@@ -226,11 +235,13 @@ public:
 
         if (r) k = 1;
         l = 2;
+        t4 = l;
         sct_assert_const(r == 2);
     }
 
 
     // Compound assignments SC types
+    sc_signal<int> t5;
     void sc_compound_assign() 
     {
         sc_uint<3> u = 3;
@@ -250,6 +261,7 @@ public:
         u ^= sc_uint<5>(4);
         u <<= k;
         u >>= sc_uint<4>(2+i);
+        t5 = u + i;
     }
     
 };

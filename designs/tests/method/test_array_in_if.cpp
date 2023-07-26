@@ -77,44 +77,54 @@ public:
         }
     }
 
+    sc_signal<int> t0;
     void func_in_if_const1() 
     {
         int i;
         if (false && g(i)) {
             i = 1;
         }
+        t0 = i;
     }
 
+    sc_signal<int> t1;
     void func_in_if_const2() 
     {
         int i;
         if (true || f()) {
             i = 1;
         }
+        t1 = i;
     }
 
+    sc_signal<int> t2;
     void func_in_if_const3() 
     {
         int i;
         if (f() || true) {
             i = 1;
         }
+        t2 = i;
     }
 
+    sc_signal<int> t3;
     void func_in_if_const4() 
     {
         int i;
         if (false || g(i)) {
             i = 1;
         }
+        t3 = i;
     }
     
+    sc_signal<int> t4;
     void chan_array_in_if1() 
     {
         int i;
         if (ms_pwrin_nenable[i] || i) {
             i = 1;
         }
+        t4 = i;
     }
     
     // Access channel array in base module in IF condition
@@ -131,6 +141,7 @@ public:
     
     sc_uint<34> arr[5];
     bool arr2[4][3];
+    sc_signal<int> t5;
     void mem_array_in_if() 
     {
         int k = 0;
@@ -139,20 +150,26 @@ public:
                 k++;
             }    
         }
+        t5 = k;
     }
     
+    sc_signal<int> t6;
     void loc_array_in_if() 
     {
         sc_bigint<10> larr[3] ={1, 2, 3};
         unsigned larr2[1][4];
+        t6 = 0;
         
         if (larr[s.read()] == larr2[s.read()][1]) {
             int k = 1;
+            t6 = k;
         }    
     }
     
+    sc_signal<int> t7;
     void decl_array_in_if1() 
     {
+        t7 = 0;
         if (s.read()) {
             sc_int<10> larr[3] = {1, 2, 3};
             int larr2[3][3];
@@ -162,9 +179,11 @@ public:
             if (s.read() == 3) {
                 larr[0] = 0;
             }
+            t7 = larr[s.read()] + larr2[s.read()][s.read()];
         }    
     }
     
+    sc_signal<int> t8;
     void decl_array_in_if2() 
     {
         int a = 0;
@@ -182,6 +201,7 @@ public:
 
             a += ll[s.read()+1];
         }    
+        t8 = a;
     }
 
  };

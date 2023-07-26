@@ -41,15 +41,18 @@ public:
     }
     
     // Empty While
+    sc_signal<int> t0;
     void while_stmt_empty() {
         int i = 0;
         while (i < 2) {
             i++;
         }
+        t0 = i;
         sct_assert_level(0);
     }
 
     // Simple while
+    sc_signal<int> t1;
     void while_stmt1() {
         int k = 0; 
         int i = 0;
@@ -58,9 +61,11 @@ public:
             i++;
         }
         sct_assert_level(0);
+        t1 = i;
     }
   
     // While with IF inside
+    sc_signal<int> t2;
     void while_stmt2() {
         int j = 1;
         int i = 0;
@@ -75,9 +80,11 @@ public:
         }
         sct_assert_level(0);
         j = 4;
+        t2 = j;
     }
 
     // While with several inputs from outside
+    sc_signal<int> t3;
     void while_stmt3() {
         int i = 0;
         int j = 1; int k = 0;
@@ -91,9 +98,11 @@ public:
         }
         j = 4;
         sct_assert_level(0);
+        t3 = j;
     }    
 
     // While with several inputs from outside
+    sc_signal<int> t4;
     void while_stmt4() {
         int i = 0;
         int j = 1; int k = 0;
@@ -106,6 +115,7 @@ public:
         }
         sct_assert_level(0);
         j = 3;
+        t4 = j;
     }    
     
     // While with inner while

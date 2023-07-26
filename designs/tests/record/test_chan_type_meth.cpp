@@ -16,7 +16,7 @@ using namespace sc_core;
 
 struct Simple {
     bool a;
-    int b = 0x42;
+    int b;
     
     bool operator == (const Simple& other) {
         return (a == other.a && b == other.b);
@@ -55,6 +55,30 @@ inline ::std::ostream& operator << (::std::ostream& os, const Rec1& s) {
 namespace sc_core {
 void sc_trace(sc_trace_file* , const Rec1&, const std::string&) {}
 }
+
+// ----------------------------------------------------------------------------
+struct RecPar {
+    int x;
+    sc_int<2> y;
+    
+    RecPar() = default;
+    RecPar(int par) : x(par) { y = x+1; }
+
+    static RecPar create() {RecPar ll(42); return ll;}
+    RecPar create(int par) {RecPar hh(par); return hh;}
+    
+    bool operator == (const RecPar& other) {
+        return (x == other.x && y == other.y);
+    }
+};
+inline ::std::ostream& operator << (::std::ostream& os, const RecPar& s) {
+    os << s.x << s.y;
+    return os;
+}
+namespace sc_core {
+void sc_trace(sc_trace_file* , const RecPar&, const std::string&) {}
+}
+
 // ----------------------------------------------------------------------------
 
 class A : public sc_module {
@@ -73,6 +97,8 @@ public:
     sc_vector<sc_signal<Simple>> svec{"svec", 2};
     sc_vector<sc_signal<Simple>> rvec{"rvec", 2};
     
+    sc_signal<RecPar>   pim{"pim"};
+        
     SC_CTOR(A) {
         cout << "chan_type_meth test\n";
         SC_METHOD(record_assignment); sensitive << s;
@@ -81,7 +107,10 @@ public:
         SC_METHOD(procSigField); sensitive << s << sim << svec[0] << svec[1];
         SC_METHOD(procPort); sensitive << in << sim;
         SC_METHOD(procArr); sensitive << svec[0] << svec[1] << s;
-        SC_METHOD(procCtor); sensitive << s;        
+        SC_METHOD(procCtor); sensitive << s;
+        
+        SC_METHOD(procCtorPar); sensitive << s; // #315
+        SC_METHOD(procCtorFunc); sensitive << s;
     }
     
 // ----------------------------------------------------------------------------
@@ -94,6 +123,7 @@ public:
     }    
     
     sc_signal<Rec1>   sig{"sig"};
+    sc_signal<int> t0;
     void record_channels() {
         Rec1 r;
         r = sig.read();
@@ -101,10 +131,12 @@ public:
         sig.write(r);
         sig = r;
         int x = sig.read().x;
+        t0 = x;
     }  
 // ----------------------------------------------------------------------------
   
     Simple mm; 
+    sc_signal<int> t1;
     void procSignal() 
     {
         Simple ss; 
@@ -115,6 +147,7 @@ public:
         sim = ss;          // OK
         ss = sim.read();   // OK
         ss = sim;          // OK 
+        t1 = ss.b + rr.b;
         rim = sim;              // OK 
         rim = sim.read();       // OK 
         rim.write(sim);         // OK 
@@ -127,6 +160,7 @@ public:
         int l = par;
     }
     
+    sc_signal<int> t2;
     void procSigField() {
         unsigned j = s.read();
         bool l;
@@ -147,6 +181,7 @@ public:
         if (svec[j].read().a) ++i;
         if (sim.read().b != 1) ++i;
         if (svec[j].read().b != 2) ++i;
+        t2 = i + l;
 
         //const Simple& tt = sim.read();    -- prohibited
         //l = tt.a;
@@ -195,6 +230,24 @@ public:
         out.write(Simple{});  // OK
         out.write(Simple());  // OK
         Simple tt = ss;       // OK
+    }
+    
+    void procCtorPar() {
+        RecPar rr = RecPar(42);
+        pim = rr;               // OK
+        pim = RecPar();         // OK
+        //pim = RecPar(42);     // Not supported yet, #315
+        
+    }
+
+    // Create record for record channel with static/non-static function
+    void procCtorFunc() {
+        pim = RecPar::create();
+        
+        RecPar rr = RecPar::create();
+        pim = rr.create(43);
+        
+        rr = rr.create(44);
     }
     
 };

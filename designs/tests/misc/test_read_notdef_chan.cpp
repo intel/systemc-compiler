@@ -36,8 +36,10 @@ struct mod_if : public sc_module, sc_interface
         async_reset_signal_is(rst, 1);
     }
 
+    sc_signal<int> t0;
     void meth() {
         bool b = s || cs;
+        t0 = b;
     }
     
     void thread() {

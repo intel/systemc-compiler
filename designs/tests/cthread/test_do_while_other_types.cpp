@@ -252,6 +252,7 @@ public:
     }
     
     sc_signal<sc_uint<4>> s;
+    sc_signal<int> t0;
     void break_in_if()
     {
         int k = 0;
@@ -272,10 +273,12 @@ public:
             } while (i < 3);
             sct_assert_level(1);   
 
+            t0 = k;
             wait();         // 2
         }
     }
     
+    sc_signal<int> t1;
     void break_in_if2()
     {
         int k = 0;
@@ -296,11 +299,13 @@ public:
                 
             } while (i < 3);
             sct_assert_level(1);
-
+            t1 = k;
+            
             wait();         // 2
         }
     }
     
+    sc_signal<int> t2;
     void break_in_if2_m()
     {
         int k;
@@ -311,6 +316,7 @@ public:
                 if (s.read())       // B4
                     break;          // B3
         } while (i < 3);            // B2
+        t2 = k;
         
         sct_assert_level(0);        // B1
     }

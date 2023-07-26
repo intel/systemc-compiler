@@ -30,12 +30,14 @@ public:
     unsigned V;
     const unsigned C;
     
+    sc_signal<int> t0;
     void proc() 
     {
         unsigned l = V;
         while (true) {
             wait();
             l = V + C;
+            t0 = l;
         }
     }
 };
@@ -55,7 +57,7 @@ public:
     }
         
     unsigned V;
-    
+    sc_signal<int> t0;
     void proc() 
     {
         wait();
@@ -63,6 +65,7 @@ public:
             unsigned l = V;
             wait();
             l = V + 1;
+            t0 = l;
         }
     }
 };

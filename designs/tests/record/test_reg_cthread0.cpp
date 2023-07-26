@@ -41,6 +41,7 @@ public:
     }
 
     // Local record read-only defined in reset section
+    sc_signal<int> t0;
     void record_ro() {
         const SinCosTuple r;
         const int a = 1;
@@ -49,11 +50,13 @@ public:
         while (true) {
             int b = a; 
             b = r.sin;
+            t0 = b;
             wait();
         }
     }
     
     // Local record comb
+    sc_signal<int> t1;
     void record_comb() {
         wait();
         
@@ -61,11 +64,13 @@ public:
             SinCosTuple r;
             r.sin = 3;
             int b = r.sin;
+            t1 = b;
             wait();
         }
     }
     
     // Local record register
+    sc_signal<int> t2;
     void record_reg() {
         wait();
         
@@ -74,22 +79,25 @@ public:
             wait();
             int b = r.sin;
             r.sin = 3;
+            t2 = r.sin;
         }
     }
     
     // Local record register declared in reset
+    sc_signal<int> t3;
     void record_reg1() {
-        
         SinCosTuple r;
         wait();
         
         while (true) {
             int b = r.sin;
+            t3 = b;
             wait();
         }
     }
     
     // Two local record registers
+    sc_signal<int> t4;        
     void record_reg2() {
         
         SinCosTuple r;
@@ -98,6 +106,7 @@ public:
         
         while (true) {
             int b = r.sin + s.cos;
+            t4 = b;
             wait();
         }
     }    

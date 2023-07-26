@@ -89,6 +89,7 @@ public:
         }
     };    
     
+    sc_signal<int> t0;
     void call_record2() 
     {
         Simple_ r(12);
@@ -99,6 +100,7 @@ public:
             
             auto k = t.bits;
             k = r.bits * 2;
+            t0 = k;
             
             wait();
         }

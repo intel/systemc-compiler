@@ -103,8 +103,10 @@ public:
         (*this).sp->write(9 + *(*this).u);
     }
     
+    sc_signal<int> c0;
     void this_pointer2() {
         int i = (*(*this).sp).read() + this->sp->read();
+        c0 = i;
     }
     
     // Pointer initialization at declaration

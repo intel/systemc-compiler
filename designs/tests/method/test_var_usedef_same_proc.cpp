@@ -34,10 +34,11 @@ struct Child : public sc_module
 
     void methB() 
     {
+        int j;
         if (s) {
-            int j = out.read();
+            j = out.read();
         }
-        out = in.read();
+        out = in.read() + j;
     }
 };
 

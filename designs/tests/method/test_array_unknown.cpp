@@ -65,13 +65,15 @@ public:
         sct_assert_const (p == &arr[1]);
     }
     
-    
+    sc_signal<int> t0;
     void array_init() 
     {
         int n[2][2];
         for (int i = 0; i < 2; i++) 
             for (int j = 0; j < 2; j++) 
                 n[i][j] = i+j+1;
+    
+        t0 = n[0][0];
         
         sct_assert_const(n[0][0] == 1);
         sct_assert_const(n[0][1] == 2);
@@ -79,17 +81,21 @@ public:
         sct_assert_const(n[1][1] == 3);
     }    
     
+    sc_signal<int> t1;
     void multi_array_of_channel_pointers() 
     {
         bool b = ch[1][0]->read();
+        t1 = b;
     }
     
+    sc_signal<int> t2;
     void write_unknown_index1() 
     {
         int m[3];
         m[0] = 1; m[1] = 2; m[2] = 3;
 
         m[a] = 1;
+        t2 = m[a];
         
         sct_assert_unknown(m[0]);
         sct_assert_unknown(m[1]);
@@ -133,46 +139,54 @@ public:
         sct_assert_unknown(k[2]);
     }
     
+    sc_signal<int> t3;
     void pointer_unknown_index1() 
     {
         *mm[0] = 1; *mm[1] = 2; *mm[2] = 3;
 
         *mm[a] = 1;
+        t3 = *mm[a];
         
         sct_assert_unknown(*mm[0]);
         sct_assert_unknown(*mm[1]);
         sct_assert_unknown(*mm[2]);
     }
     
+    sc_signal<int> t4;
     void pointer_unknown_index_sc_type() 
     {
         *kk[0] = 1; *kk[1] = 2; *kk[2] = 3;
 
         *kk[a] = 1;
+        t4 = *kk[a];
         
         sct_assert_unknown(*kk[0]);
         sct_assert_unknown(*kk[1]);
         sct_assert_unknown(*kk[2]);
     }
     
+    sc_signal<int> t5;
     void unary_array_unknown1() 
     {
         int m[3];
         m[0] = 1; m[1] = 2; m[2] = 3;
 
         m[a]++;
+        t5 = m[a];
         
         sct_assert_unknown(m[0]);
         sct_assert_unknown(m[1]);
         sct_assert_unknown(m[2]);
     }
 
+    sc_signal<int> t5a;
     void unary_array_unknown2() 
     {
         int m[3];
         m[0] = 1; m[1] = 2; m[2] = 3;
 
         --m[a];
+        t5a = m[a];
         
         sct_assert_unknown(m[0]);
         sct_assert_unknown(m[1]);
@@ -191,24 +205,28 @@ public:
         sct_assert_unknown(k[2]);
     }
 
+    sc_signal<int> t6a;
     void comp_assign_array_unknown1() 
     {
         int m[3];
         m[0] = 1; m[1] = 2; m[2] = 3;
 
         m[a] += 1;
+        t6a = m[a];
         
         sct_assert_unknown(m[0]);
         sct_assert_unknown(m[1]);
         sct_assert_unknown(m[2]);
     }
 
+    sc_signal<int> t6b;
     void comp_assign_array_unknown2() 
     {
         int n[2][2];
         n[0][0] = 0; n[0][1] = 1; n[1][0] = 2; n[1][1] = 3;
         
         n[a][1] -= 4;
+        t6b = n[a][1];
         
         sct_assert_unknown(n[0][0]);
         sct_assert_unknown(n[0][1]);
@@ -216,12 +234,14 @@ public:
         sct_assert_unknown(n[1][1]);
     }
     
+    sc_signal<int> t6;
     void comp_assign_array_unknown3() 
     {
         int n[2][2];
         n[0][0] = 0; n[0][1] = 1; n[1][0] = 2; n[1][1] = 3;
         
         n[1][a] -= 2;
+        t6 = n[a][a];
         
         sct_assert_const(n[0][0] == 0);
         sct_assert_const(n[0][1] == 1);
@@ -230,6 +250,7 @@ public:
     }    
      
     // Check read at unknown index does not clear value
+    sc_signal<int> t7;
     void read_unknown_index()
     {
         int m[3];
@@ -241,6 +262,7 @@ public:
         if (m[a]) {
             int k = 1;
         }
+        t7 = m[a];
         
         sct_assert_const(m[0] == 1);
         sct_assert_const(m[1] == 2);

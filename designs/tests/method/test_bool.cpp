@@ -91,6 +91,7 @@ public:
     }
 
     // Try to find not required (extra) conversion
+    sc_signal<bool> t0;
     void test_bool_to_bool() {
         bool b1 = a;
         b1 = a.read();
@@ -113,9 +114,11 @@ public:
         *ps = b;
         b = *ps;
         b = ps->read();
+        t0 = b; t0 = b1; t0 = b2;
     }
     
     // Cast to boolean of unary expressions
+    sc_signal<bool> t1;
     void test_bool_unary() {
         unsigned i = 2;
         bool b;
@@ -123,9 +126,11 @@ public:
         b = -i;
         b = i++;
         b = --i;
+        t1 = b;
     }
     
     // Cast to boolean of unary expressions
+    sc_signal<bool> t2;
     void test_sc_to_bool() {
         bool b1;
         sc_uint<3> x;
@@ -147,9 +152,11 @@ public:
         *ps = x.bit(1);
         ps->write(x.range(2,1));
         *ps = x;
+        t2 = b1;
     }
     
     // Pointer comparison to boolean conversion
+    sc_signal<bool> t3;
     void test_ptr_comp() {
         bool b;
         b = p1;
@@ -167,9 +174,11 @@ public:
         b = p1 != p1;
         b = q == q;
         b = q != q;
+        t3 = b;
     }
 
     // Integer comparison to boolean conversion
+    sc_signal<bool> t4;
     void test_int_comp() {
         bool b1;
         int i;
@@ -178,6 +187,7 @@ public:
         b1 = i == 0;
         b1 = x > 1;
         b1 = i != x;
+        t4 = b1;
         
         b = i < 3;
         b.write(x >= i);
@@ -190,6 +200,7 @@ public:
     }
 
     // SC type comparison with boolean
+    sc_signal<bool> t4a;
     void test_sc_comp() {
         bool b1;
         sc_bigint<4> x;
@@ -197,9 +208,11 @@ public:
         
         bool b2 = b1==ux;
         b2 = b1==x;
+        t4a = b2;
     }
     
     // Integer to boolean conversion
+    sc_signal<bool> t4b;
     void test_bool1() {
         unsigned i = 2;
         bool b1;
@@ -209,11 +222,14 @@ public:
         b1 = i;
         b1 = i + 1;
         b1 = (bool)i + 1;
+        t4b = b1;
         b1 = (a.read()) ? m : m == i;
         b1 = (m) ? (bool)++m : m > 0;
+        t4b = b1;
     }
 
     // SC types to boolean
+    sc_signal<bool> t5;
     void test_bool2() {
         sc_uint<4> x = 6;
         bool b;
@@ -225,6 +241,7 @@ public:
         b = !x.bit(2);
         b = !x.range(3,1);
         b = x + x.range(3,1);
+        t5 = b;
     }
     
     // Pointer to boolean conversion in conditions

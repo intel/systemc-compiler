@@ -54,6 +54,8 @@ SC_MODULE(MyModule) {
         SC_METHOD(methodProc);
         sensitive << in << sig << sig_g;
     }    
+    
+    sc_signal<int> t0;
     void methodProc() {
         using namespace ns;
 
@@ -73,7 +75,7 @@ SC_MODULE(MyModule) {
         uvar1 = U3_ENUM;
         uvar2 = U1_ENUM;
         uvar3 = U2_ENUM;
-
+        t0 = uvar1 + uvar2 + uvar3;
 
         cvar1_g = C1_ENUM_GLOBAL;
         // SC VARIABLE DOESNT WORK
@@ -81,12 +83,13 @@ SC_MODULE(MyModule) {
 
         // NON SC_ variables work: cvar2_g = var_const_global_bool?cvar1_g:C2_ENUM_GLOBAL;
         cvar3_g = !var_const_bool ? C3_ENUM_GLOBAL : C2_ENUM_GLOBAL;
+        t0 = cvar1_g + cvar2_g + cvar3_g;
 
 
         uvar1_g = U3_ENUM_GLOBAL;
         uvar2_g = U1_ENUM_GLOBAL;
         uvar3_g = U2_ENUM_GLOBAL;
-
+        t0 = uvar1_g + uvar2_g + uvar3_g;
 
         sig = cvar1;
         sig_g = cvar1_g;

@@ -93,10 +93,12 @@ public:
 // ----------------------------------------------------------------------------
 
     bool c;
+    sc_signal<int> t0;
     void sct_assert_test()
     {
         c = false;
         SCT_ASSERT_THREAD(a, SCT_TIME(1), c, clk.neg());
+        t0 = c;
         wait();
 
         while (true) {
@@ -105,12 +107,14 @@ public:
     }
     
     // Variable used in reset only
+    sc_signal<int> t1;
     void var_in_reset_only1() 
     {
         int ii;
         sc_int<8> jj = 1;
         const sc_uint<16> C = 42;
         ii = jj + C;
+        t1 = ii;
         
         wait();
         
@@ -119,6 +123,7 @@ public:
 
             if (a) {
                 int kk = 1;
+                t1 = kk;
             }
         }
     }
@@ -126,6 +131,7 @@ public:
 // ----------------------------------------------------------------------------
     
     // Common wait() for reset and main loop
+    sc_signal<int> t1a;
     void common_wait1() 
     {
         while (true) {
@@ -133,11 +139,13 @@ public:
 
             if (a) {
                 int kk = 1;
+                t1a = kk;
             }
         }
     }
     
     sc_signal<sc_uint<3>> s1;
+    sc_signal<int> t2;
     void common_wait2() 
     {
         sc_uint<3> x;       // Reset local variable
@@ -151,10 +159,12 @@ public:
                 s1 = 1;
                 y++;
             }
+            t2 = y;
         }
     }
     
     sc_signal<bool> s2[3];
+    sc_signal<int> t3;
     void common_wait3() 
     {
         sc_uint<3> x;       // Reset local variable
@@ -162,6 +172,7 @@ public:
         for (int i = 0; i < 3; i++) {
             s2[i] = 0;
         }
+        t3 = s2[0];
         
         while (true) {
             wait();         // 0
@@ -171,9 +182,11 @@ public:
                 y++;
                 wait();     // 1
             }
+            t3 = y;
         }
     }
     
+    sc_signal<int> t4;
     void common_wait4() 
     {
         sc_uint<3> x;       // Reg
@@ -187,6 +200,7 @@ public:
             
             while (!s1.read()) wait();  // 1
             x++;
+            t4 = x;
             
             wait();         // 2
         }
@@ -217,12 +231,14 @@ public:
 // ----------------------------------------------------------------------------
     // No reset section, created with and w/o reset signal
 
+    sc_signal<int> t5;
     void no_reset1() 
     {
         while (true) {
             int jj = 42;
             if (jj) {
                 int kk = 43;
+                t5 = kk;
             }
             wait();
         }
@@ -240,6 +256,7 @@ public:
     }
     
     // Multi-state process, cannot be created w/o reset signal
+    sc_signal<int> s10a;
     void no_reset3() 
     {
         while (true) {
@@ -247,6 +264,7 @@ public:
             wait();
             
             v += s3.read();
+            s10a = v;
             wait();
         }
     }
@@ -314,12 +332,14 @@ public:
 // ----------------------------------------------------------------------------
 
     // Combinational variables in reset
+    sc_signal<int> t6;
     void comb_init_in_reset() 
     {
         sc_uint<4> i;
         int j;
         int k = 1;
         a = k;
+        t6 = a;
         
         wait();
         
@@ -327,11 +347,13 @@ public:
             i = 1;
             j = 1;
             k = 1;
+            t6 = k;
             
             wait();
         }
     }
     
+    sc_signal<int> t7;
     void not_used() 
     {
         int jj;
@@ -339,10 +361,12 @@ public:
         wait();
 
         while (true) {
+            t7 = kk;
             wait();
         }
     }
     
+    sc_signal<int> t8;
     void comb_assign_in_reset() 
     {
         int i;
@@ -353,6 +377,7 @@ public:
         l -= 1;
         sc_uint<2> x;
         x += 1;
+        t8 = x + l;
         
         wait();
         
@@ -387,6 +412,7 @@ public:
     }
 
     int arr0[3];
+    sc_signal<int> t9;
     void reg_assign_in_reset() 
     {
         int i;
@@ -399,6 +425,7 @@ public:
         
         arr0[1] = 0;
         arr0[2] = 1;
+        t9 = arr0[2] + x;
         
         wait();
         
@@ -414,6 +441,7 @@ public:
         }
     }
     
+    sc_signal<int> t10;
     int aa;
     void read_only_in_reset() 
     {
@@ -421,6 +449,7 @@ public:
         int ii;
         int jj = 0; 
         int aaa = jj + aa;
+        t10 = aaa;
         
         wait();
         
@@ -429,10 +458,12 @@ public:
         }
     }
     
+    sc_signal<int> t11;
     void write_only_in_reset() 
     {
         int i = 0;
         int j = 1; 
+        t11 = 0;
         
         wait();
         

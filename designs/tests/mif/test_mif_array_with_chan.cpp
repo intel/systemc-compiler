@@ -22,8 +22,10 @@ struct mod_if : public sc_module, sc_interface
         sensitive << s;
     }
 
+    sc_signal<int> t1;
     void metProc() {
         bool d = s;
+        t1 = d;
     }
     
 };

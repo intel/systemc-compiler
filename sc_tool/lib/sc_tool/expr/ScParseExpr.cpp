@@ -121,6 +121,9 @@ void ScParseExpr::assignRecValueInState(const SValue &lval, const SValue &rval,
 
     // Can be applied for records only
     QualType type = getDerefType(lval.getType());
+    if (!isUserClass(type)) {
+        return;
+    }
     SCT_TOOL_ASSERT (isUserClass(type), "assignRecValueInState used for non-record");
     
     if (rval.isScChannel() || rval.isUnknown()) {
@@ -577,7 +580,8 @@ std::pair<SValue, std::vector<SValue> >
                 SValue irval;
                 state->getDerefVariable(ival, irval);
                 // Put variable for reference
-                state->putValue(val, irval, false);
+                // Get zero element Rec/Mif array for reference function parameter 
+                state->putValue(state->getZeroRecArrRefField(val), irval, false);
                 
                 // Check argument is array element at unknown index
                 bool unkwIndex;
@@ -805,6 +809,69 @@ void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
 }
 
 //-----------------------------------------------------------------------------
+
+// Get any kind of assignment statement/operator
+// \return assignment statement or @nullptr
+const Expr* ScParseExpr::getAssignStmt(const Stmt* stmt) const
+{
+    if (auto constExpr = dyn_cast<CXXConstructExpr>(stmt)) {
+        if (constExpr->getNumArgs() != 0) 
+            return getAssignStmt(constExpr->getArg(0));
+        else 
+            return nullptr;
+    } else 
+    if (auto bindExpr = dyn_cast<CXXBindTemporaryExpr>(stmt)) {
+        return getAssignStmt(bindExpr->getSubExpr());
+    } else 
+    if (auto tempExpr = dyn_cast<MaterializeTemporaryExpr>(stmt)) {
+        return getAssignStmt(tempExpr->getSubExpr());
+    } else 
+    if (auto parenExpr = dyn_cast<ParenExpr>(stmt)) {
+        return getAssignStmt(parenExpr->getSubExpr());
+    } else 
+    if (auto castExpr = dyn_cast<CastExpr>(stmt)) {
+        return getAssignStmt(castExpr->getSubExpr());
+    } else 
+    if (auto callExpr = dyn_cast<CXXMemberCallExpr>(stmt)) {
+        Expr* thisExpr = callExpr->getImplicitObjectArgument();
+        bool isScIntegerType = isAnyScIntegerRef(thisExpr->getType(), true);
+        FunctionDecl* methodDecl = callExpr->getMethodDecl()->getAsFunction();
+        string fname = methodDecl->getNameAsString();
+        
+        if (isScIntegerType && fname.find("operator") != string::npos && (
+            fname.find("sc_unsigned") != string::npos ||
+            fname.find("int") != string::npos ||
+            fname.find("long") != string::npos ||  
+            fname.find("bool") != string::npos)) 
+        {
+            return getAssignStmt(thisExpr);
+        }
+    } else 
+    if (auto compundOper = dyn_cast<CompoundAssignOperator>(stmt)) {
+        return compundOper;
+    } else 
+    if (auto binaryOper = dyn_cast<BinaryOperator>(stmt)) {
+        auto opcode = binaryOper->getOpcode();
+        if (opcode == BO_Assign) {
+            return binaryOper;
+        }
+    } else 
+    if (auto callExpr = dyn_cast<CXXOperatorCallExpr>(stmt)) {
+        auto opcode = callExpr->getOperator();
+        if ((callExpr->isAssignmentOp() && opcode == OO_Equal) ||
+            (opcode == OO_PlusEqual || opcode == OO_MinusEqual || 
+             opcode == OO_StarEqual || opcode == OO_SlashEqual ||
+             opcode == OO_PercentEqual || 
+             opcode == OO_GreaterGreaterEqual || opcode == OO_LessLessEqual ||
+             opcode == OO_AmpEqual || opcode == OO_PipeEqual || 
+             opcode == OO_CaretEqual)) 
+        {
+            return callExpr;
+        }
+    }
+    return nullptr;
+}
+
 
 // Get terminator condition
 const clang::Expr* ScParseExpr::getTermCond(const clang::Stmt* stmt) 

@@ -48,21 +48,25 @@ struct A : public sc_module
     unsigned V1;
 
     // SC types
+    sc_signal<int> t0;
     void constProc1() {
         S1 = 51;
         T1 = -51;
         long l;
         l = S + T;
         l = S1 + T1;
+        t0 = l;
     }
 
     // C++ types
+    sc_signal<int> t1;
     void constProc2() {
         V1 = 44;
         unsigned i;
         i = CE;
         i = C;
         i = V + V1;
+        t1 = i;
     }
     
     unsigned W;
@@ -72,11 +76,13 @@ struct A : public sc_module
     unsigned ARR[3] = {62, 62, 62};
     
     // Pointers, references and arrays
+    sc_signal<int> t2;
     void constProc3() {
         unsigned i;
         i = R;
         i = *P;
         i = ARR[0] + ARR[1] + ARR[2];
+        t2 = i;
     }
     
     // Conditions

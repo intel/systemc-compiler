@@ -408,6 +408,10 @@ public:
         liveTerms = stmts;
     }
     
+    void setRemovedArgExprs(const std::unordered_set<clang::Stmt*>& stmts) {
+        removedArgExprs = stmts;
+    }
+    
     /// Get evaluated terminator condition values
     void setTermConds(const std::unordered_map<CallStmtStack, SValue>& conds);
     
