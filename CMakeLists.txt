@@ -24,10 +24,15 @@ message(STATUS "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}")
 message(STATUS "CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}")
 message(STATUS "CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE}")
 
+set(BUILD_SHARED_LIBS ON)
+
+# Patched SystemC kernel with additional elaboration instrumentation
+add_subdirectory(systemc)
+
+# Include LLVM`s should be after SystemC build
 include_directories(${LLVM_INCLUDE_DIRS})
 link_directories(${LLVM_LIBRARY_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
-
 
 # Support for using custom linker
 if( LLVM_USE_LINKER )
@@ -36,11 +41,6 @@ if( LLVM_USE_LINKER )
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=${LLVM_USE_LINKER}")
     message("USING CUSTOM LINKER: ${CMAKE_EXE_LINKER_FLAGS}")
 endif()
-
-set(BUILD_SHARED_LIBS ON)
-
-# Patched SystemC kernel with additional elaboration instrumentation
-add_subdirectory(systemc)
 
 # SystemC Precompiled header to speed-up parsing in debug build
 SET(CLANG_CXX_EXECUTABLE ${LLVM_TOOLS_BINARY_DIR}/clang++)

@@ -36,18 +36,16 @@
 ACLOCAL_AMFLAGS= -I config
 
 SUBDIRS = \
-	docs \
 	src \
 	examples
 
 DOC_FILES = \
-	AUTHORS \
+	AUTHORS.md \
 	NOTICE \
-	ChangeLog \
-	INSTALL \
+	CONTRIBUTING.md \
+	INSTALL.md \
 	LICENSE \
-	NEWS \
-	README \
+	README.md \
 	RELEASENOTES \
 	cmake/INSTALL_USING_CMAKE
 
@@ -84,8 +82,5 @@ uninstall-hook:
 endif # SEPARATE_INSTALL_TREE
 
 ## ****************************************************************************
-
-doxygen:
-	@(cd docs && $(MAKE) $@)
 
 ## Taf!

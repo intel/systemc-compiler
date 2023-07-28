@@ -31,6 +31,7 @@
 #include "sysc/kernel/sc_cmnhdr.h"
 
 #include <cstddef>                // std::size_t
+#include <cstring>                // for memset
 
 namespace sc_core {
 
@@ -94,6 +95,7 @@ class SC_API sc_byte_heap {
     {
         delete [] m_bgn_p;
         m_bgn_p = new char[heap_size];
+        std::memset(m_bgn_p, 0, heap_size);
         m_end_p = &m_bgn_p[heap_size];
         m_next_p = m_bgn_p;
     }
