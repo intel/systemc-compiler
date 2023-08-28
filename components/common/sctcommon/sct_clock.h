@@ -105,7 +105,7 @@ class sct_clock<0> :
     /// Enable clock activity, clock is enabled after construction 
     void enable() {
         //std::cout << sc_time_stamp() << " enable" << std::endl;
-        assert(cg_enables.empty() && "No manual control allowed as CG inputs bound");
+        sc_assert(cg_enables.empty() && "No manual control allowed as CG inputs bound");
 
         if (!m_clock_enable) {
             if (m_clock_disabled) {
@@ -121,7 +121,7 @@ class sct_clock<0> :
     /// clock at simulation phase start
     void disable() {
         //std::cout << sc_time_stamp() << " disable" << std::endl;
-        assert(cg_enables.empty() && "No manual control allowed as CG inputs bound");
+        sc_assert(cg_enables.empty() && "No manual control allowed as CG inputs bound");
 
         m_clock_enable = 0;
     }
@@ -261,7 +261,7 @@ class sct_clock<1> :
     /// Enable clock activity, clock is enabled after construction 
     void enable() {
         //std::cout << sc_time_stamp() << " enable" << std::endl;
-        assert(cg_enables.empty() && "No manual control allowed as CG inputs bound");
+        sc_assert(cg_enables.empty() && "No manual control allowed as CG inputs bound");
 
         if (!m_clock_enable) {
             //std::cout << sc_time_stamp() << " +" << std::endl;
@@ -274,7 +274,7 @@ class sct_clock<1> :
     /// clock at simulation phase start
     void disable() {
         //std::cout << sc_time_stamp() << " disable" << std::endl;
-        assert(cg_enables.empty() && "No manual control allowed as CG inputs bound");
+        sc_assert(cg_enables.empty() && "No manual control allowed as CG inputs bound");
 
         m_clock_enable = 0;
     }

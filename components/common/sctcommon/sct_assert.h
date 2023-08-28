@@ -216,7 +216,8 @@ void sct_assert_in_proc_func(bool lhs, bool rhs,\
                     [&]()->bool{return ( RE );},\
                     &EVENT,\
                     [&]()->sct_time{return (sct_time(SCT_ARGS(TIMES)));},\
-                    std::string(__FILE__)+":"+std::to_string(__LINE__)\
+                    std::string(__FILE__)+":"+std::to_string(__LINE__),\
+                    true\
                 );}
 
 /// Provide comma separated iteration variables to capture them by value

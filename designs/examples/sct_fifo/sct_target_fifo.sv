@@ -41,7 +41,6 @@ logic [15:0] resp_core_data;
 localparam logic run_sync = 0;
 localparam logic run_cthread = 1;
 localparam logic run_always_ready = 0;
-localparam logic resp_sync = 0;
 localparam logic resp_cthread = 1;
 localparam logic resp_always_ready = 0;
 localparam logic [31:0] N = 5;

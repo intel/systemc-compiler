@@ -354,9 +354,7 @@ protected:
         }
     }    
 
-    const char* kind() const {
-        return "sct_out";
-    }
+    const char* kind() const {return "sct_out";}
 };
 
 
@@ -481,7 +479,7 @@ class sc_port< sct::sct_initiator<T, TRAITS, TLM_MODE>, 1, SC_ONE_OR_MORE_BOUND>
     sc_port() : base_type(1, SC_ONE_OR_MORE_BOUND) {}
     explicit sc_port(const char* name) : base_type(name, 1, SC_ONE_OR_MORE_BOUND) {}
     virtual ~sc_port() {}
-    virtual const char* kind() const { return "sc_port"; }
+    const char* kind() const override { return "sc_port"; }
 };    
 
 
@@ -541,7 +539,7 @@ class sc_port< sct::sct_target<T, TRAITS, TLM_MODE>, 1, SC_ONE_OR_MORE_BOUND> :
     sc_port() : base_type(1, SC_ONE_OR_MORE_BOUND) {}
     explicit sc_port(const char* name) : base_type(name, 1, SC_ONE_OR_MORE_BOUND) {}
     virtual ~sc_port(){}
-    virtual const char* kind() const { return "sc_port"; }
+    const char* kind() const override { return "sc_port"; }
 };    
 
 //==============================================================================

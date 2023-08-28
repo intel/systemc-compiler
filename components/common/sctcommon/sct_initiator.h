@@ -175,11 +175,11 @@ class sct_initiator<T, TRAITS, 0> :
                 }
             } else {
                 cout << "No blocking put allowed with always ready target" << endl;
-                assert (false);
+                sc_assert (false);
             }
         } else {
             cout << "No blocking put allowed in METHOD process" << endl;
-            assert (false);
+            sc_assert (false);
         }
     }
     
@@ -312,7 +312,9 @@ class sct_initiator<T, TRAITS, 0> :
             dataName = std::string(basename()) + "_" + dataName;
         #endif
 
-        if constexpr (std::is_base_of<sct_multi_target_base, Module>::value) {
+        if constexpr (std::is_base_of<sct_multi_target_base, Module>::value ||
+                      std::is_base_of<sct_arbiter_target_base, Module>::value) 
+        {
             sc_signal<T>* core_data_s = new sc_signal<T>(dataName.c_str());
             core_data(*core_data_s);
             module.core_data[indx](*core_data_s);

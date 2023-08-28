@@ -41,7 +41,6 @@ logic [15:0] resp_core_data;
 localparam logic run_sync = 0;
 localparam logic run_cthread = 1;
 localparam logic run_always_ready = 0;
-localparam logic resp_sync = 0;
 localparam logic resp_cthread = 1;
 localparam logic resp_always_ready = 0;
 
@@ -248,7 +247,7 @@ function void init_thread_func;
                 init_thread_PROC_STATE_next = 3; return;    // sct_target.h:177:52;
             end
             resp_get_req_next = !resp_get_req;
-            if (resp_sync || resp_reg_full)
+            if (resp_reg_full)
             begin
                 TMP_0 = resp_core_data_d;
             end else begin
@@ -264,7 +263,7 @@ function void init_thread_func;
                 init_thread_PROC_STATE_next = 3; return;    // sct_target.h:177:52;
             end
             resp_get_req_next = !resp_get_req;
-            if (resp_sync || resp_reg_full)
+            if (resp_reg_full)
             begin
                 TMP_0 = resp_core_data_d;
             end else begin
@@ -388,7 +387,6 @@ logic resp_core_req;
 logic [15:0] resp_core_data;
 
 // Local parameters generated for C++ constants
-localparam logic run_sync = 0;
 localparam logic run_cthread = 1;
 localparam logic run_always_ready = 0;
 localparam logic resp_sync = 0;
@@ -576,7 +574,7 @@ function void runThrd_func;
         begin
             run_get_req_next = !run_get_req;
         end
-        if (run_sync || run_reg_full)
+        if (run_reg_full)
         begin
             TMP_1 = run_core_data_d;
         end else begin

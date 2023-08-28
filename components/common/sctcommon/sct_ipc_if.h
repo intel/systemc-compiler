@@ -346,7 +346,7 @@ template<
 class sct_comb_target 
 {};
 
-/// General template for multi-initiator/multi-target
+/// General template for multi-initiator/multi-target/arbiter-target
 /// Implementation is not available in open-source yet
 template<
     class T, unsigned N, class TRAITS = SCT_CMN_TRAITS, 
@@ -360,11 +360,20 @@ template<
 class sct_multi_initiator 
 {};
 
+template<
+    class T, unsigned N, class TRAITS = SCT_CMN_TRAITS, 
+    bool TLM_MODE = SCT_CMN_TLM_MODE>
+class sct_arbiter_target
+{};
+    
+
 /// Empty base class for multi target/initiator
 /// Implementation is not available in open-source yet
 class sct_multi_target_base 
 {};
 class sct_multi_initiator_base 
+{};
+class sct_arbiter_target_base 
 {};
 
 /// Target peek helper

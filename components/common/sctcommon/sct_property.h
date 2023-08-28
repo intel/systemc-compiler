@@ -172,7 +172,7 @@ public:
                 std::cout << std::endl << sc_time_stamp() 
                           << ", Error : sct_property violation " << msg 
                           << std::endl;
-                assert (false);
+                sc_assert(false);
             }
         }
 
@@ -204,7 +204,7 @@ public:
                 std::cout << std::endl << sc_time_stamp() 
                           << ", Error : sct_property " << stableStr 
                           << " violation " << msg << std::endl;
-                assert (false);
+                sc_assert(false);
             }
         }
 
@@ -321,7 +321,7 @@ public:
         std::string propIterStr = propstr + "_ITER#" + 
                                   sct_property_utils::getIterStr(iters...);
         
-        return getProperty(lexpr, rexpr, event, times, propIterStr);
+        return getProperty(lexpr, rexpr, event, times, propIterStr, true);
     }    
     
     /// Create or get property for stable
@@ -332,18 +332,19 @@ public:
                                            StableType stable
                                           ) {
         
-        return getProperty(lexpr, rexpr, event, times, propstr, stable);
+        return getProperty(lexpr, rexpr, event, times, propstr, false, stable);
     }
 
     template <class LEXPR, class REXPR, class EVENT, class TIMES>
     static sct_property_base* getProperty(LEXPR lexpr, REXPR rexpr, EVENT* event, 
                                      TIMES times, const std::string& propstr,
-                                     StableType stable = stNone
+                                     bool inThread = false,   
+                                     StableType stable = stNone 
                                     ) {
         
         // Join object hierarchical name and file name with line
-        std::string procname = sc_get_current_process_handle().name();
-        std::string hashStr =  procname + ":" + propstr;
+        std::string hashStr = std::string(sc_get_current_object()->name()) + 
+                              ":" + propstr;
         
         size_t hash = calcHash(hashStr);
         auto i = stor.find(hash);
@@ -354,19 +355,16 @@ public:
             
             auto propInst = new sct_property_expr<LEXPR, REXPR, TIMES, RT>(
                                         lexpr, rexpr, times, propstr, stable);
-
-            // Remove spaces/dots from @hashStr to provide correct process name
-            hashStr.erase(remove_if(hashStr.begin(), hashStr.end(), isspace), 
-                          hashStr.end());
-            hashStr.erase(remove_if(hashStr.begin(), hashStr.end(), 
-                          [](char c){return c == '.';}), hashStr.end());
-
             // Create spawned process                                   
             sc_spawn_options opt;
             opt.spawn_method();
             opt.dont_initialize();
             opt.set_sensitivity(event);
-            sc_spawn(*propInst, hashStr.c_str(), &opt);
+            std::string procname = inThread ?
+                                   sc_get_current_process_handle().basename() :
+                                   (std::string("AssertionAtLine") + 
+                                   propstr.substr(propstr.find_last_of(':')));
+            sc_spawn(*propInst, procname.c_str(), &opt);
 
             stor.emplace(hash, propInst);
             return propInst;

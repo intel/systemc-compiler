@@ -104,6 +104,11 @@ class sct_prim_fifo :
     unsigned        putIndx = 0;        // Index where element will be put
     unsigned        elemNum = 0;        // Number of elements in buffer
     unsigned        fifoSize;           // FIFO size
+
+#ifdef SCT_TLM_DEBUG
+    sc_time         putTime;            // for debug purpose to avoid multiple put
+    sc_time         getTime;            // for debug purpose to avoid multiple get
+#endif
     
     std::vector<T>  buffer;
     
@@ -131,12 +136,12 @@ class sct_prim_fifo :
             if (doPut) {
                 buffer[putIndx] = put_data;
                 putIndx = putIndx == fifoSize-1 ? 0 : putIndx+1;
-                assert (elemNum < fifoSize || doGet);
+                sc_assert (elemNum < fifoSize || doGet);
                 elemNum++;
             }
             if (doGet) {
                 getIndx = getIndx == fifoSize-1 ? 0 : getIndx+1;
-                assert (elemNum > 0);
+                sc_assert (elemNum > 0);
                 elemNum--;
             }
             
@@ -307,6 +312,14 @@ class sct_prim_fifo :
             }
             // Notify thread itself to allow next put
             if (cthread_put) put_event.notify(PUT_TIME);
+
+        #ifdef SCT_TLM_DEBUG
+            if (putTime == sc_time_stamp()) {
+                cout << sc_time_stamp() << " " << name() << ", ERROR: multiple put\n" << endl;
+                sc_assert (false);
+            }
+            putTime = sc_time_stamp();
+        #endif
             return true;
         }
         put_req = cthread_put ? put_req : put_req_d;
@@ -330,6 +343,14 @@ class sct_prim_fifo :
             }
             // Notify thread itself to allow next put
             if (cthread_put) put_event.notify(PUT_TIME);
+            
+        #ifdef SCT_TLM_DEBUG
+            if (putTime == sc_time_stamp()) {
+                cout << sc_time_stamp() << " " << name() << ", ERROR: multiple put\n" << endl;
+                sc_assert (false);
+            }
+            putTime = sc_time_stamp();
+        #endif
             return true;
         }
         put_req = cthread_put ? put_req : put_req_d;
@@ -360,6 +381,14 @@ class sct_prim_fifo :
             }
             // Notify thread itself to allow next get
             if (cthread_get) get_event.notify(GET_TIME);
+
+        #ifdef SCT_TLM_DEBUG
+            if (getTime == sc_time_stamp()) {
+                cout << sc_time_stamp() << " " << name() << ", ERROR: multiple get\n" << endl;
+                sc_assert (false);
+            }
+            getTime = sc_time_stamp();
+        #endif
         } else {
             get_req = cthread_get ? get_req : get_req_d;
         }
@@ -384,6 +413,14 @@ class sct_prim_fifo :
             }
             // Notify thread itself to allow next get
             if (cthread_get) get_event.notify(GET_TIME);
+
+        #ifdef SCT_TLM_DEBUG
+            if (getTime == sc_time_stamp()) {
+                cout << sc_time_stamp() << " " << name() << ", ERROR: multiple get\n" << endl;
+                sc_assert (false);
+            }
+            getTime = sc_time_stamp();
+        #endif
             return true;
         }
         
@@ -392,11 +429,11 @@ class sct_prim_fifo :
     }
     
     void b_put(const T& data) override {
-        assert (false);
+        sc_assert (false);
     }
     
     T b_get() override {
-        assert (false);
+        sc_assert (false);
         return T{};
     }
     
@@ -404,7 +441,7 @@ class sct_prim_fifo :
     unsigned elem_num() const override {
         if (!USE_ELEM_NUM) {
             cout << "\nFIFO " << name() << " should have use_elem_num enabled" << endl;
-            assert (false);
+            sc_assert (false);
         }
         
         if (sct_is_method_proc()) {
@@ -426,13 +463,13 @@ class sct_prim_fifo :
     
     /// FIFO has (size()-N) elements or more
     bool almost_full(const unsigned& N = 0) const override {
-        assert (N <= fifoSize && 
+        sc_assert (N <= fifoSize && 
                 "almost_full() parameter cannot be great than FIFO size");
         return (elem_num() >= fifoSize-N);
     }
     /// FIFO has N elements or less
     bool almost_empty(const unsigned& N = 0) const override {
-        assert (N <= fifoSize && 
+        sc_assert (N <= fifoSize && 
                 "almost_empty() parameter cannot be great than FIFO size");
         return (elem_num() <= N);
     }
@@ -444,7 +481,7 @@ class sct_prim_fifo :
     
     /// Resize FIFO
     void resize(unsigned new_size) {
-        assert (new_size > 0);
+        sc_assert (new_size > 0);
         fifoSize = new_size;
         buffer.resize(new_size, T{});
     }

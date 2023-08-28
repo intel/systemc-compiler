@@ -41,7 +41,6 @@ logic [15:0] resp_core_data;
 localparam logic run_sync = 0;
 localparam logic run_cthread = 1;
 localparam logic run_always_ready = 0;
-localparam logic resp_sync = 0;
 localparam logic resp_cthread = 1;
 localparam logic resp_always_ready = 0;
 
@@ -840,7 +839,6 @@ logic resp_core_req;
 logic [15:0] resp_core_data;
 
 // Local parameters generated for C++ constants
-localparam logic run_sync = 0;
 localparam logic run_cthread = 1;
 localparam logic run_always_ready = 0;
 localparam logic resp_sync = 1;
@@ -1073,7 +1071,7 @@ function void threadProc_func;
         begin
             run_get_req_next = !run_get_req;
         end
-        if (run_sync || run_reg_full)
+        if (run_reg_full)
         begin
             TMP_2 = run_core_data_d;
         end else begin

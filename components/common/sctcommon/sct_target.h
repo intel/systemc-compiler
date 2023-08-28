@@ -112,12 +112,12 @@ class sct_target<T, TRAITS, 0> :
                 if (sync) return core_data_d.read(); 
                 else return core_data.read();
             } else {
-                if (sync || reg_full) return core_data_d.read();
+                if (reg_full) return core_data_d.read();
                 else return core_data.read();
             }
         }
     }
-
+    
     /// \return current request data, if no request last data returned
     T get() override {
         if (fifo) {
@@ -135,7 +135,7 @@ class sct_target<T, TRAITS, 0> :
                 if (sync) return core_data_d.read(); 
                 else return core_data.read();
             } else {
-                if (sync || reg_full) return core_data_d.read(); 
+                if (reg_full) return core_data_d.read(); 
                 else return core_data.read();
             }
         }
@@ -151,7 +151,7 @@ class sct_target<T, TRAITS, 0> :
                 if (sync) data = core_data_d.read(); 
                 else data = core_data.read(); 
             } else {
-                if (sync || reg_full) data = core_data_d.read(); 
+                if (reg_full) data = core_data_d.read(); 
                 else data = core_data.read();
             }
 
@@ -189,12 +189,12 @@ class sct_target<T, TRAITS, 0> :
                     if (sync) return core_data_d.read(); 
                     else return core_data.read();
                 } else {
-                    if (sync || reg_full) return core_data_d.read(); 
+                    if (reg_full) return core_data_d.read(); 
                     else return core_data.read();
                 }
             } else {
                 cout << "\nNo blocking get allowed in METHOD process" << endl;
-                assert (false);
+                sc_assert (false);
                 return T{};
             }
         }

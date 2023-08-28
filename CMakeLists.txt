@@ -115,4 +115,8 @@ install(FILES gdb/sysc23x_printers/singlsrc_printers.py
 # Install designs
 install(DIRECTORY designs DESTINATION $ENV{ICSC_HOME})
 
-
+# Install docs
+install(FILES doc/ug.pdf doc/papers/icsc_slides.pdf
+              doc/papers/sct_assert_slides.pdf
+              doc/papers/common_library_2022.pdf
+        DESTINATION $ENV{ICSC_HOME}/doc)

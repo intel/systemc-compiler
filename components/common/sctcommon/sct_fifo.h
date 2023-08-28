@@ -156,7 +156,7 @@ public:
             
         } else {
             cout << "No blocking get allowed in METHOD process" << endl;
-            assert (false);
+            sc_assert (false);
             return T{};
         } 
     }
@@ -193,7 +193,7 @@ public:
             
         } else {
             cout << "No blocking put allowed in METHOD process" << endl;
-            assert (false);
+            sc_assert (false);
         }
     }
     
@@ -209,7 +209,7 @@ public:
     
     /// FIFO has (size()-N) elements or more
     bool almost_full(const unsigned& N = 0) const override {
-        assert (N <= LENGTH);
+        sc_assert (N <= LENGTH);
         
         if (sct_is_method_proc()) {
             return (element_num_d.read() >= LENGTH-N);
@@ -220,7 +220,7 @@ public:
     
     /// FIFO has N elements or less
     bool almost_empty(const unsigned& N = 0) const override {
-        assert (N <= LENGTH);
+        sc_assert (N <= LENGTH);
         
         if (sct_is_method_proc()) {
             return (element_num_d.read() <= N);
