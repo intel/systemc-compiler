@@ -119,7 +119,7 @@ public:
             wait();
             i = Z + 1;
         }
-        wait();             
+        wait();                             // 1
         
         while (true) {
             if (s.read()) {

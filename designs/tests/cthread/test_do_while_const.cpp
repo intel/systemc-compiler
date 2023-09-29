@@ -263,7 +263,7 @@ public:
                 
             } while (s.read() && A);
             s9 = 3;
-            wait();                     // 2
+            wait();                     // 0
         }
     }     
     
@@ -292,7 +292,7 @@ public:
                 } while (!s2.read() || A && B);
             } while (s3.read() && B);
             if (s4.read()) s10 = 4;
-            wait();                     // 4
+            wait();                     // 0
         }
     }
     

@@ -175,6 +175,7 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
 
                 if (val.isInteger()) {
                     intVal = val.getInteger();
+                    //cout << "val " << val << endl;
                 } else {
                     SCT_INTERNAL_FATAL (varDecl->getBeginLoc(), 
                         "Can not get integer for static constant initializer");
@@ -187,16 +188,35 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
         // Adjust integer primitive
         newObj->set_kind(sc_elab::Object::PRIMITIVE);
         sc_elab::Primitive* prim = newObj->mutable_primitive();
-        prim->set_kind(sc_elab::Primitive::VALUE);
+        
+        //cout << "intVal.getBitWidth() " << intVal.getBitWidth() << endl;
+        // TODO: uncomment me for #312
+/*        if (intVal.getBitWidth() > 64) {
+//            // Option 1. Use dyn_bitwidth -- not used up to now
+//            //sc_elab::InitialValue* initVal = prim->mutable_init_val();
+//            //initVal->set_bitwidth(intVal.getBitWidth());
+//            //initVal->set_dyn_bitwidth(true);
+//
+            // Option 2. Convert to string
+            prim->set_kind(Primitive::STRING);
+            std::string* str_val = prim->mutable_str_val();                            
+            *str_val = intVal.toString(10);  // TODO: get radix from @val
+            //cout << "strVal " << *str_val << endl;
+            
+        } else {
+ */ 
+            prim->set_kind(sc_elab::Primitive::VALUE);
+            sc_elab::InitialValue* initVal = prim->mutable_init_val();
+            initVal->set_bitwidth(intVal.getBitWidth());
+            initVal->set_dyn_bitwidth(false);
 
-        sc_elab::InitialValue* initVal = prim->mutable_init_val();
-        initVal->set_bitwidth(intVal.getBitWidth());
-        initVal->set_dyn_bitwidth(false);
+            //cout << "intVal " << intVal.toString(10)  << " width " << intVal.getBitWidth() << endl;
 
-        if (intVal.isSigned())
-            initVal->set_int64_value(intVal.getSExtValue());
-        else
-            initVal->set_uint64_value(intVal.getZExtValue());
+            if (intVal.isSigned())
+                initVal->set_int64_value(intVal.getSExtValue());
+            else
+                initVal->set_uint64_value(intVal.getZExtValue());
+        //}
     }
 
     return ObjectView(newObj, this);

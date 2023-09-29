@@ -157,6 +157,9 @@ bool isSctCombTarg(clang::QualType type);
 /// For ff_synchronizer only read()/operator bool() required to add in sensitivity 
 bool isSctChannelSens(clang::QualType type, const clang::FunctionDecl* funcDecl);
 
+/// Is assertion in CTHREAD scope
+bool isAssertInThread(clang::Stmt* stmt);
+
 /// Check if operator = is supported for type, sct_register and sct_ff_synchronizer
 bool isAssignOperatorSupported(clang::QualType type);
 

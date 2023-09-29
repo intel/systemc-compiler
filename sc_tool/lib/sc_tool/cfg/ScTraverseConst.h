@@ -395,10 +395,10 @@ public:
     }
     
     /// Get wait states ordered, really that just numbers from 0 to N-1
-    std::set<WaitID> getWaitStatesInOrder() {
-        std::set<WaitID> res;
+    std::vector<WaitID> getWaitStatesInOrder() {
+        std::vector<WaitID> res;
         for (auto& entry : waitStates) {
-            res.insert(entry.first);
+            res.push_back(entry.first);
         }
         return res;
     }
@@ -454,6 +454,15 @@ public:
         return breakInRemovedLoop;
     }
     
+    /// The process can be generated as single thread, i.e w/o state variable
+    bool isSingleState() {
+        // If all wait() have the same successor, that is single state thread
+        // No wait(N) in single state thread allowed
+        // If wait() located in inner loop, thread is not single state 
+        return (!cthreadStates->hasWaitNState() && 
+                waitSuccsSet.size() == 1 && waitMaxLoopLevel == 1);
+    }
+    
 protected:
     /// Maximal iteration number analyzed for a loop
     unsigned LOOP_MAX_ITER = 10;
@@ -505,6 +514,11 @@ protected:
     /// and get UseDef results from states, use map to keep it ordered
     /// <waitId, state>
     std::map<WaitID, ScState>  waitStates;
+    /// Wait following statements to check for single state thread
+    /// If there is only 1 element in this set, then thread is single state
+    std::unordered_set<const clang::Stmt*>   waitSuccsSet;
+    /// Maximal loop level of wait() statement, used to determine single state thread
+    unsigned waitMaxLoopLevel = 1;
 
     /// Wait call argument in last statement: 0 for non-wait statement,
     /// 1 for wait(), N for wait(N)

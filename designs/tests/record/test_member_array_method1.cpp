@@ -218,6 +218,7 @@ public:
     
     void fcall_param()
     {
+        rr[0].a = false; rr[1].a = false; rr[2].a = false;
         rec_param2_val(r, 0);
         rec_param1(rr, 1);
         rec_param2_ref(r, 1);

@@ -159,13 +159,6 @@ class sct_signal<T, 1> :
             if (procKind != SC_CTHREAD_PROC_) {
                 s << thrd_event;
             }
-            // It needs to be updated in @end_of_elaboration() as port is 
-            // not bound here, see #34
-            //if (clk_in && clk_in->get_interface() != sct_curr_clock->get_interface()) {
-            //    std::cout << "Signal " << name() << " added to process sensitivity"
-            //              << " lists which have different clock inputs\n";
-            //    assert(false);
-            //}
             clk_in = sct_curr_clock;
             thrdEvent = true;
         } else {

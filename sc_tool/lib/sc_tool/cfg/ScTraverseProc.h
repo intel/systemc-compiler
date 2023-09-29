@@ -327,6 +327,8 @@ protected:
     /// Prepare next block analysis
     void prepareNextBlock(AdjBlock& nextBlock, std::vector<ScopeInfo>& scopeInfos);
     
+    void putWaitScopeGraph(const clang::Stmt* stmt, int waitId, bool isResetSection);
+
     /// Put counter check and decrease code for wait(n) state entrance
     void putWaitNScopeGraph(const clang::Stmt* stmt, int waitId, 
                             bool isResetSection);
@@ -436,6 +438,10 @@ public:
         mainLoopStmt = stmt;
     }
     
+    void setReplacedStates(const std::unordered_map<WaitID, WaitID>& states) {
+        replacedStates = states;
+    }
+    
     /// Report error for lack/extra sensitive to SS channels
     void reportSctChannel(sc_elab::ProcessView procView,
                           const clang::FunctionDecl* funcDecl);
@@ -455,6 +461,9 @@ protected:
     
     /// ID of wait statement, used as process state value
     WaitID waitId;
+    /// Duplicated states replaced with another, <original state, replacement state>
+    std::unordered_map<WaitID, WaitID> replacedStates;
+
     /// Current function 
     const clang::FunctionDecl* funcDecl = nullptr;
     /// Current function CFG

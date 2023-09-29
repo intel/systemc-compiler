@@ -988,6 +988,19 @@ bool isSctChannelSens(clang::QualType type, const FunctionDecl* funcDecl)
             );
 }
 
+bool isAssertInThread(clang::Stmt* stmt) 
+{
+    if (auto callExpr = dyn_cast<CallExpr>(stmt)) {
+        FunctionDecl* funcDecl = callExpr->getDirectCallee();
+        std::string fname = funcDecl->getNameAsString();
+        if (fname == "sct_assert_in_proc_start" || 
+            fname == "sct_assert_in_proc_func") { 
+            return true;
+        }
+    }
+    return false;    
+}
+
 bool isAssignOperatorSupported(clang::QualType type) 
 {
     if (type.isNull()) return false;

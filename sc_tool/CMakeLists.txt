@@ -100,8 +100,6 @@ add_library(SCTool
         lib/sc_tool/cthread/ScThreadBuilder.cpp
         lib/sc_tool/cthread/ScCThreadStates.cpp
         lib/sc_tool/cthread/ScCThreadStates.h
-        lib/sc_tool/cthread/ScSingleStateThread.cpp
-        lib/sc_tool/cthread/ScSingleStateThread.h
 
         lib/sc_tool/utils/CfgFabric.h
         lib/sc_tool/utils/CfgFabric.cpp
@@ -189,6 +187,7 @@ target_link_libraries(SCTool
 # Include $ICSC_HOME/include, create INTERFACE_INCLUDE_DIRECTORIES
 target_include_directories(SCTool PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/lib>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/sc_elab>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
         )
 

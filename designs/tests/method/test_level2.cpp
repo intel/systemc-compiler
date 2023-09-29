@@ -315,14 +315,14 @@ public:
         wait();
         
         while (true) {
-            while (s.read() == 42) wait();
+            while (s.read() == 42) wait();   // 0
             
             i = 1;
-            wait();
+            wait();   // 2
             
             i = 2;
             t8 = i;
-            wait();
+            wait();   // 0
         }
     }
 

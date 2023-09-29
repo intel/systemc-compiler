@@ -79,14 +79,20 @@ class sct_prim_fifo :
     bool sync_ready; 
     const bool USE_ELEM_NUM;
       
-    bool cthread_put = false;
-    bool cthread_get = false;
+    bool cthread_put  = false;
+    bool cthread_get  = false;
+    bool cthread_peek = false;
     
-    sc_in_clk*  clk_in = nullptr;
+    /// FIFO used for Target/Initiator simulation 
+    bool targ_init      = false;
+    bool targ_init_sync = false;
+    
+    sc_in_clk*  clk_in  = nullptr;
     sc_time     clk_period = SC_ZERO_TIME;
 
-    sc_time GET_TIME = SC_ZERO_TIME;
-    sc_time PUT_TIME = SC_ZERO_TIME;
+    sc_time GET_TIME  = SC_ZERO_TIME;
+    sc_time PUT_TIME  = SC_ZERO_TIME;
+    sc_time PEEK_TIME = SC_ZERO_TIME;
     
     sct_prim_signal<bool> has_reset{"has_reset"};   
     sct_prim_signal<bool> put_req{"put_req"};  
@@ -98,6 +104,8 @@ class sct_prim_fifo :
     sc_signal<unsigned> element_num{"element_num"};
     sc_signal<T>    get_data{"get_data"};       
     sc_signal<T>    get_data_next{"get_data_next"};       
+
+    sc_signal<bool> put_done{"put_done"}; // Auxiliary signal to meet RTL timing
     
     bool            hasReset= 0;        
     unsigned        getIndx = 0;        // Index of element that will be get
@@ -114,6 +122,7 @@ class sct_prim_fifo :
     
     sc_event        put_event;
     sc_event        get_event;
+    sc_event*       peek_event = nullptr;
     sc_event        update_event;
 
     /// Channel update, run at DC 0 
@@ -159,12 +168,21 @@ class sct_prim_fifo :
                 cout << "NOTIFIED update get " << name() << endl; 
                 #endif
             }
-
+            if (peek_event && (!cthread_peek || (doPut && sync_valid))) {
+                peek_event->notify(PEEK_TIME);
+            }
+            
             #ifdef NOTIFY_DEBUG 
             //if (std::string(name()).find("tresp") != std::string::npos) 
             cout << sc_time_stamp() << " " << sc_delta_count() << " updateProc "
                  << name() << " doPut|doGet " << doPut << doGet << " elemNum" << elemNum << endl;
             #endif
+        }
+        
+        if (targ_init_sync) {
+            // To provide de-assert for @put_done
+            if (!cthread_put && (doPut || doGet)) update_event.notify(clk_period);
+            put_done = doPut || doGet;
         }
         
         element_num = elemNum;
@@ -178,8 +196,22 @@ class sct_prim_fifo :
     
     /// Internal ready/valid/data functions equivalent to RTL logic
     inline bool putReady() const {
+        // For Target/Initiator mode get required at almost full FIFO to allow put
+//        cout << sc_time_stamp() << " " << sc_delta_count()
+//             << " targ_init_sync " << targ_init_sync
+//             << " put_done " << put_done
+//             << " get_req == get_req_d " << (get_req == get_req_d)
+//             << " put_req == put_req_d " << (put_req == put_req_d)
+//             << " element_num " << element_num.read() << endl;
+        
+        if (targ_init_sync && !cthread_put) {
+            if (cthread_get && get_req != get_req_d) { return true; }
+            if (!put_done && element_num.read() != 0) { return false; }
+        }
+        
         return ((element_num.read() != fifoSize &&
-                 (!cthread_put || put_req == put_req_d || 
+                 (!cthread_put || 
+                  (targ_init ? get_req != get_req_d : put_req == put_req_d) ||
                   element_num.read() != fifoSize-1)) || 
                 (!sync_ready && get_req != get_req_d));
     }
@@ -201,8 +233,11 @@ class sct_prim_fifo :
         assert (clk_in && "clk_in is nullptr");
         clk_period = get_clk_period(clk_in);
         
-        GET_TIME = cthread_get ? clk_period : SC_ZERO_TIME;
-        PUT_TIME = cthread_put ? clk_period : SC_ZERO_TIME; 
+        GET_TIME  = cthread_get ? clk_period : SC_ZERO_TIME;
+        PUT_TIME  = cthread_put ? clk_period : SC_ZERO_TIME;
+        PEEK_TIME = cthread_peek ? clk_period : SC_ZERO_TIME;
+                
+        //cout << "PUT_TIME " << PUT_TIME << " GET_TIME " << GET_TIME << " PEEK_TIME " << PEEK_TIME << endl;
             
         // Do not check @sync_valid and @sync_ready as prim_fifo could be used
         // as part of target/initiator in non-process context
@@ -222,6 +257,7 @@ class sct_prim_fifo :
             // Notify put/get processes at reset exit 
             put_event.notify(PUT_TIME);
             get_event.notify(GET_TIME);
+            if (peek_event) peek_event->notify(PEEK_TIME);
         }
     }
     
@@ -233,11 +269,14 @@ class sct_prim_fifo :
             put_data = T{};
         }
         
-        if (!cthread_get && !cthread_put && !sync_valid && put_req != put_req_d) {
-            get_event.notify(GET_TIME);
-            #ifdef NOTIFY_DEBUG 
-            cout << "NOTIFIED reset_put() " << name() << endl; 
-            #endif
+        if (!cthread_put && !sync_valid && put_req != put_req_d) {
+            if (!cthread_get) {
+                get_event.notify(GET_TIME);
+                #ifdef NOTIFY_DEBUG 
+                cout << "NOTIFIED reset_put() " << name() << endl; 
+                #endif
+            }
+            if (peek_event && !cthread_peek) peek_event->notify(PEEK_TIME);
         }
     }
     
@@ -246,11 +285,14 @@ class sct_prim_fifo :
         put_data = T{};
 
         // Clear put notifies get process if both are methods
-        if (!cthread_get && !cthread_put && !sync_valid && put_req != put_req_d) {
-            get_event.notify(GET_TIME);
-            #ifdef NOTIFY_DEBUG 
-            cout << "NOTIFIED clear_put() " << name() << endl; 
-            #endif
+        if (!cthread_put && !sync_valid && put_req != put_req_d) {
+            if (!cthread_get) {
+                get_event.notify(GET_TIME);
+                #ifdef NOTIFY_DEBUG 
+                cout << "NOTIFIED clear_put() " << name() << endl; 
+                #endif
+            }
+            if (peek_event && !cthread_peek) peek_event->notify(PEEK_TIME);
         }
     }
 
@@ -303,9 +345,10 @@ class sct_prim_fifo :
             // If put() in thread and get makes FIFO empty, notifies get process
             // as this put() allows one more get
             if (!sync_valid && (USE_ELEM_NUM || element_num == 0 ||
-                (cthread_put && get_req != get_req_d && element_num == 1))) 
+                (cthread_put && get_req != get_req_d && element_num == 1)))
             {
                 get_event.notify(GET_TIME);
+                if (peek_event) peek_event->notify(PEEK_TIME);
                 #ifdef NOTIFY_DEBUG 
                 cout << "NOTIFIED put() " << name() << endl; 
                 #endif
@@ -314,7 +357,7 @@ class sct_prim_fifo :
             if (cthread_put) put_event.notify(PUT_TIME);
 
         #ifdef SCT_TLM_DEBUG
-            if (putTime == sc_time_stamp()) {
+            if (cthread_put && putTime == sc_time_stamp()) {
                 cout << sc_time_stamp() << " " << name() << ", ERROR: multiple put\n" << endl;
                 sc_assert (false);
             }
@@ -337,6 +380,7 @@ class sct_prim_fifo :
                 (cthread_put && get_req != get_req_d && element_num == 1))) 
             {
                 get_event.notify(GET_TIME);
+                if (peek_event) peek_event->notify(PEEK_TIME);
                 #ifdef NOTIFY_DEBUG 
                 cout << "NOTIFIED put() " << name() << endl; 
                 #endif
@@ -345,7 +389,7 @@ class sct_prim_fifo :
             if (cthread_put) put_event.notify(PUT_TIME);
             
         #ifdef SCT_TLM_DEBUG
-            if (putTime == sc_time_stamp()) {
+            if (cthread_put && putTime == sc_time_stamp()) {
                 cout << sc_time_stamp() << " " << name() << ", ERROR: multiple put\n" << endl;
                 sc_assert (false);
             }
@@ -371,8 +415,12 @@ class sct_prim_fifo :
             // If @USE_ELEM_NUM every get notifies put process
             // If get() in thread and put makes FIFO full, notifies put process
             // as this get() allows one more put
+            // For Target/Initiator mode notify at almost full FIFO to allow put
+            
             if (!sync_ready && (USE_ELEM_NUM || element_num == fifoSize ||
-                (cthread_get && put_req != put_req_d && element_num == fifoSize-1)))
+                (cthread_get && put_req != put_req_d && element_num == fifoSize-1) ||
+                (targ_init && cthread_put && element_num == fifoSize-1) ||
+                (targ_init_sync && !cthread_put && cthread_get) ))
             {
                 put_event.notify(PUT_TIME);
                 #ifdef NOTIFY_DEBUG 
@@ -381,9 +429,10 @@ class sct_prim_fifo :
             }
             // Notify thread itself to allow next get
             if (cthread_get) get_event.notify(GET_TIME);
+            if (peek_event && cthread_peek) peek_event->notify(PEEK_TIME);
 
         #ifdef SCT_TLM_DEBUG
-            if (getTime == sc_time_stamp()) {
+            if (cthread_get && getTime == sc_time_stamp()) {
                 cout << sc_time_stamp() << " " << name() << ", ERROR: multiple get\n" << endl;
                 sc_assert (false);
             }
@@ -413,9 +462,10 @@ class sct_prim_fifo :
             }
             // Notify thread itself to allow next get
             if (cthread_get) get_event.notify(GET_TIME);
+            if (peek_event && cthread_peek) peek_event->notify(PEEK_TIME);
 
         #ifdef SCT_TLM_DEBUG
-            if (getTime == sc_time_stamp()) {
+            if (cthread_get && getTime == sc_time_stamp()) {
                 cout << sc_time_stamp() << " " << name() << ", ERROR: multiple get\n" << endl;
                 sc_assert (false);
             }
@@ -492,6 +542,12 @@ class sct_prim_fifo :
         sync_ready = syncReady;
     }
     
+    /// Set the FIFO used for Target/Initiator simulation
+    void setTargInit(bool sync = false) {
+        if (sync) targ_init_sync = true; 
+        else targ_init = true;
+    }
+    
   public:
     template <typename RSTN_t>
     void clk_nrst(sc_in_clk& clk_in_, RSTN_t& nrst_in)  {
@@ -554,9 +610,22 @@ class sct_prim_fifo :
 
     void addPeekTo(sc_sensitive& s) override {
         auto procKind = sc_get_current_process_handle().proc_kind();
+        bool cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        
+        if (peek_event) {
+            if (cthread_peek != cthread) {
+                cout << "\nDouble addPeekTo() with different process kinds for : "
+                     << name() << endl;
+                assert (false);
+            }
+        } else {
+            auto eventName = std::string(std::string(basename()))+"_peek_event";
+            peek_event = new sc_event( eventName.c_str() );
+            cthread_peek = cthread;
+        }
         
         if (procKind != SC_CTHREAD_PROC_) {
-            s << get_event;
+            s << *peek_event;
         }
     }
 

@@ -18,7 +18,6 @@
 #include "sc_tool/utils/ScTypeTraits.h"
 #include "sc_tool/utils/CppTypeTraits.h"
 #include "sc_tool/cthread/ScCFGAnalysis.h"
-#include "sc_tool/cthread/ScSingleStateThread.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "sc_tool/utils/DebugOptions.h"
 #include "sc_tool/ScCommandLine.h"
@@ -301,9 +300,9 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
         ScDiag::reportScDiag(entryFuncDecl->getBeginLoc(),
                              ScDiag::SC_CTHREAD_NO_MAIN_LOOP);
     }
-    auto tinfo = isSingleStateThread(threadStates, mainLoopStmt);
-    isSingleState = tinfo.first;
-    bool noResetCode = tinfo.second;
+
+    // Single state thread, i.e. w/o state variable
+    isSingleState = travConst->isSingleState();
     
     // Do not see any example with break/continue in removed loop for 
     // single state CTHREAD, but keep that for safety
@@ -313,7 +312,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     }
     
     // Consider multi-states, wait in the middle and code before main loop
-    if (!hasReset && (!noResetCode || travConst->codeBeforeMainLoop())) {
+    if (!hasReset && travConst->codeBeforeMainLoop()) {
         ScDiag::reportScDiag(procView.getLocation().second->getBeginLoc(), 
                              ScDiag::SYNTH_NO_RESET_VIOLATION);
     }
@@ -321,7 +320,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     // Fill verVarTrais and put defined non-channel variables to process 
     // variable storage to be generated before the process
     generateThreadLocalVariables();
-    
+
     //globalState->print();
     
     // Name generator with all member names for current module
@@ -330,28 +329,91 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     std::unique_ptr<ScVerilogWriter> procWriter = std::make_unique<ScVerilogWriter>(
                 astCtx.getSourceManager(), false, globalState->getExtrValNames(),
                 nameGen, globalState->getVarTraits(), globalState->getWaitNVarName());
-    
-    travProc = std::make_unique<ScTraverseProc>(
-                astCtx, std::make_shared<ScState>(*globalState), modSval, 
-                procWriter.get(), &threadStates, &findWaitVisitor, 
-                false, isSingleState);
 
-    travProc->setHasReset(!procView.resets().empty());
-    travProc->setMainLoopStmt(travConst->getMainLoopStmt());
-    travProc->setTermConds(travConst->getTermConds());
-    travProc->setLiveStmts(travConst->getLiveStmts());
-    travProc->setLiveTerms(travConst->getLiveTerms());
-    travProc->setRemovedArgExprs(travConst->getRemovedArgExprs());
-    travProc->setWaitFuncs(travConst->getWaitFuncs());
-    travProc->setConstEvalFuncs(travConst->getConstEvalFuncs());
-    
-    // Traverse context stack, used to run TraverseProc
-    traverseContextMap[RESET_ID] = ScProcContext();
-    generateVerilogForState(RESET_ID);
+    // First traverse process stage and detecting duplicated states
+    {
+        //cout << " ==================== 1st stage ====================" << endl;
+        travProc = std::make_unique<ScTraverseProc>(
+                        astCtx, std::make_shared<ScState>(*globalState), modSval, 
+                        procWriter.get(), &threadStates, &findWaitVisitor, 
+                        false, isSingleState);
 
-    for (WaitID i : travConst->getWaitStatesInOrder()) {
-        generateVerilogForState(i);
-        if (isSingleState) break;
+        travProc->setHasReset(!procView.resets().empty());
+        travProc->setMainLoopStmt(travConst->getMainLoopStmt());
+        travProc->setTermConds(travConst->getTermConds());
+        travProc->setLiveStmts(travConst->getLiveStmts());
+        travProc->setLiveTerms(travConst->getLiveTerms());
+        travProc->setRemovedArgExprs(travConst->getRemovedArgExprs());
+        travProc->setWaitFuncs(travConst->getWaitFuncs());
+        travProc->setConstEvalFuncs(travConst->getConstEvalFuncs());
+        
+        // Traverse context stack, used to run TraverseProc
+        traverseContextMap[RESET_ID] = ScProcContext();
+        generateVerilogForState(RESET_ID);
+
+        auto waitStatesVec = travConst->getWaitStatesInOrder();
+        for (WaitID waitID : waitStatesVec) {
+            generateVerilogForState(waitID);
+            if (isSingleState) break;
+        }
+        
+        // Prepare replaced states for second stage 
+        if (!isSingleState) {
+            //cout << "Replaced: " << endl;
+            for (auto i = waitStatesVec.begin(); i != waitStatesVec.end(); ++i) {
+                if (replacedStates.find(*i) != replacedStates.end()) continue;
+
+                for (auto j = i+1; j != waitStatesVec.end(); ++j) {
+                    if (replacedStates.find(*j) != replacedStates.end()) continue;
+                    if (stateCodeMap[*i] != stateCodeMap[*j]) continue;
+                    replacedStates.emplace(*j, *i);
+                    //cout << "  " << *j << " " << *i << endl;
+                }
+            }
+            SCT_TOOL_ASSERT (waitStatesVec.size() > replacedStates.size(),
+                             "Incorrect replaced states number");
+        }
+    }
+
+    // Generate state variable declaration
+    generateThreadStateVariable();
+    
+    // Second traverse process stage, final code generation w/o duplicated states
+    if (!isSingleState) {
+        //cout << " ==================== 2nd stage ====================" << endl;
+        // Clear before second stage
+        procWriter->clear();
+        traverseContextMap.clear();
+        stateCodeMap.clear();
+        
+        travProc = std::make_unique<ScTraverseProc>(
+                        astCtx, std::make_shared<ScState>(*globalState), modSval, 
+                        procWriter.get(), &threadStates, &findWaitVisitor, 
+                        false, isSingleState);
+
+        travProc->setHasReset(!procView.resets().empty());
+        travProc->setMainLoopStmt(travConst->getMainLoopStmt());
+        travProc->setTermConds(travConst->getTermConds());
+        travProc->setLiveStmts(travConst->getLiveStmts());
+        travProc->setLiveTerms(travConst->getLiveTerms());
+        travProc->setRemovedArgExprs(travConst->getRemovedArgExprs());
+        travProc->setWaitFuncs(travConst->getWaitFuncs());
+        travProc->setConstEvalFuncs(travConst->getConstEvalFuncs());
+        // Set replaced states for second stage
+        travProc->setReplacedStates(replacedStates);
+        
+        // Traverse context stack, used to run TraverseProc
+        traverseContextMap[RESET_ID] = ScProcContext();
+        generateVerilogForState(RESET_ID);
+
+        auto waitStatesVec = travConst->getWaitStatesInOrder();
+        for (WaitID waitID : waitStatesVec) {
+            // Skip replaced state
+            if (replacedStates.find(waitID) != replacedStates.end()) continue;
+
+            generateVerilogForState(waitID);
+            if (isSingleState) break;
+        }
     }
     
     bool noneZeroElmntMIF = travConst->isNonZeroElmtMIF();
@@ -520,6 +582,8 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
 
         for (size_t waitID = 0; waitID < threadStates.getNumFSMStates(); ++waitID) 
         {
+            if (replacedStates.find(waitID) != replacedStates.end()) continue;
+
             if (!isSingleState) {
                 vout << waitID << ": begin\n";
             }
@@ -847,6 +911,46 @@ sc::SValue createRecChanField(ObjectView fieldObj, SValue parent)
 
     // Field with record channel as parent class
     return SValue(fieldDecl, parent);
+}
+
+void ThreadBuilder::generateThreadStateVariable()
+{
+    using std::cout; using std::endl;
+    
+    auto parentModView = procView.getParentModule();
+    auto verMod  = elabDB.getVerilogModule(parentModView);
+    std::string procName = *procView.getFieldName();
+
+    {
+        // Generate PROC_STATE variable
+        if (!isSingleState) {
+            size_t stateCount = threadStates.getNumFSMStates();
+            size_t bitWidth = bitsForIndex(stateCount);
+
+            auto procStateName = procName + "_PROC_STATE";
+            auto procStateNextName = procName + "_PROC_STATE_next";
+
+            auto* procStateVar= verMod->createProcessLocalVariable(
+                                        procView, procStateName, bitWidth, 
+                                        {}, false);
+            auto* procStateNextVar = verMod->createProcessLocalVariable(
+                                        procView, procStateNextName, bitWidth, 
+                                        {}, false);
+            verMod->procVarMap[procView].insert(procStateVar);
+            verMod->procVarMap[procView].insert(procStateNextVar);                            
+
+            stateRegNames = make_pair(procStateVar->getName(), 
+                                      procStateNextVar->getName());
+
+            globalState->setProcStateName(procStateVar->getName(), procStateNextVar->getName());
+            verMod->addProcRegisterNextValPair(procView, procStateVar, procStateNextVar);
+
+            verMod->addVarUsedInProc(procView, procStateVar, 0, 0);
+            verMod->addVarDefinedInProc(procView, procStateVar, 0, 0);
+            verMod->addVarUsedInProc(procView, procStateNextVar, 0, 0);
+            verMod->addVarDefinedInProc(procView, procStateNextVar, 0, 0);
+        }
+    }
 }
 
 void ThreadBuilder::generateThreadLocalVariables()
@@ -1555,36 +1659,7 @@ void ThreadBuilder::generateThreadLocalVariables()
         }
     }
     
-    {
-        // Generate PROC_STATE variable
-        if (!isSingleState) {
-            size_t stateCount = threadStates.getNumFSMStates();
-            size_t bitWidth = bitsForIndex(stateCount);
-
-            auto procStateName = procName + "_PROC_STATE";
-            auto procStateNextName = procName + "_PROC_STATE_next";
-
-            auto* procStateVar= verMod->createProcessLocalVariable(
-                                        procView, procStateName, bitWidth, 
-                                        {}, false);
-            auto* procStateNextVar = verMod->createProcessLocalVariable(
-                                        procView, procStateNextName, bitWidth, 
-                                        {}, false);
-            verMod->procVarMap[procView].insert(procStateVar);
-            verMod->procVarMap[procView].insert(procStateNextVar);                            
-
-            stateRegNames = make_pair(procStateVar->getName(), 
-                                      procStateNextVar->getName());
-
-            globalState->setProcStateName(procStateVar->getName(), procStateNextVar->getName());
-            verMod->addProcRegisterNextValPair(procView, procStateVar, procStateNextVar);
-
-            verMod->addVarUsedInProc(procView, procStateVar, 0, 0);
-            verMod->addVarDefinedInProc(procView, procStateVar, 0, 0);
-            verMod->addVarUsedInProc(procView, procStateNextVar, 0, 0);
-            verMod->addVarDefinedInProc(procView, procStateNextVar, 0, 0);
-        }
-    }
+ 
     
     // Add reset signal to used variables, required if reset is @sc_signal
     for (const auto& reset : procView.resets()) {

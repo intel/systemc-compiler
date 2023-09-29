@@ -552,7 +552,7 @@ class sct_target<T, TRAITS, 1> :
   protected:
     /// FIFO channel to store requests
     sct_prim_fifo<T>    fifo;
-    /// Handle of put processes attached to the initiator bound 
+    /// Handle of put process attached to the initiator bound 
     sc_process_handle** put_handle_ptr = nullptr;
       
     /// Attached FIFO length
@@ -566,31 +566,17 @@ class sct_target<T, TRAITS, 1> :
     }
     
     void before_end_of_elaboration() override {
-        unsigned A;
-        if (always_ready) {
-            A = 2;
-        } else {
-            A = fifo.size();
-        }
-        // If sync valid, one more FIFO slot required
-        if (sync) A += 1;
-        
-        // Consider attached FIFO length
-        A += att_fifo_length;
+        // Set FIFO simulation mode for Target and Initiator    
+        fifo.setTargInit(sync);
 
-        // Minimum 2 slots required to have put&get at the same DC
-        assert (A > 1 && "Primitive FIFO size should be at least 2");
-        fifo.resize(A);
-
+        bool cthread_put = false;
         if (put_handle_ptr) {
             if (*put_handle_ptr) {
                 fifo.addToPut(&this->sensitive, *put_handle_ptr);
-                
-                // Set sync ready if both put and get processes are methods
+                // Set sync ready if get processes is method
                 auto procKind = (*put_handle_ptr)->proc_kind();
-                bool A = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
-                fifo.setSync(sync, !cthread && !A);
-                
+                cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+                fifo.setSync(sync, !cthread);
             } else {
                 // Do not check initiator attached to a process as it could
                 // be used in non-process context
@@ -599,6 +585,18 @@ class sct_target<T, TRAITS, 1> :
              cout << "No initiator bound for target "  << name() << endl;
              assert (false);
         }
+
+        // Update FIFO size
+        unsigned fifoSize = cthread_put ? 2 : 1; 
+        // If sync valid, one more FIFO slot required
+        if (sync) fifoSize += 1;
+        
+        // Consider attached FIFO length
+        fifoSize += att_fifo_length;
+        fifo.resize(fifoSize);
+
+        //cout << "FIFO " << fifo.name() << " " << fifoSize << ", sync valid " 
+        //     << sync << ", sync ready " << (!cthread) << endl;
     }
     
   public:
@@ -658,7 +656,7 @@ class sct_target<T, TRAITS, 1> :
         } else {
             module.put_port.bind(fifo);
         }
-        put_handle_ptr  = &module.put_handle;
+        put_handle_ptr = &module.put_handle;
     }
 
     template<class MOD>

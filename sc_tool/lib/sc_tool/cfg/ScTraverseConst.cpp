@@ -1055,6 +1055,8 @@ void ScTraverseConst::run()
     bool skipOneElement = false;
     // Is reset section analyzed 
     bool isResetSection = !isCombProcess && hasReset;
+    // First statement after wait() flag
+    bool firstStmtAfterWait = false;
     
     // Fill statement levels for entry function
     stmtInfo.run(funcDecl, 0);
@@ -1109,6 +1111,11 @@ void ScTraverseConst::run()
 //                        cout << "Push loop stack(1) " << hex << doterm << dec 
 //                             << ", level " << level << ", LS size " << loopStack.size() << endl;
 //                    }
+                }
+                
+                if (firstStmtAfterWait) {
+                    waitSuccsSet.insert(doterm);
+                    firstStmtAfterWait = false;
                 }
                 
                 if (aliveLoop) {
@@ -1177,6 +1184,12 @@ void ScTraverseConst::run()
                     cout << "level " << level << endl;
                     //state->print();
                 }
+                
+                // Skip @SCT_ASSERT_THREAD, as no code generated in @always_comb
+                if (firstStmtAfterWait && !isAssertInThread(currStmt)) {
+                    waitSuccsSet.insert(currStmt);
+                    firstStmtAfterWait = false;
+                }
 
                 // Parse statement and fill state
                 isRequiredStmt = false;
@@ -1232,9 +1245,13 @@ void ScTraverseConst::run()
                         i.first->second.join(state.get());
                     }
 
-                    waitCall = 0;
+                    waitCall = 0; 
                     isResetSection = false;
-
+                    firstStmtAfterWait = true;
+                    if (loopStack.size() > waitMaxLoopLevel) {
+                        waitMaxLoopLevel = loopStack.size();
+                    }
+                    
                     // Clean ReadDefined after wait()
                     state->clearReadAndDefinedVals();
                     
@@ -1309,6 +1326,11 @@ void ScTraverseConst::run()
             //if (isa<ForStmt>(term) || isa<WhileStmt>(term) || isa<DoStmt>(term)) {
             //    cout << "loopFirstIter " << loopFirstIter << endl;
             //}
+            
+            if (firstStmtAfterWait) {
+                waitSuccsSet.insert(term);
+                firstStmtAfterWait = false;
+            }
             
             // Set level for loop terminator
             if (isa<ForStmt>(term) || isa<WhileStmt>(term) || isa<DoStmt>(term)) {

@@ -76,7 +76,7 @@ public:
             }
             sct_assert_level(1);
             k = 3;
-            wait(); // 3
+            wait(); // 0
         }
     }
 
@@ -99,7 +99,7 @@ public:
                 k = 3;                  // B4
             }                           // B3
             sct_assert_level(1);
-            wait();     // 2 
+            wait();     // 0 
         }
     }
 
@@ -123,7 +123,7 @@ public:
             }
             sct_assert_level(1);
             k = 3;
-            wait(); // 3 
+            wait(); // 0 
         }
     }
 
@@ -155,7 +155,7 @@ public:
             }
             sct_assert_level(1);
             k = 4;
-            wait();   // 3
+            wait();   // 0
         }
     }
     

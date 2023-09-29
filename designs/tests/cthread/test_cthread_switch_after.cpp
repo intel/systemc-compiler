@@ -166,7 +166,7 @@ public:
                     default: i = 5; break;
                 }
             }
-            wait();     // 3
+            wait();     // 0
         }
     }
     
@@ -359,7 +359,7 @@ public:
                 if (t.read()) continue;
                 
             }
-            wait();                                         // 4
+            wait();                                         // 0
         }
     }
 

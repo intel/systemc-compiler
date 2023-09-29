@@ -236,9 +236,9 @@ public:
         {
             while (s.read() || A) {     
                 s5 = !s5;
-                wait();
+                wait();                 // 0
             }                           
-            wait();                     
+            wait();                     // 0
         }
     }
     
@@ -309,7 +309,7 @@ public:
                 }
                 wait();                 
             }
-            wait();                     // 1
+            wait();                     // 0
 
             while (0 && (1 || s.read())) {
                 wait();

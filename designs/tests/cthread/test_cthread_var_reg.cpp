@@ -228,7 +228,7 @@ struct A : public sc_module
                 }
             }
             
-            wait();                     // 2
+            wait();                     // 0
         }
     }
     

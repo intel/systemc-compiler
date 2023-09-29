@@ -70,7 +70,7 @@ public:
             k = 2;    
             t0 = k;
             
-            wait();     // 2
+            wait();     // 0
         }
     }
     
@@ -89,7 +89,7 @@ public:
                 }               
                 sleep_time = m;
             }
-            wait();     // 2
+            wait();     // 0
         }
     }
     
@@ -104,7 +104,7 @@ public:
         while (true) {
             if (arr[sleep_time.read()])
             { 
-                wait();         // 1
+                wait();         // 0
             } else {
                 for (int i = 0; i < 4; i++) {  
                     wait();     // 2
@@ -146,7 +146,7 @@ public:
             k = 2;
             t1 = k;
             
-            wait();                         // 3
+            wait();                         // 0
         }
     }
     

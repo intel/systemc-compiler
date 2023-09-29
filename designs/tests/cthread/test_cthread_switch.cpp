@@ -241,11 +241,11 @@ public:
                 break;
 
             default:
-                wait();     // 3
+                wait();     // 2
                 break;
             }
 
-            wait();         // 4
+            wait();         // 0
         }
     }
 };

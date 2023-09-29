@@ -176,11 +176,11 @@ public:
 
             while (in.read()) {
                 out4 = 1;
-                wait();     // 1
+                wait();     // 0
             }
 
             out4 = 2;
-            wait();     // 2
+            wait();         // 0
         }
     }
     

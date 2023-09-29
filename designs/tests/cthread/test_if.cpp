@@ -232,11 +232,11 @@ public:
         while (true) {              // B9
             if (in.read()) {        // B8
                 k = 1;              // B7
-                wait();  // 1
+                wait();     // 1
                 
                 if (out.read()) { 
                     k = 2;          // B6
-                    wait(); // 4 | 2
+                    wait(); // 2
                 } else {
                     k = 3;          // B5
                 }
@@ -244,11 +244,11 @@ public:
             } else {
                 if (out.read()) {   // B4
                     k = 4;          // B3
-                    wait();  // 2 | 3
+                    wait();  // 2
                 }
             }
             
-            wait();  // 3 | 4       // B2
+            wait();         // 4    // B2
             k = 6;
         }                           // B1
     }

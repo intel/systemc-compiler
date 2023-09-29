@@ -125,7 +125,7 @@ struct sct_get_if : virtual public sc_interface
     /// Add get/request related signal to process sensitivity, use operator << instead
     virtual void addTo(sc_sensitive& s) = 0;
     virtual void addTo(sc_sensitive* s, sc_process_handle* p) = 0;
-    /// Add peek/request related signal to process sensitivity
+    /// Add peek/request to process sensitivity, used in addition to @addTo()
     virtual void addPeekTo(sc_sensitive& s) = 0;
 };
 
@@ -300,7 +300,7 @@ static std::unordered_map<size_t, sct_reset_callback*> sct_reset_stor;
 /// Method process macro, same as SC_METHOD(...)
 #define SCT_METHOD(proc) SC_METHOD(proc)
 
-/// Bind SV DUT target/initiator channel to SystemC TB initiator/target channel 
+/// Bind Verilog DUT target/initiator to SystemC TB initiator/target channel 
 /// for multi-language simulation
 #ifdef SCT_TLM_MODE
     #define SCT_BIND_CHANNEL3(dut_module, dut_channel, tb_channel) \
@@ -312,7 +312,7 @@ static std::unordered_map<size_t, sct_reset_callback*> sct_reset_stor;
         tb_channel.bind_rtl(dut_module.dut_channel##_core_req, tb_channel.core_req); \
         tb_channel.bind_rtl(dut_module.dut_channel##_core_data, tb_channel.core_data); \
         tb_channel.bind_rtl(dut_module.dut_channel##_core_ready, tb_channel.core_ready);
-    // Reverse order in SV port array 
+    // Reverse order in Verilog port array 
     #define SCT_BIND_CHANNEL4(dut_module, dut_channel, tb_channel, size) \
         for (unsigned i = 0; i != size; ++i) { \
             tb_channel[i].bind_rtl(*dut_module.dut_channel##_core_req[size-1-i], tb_channel[i].core_req); \
@@ -406,6 +406,29 @@ struct sct_fifo_get{
 template <typename T, unsigned LENGTH, class TRAITS, bool TLM_MODE>
 struct sct_fifo_peek{
     sct_fifo<T, LENGTH, TRAITS, TLM_MODE>* fifo;
+};
+
+/// Pipe general template
+template <
+    class T,             /// Data type
+    unsigned N,          /// Number of pipeline registers, one or more
+    class TRAITS = SCT_CMN_TRAITS, 
+    bool TLM_MODE = SCT_CMN_TLM_MODE
+>
+class sct_pipe {};
+    
+/// Pipe put/get helpers
+template <typename T, unsigned N, class TRAITS, bool TLM_MODE>
+struct sct_pipe_put{
+    sct_pipe<T, N, TRAITS, TLM_MODE>* pipe;
+};
+template <typename T, unsigned N, class TRAITS, bool TLM_MODE>
+struct sct_pipe_get{
+    sct_pipe<T, N, TRAITS, TLM_MODE>* pipe;
+};
+template <typename T, unsigned N, class TRAITS, bool TLM_MODE>
+struct sct_pipe_peek{
+    sct_pipe<T, N, TRAITS, TLM_MODE>* pipe;
 };
 
 /// Register general template 

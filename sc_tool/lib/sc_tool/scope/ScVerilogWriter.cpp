@@ -3337,7 +3337,7 @@ void ScVerilogWriter::printResetCombDecl(std::ostream &os)
         // temporary variables not stored in @varTraits, 
         // it needs to provide them for reset section as well
         printSplitString(os, pair.second, TAB_SYM);    
-        //cout << "   " << pair.first << " : " << pair.second << endl;
+        //cout << "   " << pair.first << " : " << pair.second  << " (1)" << endl;
     }
     
     // Reset local variables initialization with zeros (@INIT_RESET_LOCAL_VARS)
@@ -3346,7 +3346,7 @@ void ScVerilogWriter::printResetCombDecl(std::ostream &os)
             // Print initialization for declared variables only
             if (declaredVars.count(pair.first) != 0) {
                 printSplitString(os, pair.second, TAB_SYM);
-                //cout << "   " << val << " : " << pair.second << endl;
+                //cout << "   " << pair.first << " : " << pair.second << " (2)" << endl;
             }
         }
     }

@@ -96,7 +96,7 @@ public:
                 k = 3;
             }
             k = 4;
-            wait();         // 2
+            wait();         // 0
         }
     }
 
@@ -282,7 +282,7 @@ public:
             sct_assert_level(1);
 
             k = 4;
-            wait();  // 3
+            wait();  // 0
         }
     }    
  
@@ -404,7 +404,7 @@ public:
                     if (b.read()) break;
                     sct_assert_level(3);
                 }
-                wait();     // 1
+                wait();     
             }
             sct_assert_level(1);
             k = 3;
@@ -445,16 +445,16 @@ public:
                 if (a.read()) {
                     k = 1;
                 } else {
-                    wait();
+                    wait();             // 1
                     sct_assert_level(3);
                     if (b.read()) break;
                 }
                 sct_assert_level(2);
-                wait();
+                wait();                 // 2
                 k = 2;
             }
             sct_assert_level(1);
-            wait();
+            wait();                     // 0
         }
     }             
     
@@ -479,7 +479,7 @@ public:
             }
             sct_assert_level(1);
             k = 1;
-            wait();     // 2
+            wait();     // 0
         }
     }
     
@@ -509,7 +509,7 @@ public:
             }
             sct_assert_level(1);
             k = 3;
-            wait();             // 3
+            wait();             // 0
         }
     }
     
@@ -560,7 +560,7 @@ public:
             }
             sct_assert_level(1);
             k = 3;
-            wait();         // 2
+            wait();         // 0
         }
     }
     
@@ -588,7 +588,7 @@ public:
             }
             sct_assert_level(1);
             k = 4;
-            wait();         // 3
+            wait();         // 0
         }
     }
     
@@ -613,7 +613,7 @@ public:
             sct_assert_level(1);
 
             k = 1;
-            wait();     // 2
+            wait();     // 0
         }
     }    
     
@@ -638,7 +638,7 @@ public:
             sct_assert_level(1);
 
             k = 1;
-            wait();         // 2
+            wait();         // 0
         }
     }    
     
@@ -667,6 +667,7 @@ public:
 
             k = 3;
             wait();         // 3
+            k = 4;
         }
     } 
     

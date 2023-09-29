@@ -208,13 +208,13 @@ SC_MODULE(MyModule)
 
     void breakProc() {
         ready = 0;
-        wait();                     // STATE 0
+        wait();                     // 0
         while (true) {
-            wait();                 // STATE 1
+            wait();                 // 1
             while (!enable) {
                 if (stop) break;
                 ready = 1;
-                wait();             // STATE 2
+                wait();             // 1
             }
             ready = 0;
         }

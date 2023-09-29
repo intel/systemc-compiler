@@ -177,10 +177,10 @@ public:
             switch (in.read()) 
             {
                 case 0: 
-                case 1: j = 2; wait(); break;   // 2
+                case 1: j = 2; wait(); break;   // 1
                 default: j = 3; break;
             }
-            wait(); // 3
+            wait(); // 0
         }
     }
 
@@ -506,11 +506,11 @@ public:
                 break;
 
             default:
-                wait();     // 3
+                wait();     // 2
                 break;
             }
 
-            wait();         // 4
+            wait();         // 0
         }
     }
 };

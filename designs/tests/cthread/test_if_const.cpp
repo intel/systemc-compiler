@@ -104,7 +104,7 @@ public:
             }
             if ((s1.read() || !(s2.read() && B) && s3.read() < 3)) {
                 s4 = 5;             
-                wait();             // 4
+                wait();             // 0
             }
         }
     }

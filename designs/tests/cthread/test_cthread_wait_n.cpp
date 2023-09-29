@@ -274,9 +274,9 @@ SC_MODULE(test_mod) {
 
         while (1) {
             n = 2;
-            if (a.read()) wait(n++);    
+            if (a.read()) wait(n++);    // 1
             
-            wait();  
+            wait();   // 0
         }
     }
 

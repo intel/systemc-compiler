@@ -90,7 +90,7 @@ public:
                 }
             } while (i < 3);
             s1 = 3;
-            wait();     // 3
+            wait();     // 0
         }
     }
     
@@ -111,11 +111,11 @@ public:
                 
                 i++;
                 s2 = i;
-                wait();         // 1
+                wait();         // 0
                 
             } while (true);
             
-            wait();             // 3
+            wait();             // 0
         }
     }
     
@@ -159,7 +159,7 @@ public:
                 if (s1.read()) {
                     break;
                 }
-                wait();             // 2
+                wait();             // 0
                 
             } while (true);
             
@@ -173,7 +173,7 @@ public:
                 
             } while (true);
             
-            wait();                 // 4
+            wait();                 // 0
         }
     }    
     

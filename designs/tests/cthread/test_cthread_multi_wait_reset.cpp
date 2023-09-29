@@ -40,14 +40,14 @@ public:
         wait();
         a = 2;
         b = 3;
-        wait();
+        wait();         // 2
         
         while (true) 
         {
             a = a.read() + 1;
-            wait();
+            wait();                     // 3
             b = a.read() + b.read();
-            wait();
+            wait();                     // 2
         }
     }
     

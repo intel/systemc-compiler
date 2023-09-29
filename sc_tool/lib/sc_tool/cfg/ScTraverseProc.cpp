@@ -214,6 +214,21 @@ void ScTraverseProc::prepareNextBlock(AdjBlock& nextBlock,
 }
 
 // ---------------------------------------------------------------------------
+void ScTraverseProc::putWaitScopeGraph(const Stmt* stmt, int waitId, 
+                                       bool isResetSection)
+{
+    if (!isSingleStateThread) {
+        // Check for replacement for duplicated state ID 
+        auto i = replacedStates.find(waitId);
+        auto W = (i != replacedStates.end()) ? i->second : waitId;
+        // @false no tabulation added
+        scopeGraph->storeStateAssign(stmt, state->getProcStateName(),
+                                     W, isResetSection, false,
+                                     getFileName(stmt->getSourceRange().
+                                     getBegin().printToString(sm)));
+    }
+}
+
 // Put counter check and decrease code for wait(n) state entrance
 void ScTraverseProc::putWaitNScopeGraph(const Stmt* stmt, int waitId, 
                                         bool isResetSection)
@@ -1151,15 +1166,7 @@ void ScTraverseProc::run()
                         // Generate state variable assignment in scope graph
                         waitId = cthreadStates->getStateID(
                                             waitCntxStack.getCursorStack());
-                        
-                        if (!isSingleStateThread) {
-                            // @false no tabulation added
-                            scopeGraph->storeStateAssign(
-                                    currStmt, state->getProcStateName(),
-                                    waitId, isResetSection, false,
-                                    getFileName(currStmt->getSourceRange().
-                                    getBegin().printToString(sm)));
-                        }
+                        putWaitScopeGraph(currStmt, waitId, isResetSection);
                         
                         if (isNotLibrarySpace) statWaits.insert(currStmt);
                         

@@ -2903,6 +2903,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
         if (opcode == OO_Tilde) { // "~"
             SCT_TOOL_ASSERT (argNum == 1, "Incorrect argument number");
 
+            //cout << "CXXOperatorCallExpr #" << hex << expr << dec << endl;
             if (lhsZeroWidth) {
                 val = SValue(SValue::boolToAPSInt(true), 10);
                 
@@ -2911,6 +2912,8 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                 if (auto i = getIntTraits(expr->getType())) {
                     // Bit width required to extend result of "~"
                     val = evalUnaryBNot(tval, i->first);
+                    //cout << "Oper ~, tval " << tval << " width " <<  i->first 
+                    //     << " val " << val << endl;
                 } else {
                     // Do not use @evalUnaryBNot as it does not propagate MSB 
                 }

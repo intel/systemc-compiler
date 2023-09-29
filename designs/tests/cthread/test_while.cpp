@@ -200,11 +200,11 @@ public:
 
             while (in.read()) {
                 out = 1;
-                wait();     // 1
+                wait();     // 0
             }
 
             out = 2;
-            wait();     // 2
+            wait();         // 0
         }
     }
 

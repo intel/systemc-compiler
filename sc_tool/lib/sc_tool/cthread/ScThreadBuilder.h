@@ -111,6 +111,9 @@ private:
     /// Get process code including declarations and SVA code
     sc_elab::VerilogProcCode getVerilogCode(bool isSingleState);
 
+    /// ...
+    void generateThreadStateVariable();
+    
     /// Generate Verilog module variables for registers discovered in thread
     void generateThreadLocalVariables();
 
@@ -144,6 +147,8 @@ private:
     std::unordered_set<SValue> threadReadVars;
 
     bool isSingleState;
+    /// Duplicated states replaced with another, <original state, replacement state>
+    std::unordered_map<WaitID, WaitID> replacedStates;
 
     const sc_elab::ProcessView procView;
 

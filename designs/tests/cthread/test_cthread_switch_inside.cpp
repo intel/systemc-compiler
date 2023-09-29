@@ -103,7 +103,7 @@ public:
                     default:;
                 }
             }
-            wait();                                         // 2
+            wait();                                         // 0
         }
     }
     

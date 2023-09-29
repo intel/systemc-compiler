@@ -111,7 +111,7 @@ public:
                 wait();     // 1
             } while (i < 3);
             s1 = 2;
-            wait();         // 2
+            wait();         // 0
         }
     }
     
@@ -128,15 +128,15 @@ public:
             do {
                 i++;
                 s2 = 1;
-                wait();     // 2
+                wait();     // 1
                 
                 if (in.read() > 1) {
                     s2 = 2;
-                    wait();  // 3
+                    wait();  // 2
                 }
             } while (i < 3);
             s2 = 3;
-            wait();     // 4
+            wait();     // 0
         }
     }
     
@@ -209,7 +209,7 @@ public:
                 
             } while (in.read());
             
-            wait();                 // 2
+            wait();                 // 0
         }
     }
     
@@ -236,7 +236,7 @@ public:
             } while (s7.read() > 5);
             
             s7 = 0;
-            wait();                 // 3
+            wait();                 // 0
         }
     }    
     

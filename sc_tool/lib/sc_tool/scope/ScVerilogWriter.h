@@ -615,6 +615,12 @@ public:
     /// Remove statement from terms
     void clearStmt(const clang::Stmt* stmt);
     
+    /// Clear after first stage where duplicated states detected
+    void clear() {
+        localDeclVerilog.clear();
+        localDeclInitVerilog.clear();
+    }
+    
     void printTerms() {
         using namespace std;
         cout << "Terms -----------------" << hex << endl;

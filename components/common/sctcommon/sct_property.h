@@ -360,10 +360,10 @@ public:
             opt.spawn_method();
             opt.dont_initialize();
             opt.set_sensitivity(event);
-            std::string procname = inThread ?
-                                   sc_get_current_process_handle().basename() :
-                                   (std::string("AssertionAtLine") + 
-                                   propstr.substr(propstr.find_last_of(':')));
+            std::string procname = (inThread ?
+                        std::string(sc_get_current_process_handle().basename()) :
+                        std::string("AssertionAtLine")) + 
+                        propstr.substr(propstr.find_last_of(':'));
             sc_spawn(*propInst, procname.c_str(), &opt);
 
             stor.emplace(hash, propInst);

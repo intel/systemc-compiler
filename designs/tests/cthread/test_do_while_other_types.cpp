@@ -203,7 +203,7 @@ public:
             } while (i < 3);
             sct_assert_level(1);   
             
-            wait();         // 2
+            wait();         // 0
         }
     }
     
