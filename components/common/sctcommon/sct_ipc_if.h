@@ -33,6 +33,11 @@ static const bool SCT_CMN_TLM_MODE = 0;
    static_assert (false, "DO NOT run Intel Compiler for SystemC in TLM mode");
    #endif  
 #endif
+#ifdef DEBUG_SYSTEMC
+   #ifdef __SC_TOOL__
+   static_assert (false, "DO NOT run Intel Compiler for SystemC with DEBUG_SYSTEMC");
+   #endif  
+#endif
 
 /// Clock and reset traits:
 ///  clock 0 -- negedge, 1 -- posedge, 2 -- both edges

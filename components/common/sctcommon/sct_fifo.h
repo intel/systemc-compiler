@@ -237,6 +237,11 @@ public:
     bool attached_put = false;
     bool attached_get = false;
     
+#ifdef DEBUG_SYSTEMC
+    sc_signal<bool>    debug_put{"put"};
+    sc_signal<bool>    debug_get{"get"};
+#endif
+    
     /// FIFO buffer
     sc_vector<sc_signal<T>> buffer{"buffer", LENGTH};
 
@@ -310,11 +315,20 @@ public:
         
         element_num = element_num_d.read();
         if (pop && !push) {
+        #ifdef DEBUG_SYSTEMC
+            // Prevent overflow warning when negative value stored in unsigned signal
+            if (element_num_d.read() != 0)
+        #endif
             element_num = element_num_d.read()-1;
         } else 
         if (!pop && push) {
             element_num = element_num_d.read()+1;
         }
+
+    #ifdef DEBUG_SYSTEMC
+        debug_put = push;
+        debug_get = pop;
+    #endif
     }
     
     void syncProc()
@@ -482,6 +496,19 @@ public:
         } else {
             s << out_valid << data_out << element_num_d;
         }
+    }
+
+    void trace(sc_trace_file* tf) const {
+    #ifdef DEBUG_SYSTEMC
+        std::string fifoName = name();
+        sc_trace(tf, ready_push, fifoName + "_ready");
+        sc_trace(tf, debug_put, fifoName + "_put");
+        sc_trace(tf, data_in, fifoName + "_data_in");
+        sc_trace(tf, out_valid, fifoName + "_request");
+        sc_trace(tf, debug_get, fifoName + "_get");
+        sc_trace(tf, data_out, fifoName + "_data_out");
+        sc_trace(tf, element_num_d, fifoName + "_element_num_d");
+    #endif
     }
     
     sct_fifo_put<T, LENGTH, TRAITS, false> PUT{this};
@@ -655,6 +682,12 @@ class sct_fifo<T, LENGTH, TRAITS, 1> :
         fifo.addPeekTo(s);
     }
 
+    void trace(sc_trace_file* tf) const {
+    #ifdef DEBUG_SYSTEMC
+        fifo.trace(tf);
+    #endif
+    }
+    
     sct_fifo_put<T, LENGTH, TRAITS, true> PUT{this};
     sct_fifo_get<T, LENGTH, TRAITS, true> GET{this};
     sct_fifo_peek<T, LENGTH, TRAITS, true> PEEK{this};

@@ -71,6 +71,11 @@ class sct_target<T, TRAITS, 0> :
             sensitive << core_req << reg_full << core_data << core_data_d;
             put_fifo_handle = new sc_process_handle(sc_get_current_process_handle());
         }
+        
+    #ifdef DEBUG_SYSTEMC
+        SC_METHOD(debugProc); 
+        debug_handle = new sc_process_handle(sc_get_current_process_handle());
+    #endif
     }
     
   public:
@@ -320,6 +325,18 @@ class sct_target<T, TRAITS, 0> :
         }
         put_fifo_handle = nullptr;
         PEEK.target = nullptr;
+        
+    #ifdef DEBUG_SYSTEMC
+        if (fifo) {
+            this->sensitive << *debug_handle;
+            fifo->addPeekTo(this->sensitive);
+        } else {
+            this->sensitive << *debug_handle << get_req << get_req_d
+                            << core_req_d << core_req << reg_full << reg_full_d
+                            << core_data << core_data_d;
+        }
+        debug_handle = nullptr;
+    #endif
     }
     
   public:
@@ -507,6 +524,32 @@ class sct_target<T, TRAITS, 0> :
         }
     }
     
+#ifdef DEBUG_SYSTEMC
+    sc_process_handle*  debug_handle = nullptr;
+
+    sc_signal<bool>     out_valid{"out_valid"};
+    sc_signal<bool>     debug_get{"get"};
+    sc_signal<T>        data_out{"data_out"};
+    sc_signal<unsigned> element_num_d{"element_num_d"};
+    
+    void debugProc() {
+        out_valid = request();
+        debug_get = cthread ? get_req != get_req_d : get_req;
+        data_out  = peek();
+        element_num_d = fifo ? fifo->elem_num() : reg_full_d.read();
+    }
+#endif
+    
+    void trace(sc_trace_file* tf) const {
+    #ifdef DEBUG_SYSTEMC
+        std::string targName = name();
+        sc_trace(tf, out_valid, targName + "_request");
+        sc_trace(tf, debug_get, targName + "_get");
+        sc_trace(tf, data_out, targName + "_data_out");
+        sc_trace(tf, element_num_d, targName + "_element_num_d");
+    #endif
+    }
+    
     sct_target_peek<T, TRAITS, false> PEEK{this};
 };
 
@@ -692,6 +735,12 @@ class sct_target<T, TRAITS, 1> :
         fifo.addPeekTo(s);  // No @nrst required here
     }
      
+    void trace(sc_trace_file* tf) const {
+    #ifdef DEBUG_SYSTEMC
+        fifo.trace(tf);
+    #endif
+    }
+
     sct_target_peek<T, TRAITS, true> PEEK{this};
 };
 

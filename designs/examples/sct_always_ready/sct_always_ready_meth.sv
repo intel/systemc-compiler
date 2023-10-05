@@ -50,27 +50,27 @@ assign tresp_clk = clk;
 assign tresp_nrst = nrst;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: trun_sync_thread (sct_initiator.h:207:5) 
+// Clocked THREAD: trun_sync_thread (sct_initiator.h:212:5) 
 // Empty process, no code generated 
 
 //------------------------------------------------------------------------------
-// Method process: trun_req_control (sct_initiator.h:228:5) 
+// Method process: trun_req_control (sct_initiator.h:233:5) 
 
 always_comb 
-begin : trun_req_control     // sct_initiator.h:228:5
+begin : trun_req_control     // sct_initiator.h:233:5
     logic A;
     A = trun_put_req != trun_put_req_d;
     trun_core_req = A;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: trun_core_thread (sct_initiator.h:244:5) 
+// Clocked THREAD: trun_core_thread (sct_initiator.h:249:5) 
 
 // Thread-local variables
 logic trun_put_req_d_next;
 
 // Next-state combinational logic
-always_comb begin : trun_core_thread_comb     // sct_initiator.h:244:5
+always_comb begin : trun_core_thread_comb     // sct_initiator.h:249:5
     trun_core_thread_func;
 end
 function void trun_core_thread_func;
@@ -90,7 +90,7 @@ begin : trun_core_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: tresp_always_ready_thread (sct_target.h:281:5) 
+// Clocked THREAD: tresp_always_ready_thread (sct_target.h:286:5) 
 
 // Thread-local variables
 logic tresp_get_req_d_next;
@@ -98,7 +98,7 @@ logic tresp_core_req_d_next;
 logic [15:0] tresp_core_data_d_next;
 
 // Next-state combinational logic
-always_comb begin : tresp_always_ready_thread_comb     // sct_target.h:281:5
+always_comb begin : tresp_always_ready_thread_comb     // sct_target.h:286:5
     tresp_always_ready_thread_func;
 end
 function void tresp_always_ready_thread_func;
@@ -126,7 +126,7 @@ begin : tresp_always_ready_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: tresp_core_ready_meth (sct_target.h:301:5) 
+// Method process: tresp_core_ready_meth (sct_target.h:306:5) 
 
 assign tresp_core_ready = 1;
 
@@ -192,7 +192,7 @@ function void init_thread_func;
             // Call b_get() begin
             if (!tresp_core_req_d)
             begin
-                init_thread_PROC_STATE_next = 1; return;    // sct_target.h:180:45;
+                init_thread_PROC_STATE_next = 1; return;    // sct_target.h:185:45;
             end
             tresp_get_req_next = !tresp_get_req;
             TMP_1 = tresp_core_data_d;
@@ -529,19 +529,19 @@ assign resp_clk = clk;
 assign resp_nrst = nrst;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: run_always_ready_thread (sct_target.h:281:5) 
+// Clocked THREAD: run_always_ready_thread (sct_target.h:286:5) 
 // Empty process, no code generated 
 
 //------------------------------------------------------------------------------
-// Method process: run_core_ready_meth (sct_target.h:301:5) 
+// Method process: run_core_ready_meth (sct_target.h:306:5) 
 
 assign run_core_ready = 1;
 
 //------------------------------------------------------------------------------
-// Method process: fifo_asyncProc (sct_fifo.h:267:5) 
+// Method process: fifo_asyncProc (sct_fifo.h:272:5) 
 
 always_comb 
-begin : fifo_asyncProc     // sct_fifo.h:267:5
+begin : fifo_asyncProc     // sct_fifo.h:272:5
     logic outValid;
     logic readyPush;
     logic popIndx;
@@ -587,7 +587,7 @@ begin : fifo_asyncProc     // sct_fifo.h:267:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fifo_syncProc (sct_fifo.h:320:5) 
+// Clocked THREAD: fifo_syncProc (sct_fifo.h:334:5) 
 
 // Thread-local variables
 logic fifo_pop_indx_next;
@@ -597,7 +597,7 @@ logic [1:0] fifo_element_num_d_next;
 logic [15:0] fifo_buffer_next[2];
 
 // Next-state combinational logic
-always_comb begin : fifo_syncProc_comb     // sct_fifo.h:320:5
+always_comb begin : fifo_syncProc_comb     // sct_fifo.h:334:5
     fifo_syncProc_func;
 end
 function void fifo_syncProc_func;
@@ -645,27 +645,27 @@ begin : fifo_syncProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: resp_sync_thread (sct_initiator.h:207:5) 
+// Clocked THREAD: resp_sync_thread (sct_initiator.h:212:5) 
 // Empty process, no code generated 
 
 //------------------------------------------------------------------------------
-// Method process: resp_req_control (sct_initiator.h:228:5) 
+// Method process: resp_req_control (sct_initiator.h:233:5) 
 
 always_comb 
-begin : resp_req_control     // sct_initiator.h:228:5
+begin : resp_req_control     // sct_initiator.h:233:5
     logic A;
     A = resp_put_req != resp_put_req_d;
     resp_core_req = A;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: resp_core_thread (sct_initiator.h:244:5) 
+// Clocked THREAD: resp_core_thread (sct_initiator.h:249:5) 
 
 // Thread-local variables
 logic resp_put_req_d_next;
 
 // Next-state combinational logic
-always_comb begin : resp_core_thread_comb     // sct_initiator.h:244:5
+always_comb begin : resp_core_thread_comb     // sct_initiator.h:249:5
     resp_core_thread_func;
 end
 function void resp_core_thread_func;

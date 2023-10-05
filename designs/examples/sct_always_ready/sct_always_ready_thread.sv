@@ -48,27 +48,27 @@ assign resp_clk = clk;
 assign resp_nrst = nrst;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: run_sync_thread (sct_initiator.h:207:5) 
+// Clocked THREAD: run_sync_thread (sct_initiator.h:212:5) 
 // Empty process, no code generated 
 
 //------------------------------------------------------------------------------
-// Method process: run_req_control (sct_initiator.h:228:5) 
+// Method process: run_req_control (sct_initiator.h:233:5) 
 
 always_comb 
-begin : run_req_control     // sct_initiator.h:228:5
+begin : run_req_control     // sct_initiator.h:233:5
     logic A;
     A = run_put_req != run_put_req_d;
     run_core_req = A;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: run_core_thread (sct_initiator.h:244:5) 
+// Clocked THREAD: run_core_thread (sct_initiator.h:249:5) 
 
 // Thread-local variables
 logic run_put_req_d_next;
 
 // Next-state combinational logic
-always_comb begin : run_core_thread_comb     // sct_initiator.h:244:5
+always_comb begin : run_core_thread_comb     // sct_initiator.h:249:5
     run_core_thread_func;
 end
 function void run_core_thread_func;
@@ -88,13 +88,13 @@ begin : run_core_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: resp_always_ready_thread (sct_target.h:281:5) 
+// Clocked THREAD: resp_always_ready_thread (sct_target.h:286:5) 
 
 // Thread-local variables
 logic resp_get_req_d_next;
 
 // Next-state combinational logic
-always_comb begin : resp_always_ready_thread_comb     // sct_target.h:281:5
+always_comb begin : resp_always_ready_thread_comb     // sct_target.h:286:5
     resp_always_ready_thread_func;
 end
 function void resp_always_ready_thread_func;
@@ -114,7 +114,7 @@ begin : resp_always_ready_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: resp_core_ready_meth (sct_target.h:301:5) 
+// Method process: resp_core_ready_meth (sct_target.h:306:5) 
 
 assign resp_core_ready = 1;
 
@@ -550,13 +550,13 @@ assign resp_clk = clk;
 assign resp_nrst = nrst;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: run_always_ready_thread (sct_target.h:281:5) 
+// Clocked THREAD: run_always_ready_thread (sct_target.h:286:5) 
 
 // Thread-local variables
 logic run_get_req_d_next;
 
 // Next-state combinational logic
-always_comb begin : run_always_ready_thread_comb     // sct_target.h:281:5
+always_comb begin : run_always_ready_thread_comb     // sct_target.h:286:5
     run_always_ready_thread_func;
 end
 function void run_always_ready_thread_func;
@@ -576,15 +576,15 @@ begin : run_always_ready_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: run_core_ready_meth (sct_target.h:301:5) 
+// Method process: run_core_ready_meth (sct_target.h:306:5) 
 
 assign run_core_ready = 1;
 
 //------------------------------------------------------------------------------
-// Method process: fifo_asyncProc (sct_fifo.h:267:5) 
+// Method process: fifo_asyncProc (sct_fifo.h:272:5) 
 
 always_comb 
-begin : fifo_asyncProc     // sct_fifo.h:267:5
+begin : fifo_asyncProc     // sct_fifo.h:272:5
     logic outValid;
     logic readyPush;
     logic popIndx;
@@ -637,7 +637,7 @@ begin : fifo_asyncProc     // sct_fifo.h:267:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fifo_syncProc (sct_fifo.h:320:5) 
+// Clocked THREAD: fifo_syncProc (sct_fifo.h:334:5) 
 
 // Thread-local variables
 logic fifo_pop_indx_next;
@@ -648,7 +648,7 @@ logic [1:0] fifo_element_num_d_next;
 logic [15:0] fifo_buffer_next[2];
 
 // Next-state combinational logic
-always_comb begin : fifo_syncProc_comb     // sct_fifo.h:320:5
+always_comb begin : fifo_syncProc_comb     // sct_fifo.h:334:5
     fifo_syncProc_func;
 end
 function void fifo_syncProc_func;
@@ -700,27 +700,27 @@ begin : fifo_syncProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: resp_sync_thread (sct_initiator.h:207:5) 
+// Clocked THREAD: resp_sync_thread (sct_initiator.h:212:5) 
 // Empty process, no code generated 
 
 //------------------------------------------------------------------------------
-// Method process: resp_req_control (sct_initiator.h:228:5) 
+// Method process: resp_req_control (sct_initiator.h:233:5) 
 
 always_comb 
-begin : resp_req_control     // sct_initiator.h:228:5
+begin : resp_req_control     // sct_initiator.h:233:5
     logic A;
     A = resp_put_req != resp_put_req_d;
     resp_core_req = A;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: resp_core_thread (sct_initiator.h:244:5) 
+// Clocked THREAD: resp_core_thread (sct_initiator.h:249:5) 
 
 // Thread-local variables
 logic resp_put_req_d_next;
 
 // Next-state combinational logic
-always_comb begin : resp_core_thread_comb     // sct_initiator.h:244:5
+always_comb begin : resp_core_thread_comb     // sct_initiator.h:249:5
     resp_core_thread_func;
 end
 function void resp_core_thread_func;
@@ -770,7 +770,7 @@ function void inThreadProc_func;
             // Call b_get() begin
             if (!run_core_req)
             begin
-                inThreadProc_PROC_STATE_next = 1; return;    // sct_target.h:182:43;
+                inThreadProc_PROC_STATE_next = 1; return;    // sct_target.h:187:43;
             end
             run_get_req_next = !run_get_req;
             TMP_0 = run_core_data;
@@ -792,7 +792,7 @@ function void inThreadProc_func;
             // Call b_get() begin
             if (!run_core_req)
             begin
-                inThreadProc_PROC_STATE_next = 1; return;    // sct_target.h:182:43;
+                inThreadProc_PROC_STATE_next = 1; return;    // sct_target.h:187:43;
             end
             run_get_req_next = !run_get_req;
             TMP_0 = run_core_data;
@@ -814,7 +814,7 @@ function void inThreadProc_func;
             // Call b_get() begin
             if (!run_core_req)
             begin
-                inThreadProc_PROC_STATE_next = 1; return;    // sct_target.h:182:43;
+                inThreadProc_PROC_STATE_next = 1; return;    // sct_target.h:187:43;
             end
             run_get_req_next = !run_get_req;
             TMP_5 = run_core_data;

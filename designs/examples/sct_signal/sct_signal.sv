@@ -51,14 +51,14 @@ assign resp_clk = clk;
 assign resp_nrst = nrst;
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: run_sync_thread (sct_initiator.h:207:5) 
+// Clocked THREAD: run_sync_thread (sct_initiator.h:212:5) 
 // Empty process, no code generated 
 
 //------------------------------------------------------------------------------
-// Method process: run_req_control (sct_initiator.h:228:5) 
+// Method process: run_req_control (sct_initiator.h:233:5) 
 
 always_comb 
-begin : run_req_control     // sct_initiator.h:228:5
+begin : run_req_control     // sct_initiator.h:233:5
     logic A;
     A = run_put_req != run_put_req_d;
     if (A)
@@ -75,7 +75,7 @@ begin : run_req_control     // sct_initiator.h:228:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: run_core_thread (sct_initiator.h:244:5) 
+// Clocked THREAD: run_core_thread (sct_initiator.h:249:5) 
 
 // Thread-local variables
 logic run_put_req_d_next;
@@ -83,7 +83,7 @@ logic run_core_req_d_next;
 logic run_core_ready_d_next;
 
 // Next-state combinational logic
-always_comb begin : run_core_thread_comb     // sct_initiator.h:244:5
+always_comb begin : run_core_thread_comb     // sct_initiator.h:249:5
     run_core_thread_func;
 end
 function void run_core_thread_func;
@@ -111,20 +111,20 @@ begin : run_core_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: resp_ready_control (sct_target.h:244:5) 
+// Method process: resp_ready_control (sct_target.h:249:5) 
 
 always_comb 
-begin : resp_ready_control     // sct_target.h:244:5
+begin : resp_ready_control     // sct_target.h:249:5
     logic A;
     A = resp_get_req != resp_get_req_d;
     resp_core_ready = A || !resp_reg_full;
 end
 
 //------------------------------------------------------------------------------
-// Method process: resp_full_control (sct_target.h:249:5) 
+// Method process: resp_full_control (sct_target.h:254:5) 
 
 always_comb 
-begin : resp_full_control     // sct_target.h:249:5
+begin : resp_full_control     // sct_target.h:254:5
     logic A;
     A = resp_get_req != resp_get_req_d;
     if (A)
@@ -141,7 +141,7 @@ begin : resp_full_control     // sct_target.h:249:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: resp_core_thread (sct_target.h:261:5) 
+// Clocked THREAD: resp_core_thread (sct_target.h:266:5) 
 
 // Thread-local variables
 logic resp_get_req_d_next;
@@ -150,7 +150,7 @@ logic resp_reg_full_d_next;
 logic [15:0] resp_core_data_d_next;
 
 // Next-state combinational logic
-always_comb begin : resp_core_thread_comb     // sct_target.h:261:5
+always_comb begin : resp_core_thread_comb     // sct_target.h:266:5
     resp_core_thread_func;
 end
 function void resp_core_thread_func;
@@ -185,7 +185,7 @@ begin : resp_core_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: resp_put_to_fifo (sct_target.h:230:5) 
+// Method process: resp_put_to_fifo (sct_target.h:235:5) 
 // Empty process, no code generated 
 
 //------------------------------------------------------------------------------
@@ -222,7 +222,7 @@ function void init_thread_func;
             // Call b_put() begin
             if (!run_core_ready)
             begin
-                init_thread_PROC_STATE_next = 1; return;    // sct_initiator.h:167:37;
+                init_thread_PROC_STATE_next = 1; return;    // sct_initiator.h:172:37;
             end
             run_put_req_next = !run_put_req;
             run_core_data_next = data_next;
@@ -233,7 +233,7 @@ function void init_thread_func;
             // Call b_put() begin
             if (!run_core_ready)
             begin
-                init_thread_PROC_STATE_next = 1; return;    // sct_initiator.h:167:37;
+                init_thread_PROC_STATE_next = 1; return;    // sct_initiator.h:172:37;
             end
             run_put_req_next = !run_put_req;
             run_core_data_next = data_next;
@@ -244,7 +244,7 @@ function void init_thread_func;
             // Call b_get() begin
             if (!resp_core_req && !resp_reg_full)
             begin
-                init_thread_PROC_STATE_next = 2; return;    // sct_target.h:177:52;
+                init_thread_PROC_STATE_next = 2; return;    // sct_target.h:182:52;
             end
             resp_get_req_next = !resp_get_req;
             if (resp_reg_full)
@@ -264,7 +264,7 @@ function void init_thread_func;
                 // Call b_put() begin
                 if (!run_core_ready)
                 begin
-                    init_thread_PROC_STATE_next = 1; return;    // sct_initiator.h:167:37;
+                    init_thread_PROC_STATE_next = 1; return;    // sct_initiator.h:172:37;
                 end
                 run_put_req_next = !run_put_req;
                 run_core_data_next = data_next;
@@ -387,20 +387,20 @@ assign resp_clk = clk;
 assign resp_nrst = nrst;
 
 //------------------------------------------------------------------------------
-// Method process: run_ready_control (sct_target.h:244:5) 
+// Method process: run_ready_control (sct_target.h:249:5) 
 
 always_comb 
-begin : run_ready_control     // sct_target.h:244:5
+begin : run_ready_control     // sct_target.h:249:5
     logic A;
     A = run_get_req != run_get_req_d;
     run_core_ready = A || !run_reg_full;
 end
 
 //------------------------------------------------------------------------------
-// Method process: run_full_control (sct_target.h:249:5) 
+// Method process: run_full_control (sct_target.h:254:5) 
 
 always_comb 
-begin : run_full_control     // sct_target.h:249:5
+begin : run_full_control     // sct_target.h:254:5
     logic A;
     A = run_get_req != run_get_req_d;
     if (A)
@@ -417,7 +417,7 @@ begin : run_full_control     // sct_target.h:249:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: run_core_thread (sct_target.h:261:5) 
+// Clocked THREAD: run_core_thread (sct_target.h:266:5) 
 
 // Thread-local variables
 logic run_get_req_d_next;
@@ -426,7 +426,7 @@ logic run_reg_full_d_next;
 logic [15:0] run_core_data_d_next;
 
 // Next-state combinational logic
-always_comb begin : run_core_thread_comb     // sct_target.h:261:5
+always_comb begin : run_core_thread_comb     // sct_target.h:266:5
     run_core_thread_func;
 end
 function void run_core_thread_func;
@@ -461,18 +461,18 @@ begin : run_core_thread_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: run_put_to_fifo (sct_target.h:230:5) 
+// Method process: run_put_to_fifo (sct_target.h:235:5) 
 // Empty process, no code generated 
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: resp_sync_thread (sct_initiator.h:207:5) 
+// Clocked THREAD: resp_sync_thread (sct_initiator.h:212:5) 
 // Empty process, no code generated 
 
 //------------------------------------------------------------------------------
-// Method process: resp_req_control (sct_initiator.h:228:5) 
+// Method process: resp_req_control (sct_initiator.h:233:5) 
 
 always_comb 
-begin : resp_req_control     // sct_initiator.h:228:5
+begin : resp_req_control     // sct_initiator.h:233:5
     logic A;
     A = resp_put_req != resp_put_req_d;
     if (A)
@@ -489,7 +489,7 @@ begin : resp_req_control     // sct_initiator.h:228:5
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: resp_core_thread (sct_initiator.h:244:5) 
+// Clocked THREAD: resp_core_thread (sct_initiator.h:249:5) 
 
 // Thread-local variables
 logic resp_put_req_d_next;
@@ -497,7 +497,7 @@ logic resp_core_req_d_next;
 logic resp_core_ready_d_next;
 
 // Next-state combinational logic
-always_comb begin : resp_core_thread_comb     // sct_initiator.h:244:5
+always_comb begin : resp_core_thread_comb     // sct_initiator.h:249:5
     resp_core_thread_func;
 end
 function void resp_core_thread_func;
@@ -634,7 +634,7 @@ function void compThrd_func;
             // Call b_put() begin
             if (!resp_core_ready)
             begin
-                compThrd_PROC_STATE_next = 3; return;    // sct_initiator.h:167:37;
+                compThrd_PROC_STATE_next = 3; return;    // sct_initiator.h:172:37;
             end
             resp_put_req_next = !resp_put_req;
             resp_core_data_next = c;
@@ -646,7 +646,7 @@ function void compThrd_func;
             // Call b_put() begin
             if (!resp_core_ready)
             begin
-                compThrd_PROC_STATE_next = 3; return;    // sct_initiator.h:167:37;
+                compThrd_PROC_STATE_next = 3; return;    // sct_initiator.h:172:37;
             end
             resp_put_req_next = !resp_put_req;
             resp_core_data_next = c;

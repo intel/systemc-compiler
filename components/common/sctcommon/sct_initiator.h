@@ -60,6 +60,11 @@ class sct_initiator<T, TRAITS, 0> :
         
         SCT_CTHREAD(core_thread, clk, TRAITS::CLOCK);
         async_reset_signal_is(nrst, TRAITS::RESET);
+
+    #ifdef DEBUG_SYSTEMC
+        SC_METHOD(debugProc);
+        debug_handle = new sc_process_handle(sc_get_current_process_handle());
+    #endif
     }
     
     /// Return true if it is ready to put request
@@ -275,6 +280,17 @@ class sct_initiator<T, TRAITS, 0> :
                  << " bound to always ready target cannot have sync option" << endl;
             assert (false);
         }
+
+    #ifdef DEBUG_SYSTEMC
+        if (sync) {
+            this->sensitive << *debug_handle << sync_req << sync_req_d
+                            << core_ready << sync_data;
+        } else {
+            this->sensitive << *debug_handle << put_req << put_req_d
+                            << core_ready << core_data;
+        }
+        debug_handle = nullptr;
+    #endif
     }
 
   public:
@@ -382,6 +398,30 @@ class sct_initiator<T, TRAITS, 0> :
             assert (false);
         }
         attached = true;
+    }
+    
+#ifdef DEBUG_SYSTEMC
+    sc_process_handle*  debug_handle = nullptr;
+
+    sc_signal<bool>     ready_push{"ready_push"};
+    sc_signal<bool>     debug_put{"put"};
+    sc_signal<T>        data_in{"data_in"};
+    
+    void debugProc() {
+        ready_push = ready();
+        debug_put  = sync ? (cthread ? sync_req != sync_req_d : sync_req) :
+                            (cthread ? put_req != put_req_d : put_req);
+        data_in    = sync ? sync_data.read() : core_data.read();
+    }
+#endif
+    
+    void trace(sc_trace_file* tf) const {
+    #ifdef DEBUG_SYSTEMC
+        std::string initName = name();
+        sc_trace(tf, ready_push, initName + "_ready");
+        sc_trace(tf, debug_put, initName + "_put");
+        sc_trace(tf, data_in, initName + "_data_in");
+    #endif
     }
 };
 
@@ -498,6 +538,10 @@ class sct_initiator<T, TRAITS, 1> :
         if (procKind != SC_CTHREAD_PROC_) {
             *s << *p;
         }
+    }
+    
+    void trace(sc_trace_file* tf) const {
+        // Do nothing, all traces stored in the target bound
     }
 };
 

@@ -54,16 +54,16 @@ class sct_prim_fifo :
         put_req_d = 0;
         get_req_d = 0;
         put_data  = T{};
-        element_num = 0;
+        element_num_d = 0;
         
         SC_METHOD(updateProc); 
         dont_initialize();
         sensitive << update_event;
         
-    #ifdef EXTR_SIM_DEBUG
+    #if defined(DEBUG_SYSTEMC) || defined(EXTR_SIM_DEBUG)
         SC_METHOD(debugProc); 
         sensitive << get_req << get_req_d << put_req << put_req_d 
-                  << put_data << get_data << get_data_next << element_num;
+                  << put_data << get_data << get_data_next << element_num_d;
     #endif
     }
         
@@ -101,7 +101,7 @@ class sct_prim_fifo :
 
     sc_signal<bool> put_req_d{"put_req_d"};     // used if get done in THREAD
     sc_signal<bool> get_req_d{"get_req_d"};     // used if get done in THREAD
-    sc_signal<unsigned> element_num{"element_num"};
+    sc_signal<unsigned> element_num_d{"element_num_d"};
     sc_signal<T>    get_data{"get_data"};       
     sc_signal<T>    get_data_next{"get_data_next"};       
 
@@ -185,13 +185,13 @@ class sct_prim_fifo :
             put_done = doPut || doGet;
         }
         
-        element_num = elemNum;
+        element_num_d = elemNum;
         get_data = buffer[getIndx];
         get_data_next = buffer[getIndx == fifoSize-1 ? 0 : getIndx+1];
         
         hasReset = has_reset;
         put_req_d = put_req;
-        get_req_d = get_req;
+        get_req_d = get_req;        
     }
     
     /// Internal ready/valid/data functions equivalent to RTL logic
@@ -202,31 +202,31 @@ class sct_prim_fifo :
 //             << " put_done " << put_done
 //             << " get_req == get_req_d " << (get_req == get_req_d)
 //             << " put_req == put_req_d " << (put_req == put_req_d)
-//             << " element_num " << element_num.read() << endl;
+//             << " element_num_d " << element_num_d.read() << endl;
         
         if (targ_init_sync && !cthread_put) {
             if (cthread_get && get_req != get_req_d) { return true; }
-            if (!put_done && element_num.read() != 0) { return false; }
+            if (!put_done && element_num_d.read() != 0) { return false; }
         }
         
-        return ((element_num.read() != fifoSize &&
+        return ((element_num_d.read() != fifoSize &&
                  (!cthread_put || 
                   (targ_init ? get_req != get_req_d : put_req == put_req_d) ||
-                  element_num.read() != fifoSize-1)) || 
+                  element_num_d.read() != fifoSize-1)) || 
                 (!sync_ready && get_req != get_req_d));
     }
 
     inline bool outValid() const {
-        return ((element_num.read() != 0 && 
+        return ((element_num_d.read() != 0 && 
                  (!cthread_get || get_req == get_req_d || 
-                  element_num.read() != 1)) || 
+                  element_num_d.read() != 1)) || 
                 (!sync_valid && put_req != put_req_d));
     }
     
     inline T getData() const {
         return ((cthread_get && get_req != get_req_d) ?
-                (element_num.read() > 1 ? get_data_next.read() : put_data.read()) :
-                (element_num.read() > 0 ? get_data.read() : put_data.read()));
+                (element_num_d.read() > 1 ? get_data_next.read() : put_data.read()) :
+                (element_num_d.read() > 0 ? get_data.read() : put_data.read()));
     }
     
     void end_of_elaboration() override {
@@ -327,9 +327,9 @@ class sct_prim_fifo :
     
     bool request() const override {
 //        cout << sc_time_stamp() << " " << sc_delta_count() << " request " << name()  
-//             << " elemNum " << element_num << endl;
+//             << " elemNum " << element_num_d << endl;
 //        cout << sc_time_stamp() << " " << sc_delta_count() << " request " << name()  
-//             << " " << outValid() << " element_num " << element_num
+//             << " " << outValid() << " element_num_d " << element_num_d
 //             << " put_req " << (put_req != put_req_d) << endl;
         return outValid();
     }
@@ -344,8 +344,8 @@ class sct_prim_fifo :
             // If @USE_ELEM_NUM every put notifies get process
             // If put() in thread and get makes FIFO empty, notifies get process
             // as this put() allows one more get
-            if (!sync_valid && (USE_ELEM_NUM || element_num == 0 ||
-                (cthread_put && get_req != get_req_d && element_num == 1)))
+            if (!sync_valid && (USE_ELEM_NUM || element_num_d == 0 ||
+                (cthread_put && get_req != get_req_d && element_num_d == 1)))
             {
                 get_event.notify(GET_TIME);
                 if (peek_event) peek_event->notify(PEEK_TIME);
@@ -376,8 +376,8 @@ class sct_prim_fifo :
             put_data = data;
             update_event.notify(clk_period);
             
-            if (!sync_valid && (USE_ELEM_NUM || element_num == 0 ||
-                (cthread_put && get_req != get_req_d && element_num == 1))) 
+            if (!sync_valid && (USE_ELEM_NUM || element_num_d == 0 ||
+                (cthread_put && get_req != get_req_d && element_num_d == 1))) 
             {
                 get_event.notify(GET_TIME);
                 if (peek_event) peek_event->notify(PEEK_TIME);
@@ -410,16 +410,16 @@ class sct_prim_fifo :
         if (outValid()) {
             get_req = cthread_get ? !get_req : !get_req_d;
             update_event.notify(clk_period);
-            //cout << "   get() " << name() << " element_num " << element_num << endl;
+            //cout << "   get() " << name() << " element_num_d " << element_num_d << endl;
             
             // If @USE_ELEM_NUM every get notifies put process
             // If get() in thread and put makes FIFO full, notifies put process
             // as this get() allows one more put
             // For Target/Initiator mode notify at almost full FIFO to allow put
             
-            if (!sync_ready && (USE_ELEM_NUM || element_num == fifoSize ||
-                (cthread_get && put_req != put_req_d && element_num == fifoSize-1) ||
-                (targ_init && cthread_put && element_num == fifoSize-1) ||
+            if (!sync_ready && (USE_ELEM_NUM || element_num_d == fifoSize ||
+                (cthread_get && put_req != put_req_d && element_num_d == fifoSize-1) ||
+                (targ_init && cthread_put && element_num_d == fifoSize-1) ||
                 (targ_init_sync && !cthread_put && cthread_get) ))
             {
                 put_event.notify(PUT_TIME);
@@ -452,8 +452,8 @@ class sct_prim_fifo :
             get_req = cthread_get ? !get_req : !get_req_d;
             update_event.notify(clk_period);
             
-            if (!sync_ready && (USE_ELEM_NUM || element_num == fifoSize ||
-                (cthread_get && put_req != put_req_d && element_num == fifoSize-1))) 
+            if (!sync_ready && (USE_ELEM_NUM || element_num_d == fifoSize ||
+                (cthread_get && put_req != put_req_d && element_num_d == fifoSize-1))) 
             {
                 put_event.notify(PUT_TIME);
                 #ifdef NOTIFY_DEBUG 
@@ -495,18 +495,18 @@ class sct_prim_fifo :
         }
         
         if (sct_is_method_proc()) {
-            return element_num.read();
+            return element_num_d.read();
         } else {
             bool doPut = put_req != put_req_d;
             bool doGet = get_req != get_req_d;
             
             if (doGet && !doPut) {
-                return (element_num.read()-1);
+                return (element_num_d.read()-1);
             } else 
             if (!doGet && doPut) {
-                return (element_num.read()+1);
+                return (element_num_d.read()+1);
             } else {
-                return element_num.read();
+                return element_num_d.read();
             }
         }
     }
@@ -647,9 +647,9 @@ class sct_prim_fifo :
     inline void print(::std::ostream& os) const override
     {
         os << "sct_prim_fifo " << name();
-        if (element_num.read() != 0) {
+        if (element_num_d.read() != 0) {
             os << " (";
-            for (unsigned i = 0; i != element_num.read(); ++i) {
+            for (unsigned i = 0; i != element_num_d.read(); ++i) {
                 os << buffer[i] << " ";
             }
             os << ")";
@@ -665,15 +665,32 @@ class sct_prim_fifo :
     
   public:
       
-#ifdef EXTR_SIM_DEBUG
-    sc_signal<bool>     core_ready{"core_ready"};
-    sc_signal<bool>     core_req{"core_req"};
-    sc_signal<T>        core_data{"core_data"};
+#if defined(DEBUG_SYSTEMC) || defined(EXTR_SIM_DEBUG)
+    sc_signal<bool>    ready_push{"ready_push"};
+    sc_signal<bool>    out_valid{"out_valid"};
+    sc_signal<bool>    debug_put{"put"};
+    sc_signal<bool>    debug_get{"get"};
+    sc_signal<T>       data_out{"data_out"};
+    sc_signal<T>       data_in{"data_in"};
     
+    void trace(sc_trace_file* tf) const {
+        std::string fifoName = name();
+        sc_trace(tf, ready_push, fifoName + "_ready");
+        sc_trace(tf, debug_put, fifoName + "_put");
+        sc_trace(tf, data_in, fifoName + "_data_in");
+        sc_trace(tf, out_valid, fifoName + "_request");
+        sc_trace(tf, debug_get, fifoName + "_get");
+        sc_trace(tf, data_out, fifoName + "_data_out");
+        sc_trace(tf, element_num_d, fifoName + "_element_num_d");
+    }
+
     void debugProc() {
-        core_ready = putReady();
-        core_req   = outValid();
-        core_data  = getData();
+        ready_push  = putReady();
+        out_valid   = outValid();
+        debug_put   = put_req != put_req_d;
+        debug_get   = get_req != get_req_d;
+        data_out    = getData();
+        data_in     = put_data.read();
     }
 #endif
       
