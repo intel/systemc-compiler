@@ -29,19 +29,6 @@ set(BUILD_SHARED_LIBS ON)
 # Patched SystemC kernel with additional elaboration instrumentation
 add_subdirectory(systemc)
 
-# Include LLVM`s should be after SystemC build
-include_directories(${LLVM_INCLUDE_DIRS})
-link_directories(${LLVM_LIBRARY_DIRS})
-add_definitions(${LLVM_DEFINITIONS})
-
-# Support for using custom linker
-if( LLVM_USE_LINKER )
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=${LLVM_USE_LINKER}")
-    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -fuse-ld=${LLVM_USE_LINKER}")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=${LLVM_USE_LINKER}")
-    message("USING CUSTOM LINKER: ${CMAKE_EXE_LINKER_FLAGS}")
-endif()
-
 # SystemC Precompiled header to speed-up parsing in debug build
 SET(CLANG_CXX_EXECUTABLE ${LLVM_TOOLS_BINARY_DIR}/clang++)
 SET(CLANG_INT_INC_DIR ${LLVM_LIBRARY_DIR}/clang/${LLVM_PACKAGE_VERSION}/include)
@@ -62,6 +49,19 @@ add_custom_command(OUTPUT ${SYSTEMC_PCH}
         COMMENT "Generating SystemC precompiled header ${SYSTEMC_PCH}"
         )
 add_custom_target(systemcPCH DEPENDS ${SYSTEMC_PCH})
+
+# Include LLVM`s should be after SystemC build
+include_directories(${LLVM_INCLUDE_DIRS})
+link_directories(${LLVM_LIBRARY_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
+
+# Support for using custom linker
+if( LLVM_USE_LINKER )
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=${LLVM_USE_LINKER}")
+    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -fuse-ld=${LLVM_USE_LINKER}")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=${LLVM_USE_LINKER}")
+    message("USING CUSTOM LINKER: ${CMAKE_EXE_LINKER_FLAGS}")
+endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
