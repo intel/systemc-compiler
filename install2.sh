@@ -14,7 +14,7 @@
 
 
 # NOCHECKSERT=--no-check-certificate
-
+export LLVM_VER=12.0.1
 
 function usage() {
     echo "Usage: $0 <install prefix> [--debug|--release|--rel-debug] [proto] [llvm] [gdb] [icsc]"
@@ -60,8 +60,6 @@ function dump() {
 test -z "$1" && usage
 [[ "$1" =~ ^(proto|llvm|gdb|icsc)$ ]] && usage
 [[ "$1" =~ ^-- ]] && usage
-
-LLVM_VER=12.0.1
 
 CMAKE_INSTALL_PREFIX=$(realpath $1)
 CMAKE_PREFIX_PATH=$CMAKE_INSTALL_PREFIX

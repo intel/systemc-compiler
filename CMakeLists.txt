@@ -10,6 +10,10 @@ project(sctool)
 
 set(CMAKE_CXX_STANDARD 17)
 
+if(NOT DEFINED ENV{LLVM_VER})
+  message(FATAL_ERROR "ENV(LLVM_VER) is not defined!")
+endif()
+
 set(ICSC_LLVM_VER $ENV{LLVM_VER})
 find_package(LLVM ${ICSC_LLVM_VER} EXACT REQUIRED CONFIG)
 
