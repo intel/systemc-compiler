@@ -11,6 +11,11 @@ project(fsm)
 # All synthesizable source files must be listed here (not in libraries)
 add_executable(fsm example.cpp)
 
+# Test source directory
+target_include_directories(fsm PUBLIC 
+    $ENV{ICSC_HOME}/examples/fsm
+)
+
 # Add compilation options
 # target_compile_options(${PROJECT_NAME} PUBLIC -Wall)
 

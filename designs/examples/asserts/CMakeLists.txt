@@ -11,5 +11,13 @@
 add_executable(imm_assert imm_assert.cpp)
 add_executable(temp_assert temp_assert.cpp)
 
+# Test source directory
+target_include_directories(imm_assert PUBLIC 
+    $ENV{ICSC_HOME}/examples/asserts
+)
+target_include_directories(temp_assert PUBLIC 
+    $ENV{ICSC_HOME}/examples/asserts
+)
+
 svc_target(imm_assert ELAB_TOP tb_mod.assert_mod)
 svc_target(temp_assert ELAB_TOP tb_mod.assert_mod)

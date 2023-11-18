@@ -13,8 +13,6 @@
 #  CLANG_INT_INC_DIR - Location of Clang internal headers, required to run tool
 @PACKAGE_INIT@
 
-set(ICSC_LLVM_VER "@ICSC_LLVM_VER@")
-
 # Checking PThread are installed, required for SystemC 
 include(CMakeFindDependencyMacro)
 
@@ -36,16 +34,4 @@ set (SystemC_CXX_STANDARD @CMAKE_CXX_STANDARD@)
 set (SystemC_CXX_STANDARD_REQUIRED @CMAKE_CXX_STANDARD_REQUIRED@)
 
 # CLang internal headers, required as sc_tool located out of CLang folder
-set (CLANG_INT_INC_DIR "${PACKAGE_PREFIX_DIR}/lib/clang/${ICSC_LLVM_VER}/include")
-
-target_include_directories(SVC::systemc INTERFACE
-  ${PACKAGE_PREFIX_DIR}/include/sctcommon
-  # ${PACKAGE_PREFIX_DIR}/include/sctmemory
-  # ${PACKAGE_PREFIX_DIR}/include/sctmemory/utils
-)
-
-set_target_properties(SVC::SCTool PROPERTIES INTERFACE_SOURCES ${PACKAGE_PREFIX_DIR}/include/sctcommon/sct_property.cpp)
-
-# Add the protobuf library
-get_target_property(SCTool_LIBS SVC::SCTool INTERFACE_LINK_LIBRARIES)
-set_target_properties(SVC::SCTool PROPERTIES INTERFACE_LINK_LIBRARIES "${SCTool_LIBS};${PACKAGE_PREFIX_DIR}/lib/libprotobuf.so")
+set (CLANG_INT_INC_DIR "$ENV{ICSC_HOME}/lib/clang/$ENV{LLVM_VER}/include")

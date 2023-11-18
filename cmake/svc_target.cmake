@@ -80,8 +80,20 @@ function(svc_target exe_target)
     
 
     # Include directories and options for SC are described in SVCTargets.cmake
-    get_target_property(SYSTEMC_INCLUDES SVC::systemc INTERFACE_INCLUDE_DIRECTORIES)
     target_link_libraries(${exe_target} PRIVATE SVC::systemc)
+
+    # Simulation target (exe_target), used for tool tests only 
+    # Add ScTool include to provide access to sct_memory and sct_common
+    target_include_directories(${exe_target} PUBLIC 
+            $ENV{ICSC_HOME}/include
+            $ENV{ICSC_HOME}/include/sctcommon
+            $ENV{ICSC_HOME}/include/sctmemory
+            $ENV{ICSC_HOME}/include/sctmemory/utils
+    )
+
+    # __SC_TOOL__ not required for SC simulation target to have sct_assert 
+    # defined as assert that gives line in source code (not in inlined sct_assert)
+    #target_compile_definitions(${exe_target} PUBLIC __SC_TOOL__)
 
     # Unity file name
     set(SCTOOL_INPUT_CPP ${CMAKE_CURRENT_BINARY_DIR}/${exe_target}.sctool.cpp)
@@ -109,13 +121,6 @@ function(svc_target exe_target)
     # User defined includes
     if(targetIncludeDir)
         foreach(loop_var ${targetIncludeDir})
-            set(INCLUDE_DIRS ${INCLUDE_DIRS} -I${loop_var})
-        endforeach()
-    endif()
-
-    # SystemC includes
-    if(SYSTEMC_INCLUDES)
-        foreach(loop_var ${SYSTEMC_INCLUDES})
             set(INCLUDE_DIRS ${INCLUDE_DIRS} -I${loop_var})
         endforeach()
     endif()
@@ -193,6 +198,13 @@ function(svc_target exe_target)
     # targetLibraries optional testbench libraries given in target CMakeList.txt
     # and SystemC added above
     target_link_libraries(${exe_target_sctool} ${targetLibraries} SVC::SCTool)
+    # Add ScTool include to provide access to sct_memory and sct_common
+    target_include_directories(${exe_target_sctool} PUBLIC 
+            $ENV{ICSC_HOME}/include
+            $ENV{ICSC_HOME}/include/sctcommon
+            $ENV{ICSC_HOME}/include/sctmemory
+            $ENV{ICSC_HOME}/include/sctmemory/utils
+    )
                                 
     # Copy user includes
     if(targetIncludeDir)
@@ -227,7 +239,7 @@ function(svc_target exe_target)
     endif()
 
     # Add SCT_PROPERTY file 
-    get_target_property(SCTool_SOURCES SVC::SCTool INTERFACE_SOURCES)
-    target_sources(${exe_target} PRIVATE ${SCTool_SOURCES})
+    target_sources(${exe_target} PRIVATE 
+                   $ENV{ICSC_HOME}/include/sctcommon/sct_property.cpp)
 
 endfunction()

@@ -9,25 +9,16 @@
 #
 # *****************************************************************************
  
-# Toolchain
-set(CMAKE_C_COMPILER ${CMAKE_INSTALL_PREFIX}/bin/clang)
-set(CMAKE_CPP_COMPILER ${CMAKE_INSTALL_PREFIX}/bin/clang++)
-
 cmake_minimum_required(VERSION 3.12)
 project (icsc_designs)
 
 ## C++ standard 
 set(CMAKE_CXX_STANDARD 17)
 
-enable_testing() 
-
-#add_library(protobuf::libprotobuf SHARED IMPORT)
-#set_target_properties(SVC::SCTool PROPERTIES 
-#  INTERFACE_LINK_LIBRARIES "${Protobuf_LIBRARY}"
-#)
+enable_testing()
 
 ## SVC package contains ICSC and SystemC libraries
-find_package(SVC REQUIRED PATHS "${CMAKE_INSTALL_PREFIX}")
+find_package(SVC REQUIRED)
 
 ## Add examples, tests and user designs
 add_subdirectory(designs/examples)

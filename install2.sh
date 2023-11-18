@@ -15,6 +15,7 @@
 
 # NOCHECKSERT=--no-check-certificate
 export LLVM_VER=12.0.1
+export ICSC_HOME=$1
 
 function usage() {
     echo "Usage: $0 <install prefix> [--debug|--release|--rel-debug] [proto] [llvm] [gdb] [icsc]"
