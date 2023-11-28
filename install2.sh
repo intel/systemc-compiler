@@ -18,16 +18,16 @@ export LLVM_VER=12.0.1
 export ICSC_HOME=$1
 
 function usage() {
-    echo "Usage: $0 <install prefix> [--debug|--release|--rel-debug] [proto] [llvm] [gdb] [icsc]"
+    echo "Usage: $0 <install prefix> [--debug|--release|--rel-debug|--examples] [proto] [llvm] [gdb] [icsc]"
     echo ""
     echo "Optionally download, compile and install the components."
     echo "<install prefix> is the installation target folder"
     echo ""
-    echo "       * Protobuf"
-    echo "       * LLVM and Clang"
-    echo "       * SystemC simulation libraries"
-    echo "       * GDB with Python3"
-    echo "       * Verlog code generation tool and SystemC libraries"
+    echo "  proto = Protobuf"
+    echo "  llvm  = LLVM and Clang"
+    echo "  gdb   = GDB with Python3"
+    echo "  icsc  = SystemC simulation libraries"
+    echo "          + Verlog code generation tool and SystemC libraries"
     echo ""
     echo "Building icsc depends on having proto and llvm compiled in the .\build_deps\ folder."
     echo "Installing all in one command takes care of the build order."
@@ -50,16 +50,16 @@ function maybe_download() {
 
 function dump() {
     if [ "${build_type[$1]}" == "" ]; then (
-        printf "* %-7s Skip\n" $1
+        printf "* %-8s Skip\n" $1
     );
     else (
-        printf "* %-7s %-17s %s\n" $1 "${build_type[$1]}"  "${download[$1]}"
+        printf "* %-8s %-17s %s\n" $1 "${build_type[$1]}"  "${download[$1]}"
     );
     fi;
 }
 
 test -z "$1" && usage
-[[ "$1" =~ ^(proto|llvm|gdb|icsc)$ ]] && usage
+[[ "$1" =~ ^(proto|llvm|gdb|icsc|examples)$ ]] && usage
 [[ "$1" =~ ^-- ]] && usage
 
 CMAKE_INSTALL_PREFIX=$(realpath $1)
@@ -116,6 +116,10 @@ while [ "$1" != "" ]; do
         ;;
     "icsc")
         build_type['icsc']='Debug + Release'
+        build_type['examples']='Yes'
+        ;;
+    "examples")
+        build_type['examples']='Yes'
         ;;
     *)
         echo "'$1'"
@@ -130,6 +134,7 @@ dump "proto"
 dump "llvm"
 dump "gdb"
 dump "icsc"
+dump "examples"
 echo "*"
 echo "Press ENTER to continue...."
 read
@@ -189,16 +194,17 @@ if [ "${build_type['icsc']}" != "" ]; then (
 );
 fi;
 
-# # ################################################################################
-# # Build and run examples
-# echo "*** Building Examples ***"
-# cd $ICSC_HOME
-# (
-#     source setenv.sh
-#     mkdir build -p && cd build
-#     cmake ../                          # prepare Makefiles
-#     cd designs/examples                # run examples only
-#     ctest -j12                         # compile and run Verilog generation
-#                                        # use "-jN" key to run in "N" processes
-# )
-
+# ################################################################################
+# Build and run examples
+if [ "${build_type['examples']}" != "" ]; then (
+    cp $CWD_DIR/cmake/CMakeLists.top $ICSC_HOME/CMakeLists.txt
+    
+    cd $ICSC_HOME
+    source setenv.sh
+    mkdir build -p && cd build
+    cmake ../                          # prepare Makefiles
+    cd designs/examples                # run examples only
+    ctest -j12                         # compile and run Verilog generation
+                                       # use "-jN" key to run in "N" processes
+)
+fi;

@@ -5,12 +5,17 @@
 In some environments, the system admin may require the installed files to be separate from the source code.
 The added install2.sh script allows one to set the install prefix, as well as specifying per-package CMAKE_BUILD_TYPE.
 
+## Quick start
+
+./install2.sh /tmp/icsc llvm proto icsc
+
 ## Usage
 
-./install2.sh <install prefix> [--debug|--release|--rel-debug] [--download] [proto] [llvm] [gdb] [icsc]
+./install2.sh <install prefix> [--debug|--release|--rel-debug] [--download] [proto] [llvm] [gdb] [icsc] [examples]
 
 The debug/release switches can be placed before any of the packages (proto, llvm, gdb, icsc),
 and they can be mixed on one command line:
+
 
 ./install2.sh /tmp/icsc --release llvm --debug proto icsc
 
