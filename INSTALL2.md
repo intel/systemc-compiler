@@ -29,13 +29,5 @@ You can omit packages already compiled.
 
 ## Changelist
 
-* Scripts and files updated to use CMAKE_INSTALL_PREFIX set in the install script(s)
-* Examples updated to reduce dependency of $ENV{ICSC_HOME}
-* Use newer CMake protobuf interface
-* cmake/CMakeLists.top.in -- search for SVC using CMAKE_INSTALL_PREFIX path
-* cmake/SVCConfig.cmake.in
-  * set ICSC_LLVM_VER to the installed version, to help matching the correct LLVM runtime
-  * set properties on the SVC::systemc and SVC::SCTool targets ("modern" cmake interface)
-* cmake/svc_target.cmake
-  * "modern" cmake interface
-* design/**/CMakeLists.txt -- removed stuff not needed
+* Added a new install script, install2.sh, to install to a specific folder.
+
