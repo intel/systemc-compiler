@@ -185,6 +185,8 @@ protected:
     InsertionOrderSet<SValue>    readsva;
     /// Read at any path
     InsertionOrderSet<SValue>    read;
+    /// Accessed for read or write at any path and in any MIF array elements
+    InsertionOrderSet<SValue>    access;
     /// Any defined values including partially define arrays
     InsertionOrderSet<SValue>    arraydefined;
     /// Defined at all paths 
@@ -470,6 +472,9 @@ public:
     /// Get read values
     const InsertionOrderSet<SValue>& getReadValues() const;
     
+    /// Get accessed values
+    const InsertionOrderSet<SValue>& getAccessValues() const;
+    
     /// Get read in process SVA values
     const InsertionOrderSet<SValue>& getSvaReadValues() const;
 
@@ -601,6 +606,9 @@ public:
     bool isRecField(const SValue& val);
 
 public:    
+    /// Check is @val is field of local record
+    static bool isLocalRecField(const SValue& val);
+
     /// Get name prefix for local record
     static std::string getLocalRecName(const SValue& val);
     

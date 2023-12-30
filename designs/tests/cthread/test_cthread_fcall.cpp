@@ -15,7 +15,7 @@ void wait_function() {
 // Function call general cases
 class top : sc_module {
 public:
-    sc_clock clk{"clk", 10, SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool> arstn{"arstn", 1};
     sc_signal<int> out{"out"};
     sc_signal<int> in{"in"};
@@ -23,96 +23,73 @@ public:
     SC_HAS_PROCESS(top);
     top(sc_module_name)
     {
-        SC_THREAD(test_thread0);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread0, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_thread_in_if1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_in_if1, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(test_thread_in_if2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_in_if2, clk.pos());
         async_reset_signal_is(arstn, false);
          
-        SC_THREAD(test_thread_in_for1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_in_for1, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(test_thread_in_for2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_in_for2, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_thread_in_if3);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_in_if3, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(test_thread_multiple1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_multiple1, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_thread_multiple2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_multiple2, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_thread_multiple3);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_multiple3, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_thread_params1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_params1, clk.pos());
         async_reset_signal_is(arstn, false);
           
-        SC_THREAD(test_thread_params2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_params2, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(test_thread_params3);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_params3, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_thread_params4);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_params4, clk.pos());
         async_reset_signal_is(arstn, false);
          
-        SC_THREAD(test_thread_params5);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_params5, clk.pos());
         async_reset_signal_is(arstn, false);
          
-        SC_THREAD(test_thread_multiple_wait1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_multiple_wait1, clk.pos());
         async_reset_signal_is(arstn, false);
          
-        SC_THREAD(test_thread_multiple_wait2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_multiple_wait2, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(test_thread_inside_call1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_inside_call1, clk.pos());
         async_reset_signal_is(arstn, false); 
         
-        SC_THREAD(test_thread_inside_call2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_inside_call2, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_thread_in_while1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_in_while1, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_thread_with_break1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_with_break1, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_thread_with_break2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_with_break2, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(test_thread_with_break3);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_with_break3, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(test_thread_reg_arg);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread_reg_arg, clk.pos());
         async_reset_signal_is(arstn, false);
         
     }
@@ -635,7 +612,9 @@ public:
 
 int sc_main(int argc, char *argv[])
 {
+    sc_clock clk{"clk", 10, SC_NS};
     top top_inst{"top_inst"};
+    top_inst.clk(clk);
     sc_start(100, SC_NS);
     return 0;
 }

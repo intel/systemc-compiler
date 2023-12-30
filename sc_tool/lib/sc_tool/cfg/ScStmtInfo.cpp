@@ -102,7 +102,7 @@ void ScStmtInfo::analyzeStmt(clang::Stmt* stmt, unsigned level,
         //cout << "----- Stmt #" << hex << stmt << dec << " level " << level << endl;
         //stmt->dumpColor();
         
-        if (returnStmt) {
+        if (returnStmt && !isa<NullStmt>(stmt)) {
             ScDiag::reportScDiag(returnStmt->getBeginLoc(), 
                                  ScDiag::SYNTH_CODE_AFTER_RETURN);
         }

@@ -344,7 +344,7 @@ public:
                     }
                     return val;
             default : return (val + 2);
-        }
+        };      // ";" considered as NullStmt and ignored -- no error reported
     }
     
     // Some dead cases not eliminates as @liveTerms is not context sensitive

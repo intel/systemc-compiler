@@ -498,7 +498,7 @@ public:
         }
     }
 
-    void trace(sc_trace_file* tf) const {
+    void trace(sc_trace_file* tf) const override {
     #ifdef DEBUG_SYSTEMC
         std::string fifoName = name();
         sc_trace(tf, ready_push, fifoName + "_ready");
@@ -511,10 +511,29 @@ public:
     #endif
     }
     
+    inline void print(::std::ostream& os) const override
+    {
+        os << "sct_fifo " << name();
+        
+        if (element_num_d.read() != 0) {
+            os << " ( ";
+            unsigned popIndx = pop_indx.read();
+            for (unsigned i = 0; i != element_num_d.read(); ++i) {
+                os << buffer[popIndx] << " ";
+                popIndx = (popIndx == LENGTH-1) ? 0 : popIndx+1;
+            }
+            os << ")";
+        } else {
+            os << " is empty";
+        }
+        os << ::std::endl;
+    }
+    
     sct_fifo_put<T, LENGTH, TRAITS, false> PUT{this};
     sct_fifo_get<T, LENGTH, TRAITS, false> GET{this};
     sct_fifo_peek<T, LENGTH, TRAITS, false> PEEK{this};
 };
+
 
 //==============================================================================
 
@@ -682,10 +701,14 @@ class sct_fifo<T, LENGTH, TRAITS, 1> :
         fifo.addPeekTo(s);
     }
 
-    void trace(sc_trace_file* tf) const {
+    void trace(sc_trace_file* tf) const override {
     #ifdef DEBUG_SYSTEMC
         fifo.trace(tf);
     #endif
+    }
+    
+    inline void print(::std::ostream& os) const override {
+        fifo.print(os);
     }
     
     sct_fifo_put<T, LENGTH, TRAITS, true> PUT{this};
@@ -733,6 +756,14 @@ operator << ( sc_sensitive& s,
 {
     get.fifo->addPeekTo(s);
     return s;
+}
+
+template<class T, unsigned LENGTH, class TRAITS, bool TLM_MODE>
+inline ::std::ostream& operator << (::std::ostream& os, 
+                    const sct::sct_fifo<T, LENGTH, TRAITS, TLM_MODE>& fifo) 
+{
+    fifo.print(os);
+    return os;
 }
 
 } // namespace sc_core

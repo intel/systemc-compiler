@@ -107,7 +107,7 @@ add_executable(record_array_var_indices_method test_array_var_indices_method.cpp
 svc_target(record_array_var_indices_method GOLDEN record_array_var_indices_method.sv)
 
 add_executable(record_array_decl_in_scope test_array_decl_in_scope.cpp)
-svc_target(record_array_decl_in_scope GOLDEN record_array_decl_in_scope.sv)
+svc_target(record_array_decl_in_scope ELAB_TOP b_mod.a_mod GOLDEN record_array_decl_in_scope.sv)
 
 add_executable(record_assign_concat_method test_assign_concat_method.cpp)
 svc_target(record_assign_concat_method GOLDEN record_assign_concat_method.sv)

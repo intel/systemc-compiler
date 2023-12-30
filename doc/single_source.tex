@@ -492,6 +492,58 @@ The first diagram below represents Target and Initiators accessed in thread proc
 \label{fig:ss_usage}
 \end{figure}
 
+
+\ifdefined\INTEL
+\subsection{Multi-initiator connections}
+
+Multi-initiator connects multiple targets. Multi-initiator provides combinational and combinational with register connections only. Number of connected targets is specified with second template parameter.
+
+\begin{lstlisting}[style=mycpp]
+template<
+    class T, 
+    unsigned N,       			// Number of connected targets
+    ...>
+class sct_multi_initiator {};
+\end{lstlisting}
+
+Multi-cast put request allows to choose specific targets with mask parameter, each bit in mask correspondent to a target connected.
+
+\begin{lstlisting}[style=mycpp]
+bool put(const T& data, 
+         sc_uint<N> mask       // Mask parameter to specify Targets for multi-cast request
+        );         
+\end{lstlisting}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.5\textwidth]{pics/ss_multi_init.jpg}
+\caption{Multi-initiator}
+\label{fig:ss_multi_init}
+\end{figure}
+
+
+\subsection{Multi-target connections}
+Multi-target connects multiple initiators. Multi-target provides combinational and combinational with register connections only. Number of connected initiatorsis specified with second template parameter.
+
+\begin{lstlisting}[style=mycpp]
+template<
+    class T, 
+    unsigned N,               // Number of connected initiators
+    ...>
+class sct_multi_target {};
+\end{lstlisting}
+
+Only one request from one of the connected initiators is allowed. If there is more than one request, error is reported in RTL mode. In TLM mode only one request in DC is supported, any extra requests are missed that leads to incorrect simulation results.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.5\textwidth]{pics/ss_multi_targ.jpg}
+\caption{Multi-target}
+\label{fig:ss_multi_targ}
+\end{figure}
+
+\fi
+
 \subsection{Signal and ports}\label{section:sct_signal}
 Signal can be used for inter-process communication between processes in the same module. For communication between processes in different modules input/output ports are used together with signal.
 
@@ -833,6 +885,7 @@ SC_MODULE(A) {
 Clock gate cells can be sequentially connected to each other, gated clock output of one cell bound to clock input of anther cell.
 
 In TLM mode is all thread processes are created with {\tt SC\_THREAD}/{\tt SCT\_THREAD} macros, clock source(s) can be disabled. Disabling {\tt sct\_clock} allows to speed simulation:
+
 \begin{lstlisting}[style=mycpp]
 sct_clock<>     clk{"clk", 1, SC_NS};
 explicit A(const sc_module_name& name) : sc_module(name) {
@@ -841,6 +894,129 @@ explicit A(const sc_module_name& name) : sc_module(name) {
     }
 }
 \end{lstlisting}
+
+
+\ifdefined\INTEL
+\subsection{Flip-Flop Synchronizer}
+Synchronizer represent 1 or 2 Flip-Flops synchronizer with 1 bit data (type {\tt bool}). Synchronizer can be used in thread and method processes. It implements {\tt sct\_inout\_if} and has {\tt reset()} function to be called in thread process reset section only.
+
+\begin{lstlisting}[style=mycpp]   
+template <unsigned SyncType,        // Number of FF: 1 or 2
+          bool RstVal,              // Reset value
+          class TRAITS>
+class sct_ff_synchronizer {};
+\end{lstlisting}
+
+Synchronizer should be bound to clock and reset, and added into sensitivity list of the process which does read.
+
+\begin{lstlisting}[style=mycpp]
+sct_target<T>           targ{"targ"};
+sct_ff_synchronizer<2>  sync{"sync"};
+sct_out<bool>           out{"out"};
+
+explicit A(const sc_module_name& name) : sc_module(name) {
+   sync.clk_nrst(clk, nrst);
+   SC_METHOD(writeProc); sensitive << targ;
+   SC_METHOD(readProc); sensitive << sync;
+}
+void writeProc() {
+    sync = 0;
+    if (targ.request()) {
+        sync = targ.get();
+    }
+}
+void readProc() {
+    out = sync.read();
+}
+\end{lstlisting}
+
+\subsection{External ports}
+
+External ports used to connect an IP to other IPS and SoC fabric. Examples of external ports are: AMBA AXI, AHB, and APB ports, OCP, IOSF. There are master and subordinate ports designated with {\tt \_m\_} and {\tt \_s\_} letter correspondently.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.8\textwidth]{pics/ss_extr_port.jpg}
+\caption{Clock and clock gate}
+\label{fig:ss_extr_port}
+\end{figure}
+
+Any external port inherits the base port.
+
+\begin{lstlisting}[style=mycpp]
+// Subordinate base port
+template <class TRAITS,                      // Base port traits
+          class ADDR_TRANSL,                 // Address translation module 
+          bool TLM_MODE_ = SCT_CMN_TLM_MODE>  
+class base_s_port {};
+\end{lstlisting}
+
+\begin{lstlisting}[style=mycpp]
+// AXI-lite subordinate port
+template <class TRAITS,                     // AXI-lite specific traits
+          class ADDR_TRANSL>
+class axi4_lite_s_port<TRAITS, ADDR_TRANSL, ...> :
+    public base_s_port<TRAITS, ADDR_TRANSL, ...> {};
+\end{lstlisting}
+
+Each specific port has its own set of traits.
+
+\begin{lstlisting}[style=mycpp]
+// AXI-lite specific traits
+template <
+    unsigned PORT_TYPE_,                   // AXI port type (see EPortType::PT_AXI*)
+    unsigned DATA_WIDTH_,                  // data width, bits
+    unsigned PORT_ADDR_WIDTH_,             // AXI address width, bits
+    unsigned PORT_TAG_WIDTH_,              // AXI ID width, bits
+    unsigned CORE_ADDR_WIDTH_ = 0,         // core word-line address width, 0 - auto-calculate
+    unsigned ATOMIC_MODE_     = 0,         // atomic mode, see EAtomicMode
+    bool     USE_BYTEEN_      = 1,         // use byte enables (optional for AXI4-Lite)
+    bool     USE_ERR_RESP_    = 0,         // use error responses (rresp/bresp)
+    bool     USE_ERR_INT_     = 1,         // use error interrupt outputs
+    bool     USE_CLK_GATING_  = 1,         // use clock gating support
+    unsigned REQ_RSP_CNTR_W_  = 6          // request/response counter width
+>
+struct axi_s_port_traits {};
+\end{lstlisting}
+
+Base port and its inheritors have inputs/outputs pins (in RTL mode) for external connect and Target/Initiator for request and response to be processes in the IP design. Request and response format is given below.
+
+\begin{lstlisting}[style=mycpp]
+template <...>
+class base_s_port {
+    // Request: (tag, byte enable, write data, address, operation 1 - write / 0 - read)
+    typedef CoreReq <TR::CORE_ADDR_WIDTH, TR::DATA_WIDTH, 
+                     TR::CORE_BE_WIDTH, TR::CORE_TAG_WIDTH> CoreReq_t;
+    using ReqBits_t = typename CoreReq_t::Bits_t;    // sc_(big)uint with request width
+
+    // Response: (tag, read data, error, operation 1 - write / 0 - read)
+    typedef CoreRsp <TR::DATA_WIDTH, TR::CORE_TAG_WIDTH> CoreRsp_t;
+    using RspBits_t = typename CoreRsp_t::Bits_t;    // sc_(big)uint with response width
+
+    sct_initiator<ReqBits_t>    core_init{"core_init"};
+    sct_target<RspBits_t>       core_targ{"core_targ"};
+    ...
+}
+\end{lstlisting}
+
+An external port is usually instantiated at top module. There is an example of AXI-lite subordinate port instantiation.
+
+\begin{lstlisting}[style=mycpp]
+class Top : sc_module {
+   using AXIL_TRAITS = axi_s_port_traits<PT_AXI4LT, 32, 20, 4, 16>;
+   using AxilPort_t = axi4_lite_s_port<AXIL_TRAITS>;
+   AxilPort_t port{"port"};
+
+   explicit Top(const sc_module_name& name) : sc_module(name) {
+        port.clk_nrst(clk, nrst);
+        // Bind port Target/Initiator to this Top module or its child module
+        port.core_init.bind(...);  
+        port.core_targ.bind(...);
+   }
+};
+\end{lstlisting}
+\fi
+
 
 \subsection{Reset}
 
@@ -1067,47 +1243,56 @@ class MyModule : public sc_module {
 
 \subsection{Hierarchical connection of Target and Initiator}
 
-Target and Initiator can be connected through module hierarchy from child module up to parent module. To do that {\tt sc\_port} of Initiator/Target in parent module should be used. Ports ({\tt sc\_port}) of Target/Initiator contain pointer to them. To bind Initiator to Target through ports it needs to use {\tt get\_instance()} method which provides Target/Initiator from its port.
+Target and Initiator can be connected through module hierarchy from child module up to parent module. That is possible explicitly or with {\tt sc\_port} of  Initiator/Target. 
 
-\begin{figure}[!htb]
-\centering
-\includegraphics[width=0.4\textwidth]{pics/ss_parent_mod.jpg}
-\caption{Target and initiator ports}
-\label{fig:ss_parent_mod}
-\end{figure}
+There is an example of explicit binding Target to Initiator through module hierarchy:
 
 \begin{lstlisting}[style=mycpp]
 template<class T>
 struct Child : public sc_module {
     sct_target<T>       run{"run"};
-    sct_initiator<T>    resp{"resp"};
 };
 
 template<class T>
 struct Parent: public sc_module  {
-   // Target/initiator ports
-    sc_port<sct_target<T>>       run;   
-    sc_port<sct_initiator<T>>    resp;   
-
-    Child<T>                     child{"child"};
-  
-    explicit Parent(const sc_module_name& name) : sc_module(name) {
-        // Bind ports to child module target/initiator
-        run(child.run);      
-        resp(child.resp);
-    }
+    Child<T>           child{"child"};
+    SC_CTOR(Parent) {}
 };
 
-struct Top: public sc_module  {
-    Parent<T>                    parent{"parent"};
-  
-    explicit Parent(const sc_module_name& name) : sc_module(name) {
-        // Bind child target/initiator to eahc other through parent ports
-        // get_instance() provides Initiator from its sc_port   
-        parent.run->bind(parent.resp->get_instance());   
-    }
-};
+SC_MODULE(Top)  {
+    sct_initiator<T>    resp{"resp"};
+    Parent<T>           parent{"parent"};
+    SC_CTOR(Top) {
+        parent.child.run.bind(resp);
+}};
 \end{lstlisting}
+
+
+Ports ({\tt sc\_port}) of Target/Initiator contain pointer to them. To bind Initiator to Target through ports it needs to use {\tt get\_instance()} method which provides Target/Initiator from its port.
+
+\begin{lstlisting}[style=mycpp]
+template<class T>
+struct Child : public sc_module {
+    sct_target<T>       run{"run"};
+};
+
+template<class T>
+struct Parent: public sc_module  {
+    sc_port<sct_target<T>>       run;   
+    Child<T>                     child{"child"}; 
+    SC_CTOR(Parent) {
+        run(child.run);   // Bind port to child module initiator
+}};
+
+SC_MODULE(Top)  {
+    sct_initiator<T>    resp{"resp"};
+    Parent<T>           parent{"parent"};
+    SC_CTOR(Top) {
+        // get_instance() provides Initiator from its sc_port  
+        resp.bind(parent.run->get_instance());   
+}};
+\end{lstlisting}
+%
 Process which calls Target/Initiator functions should be in the module where Target/Initiator declared. If a process calls Target/Initiator through its port ({\tt sc\_port<sct\_target>/sc\_port<sct\_initiator>}) the process module and target initiator module should be synthesized in the same parent module.
 
 \subsection{Cycle accurate and SingleSource code mix}
@@ -1150,7 +1335,7 @@ SCT_CTHREAD(proc, clk, clk_edge);   // clk_edge 0 -- negedge, 1 -- posedge, 2 --
 SCT_CTHREAD(proc, clk);             // clk_edge is SCT_CMN_TRAITS::CLOCK
 \end{lstlisting}
 
-\subsection{Record as data type in SingleSource channels}
+\subsection{Record type in SingleSource channels}
 
 Record is supported as data type in all SingleSource channels. The record should comply SystemC requirements for records used in signal/port: the record should have default constructor w/o parameters, {\tt operator==()}, {\tt operator<<(std::ostream)} and {\tt sc\_trace()} implemented.
 

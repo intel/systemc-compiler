@@ -38,6 +38,8 @@ public:
             vecsig2d[i].init(2);
         }
         
+        SC_METHOD(sc_big_binary); sensitive << s;
+        
         SC_METHOD(sc_shift_type_extension_array_binary); 
         sensitive << s << vecsig2d[0][0] << arrsig2d[0][0] << vecsig[0]
                   << *arrsigp[0] << arrsig[0];
@@ -63,6 +65,8 @@ public:
         SC_METHOD(div_type_extension); sensitive << s;
         SC_METHOD(compound_type_extension); sensitive << s;
     }
+    
+    #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
     
     static const unsigned STORED_RESP_WIDTH = 66;
     static const unsigned ACTIVE_TRANS_NUM = 1;
@@ -187,6 +191,44 @@ public:
     
     // With binary operations
     sc_signal<int> t2;
+    void sc_big_binary() 
+    {
+        sc_uint<6> k, m;
+        k = 41; m = 42;
+        const sc_uint<8> res1 = k - m;
+        cout << "res1 " << hex << res1 << dec << " k " << k << " m " << m << endl;
+        CHECK(res1 == 0xFF);
+
+        // That is incorrect usage of overflow result as soon as at is 
+        // converted to uint64 in SC, but obviously do not in SV 
+        const sc_uint<8> res5 = (k - m) % 11;
+        cout << "res5 " << hex << res5 << dec << " k " << k << " m " << m << endl;
+        CHECK(res5 == 4);
+        
+        // Cast to correct width gives equivalent SC and SV simulation 
+        const sc_uint<8> res2 = sc_uint<8>(k - m) % 11;
+        cout << "res2 " << hex << res2 << dec << " k " << k << " m " << m << endl;
+        CHECK(res2 == 2);
+        t2 = res1.to_int() + res2.to_int();
+
+        sc_biguint<66> z, y;
+        z = 41; y = 42;
+        const sc_biguint<66> res3 = z - y;
+        cout << "res3 " << hex << res3 << dec << " z " << z << " y " << y << endl;
+        CHECK(res3 == (sc_biguint<66>(0x3)<<64) | 0xFFFFFFFFFFFFFFFFUL);
+
+        // The same problem as for @sc_uint
+//        const sc_biguint<72> res4 = (z - y) % 11;
+//        cout << "res4 " << hex << res4 << dec << " z " << z << " y " << y << endl;
+//        CHECK(res4 == 8);
+        
+        // Cast to correct width gives equivalent SC and SV simulation 
+        const sc_biguint<66> res4 = sc_biguint<66>(z - y) % 11;
+        cout << "res4 " << hex << res4 << dec << " z " << z << " y " << y << endl;
+        CHECK(res4 == 8);
+        t2 = res3.to_int() + res4.to_int();
+    }
+
     void sc_shift_type_extension_big_binary() 
     {
         const unsigned long long M = 1ULL << 50;
@@ -196,17 +238,17 @@ public:
         x = (z - y) % 11;
         x = ((sc_biguint<131>)(y*z)) >> 8;
         x = ((sc_biguint<133>)(y*z)) >> 8;
-
+        
         x = (y*1000000000000ULL) >> 8;
         x = (y*M) >> 8;
         x = (y - 1000000000000ULL) >> 8;
         x = ((M << 20) + y) >> 8;
-
+                
         x = ((y << 20)) >> 8;
         //x = ((y << x)) >> 8;  -- error as @width is more than 64
         x = (sc_uint<42>(y << 20)) >> 8;
         x = (sc_uint<42>(y << x)) >> 8;
-        
+
         x = ((z + y) * 2) >> 8; 
         t2 = x.to_int();
     }

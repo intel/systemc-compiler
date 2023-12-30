@@ -402,7 +402,7 @@ public:
 
 class B_top : public sc_module {
 public:
-    sc_clock clk{"clk", 1, SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool>      s1;
     sc_signal<bool>      s2;
 
@@ -416,7 +416,9 @@ public:
 };
 
 int sc_main(int argc, char *argv[]) {
+    sc_clock clk{"clk", 1, SC_NS};
     B_top b_mod{"b_mod"};
+    b_mod.clk(clk);
     sc_start();
     return 0;
 }

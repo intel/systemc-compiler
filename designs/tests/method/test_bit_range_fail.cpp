@@ -20,23 +20,25 @@ public:
     sc_biguint<8> uy;
 
     SC_CTOR(A) {
-        SC_METHOD(bit_range_sel); 
-        sensitive << dummy;
+        //SC_METHOD(bit_range_sel); 
+        //sensitive << dummy;
 
         SC_METHOD(bit_range_sel2); 
         sensitive << dummy;
     }
 
     // RValue  used in left part of assignment, that is incorrect
-    void bit_range_sel() {
+    // Not compiled with SC 3.0
+    /*void bit_range_sel() {
         (y+y) = 0;
         (y+y)[3] = 0;
         (y+y)(5,3) = 0;
         (uy+uy)[3] = 0;
         (uy+uy)(5,3) = 0;
-    }
+    }*/
     
-    // RValue used for range/nit that is incorrect
+    // RValue used for range/bit that is incorrect
+    sc_signal<int> t0;
     void bit_range_sel2() {
         sc_uint<8> a;
         sc_uint<8> b, c;
@@ -60,6 +62,7 @@ public:
         a = ((sc_uint<8>)42).range(3,0);
         a = ((sc_uint<8>)(-42)).range(3,0);
         a = ((sc_uint<8>)(-42-1)).range(3,0);
+        t0 = a;
     }
 };
 

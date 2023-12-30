@@ -54,7 +54,7 @@ public:
         sensitive << a << chans[0] << chans2d[0][0];
         
         // No reset process
-        SC_CTHREAD(operProc, clk.pos())
+        SC_CTHREAD(operProc, clk.pos());
         
         SC_CTHREAD(array_of_pointers2, clk.pos());
         async_reset_signal_is(arstn, false);

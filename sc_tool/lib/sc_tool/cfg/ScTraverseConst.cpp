@@ -89,7 +89,7 @@ void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt)
         // Register variables accessed in CTHREAD reset 
         if (!isCombProcess) {
             //cout << "---- getDefArrayValues " << endl;
-            for (const auto& val : state->getDefArrayValues()) {
+            for (const auto& val : state->getAccessValues()) {
                 if (val.isVariable() || val.isTmpVariable()) {
                     inResetAccessVars.insert(val);
                     //cout << "   " << val << endl;
@@ -97,11 +97,6 @@ void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt)
             }
             //cout << "---- getReadValues " << endl;
             for (const auto& val : state->getReadValues()) {
-                if (val.isVariable() || val.isTmpVariable()) {
-                    inResetAccessVars.insert(val);
-                    //cout << "   " << val << endl;
-                }
-                
                 // Report error for any channel read in reset 
                 QualType type = val.getType();
                 // @sc_vector can contain channels only
@@ -125,12 +120,7 @@ void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt)
     } else {
         // Register variables accessed after CTHREAD reset
         if (!isCombProcess) {
-            for (const auto& val : state->getDefArrayValues()) {
-                if (val.isVariable() || val.isTmpVariable()) {
-                    afterResetAccessVars.insert(val);
-                }
-            }
-            for (const auto& val : state->getReadValues()) {
+            for (const auto& val : state->getAccessValues()) {
                 if (val.isVariable() || val.isTmpVariable()) {
                     afterResetAccessVars.insert(val);
                 }
@@ -1035,7 +1025,7 @@ void ScTraverseConst::removeUnusedStmt()
 //            cout << "  " << hex << stmt << dec << " " << stmt->getBeginLoc().printToString(sm)<< endl;
 //            
 //        }
-
+            
         for (Stmt* stmt : removeStmts) {
             liveStmts.erase(stmt);
         }        

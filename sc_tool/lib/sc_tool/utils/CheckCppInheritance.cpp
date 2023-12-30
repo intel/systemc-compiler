@@ -139,10 +139,16 @@ llvm::Optional<QualType> getParentClass(const SValue& val)
     auto decl = val.getVariable().getDecl();
     if (decl && !decl->isInvalidDecl()) {
         auto declCtx = decl->getDeclContext();
-
+        // For local variables take the process function where it is declared
+        if (auto funcDecl = dyn_cast<CXXMethodDecl>(declCtx)) {
+            // Skip constructor and static functions
+            if (!isa<CXXConstructorDecl>(funcDecl) && !funcDecl->isStatic()) {
+                declCtx = funcDecl->getParent();
+            }
+        }
         if (auto recDecl = dyn_cast<RecordDecl>(declCtx)) {
             return QualType(recDecl->getTypeForDecl(), 0);
-        }
+        }    
     }
     
     return llvm::None;

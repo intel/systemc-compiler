@@ -11,7 +11,7 @@
 class top : sc_module
 {
 public:
-    sc_clock clk{"clk", 10, SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool> arstn{"arstn", 1};
     sc_signal<int> in{"in"};
     sc_signal<int> out{"out"};
@@ -23,48 +23,37 @@ public:
     SC_HAS_PROCESS(top);
     top(sc_module_name)
     {
-        SC_THREAD(while_with_wait0_sc_int);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(while_with_wait0_sc_int, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(while_with_wait0a_sc_uint);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(while_with_wait0a_sc_uint, clk.pos());
         async_reset_signal_is(arstn, false);
           
-        SC_THREAD(while_with_wait1_sc_bigint);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(while_with_wait1_sc_bigint, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(while_with_wait2_sc_biguint);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(while_with_wait2_sc_biguint, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(while_with_for_sc_int);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(while_with_for_sc_int, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(while_with_signal_cond_sc_uint);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(while_with_signal_cond_sc_uint, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(while_with_signal_cond_sc_uint2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(while_with_signal_cond_sc_uint2, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(while_with_binary_oper_sc_bigint);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(while_with_binary_oper_sc_bigint, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(while_with_binary_oper1_sc_biguint);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(while_with_binary_oper1_sc_biguint, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(while_with_binary_oper2_sc_int);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(while_with_binary_oper2_sc_int, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(while_with_binary_oper3_sc_uint);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(while_with_binary_oper3_sc_uint, clk.pos());
         async_reset_signal_is(arstn, false);
     }
 
@@ -284,7 +273,9 @@ public:
 
 int sc_main(int argc, char *argv[])
 {
+    sc_clock clk{"clk", 10, SC_NS};
     top top_inst{"top_inst"};
+    top_inst.clk(clk);
     sc_start(100, SC_NS);
     return 0;
 }

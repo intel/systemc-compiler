@@ -39,7 +39,7 @@ static sc_core::sc_module *curr_module()
     if (!simctx)
         return nullptr;
     simctx->get_module_registry();
-    return simctx->hierarchy_curr();
+    return static_cast<sc_core::sc_module*>(simctx->hierarchy_curr());
 }
 
 /// get dynamic allocations for given module

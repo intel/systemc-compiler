@@ -6,7 +6,7 @@
 %\newif\INTEL
  
 \title[Intel Compiler for SystemC User Guide]{Intel Compiler for SystemC \\ User Guide}
-\subtitle{version 1.5}
+\subtitle{version 1.6}
 
 \author{Mikhail Moiseev}
 \ifdefined\INTEL
@@ -42,7 +42,7 @@ This ICSC User Guide document intended to help user to install and run the tool,
 %
 There are two main documents referenced in this User Guide: 
 \begin{itemize}
-\item SystemC LRM -- IEEE Standard for Standard SystemC Language Reference Manual, IEEE Std 1666 2011,
+\item SystemC LRM -- IEEE Standard for Standard SystemC Language Reference Manual, IEEE Std 1666 2023,
 \item SystemC Synthesizable Subset -- SystemC Synthesizable Subset Version 1.4.7. 
 \end{itemize}
 
@@ -54,8 +54,8 @@ In this document the following terminology is used:
 \item Module - SystemC module, a C++ class or structure inherits {\tt sc\_module};
 \item Modular interface - SystemC module which inherits {\tt sc\_interface};
 \item Record - C++ class or structure which is not module nor modular interface;
-\item Signal - SystemC {\tt sc\_signal};
-\item Port - SystemC {\tt sc\_in} and {\tt sc\_out};
+\item Signal - SystemC {\tt sc\_signal} and SingleSource {\tt sct\_signal};
+\item Port - SystemC {\tt sc\_in} and {\tt sc\_out} and SingleSource {\tt sct\_in} and {\tt sct\_out};
 \item Channel - signal or port;
 \item Port interface - SystemC {\tt sc\_port<IF>};
 \item SC vector - SystemC {\tt sc\_vector<T>}, container with objects of type {\tt T}.

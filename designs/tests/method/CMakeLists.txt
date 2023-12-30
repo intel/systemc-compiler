@@ -86,9 +86,8 @@ svc_target(method_const_fail WILL_FAIL NO_REMOVE_EXTRA_CODE)
 add_executable(method_const_static_mem test_const_static_mem.cpp)
 svc_target(method_const_static_mem GOLDEN method_const_static_mem.sv NO_REMOVE_EXTRA_CODE)
 
-## Uncomment me after #223
-#add_executable(method_sc_int_const_array test_sc_int_const_array.cpp)
-#svc_target(method_sc_int_const_array)
+add_executable(method_sc_int_const_array test_sc_int_const_array.cpp)
+svc_target(method_sc_int_const_array GOLDEN method_sc_int_const_array.sv)
 
 # Function call
 add_executable(method_fcall test_fcall.cpp)

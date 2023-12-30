@@ -14,6 +14,7 @@
 #ifndef SCT_ZERO_WIDTH_H
 #define SCT_ZERO_WIDTH_H
 
+#include <systemc.h>
 #include "sysc/datatypes/int/sc_int.h"
 #include "sysc/datatypes/int/sc_uint.h"
 #include "sysc/datatypes/int/sc_signed.h"

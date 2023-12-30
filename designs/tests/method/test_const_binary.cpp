@@ -13,6 +13,10 @@
 
 using namespace sc_core;
 
+#define CFG_NUT_CPU_CORES_LD 1U
+#define CFG_NUT_CPU_CORES (1U << CFG_NUT_CPU_CORES_LD)
+#define CFG_MEMU_BANK_RAM_PORTS 2U
+
 // Constant evaluation in binary statements
 class A_mod : public sc_module {
 public:
@@ -28,6 +32,8 @@ public:
     
     A_mod(const sc_module_name& name) : sc_module(name) 
     {
+        SC_METHOD(def_binary); sensitive << s;
+
         SC_METHOD(ref_const); sensitive << s;
         
         SC_METHOD(shorten_const); sensitive << s;
@@ -43,6 +49,16 @@ public:
     
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
 
+    // #62 
+    void def_binary() {
+        uint8_t n_max = CFG_NUT_CPU_CORES / CFG_MEMU_BANK_RAM_PORTS;
+        uint8_t l2 = CFG_NUT_CPU_CORES - CFG_MEMU_BANK_RAM_PORTS;
+        l2 = CFG_NUT_CPU_CORES_LD / CFG_MEMU_BANK_RAM_PORTS;
+        unsigned u1 = CFG_NUT_CPU_CORES / CFG_MEMU_BANK_RAM_PORTS;
+        u1 = l2 + CFG_NUT_CPU_CORES * CFG_MEMU_BANK_RAM_PORTS;
+    }
+    
+    
     void big_shift() {
         sc_biguint<131> a = (sc_biguint<131>)1 << 130;
         sc_biguint<142> b = (a + 3) << 10;

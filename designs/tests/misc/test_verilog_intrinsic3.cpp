@@ -70,7 +70,7 @@ endmodule
 
 SC_MODULE(testbench) {
 
-    sc_clock        clock_gen{"clock_gen", 10, SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool> arstn{"arstn"};
 
     sc_signal<sc_uint<32>>  din{"din"};
@@ -87,12 +87,12 @@ SC_MODULE(testbench) {
 
     SC_CTOR(testbench) {
 
-        empty1.clk(clock_gen);
-        empty2.clk(clock_gen);
+        empty1.clk(clk);
+        empty2.clk(clk);
 
-        reg0.clk(clock_gen);
-        reg1.clk(clock_gen);
-        reg2.clk(clock_gen);
+        reg0.clk(clk);
+        reg1.clk(clk);
+        reg2.clk(clk);
 
         reg0.arstn(arstn);
         reg1.arstn(arstn);
@@ -105,8 +105,7 @@ SC_MODULE(testbench) {
         reg2.din(tmp1);
         reg2.dout(dout);
 
-        SC_THREAD(test_thread);
-        sensitive << clock_gen.posedge_event();
+        SC_CTHREAD(test_thread, clk.pos());
     }
 
 
@@ -118,7 +117,9 @@ SC_MODULE(testbench) {
 
 int sc_main(int argc, char **argv) {
 
+    sc_clock        clk{"clk", 10, SC_NS};
     testbench tb_inst{"tb_inst"};
+    tb_inst.clk(clk);
     sc_start();
 
     return 0;

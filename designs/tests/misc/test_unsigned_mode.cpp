@@ -26,16 +26,38 @@ public:
             m[i] = new sc_signal<sc_uint<4>>("m");
         }
                 
+        SC_METHOD(unary); sensitive << s;
         SC_METHOD(binary); sensitive << s;
         SC_METHOD(biguint); sensitive << s;
         SC_METHOD(c99types); sensitive << s;
         
         SC_METHOD(warnings); sensitive << s;
         SC_METHOD(others); sensitive << s << *m[0] << sb;
-        
     }
     
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
+    
+    void unary() 
+    {
+        unsigned u = 11;
+        sc_uint<16> x = 12;             
+        sc_biguint<20> bx = 13;   
+        unsigned long res;
+        sc_biguint<20> bres;
+        
+        bres = +bx;
+        bres = -bx;
+        cout << "-bx =" << hex << bres << dec << endl;
+        CHECK(bres == 0xffff3);
+                
+        bres = --bx;
+        bres = ++bx;
+        
+        
+        bres = ~bx;
+        cout << "~bx =" << hex << bres << dec << endl;
+        CHECK(bres == 0xffff2);
+    }
     
     void binary() 
     {
@@ -86,7 +108,7 @@ public:
         CHECK (bres == 10);
         
         bres = EA + u;
-        // Fix me #282
+        
         bres = u - sc_uint<12>(int(E2::EC));   
         bres = u - unsigned(E2::EC);   
     }

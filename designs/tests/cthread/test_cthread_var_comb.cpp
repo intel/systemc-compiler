@@ -11,7 +11,7 @@
 class top : sc_module
 {
 public:
-    sc_clock clk{"clk", 10, SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool> arstn{"arstn", 1};
     sc_signal<int> in{"in"};
     sc_signal<int> out{"out"};
@@ -42,60 +42,46 @@ public:
     {
         p = sc_new<sc_uint<9> >();
                 
-        SC_THREAD(comb_var_not_changed);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(comb_var_not_changed, clk.pos());
         async_reset_signal_is(arstn, false);
           
-        SC_THREAD(comb_var_not_changed1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(comb_var_not_changed1, clk.pos());
         async_reset_signal_is(arstn, false); 
 
-        SC_THREAD(comb_var_in_reset0);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(comb_var_in_reset0, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(comb_var_in_reset0a);         // #265
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(comb_var_in_reset0a, clk.pos());         // #265
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(comb_var_in_reset1);          // #265
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(comb_var_in_reset1, clk.pos());          // #265
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(comb_var_in_reset1a);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(comb_var_in_reset1a, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(comb_var_in_reset1b);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(comb_var_in_reset1b, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(comb_var_in_reset2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(comb_var_in_reset2, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(comb_var_in_reset2a);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(comb_var_in_reset2a, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(comb_var_in_reset3);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(comb_var_in_reset3, clk.pos());
         // No reset signal
         
-        SC_THREAD(comb_var_in_reset3a);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(comb_var_in_reset3a, clk.pos());
         // No reset signal
 
-        SC_THREAD(loc_comb_var_in_reset);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(loc_comb_var_in_reset, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(readonly_var_in_reset);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(readonly_var_in_reset, clk.pos());
         async_reset_signal_is(arstn, false);        
 
-        SC_THREAD(readonly_var_in_reset2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(readonly_var_in_reset2, clk.pos());
         async_reset_signal_is(arstn, false);       
     }
 
@@ -296,8 +282,9 @@ public:
 
 int sc_main(int argc, char *argv[])
 {
+    sc_clock clk{"clk", 10, SC_NS};
     top top_inst{"top_inst"};
-    
+    top_inst.clk(clk);
     sc_start(100, SC_NS);
     return 0;
 }

@@ -914,6 +914,17 @@ Mixing negative signed operand and {\tt unsigned/sc\_uint} operand can provide i
 
 There is rule for non-literals in unary operators, if argument of {\tt sc\_biguint} type in unary minus, the argument is casted to signed.
 
+\subsubsection{Unsigned operation overflow}
+
+Operations with SC unsigned type arguments ({\tt sc\_uint} and {\tt sc\_biguint}) can lead to overflow. Using such expressions as part of another expression can lead to non-equivalent simulation results. It is recommended to cast such expressions to desired width.
+%
+\begin{lstlisting}[style=mycpp]
+sc_uint<6> k, m;
+k = 41; m = 42;
+sc_uint<8> res2 = (k - m) % 11;              // Non-equivalent
+sc_uint<8> res2 = sc_uint<8>(k - m) % 11;    // OK
+\end{lstlisting}
+
 \subsubsection{Type cast in assignment}
 
 Explicit type cast can be used to narrow/widen the argument. It translated into SV type cast. Multiple type casts are also possible: internal one narrows value, external one extend type width, which may be required for concatenation. 

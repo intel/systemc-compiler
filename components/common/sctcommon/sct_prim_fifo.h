@@ -648,7 +648,7 @@ class sct_prim_fifo :
     {
         os << "sct_prim_fifo " << name();
         if (element_num_d.read() != 0) {
-            os << " (";
+            os << " ( ";
             for (unsigned i = 0; i != element_num_d.read(); ++i) {
                 os << buffer[i] << " ";
             }
@@ -673,7 +673,7 @@ class sct_prim_fifo :
     sc_signal<T>       data_out{"data_out"};
     sc_signal<T>       data_in{"data_in"};
     
-    void trace(sc_trace_file* tf) const {
+    void trace(sc_trace_file* tf) const override {
         std::string fifoName = name();
         sc_trace(tf, ready_push, fifoName + "_ready");
         sc_trace(tf, debug_put, fifoName + "_put");

@@ -35,7 +35,7 @@ void wait_wrapper() {
 
 SC_MODULE(test_mod) {
 
-    sc_clock clk{"clk", 10, SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool> rstn{"rstn"};
 
     wbase *wptr = sc_new<wderived>();
@@ -201,7 +201,9 @@ SC_MODULE(test_mod) {
 
 int sc_main(int argc, char **argv) {
 
+    sc_clock clk{"clk", 10, SC_NS};
     test_mod t{"t"};
+    t.clk(clk);
     sc_start(1,SC_NS);
 
     return 0;

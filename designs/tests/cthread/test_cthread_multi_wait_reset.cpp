@@ -12,7 +12,7 @@
 class top : sc_module
 {
 public:
-    sc_clock clk{"clk", 10, SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool> arstn{"arstn", 1};
     sc_signal<sc_uint<31>> a{"a"};
     sc_signal<sc_uint<31>> b{"b"};
@@ -97,7 +97,9 @@ public:
 
 int sc_main(int argc, char *argv[])
 {
+    sc_clock clk{"clk", 10, SC_NS};
     top top_inst{"top_inst"};
+    top_inst.clk(clk);
     sc_start(100, SC_NS);
     return 0;
 }

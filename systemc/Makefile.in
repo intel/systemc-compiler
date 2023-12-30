@@ -84,9 +84,10 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
 	$(top_srcdir)/docs/sysc/doxygen/Doxyfile.in \
 	$(top_srcdir)/docs/tlm/doxygen/Doxyfile.in config/ar-lib \
-	config/config.guess config/config.sub config/depcomp \
-	config/install-sh config/missing config/ltmain.sh \
-	$(top_srcdir)/config/ar-lib $(top_srcdir)/config/config.guess \
+	config/compile config/config.guess config/config.sub \
+	config/depcomp config/install-sh config/missing \
+	config/ltmain.sh $(top_srcdir)/config/ar-lib \
+	$(top_srcdir)/config/config.guess \
 	$(top_srcdir)/config/config.sub \
 	$(top_srcdir)/config/install-sh $(top_srcdir)/config/ltmain.sh \
 	$(top_srcdir)/config/missing
@@ -396,7 +397,7 @@ DOC_FILES = \
 	INSTALL.md \
 	LICENSE \
 	README.md \
-	RELEASENOTES \
+	RELEASENOTES.md \
 	cmake/INSTALL_USING_CMAKE
 
 EXTRA_DIST = \
@@ -410,12 +411,12 @@ EXTRA_DIST = \
 	cmake/SystemCTLMConfig.cmake.in \
 	cmake/run_test.cmake \
 	\
-	msvc10/SystemC/SystemC.sln \
-	msvc10/SystemC/SystemC.props \
-	msvc10/SystemC/SystemC.vcxproj \
-	msvc10/SystemC/SystemC.vcxproj.filters \
-	msvc10/SystemC/SystemC-core.vcxproj \
-	msvc10/SystemC/SystemC-core.vcxproj.filters
+	msvc16/SystemC/SystemC.sln \
+	msvc16/SystemC/SystemC.props \
+	msvc16/SystemC/SystemC.vcxproj \
+	msvc16/SystemC/SystemC.vcxproj.filters \
+	msvc16/SystemC/SystemC-core.vcxproj \
+	msvc16/SystemC/SystemC-core.vcxproj.filters
 
 @SEPARATE_INSTALL_TREE_TRUE@rootdoc_DATA = \
 @SEPARATE_INSTALL_TREE_TRUE@	$(DOC_FILES)

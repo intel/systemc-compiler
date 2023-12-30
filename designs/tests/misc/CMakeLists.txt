@@ -73,8 +73,9 @@ svc_target(misc_dynamic_array GOLDEN misc_dynamic_array.sv)
 add_executable(misc_array_module_fail test_array_module_fail.cpp)
 svc_target(misc_array_module_fail WILL_FAIL)
 
-add_executable(misc_array_module test_array_module.cpp)
-svc_target(misc_array_module GOLDEN misc_array_module.sv)
+# Does not work at SC 3.0, disabled
+#add_executable(misc_array_module test_array_module.cpp)
+#svc_target(misc_array_module GOLDEN misc_array_module.sv)
 
 add_executable(misc_array_in_top test_array_in_top.cpp)
 svc_target(misc_array_in_top PORT_MAP_GENERATE GOLDEN misc_array_in_top.sv)
@@ -167,6 +168,9 @@ svc_target(misc_cross_hierarchy_bind2
 add_executable(misc_cross_hierarchy_bind3 test_cross_hierarchy_bind3.cpp)
 svc_target(misc_cross_hierarchy_bind3 
            GOLDEN misc_cross_hierarchy_bind3.sv)
+
+add_executable(misc_cross_hierarchy_bind_vector test_cross_hierarchy_bind_vector.cpp)
+svc_target(misc_cross_hierarchy_bind_vector GOLDEN misc_cross_hierarchy_bind_vector.sv)
 
 add_executable(misc_module_port_sig test_module_port_sig.cpp)
 svc_target(misc_module_port_sig GOLDEN misc_module_port_sig.sv)
@@ -441,7 +445,7 @@ add_executable(misc_read_notdef_chan test_read_notdef_chan.cpp)
 svc_target(misc_read_notdef_chan GOLDEN misc_read_notdef_chan.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(misc_verilog_keyword test_verilog_keyword.cpp)
-svc_target(misc_verilog_keyword GOLDEN misc_verilog_keyword.sv NO_REMOVE_EXTRA_CODE)
+svc_target(misc_verilog_keyword ELAB_TOP tb_inst.a  GOLDEN misc_verilog_keyword.sv NO_REMOVE_EXTRA_CODE)
 
 ## Function calls
 add_executable(misc_fcall_params test_fcall_params.cpp)

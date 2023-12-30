@@ -415,13 +415,25 @@ class sct_initiator<T, TRAITS, 0> :
     }
 #endif
     
-    void trace(sc_trace_file* tf) const {
+    void trace(sc_trace_file* tf) const override {
     #ifdef DEBUG_SYSTEMC
         std::string initName = name();
         sc_trace(tf, ready_push, initName + "_ready");
         sc_trace(tf, debug_put, initName + "_put");
         sc_trace(tf, data_in, initName + "_data_in");
     #endif
+    }
+    
+    inline void print(::std::ostream& os) const override
+    {
+        os << "sct_initiator " << name();
+        
+        if ( ready() ) {
+            os << " is ready";
+        } else {
+            os << " is not ready";
+        }
+        os << ::std::endl;
     }
 };
 
@@ -540,8 +552,12 @@ class sct_initiator<T, TRAITS, 1> :
         }
     }
     
-    void trace(sc_trace_file* tf) const {
+    void trace(sc_trace_file* tf) const override {
         // Do nothing, all traces stored in the target bound
+    }
+    
+    inline void print(::std::ostream& os) const override {
+        // Do nothing
     }
 };
 
@@ -558,6 +574,14 @@ operator << ( sc_sensitive& s,
 {
     initiator.addTo(s);
     return s;
+}
+
+template<class T, class TRAITS, bool TLM_MODE>
+inline ::std::ostream& operator << (::std::ostream& os, 
+                    const sct::sct_initiator<T, TRAITS, TLM_MODE>& initiator ) 
+{
+    initiator.print(os);
+    return os;
 }
 
 } // namespace sc_core

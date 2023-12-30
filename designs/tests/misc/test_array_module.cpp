@@ -7,7 +7,7 @@
 
 #include <systemc.h>
 
-// std::vector with module pointers
+// std::vector with module pointers -- does not work at SC 3.0 disabled
 struct bottom : sc_module {
 
     sc_in<int> in{"in"};

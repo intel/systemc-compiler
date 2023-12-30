@@ -274,6 +274,7 @@ public:
     }
     
     // Main binary:: +, -, *, /, %, <<, >>
+    sc_signal<int> t2a;
     void sc_type_main() 
     {
         sc_uint<3> x = 1;
@@ -282,6 +283,15 @@ public:
         sc_biguint<33> bux = 7;
         sc_int<42> z;
         sc_bigint<42> bz;
+
+        auto r0 = (bux+1);
+        cout << "r0 " << r0 << endl;
+        CHECK(r0 == 8);
+        auto r1 = x * bux;
+        CHECK(r1 == 7);
+        auto r2 = x * (bux+1);  
+        CHECK(r2 == 8);
+        t2a = r0.to_int() + r1.to_int() + r2.to_int();
         
         z = x + y;              // Warning reported
         //CHECK(z == 6);

@@ -12,7 +12,7 @@
 class top : sc_module
 {
 public:
-    sc_clock clk{"clk", 10, SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool> arstn{"arstn", 1};
     sc_signal<int> in{"in"};
     sc_signal<int> out{"out"};
@@ -39,67 +39,52 @@ public:
         SC_METHOD(empty_if);
         sensitive << in;
 
-        SC_THREAD(variable_read_in_binaryop);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(variable_read_in_binaryop, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(smem_if_binary_const);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(smem_if_binary_const, clk.pos());
         async_reset_signal_is(arstn, false);
 
         SC_METHOD(simple_no_wait);
         sensitive << in << out;
         
-        SC_THREAD(simple_wait);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(simple_wait, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(if_stmt_wait0);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(if_stmt_wait0, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(if_stmt_wait1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(if_stmt_wait1, clk.pos());
         async_reset_signal_is(arstn, false);
           
-        SC_THREAD(if_stmt_wait2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(if_stmt_wait2, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(if_stmt_wait2a);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(if_stmt_wait2a, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(if_stmt_wait3);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(if_stmt_wait3, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(if_stmt_wait_for0);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(if_stmt_wait_for0, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(if_stmt_wait_for1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(if_stmt_wait_for1, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(if_stmt_wait_for2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(if_stmt_wait_for2, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(if_stmt_wait_for2a);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(if_stmt_wait_for2a, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(if_stmt_wait_for2b);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(if_stmt_wait_for2b, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(if_stmt_const_prop1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(if_stmt_const_prop1, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(if_stmt_const_prop2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(if_stmt_const_prop2, clk.pos());
         async_reset_signal_is(arstn, false);
     }
 
@@ -535,7 +520,9 @@ public:
 
 int sc_main(int argc, char *argv[])
 {
+    sc_clock clk{"clk", 10, SC_NS};
     top top_inst{"top_inst"};
+    top_inst.clk(clk);
     sc_start(100, SC_NS);
     return 0;
 }

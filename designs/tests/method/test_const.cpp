@@ -69,7 +69,7 @@ public:
     int                 k;
     sc_uint<16>         x;
     
-    sc_clock clk{"clk", 10, SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool> arstn{"arstn", 1};
     
     SC_HAS_PROCESS(A);
@@ -122,16 +122,13 @@ public:
         
         SC_METHOD(local_static_const); sensitive << dummy;
         
-        SC_THREAD(local_static_const1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(local_static_const1, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(local_static_const2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(local_static_const2, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(local_static_const3);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(local_static_const3, clk.pos());
         async_reset_signal_is(arstn, false);
 
         SC_METHOD(neg_literal); sensitive << dummy;
@@ -591,14 +588,18 @@ const unsigned TRAITS::ARR[4] = {1, 2, 3, 4};
 class B_top : public sc_module {
 public:
 
+    sc_in<bool> clk;
     A<3, TRAITS> a_mod{"a_mod"};
 
     SC_CTOR(B_top) {
+        a_mod.clk(clk);
     }
 };
 
 int sc_main(int argc, char *argv[]) {
+    sc_clock clk{"clk", 10, SC_NS};
     B_top b_mod{"b_mod"};
+    b_mod.clk(clk);
     sc_start();
     return 0;
 }

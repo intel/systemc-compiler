@@ -14,12 +14,11 @@
 
 SC_MODULE(top) {
 
-    sc_clock    clk_gen{"clk_gen", 10 , SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool> nrst;
 
     SC_CTOR(top) {
-        SC_THREAD(test_thread);
-        sensitive << clk_gen.posedge_event();
+        SC_CTHREAD(test_thread, clk.pos());
         async_reset_signal_is(nrst, 0);
     }
 
@@ -42,7 +41,9 @@ SC_MODULE(top) {
 
 int sc_main (int argc, char ** argv ) {
 
-    top t_inst{"t_inst"};
+    sc_clock clk{"clk", 10, SC_NS};
+    top top_inst{"top_inst"};
+    top_inst.clk(clk);
     sc_start(100, SC_NS);
 
     return 0;

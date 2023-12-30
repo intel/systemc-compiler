@@ -11,7 +11,7 @@
 class top : sc_module
 {
 public:
-    sc_clock clk{"clk", 10, SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool>     arstn{"arstn", 1};
     sc_signal<int>      in{"in"};
     sc_signal<bool>     in2{"in2"};
@@ -29,48 +29,37 @@ public:
     SC_HAS_PROCESS(top);
     top(sc_module_name)
     {
-        SC_THREAD(concat_lhs1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(concat_lhs1, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(concat_lhs1a);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(concat_lhs1a, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(concat_lhs2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(concat_lhs2, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(concat_lhs3);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(concat_lhs3, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(concat_lhs4);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(concat_lhs4, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(concat_lhs_rhs);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(concat_lhs_rhs, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(concat_lhs_rhs2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(concat_lhs_rhs2, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(concat_lhs_rhs3);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(concat_lhs_rhs3, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(concat_lhs_multi);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(concat_lhs_multi, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(concat_lhs_range);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(concat_lhs_range, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(concat_lhs_cast);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(concat_lhs_cast, clk.pos());
         async_reset_signal_is(arstn, false);
     }
     
@@ -239,8 +228,9 @@ public:
 
 int sc_main(int argc, char *argv[])
 {
+    sc_clock clk{"clk", 10, SC_NS};
     top top_inst{"top_inst"};
-    
+    top_inst.clk(clk);
     sc_start(100, SC_NS);
     return 0;
 }

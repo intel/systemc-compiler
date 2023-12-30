@@ -1,6 +1,6 @@
 \section{Installation and run}\label{section:install}
 
-This section explains building and installation of ICSC on any Linux OS. In the following description Ubuntu 20.04 is used, all operations are given for bash terminal.
+This section explains building and installation of ICSC on any Linux OS. In the following description Ubuntu 22.04 is used, all operations are given for bash terminal.
 
 ICSC is based on Clang/LLVM tool chain. It uses Google Protobuf library and patched SystemC library. Patched SystemC sources are uploaded into ICSC repository.   
 
@@ -40,7 +40,7 @@ $ICSC_HOME
     * examples        -- a few illustrative examples
     * sc_elab         -- elaborator sources
     * sc_tool         -- ISCS sources
-    * systemc         -- patched SystemC 2.3.3 sources
+    * systemc         -- patched SystemC 3.0.0 RC sources
     * tests           -- unit tests
     * .gitmodules     -- not intended to be used here, can be removed
     * CMakeLists.txt  -- Cmake file for ICSC tool
@@ -87,11 +87,11 @@ $ make install
 
 \subsubsection{Building and installing LLVM/Clang}
 
-Download LLVM 7.0.0 and Clang 7.0.0 from \url{https://releases.llvm.org/download.html#7.0.0} into {\tt \$ICSC\_HOME} folder.
+Download LLVM 12.0.1 and Clang 12.0.1 from \url{https://releases.llvm.org/download.html#12.0.1} into {\tt\$ICSC\_HOME```} folder.
 
 \begin{lstlisting}[language=bash]
-$ mv $ICSC_HOME/cfe-7.0.0.src $ICSC_HOME/llvm-7.0.0.src/tools/clang
-$ cd $ICSC_HOME/llvm-7.0.0.src
+$ mv $ICSC_HOME/clang-12.0.1.src $ICSC_HOME/llvm-12.0.1.src/tools/clang
+$ cd $ICSC_HOME/llvm-12.0.1.src
 $ mkdir build && cd build
 $ cmake ../ -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME
 $ make -j8
@@ -117,17 +117,17 @@ After installation there is the following folder structure:
 \begin{lstlisting}
 $ICSC_HOME
   * bin                 -- binary utilities, can be removed
-  build                 -- build folder, can be removed
+  * build               -- build folder, can be removed
+  * designs             -- folder for examples, tests and user designs
   * icsc                -- ICSC sources
     * build             -- build folder, can be removed        
     * cmake             -- CMake files
     * components        -- assertions, fifo and other library components
-    * designs           -- folder for user designs with an design template
     * doc               -- user guide latex and pdf files
     * examples          -- a few illustrative examples 
     * sc_elab           -- elaborator sources 
     * sc_tool           -- ISCS sources  
-    * systemc           -- patched SystemC 2.3.3 sources
+    * systemc           -- patched SystemC 3.0.0 RC sources
     * tests             -- unit tests 
     * .gitmodules       -- not intended to be used here, can be removed
     * CMakeLists.txt    -- Cmake file for ICSC tool
@@ -140,6 +140,7 @@ $ICSC_HOME
   * lib64               -- tool compiled libraries
   * share               -- can be removed  
   * CMakeLists.txt      -- CMake file for examples, tests and user designs
+  * gdbinit-example.txt -- GDB configuration to be copied into ~/.gdbinit
   * README              -- build and run examples, tests and used designs description
   * setenv.sh           -- set environment script for bash terminal  
 \end{lstlisting}
@@ -181,8 +182,11 @@ $ cd $ICSC_HOME
 $ source setenv.sh                   # setup PATH and LD_LIBRARY_PATH
 $ cd build   
 $ cmake ../                          # prepare Makefiles 
-$ ctest -R counter                   # run SV generation for counter example
+$ ctest -R DesignTargetName          # run SV generation for DesignTargetName
 \end{lstlisting}
+
+where {\tt DesignTargetName} is a target name in {\tt CMakeLists.txt}.
+
 
 \subsubsection{Generate SV code for all examples, tests and designs}
 %

@@ -59,10 +59,10 @@ svc_target(mif_name_conflict3 GOLDEN mif_name_conflict3.sv NO_REMOVE_EXTRA_CODE)
 
 
 add_executable(mif_array1 test_mif_array1.cpp)
-svc_target(mif_array1 GOLDEN mif_array1.sv)
+svc_target(mif_array1 ELAB_TOP tb_inst.top_inst GOLDEN mif_array1.sv)
 
 add_executable(mif_array2 test_mif_array2.cpp)
-svc_target(mif_array2 GOLDEN mif_array2.sv)
+svc_target(mif_array2 ELAB_TOP tb_inst.top_inst GOLDEN mif_array2.sv)
 
 add_executable(mif_array3 test_mif_array3.cpp)
 svc_target(mif_array3 GOLDEN mif_array3.sv)
@@ -86,10 +86,10 @@ add_executable(mif_array_const_unkwn test_mif_array_const_unkwn.cpp)
 svc_target(mif_array_const_unkwn GOLDEN mif_array_const_unkwn.sv)
 
 add_executable(mif_array_with_chan test_mif_array_with_chan.cpp)
-svc_target(mif_array_with_chan GOLDEN mif_array_with_chan.sv)
+svc_target(mif_array_with_chan ELAB_TOP tb_inst.top_inst GOLDEN mif_array_with_chan.sv)
 
 add_executable(mif_inherit1 test_mif_inherit1.cpp)
-svc_target(mif_inherit1 GOLDEN mif_inherit1.sv)
+svc_target(mif_inherit1 ELAB_TOP tb_inst.top_inst GOLDEN mif_inherit1.sv)
 
 
 ## MIF with CTHREAD

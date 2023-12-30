@@ -540,7 +540,7 @@ class sct_target<T, TRAITS, 0> :
     }
 #endif
     
-    void trace(sc_trace_file* tf) const {
+    void trace(sc_trace_file* tf) const override {
     #ifdef DEBUG_SYSTEMC
         std::string targName = name();
         sc_trace(tf, out_valid, targName + "_request");
@@ -548,6 +548,18 @@ class sct_target<T, TRAITS, 0> :
         sc_trace(tf, data_out, targName + "_data_out");
         sc_trace(tf, element_num_d, targName + "_element_num_d");
     #endif
+    }
+    
+    inline void print(::std::ostream& os) const override
+    {
+        os << "sct_target " << name();
+        
+        if ( request() ) {
+            os << " ( " << peek() << " )";
+        } else {
+            os << " is empty";
+        }
+        os << ::std::endl;
     }
     
     sct_target_peek<T, TRAITS, false> PEEK{this};
@@ -735,12 +747,16 @@ class sct_target<T, TRAITS, 1> :
         fifo.addPeekTo(s);  // No @nrst required here
     }
      
-    void trace(sc_trace_file* tf) const {
+    void trace(sc_trace_file* tf) const override {
     #ifdef DEBUG_SYSTEMC
         fifo.trace(tf);
     #endif
     }
 
+    inline void print(::std::ostream& os) const override {
+        fifo.print(os);
+    }
+    
     sct_target_peek<T, TRAITS, true> PEEK{this};
 };
 
@@ -786,6 +802,14 @@ operator << ( sc_sensitive& s,
 {
     peek.target->addPeekTo(s);
     return s;
+}
+
+template<class T, class TRAITS, bool TLM_MODE>
+inline ::std::ostream& operator << (::std::ostream& os, 
+                    const sct::sct_target<T, TRAITS, TLM_MODE>& target ) 
+{
+    target.print(os);
+    return os;
 }
 
 } // namespace sc_core

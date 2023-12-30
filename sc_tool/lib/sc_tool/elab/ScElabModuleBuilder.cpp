@@ -229,7 +229,7 @@ void ScElabModuleBuilder::run()
     {
         createPortBindingsKeepArrays(verMod);
     }
-
+    
     // Fill state, run method and thread process analysis in ScProcAnalyzer
     for (auto &verMod : elabDB->getVerilogModules()) {
         // Process analysis for all threads and methods
@@ -996,9 +996,11 @@ void ScElabModuleBuilder::flattenArrayBind( VerilogModule &portHostMod,
         auto portEl = *portArrEl.obj.primitive()->port();
         auto bindDirection = getBindDirection(portEl);
 
-        VerilogVarsVec portVerVarVec;
+        // Avoid to duplicate port declaration in Verilog module
+        if (elabDB->isPortBound(portEl)) return;
 
         // Generate auxiliary variables to represent array elements
+        VerilogVarsVec portVerVarVec;
         for (auto *verVar : verVars) {
             // Name for array element is generated from array name
             // by adding element indexes, like array_name_x_y
@@ -1014,40 +1016,28 @@ void ScElabModuleBuilder::flattenArrayBind( VerilogModule &portHostMod,
             // BIND_CROSS -- bound to port of module which is not parent or child
             // BIND_DOWN -- bound to port of child module
             // BIND_SAME -- bound to signal in the same module
-            VerilogVar *auxVerVar;
+            VerilogVar* auxVerVar = nullptr;
             if (bindDirection == BIND_UP) {
-                // Avoid to duplicate port declaration in Verilog module
-                if (!elabDB->isPortBound(portEl)) {
-                    auxVerVar = portHostMod.createAuxilaryPort(
-                                    portEl.getDirection(),
-                                    portArrElName, verVar->getBitwidth(), 
-                                    {}, verVar->isSigned() );
-                }
+                auxVerVar = portHostMod.createAuxilaryPort(
+                                portEl.getDirection(),
+                                portArrElName, verVar->getBitwidth(), 
+                                {}, verVar->isSigned() );
             } else 
             if (bindDirection == BIND_DOWN) {
-                // Add "!elabDB->isPortBound(portEl)" ???
                 auxVerVar = portHostMod.createAuxilarySignal(portArrElName,
                     verVar->getBitwidth(), {}, verVar->isSigned());
-                    
             } else 
             if (bindDirection == BIND_CROSS) {
-                // Avoid to duplicate port declaration in Verilog module
-                if (!elabDB->isPortBound(portEl)) {
-                    auxVerVar = portHostMod.createAuxilaryPort(
-                                    portEl.getDirection(),
-                                    portArrElName, verVar->getBitwidth(), 
-                                    {}, verVar->isSigned() );
-                }
+                auxVerVar = portHostMod.createAuxilaryPort(
+                                portEl.getDirection(),
+                                portArrElName, verVar->getBitwidth(), 
+                                {}, verVar->isSigned() );
             } else                 
             if (bindDirection == BIND_SAME) {
-                // Avoid to duplicate port declaration in Verilog module
-                if (!elabDB->isPortBound(portEl)) {
-                    auxVerVar = portHostMod.createAuxilarySignal(portArrElName,
-                        verVar->getBitwidth(), {}, verVar->isSigned());
-                }
+                auxVerVar = portHostMod.createAuxilarySignal(portArrElName,
+                    verVar->getBitwidth(), {}, verVar->isSigned());
             } else 
             if (bindDirection == BIND_EXTERNAL) {
-                // Add "!elabDB->isPortBound(portEl)" ???
                 auxVerVar = portHostMod.createAuxilaryPort(
                                 portEl.getDirection(),
                                 portArrElName, verVar->getBitwidth(), 
@@ -1057,21 +1047,20 @@ void ScElabModuleBuilder::flattenArrayBind( VerilogModule &portHostMod,
             }
 
             // Assign generated variable to array element, or vice versa
-            if (!elabDB->isPortBound(portEl)) {
-                //llvm::outs() << "   Flatten " << verVar->getName() << " " << auxVerVar->getName() << "\n";
-                if (portEl.isInput()) {
-                    portHostMod.addAssignment({verVar, portArrEl.indices}, 
-                                              {auxVerVar, {}});
-                } else {
-                    portHostMod.addAssignment({auxVerVar, {}}, 
-                                              {verVar, portArrEl.indices});
-                }
+            if (portEl.isInput()) {
+                portHostMod.addAssignment({verVar, portArrEl.indices}, 
+                                          {auxVerVar, {}});
+            } else {
+                portHostMod.addAssignment({auxVerVar, {}}, 
+                                          {verVar, portArrEl.indices});
             }
             portVerVarVec.push_back(auxVerVar);
         }
 
         // Do binding
-        bindAux(portEl, portVerVarVec, bindDirection, false);
+        if (!portVerVarVec.empty()) {
+            bindAux(portEl, portVerVarVec, bindDirection, false);
+        }
     }
 }
 
@@ -1140,7 +1129,7 @@ void ScElabModuleBuilder::bindPortUpAux(PortView portEl,
     VerilogVarsVec instanceVars = verPortVars;
     IndexVec bindedIndexes;
 
-    // Create auxilary ports and port bindings in parent module
+    // Create auxiliary ports and port bindings in parent module
     for (size_t i = parentModsList.size() - 1; i > 0; --i) {
         bool last = i == 1;
 
@@ -1167,7 +1156,7 @@ void ScElabModuleBuilder::bindPortUpAux(PortView portEl,
             if (!isUniformArrayBind)
                 bindedIndexes = bindedObj.indices;
         }
-
+        
         SCT_TOOL_ASSERT (hostVars.size() == instanceVars.size(), "");
 
         // Do not create duplicating port bindings as its created at parent

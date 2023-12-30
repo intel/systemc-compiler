@@ -427,6 +427,7 @@ void ElabDatabase::dump() const
 {
     llvm::outs() << "ElabDatabase DUMP\n";
     getTopModule().dumpHierarchy(true);
+    llvm::outs().flush();
 }
 
 } // namespace sc_elab

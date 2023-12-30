@@ -240,6 +240,7 @@ void ScState::join(ScState* other)
         readninit.swap(other->readninit);
         readsva.swap(other->readsva);
         read.swap(other->read);
+        access.swap(other->access);
         defallpath.swap(other->defallpath);
         defsomepath.swap(other->defsomepath);
         arraydefined.swap(other->arraydefined);
@@ -316,6 +317,7 @@ void ScState::join(ScState* other)
     readninit.insert(cbegin(other->readninit), cend(other->readninit));
     readsva.insert(cbegin(other->readsva), cend(other->readsva));
     read.insert(cbegin(other->read), cend(other->read));
+    access.insert(cbegin(other->access), cend(other->access));
     arraydefined.insert(cbegin(other->arraydefined), cend(other->arraydefined));
     loopCntrVars.insert(cbegin(other->loopCntrVars), cend(other->loopCntrVars));
 }
@@ -1283,6 +1285,10 @@ SValue ScState::writeToValue(SValue lval, bool isDefined)
     // Add array defined for any array/non-array value
     arraydefined.insert(zeroVal);
 
+    // Use zero value with cross MIF/module/record analysis, as in TareadBuilder
+    SValue zeroValMif = getFirstArrayElementForAny(llval, ScState::MIF_CROSS_NUM);
+    access.insert(zeroValMif);
+    
     if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
         cout << "   add to array_defined " << zeroVal << endl;
     }
@@ -1384,6 +1390,10 @@ SValue ScState::readFromValue(SValue lval)
 
     read.insert(zeroVal);
 
+    // Use zero value with cross MIF/module/record analysis, as in TareadBuilder
+    SValue zeroValMif = getFirstArrayElementForAny(llval, ScState::MIF_CROSS_NUM);
+    access.insert(zeroValMif);
+    
     if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
         cout << "   add to read " << zeroVal << endl;
     }
@@ -1410,6 +1420,7 @@ void ScState::filterUseDef(const std::unordered_set<SValue>& defVals,
     
     // Other collections are not used after CPA
     filter(read, useVals);
+    // Do not filter @access
     filter(readndef, useVals);
     filter(readsva, useVals);
     filter(readninit, useVals);
@@ -1432,6 +1443,10 @@ const InsertionOrderSet<SValue> ScState::getReadNotInitValues() const {
 
 const InsertionOrderSet<SValue>& ScState::getReadValues() const {
     return read;
+}
+
+const InsertionOrderSet<SValue>& ScState::getAccessValues() const {
+    return access;
 }
 
 const InsertionOrderSet<SValue>& ScState::getSvaReadValues() const {
@@ -1961,11 +1976,20 @@ bool ScState::isRecField(const SValue& val)
 // ===========================================================================
 // Static methods
 
+// Check is @val is field of local record
+bool ScState::isLocalRecField(const SValue& val) 
+{
+    if (!val.isVariable()) return false;
+    
+    const SValue& parent = val.getVariable().getParent();
+    return (parent.isRecord() && parent.getRecord().isLocal());
+}
+
 // Get name prefix for local record
 std::string ScState::getLocalRecName(const SValue& val) 
 {
     if (val.isVariable()) {
-        SValue parent = val.getVariable().getParent();
+        const SValue& parent = val.getVariable().getParent();
         
         if (parent.isRecord() && parent.getRecord().isLocal()) {
             return parent.getRecord().var.asString(false);
@@ -2137,6 +2161,7 @@ void ScState::clearReadAndDefinedVals()
     readninit.clear();
     readsva.clear();
     read.clear();
+    access.clear();
     defallpath.clear();
     defsomepath.clear();
     arraydefined.clear();

@@ -98,32 +98,27 @@ SC_MODULE(Parent) {
     }
 };
 \end{lstlisting}
-%
-\begin{lstlisting}[style=myverilog]
-// SystemVerilog generated
-module Parent // "tb_inst.top_mod"
-(
-);
-// SystemC signals
-logic signed [15:0] data;
-logic resp;
-logic req;
 
-Producer prod
-(
-  .resp(resp),
-  .data(data),
-  .req_sig(req)
-);
-Consumer cons
-(
-  .resp_sig(resp),
-  .req(req),
-  .data(data)
-);
-...
-endmodule
+Port can be connected to a signal through module hierarchy. That means the port and signal can belong to different modules, not necessary to child and parent or two children of the same parent.
+
+\begin{lstlisting}[style=mycpp]
+SC_MODULE(A) {
+    sc_in<T>     SC_NAMED(i);     
+};
+SC_MODULE(B) {
+    A            SC_NAMED(mod_a);
+};
+SC_MODULE(C) {
+    sc_signal<T> SC_NAMED(s);
+    B            SC_NAMED(mod_b);
+    SC_CTOR(C) {
+       mod_b.mod_a.i(s);   // Cross-binding of port "i" to signal "s"
+    } 
+};
 \end{lstlisting}
+
+
+\subsection{Modular interface access}
 
 A module process can access its child modular interface instance fields and call methods. That is possible as interface fields and methods are moved to the parent module in generated SystemVerilog. Direct accessing fields of another module considered as bad programming style and should be avoided. 
 
@@ -583,7 +578,7 @@ SC_CTOR(MyModule) {
 
 This section describes usage of record which are C++ structures or classes which are not modules and modular interfaces. Records intended to represent set of plain data fields. Record can be module member as well as local variables in process functions. 
 
-Records are supported with limitations. Record can have member functions and data members. Record member functions can contain wait() calls. Record can have members of C++/SC data types. Record cannot have another record members. Record cannot have signal/port or module/modular interface members. Record cannot have any pointer members. Record can have array members of C++/SC data types. Record cannot have array members of record. Record cannot have non-default copy/move constructors and operators.
+Records are supported with limitations. Record can have member functions and data members. Record member functions can contain {\tt wait()} calls. Record can have members of C++/SC data types. Record cannot have another record members. Record cannot have signal/port or module/modular interface members. Record cannot have any pointer members. Record can have array members of C++/SC data types. Record cannot have array members of record. Record cannot have non-default copy/move constructors and operators.
 
 Record can have constructor, field in-place initialization and initializer list. Record constructor can contain function calls. Record field in-place initialization and constructor initializer list cannot contain function calls.
 
@@ -623,6 +618,8 @@ Rec2 r2(42);    	// OK
 Rec2 r2{42};    	// OK
 \end{lstlisting}
 
+\subsubsection{Record type in signals and ports}
+
 Signal and port of record type are supported. Record used as signal and ports type should have a constructor without parameters. This constructor is used for the signal/ports initialization. Such a record should have {\tt operator==()} and {\tt operator<<(std::ostream)} and {\tt sc\_trace()} defined.
 Signal and ports of record can be read/written and assigned to a record variable.
 %
@@ -654,6 +651,7 @@ int x = in.read().x;   // OK
 \end{lstlisting}
  
 Code generation rules for record described in Section~\ref{section:record_gen}. 
+
 
 \subsection{Union type}
 

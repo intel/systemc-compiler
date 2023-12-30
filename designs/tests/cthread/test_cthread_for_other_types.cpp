@@ -11,7 +11,7 @@
 class top : sc_module
 {
 public:
-    sc_clock clk{"clk", 10, SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool> arstn{"arstn", 1};
     sc_signal<int> in{"in"};
     sc_signal<int> out{"out"};
@@ -19,8 +19,7 @@ public:
     SC_HAS_PROCESS(top);
     top(sc_module_name)
     {
-        SC_THREAD(for_stmt_other_types_fns);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(for_stmt_other_types_fns, clk.pos());
         async_reset_signal_is(arstn, false);
     }
 
@@ -146,7 +145,9 @@ public:
 
 int sc_main(int argc, char *argv[])
 {
+    sc_clock clk{"clk", 10, SC_NS};
     top top_inst{"top_inst"};
+    top_inst.clk(clk);
     sc_start(100, SC_NS);
     return 0;
 }

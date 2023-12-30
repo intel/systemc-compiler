@@ -1031,13 +1031,6 @@ void ThreadBuilder::generateThreadLocalVariables()
         }
         bool isRecordChan = isUserClassChannel(getDerefType(varType)).hasValue();
         
-        // Get access place, access after reset includes access in SVA
-        bool inResetAccess = travConst->isInResetAccessed(regVar);
-        bool afterResetAcess = travConst->isAfterResetAccessed(regVar) ||
-                               travConst->isSvaProcAccessed(regVar);
-        auto accessPlace = VerilogVarTraits::getAccessPlace(inResetAccess, 
-                                                            afterResetAcess);
-
         // Replace value to array first element 
         // Use global state because only members needs to be processed here
         SValue regVarZero = globalState->getFirstArrayElementForAny(
@@ -1046,6 +1039,14 @@ void ThreadBuilder::generateThreadLocalVariables()
         SCT_TOOL_ASSERT (regVarZero, "No zero element found in global state");
         //cout << " regVar " << regVar << " regVarZero " << regVarZero << " isNonZeroElemnt " << isNonZeroElmt << endl;
         
+        // Get access place, access after reset includes access in SVA
+        // Use zero value to consider some MIF array elements not used
+        bool inResetAccess = travConst->isInResetAccessed(regVarZero);
+        bool afterResetAcess = travConst->isAfterResetAccessed(regVarZero) ||
+                               travConst->isSvaProcAccessed(regVarZero);
+        auto accessPlace = VerilogVarTraits::getAccessPlace(inResetAccess, 
+                                                            afterResetAcess);
+
         if (auto elabObj = globalState->getElabObject(regVarZero)) {
             // Module/class field
             //cout << "Convert to proc local: " << elabObj->getDebugString() << " id " << elabObj->getID() << endl;
@@ -1361,12 +1362,6 @@ void ThreadBuilder::generateThreadLocalVariables()
             continue;
         }
         
-        // Get access place
-        bool inResetAccess = travConst->isInResetAccessed(combVar);
-        bool afterResetAcess = travConst->isAfterResetAccessed(combVar);
-        auto accessPlace = VerilogVarTraits::getAccessPlace(inResetAccess, 
-                                                            afterResetAcess);
-                        
         // Replace value to array zero element 
         // Use global state because only members needs to be processed here
         SValue combVarZero = globalState->getFirstArrayElementForAny(
@@ -1375,6 +1370,12 @@ void ThreadBuilder::generateThreadLocalVariables()
         SCT_TOOL_ASSERT (combVarZero, "No zero element found in global state");
         //cout << "combVarZero " << combVarZero << endl;
 
+        // Get access place
+        bool inResetAccess = travConst->isInResetAccessed(combVarZero);
+        bool afterResetAcess = travConst->isAfterResetAccessed(combVarZero);
+        auto accessPlace = VerilogVarTraits::getAccessPlace(inResetAccess, 
+                                                            afterResetAcess);
+        
         if (auto elabObj = globalState->getElabObject(combVarZero)) {
             //cout << "Global object, elabObj " << elabObj.getValue().getDebugString() << endl;
             // Get first array element for non-first element and dereference 
@@ -1472,12 +1473,6 @@ void ThreadBuilder::generateThreadLocalVariables()
         if (isUserClass(getDerefType(roVar.getType()))) continue;
         if (isZeroWidthType(getDerefType(roVar.getType()))) continue;
         
-        // Get access place
-        bool inResetAccess = travConst->isInResetAccessed(roVar);
-        bool afterResetAcess = travConst->isAfterResetAccessed(roVar);
-        auto accessPlace = VerilogVarTraits::getAccessPlace(inResetAccess, 
-                                                            afterResetAcess);
-        
         // Replace value to array first element 
         // Use global state because only members needs to be processed here
         SValue roVarZero = globalState->getFirstArrayElementForAny(
@@ -1485,6 +1480,12 @@ void ThreadBuilder::generateThreadLocalVariables()
         bool isNonZeroElmt = roVar != roVarZero;
         SCT_TOOL_ASSERT (roVarZero, "No zero element found in global state");
         
+        // Get access place
+        bool inResetAccess = travConst->isInResetAccessed(roVarZero);
+        bool afterResetAcess = travConst->isAfterResetAccessed(roVarZero);
+        auto accessPlace = VerilogVarTraits::getAccessPlace(inResetAccess, 
+                                                            afterResetAcess);
+
         if (auto elabObj = globalState->getElabObject(roVarZero)) {
             // Get first array element for non-first element and dereference 
             // pointer to get Verilog variable name

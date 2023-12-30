@@ -137,12 +137,10 @@ class B_top : public sc_module {
 public:
     sc_in<bool>         clk{"clk"};
     sc_signal<bool>     rst{"rst"};
-    sc_clock clk_gen{"clk", sc_time(1, SC_NS)};
 
     A a_mod{"a_mod"};
 
     SC_CTOR(B_top) {
-        clk(clk_gen);
         a_mod.clk(clk);
         a_mod.rst(rst);
     }
@@ -150,8 +148,9 @@ public:
 
 int sc_main(int argc, char *argv[]) {
 
+    sc_clock clk{"clk", sc_time(1, SC_NS)};
     B_top b_mod{"b_mod"};
-    
+    b_mod.clk(clk);
     sc_start();
     return 0;
 }

@@ -11,7 +11,7 @@
 class top : sc_module
 {
 public:
-    sc_clock clk{"clk", 10, SC_NS};
+    sc_in<bool> clk;
     sc_signal<bool> arstn{"arstn", 1};
     sc_signal<int> out{"out"};
 
@@ -20,80 +20,61 @@ public:
     SC_HAS_PROCESS(top);
     top(sc_module_name)
     {
-        SC_THREAD(test_switch_empty1);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty1, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_switch_empty2);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty2, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_switch_empty2a);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty2a, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_switch_empty3);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty3, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_switch_empty3a);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty3a, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_switch_empty4);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty4, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_switch_empty4a);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty4a, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_switch_empty4b);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty4b, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_switch_empty4c);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty4c, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(test_switch_empty4d);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty4d, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(test_switch_empty4e);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty4e, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_switch_empty4f);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty4f, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(test_switch_empty4g);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty4g, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(test_switch_empty4i);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty4i, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        SC_THREAD(test_switch_empty5);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty5, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_switch_empty5a);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty5a, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_switch_empty6);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty6, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_switch_empty6a);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_switch_empty6a, clk.pos());
         async_reset_signal_is(arstn, false);
 
-        SC_THREAD(test_thread);
-        sensitive << clk.posedge_event();
+        SC_CTHREAD(test_thread, clk.pos());
         async_reset_signal_is(arstn, false);
         
     }
@@ -517,7 +498,9 @@ public:
 
 int sc_main(int argc, char *argv[])
 {
+    sc_clock clk{"clk", 10, SC_NS};
     top top_inst{"top_inst"};
+    top_inst.clk(clk);
     sc_start(100, SC_NS);
     return 0;
 }

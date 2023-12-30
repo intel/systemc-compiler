@@ -112,6 +112,9 @@ struct AA : public sc_module
         int n = *pc;
         int l; l = *p1;
         auto ll = *pe + *pf;
+        const sc_bigint<8> lpe;
+        const sc_biguint<8> lpf;
+        auto lll = lpe + lpf;
     }
     
     void sig_init_thread() {
