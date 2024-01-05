@@ -417,8 +417,8 @@ void ScState::putValue(const SValue& lval, const SValue& rval, bool deReference,
                     
                 } else 
                 if (auto pair = getIntTraits(type, true)) {
-                    size_t width = pair.getValue().first;
-                    bool isUnsigned = pair.getValue().second;
+                    size_t width = pair->first;
+                    bool isUnsigned = pair->second;
 
                     rrval = SValue(extrOrTrunc(rval.getInteger(), width, 
                                    isUnsigned), rval.getRadix());

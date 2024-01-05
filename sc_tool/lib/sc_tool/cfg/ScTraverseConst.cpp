@@ -1092,7 +1092,7 @@ void ScTraverseConst::run()
                 if (!loopVisited) {
                     unsigned iterNumber = 0;
                     if (auto in = evaluateIterNumber(doterm)) {
-                        iterNumber = in.getValue();
+                        iterNumber = *in;
                     }
                     // Add current loop into loop stack, set 1st iteration
                     loopStack.pushLoop({doterm, state->clone(), iterNumber, 1U});
@@ -1123,7 +1123,7 @@ void ScTraverseConst::run()
                                  "Incorrect element kind");
                 
                 // Get statement 
-                CFGStmt cfgstmt = elm.getAs<CFGStmt>().getValue();
+                CFGStmt cfgstmt = *elm.getAs<CFGStmt>();
                 currStmt = const_cast<Stmt*>(cfgstmt.getStmt());
                 //cout << "Stmt #" << hex << currStmt << dec << endl;
                 //currStmt->dumpColor();
@@ -1784,7 +1784,7 @@ void ScTraverseConst::run()
                     // Try to get iteration number
                     unsigned iterNumber = 0;
                     if (auto in = evaluateIterNumber(term)) {
-                        iterNumber = in.getValue();
+                        iterNumber = *in;
                     }
                     // Store state to compare with last iteration state
                     loopStack.pushLoop({term, state->clone(), iterNumber, 1U});

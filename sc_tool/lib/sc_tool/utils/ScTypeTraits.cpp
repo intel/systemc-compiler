@@ -538,11 +538,11 @@ llvm::Optional<std::pair<size_t, bool>> getIntTraits(clang::QualType type,
         
     } else 
     if (auto width = getScUintBiguintBitVec(type)) {
-        return std::pair<size_t, bool>(width.getValue(), true);
+        return std::pair<size_t, bool>(*width, true);
         
     } else 
     if (auto width = getScIntBigint(type)) {
-        return std::pair<size_t, bool>(width.getValue(), false);
+        return std::pair<size_t, bool>(*width, false);
         
     }
     
@@ -763,7 +763,7 @@ bool isScPort(clang::QualType type)
     
     if ( isScBasePort(type) ) {
         if (auto argType = getTemplateArgAsType(type, 0)) {
-            type = getPureType(argType.getValue());
+            type = getPureType(*argType);
             return isDerivedFrom(type, db->scInterfaceType);
         }
     }

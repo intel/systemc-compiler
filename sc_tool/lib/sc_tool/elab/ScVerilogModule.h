@@ -593,7 +593,7 @@ public:
 
     bool isIntrinsic() const
     {
-        return verilogIntrinsic.hasValue();
+        return (bool)verilogIntrinsic;
     }
 
     llvm::Optional<std::string> getVerilogIntrinsic() const

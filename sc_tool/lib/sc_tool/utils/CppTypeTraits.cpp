@@ -415,7 +415,7 @@ unsigned getTemplateArgNum(clang::QualType type)
     type = getPureType(type);
     
     if (auto stype = type->getAs<clang::TemplateSpecializationType>()) {
-        return stype->getNumArgs();
+        return stype->template_arguments().size();
     } else
     if (auto rdecl = type->getAsCXXRecordDecl()) {
         if (auto sdecl = dyn_cast<clang::ClassTemplateSpecializationDecl>(rdecl)) {
@@ -433,8 +433,9 @@ llvm::Optional<TemplateArgument> getTemplateArg(clang::QualType type,
     type = getPureType(type);
 
     if (auto stype = type->getAs<clang::TemplateSpecializationType>()) {
-        if (stype->getNumArgs() > argIndx) {
-            return stype->getArg(argIndx);
+        auto args = stype->template_arguments();
+        if (args.size() > argIndx) {
+            return args[argIndx];
         }
      } else 
      if (auto rdecl = type->getAsCXXRecordDecl()) {

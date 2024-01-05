@@ -1,11 +1,11 @@
 #******************************************************************************
-# Copyright (c) 2020, Intel Corporation. All rights reserved.
+# Copyright (c) 2020-2024, Intel Corporation. All rights reserved.
 # 
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
 # 
 # *****************************************************************************
 #
-# Intel(r) Compiler for SystemC*, version 1.3.7 
+# Intel(r) Compiler for SystemC*, version 1.6.1 
 #
 # *****************************************************************************
 
@@ -14,7 +14,7 @@
 #!/bin/bash
 export SHELL=/bin/sh
 
-export LLVM_VER=12.0.1
+export LLVM_VER=15.0.7
 export ICSC_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 export CMAKE_PREFIX_PATH=$ICSC_HOME

@@ -96,7 +96,7 @@ void printSplitString(std::ostream &os, const std::string& str,
     if (auto strVec = sc::splitString(str)) {
         if (comm) os << tabStr << comment << std::endl;
         
-        for (const auto& s : strVec.getValue()) {
+        for (const auto& s : *strVec) {
             bool noSem = sc::getTail(s, 5) == "begin" || sc::getTail(s, 1) == "{";
             os << tabStr << s << (noSem ? "" : ";") << std::endl;
         }

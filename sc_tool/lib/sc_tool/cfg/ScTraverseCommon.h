@@ -21,6 +21,7 @@
 #include "clang/AST/Stmt.h"
 #include <iostream>
 #include <unordered_set>
+#include <math.h>
 #include <map>
 
 namespace sc {
@@ -327,7 +328,7 @@ std::pair<unsigned, unsigned> calcNextLevel(
         
         // Check if last element is return statement
         if (elm.getKind() == CFGElement::Kind::Statement) {
-            CFGStmt cfgstmt = elm.getAs<CFGStmt>().getValue();
+            CFGStmt cfgstmt = *elm.getAs<CFGStmt>();
             if (isa<const ReturnStmt>(cfgstmt.getStmt())) {
                 returnPred = true; break;
             }
@@ -405,7 +406,7 @@ std::pair<unsigned, unsigned> calcNextLevel(
     // Skip for @switchCase as it can have input from previous empty case
     if (!switchCase && levelSum > 1) {
         // Round up 
-        upLevel = ceil(float(levelSum) / float(1 << (maxLevel-minLevel+1)));
+        upLevel = std::ceil(float(levelSum) / float(1 << (maxLevel-minLevel+1)));
     }
 
     SCT_TOOL_ASSERT(!continuePred || !returnPred, 

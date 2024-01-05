@@ -152,7 +152,7 @@ bool ScGenerateExpr::isIntToBoolCast(const Expr* expr)
             auto argType = castExpr->getSubExpr()->getType();
             
             if (auto typeInfo = getIntTraits(argType, false)) {
-                size_t width = typeInfo.getValue().first;
+                size_t width = typeInfo->first;
                 return (width > 1);
             }
         }
@@ -884,7 +884,7 @@ void ScGenerateExpr::parseExpr(MemberExpr* expr, SValue& val)
     QualType baseType = getDerefType(expr->getBase()->getType());
     bool setSaveArrayIndices = false;
     bool isRecord = isUserClass(baseType, true);
-    bool isRecordChan = isUserClassChannel(baseType, true).hasValue();
+    bool isRecordChan = (bool)isUserClassChannel(baseType, true);
 
     if ((isRecord || isRecordChan) && !codeWriter->isKeepArrayIndices()) {
         codeWriter->setKeepArrayIndices();
@@ -990,8 +990,8 @@ void ScGenerateExpr::parseExpr(ImplicitCastExpr* expr, SValue& rval, SValue& val
             // Reduce literal for narrowing cast (required for CK_IntegralCast)
             auto typeInfo = getIntTraits(type, true);
             SCT_TOOL_ASSERT (typeInfo, "No integral type width extracted");
-            size_t width = typeInfo.getValue().first;
-            bool isUnsigned = typeInfo.getValue().second;
+            size_t width = typeInfo->first;
+            bool isUnsigned = typeInfo->second;
         
             val = SValue(extrOrTrunc(val.getInteger(), width, isUnsigned), 
                          val.getRadix());
@@ -1202,8 +1202,8 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
                 unsigned lastWidth = strLiterWidth;
                 bool lastUnsigned = strLiterUnsigned;
                 if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
-                    strLiterWidth = typeInfo.getValue().first;
-                    strLiterUnsigned = typeInfo.getValue().second;
+                    strLiterWidth = typeInfo->first;
+                    strLiterUnsigned = typeInfo->second;
                 } else {
                     strLiterWidth = 0;  // Provides no string literal parsing
                 }
@@ -1255,7 +1255,7 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
                 bool rhsRecord = isUserClass(rtype, false);
                 auto rrecType = isUserClassChannel(rtype, false);
                 bool rhsRecordChan = (rhsRecord && rval.isScChannel()) || 
-                                      rrecType.hasValue();
+                                      (bool)rrecType;
                 bool rhsTempRecord = rhsRecord && rval.isRecord() && 
                                      rval == temprec;
                 bool rhsRefRecord = rhsRecord && isReference(rval.getType());
@@ -2294,7 +2294,7 @@ void ScGenerateExpr::parseCall(CallExpr* expr, SValue& val)
         std::string msgStr; 
         if (argNum == 2) {
             if (auto str = getStringFromArg(args[1])) {
-                msgStr = str.getValue();
+                msgStr = *str;
             }
         }
 
@@ -2745,7 +2745,7 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 bool lhsRecord = isUserClass(ltype, true);
                 auto lrecType = isUserClassChannel(ltype, true);
                 bool lhsRecordChan = (lhsRecord && cval.isScChannel()) || 
-                                     lrecType.hasValue();
+                                     (bool)lrecType;
 
                 //cout << "cval " << cval << " " << lhsRecord << lhsRecordChan << endl;
                 //ltype.dump();
@@ -2766,7 +2766,7 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 bool rhsRecord = isUserClass(rtype, false);
                 auto rrecType = isUserClassChannel(rtype, false);
                 bool rhsRecordChan = (rhsRecord && rval.isScChannel()) || 
-                                      rrecType.hasValue();            
+                                      (bool)rrecType;
                 bool rhsTempRecord = rhsRecord && rval.isRecord() && 
                                      rval == temprec;
                 bool rhsRefRecord = rhsRecord && isReference(rval.getType());
@@ -2938,8 +2938,8 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                                             ArrayUnkwnMode::amNoValue);
                     // Set @recordValueName to support array of record/MIF
                     if (auto thisStr = codeWriter->getStmtString(thisExpr)) {
-                        codeWriter->setRecordName(funcModval, thisStr.getValue());
-                        //cout << "   thisStr : " << funcModval << " " << thisStr.getValue() << endl;
+                        codeWriter->setRecordName(funcModval, *thisStr);
+                        //cout << "   thisStr : " << funcModval << " " << *thisStr << endl;
                     }
                     SValue curModval = modval;
                     modval = funcModval;
@@ -3062,7 +3062,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             bool lhsRecord = isUserClass(ltype, true);
             auto lrecType = isUserClassChannel(ltype, true);
             bool lhsRecordChan = (lhsRecord && lval.isScChannel()) || 
-                                 lrecType.hasValue();
+                                 (bool)lrecType;
             bool lhsRefRecord = lhsRecord && isReference(lval.getType());
 
             SValue lrec;
@@ -3086,8 +3086,8 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             unsigned lastWidth = strLiterWidth;
             bool lastUnsigned = strLiterUnsigned;
             if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
-                strLiterWidth = typeInfo.getValue().first;
-                strLiterUnsigned = typeInfo.getValue().second;
+                strLiterWidth = typeInfo->first;
+                strLiterUnsigned = typeInfo->second;
             } else {
                 strLiterWidth = 0;  // Provides no string literal parsing
             }
@@ -3109,7 +3109,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             bool rhsRecord = isUserClass(rtype, false);
             auto rrecType = isUserClassChannel(rtype, false);
             bool rhsRecordChan = (rhsRecord && rval.isScChannel()) || 
-                                  rrecType.hasValue();
+                                  (bool)rrecType;
             bool rhsTempRecord = rhsRecord && rval.isRecord() && 
                                  rval == temprec;
             bool rhsRefRecord = rhsRecord && isReference(rval.getType());
@@ -3627,7 +3627,7 @@ void ScGenerateExpr::parseReturnStmt(ReturnStmt* stmt, SValue& val)
             }
         }
         
-        //cout << codeWriter->getStmtString(stmt).getValue() << endl;
+        //cout << *codeWriter->getStmtString(stmt) << endl;
     } else {
         // Nothing to write
     }
@@ -3654,7 +3654,7 @@ void ScGenerateExpr::parseConditionalStmt(ConditionalOperator* stmt, SValue& val
     bool lhsRecord = isUserClass(ltype, true);
     auto lrecType = isUserClassChannel(ltype, true);
     bool lhsRecordChan = (lhsRecord && cval.isScChannel()) || 
-                         lrecType.hasValue();    
+                         (bool)lrecType;
     
     if (lhsRecord || lhsRecordChan) {
         // Record type

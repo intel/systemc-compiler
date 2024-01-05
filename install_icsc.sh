@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 #********************************************************************************
-# Copyright (c) 2020-2023, Intel Corporation. All rights reserved.              #
+# Copyright (c) 2020-2024, Intel Corporation. All rights reserved.              #
 #                                                                               #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.                      #
 #                                                                               #

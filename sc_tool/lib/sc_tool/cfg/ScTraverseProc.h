@@ -228,7 +228,7 @@ public:
             auto elm = cursor.getBlock()->operator [](cursor.getElementID());
             
             if (elm.getKind() == CFGElement::Kind::Statement) {
-                CFGStmt cfgstmt = elm.getAs<CFGStmt>().getValue();
+                CFGStmt cfgstmt = *elm.getAs<CFGStmt>();
                 stmtStack.push_back(cfgstmt.getStmt());
                 
             } else {

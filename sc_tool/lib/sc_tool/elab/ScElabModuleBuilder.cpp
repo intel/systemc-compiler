@@ -312,8 +312,8 @@ void ScElabModuleBuilder::traverseModule(ModuleMIFView modView)
     
     // Replace module name with Verilog module name
     if (memory) {
-        if (!memory.getValue().empty()) {
-            name = memory.getValue();
+        if (!memory->empty()) {
+            name = *memory;
         }
     }
     
@@ -731,7 +731,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
                 //cout << "record " << record.getDebugString() << endl;
                 
                 if (auto recordArray = record.getTopmostParentArray()) {
-                    record = recordArray.getValue();
+                    record = *recordArray;
                     //cout << "      " << record.getDebugString() << endl;
                 }
             }
@@ -2183,7 +2183,7 @@ ScElabModuleBuilder::getSvaProperties(const RecordView& recView)
                 !field.getFieldName()->compare("propStr")) 
             {
                 if (auto strRec = field.string()) {
-                    return strRec.getValue();
+                    return *strRec;
                 }
                 SCT_TOOL_ASSERT(false, "Unsupported std::string implementation");
             }
@@ -2206,7 +2206,7 @@ ScElabModuleBuilder::getSvaProperties(const RecordView& recView)
 //        if (!field.getFieldName()->compare("__SC_TOOL_MODULE_NAME__")) {
 //            
 //            if (auto arrayOpt = field.array()) {
-//                ArrayView array = arrayOpt.getValue();
+//                ArrayView array = *arrayOpt;
 //                char* verName = new char [array.size()];
 //                
 //                for (size_t i = 0; i < array.size(); i++) {

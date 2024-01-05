@@ -1606,7 +1606,7 @@ std::string VerilogModule::getProcName(ProcessView procObj) const
     // Add modular IF instance name to support multiple/array instance 
     // of the same modular IF class
     if (auto modifName = getModularIfName(procObj)) { 
-        procName = modifName.getValue() + "_" + procName;
+        procName = *modifName + "_" + procName;
     }
     procName = nameGen.getUniqueName(procName);
     //std::cout << "getProcName " << procName << std::endl;

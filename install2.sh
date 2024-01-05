@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 #********************************************************************************
-# Copyright (c) 2020, Intel Corporation. All rights reserved.                   #
+# Copyright (c) 2020-2024, Intel Corporation. All rights reserved.              #
 #                                                                               #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.                      #
 #                                                                               #
@@ -14,7 +14,7 @@
 
 
 # NOCHECKSERT=--no-check-certificate
-export LLVM_VER=12.0.1
+export LLVM_VER=15.0.7
 export ICSC_HOME=$1
 
 function usage() {

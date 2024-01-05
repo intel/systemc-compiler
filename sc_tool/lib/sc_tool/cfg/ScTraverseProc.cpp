@@ -29,7 +29,7 @@ namespace sc {
 void ScTraverseProc::storeStmtStr(Stmt* stmt) 
 {
     if (auto str = codeWriter->getStmtString(stmt)) {
-        scopeGraph->storeStmt(stmt, str.getValue());
+        scopeGraph->storeStmt(stmt, *str);
         //cout << "storeStmtStr " << hex << stmt << dec << " " << *str << endl;
     }
 }
@@ -38,7 +38,7 @@ void ScTraverseProc::storeStmtStr(Stmt* stmt)
 void ScTraverseProc::storeStmtStrNull(Stmt* stmt) 
 {
     if (auto str = codeWriter->getStmtString(stmt)) {
-        scopeGraph->storeStmt(nullptr, str.getValue());
+        scopeGraph->storeStmt(nullptr, *str);
     }
 }
 
@@ -531,8 +531,8 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             // Set record expression (record name and indices) to use in called function
             //cout << "\nthisExpr " << hex << thisExpr << dec << endl;
             if (auto thisStr = codeWriter->getStmtString(thisExpr)) {
-                //std::cout << "setRecordName " << funcModval << " " << thisStr.getValue() << std::endl; 
-                codeWriter->setRecordName(funcModval, thisStr.getValue());
+                //std::cout << "setRecordName " << funcModval << " " << *thisStr << std::endl; 
+                codeWriter->setRecordName(funcModval, *thisStr);
             }
         }
     }
@@ -620,8 +620,8 @@ void ScTraverseProc::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         // Set record expression (record name and indices) to use in called function
         //cout << "\nthisExpr " << hex << thisExpr << dec << endl;
         if (auto thisStr = codeWriter->getStmtString(thisExpr)) {
-            //std::cout << "setRecordName " << funcModval << " " << thisStr.getValue() << std::endl; 
-            codeWriter->setRecordName(funcModval, thisStr.getValue());
+            //std::cout << "setRecordName " << funcModval << " " << *thisStr << std::endl; 
+            codeWriter->setRecordName(funcModval, *thisStr);
         }
     }
 }
@@ -924,7 +924,7 @@ void ScTraverseProc::run()
                     getTermCondValue(doterm, termCValue, termCValueFirst);
 
                     auto stmtStr = parseTerm(doterm, termCValue,  false);
-                    scopeGraph->storeStmt(doterm, stmtStr.getValue());
+                    scopeGraph->storeStmt(doterm, *stmtStr);
 
                     if (auto doLevel = stmtInfo.getLevel(const_cast<DoStmt*>(doterm))) {
                         level = *doLevel;
@@ -956,7 +956,7 @@ void ScTraverseProc::run()
                 const CFGElement& elm = block.getCfgBlock()->operator [](i);
                 if (elm.getKind() == CFGElement::Kind::Statement) {
                     // Get statement 
-                    CFGStmt cfgstmt = elm.getAs<CFGStmt>().getValue();
+                    CFGStmt cfgstmt = *elm.getAs<CFGStmt>();
                     currStmt = const_cast<Stmt*>(cfgstmt.getStmt());
                     
                     // Skip bind temporary required for function return 
@@ -1360,7 +1360,7 @@ void ScTraverseProc::run()
                 // Parse and store IF statement
                 auto stmtStr = parseTerm(term, termCValue);
                 if (!emptySensitivity) {
-                    scopeGraph->storeStmt(term, stmtStr.getValue());
+                    scopeGraph->storeStmt(term, *stmtStr);
                 }
                 if (isNotLibrarySpace) statTerms.insert(term);
 
@@ -1458,7 +1458,7 @@ void ScTraverseProc::run()
                 auto stmtStr = parseTerm(term, termCValue);
                 // Write switch code only if there are several branches
                 if (cfgBlock->succ_size() > 1) {
-                    scopeGraph->storeStmt(term, stmtStr.getValue());
+                    scopeGraph->storeStmt(term, *stmtStr);
                 }
                 if (isNotLibrarySpace) statTerms.insert(term);
 
@@ -1628,7 +1628,7 @@ void ScTraverseProc::run()
                         }
                         
                         // Store IF statement in code writer
-                        scopeGraph->storeStmt(term, stmtStr.getValue(), true);
+                        scopeGraph->storeStmt(term, *stmtStr, true);
                         
                         // Get scope for exit block, it cannot be achieved 
                         // from any path through THEN(loop body) block
@@ -1685,7 +1685,7 @@ void ScTraverseProc::run()
                         // Parse loop 
                         auto stmtStr = parseTerm(term, termCValue, false);
                         // Store loop statement in code writer
-                        scopeGraph->storeStmt(term, stmtStr.getValue());
+                        scopeGraph->storeStmt(term, *stmtStr);
 
                         if (DebugOptions::isEnabled(DebugComponent::doGenBlock)) {
                             cout << "Loop Body Block B" << succBlock.getCfgBlockID() << ((succBlock.isReachable()) ? "" : " is unreachable") << endl;
@@ -1782,7 +1782,7 @@ void ScTraverseProc::run()
                     
                     // Do not write @break for removed loop and switch statement
                     if (!currLoop.removed) {
-                        scopeGraph->storeStmt(term, stmtStr.getValue());
+                        scopeGraph->storeStmt(term, *stmtStr);
                     } else {
                         // Add empty string to have statement for break in the scope
                         scopeGraph->storeStmt(term, string());
@@ -1820,7 +1820,7 @@ void ScTraverseProc::run()
 
                 // Do not write @continue for removed loop
                 if (!currLoop.removed) {
-                    scopeGraph->storeStmt(term, stmtStr.getValue());
+                    scopeGraph->storeStmt(term, *stmtStr);
                 } else {
                     // Add empty string to have statement for continue in the scope
                     scopeGraph->storeStmt(term, string());

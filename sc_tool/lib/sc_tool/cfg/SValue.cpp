@@ -250,8 +250,8 @@ SValue SValue::zeroValue(clang::QualType type, const Expr* expr)
     bool isUnsigned = true;
 
     if (auto typeInfo = getIntTraits(type, true)) {
-        width = typeInfo.getValue().first;
-        isUnsigned = typeInfo.getValue().second;
+        width = typeInfo->first;
+        isUnsigned = typeInfo->second;
         //cout << "Zero width " << width << " isUnsigned " << isUnsigned << endl;
     } else {
         if (expr) {

@@ -811,8 +811,8 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
 
                             if (auto typeInfo = getIntTraits(
                                                 getTypeForWidth(expr), true)) {
-                                width = typeInfo.getValue().first;
-                                isUnsigned = typeInfo.getValue().second;
+                                width = typeInfo->first;
+                                isUnsigned = typeInfo->second;
 
                             } else {
                                 ScDiag::reportScDiag(expr->getBeginLoc(),
@@ -838,8 +838,8 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
                     unsigned lastWidth = strLiterWidth;
                     bool lastUnsigned = strLiterUnsigned;
                     if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
-                        strLiterWidth = typeInfo.getValue().first;
-                        strLiterUnsigned = typeInfo.getValue().second;
+                        strLiterWidth = typeInfo->first;
+                        strLiterUnsigned = typeInfo->second;
                     } else {
                         strLiterWidth = 0;  // Provides no string literal parsing
                     }
@@ -1165,8 +1165,8 @@ void ScParseExprValue::parseImplExplCast(CastExpr* expr, SValue& rval,
                     SCT_INTERNAL_ERROR (expr->getBeginLoc(), 
                                         "No integral type width extracted");
                 }
-                size_t width = typeInfo.getValue().first;
-                bool isUnsigned = typeInfo.getValue().second;
+                size_t width = typeInfo->first;
+                bool isUnsigned = typeInfo->second;
 
                 //cout << "IntegralCast implicit cast, isUnsigned " << isUnsigned 
                 //     << ", width " << width << ", val " << val << endl;
@@ -2102,7 +2102,7 @@ bool ScParseExprValue::getIntValueInfo(const SValue& val,
         
         if (optInfo && ival.isInteger()) {
             intVal = ival.getInteger();
-            info = optInfo.getValue();
+            info = *optInfo;
             return true;
         }
     } else 
@@ -2533,8 +2533,8 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
                         SCT_INTERNAL_ERROR (callExpr->getBeginLoc(),
                                             "No integral type width extracted");
                     }
-                    size_t width = typeInfo.getValue().first;
-                    bool isUnsigned = typeInfo.getValue().second;
+                    size_t width = typeInfo->first;
+                    bool isUnsigned = typeInfo->second;
 
                     // Align integer value width
                     val = SValue(extrOrTrunc(val.getInteger(), width, isUnsigned), 
@@ -2773,8 +2773,8 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
             unsigned lastWidth = strLiterWidth;
             bool lastUnsigned = strLiterUnsigned;
             if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
-                strLiterWidth = typeInfo.getValue().first;
-                strLiterUnsigned = typeInfo.getValue().second;
+                strLiterWidth = typeInfo->first;
+                strLiterUnsigned = typeInfo->second;
             } else {
                 strLiterWidth = 0;  // Provides no string literal parsing
             }
@@ -3106,7 +3106,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                 }
                 
                 char radix = llval.isInteger() ? llval.getRadix() : 10;
-                val = res ? SValue(res.getValue(), radix) : NO_VALUE;
+                val = res ? SValue(*res, radix) : NO_VALUE;
                 //cout << "res " << (res ? res->toString(16) : "--") << " val " << val << endl;
                 
             } else 

@@ -847,10 +847,10 @@ llvm::Optional<ObjectView> ObjectView::getTopmostParentArrayOrPointer() const
         
         if (parentArray) {
             // Array of pointers
-            return parentArray.getValue();
+            return *parentArray;
         } else {
             // Single pointer 
-            return parent.primitive().getValue();
+            return *parent.primitive();
         }
     }
 

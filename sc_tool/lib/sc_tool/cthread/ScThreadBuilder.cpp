@@ -721,7 +721,7 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState,
 
             if (isConsVal || isConsRef) {
                 // Member constant
-                bool isMember = globalState->getElabObject(val).hasValue();
+                bool isMember = (bool)globalState->getElabObject(val);
 
                 // Check if local constant has integer value to replace it or
                 // defined in reset means its value available in all states 
@@ -1026,10 +1026,10 @@ void ThreadBuilder::generateThreadLocalVariables()
             varType = QualType(varType->getArrayElementTypeNoTypeQual(), 0);
         } else {
             while (isScVector(varType)) {
-                varType = getTemplateArgAsType(varType, 0).getValue();
+                varType = *(getTemplateArgAsType(varType, 0));
             }
         }
-        bool isRecordChan = isUserClassChannel(getDerefType(varType)).hasValue();
+        bool isRecordChan = (bool)isUserClassChannel(getDerefType(varType));
         
         // Replace value to array first element 
         // Use global state because only members needs to be processed here
@@ -1377,7 +1377,7 @@ void ThreadBuilder::generateThreadLocalVariables()
                                                             afterResetAcess);
         
         if (auto elabObj = globalState->getElabObject(combVarZero)) {
-            //cout << "Global object, elabObj " << elabObj.getValue().getDebugString() << endl;
+            //cout << "Global object, elabObj " << elabObj->getDebugString() << endl;
             // Get first array element for non-first element and dereference 
             // pointer to get Verilog variable name
             if (!elabObj) {

@@ -443,7 +443,7 @@ std::pair<SValue, std::vector<SValue> >
             // Put record values into array elements
             // Use @recval for local record field declarations
             SValue parent = recval ? recval : modval;
-            auto recDecl = recType.getValue()->getAsCXXRecordDecl();
+            auto recDecl = (*recType)->getAsCXXRecordDecl();
             // Record for zero array element
             SValue zeroRec;
             
@@ -1382,7 +1382,7 @@ void ScParseExpr::parseExpr(clang::ImplicitCastExpr *expr, SValue& rval, SValue 
         if (isPortIf) {
             // Get first argument of @sc_port<IF>
             if (auto tmpArg = getTemplateArgAsType(exprType, 0)) {
-                castType = tmpArg.getValue();
+                castType = *tmpArg;
             }
         }
         

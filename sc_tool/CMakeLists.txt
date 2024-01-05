@@ -166,6 +166,7 @@ target_link_libraries(SCTool
         clangASTMatchers
         clangLex
         clangBasic
+        clangSupport
         LLVMX86AsmParser
         LLVMX86Desc
         LLVMX86Info
@@ -183,6 +184,7 @@ target_link_libraries(SCTool
         LLVMCore
         LLVMSupport
         LLVMFrontendOpenMP
+        LLVMWindowsDriver
         ${system_libs}
         )
 

@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 #********************************************************************************
-# Copyright (c) 2020-2023, Intel Corporation. All rights reserved.              #
+# Copyright (c) 2020-2024, Intel Corporation. All rights reserved.              #
 #                                                                               #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.                      #
 #                                                                               #
@@ -17,20 +17,19 @@
 test -z $ICSC_HOME && { echo "ICSC_HOME is not configured"; exit 1; }
 echo "Using ICSC_HOME = $ICSC_HOME"
 
-export CWD_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-echo $CWD_DIR
 export CMAKE_PREFIX_PATH=$ICSC_HOME:$CMAKE_PREFIX_PATH
 export GCC_INSTALL_PREFIX="$(realpath "$(dirname $(which g++))"/..)"
 
-echo "Downloading and building Protobuf/LLVM at $CWD_DIR/build_deps..."
-mkdir build_deps -p && cd build_deps
+echo "Downloading and building Protobuf/LLVM at $ICSC_HOME/build_deps..."
+cd $ICSC_HOME
+mkdir build_deps -p
 
-# ################################################################################
-# Download, unpack, build, install Protobuf 3.13
-wget -N https://github.com/protocolbuffers/protobuf/archive/v3.13.0.tar.gz --no-check-certificate
-tar -xf v3.13.0.tar.gz --skip-old-files
+# Download, unpack, build, install Protobuf 3.19
+cd $ICSC_HOME/build_deps
+wget -N https://github.com/protocolbuffers/protobuf/archive/v3.19.4.tar.gz --no-check-certificate
+tar -xf v3.19.4.tar.gz --skip-old-files
 (
-    cd protobuf-3.13.0
+    cd protobuf-3.19.4
     mkdir build -p && cd build
     cmake ../cmake/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DBUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_CXX_STANDARD=17
     make -j12
@@ -39,15 +38,19 @@ tar -xf v3.13.0.tar.gz --skip-old-files
 
 # ################################################################################
 # Download, unpack, build, install Clang and LLVM
-wget -N https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/clang-12.0.1.src.tar.xz --no-check-certificate
-wget -N https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/llvm-12.0.1.src.tar.xz --no-check-certificate
-tar -xf clang-12.0.1.src.tar.xz --skip-old-files
-tar -xf llvm-12.0.1.src.tar.xz --skip-old-files
-ln -sf ../../clang-12.0.1.src llvm-12.0.1.src/tools/clang
+cd $ICSC_HOME/build_deps
+wget -N https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/clang-15.0.7.src.tar.xz --no-check-certificate
+wget -N https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/llvm-15.0.7.src.tar.xz --no-check-certificate
+wget -N https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/cmake-15.0.7.src.tar.xz --no-check-certificate
+tar -xf cmake-15.0.7.src.tar.xz --skip-old-files
+tar -xf clang-15.0.7.src.tar.xz --skip-old-files
+tar -xf llvm-15.0.7.src.tar.xz --skip-old-files
+ln -sf ../../clang-15.0.7.src llvm-15.0.7.src/tools/clang
+cp cmake-15.0.7.src/Modules/* llvm-15.0.7.src/cmake/modules
 (
-    cd llvm-12.0.1.src
+    cd llvm-15.0.7.src
     mkdir build -p && cd build
-    cmake ../ -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD="X86" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DGCC_INSTALL_PREFIX=$GCC_INSTALL_PREFIX -DCMAKE_CXX_STANDARD=17
+    cmake ../ -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD=X86 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DGCC_INSTALL_PREFIX=$GCC_INSTALL_PREFIX -DCMAKE_CXX_STANDARD=17 -DLLVM_INCLUDE_BENCHMARKS=OFF
     make -j12
     make install
 )
@@ -56,19 +59,20 @@ ln -sf ../../clang-12.0.1.src llvm-12.0.1.src/tools/clang
 # Download, unpack, build, install GDB with Python3
 if [[ $1 == gdb ]]
 then
-   wget -N https://ftp.gnu.org/gnu/gdb/gdb-11.2.tar.gz --no-check-certificate
-   tar -xf gdb-11.2.tar.gz --skip-old-files
-   (
-       cd gdb-11.2
-       ./configure --prefix="$ICSC_HOME" --with-python="$(which python3)"
-       make -j12
-       make install
-   )
+    cd $ICSC_HOME/build_deps
+    wget -N https://ftp.gnu.org/gnu/gdb/gdb-12.1.tar.gz --no-check-certificate
+    tar -xf gdb-12.1.tar.gz --skip-old-files
+    (
+        cd gdb-12.1
+        ./configure --prefix="$ICSC_HOME" --with-python=/usr/bin/python3
+        make -j12
+        make install
+    )
 fi
 
 # ################################################################################
 # Build and install ISCC
-cd $CWD_DIR
+cd $ICSC_HOME/icsc
 (
     mkdir build_icsc_rel -p && cd build_icsc_rel
     cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DCMAKE_CXX_STANDARD=17
@@ -82,7 +86,7 @@ cd $CWD_DIR
     make -j12
     make install
 
-    cp $CWD_DIR/cmake/CMakeLists.top $ICSC_HOME/CMakeLists.txt
+    cp $ICSC_HOME/icsc/cmake/CMakeLists.top $ICSC_HOME/CMakeLists.txt
 )
 
 echo "*** ISCC Build and Installation Complete! ***"

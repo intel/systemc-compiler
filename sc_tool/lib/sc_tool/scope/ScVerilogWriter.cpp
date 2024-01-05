@@ -160,8 +160,8 @@ string ScVerilogWriter::getVarDeclVerilog(const QualType& type,
         string s;
         
         if (auto typeInfo = getIntTraits(ctype)) {
-            unsigned width = typeInfo.getValue().first;
-            bool isUnsigned = typeInfo.getValue().second;
+            unsigned width = typeInfo->first;
+            bool isUnsigned = typeInfo->second;
             
             // SV integer and unsigned are exactly 32bit
             bool isInt = false;
@@ -325,8 +325,7 @@ std::pair<string, string> ScVerilogWriter::getVarName(const SValue& val)
                 // Always use next name for @SCT_ASSERT
                 string vname = (i->second.isRegister() && 
                                (!isClockThreadReset || parseSvaArg)) ?
-                                i->second.nextName.getValue() : 
-                                i->second.currName.getValue();
+                                *i->second.nextName : *i->second.currName;
 
                 // For combinational member variable it needs to create
                 // local declaration in reset section to avoid multiple drivers
@@ -469,7 +468,7 @@ pair<string, string> ScVerilogWriter::getChannelName(const SValue& cval)
             cout << "varTraits: " << endl;
             for (auto& e : varTraits) {
                 cout << "   " << e.first << " : " << (e.second.currName ?
-                        e.second.currName.getValue() : "---") << endl;
+                        *e.second.currName : "---") << endl;
             }
             SCT_INTERNAL_FATAL_NOLOC ("No channel in VarTraits");
         }
@@ -480,15 +479,13 @@ pair<string, string> ScVerilogWriter::getChannelName(const SValue& cval)
         
         // In reset section current name is used, it placed in @always_ff
         string rdName = (i->second.isCombSig() && isClockThreadReset) ?
-                         i->second.nextName.getValue() :
-                         i->second.currName.getValue();
+                         *i->second.nextName : *i->second.currName;
 
         // For @sct_comb_signal assign to current value
         string wrName = (((i->second.isRegister() || i->second.isClearSig()) && 
                           !isClockThreadReset) || 
                          (i->second.isCombSig() && isClockThreadReset)) ?
-                         i->second.nextName.getValue() : 
-                         i->second.currName.getValue();
+                         *i->second.nextName : *i->second.currName;
 
         if (DebugOptions::isEnabled(DebugComponent::doGenName)) {
             cout << "   varTraits channel names " << rdName << " " << wrName << endl;
@@ -1062,7 +1059,7 @@ unsigned ScVerilogWriter::getExprTypeWidth(const Expr* expr, unsigned defWidth)
 
     if (width == 0) {
         if (auto typeInfo = getIntTraits(getTypeForWidth(expr))) {
-            width = typeInfo.getValue().first;
+            width = typeInfo->first;
             
         } else {
             width = defWidth;
@@ -1081,7 +1078,7 @@ unsigned ScVerilogWriter::getMinExprTypeWidth(const Expr* expr, unsigned defWidt
 
     if (width == 0) {
         if (auto typeInfo = getIntTraits(getTypeForWidth(expr))) {
-            width = typeInfo.getValue().first;
+            width = typeInfo->first;
             
         } else {
             width = defWidth;
@@ -1254,7 +1251,7 @@ void ScVerilogWriter::putTypeCast(const clang::Stmt* srcStmt,
 
         unsigned width = 64; 
         if (auto typeInfo = getIntTraits(type, true)) {
-            width = typeInfo.getValue().first;
+            width = typeInfo->first;
             
         } else {
             ScDiag::reportScDiag(srcStmt->getBeginLoc(),
@@ -1331,7 +1328,7 @@ void ScVerilogWriter::setReplacedCastWidth(const clang::Stmt* stmt,
 
         unsigned width = 64;
         if (auto typeInfo = getIntTraits(type, true)) {
-            width = typeInfo.getValue().first;
+            width = typeInfo->first;
             
         } else {
             ScDiag::reportScDiag(stmt->getBeginLoc(),
@@ -3167,9 +3164,12 @@ string ScVerilogWriter::getForString(const Stmt* init,const Expr* cexpr,
     // Condition can be empty 
     std::string condStr = terms.count(cexpr) ? getTermAsRValue(cexpr).first : "";
     // Use @getStmtString for initialization/increment at it cannot have type cast
-    return ("for (" + getStmtString(init).getValueOr("") + "; " +
-                      condStr + "; " + 
-                      getStmtString(incr).getValueOr("") + ")");
+    std::string initStr = "";
+    if (auto initStmtStr = getStmtString(init)) initStr = *initStmtStr;
+    std::string incrStr = "";
+    if (auto incrStmtStr = getStmtString(incr)) incrStr = *incrStmtStr;
+            
+    return ("for (" + initStr + "; " + condStr + "; " + incrStr + ")");
 }
 
 // Get string for WHILE statement
@@ -3257,18 +3257,18 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
             if (i.second.currName && i.second.nextName && 
                 (i.second.isAccessAfterReset() || !REMOVE_UNUSED_NEXT()))
             {
-                string s = i.second.nextName.getValue() + suffix +
+                string s = *i.second.nextName + suffix +
                            ASSIGN_SYM + 
-                           i.second.currName.getValue() + suffix;
+                           *i.second.currName + suffix;
                 sortAssign.push_back(s);
             }
         } else 
         if (i.second.isCombSig()) {
             // COMBSIG w/o CLEAR flag
             if (i.second.currName && i.second.nextName) {
-                string s = i.second.currName.getValue() + suffix +
+                string s = *i.second.currName + suffix +
                            ASSIGN_SYM + 
-                           i.second.nextName.getValue() + suffix;
+                           *i.second.nextName + suffix;
                 sortAssign.push_back(s);
             }
         } else 
@@ -3284,7 +3284,7 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
             
             // Use "default" for array only
             if (i.second.currName) {
-                string s = i.second.currName.getValue() + suffix + 
+                string s = *i.second.currName + suffix + 
                            ASSIGN_SYM + (isArr ? "'{default:0}" : "'0");
                 sortAssign.push_back(s);
             }
@@ -3301,7 +3301,7 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
             
             // Use "default" for array only
             if (i.second.nextName) {
-                string s = i.second.nextName.getValue() + suffix + 
+                string s = *i.second.nextName + suffix + 
                            ASSIGN_SYM + (isArr ? "'{default:0}" : "'0");
                 sortAssign.push_back(s);
             }
