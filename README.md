@@ -4,11 +4,17 @@
 
 ## Introduction
 
-Intel&reg; Compiler for SystemC* (ICSC) translates synthesizable SystemC design to synthesizable SystemVerilog design.
+Intel&reg; Compiler for SystemC* (ICSC) translates synthesizable SystemC design into equvivalent SystemVerilog code.
 
-ICSC supports SystemC synthesizable subset in method and thread processes and arbitrary C++ code in module constructors. The tool produces human-readable SystemVerilog for complex multi-module designs in tens of seconds. ICSC performs design checks to detect non-synthesizable code and common coding mistakes. 
+ICSC checks a SystemC design for common coding mistakes and generates human-readable SystemVerilog code. The tool supports SystemC synthesizable subset in method and thread processes, and arbitrary C++ code in module constructors. ICSC is based on Clang/LLVM 15.0.7 and includes SystemC 3.0.0 RC.
 
 See more information at [Intel Compiler for SystemC wiki](https://github.com/intel/systemc-compiler/wiki).
+
+## Common SystemC Library
+
+Common SystemC Library consists of types, modules and functions which could be used in SystemC designs and testbench code. The main part of the library are communication channels including Target/Initiator, FIFO, Register and others. The channels have functional interfaces similar to TLM 1.0.
+
+See more information at [Common SystemC Library](https://github.com/intel/systemc-compiler/wiki/Common-SystemC-Library) .
 
 ## License
 
