@@ -142,10 +142,10 @@ read
 # ################################################################################
 # Download, unpack, build, install Protobuf 3.13
 if [ "${build_type['proto']}" != "" ]; then (
-    maybe_download proto https://github.com/protocolbuffers/protobuf/archive/v3.13.0.tar.gz
+    maybe_download proto https://github.com/protocolbuffers/protobuf/archive/v3.19.4.tar.gz
     CMAKE_BUILD_TYPE="${build_type['proto']}"
     (
-        cd protobuf-3.13.0
+        cd protobuf-3.19.4
         cmake cmake/ -Bbuild -DBUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
         cd build
         make -j12 install
