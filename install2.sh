@@ -172,10 +172,10 @@ fi;
 # ################################################################################
 # Download, unpack, build, install GDB with Python3
 if [ "${build_type['gdb']}" != "" ]; then (
-    maybe_download gdb https://ftp.gnu.org/gnu/gdb/gdb-11.2.tar.gz
+    maybe_download gdb https://ftp.gnu.org/gnu/gdb/gdb-12.1.tar.gz
     CMAKE_BUILD_TYPE="${build_type['gdb']}"
     (
-        cd gdb-11.2
+        cd gdb-12.1
         ./configure --prefix="$ICSC_HOME" --with-python="$(which python3)"
         make -j12 install
     )
