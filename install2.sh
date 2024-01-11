@@ -16,6 +16,7 @@
 # NOCHECKSERT=--no-check-certificate
 export LLVM_VER=15.0.7
 export ICSC_HOME=$1
+export GCC_INSTALL_PREFIX="$(realpath "$(dirname $(which g++))"/..)"
 
 function usage() {
     echo "Usage: $0 <install prefix> [--debug|--release|--rel-debug|--examples] [proto] [llvm] [gdb] [icsc]"
@@ -158,11 +159,13 @@ fi;
 if [ "${build_type['llvm']}" != "" ]; then (
     maybe_download llvm https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VER/clang-$LLVM_VER.src.tar.xz
     maybe_download llvm https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VER/llvm-$LLVM_VER.src.tar.xz
+    maybe_download llvm https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VER/cmake-$LLVM_VER.src.tar.xz
     CMAKE_BUILD_TYPE="${build_type['llvm']}"
     (
         cd llvm-$LLVM_VER.src
         ln -sf ../../clang-$LLVM_VER.src tools/clang
-        cmake ./ -Bbuild -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD="X86" -DCMAKE_BUILD_TYPE=Release -DGCC_INSTALL_PREFIX=$GCC_INSTALL_PREFIX -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
+        cp ../cmake-$LLVM_VER.src/Modules/* cmake/modules
+        cmake ./ -Bbuild -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD=X86 -DGCC_INSTALL_PREFIX=$GCC_INSTALL_PREFIX -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DLLVM_INCLUDE_BENCHMARKS=OFF
         cd build
         make -j12 install
     )
