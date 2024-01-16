@@ -16,6 +16,7 @@
 # NOCHECKSERT=--no-check-certificate
 export LLVM_VER=15.0.7
 export ICSC_HOME=$1
+export GCC_INSTALL_PREFIX="$(realpath "$(dirname $(which g++))"/..)"
 
 function usage() {
     echo "Usage: $0 <install prefix> [--debug|--release|--rel-debug|--examples] [proto] [llvm] [gdb] [icsc]"
@@ -142,10 +143,10 @@ read
 # ################################################################################
 # Download, unpack, build, install Protobuf 3.13
 if [ "${build_type['proto']}" != "" ]; then (
-    maybe_download proto https://github.com/protocolbuffers/protobuf/archive/v3.13.0.tar.gz
+    maybe_download proto https://github.com/protocolbuffers/protobuf/archive/v3.19.4.tar.gz
     CMAKE_BUILD_TYPE="${build_type['proto']}"
     (
-        cd protobuf-3.13.0
+        cd protobuf-3.19.4
         cmake cmake/ -Bbuild -DBUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
         cd build
         make -j12 install
@@ -158,11 +159,13 @@ fi;
 if [ "${build_type['llvm']}" != "" ]; then (
     maybe_download llvm https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VER/clang-$LLVM_VER.src.tar.xz
     maybe_download llvm https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VER/llvm-$LLVM_VER.src.tar.xz
+    maybe_download llvm https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VER/cmake-$LLVM_VER.src.tar.xz
     CMAKE_BUILD_TYPE="${build_type['llvm']}"
     (
         cd llvm-$LLVM_VER.src
         ln -sf ../../clang-$LLVM_VER.src tools/clang
-        cmake ./ -Bbuild -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD="X86" -DCMAKE_BUILD_TYPE=Release -DGCC_INSTALL_PREFIX=$GCC_INSTALL_PREFIX -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
+        cp ../cmake-$LLVM_VER.src/Modules/* cmake/modules
+        cmake ./ -Bbuild -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD=X86 -DGCC_INSTALL_PREFIX=$GCC_INSTALL_PREFIX -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DLLVM_INCLUDE_BENCHMARKS=OFF
         cd build
         make -j12 install
     )
@@ -172,10 +175,10 @@ fi;
 # ################################################################################
 # Download, unpack, build, install GDB with Python3
 if [ "${build_type['gdb']}" != "" ]; then (
-    maybe_download gdb https://ftp.gnu.org/gnu/gdb/gdb-11.2.tar.gz
+    maybe_download gdb https://ftp.gnu.org/gnu/gdb/gdb-12.1.tar.gz
     CMAKE_BUILD_TYPE="${build_type['gdb']}"
     (
-        cd gdb-11.2
+        cd gdb-12.1
         ./configure --prefix="$ICSC_HOME" --with-python="$(which python3)"
         make -j12 install
     )
