@@ -17,7 +17,8 @@ function(svc_target exe_target)
     # INIT_LOCAL_VARS      -- initialize local variables at declaration with zero
     # INIT_RESET_LOCAL_VARS-- initialize CTHREAD reset section local variables 
     #                         at declaration with zero
-    # WILL_FAIL  -- test will fail on non-synthesizable code
+    # WILL_FAIL            -- test will fail on non-synthesizable code
+    # NO_ADD_SCT_PROPERTY  -- do not add sct_property.cpp here
     set(boolOptions REPLACE_CONST_VALUE 
                     NO_SVA_GENERATE
                     PORT_MAP_GENERATE
@@ -25,7 +26,8 @@ function(svc_target exe_target)
                     NO_REMOVE_EXTRA_CODE
                     INIT_LOCAL_VARS
                     INIT_RESET_LOCAL_VARS
-                    WILL_FAIL)
+                    WILL_FAIL
+                    NO_ADD_SCT_PROPERTY)
 
     # Arguments with one value
     # GOLDEN        -- Path to golden Verilog output for diff
@@ -175,7 +177,9 @@ function(svc_target exe_target)
 
     # Create string from option list with adding quotes, required for file name with spaces
     foreach (TOPT ${TOOL_OPTS})
-            set (TOOL_OPTS_STR "${TOOL_OPTS_STR} \"${TOPT}\"")
+            if (NOT TOPT STREQUAL "-DSC_ENABLE_ASSERTIONS")
+                set (TOOL_OPTS_STR "${TOOL_OPTS_STR} \"${TOPT}\"")
+            endif()
     endforeach()
 
     # string (REPLACE ";" " " TOOL_OPTS_STR "${TOOL_OPTS}")
@@ -213,10 +217,10 @@ function(svc_target exe_target)
 
     # Copy user definitions, add __SC_TOOL__ for synthesis target
     if(targetDefinitions)
-        target_compile_definitions(${exe_target_sctool} PRIVATE __SC_TOOL__ 
+        target_compile_definitions(${exe_target_sctool} PUBLIC __SC_TOOL__ 
                                    PRIVATE ${targetDefinitions})
     else()
-        target_compile_definitions(${exe_target_sctool} PRIVATE __SC_TOOL__)
+        target_compile_definitions(${exe_target_sctool} PUBLIC __SC_TOOL__)
     endif()
 
     # Create _BUILD target for ctest, build exe_target_sctool
@@ -238,8 +242,12 @@ function(svc_target exe_target)
         set_tests_properties(${exe_target}_DIFF PROPERTIES DEPENDS ${exe_target}_SYN)
     endif()
 
-    # Add SCT_PROPERTY file 
-    target_sources(${exe_target} PRIVATE 
-                   $ENV{ICSC_HOME}/include/sctcommon/sct_property.cpp)
+    # Add SCT_PROPERTY file, not required if it is already added in CMakeLists.txt 
+    if (${PARAM_NO_ADD_SCT_PROPERTY})
+        # Do not add sct_property.cpp
+    else()
+        target_sources(${exe_target} PRIVATE 
+                       $ENV{ICSC_HOME}/include/sctcommon/sct_property.cpp)
+    endif()
 
 endfunction()

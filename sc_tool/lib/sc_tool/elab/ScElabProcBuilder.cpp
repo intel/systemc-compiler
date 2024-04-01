@@ -32,10 +32,12 @@ using namespace std;
 
 namespace sc_elab {
 
-ProcBuilder::ProcBuilder(ModuleMIFView moduleView, ElabDatabase &elabDB)
+ProcBuilder::ProcBuilder(ModuleMIFView moduleView, ElabDatabase &elabDB,
+                         const std::unordered_set<uint32_t>& extrTargInit_)
     : ctx(*moduleView.getDatabase()->getASTContext())
     , rootModView(moduleView)
     , elabDB(elabDB)
+    , extrTargInit(extrTargInit_)
 {
     //cout << "ProcBuilder " << moduleView.getVerilogModule()->getName() << endl;
     // Module global state
@@ -163,10 +165,44 @@ sc::SValue ProcBuilder::traverseRecord(RecordView recView, bool isVerModule)
     
 //    cout << "   traverseField ... " << endl;
 //    auto start = chrono::system_clock::now();
+    
+    // Check if this record is Target/Initiator in top module and bound to external
+    bool isExtrTargInit = extrTargInit.count(recView.getID()) != 0;
+    unsigned valOrigSync = 0; unsigned valChanSync = 0; 
+    
     for (ObjectView memberObj : recView.getFields()) {
-        //cout << "    " << memberObj.getID() << endl;
-        traverseField(memberObj);
+        // Normal traverse field for any record
+        const SValue& lval = traverseField(memberObj);
+
+        if (isExtrTargInit && lval) {
+            if (lval.asString().find("orig_sync") != std::string::npos) {
+                const SValue& rval = moduleState->getValue(lval);
+                if (rval.isInteger()) valOrigSync = rval.getInteger().getZExtValue();
+                //cout << lval << " " << rval << endl;
+            }
+            if (lval.asString().find("chan_sync") != std::string::npos) {
+                const SValue& rval = moduleState->getValue(lval);
+                if (rval.isInteger()) valChanSync = rval.getInteger().getZExtValue();
+                //cout << lval << " " << rval << endl;
+            }
+        }
     }
+    
+    // Report error if sync value was updated in @bind() function
+    if (valOrigSync != valChanSync) {
+        if (recView.getValueDecl()) 
+            ScDiag::reportScDiag(recView.getValueDecl()->getBeginLoc(), 
+                                 ScDiag::SYNTH_SS_CHAN_PARAM_IN_TOP);
+        else {
+            if (auto pardecl = recView.getParentModuleOrMIF().getValueDecl()) {
+                ScDiag::reportScDiag(pardecl->getBeginLoc(), 
+                                     ScDiag::SYNTH_SS_CHAN_PARAM_IN_TOP);
+            } else {
+                ScDiag::reportScDiag(ScDiag::SYNTH_SS_CHAN_PARAM_IN_TOP);
+            }
+        }
+    }
+    
 //    auto end = chrono::system_clock::now();
 //    chrono::duration<double> diff = end-start;
 //    cout << "   traverseField DONE, time " << diff.count() << endl;

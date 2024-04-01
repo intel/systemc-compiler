@@ -22,14 +22,15 @@ struct A : sc_module, sc_interface {
     
     A(sc_module_name) 
     {
-        SC_METHOD(methProcA); sensitive << req;
+        SC_METHOD(methProcA); sensitive << resp;
         
         SC_CTHREAD(threadProc, clk.pos());
         async_reset_signal_is(rstn, false);
     }
     
+    sc_signal<unsigned> t;
     void methProcA() {
-        resp = 1;
+        t = resp;
     }
     
     void threadProc() {

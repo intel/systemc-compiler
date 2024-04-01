@@ -126,8 +126,10 @@ private:
     ObjectView curScObj;
 
     UniqueNamesGenerator modNameGen;
-    // Ports bound to dynamic allocated signal leaked, used for target/initiator 
+    /// Ports bound to dynamic allocated signal leaked, used for target/initiator 
     std::unordered_set<PortView> bindedDynamicPorts;
+    /// Targets/Initiators in top module bounded externally, to detect errors
+    std::unordered_set<uint32_t> extrTargInit;
 
 private:
 
@@ -188,7 +190,7 @@ private:
                             const ArrayElemVec &allArrayBinds) const;
 
     /// Binding singular port or binding array to array uniformly
-    void uniformBind(const PortView &port);
+    ScElabModuleBuilder::BindDirection uniformBind(const PortView &port);
 
 
     /// Binding each element of Verilog array separately :
@@ -890,6 +892,7 @@ void ScElabModuleBuilder::createPortBindingsKeepArrays(VerilogModule &verMod)
 {
     //cout << endl << "Module : " << verMod.getName() << endl;
     std::unordered_set<PortView> bindedPortsSet; // set of already bound ports
+    bool isTopMod = verMod.getModObj().isTopMod();
 
     for (PortView port : verMod.getScPorts()) {
         //cout << "port " << port.getDebugString() << endl;
@@ -933,14 +936,28 @@ void ScElabModuleBuilder::createPortBindingsKeepArrays(VerilogModule &verMod)
         }
 
         if (!isFlattenBind) {
-            uniformBind(port);
+            auto bindDirection = uniformBind(port);
+
+            // Check for Target/Initiator in top module bounded to external
+            if (isTopMod && bindDirection == BIND_EXTERNAL) {
+                auto parent = port.getParentModuleOrMIF();
+                auto ptype = parent.getType();
+                if (isSctTarg(ptype) || isSctInit(ptype)) {
+                    extrTargInit.insert(parent.getID());
+                } else 
+                if (isSctCombTarg(ptype)) {
+                    // For @sct_comb_targ all fields are in its base class
+                    extrTargInit.insert(parent.getBases().front().getID());
+                }    
+            }
         } else {
             flattenArrayBind(verMod, port, allArrayPorts);
         }
     }        
 }
 
-void ScElabModuleBuilder::uniformBind(const PortView &port)
+ScElabModuleBuilder::BindDirection 
+ScElabModuleBuilder::uniformBind(const PortView &port)
 {
     auto portHostMod = elabDB->getVerilogModule(port.getParentModule());
     auto verVars = portHostMod->getVerVariables(port);
@@ -975,7 +992,7 @@ void ScElabModuleBuilder::uniformBind(const PortView &port)
     }
 
     bindAux(port, verVars, bindDirection, true);
-
+    return bindDirection;
 }
 
 void ScElabModuleBuilder::flattenArrayBind( VerilogModule &portHostMod,
@@ -2085,7 +2102,7 @@ void ScElabModuleBuilder::createProcessBodies(VerilogModule &verMod)
         
     // Create @state common for this module, could be modified for 
     // local static constant and global variable outside of the module
-    ProcBuilder procBuilder(verMod.getModObj(), *elabDB);
+    ProcBuilder procBuilder(verMod.getModObj(), *elabDB, extrTargInit);
     procBuilder.prepareState(verMod.getModObj());
 
     // Generate code for SVA properties in module body

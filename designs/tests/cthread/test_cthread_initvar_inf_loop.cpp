@@ -41,6 +41,7 @@ public:
         }
     }
 
+    sc_signal<int> s;
     void test_cthread2()
     {
         wait();
@@ -48,7 +49,7 @@ public:
         while (1) {
             sc_uint<31> var_a = 1;
             wait();
-            in = var_a;
+            s = var_a;
         }
     }
 };

@@ -278,6 +278,6 @@ add_executable(cthread_var_ref test_cthread_var_ref.cpp)
 svc_target(cthread_var_ref GOLDEN cthread_var_ref.sv)
 
 add_executable(cthread_var_multiple_use test_cthread_var_multiple_use.cpp)
-svc_target(cthread_var_multiple_use GOLDEN cthread_var_multiple_use.sv)
+svc_target(cthread_var_multiple_use WILL_FAIL)
 
 

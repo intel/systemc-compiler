@@ -223,13 +223,14 @@ public:
         }
     }
     
+    sc_signal<bool>  arbt_ack_write_;
     void for_loop_meth()
     {
         bool arbt_ack_ = 0;
         for (int i = 0; i < 1; i++) {
             arbt_ack_ = arbt_ack_ || t;
         }
-        arbt_ack_write = arbt_ack_ && line_oper;
+        arbt_ack_write_ = arbt_ack_ && line_oper;
     }
     
 // ---------------------------------------------------------------------------

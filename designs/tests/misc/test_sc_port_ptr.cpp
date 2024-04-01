@@ -28,18 +28,10 @@ struct AhbSlave : public sc_module, sc_interface
     port_if<T>*     slave_port;
     
     SC_CTOR(AhbSlave) {
-        SC_METHOD(methProc);
-        sensitive << clk.pos();
-
         SC_CTHREAD(threadProc, clk.pos());
         async_reset_signal_is(nrst, false);
     }
     
-    void methProc() 
-    {
-        slave_port->f(0);
-    }
-     
     void threadProc() 
     {
         T a = 0;

@@ -511,7 +511,10 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     }
     
     // Report error for lack/extra sensitive to SS channels
-    travProc.reportSctChannel(procView, methodDecl->getAsFunction());
+    // Do not report for non-zero MIF elements
+    if (!noneZeroElmntMIF) {
+        travProc.reportSctChannel(procView, methodDecl->getAsFunction());
+    }
     
     return procCode;
 }

@@ -128,9 +128,10 @@ public:
     }
     
     // @while with conditional wait
+    sc_signal<int> tt1;
     void while_with_wait2()
     {
-        out = 0;
+        tt1 = 0;
         wait();
         
         while (1) {
@@ -138,23 +139,24 @@ public:
             int i = 0;
             while (i < 3) {
                 i++;
-                out = 1;
+                tt1 = 1;
                 wait();     // 1
                 
                 if (in.read() > 1) {
-                    out = 2;
+                    tt1 = 2;
                     wait();  // 2
                 }
             }
-            out = 3;
+            tt1 = 3;
             wait();     // 3
         }
     }
     
     // @while with inner @for 
+    sc_signal<int> tt2;
     void while_with_for()
     {
-        out = 0;
+        tt2 = 0;
         wait();
         
         while (1) {
@@ -162,34 +164,35 @@ public:
             int i = 0;
             while (i < 3) {
                 i++;
-                out = 1;
+                tt2 = 1;
                 
                 for (int j = 0; j < 2; j++) {
                     if (in.read() > 1) {
-                        out = j;
+                        tt2 = j;
                     }
                     wait();  // 1
                 }
             }
-            out = 3;
+            tt2 = 3;
             wait();     // 2
         }
     }
 
     // @while with signal condition
+    sc_signal<int> tt3;
     void while_with_signal_cond()
     {
-        out = 0;
+        tt3 = 0;
         wait();
         
         while (1) {
 
             while (in.read()) {
-                out = 1;
+                tt3 = 1;
                 wait();     // 0
             }
 
-            out = 2;
+            tt3 = 2;
             wait();         // 0
         }
     }

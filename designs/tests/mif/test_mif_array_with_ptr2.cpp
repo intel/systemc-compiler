@@ -40,7 +40,7 @@ struct mod_if : public sc_module, sc_interface
 
     void ptrProc() {
         *out = *in;
-        *p = 2;
+        *out = *p;
         *vp = 3;
     }
     
@@ -49,7 +49,6 @@ struct mod_if : public sc_module, sc_interface
         wait();
         
         while (true) {
-            *out = 1;
             p->write(in->read());
             wait();
         }

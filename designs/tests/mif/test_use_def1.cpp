@@ -66,7 +66,10 @@ struct Top : sc_module, sc_interface
     {
         for (unsigned i = 0; i < M; ++i) mif2d[i].init(M);
         SC_METHOD(unkwMif); sensitive << s;
+        for (unsigned i = 0; i < M; ++i) sensitive << mif[i].b;
         SC_METHOD(unkwMif2D); sensitive << s;
+        for (unsigned i = 0; i < M; ++i) 
+            for (unsigned j = 0; j < M; ++j) sensitive << mif2d[i][j].b;
         SC_METHOD(unkwRec); sensitive << s;
         SC_METHOD(unkwRec2D); sensitive << s;
         SC_METHOD(unkwMem); sensitive << s;

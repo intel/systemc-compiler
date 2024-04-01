@@ -75,6 +75,7 @@ public:
     }
     
     // Constant reference initialization 
+    sc_signal<int> s0a;
     void local_const_ref()
     {
         int i = 42;         // reg   
@@ -84,11 +85,11 @@ public:
             const int& cr = i+1; // comb
             int j = cr;          
             const int& cr2 = j;  // not declared
-            s0 = cr2;
+            s0a = cr2;
             const sc_int<34>& cr3 = j;  // comb
-            s0 = cr3;
+            s0a = cr3;
             const sc_biguint<34>& cr4 = 42;  // comb
-            s0 = cr4.to_int();
+            s0a = cr4.to_int();
             wait();
         }
     }

@@ -477,6 +477,18 @@ public:
         t13 = i;
     }
 
+    sc_signal<int> t13a;
+    void f1a(Simple par) {
+        int i = par.b;
+        t13a = i;
+    }
+
+    sc_signal<int> t13b;
+    void f1b(Simple par) {
+        int i = par.b;
+        t13b = i;
+    }
+
     // Record as function parameter by value
     void rec_arr_elem_func_param_val()
     {
@@ -496,7 +508,7 @@ public:
         while (true) {
             Simple tr[3];
             
-            f1(tr[1]);
+            f1a(tr[1]);
             wait();
         }
     }
@@ -509,7 +521,7 @@ public:
         wait(); 
         while (true) {
             Simple tr[3];
-            f1(tr[i]);
+            f1b(tr[i]);
             
             wait();
         }
@@ -523,6 +535,27 @@ public:
         wait();
         int i = par.a + par.b;
         t14 = i;
+    }
+
+    sc_signal<int> t14a;
+    void ff1a(const Simple par) {
+        wait();
+        int i = par.a + par.b;
+        t14a = i;
+    }
+
+    sc_signal<int> t14b;
+    void ff1b(const Simple par) {
+        wait();
+        int i = par.a + par.b;
+        t14b = i;
+    }
+
+    sc_signal<int> t14c;
+    void ff1c(const Simple par) {
+        wait();
+        int i = par.a + par.b;
+        t14c = i;
     }
 
     void rec_arr_elem_const_val1()
@@ -544,7 +577,7 @@ public:
             Simple sr;      // reg
             wait();
             
-            ff1(sr);
+            ff1a(sr);
         }
     }
     
@@ -553,7 +586,7 @@ public:
         Simple crra[3];   // reg
         wait(); 
         while (true) {
-            ff1(crra[1]);
+            ff1b(crra[1]);
             wait();
         }
     }
@@ -565,7 +598,7 @@ public:
         while (true) {
             wait();
             int i = sig.read();
-            ff1(crrb[i]);
+            ff1c(crrb[i]);
         }
     }
     
@@ -738,6 +771,13 @@ public:
         t21 = c;
     }
 
+    sc_signal<int> t21a;
+    void f5a(Simple par[2]) {
+        int indx = par[1].b;
+        bool c = par[indx].a == 2;
+        t21a = c;
+    }
+
     void rec_arr_func_param_val()
     {
         wait(); 
@@ -758,7 +798,7 @@ public:
             
             wait();
             
-            f5(ar);
+            f5a(ar);
         }
     }    
     

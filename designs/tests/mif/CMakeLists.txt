@@ -131,7 +131,7 @@ add_executable(mif_array_with_ptr_array test_mif_array_with_ptr_array.cpp)
 svc_target(mif_array_with_ptr_array GOLDEN mif_array_with_ptr_array.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_var_multiple_use test_mif_var_multiple_use.cpp)
-svc_target(mif_var_multiple_use GOLDEN mif_var_multiple_use.sv NO_REMOVE_EXTRA_CODE)
+svc_target(mif_var_multiple_use WILL_FAIL)
 
 ## Fix me, error not reported yet, see #115
 #add_executable(mif_array_heterogenous test_array_heterogenous.cpp)

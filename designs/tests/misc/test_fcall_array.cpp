@@ -259,13 +259,14 @@ struct Top : public sc_module
     
     // Local reference to signal, no local pointer to signal allowed
     sc_signal<int> t3;
+    sc_signal<sc_uint<4>>   sss;
     void sigLocRefThread() 
     {
         wait(); 
         
         while(true) 
         {
-            sc_signal<sc_uint<4>>& rs = ss;
+            sc_signal<sc_uint<4>>& rs = sss;
             rs = 0;
             sc_uint<4> l = rs.read();
             t3 = l;

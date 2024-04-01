@@ -372,7 +372,6 @@ public:
         int i;
         int j; j = 1;
         int k; k = 2;
-        a = k;
         int l = 0;
         l -= 1;
         sc_uint<2> x;
@@ -393,19 +392,20 @@ public:
     }
     
     // Register variables in reset
+    sc_signal<int> t8a;
     void reg_init_in_reset() 
     {
         int i;
         int j = 1;
         int k = 2;
-        a = k;
+        t8a = k;
         
         wait();
         
         while (true) {
-            a = i;
-            a = j;
-            a = k;
+            t8a = i;
+            t8a = j;
+            t8a = k;
             
             wait();
         }
@@ -413,12 +413,13 @@ public:
 
     int arr0[3];
     sc_signal<int> t9;
+    sc_signal<int> t8b;
     void reg_assign_in_reset() 
     {
         int i;
         int j; j = 1;
         int k; k = 2;
-        a = k;
+        t8b = k;
         int l = 0;
         sc_uint<2> x;
         x = 1;
@@ -430,12 +431,12 @@ public:
         wait();
         
         while (true) {
-            a = i;
-            a = j;
-            a = k;
-            a = l;
-            a = x;
-            a = arr0[1];
+            t8b = i;
+            t8b = j;
+            t8b = k;
+            t8b = l;
+            t8b = x;
+            t8b = arr0[1];
             
             wait();
         }
@@ -479,6 +480,7 @@ public:
     sc_signal<bool>     arr2[3];
     int arr4[2];
     
+    sc_signal<int> t12;
     void array_init_in_reset() 
     {
         arr1[0] = 1;
@@ -494,9 +496,9 @@ public:
         while (true) {
             // Partial defined not used to determined it as comb variable
             arr1[0] = 1; arr1[s7.read()] = 2; 
-            a = arr1[0];
+            t12 = arr1[0];
             
-            a = arr2[1] + arr4[s7.read()];
+            t12 = arr2[1] + arr4[s7.read()];
             
             wait();
         }

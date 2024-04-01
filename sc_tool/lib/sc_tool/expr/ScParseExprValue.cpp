@@ -346,8 +346,9 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
             }
         }
         
-        ParmVarDecl* parDecl = const_cast<ParmVarDecl*>(
-                               callFuncDecl->getParamDecl(paramIndx++));
+        // Use method definition to have same declaration as in function body
+        ParmVarDecl* parDecl = const_cast<ParmVarDecl*>(callFuncDecl->
+                                    getDefinition()->getParamDecl(paramIndx++));
         QualType type = parDecl->getType();
         if (isScPort(type)) {
             ScDiag::reportScDiag(expr->getBeginLoc(), 

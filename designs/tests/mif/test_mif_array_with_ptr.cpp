@@ -71,7 +71,7 @@ SC_MODULE(Top) {
         }
         
         SC_METHOD(top_method);
-        sensitive << minst[0]->s << minst[1]->s << t;
+        sensitive << minst[0]->s << minst[1]->s << (*minst[0]->p) << (*minst[1]->p) << t;
         
         SC_CTHREAD(top_thread, clk.pos());
         async_reset_signal_is(rst, true);
@@ -82,9 +82,13 @@ SC_MODULE(Top) {
         int i = t;
         minst[1]->s = 1;
 
-        minst[1]->p->write(2);
-        (*minst[1]->p).write(3);
-        *(minst[1]->p) = 4;
+        //minst[1]->p->write(2);
+        //(*minst[1]->p).write(3);
+        //*(minst[1]->p) = 4;
+        t = minst[1]->p->read();
+        t = *(minst[1]->p);
+        t = minst[i]->p->read();
+        t = *(minst[i]->p);
         
         *minst[1]->vvp = 5;
         

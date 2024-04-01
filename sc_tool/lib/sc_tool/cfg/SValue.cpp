@@ -641,10 +641,7 @@ clang::QualType SVariable::getType() const {
 
 string SVariable::asString(bool debug) const {
     if (debug) {
-        //std::stringstream stream;
-        //stream << std::hex << decl;
         return (parent.asString() + "." + decl->getDeclName().getAsString());
-               //+"( "+stream.str()+" )");
     } else {
         return decl->getDeclName().getAsString();
     }

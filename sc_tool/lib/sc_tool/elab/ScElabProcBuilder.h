@@ -35,7 +35,8 @@ public:
     /// instead that last element used
     //static const unsigned MAX_ARR_ELEM_NUM = sc::ScState::MAX_ARR_ELEM_NUM;
     
-    ProcBuilder(ModuleMIFView moduleView, ElabDatabase &elabDB);
+    ProcBuilder(ModuleMIFView moduleView, ElabDatabase &elabDB,
+                const std::unordered_set<uint32_t>& extrTargInit_);
 
     /// Generate module level SVA properties code from declarations
     std::string generateSvaProperties(VerilogModule& verMod);
@@ -100,6 +101,9 @@ private: // data
     
     /// Pointer to constant flag to get value of its pointe
     bool constPointe = false;
+    
+    /// Targets/Initiators id`s in top module bounded externally, to detect errors
+    std::unordered_set<uint32_t> extrTargInit;
 };
 
 

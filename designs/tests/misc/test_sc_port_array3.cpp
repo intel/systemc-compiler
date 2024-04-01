@@ -12,6 +12,7 @@ template<typename T>
 struct port_if : public sc_interface {
     virtual void f(T val) = 0;
     virtual T g(T val) = 0;
+    virtual void addTo(sc_sensitive& s) = 0;
 };
 
 template<typename T>
@@ -34,6 +35,10 @@ struct Target : public sc_module, port_if<T>
         r = val;
         return r.read();
     }
+    
+    void addTo(sc_sensitive& s) override {
+        s << r;
+    }
 };
 
 template<typename T>
@@ -44,13 +49,12 @@ struct AhbSlave : public sc_module, sc_interface
     
     sc_signal<T>    s;
 
-    sc_port<port_if<T> >  slave_port;
+    sc_port<port_if<T> >  slave_port{"slave_port"};
     
     SC_CTOR(AhbSlave) {
-        SC_METHOD(methProc); sensitive << s;
     }
     
-    void methProc()
+    void f()
     {
         slave_port->f(s.read());
         T l = slave_port->g(s.read());
@@ -77,6 +81,15 @@ struct Dut : public sc_module
         tars[1].init(3);
         
         slave.slave_port(tars[1][2]);
+
+        SC_METHOD(methProc); 
+        sensitive << slave.s;
+        slave.slave_port->addTo(sensitive);
+    }
+
+    void methProc()
+    {
+        slave.f();
     }
 };
 

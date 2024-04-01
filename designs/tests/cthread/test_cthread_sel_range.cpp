@@ -81,9 +81,10 @@ public:
     }
     
     // @range() in LHS with other read/write
+    sc_signal<int> out2;
     void range_select_lhs1()
     {
-        out = 0;
+        out2 = 0;
         sc_uint<3> x = 0;
         a = 3;
         wait();
@@ -92,35 +93,37 @@ public:
             x.range(1,0) = 2;       // Extra register for @x
             a(2,1) = x.range(1,0);
             
-            out.write(x.range(1,0) + a);
+            out2.write(x.range(1,0) + a);
             wait();
         }
     }
     
     // @range() in LHS with other read/write
+    sc_signal<int> out3;
     void range_select_lhs1a()
     {
-        out = 0;
+        out3 = 0;
         sc_uint<3> x;
         wait();
         
         while (true) { 
             x(1,0) = 1; x(2,0) = 5; 
             x(2,1) = x(1,0) << 1;
-            out = (x(2,1) == in.read()) ? x.range(2,0) + 1 : x(1,1)*2;
+            out3 = (x(2,1) == in.read()) ? x.range(2,0) + 1 : x(1,1)*2;
             wait();
         }
     }
     
     // No write to @b except via @range()
+    sc_signal<int> out4;
     void range_select_lhs2()
     {
-        out = 0;
+        out4 = 0;
         wait();
         
         while (true) { 
             b.range(2,1) = 1;       
-            out = b;
+            out4 = b;
             wait();
         }
     }
@@ -150,13 +153,14 @@ public:
     }
     
      // No read/write to @d except via @range()
+    sc_signal<int> out5;
     void range_select_lhs4a()
     {
         out = 1;
         wait();
         
         while (true) {
-            out = e.range(2,0);
+            out5 = e.range(2,0);
             wait();
         }
     }

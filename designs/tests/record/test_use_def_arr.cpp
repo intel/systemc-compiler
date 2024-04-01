@@ -108,6 +108,7 @@ public:
     sc_signal<unsigned> s{"s"};
     
     sc_signal<Simple>   sim{"sim"};
+    sc_signal<Simple>   sim2{"sim2"};
     sc_signal<Arr>      aim{"aim"};
     sc_signal<Arr>      bim{"bim"};
     sc_signal<Inn>      iim{"iim"};
@@ -375,12 +376,12 @@ public:
      
     void threadReg() {
         Simple ss;
-        sim = ss;
+        sim2 = ss;
         Par pp(1);
         wait();
         
         while (true) {
-            ss = sim;
+            ss = sim2;
             Simple tt = ss;         
             pp = pim;
             Par xx = pp;

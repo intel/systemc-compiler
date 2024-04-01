@@ -50,6 +50,8 @@ SC_MODULE(MyModule)
     sc_in_clk       clk;
     sc_signal<bool> rst;
     sc_signal<int>  sig;
+    sc_signal<int>  sig1;
+    sc_signal<int>  sig2;
     
     sc_signal<bool> s1;
     sc_signal<bool> s2;
@@ -131,8 +133,8 @@ SC_MODULE(MyModule)
         wait();
         while (true) {
             bool b = struct1.mb_read();
-            sig = E;
-            sig = EE;
+            sig1 = E;
+            sig1 = EE;
             wait();
         }
     }
@@ -171,14 +173,14 @@ SC_MODULE(MyModule)
    // Thread process example
    void multiStateProc() {
        sc_uint<16> x = 0;
-       sig = 1;              
+       sig2 = 1;              
        wait();                    // STATE 0
 
        while (true) {
           sc_uint<8> y = a.read(); 
           x = y + 1;
           wait();                 // STATE 1
-          sig = x;           
+          sig2 = x;           
        }
     }
    

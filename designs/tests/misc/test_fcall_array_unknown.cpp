@@ -88,22 +88,25 @@ public:
         t0 = z;
     }
 
+    sc_signal<int> t0a;
     template <typename ChanType>
     void f_ch_ref(ChanType& chan) {
         bool w = chan.read();
-        t0 = w;
+        t0a = w;
     }
     
+    sc_signal<int> t0b;
     template <typename VarType>
     void f_var_ptr(VarType var) {
         sc_uint<4> x = *var;
-        t0 = x;
+        t0b = x;
     }
 
+    sc_signal<int> t0c;
     template <typename ChanType>
     void f_ch_ptr(ChanType chan) {
         bool y = *chan ^ chan->read();
-        t0 = y;
+        t0c = y;
     }
 
 
@@ -121,8 +124,6 @@ public:
         bool b1 = *pca1[a];
         bool b2 = (*pca1[a]).read();
         bool b3 = pca1[a]->read();
-        f_ch_ref(*pca1[a]);
-        f_ch_ptr(pca1[a]);
     }
     
     void chan_pointer_array_param_thread()
@@ -131,7 +132,6 @@ public:
         wait();
         
         while (true) {
-            f_ch_ref(*pcat[a]);
             f_ch_ptr(pcat[a]);
             wait();
         }
@@ -145,7 +145,6 @@ public:
         t1 = c1;
         f_var_ref(ia[a]);     
         f_var_ref(*pia[a]); 
-        f_var_ptr(pia[a]);
     }
 
     sc_signal<int> t2;
@@ -158,8 +157,6 @@ public:
         while (true) {
             sc_uint<4> c1 = *piat[a];
             t2 = c1;
-            f_var_ref(iat[a]);     
-            f_var_ref(*piat[a]); 
             f_var_ptr(piat[a]);
             wait();
         }

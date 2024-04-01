@@ -52,7 +52,8 @@ struct B : sc_module, sc_interface {
         }
         
         SC_METHOD(methB);
-        sensitive << c;
+        sensitive << c << mif_aa.a;
+        for (int i = 0; i != M; ++i) sensitive << mif_a[i].a;
         
         SC_CTHREAD(threadB, clk.pos());
         async_reset_signal_is(rstn, false);
@@ -61,9 +62,11 @@ struct B : sc_module, sc_interface {
     sc_signal<unsigned> c{"c"};
     unsigned k;
     
+    sc_signal<int> t1;
+    sc_signal<int> t2;
     void methB() {
-        mif_aa.a = 1;
-        mif_a[c.read()].a = 2;
+        t1 = mif_aa.a;
+        t2 = mif_a[c.read()].a;
     }
     
     void threadB() {

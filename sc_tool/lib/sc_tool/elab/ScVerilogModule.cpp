@@ -207,77 +207,95 @@ void VerilogModule::detectUseDefErrors()
     using namespace sc;
     
 //    std::cout << "----- Used variables: " << std::endl;
-//    for (const auto& entry : procDefVars) {
+//    for (const auto& entry : procUseVars) {
 //        std::cout << "Process #" << entry.first.getID() << std::endl;
 //        for (const auto& procVars : entry.second) {
 //            std::cout << procVars.first->getName() << std::endl;
 //        } 
 //    }
 //    std::cout << "----- Defined variables: " << std::endl;
-//    for (const auto& entry : procUseVars) {
+//    for (const auto& entry : procDefVars) {
 //        std::cout << "Process #" << entry.first.getID() << std::endl;
 //        for (const auto& procVars : entry.second) {
 //            std::cout << procVars.first->getName() << std::endl;
 //        }
 //    }
     
-    std::unordered_set<const VerilogVar*> useVars;
-    std::unordered_set<const VerilogVar*> defVars;
+    std::unordered_map<const VerilogVar*, ProcessView> defVars;
+    std::unordered_map<const VerilogVar*, ProcessView> useVars;
     
     // Checking defined variables
     for (const auto& entry : procDefVars) {
+        const ProcessView& procView = entry.first;
+        bool isCombProc = procView.isCombinational();
+        auto procDecl = procView.getLocation().second; 
+
         for (const auto& procVars : entry.second) {
             const VerilogVar* verVar = procVars.first;
-            // Skip variables/channels in MIF array elements
-            if (memMifArrVars.count(verVar) != 0) continue;
-            if (memMifArrChannels.count(verVar) != 0) continue;
-            
-            const auto& defRes = defVars.insert(verVar);
-            bool isChannel = procVars.second == VarKind::vkChannel;
+            const auto& defRes = defVars.emplace(verVar, procView);
             
             // Variable/channel already defined in other process 
             if (!defRes.second) {
-                auto* procDecl = entry.first.getLocation().second;
-                auto diagId = isChannel ? ScDiag::SYNTH_MULT_PROC_DRIVE_SIG :
-                                          ScDiag::SYNTH_MULT_PROC_ACCESS_VAR;
-                SCT_TOOL_ASSERT (procDecl, "Process has null declaration");
-                ScDiag::reportScDiag(procDecl->getBeginLoc(), diagId) <<
-                                     verVar->getName();
+                const ProcessView& othProcView = defRes.first->second;
+                auto othProcDecl = othProcView.getLocation().second;
+                // Check process functions are different (not same in MIF array elements)
+                if (procDecl != othProcDecl) {
+                    ScDiag::ScDiagID diagId;
+                    if (procVars.second == VarKind::vkChannel) {
+                        // Check both process defined the variable are combinational
+                        isCombProc = isCombProc && othProcView.isCombinational();
+                        diagId = isCombProc ? ScDiag::SYNTH_MULT_COMB_DRIVE_SIG :
+                                              ScDiag::SYNTH_MULT_SEQ_DRIVE_SIG;
+                    } else {
+                        diagId = ScDiag::SYNTH_MULT_PROC_ACCESS_VAR;
+                    }
+                    SCT_TOOL_ASSERT (procDecl, "Process has null declaration");
+                    ScDiag::reportScDiag(procDecl->getBeginLoc(), diagId) <<
+                                         verVar->getName();
+                }
             }
         }
     }
         
     // Checking used variables
     for (const auto& entry : procUseVars) {
+        const ProcessView& procView = entry.first;
+        auto procDecl = procView.getLocation().second; 
+        
         for (const auto& procVars : entry.second) {
             const VerilogVar* verVar = procVars.first;
-            // Skip variables in MIF array elements
-            if (memMifArrVars.count(verVar) != 0) continue;
-
-            const auto& useRes = useVars.insert(verVar);
-            bool isVariable = procVars.second == VarKind::vkVariable;
+            // Skip constants and non-variable
+            if (verVar->isConstant() || 
+                procVars.second != VarKind::vkVariable) continue;
+            
+            const auto& useRes = useVars.emplace(verVar, procView);
 
             // Variable already used in other process 
-            if (!useRes.second && isVariable && !verVar->isConstant()) {
-                auto* procDecl = entry.first.getLocation().second;
-                SCT_TOOL_ASSERT (procDecl, "Process has null declaration");
-                ScDiag::reportScDiag(procDecl->getBeginLoc(),
-                                     ScDiag::SYNTH_MULT_PROC_ACCESS_VAR) <<
-                                     verVar->getName();
+            if (!useRes.second) {
+                const ProcessView& othProcView = useRes.first->second;
+                auto othProcDecl = othProcView.getLocation().second;
+                // Check process functions are different (not same in MIF array elements)
+                if (procDecl != othProcDecl) {
+                    SCT_TOOL_ASSERT (procDecl, "Process has null declaration");
+                    ScDiag::reportScDiag(procDecl->getBeginLoc(),
+                                         ScDiag::SYNTH_MULT_PROC_ACCESS_VAR) <<
+                                         verVar->getName();
+                }
             }
         }
     }
     
     // Checking use of assigned channel in this method process
     for (const auto& entry : procDefVars) {
-        const auto& procView = entry.first;
-        if (!procView.isScMethod()) continue;
+        const ProcessView& procView = entry.first;
+        if (!procView.isCombinational()) continue;
         
         for (const auto& procVars : entry.second) {
             const VerilogVar* verVar = procVars.first;
-            bool isChannel = procVars.second==VerilogModule::VarKind::vkChannel;
+            // Skip non-channels
+            if (procVars.second != VarKind::vkChannel) continue;
 
-            if (isChannel && procUseVars[procView].count(verVar) != 0) {
+            if (procUseVars[procView].count(verVar) != 0) {
                 auto* procDecl = procView.getLocation().second;
                 SCT_TOOL_ASSERT (procDecl, "Process has null declaration");
                 
@@ -303,14 +321,10 @@ void VerilogModule::detectUseDefErrors()
         unsigned nonSensFound = 0;
         std::string nonSensChannels;
         for (const auto& procVar : entry.second) {
-            bool isChannel = procVar.second == VarKind::vkChannel;
-            if (!isChannel) continue;
-                
             const VerilogVar* verVar = procVar.first;
-            
-            // Skip channel variables in MIF array elements
-            if (memMifArrChannels.count(verVar) != 0) continue;
-            
+            // Skip non-channels
+            if (procVar.second != VarKind::vkChannel) continue;
+
             bool found = false;
             for (const auto& event : procView.staticSensitivity()) {
                 if (!event.isDefault()) continue;
@@ -336,6 +350,30 @@ void VerilogModule::detectUseDefErrors()
                                  ScDiag::SYNTH_NON_SENSTIV_2USED) << 
                                  nonSensChannels;
         }                
+    }
+    
+    // Checking @SC_THREAD sensitivity to @sc_signal (not @sct_signal)
+    for (const auto& entry : procUseVars) {
+        const ProcessView& procView = entry.first;
+        if (!procView.isScThread()) continue;
+        
+        for (const auto& event : procView.staticSensitivity()) {
+            auto eventVars = event.sourceObj.getVerilogVars();
+            for (const auto& eventVar : eventVars) {
+                auto i = verVar2Value.find(eventVar.var);
+                if (i != verVar2Value.end()) {
+                    const SValue& val = i->second;
+                    if (val.asString().find("sc_signal") != std::string::npos) {
+                        if (auto procdecl = procView.getLocation().second) {
+                            ScDiag::reportScDiag(procdecl->getLocation(),
+                                                 ScDiag::SYNTH_SS_SIG_SENS_THREAD);
+                        } else {
+                            ScDiag::reportScDiag(ScDiag::SYNTH_SS_SIG_SENS_THREAD);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -909,8 +947,6 @@ VerilogVar *VerilogModule::createChannelVariable(sc_elab::ObjectView systemcObje
     
     channelVarMap[systemcObject].push_back(var);
     
-    if (isMIFArrElmnt) memMifArrChannels.insert(var);
-    
     return var;
 }
 
@@ -998,7 +1034,6 @@ VerilogVar* VerilogModule::createDataVariableMIFArray(ObjectView cppObject,
                                 uniqueName, bitwidth, std::move(arrayDims),
                                 isSigned, std::move(initVals), comment) );
         memberMIFArrayVars[nameKey] = var;
-        memMifArrVars.insert(var);
         
         //cout << "  create var, name " << uniqueName << endl;
     } else {

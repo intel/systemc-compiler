@@ -62,8 +62,6 @@ struct AhbSlave : public sc_module, sc_interface
     sc_port<port_if<T> >  slave_port;
     
     SC_CTOR(AhbSlave) {
-        SC_METHOD(methProc); sensitive << s;
-        
         SC_CTHREAD(thrdProc1, clk.pos());
         async_reset_signal_is(nrst, 0);
 
@@ -71,12 +69,6 @@ struct AhbSlave : public sc_module, sc_interface
         async_reset_signal_is(nrst, 0);
     }
     
-    void methProc()
-    {
-        slave_port->f(s.read());
-        slave_port->fa(s.read());
-    }
-
     void thrdProc1()
     {
         slave_port->f(1);

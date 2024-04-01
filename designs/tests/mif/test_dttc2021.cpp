@@ -28,12 +28,13 @@ SC_MODULE(Top)
     }
 
 sc_signal<bool> enable;
+sc_signal<int> out2;
 void method() {
    bool b = in; 
    if (enable != 0) { 
-      out = b;
+      out2 = b;
    } else {
-      out = 0;
+      out2 = 0;
    }
 }
     

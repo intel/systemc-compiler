@@ -64,7 +64,7 @@ struct Top : public sc_module
         aa[0].B  = 0;
         aa[1].B  = 1;
          
-        SC_METHOD(topProc); sensitive << t;
+        SC_METHOD(topProc); sensitive << t << aa[0].s << aa[1].s;
     }
     
     sc_signal<int> t1;

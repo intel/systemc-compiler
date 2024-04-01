@@ -60,14 +60,18 @@ struct A : public sc_module
     sc_signal<Simple> r;
 
     sc_signal<Simple>  t0;
+    sc_signal<Simple>  t0a;
     sc_signal<Simple>  t1;
     sc_signal<Simple>  t2;
     sc_signal<int>  t3;
+    sc_signal<int>  t3a;
     sc_signal<int>  t4;
+    sc_signal<int>  t4a;
     sc_signal<int>  t5;
     sc_signal<FArray>  t6;
     sc_signal<FArray>  t7;
     sc_signal<int>  t8;
+    sc_signal<int>  t8a;
     
     SC_HAS_PROCESS(A);
 
@@ -116,7 +120,7 @@ struct A : public sc_module
             Simple r3{s.read()};    // not removed
 
             Simple r4;              // not removed
-            t0 = r4;
+            t0a = r4;
 
             Simple r5 = r.read();   // not removed    
 
@@ -165,6 +169,7 @@ struct A : public sc_module
         t1 = m10;
     }
     
+    sc_signal<Simple>  t1b;
     void remove_member_thread() 
     {
         Simple r1;
@@ -176,13 +181,13 @@ struct A : public sc_module
             m4t.a = 42;
             auto l1 = m5t.b;
             auto l2 = m6t.a;
-            t3 = l2;
+            t3a = l2;
 
             m7t = m8t;
 
             Simple r2 = m9t;
-            t3 = r2.a;
-            t1 = m10t;
+            t3a = r2.a;
+            t1b = m10t;
             wait();
         }
     }
@@ -246,26 +251,25 @@ struct A : public sc_module
         wait();
 
         while (true) {
-            ma0[s.read()] = a;
             a1[0][0] = a;
 
             Simple a2[2];           // not removed    
             Simple a3[2][3];        // not removed    
 
             a2[0] = ma2t[0];         // not removed
-            t4 = a2[0].a;
+            t4a = a2[0].a;
 
             a3[s.read()][0] = ma3t[1];                       // not removed  
             a3[1][s.read()] = ma4t[s.read()][s.read()];      // not removed
 
             auto l1 = ma5t[s.read()][1];
             auto l2 = ma6t[1][s.read()];
-            t4 = l2.a;
+            t4a = l2.a;
 
             auto l3 = ma7t[s.read()];
             Simple l4; l4.a = ma8t[0][s.read()].a;
             Simple l5; l5.a = ma9t[s.read()][s.read()].a;
-            t4 = l5.a;
+            t4a = l5.a;
             wait();
         }
     }
@@ -304,6 +308,7 @@ struct A : public sc_module
     FArray fm7t;                 // not removed
     FArray fm8t[2];              // not removed
 
+    sc_signal<FArray>  t7a;
     void remove_field_array_thread() 
     {
         FArray f1;              // not removed
@@ -312,12 +317,12 @@ struct A : public sc_module
 
         while (true) {
             fm3t = t6.read();
-            t7 = fm4t;
+            t7a = fm4t;
             fm5t[s.read()] = t6.read();
-            t7 = fm6t[s.read()];
+            t7a = fm6t[s.read()];
 
-            t8 = fm7t.b[s.read()];
-            t8 = fm8t[s.read()].a[s.read()];
+            t8a = fm7t.b[s.read()];
+            t8a = fm8t[s.read()].a[s.read()];
             wait();
         }
     }

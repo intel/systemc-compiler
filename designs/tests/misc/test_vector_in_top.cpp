@@ -18,6 +18,7 @@ struct Top : sc_module
     sc_vector<sc_in<bool>>             in{"in", N};
     sc_vector<sc_out<sc_uint<4>>>      out{"out", N};
     sc_vector<sc_signal<sc_uint<4>>>   sig{"sig", N};
+    sc_vector<sc_signal<sc_uint<4>>>   sig1{"sig1", N};
 
     SC_CTOR(Top) {
         
@@ -29,13 +30,13 @@ struct Top : sc_module
     }
     
     void methProc() {
-        sig[0] = 1;
-        sig[2] = 2;
-        out[0] = sig[1].read() + sig[2].read();
+        sig1[0] = sig[1].read() + sig[2].read();
     }
     
     void threadProc() 
     {
+        sig[0] = 1;
+        sig[2] = 2;
         for (int i = 1; i < N; ++i) {
             out[i] = 0;
         }

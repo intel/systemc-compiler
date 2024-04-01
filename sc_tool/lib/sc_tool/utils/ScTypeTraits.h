@@ -122,7 +122,7 @@ bool isScInOut(clang::QualType type);
 /// Check if the type is pointer or @sc_port<IF>
 bool isPointerOrScPort(clang::QualType type);
 
-/// Check if @type is sc_signal or its inheritor
+/// Check if @type is @sc_signal or its inheritor
 bool isScSignal(clang::QualType type);
 
 /// Check if @type is sct_comb_signal or its inheritor
@@ -152,6 +152,7 @@ bool isScCoreType(clang::QualType type);
 bool isSctFifo(clang::QualType type);
 bool isSctTarg(clang::QualType type);
 bool isSctCombTarg(clang::QualType type);
+bool isSctInit(clang::QualType type);
 
 /// Check for SS channels used in sensitivity lists
 /// For ff_synchronizer only read()/operator bool() required to add in sensitivity 

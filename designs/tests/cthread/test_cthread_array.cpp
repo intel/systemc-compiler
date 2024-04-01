@@ -41,8 +41,9 @@ public:
             }
         }
         
-        SC_CTHREAD(bug_in_array_index, clk.pos());
-        async_reset_signal_is(arstn, false);
+        // Error reported
+        //SC_CTHREAD(bug_in_array_index, clk.pos());
+        //async_reset_signal_is(arstn, false);
 
         SC_CTHREAD(bug_in_array_index2, clk.pos());
         async_reset_signal_is(arstn, false);

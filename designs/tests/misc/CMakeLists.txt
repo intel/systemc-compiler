@@ -238,7 +238,7 @@ svc_target(misc_unused_remove_rec_sig GOLDEN misc_unused_remove_rec_sig.sv)
 add_executable(misc_unused_remove_register test_unused_remove_register.cpp)
 svc_target(misc_unused_remove_register GOLDEN misc_unused_remove_register.sv)
 
-## 
+##
 add_executable(misc_cond_side_effect_fail test_cond_side_effect_fail.cpp)
 svc_target(misc_cond_side_effect_fail WILL_FAIL)
 
@@ -535,3 +535,12 @@ svc_target(misc_localparam GOLDEN misc_localparam.sv)
 
 add_executable(misc_localparam_mif test_localparam_mif.cpp)
 svc_target(misc_localparam_mif GOLDEN misc_localparam_mif.sv) 
+
+## Check functions placed in cpp file
+add_executable(misc_func_in_cpp test_func_in_cpp.cpp)
+svc_target(misc_func_in_cpp GOLDEN misc_func_in_cpp.sv) 
+
+## Check disable of @SC_ENABLE_ASSERTIONS
+add_executable(misc_sc_assert_enable test_sc_assert_enable.cpp)
+target_compile_definitions(misc_sc_assert_enable PUBLIC SC_ENABLE_ASSERTIONS)
+svc_target(misc_sc_assert_enable ELAB_TOP test_top.a_mod GOLDEN misc_sc_assert_enable.sv) 

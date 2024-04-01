@@ -33,10 +33,12 @@ struct Child : public sc_module
         async_reset_signal_is(rst, true);
     }
 
+    sc_signal<int>        out1;
+    sc_signal<int>        s1;
     void methA() {
         v = in.read();
-        s = 2 - v;
-        out = 1 + in.read();
+        s1 = 2 - v;
+        out1 = 1 + in.read();
     }
 
     void thrA() {

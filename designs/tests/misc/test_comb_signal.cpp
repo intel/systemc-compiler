@@ -15,8 +15,10 @@ struct comb_signal_module : public sc_module
     sc_in<bool>             clk{"clk"};
     sc_in<bool>             nrst{"nrst"};
     sc_signal<bool>             a{"a"};
+    sct_comb_signal<bool, 0>    req0{"req0"};
     sct_comb_signal<bool, 0>    req1{"req1"};
     sct_comb_signal<bool, 1>    req2{"req2"};
+    sct_comb_signal<bool, 1>    req3{"req3"};
 
     // Signals written before read
     sc_signal<bool>             c{"c"};
@@ -43,8 +45,8 @@ struct comb_signal_module : public sc_module
     
     void thrdProc() {
         bool a = 0;
-        req1 = 1;
-        req2 = 0;
+        req0 = 1;
+        req3 = 0;
         c = 0;
         d = 0;
         wait();             // 0
@@ -52,8 +54,8 @@ struct comb_signal_module : public sc_module
         while (true) {
             c = 1;
             d = 2;
-            req1 = a;
-            req2 = a;
+            req0 = a;
+            req3 = a;
             a = !a;
             wait();         // 1
         }

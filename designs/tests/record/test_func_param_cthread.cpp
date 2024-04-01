@@ -70,6 +70,13 @@ public:
         t1 = b;
     }
     
+    sc_signal<int> t1a;
+    void f2a(Simple par) {
+        bool b = par.a;
+        par.b = 2;
+        t1a = b;
+    }
+
     sc_signal<int> t2;
     void f3(Simple par1, Simple par2) {
         bool b = par1.a || par2.a;
@@ -78,6 +85,14 @@ public:
         t2 = par2.a;
     }
     
+    sc_signal<int> t2a;
+    void f3a(Simple par1, Simple par2) {
+        bool b = par1.a || par2.a;
+        par1.a = b+1;
+        par2.a = b-1;
+        t2a = par2.a;
+    }
+
     void f4(Simple& par1, const Simple& par2) {
         bool b = par1.a && par2.a;
         par1.a = b;
@@ -120,7 +135,7 @@ public:
         while (true) {
             Simple s;
             s.b = 1;
-            f2(s);
+            f2a(s);
             wait();
         }
     }
@@ -145,7 +160,7 @@ public:
         while (true) {
             Simple s;
             gr.a = true;
-            f3(gr, s);
+            f3a(gr, s);
             wait();
         }
     }

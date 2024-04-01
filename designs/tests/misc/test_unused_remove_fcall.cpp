@@ -36,6 +36,8 @@ struct A : public sc_module
 
     sc_signal<int>  t0;
     sc_signal<int>  t1;
+    sc_signal<int>  t0a;
+    sc_signal<int>  t1a;
     sc_signal<int>  t2;
     sc_signal<int>  t3;
     sc_signal<int>  t4;
@@ -71,17 +73,17 @@ struct A : public sc_module
         int res2 = f2(42);          // removed
     
         int i2a; i2a = 1;           // not removed
-        t0 = f2(i2a);               // not removed
+        t0a = f2(i2a);               // not removed
 
         int i3; i3 = 1;             // not removed
         int res3 = f3(i3);          // removed
 
         int i3a; i3a = 1;           // not removed
-        t0 = f3(i3a);               // not removed
+        t0a = f3(i3a);               // not removed
     
         int i3b; i3b = 1;           // not removed
         int res3b = f3(i3b);        // not removed
-        t0 = res3b;                 // not removed
+        t0a = res3b;                 // not removed
 
         unsigned i4 = s.read();     // not removed
         unsigned j4 = s.read();     // removed
@@ -152,7 +154,7 @@ struct A : public sc_module
         unsigned u1a; u1a = 42;
         sc_uint<4> x1a = s.read();
         m1(b1a, u1a, x1a);
-        t1 = x1a;
+        t1a = x1a;
         
         bool b2; b2 = s.read();
         unsigned u2; u2 = s.read();
@@ -162,7 +164,7 @@ struct A : public sc_module
         bool b2a; b2a = s.read();
         unsigned u2a; u2a = s.read();
         sc_uint<4> x2a = s.read();      // removed
-        t1 = m2(b2a, u2a, x2a);         // not removed
+        t1a = m2(b2a, u2a, x2a);         // not removed
 
         bool b3; b3 = true;             // not removed
         unsigned u3; u3 = 42;           // not removed
@@ -172,7 +174,7 @@ struct A : public sc_module
         bool b3a; b3a = true;
         unsigned u3a; u3a = 42;
         sc_uint<4> x3a = s.read();
-        t1 = m3(b3a, u3a, x3a);         // not removed
+        t1a = m3(b3a, u3a, x3a);         // not removed
     }   
     
     void remove_mcall_thread() 

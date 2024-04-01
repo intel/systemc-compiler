@@ -61,6 +61,15 @@ public:
 
         SC_CTHREAD(array_use_def_sig, clk.pos());
         async_reset_signal_is(rst, true);
+
+        SC_CTHREAD(array_elem_trhead1, clk.pos());
+        async_reset_signal_is(rst, true);
+
+        SC_CTHREAD(array_elem_trhead2, clk.pos());
+        async_reset_signal_is(rst, true);
+
+        //SC_METHOD(array_elem_trhead1);
+        //sensitive << sig;
     }
 
     // 1D array access
@@ -309,6 +318,38 @@ public:
         }
     }    
     
+// ----------------------------------------------------------------------------    
+
+    // Array elements accessed in two threads, warning/error reported
+    sc_signal<bool>  sa[3];
+    bool sb[3];
+
+    sc_signal<int> t9;
+    void array_elem_trhead1() 
+    {
+        wait();
+        
+        while (true) {
+            sa[1] = 0;            
+            sb[1] = 0;              
+            t9 = sa[1];
+            //t9 = sb[1];           // Error reported, otherwise @sb optimized
+            wait();
+        }
+    }
+
+    sc_signal<int> t10;
+    void array_elem_trhead2() 
+    {
+        wait();
+        
+        while (true) {
+            //sa[2] = 0;            // Error reported   
+            sb[2] = 0;              
+            t10 = sb[2];            
+            wait();
+        }
+    }
 };
 
 int sc_main(int argc, char *argv[]) {

@@ -966,6 +966,14 @@ bool isSctCombTarg(clang::QualType type) {
     return (typeStr.find("sct_comb_target") != std::string::npos);
 }
 
+bool isSctInit(clang::QualType type) {
+    if (type.isNull()) return false;
+    type = getPureType(type);
+    
+    std::string typeStr = type.getAsString();
+    return (typeStr.find("sct_initiator") != std::string::npos);
+}
+
 bool isSctChannelSens(clang::QualType type, const FunctionDecl* funcDecl) 
 {
     if (type.isNull()) return false;

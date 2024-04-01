@@ -133,38 +133,41 @@ SC_MODULE(test_mod) {
         }
     }
     
+    sc_signal<sc_uint<4>> usig1;
     void thread_waitn_no_reset () {
         while (1) {
-            usig = 1;
+            usig1 = 1;
             wait(); 
         }
     }
 
     
+    sc_signal<sc_uint<4>> usig2;
     void thread_waitn_first_cond () {
         int m = 0;
-        usig = 0;
+        usig2 = 0;
         while (1) {
             if (m) {
                 wait(4); 
             } else {
                 wait(5); 
             }
-            usig = 1;
+            usig2 = 1;
             wait();
         }
     }
     
+    sc_signal<sc_uint<4>> usig3;
     void thread_waitn_cond () {
-        usig = 0;
+        usig3 = 0;
         while (1) {
             wait();
-            usig = 1;
+            usig3 = 1;
             if (a.read()) {
                 wait(3); 
             } else {
                 wait(5); 
-                usig = 2;
+                usig3 = 2;
                 wait(2); 
             }
         }

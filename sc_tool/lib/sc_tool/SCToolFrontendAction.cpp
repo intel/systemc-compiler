@@ -123,8 +123,8 @@ Object* getOuterArray(SCDesign& designDB, Object* memberObj)
     return arrayObj;
 }
 
-const std::string SCElabASTConsumer::TOOL_VERSION = "1.6.1";
-const std::string SCElabASTConsumer::TOOL_DATE = "Jan 05,2024";
+const std::string SCElabASTConsumer::TOOL_VERSION = "1.6.2";
+const std::string SCElabASTConsumer::TOOL_DATE = "Mar 29,2024";
 
 void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 {
@@ -204,7 +204,7 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
         } catch (std::exception& e) {
             std::cout << "----------------------------------------------------------------" << std::endl;
             std::cout << " SystemC-to-Verilog translation, ERROR " << std::endl;
-            
+        
             // Report exception to return error code at exit
             reportErrorException();
         }

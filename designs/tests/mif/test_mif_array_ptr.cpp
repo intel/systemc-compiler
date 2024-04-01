@@ -102,8 +102,8 @@ SC_MODULE(Top) {
         int k;
         unsigned ii = t.read();
 
-        k = mif[0]->r.a;
-        k = mif[ii]->r.c;
+        //k = mif[0]->r.a;      // Error reported
+        //k = mif[ii]->r.c;     // Error reported
         
         k = mif[0]->CR.c;
         k = mif[ii]->CR.a.to_int();

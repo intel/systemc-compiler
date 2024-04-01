@@ -42,6 +42,7 @@ public:
     }
 
     int                 m;
+    int                 m1;
     int                 k;
     int                 n;
 
@@ -95,23 +96,24 @@ public:
         }
     }
 
+    sc_signal<bool>     e;
     void simple_pres()
     {
-        b = 0;
+        e = 0;
         int i = 1;
         wait();
         
         while (true) {
-            b = a + i;
+            e = a + i;
             wait();
-            i = b;
+            i = e;
             wait();
         }
     }
     
     void simple1_()
     {
-        m = a.read();
+        m1 = a.read();
     }
 
 };

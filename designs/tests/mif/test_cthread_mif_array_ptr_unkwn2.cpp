@@ -20,7 +20,9 @@ struct mod_if : public sc_module, sc_interface
     sc_signal<sc_uint<4>>*  asp[3];
     
     sc_uint<4>  y;       
+    sc_uint<4>  y2;       
     int         ay[3];
+    int         ayl[3];
 
     sc_uint<4>  z;       
     int         az[2];
@@ -43,14 +45,14 @@ struct mod_if : public sc_module, sc_interface
      
     void thread_member_sig() 
     {
-        sc_uint<4> k; int j; y = 1; ay[2] = 2;
+        sc_uint<4> k; int j; y = 1; ayl[2] = 2;
         j = s.read() + y;
-        k = as[1].read() + ay[2];
+        k = as[1].read() + ayl[2];
         wait();
         
         while (true) {
             j = s.read() + y;
-            k = as[1].read() + ay[2];
+            k = as[1].read() + ayl[2];
             wait();
         }
     }
@@ -121,7 +123,7 @@ SC_MODULE(Top) {
     void top_thread_comb() 
     {
         for (int i = 0; i < 2; i++) {
-            minst[0][i]->y = i;
+            minst[0][i]->y2 = i;
             for (int k = 0; k < 2; k++) {
                 minst[0][i]->ay[k] = i+k;
             }
@@ -130,8 +132,8 @@ SC_MODULE(Top) {
         wait();
         
         while (true) {
-            minst[0][1]->y = minst[j][0]->asp[0]->read();
-            int i = minst[0][1]->y; 
+            minst[0][1]->y2 = minst[j][0]->asp[0]->read();
+            int i = minst[0][1]->y2; 
             
             minst[0][0]->ay[1] = minst[0][j]->as[j].read();
             i = minst[0][0]->ay[1];

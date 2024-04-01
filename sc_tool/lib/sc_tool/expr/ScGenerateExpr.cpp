@@ -472,9 +472,9 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
             }
         }
         
-        // Increment parameter index
-        ParmVarDecl* parDecl = const_cast<ParmVarDecl*>(
-                               callFuncDecl->getParamDecl(paramIndx++));
+        // Use method definition to have same declaration as in function body
+        ParmVarDecl* parDecl = const_cast<ParmVarDecl*>(callFuncDecl->
+                                    getDefinition()->getParamDecl(paramIndx++));
         // Get original type, required as array passed to function as pointer
         QualType type = parDecl->getType();
         if (isScPort(type)) {

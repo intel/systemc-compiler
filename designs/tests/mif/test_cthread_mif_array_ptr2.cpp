@@ -21,6 +21,8 @@ struct mod_if : public sc_module, sc_interface
     sc_signal<sc_uint<4>>   ss {"ss"};
     sc_uint<4>              v;
     sc_uint<4>              vv;
+    sc_uint<4>              vv2;
+    sc_uint<4>              vv3;
 
     SC_CTOR(mod_if) 
     {
@@ -102,13 +104,13 @@ SC_MODULE(Top) {
     // Checking register variable member of MIF array accessed
     void top_thread_reg() 
     {
-        minst[1]->vv = 1;
+        minst[1]->vv2 = 1;
         wait();
         
         while (true) {
-            minst[1]->vv = 2;
+            minst[1]->vv2 = 2;
             wait();
-            sc_uint<4> a = minst[1]->vv;
+            sc_uint<4> a = minst[1]->vv2;
         }
     }
 
@@ -157,7 +159,7 @@ SC_MODULE(Top) {
 
     void top_method() 
     {
-        minst[1]->vv = 2;
+        minst[1]->vv3 = 2;
     }
 };
 

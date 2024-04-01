@@ -93,6 +93,7 @@ public:
         }
     }
 
+    sc_signal<int> out1;
     void comb_arr_in_reset1a()
     {
         arr2[0] = 0; arr2[1] = 1;
@@ -100,11 +101,12 @@ public:
         
         while (true) {
             wait();
-            out = arr2[1];      // @arr2 is reg
+            out1 = arr2[1];      // @arr2 is reg
         }
     }
     
     // Read from array -- comb array
+    sc_signal<int> out2;
     void comb_arr_in_reset2()
     {
         arr3[0] = 0;
@@ -112,7 +114,7 @@ public:
         
         while (true) {
             arr3[0] = 3;
-            out = arr3[0];      // @arr3 is comb
+            out2 = arr3[0];      // @arr3 is comb
             wait();
         }
     }
@@ -152,6 +154,7 @@ public:
     }
     
     // Initialization list
+    sc_signal<int> out3;
     int n;
     void init_list1() {
         n = 0;
@@ -163,18 +166,19 @@ public:
         while (true) {
             // l2 is not register
             int l2[2] = {m, n};
-            out = l1[1] + l2[0];
+            out3 = l1[1] + l2[0];
             
             int l3[2] = {1, 2}; // Comb
             int l4[2] = {3, 4}; // Reg
             wait();
             
             l3[1] = 2; l4[1] = 4;
-            out = l3[1] + l4[0];
+            out3 = l3[1] + l4[0];
             n = m;
         }
     }
 
+    sc_signal<int> out4;
     void init_list2() {
         // ll1 is not register
         int ll1[2] = {0, 1};
@@ -185,7 +189,7 @@ public:
         {
             // ll2 is not register
             int ll2[3] = {3, 2, j};
-            out = ll2[2];
+            out4 = ll2[2];
             wait();
         }
     }

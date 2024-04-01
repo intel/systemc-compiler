@@ -42,6 +42,8 @@ public:
     
     SinCos scr;
     sc_signal<int> s{"s"};
+    sc_signal<int> s2{"s2"};
+    sc_signal<int> s3{"s3"};
     
     SC_CTOR(A) : scr("scr") 
     {
@@ -93,7 +95,7 @@ public:
             if (s.read()) {
                 mm = f();
             }
-            s = m.sin + mm.cos;
+            s2 = m.sin + mm.cos;
         }
     }
     
@@ -104,7 +106,7 @@ public:
         wait();
         
         while (true) {
-            s = l.sin + ll.cos;
+            s3 = l.sin + ll.cos;
             wait();
         }
     }

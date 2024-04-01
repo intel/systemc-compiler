@@ -31,12 +31,11 @@ struct Producer : public sc_module, public sc_interface {
     sc_signal<sc_uint<5>>               sa[2];
     
     void threadProc() {
-        s = 0; req = 0;
+        req = 0;
         wait();
         
         while (true) {
             req = 0;
-            s = s.read() + 1;
             if (s.read() % 3) req = 1;
             m = s.read();
             sv[s.read()] = sa[a[m]].read();
@@ -105,20 +104,12 @@ SC_MODULE(Top) {
         
         while (true) {
             unsigned u = t.read();
-            pp[0][0].m = 1;
-            pp[u][u+1].m = pp[u][1].m;
-            pp[0][u].m = pp[u][u].m;
-            
-            pp[0][u].a[0] = 1;
-            pp[0][u].a[u] = 2;
-            pp[u+1][u+1].a[u+1] = pp[u][u].a[u];
             
             pp[0][0].s = pp[0][0].sa[0].read();
             pp[u][u].s = pp[u][u].sa[u+1].read();
             pp[u][u].sa[1] = pp[u][u].sv[u].read();
-            pp[u][u].sv[u] = pp[u][u+1].s.read();
             
-            //sc_uint<16> res = pp[u][u+1].getData();
+            t = pp[u][u+1].getData();
             wait();
         }
     }

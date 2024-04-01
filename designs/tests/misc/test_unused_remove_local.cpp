@@ -23,6 +23,13 @@ struct A : public sc_module
     sc_signal<int>  t5;
     sc_signal<int>  t6;
     sc_signal<int>  t7;
+    sc_signal<int>  t8;
+    sc_signal<int>  t9;
+    sc_signal<int>  t10;
+    sc_signal<int>  t11;
+    sc_signal<int>  t12;
+    sc_signal<int>  t13;
+    sc_signal<int>  t14;
     
     SC_HAS_PROCESS(A);
 
@@ -225,14 +232,14 @@ struct A : public sc_module
             int i = s.read();
             sc_uint<5> x;
             x = 2;
-            t0 = x.bit(i);
+            t1 = x.bit(i);
 
             int j = s.read();
-            t0 = x.range(j, j-1);
+            t1 = x.range(j, j-1);
 
             bool aa[3];
             unsigned k; k = s.read();
-            t0 = aa[k];
+            t1 = aa[k];
 
             bool aa_[3];                // removed   
             unsigned kk; kk = 1;        // removed
@@ -241,7 +248,7 @@ struct A : public sc_module
             bool aaa[3][2];
             sc_uint<3> ii; unsigned jj;
             ii = 1; jj = 1;
-            t0 = aaa[ii+1][jj];
+            t1 = aaa[ii+1][jj];
             wait();
         }
     }
@@ -342,11 +349,11 @@ struct A : public sc_module
     // IF and conditional operators not removed
     void remove_if() 
     {
-        t1 = 0;
+        t2 = 0;
         
         int i = 1;
         if (i == s.read()) {
-            t1 = 1;
+            t2 = 1;
         }
         
         int j = 1;              // not removed 
@@ -355,12 +362,12 @@ struct A : public sc_module
         sc_uint<4> y; sc_int<4> x;
         y = s.read(); x = s.read();
         if (x > y) {
-            t1 = 2;
+            t2 = 2;
         }
         
         sc_uint<10> z; sc_int<4> v; sc_int<4> w;
         z = s.read(); v = 1; w = s.read();
-        t1 = z ? v : w;
+        t2 = z ? v : w;
         
         sc_uint<10> zz; sc_int<4> vv; sc_int<4> ww;
         zz = s.read();          // not removed
@@ -370,7 +377,7 @@ struct A : public sc_module
     
     void remove_if_thread() 
     {
-        t1 = 0;
+        t3 = 0;
         int i = 1;
         int j = 1;              // not removed 
         wait();
@@ -378,7 +385,7 @@ struct A : public sc_module
         while (true) {
 
             if (i == s.read()) {
-                t1 = 1;
+                t3 = 1;
             }
 
             if (j == s.read()) {}   // removed
@@ -386,12 +393,12 @@ struct A : public sc_module
             sc_uint<4> y; sc_int<4> x;
             y = s.read(); x = s.read();
             if (x > y) {
-                t1 = 2;
+                t3 = 2;
             }
 
             sc_uint<10> z; sc_int<4> v; sc_int<4> w;
             z = s.read(); v = 1; w = s.read();
-            t1 = z ? v : w;
+            t3 = z ? v : w;
 
             sc_uint<10> zz; sc_int<4> vv; sc_int<4> ww;
             zz = s.read();          // not removed
@@ -406,12 +413,12 @@ struct A : public sc_module
     void remove_loops() 
     {
         for (int i = 0; i < 2; i++) {
-            t2 = i;
+            t4 = i;
         }
 
         unsigned jj = s.read();
         for (int j = 0; j < 2; j = j + jj) {
-            t2 = j;
+            t4 = j;
         }
 
         unsigned kk = s.read();                 // not removed
@@ -420,7 +427,7 @@ struct A : public sc_module
         unsigned n = s.read();
         while (n != 0) {
             n = n - 1;
-            t2 = n;
+            t4 = n;
         }
         
         sc_uint<4> m = s.read();
@@ -442,12 +449,12 @@ struct A : public sc_module
 
         while (true) {
             for (int i = 0; i < 2; i++) {
-                t2 = i;
+                t5 = i;
             }
 
             unsigned jj = s.read();
             for (int j = 0; j < 2; j = j + jj) {
-                t2 = j;
+                t5 = j;
             }
 
             unsigned kk = s.read();                 // not removed
@@ -456,7 +463,7 @@ struct A : public sc_module
             unsigned n = s.read();
             while (n != 0) {
                 n = n - 1;
-                t2 = n;
+                t5 = n;
             }
 
             while (m) {
@@ -478,15 +485,15 @@ struct A : public sc_module
     {
         int i; i = s.read();
         switch (i) {
-            case 1: t3 = 1; break;
-            default: t3 = 2;
+            case 1: t6 = 1; break;
+            default: t6 = 2;
         }
 
         unsigned j; j = s.read();
         switch (j) {
-            case 3: t3 = 1; break;
+            case 3: t6 = 1; break;
             case 2: ;
-            case 1: t3 = 2;
+            case 1: t6 = 2;
         }
     }
     
@@ -497,15 +504,15 @@ struct A : public sc_module
         while (true) {
             int i; i = s.read();
             switch (i) {
-                case 1: t3 = 1; break;
-                default: t3 = 2;
+                case 1: t7 = 1; break;
+                default: t7 = 2;
             }
 
             unsigned j; j = s.read();
             switch (j) {
-                case 3: t3 = 1; break;
+                case 3: t7 = 1; break;
                 case 2: ;
-                case 1: t3 = 2;
+                case 1: t7 = 2;
             }
             wait();
         }
@@ -518,20 +525,20 @@ struct A : public sc_module
         bool b; b = (s.read() == 1);
         int i; i = s.read();
         
-        t4 = 0;
+        t8 = 0;
         if (b || i == 2) {
-            t4 = 1;
+            t8 = 1;
         }
         
         unsigned j; j = s.read();   // removed
         if (true || j) {            // removed
-            t4 = 2;
+            t8 = 2;
         }
         
         sc_uint<4> m = 1;           // not removed
         sc_int<4> p; p = s.read();  // removed
         if (m != 1 && p == 2) {     // removed
-            t4 = 3;                 // removed
+            t8 = 3;                 // removed
         }
     }
     
@@ -543,20 +550,20 @@ struct A : public sc_module
             bool b; b = (s.read() == 1);
             int i; i = s.read();
 
-            t4 = 0;
+            t9 = 0;
             if (b || i == 2) {
-                t4 = 1;
+                t9 = 1;
             }
 
             unsigned j; j = s.read();   // removed
             if (true || j) {            // removed
-                t4 = 2;
+                t9 = 2;
             }
 
             sc_uint<4> m = 1;           // not removed
             sc_int<4> p; p = s.read();  // removed
             if (m != 1 && p == 2) {     // removed
-                t4 = 3;                 // removed
+                t9 = 3;                 // removed
             }
             wait();
         }
@@ -568,7 +575,7 @@ struct A : public sc_module
     {
         int i; i = 1;
         int& ri = i;
-        t5 = ri;
+        t10 = ri;
         
         int j; j = 1;               // removed
         const int& rj = j;          // removed
@@ -576,12 +583,12 @@ struct A : public sc_module
         
         sc_uint<4> x; x = s.read();
         sc_uint<4>& rx = x;
-        t5 = 1 + rx;
+        t10 = 1 + rx;
 
         sc_uint<4> y; y = s.read();
         sc_uint<4>& ry = y;
         sc_uint<4>& rry = ry;
-        t5 = rry / 2;
+        t10 = rry / 2;
     }
     
     void remove_ref_thread() 
@@ -594,17 +601,17 @@ struct A : public sc_module
 
         while (true) {
             int& ri = i;
-            t5 = ri;
+            t11 = ri;
 
 
             sc_uint<4> x; x = s.read();
             sc_uint<4>& rx = x;
-            t5 = 1 + rx;
+            t11 = 1 + rx;
 
             sc_uint<4> y; y = s.read();
             sc_uint<4>& ry = y;
             sc_uint<4>& rry = ry;
-            t5 = rry / 2;
+            t11 = rry / 2;
             wait();
         }
     }
@@ -614,10 +621,10 @@ struct A : public sc_module
     {
         int i; i = 1;
         const int& ri = i;
-        t5 = ri;
+        t12 = ri;
         
         const int& rc = 42;         
-        t5 = rc;
+        t12 = rc;
 
         int j; j = 1;               // removed
         const int& rj = j;          // removed
@@ -625,12 +632,12 @@ struct A : public sc_module
 
         sc_uint<4> x; x = s.read();
         const sc_uint<4>& rx = x+1;
-        t5 = rx;
+        t12 = rx;
 
         sc_uint<4> y; y = s.read();
         const sc_uint<4>& ry = y;
         const sc_uint<4>& rry = ry;
-        t5 = rry;
+        t12 = rry;
     }
     
     void remove_constref_thread() 
@@ -643,10 +650,10 @@ struct A : public sc_module
         wait();
 
         while (true) {
-            t5 = ri;
+            t13 = ri;
 
             const int& rc = 42;         
-            t5 = rc;
+            t13 = rc;
 
             int j; j = 1;               // removed
             const int& rj = j;          // removed
@@ -654,9 +661,9 @@ struct A : public sc_module
 
             sc_uint<4> x; x = s.read();
             const sc_uint<4>& rx = x+1;
-            t5 = rx;
+            t13 = rx;
 
-            t5 = rry;
+            t13 = rry;
             wait();
         }
     }
@@ -672,12 +679,12 @@ struct A : public sc_module
     void remove_ptr() 
     {
         *mp = -42;
-        t6 = *mp;
+        t14 = *mp;
         
-        t6 = *kp;
+        t14 = *kp;
         
         bool b = np;
-        t6 = b;
+        t14 = b;
     }
 };
 

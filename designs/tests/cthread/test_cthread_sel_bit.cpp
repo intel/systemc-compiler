@@ -95,29 +95,31 @@ public:
     }
     
     // @bit() in LHS with other read/write
+    sc_signal<int> out1;
     void bit_select_lhs1a()
     {
-        out = 0;
+        out1 = 0;
         sc_uint<3> x;
         wait();
         
         while (true) { 
             x[0] = 1; x[1] = 0; 
             x[2] = x[1] != in2;
-            out = (x[2] == in2) ? x.bit(1) + 1 : x[0]*2;
+            out1 = (x[2] == in2) ? x.bit(1) + 1 : x[0]*2;
             wait();
         }
     }
     
     // No write to @b except via @bit()
+    sc_signal<int> out2;
     void bit_select_lhs2()
     {
-        out = 0;
+        out2 = 0;
         wait();
         
         while (true) { 
             b.bit(2) = 1;       
-            out = b;
+            out2 = b;
             wait();
         }
     }
@@ -147,13 +149,14 @@ public:
     }
     
      // No read/write to @d except via @bit()
+    sc_signal<int> out4;
     void bit_select_lhs4a()
     {
-        out = 1;
+        out4 = 1;
         wait();
         
         while (true) {
-            out = e.bit(2);
+            out4 = e.bit(2);
             wait();
         }
     }

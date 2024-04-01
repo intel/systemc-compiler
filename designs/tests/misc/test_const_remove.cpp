@@ -152,6 +152,11 @@ struct A : public sc_module
     void cref1(const sc_int<4>& par) {
         s1 = par;
     }
+    
+    sc_signal<sc_int<4>> s1a;
+    void cref1a(const sc_int<4>& par) {
+        s1a = par;
+    }
 
     sc_signal<long int> s2;
     void cref2(const long int& par) {
@@ -185,9 +190,9 @@ struct A : public sc_module
         wait();
         while (true) {
             sc_int<4> x = -3;
-            cref1(x+1);
+            cref1a(x+1);
             wait();
-            cref1(N1);
+            cref1a(N1);
         }
     }
     

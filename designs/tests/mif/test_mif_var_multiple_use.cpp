@@ -11,7 +11,7 @@
 
 #include <systemc.h>
 
-// Duplicate variable declaration for variable used in multiple processes
+// Variable and channels accessed in multiple processes, error reported
 struct mod_if : public sc_module, sc_interface 
 {
     sc_in_clk               clk;
@@ -34,34 +34,19 @@ struct mod_if : public sc_module, sc_interface
 
         SC_CTHREAD(thrProc, clk.pos());
         async_reset_signal_is(rst, true);
-
-        SC_CTHREAD(thrSecProc, clk.pos());
-        async_reset_signal_is(rst, true);
     }
 
     void ptrProc() {
         *p = in->read();
-        *vp = 3;
+        *p = *vp;
     }
     
-    // TODO: fix multiple declaration of @vp
     void thrProc() {
         *p = 4;
         wait();
         
         while (true) {
             *vp = 5;
-            wait();
-        }
-    }
-
-    // TODO: fix multiple declaration of @vp
-    void thrSecProc() {
-        *p = 6;
-        wait();
-        
-        while (true) {
-            *vp = 7;
             wait();
         }
     }

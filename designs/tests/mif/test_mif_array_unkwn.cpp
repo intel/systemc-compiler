@@ -80,7 +80,7 @@ SC_MODULE(Top) {
         (*minst[i]->p).write(3);
         *(minst[i]->p) = 4;
         
-        *minst[i]->vp = 5;
+        //*minst[i]->vp = 5;        // Error reported
         
         minst[i]->vv = 0;
         for (int j = 0; j < 2; ++j) minst[j]->v = j;

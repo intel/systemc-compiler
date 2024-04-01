@@ -308,7 +308,7 @@ public:
         
         while (true) 
         {
-            rec_param0(yarr[j]);
+            rec_param0b(yarr[j]);
             wait();
         }
     }
@@ -405,6 +405,20 @@ public:
         t11 = l;
     }
 
+    sc_signal<int> t11a;
+    template<class T>
+    void rec_param0a(T par) {
+        auto l = par.b[0];
+        t11a = l;
+    }
+    
+    sc_signal<int> t11b;
+    template<class T>
+    void rec_param0b(T par) {
+        auto l = par.b[0];
+        t11b = l;
+    }
+
     // Record array passed as pointer
     sc_signal<int> t12;
     template<class T>
@@ -427,6 +441,20 @@ public:
         t14 = par.b[k];
     }
     
+    sc_signal<int> t14a;
+    template<class T>
+    void rec_param2_refa(T& par, int k) {
+        par.b[k] = par.getA(k) ? 1 : 2;
+        t14a = par.b[k];
+    }
+
+    sc_signal<int> t14b;
+    template<class T>
+    void rec_param2_refb(T& par, int k) {
+        par.b[k] = par.getA(k) ? 1 : 2;
+        t14b = par.b[k];
+    }
+
     void local_fcall_param()
     {
         Rec vv[3];
@@ -458,7 +486,7 @@ public:
     {
         ArrRec varr[2];
         int j = sig.read();
-        rec_param2_ref(varr[j], 0);
+        rec_param2_refb(varr[j], 0);
     }
 
     Rec rr[3];
@@ -475,12 +503,12 @@ public:
         while (true) 
         {
             rec_param1(rr, 1);
-            rec_param2_ref(r, 1);
+            rec_param2_refa(r, 1);
             
             int j = sig.read();
-            rec_param0(rarr[j]);
+            rec_param0a(rarr[j]);
             rec_param2_val(rarr[j], 0);
-            rec_param2_ref(rarr[j], 1);
+            rec_param2_refa(rarr[j], 1);
         
             wait();
         }

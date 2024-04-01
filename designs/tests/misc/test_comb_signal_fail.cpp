@@ -16,6 +16,7 @@ struct comb_signal_module : public sc_module
     sc_in<bool>             nrst{"nrst"};
     sc_signal<bool>             a{"a"};
     sc_signal<bool>             b{"b"};
+    sc_signal<bool>             b1{"b1"};
     sct_comb_signal<bool, 0>    req1{"req1"};
     sct_comb_signal<bool, 1>    req2{"req2"};
     
@@ -30,11 +31,11 @@ struct comb_signal_module : public sc_module
     
     void methProc() {
         if (nrst) {
-            b = 0;
-            b = 0;
+            b1 = 0;
+            b1 = 0;
         } else {
-            b = req1;
-            b = req2;
+            b1 = req1;
+            b1 = req2;
         }
     }
     

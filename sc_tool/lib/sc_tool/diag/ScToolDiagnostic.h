@@ -134,8 +134,6 @@ public:
         SYNTH_CONCAT_CAST_BOOL      = 156,
         SYNTH_TEMP_EXPR_ARG         = 157,
         SYNTH_RECORD_CTOR_IN_PARAM  = 158,
-        SYNTH_MULT_PROC_DRIVE_SIG   = 159,
-        SYNTH_MULT_PROC_ACCESS_VAR  = 160,
         SYNTH_USEDEF_IN_SAME_PROC   = 161,
         CPP_NULL_PTR_DEREF          = 162,
         CPP_DANGLING_PTR_DEREF      = 163,
@@ -227,6 +225,15 @@ public:
         SYNTH_REC_ARRAY_INIT        = 249,
         SYNTH_REC_CHAN_NONDEF_CTOR  = 250,
         
+        SYNTH_MULT_PROC_ACCESS_VAR  = 159,
+        SYNTH_MULT_COMB_DRIVE_SIG   = 160,
+        SYNTH_MULT_SEQ_DRIVE_SIG    = 251,
+
+        SYNTH_SS_CHAN_PARAM_IN_TOP  = 252,
+        SYNTH_SS_COMB_PARAM_IN_TOP  = 253,
+
+        SYNTH_SS_SIG_SENS_THREAD    = 254,
+
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
         SC_WARN_ELAB_DANGLING_PTR,
@@ -566,13 +573,17 @@ private:
             {clang::DiagnosticIDs::Fatal, 
             "Record in function parameter must have empty copy/move constructor body"};
         
-        idFormatMap[SYNTH_MULT_PROC_DRIVE_SIG] =
-            {clang::DiagnosticIDs::Warning, 
-            "Multiple processes drive signal/port : %0"};
-
         idFormatMap[SYNTH_MULT_PROC_ACCESS_VAR] =
             {clang::DiagnosticIDs::Error, 
             "Multiple processes access non-channel variable : %0"};
+
+        idFormatMap[SYNTH_MULT_COMB_DRIVE_SIG] =
+            {clang::DiagnosticIDs::Warning, 
+            "Multiple combinational processes drive signal/port : %0"};
+
+        idFormatMap[SYNTH_MULT_SEQ_DRIVE_SIG] =
+            {clang::DiagnosticIDs::Error, 
+            "Multiple processes, at least one sequential, drive signal/port : %0"};
 
         idFormatMap[SYNTH_USEDEF_IN_SAME_PROC] =
             {clang::DiagnosticIDs::Warning, 
@@ -798,6 +809,18 @@ private:
         idFormatMap[SYNTH_REC_CHAN_NONDEF_CTOR] =
             {clang::DiagnosticIDs::Error, 
             "Non-default constructor for record channel is not supported"};
+        
+        idFormatMap[SYNTH_SS_CHAN_PARAM_IN_TOP] =
+            {clang::DiagnosticIDs::Error, 
+            "Target/Initiator in top module interface cannot have sync register"};
+        idFormatMap[SYNTH_SS_COMB_PARAM_IN_TOP] =
+            {clang::DiagnosticIDs::Error, 
+            "Initiator bound to combinational target in top module interface cannot have sync register"};
+        
+        idFormatMap[SYNTH_SS_SIG_SENS_THREAD] =
+            {clang::DiagnosticIDs::Warning, 
+            "Thread is sensitive to sc_signal which may lead to extra activation"};
+        
         
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =

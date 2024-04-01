@@ -705,12 +705,6 @@ public:
 
     std::unordered_map<ObjectView, VerilogVar*> dataVarMap;
 
-    /// Member of MIF array element variables, 
-    /// excluded from multiple process access error reporting
-    std::unordered_set<const VerilogVar*> memMifArrVars;
-    /// 
-    std::unordered_set<const VerilogVar*> memMifArrChannels;
-
     /// Signal / Port variables
     std::deque<VerilogVar> channelVars;
 

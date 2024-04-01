@@ -17,6 +17,7 @@ const bool D::COUPLED_BLOCK_DOMAIN[] = {1};
 struct mod_if : public sc_module, sc_interface 
 {
     sc_signal<unsigned>   s1;
+    sc_signal<unsigned>   s1a;
     sc_signal<unsigned>   s2;
     sc_signal<unsigned>   s3;
     sc_signal<unsigned>   r;
@@ -61,18 +62,22 @@ struct mod_if : public sc_module, sc_interface
     
     void f1() {
         if (A) {
-            s1 = 1;
+            s1a = 1;
         } else {
-            s1 = r.read();
+            s1a = r.read();
         }
     }
     
+    sc_signal<int> t;
     void f2() {
         if (B) {
             s2 = 1;
         } else {
             s2 = r.read();
         }
+        par = r.read();
+        br[r.read()] = par;
+        t = par;
     }
     
     void f3() {
@@ -108,7 +113,9 @@ SC_MODULE(Top) {
         
         SC_METHOD (top_method1); sensitive << t;
         SC_METHOD (top_method2); sensitive << t;
+        for (int i = 0; i < N; i++) sensitive << minst[i]->r;
         SC_METHOD (top_method3); sensitive << t;
+        for (int i = 0; i < N; i++) sensitive << minst[i]->r;
         SC_METHOD (top_method4); sensitive << t;
     }
     
@@ -130,6 +137,7 @@ SC_MODULE(Top) {
         minst[i]->f2();
     }
     
+    //sc_signal<int> t00;
     void top_method3() {
         unsigned i = t.read();
         unsigned res;
@@ -140,6 +148,10 @@ SC_MODULE(Top) {
         res = *minst[i]->C; // Incorrect
         
         minst[i]->f3();     // Incorrect
+      
+        // Demonstrate variable used in multiple process error reported
+        //i = minst[i]->par;
+        //t00 = i + minst[i]->br[0];
     }
     
     sc_signal<int> t0;
@@ -148,7 +160,7 @@ SC_MODULE(Top) {
         unsigned lu;
         sc_bigint<8> bi;
         
-        lu = minst[i]->BR[0] + minst[i]->br[0];
+        lu = minst[i]->BR[0];
         lu = L[1] + BA[2];
         lu = SA[1] + SB[2] + D::COUPLED_BLOCK_DOMAIN[0];
         t0 = lu;

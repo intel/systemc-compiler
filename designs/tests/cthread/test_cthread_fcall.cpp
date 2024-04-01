@@ -208,33 +208,35 @@ public:
     }
 
     // Function call in IF
+    sc_signal<int> out1;
     void test_thread_in_if1()
     {
-        out = 0;
+        out1 = 0;
         wait();
         
         while (1) {
-            out = 1;
+            out1 = 1;
             
             if (in.read() > 1) {
                 f1();  // 2
             }
 
-            out = 2;
+            out1 = 2;
             wait();  // 3
 
-            out = 3;
+            out1 = 3;
         }
     }
     
     // Function call in double IF
+    sc_signal<int> out2;
     void test_thread_in_if2()
     {
-        out = 0;
+        out2 = 0;
         wait();
         
         while (1) {
-            out = 1;
+            out2 = 1;
             
             if (in.read() > 1) {
                 if (in.read() > 2) {
@@ -242,65 +244,68 @@ public:
                 }
             }
 
-            out = 2;
+            out2 = 2;
             wait();  // 3
             
-            out = 3;
+            out2 = 3;
         }
     }
 
     // Function call in after IF
+    sc_signal<int> out3;
     void test_thread_in_if3()
     {
-        out = 0;
+        out3 = 0;
         wait();
         
         while (1) {
-            out = 1;
+            out3 = 1;
             
             if (in.read() > 1) {
                 if (in.read() > 2) {
-                    out = 4;
+                    out3 = 4;
                 }
                 f1();  // 2
                 
             }
 
-            out = 2;
+            out3 = 2;
             wait();  // 3
             
-            out = 3;
+            out3 = 3;
         }
     }
     
     // Function call in FOR loop
+    sc_signal<int> out4;
     void test_thread_in_for1()
     {
-        out = 0;
+        out4 = 0;
         wait();
         
         while (1) {
-            out = 1;
+            out4 = 1;
             
             for (int i = 0; i < 3; i++) {
                 f1();  // 2
             }
 
-            out = 2;
+            out4 = 2;
             wait();  // 3
 
-            out = 3;
+            out4 = 3;
         }
     }
 
     // Function call in double FOR loop
+    sc_signal<int> out5;
     void test_thread_in_for2()
     {
-        out = 0;
+        out5 = 0;
         wait();
         
         while (1) {
-            out = 1;
+            out5 = 1;
             
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
@@ -308,10 +313,10 @@ public:
                 }
             }
 
-            out = 2;
+            out5 = 2;
             wait();  // 3
 
-            out = 3;
+            out5 = 3;
         }
     }
 
@@ -512,6 +517,7 @@ public:
     }
 
     // Function with parameters
+    sc_signal<int> out6;
     void test_thread_params4()
     {
         int j = 0;
@@ -521,11 +527,12 @@ public:
             bool b = f6_(j);  // 2 
             wait();    // 3
             
-            out = b;
+            out6 = b;
         }
     }
 
     // Function with parameters
+    sc_signal<int> out7;
     void test_thread_params5()
     {
         int j = 1;
@@ -537,7 +544,7 @@ public:
             j = f6__(b, j, x);  // 2 
             wait();    // 3
             
-            out = x;
+            out7 = x;
         }
     }
     
@@ -571,18 +578,19 @@ public:
 
     // -----------------------------------------------------------------------
 
+    sc_signal<int> out8;
     void test_thread_glob_func()
     {
-        out = 0;
+        out8 = 0;
         wait();
         while (1) {
-            out = 1;
+            out8 = 1;
             //cout << "one\n";
             f1();
-            out = 2;
+            out8 = 2;
             //cout << "two\n";
             wait_function();
-            out = 3;
+            out8 = 3;
             //cout << "three\n";
             f1();
         }

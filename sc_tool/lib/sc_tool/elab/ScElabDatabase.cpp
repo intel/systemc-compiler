@@ -110,7 +110,10 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
         }
         
         size_t arraySize = getArraySize(varType);
-        SCT_TOOL_ASSERT(arraySize, "No size extracted for static array");
+        if (!arraySize) {
+            varDecl->dumpColor();
+            SCT_TOOL_ASSERT(false, "No size extracted for static array");
+        }
         QualType elmType = getArrayDirectElementType(varType).getCanonicalType();
 
         newObj->set_kind(sc_elab::Object::ARRAY);
@@ -118,13 +121,13 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
 
         Expr* initExpr = const_cast<Expr*>(varDecl->getAnyInitializer());
         initExpr = removeExprCleanups(initExpr);
-        
+
         clang::Expr::EvalResult evalResult;
         bool evaluated = initExpr->EvaluateAsRValue(evalResult, astCtx);
 
         if (evaluated) {
             initStaticArray(newObj, elmType, evalResult.Val);
-            
+
         } else {
             if (auto initListExpr = dyn_cast<InitListExpr>(initExpr)) {
                 std::vector<APSInt> intVals;
@@ -140,9 +143,9 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
                             "Can not get integer for static array initializer");
                     }
                 }
-                
+
                 initStaticArray(newObj, elmType, intVals);
-                
+
             } else {
                 SCT_INTERNAL_FATAL (varDecl->getBeginLoc(), 
                                     "Unsupported static array initializer");

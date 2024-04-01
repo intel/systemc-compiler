@@ -16,8 +16,11 @@ struct A : public sc_module
     sc_signal<sc_uint<4>> s;
 
     sc_signal<int>  t1;
+    sc_signal<int>  t1a;
     sc_signal<int>  t2;
+    sc_signal<int>  t2a;
     sc_signal<int>  t3;
+    sc_signal<int>  t3a;
     sc_signal<int>* tp;
     sc_signal<int>  sarr[3][3];
     sc_signal<int>* sparr[3][4];
@@ -118,7 +121,7 @@ struct A : public sc_module
         int k = 1;
         m1 = 1;
         k = m1 + 1;
-        t1 = m1;
+        t1a = m1;
     }
 
     void remove_member1_thread() {
@@ -196,7 +199,7 @@ struct A : public sc_module
     
     // Array 
     void remove_member3() {
-        t2 = arr[s.read()][s.read()];
+        t2a = arr[s.read()][s.read()];
     }
     
     void remove_member3_thread() {
@@ -229,7 +232,7 @@ struct A : public sc_module
         int ll = sarr[s.read()][s.read()+1];
         ll += *sparr[s.read()][s.read()+1];
         int k = vec2[s.read()][s.read()+1];
-        t3 = k + ll;
+        t3a = k + ll;
     }
     
     void remove_member4_thread() {

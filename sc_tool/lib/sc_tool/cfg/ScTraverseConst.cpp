@@ -757,6 +757,10 @@ void ScTraverseConst::initContext()
     SCT_TOOL_ASSERT (constEvalFuncs.empty(), "@constEvalFuncs is not empty");
 
     cfg = cfgFabric->get(funcDecl);
+    if (cfg == nullptr) {
+        SCT_INTERNAL_FATAL(funcDecl->getBeginLoc(), 
+            "No CFG build, function definition is not found, maybe no cpp provided");
+    }
     block = AdjBlock(&cfg->getEntry(), true);
     prevBlock = block;
     level = 0;

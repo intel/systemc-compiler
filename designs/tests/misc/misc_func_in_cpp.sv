@@ -7,38 +7,29 @@
 
 //==============================================================================
 //
-// Module: Dut ()
+// Module: Top ()
 //
-module Dut // "dut"
+module Top // "top"
 (
-    input logic clk
+    input logic clk,
+    input logic rst
 );
 
 // Variables generated for SystemC signals
-logic [3:0] slave_s;
-logic [3:0] tars_r[2][3];
+logic s;
+logic signed [31:0] t0;
 
 //------------------------------------------------------------------------------
-// Method process: methProc (test_sc_port_array3.cpp:90:5) 
+// Method process: methProc (test_func_in_cpp.h:29:5) 
 
 always_comb 
-begin : methProc     // test_sc_port_array3.cpp:90:5
-    logic [3:0] val;
-    logic [3:0] TMP_0;
-    logic [3:0] val_1;
+begin : methProc     // test_func_in_cpp.h:29:5
     logic [3:0] l;
-    // Call f() begin
-    val = slave_s;
-    // Call f() begin
-    val = tars_r[1][2];
-    // Call f() end
-    val_1 = slave_s;
-    // Call g() begin
-    tars_r[1][2] = val_1;
-    TMP_0 = tars_r[1][2];
-    // Call g() end
-    l = TMP_0;
-    // Call f() end
+    l = 0;
+    // Call f1() begin
+    l = s;
+    // Call f1() end
+    t0 = l;
 end
 
 endmodule
