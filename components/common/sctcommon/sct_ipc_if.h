@@ -14,6 +14,9 @@
 #ifndef SCT_IPC_IF_H
 #define SCT_IPC_IF_H
 
+// Use sequential methods instead clocked threads in SS channels cycle accurate mode
+//#define SCT_SEQ_METH  
+
 #include <systemc.h>
 
 namespace sct {
@@ -204,76 +207,132 @@ inline const sc_time& get_clk_period(sc_in_clk* clk_in)
     return SC_ZERO_TIME;
 }
 
+/// Last sequential process handle for SCT_METHOD macros
+static sc_process_handle sct_seq_proc_handle;
+
+/// Method process macros, @SC_METHOD for combinational and sequential
+/// Combinational method
+#define SCT_METHOD1(proc) SC_METHOD(proc)
+
+//==============================================================================
+
 #ifdef SCT_TLM_MODE 
 
-/// Reset callback for @SCT_THREAD macro, used in approximate time mode only
-struct sct_reset_callback {
-    sc_event* m_event;
-    sc_in_clk* m_clk;
-    sc_time m_period{SC_ZERO_TIME};
-    
-    inline sct_reset_callback(sc_event* event, sc_in_clk* clk) : 
-            m_event(event), m_clk(clk) {}
-    
-    inline void operator () () {
-        if (m_period == SC_ZERO_TIME) {
-            m_period = get_clk_period(m_clk);
+    /// Sequential method with SYNC reset
+    #define SCT_METHOD2(proc, clk) \
+        SC_METHOD(proc); \
+        sct_seq_proc_handle = sc_get_current_process_handle();
+        
+    /// Sequential method with ASYNC reset
+    #define SCT_METHOD3(proc, clk, rst) \
+        SC_METHOD(proc); \
+        sct_seq_proc_handle = sc_get_current_process_handle();
+
+    /// Reset callback for @SCT_THREAD macro, used in approximate time mode only
+    struct sct_reset_callback {
+        sc_event* m_event;
+        sc_in_clk* m_clk;
+        sc_time m_period{SC_ZERO_TIME};
+
+        inline sct_reset_callback(sc_event* event, sc_in_clk* clk) : 
+                m_event(event), m_clk(clk) {}
+
+        inline void operator () () {
+            if (m_period == SC_ZERO_TIME) {
+                m_period = get_clk_period(m_clk);
+            }
+            m_event->notify(m_period);
+            //cout << sc_time_stamp() << " " << sc_delta_count() << " callback " << m_period << " ("<< m_clk->name() << ")" << endl;
         }
-        m_event->notify(m_period);
-        //cout << sc_time_stamp() << " " << sc_delta_count() << " callback " << m_period << " ("<< m_clk->name() << ")" << endl;
-    }
-};
+    };
 
-/// Reset callback storage <reset input port, callback>
-static std::unordered_map<size_t, sct_reset_callback*> sct_reset_stor;
+    /// Reset callback storage <reset input port, callback>
+    static std::unordered_map<size_t, sct_reset_callback*> sct_reset_stor;
 
-/// Thread process macro if it is sensitive to signals only
-#define SCT_THREAD3(proc, clk, rst) \
-    { \
-        sc_spawn_options edge_options; \
-        edge_options.spawn_method(); \
-        edge_options.dont_initialize(); \
-        edge_options.set_sensitivity(&rst.value_changed()); \
-        sct_reset_callback* callback; \
-        auto i = sct_reset_stor.find((size_t)&rst); \
-        if (i != sct_reset_stor.end()) { \
-            callback = i->second; \
-            if (callback->m_clk != &clk) { \
-                std::cout << "Different clock inputs for same reset " \
-                          << rst.name() << " not supported\n"; \
-                assert (false); \
+    /// Thread process macro if it is sensitive to signals only
+    #define SCT_THREAD3(proc, clk, rst) \
+        { \
+            sc_spawn_options edge_options; \
+            edge_options.spawn_method(); \
+            edge_options.dont_initialize(); \
+            edge_options.set_sensitivity(&rst.value_changed()); \
+            sct_reset_callback* callback; \
+            auto i = sct_reset_stor.find((size_t)&rst); \
+            if (i != sct_reset_stor.end()) { \
+                callback = i->second; \
+                if (callback->m_clk != &clk) { \
+                    std::cout << "Different clock inputs for same reset " \
+                              << rst.name() << " not supported\n"; \
+                    assert (false); \
+                } \
+            } else { \
+                callback = new sct_reset_callback(new sc_event("e"), &clk); \
+                sc_spawn(*callback, sc_gen_unique_name("reset_callback"), &edge_options); \
+                sct_reset_stor.emplace((size_t)&rst, callback); \
             } \
-        } else { \
-            callback = new sct_reset_callback(new sc_event("e"), &clk); \
-            sc_spawn(*callback, sc_gen_unique_name("reset_callback"), &edge_options); \
-            sct_reset_stor.emplace((size_t)&rst, callback); \
-        } \
-        SC_THREAD(proc); \
-        this->sensitive << *(callback->m_event); \
-        sct_curr_clock = &clk; \
-    }
+            SC_THREAD(proc); \
+            this->sensitive << *(callback->m_event); \
+            sct_curr_clock = &clk; \
+        }
 
-/// Thread process macro if it is sensitive to signals and channels
-#define SCT_THREAD2(proc, clk) \
-        SC_THREAD(proc); \
-        sct_curr_clock = &clk; 
+    /// Thread process macro if it is sensitive to signals and channels
+    #define SCT_THREAD2(proc, clk) \
+            SC_THREAD(proc); \
+            sct_curr_clock = &clk; 
         
 #else
 
-#define SCT_THREAD3(proc, clk, rst) \
-    SC_THREAD(proc); \
-    if (SCT_CMN_TRAITS::CLOCK == 1) { \
-        this->sensitive << clk.pos(); \
-    } else \
-    if (SCT_CMN_TRAITS::CLOCK == 0) { \
-        this->sensitive << clk.neg(); \
-    } else { \
-        this->sensitive << clk; \
-    } 
+    /// Sequential method with SYNC reset
+    #define SCT_METHOD2(proc, clk) \
+        SC_METHOD(proc); \
+        sct_seq_proc_handle = sc_get_current_process_handle(); \
+        if (SCT_CMN_TRAITS::CLOCK == 1) { \
+            this->sensitive << clk.pos(); \
+        } else \
+        if (SCT_CMN_TRAITS::CLOCK == 0) { \
+            this->sensitive << clk.neg(); \
+        } else { \
+            assert (false && "Both edge clock is not supported for sequential method"); \
+        } 
 
-#define SCT_THREAD2(proc, clk) SCT_THREAD3(proc, clk, )
+    /// Sequential method with ASYNC reset
+    #define SCT_METHOD3(proc, clk, rst) \
+        SC_METHOD(proc); \
+        sct_seq_proc_handle = sc_get_current_process_handle(); \
+        if (SCT_CMN_TRAITS::CLOCK == 1) { \
+            this->sensitive << clk.pos(); \
+        } else \
+        if (SCT_CMN_TRAITS::CLOCK == 0) { \
+            this->sensitive << clk.neg(); \
+        } else { \
+            assert (false && "Both edge clock is not supported for sequential method"); \
+        } \
+        if (SCT_CMN_TRAITS::RESET) { \
+            this->sensitive << rst.pos(); \
+        } else { \
+            this->sensitive << rst.neg(); \
+        }
+
+    #define SCT_THREAD3(proc, clk, rst) \
+        SC_THREAD(proc); \
+        if (SCT_CMN_TRAITS::CLOCK == 1) { \
+            this->sensitive << clk.pos(); \
+        } else \
+        if (SCT_CMN_TRAITS::CLOCK == 0) { \
+            this->sensitive << clk.neg(); \
+        } else { \
+            this->sensitive << clk; \
+        } 
+
+    #define SCT_THREAD2(proc, clk) SCT_THREAD3(proc, clk, )
 
 #endif
+    
+//==============================================================================
+
+/// Method combinational and sequential process macros
+#define SCT_METHOD(...) SCT_GET_MACRO(__VA_ARGS__, , SCT_METHOD3,\
+                                      SCT_METHOD2, SCT_METHOD1)(__VA_ARGS__)
 
 /// Use default clock input name
 #define SCT_THREAD1(proc) SCT_THREAD2(proc, clk);
@@ -301,9 +360,6 @@ static std::unordered_map<size_t, sct_reset_callback*> sct_reset_stor;
 
 #define SCT_CTHREAD(...) SCT_GET_MACRO(__VA_ARGS__, , SCT_CTHREAD3,\
                                        SCT_CTHREAD2, )(__VA_ARGS__)
-
-/// Method process macro, same as SC_METHOD(...)
-#define SCT_METHOD(proc) SC_METHOD(proc)
 
 /// Bind Verilog DUT target/initiator to SystemC TB initiator/target channel 
 /// for multi-language simulation

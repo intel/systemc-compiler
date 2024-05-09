@@ -254,14 +254,16 @@ public:
                              sc_elab::ElabDatabase *elabDB = nullptr,
                              ScCThreadStates* cthreadStates_ = nullptr,
                              const FindWaitCallVisitor* findWaitInLoop_ = nullptr,
-                             bool isCombProcess_ = false) :
-        ScParseExprValue(context_, state_, isCombProcess_,  modval_, false),
+                             bool isCombProcess = false,
+                             bool isMethProcess = false) :
+        ScParseExprValue(context_, state_, isCombProcess,  modval_, false),
         cthreadStates(cthreadStates_), 
         findWaitInLoop(findWaitInLoop_),
         globalState(globalState_), 
         globExprEval(astCtx, globalState, true, modval),
         elabDB(elabDB), 
-        dynmodval(modval_)
+        dynmodval(modval_),
+        isSeqMethod(!isCombProcess && isMethProcess)
     {
         state->getMostDerivedClass(dynmodval, dynmodval);
     }
@@ -570,7 +572,9 @@ protected:
     sc_elab::ElabDatabase* elabDB = nullptr;
     /// Dynamic class module which is current for analyzed process
     SValue dynmodval;
-    
+
+    /// Sequential method process
+    bool isSeqMethod;
     /// Current process has reset signal
     bool hasReset;
     /// Current process has code before main loop
@@ -578,7 +582,7 @@ protected:
     /// Main loop terminator for CTHREAD
     const clang::Stmt* mainLoopStmt = nullptr;
     
-    /// Current process is in zero/.non-zero element of array of modular interfaces
+    /// Current process is in zero/non-zero element of array of modular interfaces
     /// Used to suppress process variable generation
     bool zeroElmtMIF = false;
     bool nonZeroElmtMIF = false;

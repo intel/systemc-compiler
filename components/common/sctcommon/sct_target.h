@@ -49,7 +49,7 @@ class sct_target<T, TRAITS, 0> :
     explicit sct_target(const sc_module_name& name, 
                         bool sync_ = 0,
                         bool always_ready_ = 0) : 
-        sc_module(name), sync(sync_), always_ready(always_ready_)
+        sc_module(name), chan_sync(sync_), orig_sync(sync_), always_ready(always_ready_)
     {
         if (always_ready) {
             SCT_CTHREAD(always_ready_thread, clk, TRAITS::CLOCK);
@@ -64,8 +64,14 @@ class sct_target<T, TRAITS, 0> :
             SC_METHOD(full_control);
             sensitive << get_req << get_req_d << core_req_d << reg_full_d;
 
+        #ifdef SCT_SEQ_METH
+            SC_METHOD(core_thread);
+            sensitive << (TRAITS::CLOCK ? clk.pos() : clk.neg()) 
+                      << (TRAITS::RESET ? nrst.pos() : nrst.neg()); 
+        #else
             SCT_CTHREAD(core_thread, clk, TRAITS::CLOCK);
             async_reset_signal_is(nrst, TRAITS::RESET);
+        #endif
             
             SC_METHOD(put_to_fifo);
             sensitive << core_req << reg_full << core_data << core_data_d;
@@ -82,7 +88,7 @@ class sct_target<T, TRAITS, 0> :
     /// Request can be taken
     bool request() const override {
         return (fifo ? fifo->request() : 
-                always_ready ? (sync ? core_req_d : core_req) :
+                always_ready ? (chan_sync ? core_req_d : core_req) :
                                (core_req || reg_full));        
     }
     
@@ -114,7 +120,7 @@ class sct_target<T, TRAITS, 0> :
             return fifo->peek();
         } else {
             if (always_ready) {
-                if (sync) return core_data_d.read(); 
+                if (chan_sync) return core_data_d.read(); 
                 else return core_data.read();
             } else {
                 if (reg_full) return core_data_d.read();
@@ -128,7 +134,7 @@ class sct_target<T, TRAITS, 0> :
         if (fifo) {
             return fifo->get();
         } else {
-            bool A = always_ready ? (sync ? core_req_d : core_req) : 
+            bool A = always_ready ? (chan_sync ? core_req_d : core_req) : 
                                     (core_req || reg_full);
             if (A) {
                 get_req = cthread ? !get_req : 1;
@@ -137,7 +143,7 @@ class sct_target<T, TRAITS, 0> :
             }
             
             if (always_ready) {
-                if (sync) return core_data_d.read(); 
+                if (chan_sync) return core_data_d.read(); 
                 else return core_data.read();
             } else {
                 if (reg_full) return core_data_d.read(); 
@@ -153,14 +159,14 @@ class sct_target<T, TRAITS, 0> :
             
         } else {
             if (always_ready) {
-                if (sync) data = core_data_d.read(); 
+                if (chan_sync) data = core_data_d.read(); 
                 else data = core_data.read(); 
             } else {
                 if (reg_full) data = core_data_d.read(); 
                 else data = core_data.read();
             }
 
-            bool A = always_ready ? (sync ? core_req_d : core_req) : 
+            bool A = always_ready ? (chan_sync ? core_req_d : core_req) : 
                                     (core_req || reg_full);
             if (A) {
                 get_req = cthread ? (enable ? !get_req : get_req) : enable;
@@ -181,7 +187,7 @@ class sct_target<T, TRAITS, 0> :
                 if (!always_ready) {
                     while (!core_req && !reg_full) wait();
                 } else {
-                    if (sync) {
+                    if (chan_sync) {
                         while (!core_req_d) wait();
                     } else {
                         while (!core_req) wait();
@@ -191,7 +197,7 @@ class sct_target<T, TRAITS, 0> :
                 get_req = !get_req;
 
                 if (always_ready) {
-                    if (sync) return core_data_d.read(); 
+                    if (chan_sync) return core_data_d.read(); 
                     else return core_data.read();
                 } else {
                     if (reg_full) return core_data_d.read(); 
@@ -206,7 +212,8 @@ class sct_target<T, TRAITS, 0> :
     }
 
  public:
-    bool sync;
+    bool chan_sync;
+    bool orig_sync;
     bool cthread = false;
     const bool always_ready;
 
@@ -264,14 +271,20 @@ class sct_target<T, TRAITS, 0> :
     }
     
     void core_thread() {
-        get_req_d   = 0;
-        core_req_d  = 0;
-        reg_full_d  = 0;
-        core_data_d = T{};
+    #ifdef SCT_SEQ_METH
+        if (TRAITS::RESET ? nrst : !nrst) {
+    #endif
+            get_req_d   = 0;
+            core_req_d  = 0;
+            reg_full_d  = 0;
+            core_data_d = T{};
+    #ifdef SCT_SEQ_METH
+        } else {
+    #else
         wait();
         
-        while (true) 
-        {
+        while (true) {
+    #endif
             get_req_d = get_req;
             core_req_d = core_req;
             reg_full_d = reg_full;
@@ -279,13 +292,15 @@ class sct_target<T, TRAITS, 0> :
             if (core_req && !reg_full) {
                 core_data_d = core_data;
             } 
+    #ifndef SCT_SEQ_METH
             wait();
+    #endif
         }
     }
     
     void always_ready_thread() {
         if (cthread) get_req_d = 0;
-        if (sync) {
+        if (chan_sync) {
             core_req_d  = 0;
             core_data_d = T{};
         }
@@ -294,7 +309,7 @@ class sct_target<T, TRAITS, 0> :
         while (true) 
         {
             if (cthread) get_req_d = get_req;
-            if (sync) {
+            if (chan_sync) {
                 core_req_d  = core_req;
                 core_data_d = core_data;
             } 
@@ -323,6 +338,12 @@ class sct_target<T, TRAITS, 0> :
                  << " cannot have FIFO bound" << endl;
             assert (false);
         }
+        if (clk.bind_count() != 1 || nrst.bind_count() != 1) {
+            cout << "\nTarget " << name() 
+                 << " clock/reset inputs are not bound or multiple bound" << endl;
+            assert (false);
+        }
+
         put_fifo_handle = nullptr;
         PEEK.target = nullptr;
         
@@ -381,6 +402,11 @@ class sct_target<T, TRAITS, 0> :
         dutPort(*sig);
         tbPort(*sig);
         
+        if (!always_ready && chan_sync) {
+            cout << "\nNo sync register allowed in TB target: " << name() << endl;
+            assert (false);
+        }
+        
         bound = true;
     }
     
@@ -401,12 +427,12 @@ class sct_target<T, TRAITS, 0> :
 
         if (always_ready) {
             // If always ready, register added in target
-            if (module.sync) sync = true;
-            module.sync = false;
+            if (module.chan_sync) chan_sync = true;
+            module.chan_sync = false;
         } else {
             // If not always ready, register added in initiator
-            if (sync) module.sync = true;
-            sync = false;
+            if (chan_sync) module.chan_sync = true;
+            chan_sync = false;
         }
         module.always_ready = always_ready;
 
@@ -463,8 +489,16 @@ class sct_target<T, TRAITS, 0> :
             fifo->addToGet(s);
             
         } else {
-            auto procKind = sc_get_current_process_handle().proc_kind();
-            cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+            if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+                // Sequential method
+                cthread = true;
+                //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+            } else {
+                // Other processes
+                auto procKind = sc_get_current_process_handle().proc_kind();
+                cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+            }
+            
             if (cthread) {
                 if (TRAITS::CLOCK == 2) s << clk; 
                 else s << (TRAITS::CLOCK ? clk.pos() : clk.neg());
@@ -728,8 +762,15 @@ class sct_target<T, TRAITS, 1> :
     
     /// Add this target to sensitivity list
     void addTo(sc_sensitive& s) override {
-        auto procKind = sc_get_current_process_handle().proc_kind();
-        cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method
+            cthread = true;
+            //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+        } else {
+            // Other processes
+            auto procKind = sc_get_current_process_handle().proc_kind();
+            cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
         fifo.addToGet(s);   // No @nrst required here
     }
     
@@ -741,7 +782,7 @@ class sct_target<T, TRAITS, 1> :
         if (procKind != SC_CTHREAD_PROC_) {
             *s << *p;       // No @nrst required here
         }
-    }    
+    }
     
     void addPeekTo(sc_sensitive& s) override {
         fifo.addPeekTo(s);  // No @nrst required here

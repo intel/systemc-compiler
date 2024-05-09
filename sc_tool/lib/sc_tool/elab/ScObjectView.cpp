@@ -1388,7 +1388,7 @@ bool ProcessView::isScCThread() const
 // Does not work well for methods in MIF
 bool ProcessView::isCombinational() const
 {
-    bool isCombinational = true;
+    bool isCombinational = isScMethod();
 
     for (auto sens : staticSensitivity()) {
         if (!sens.isDefault())

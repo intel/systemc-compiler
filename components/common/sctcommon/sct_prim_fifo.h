@@ -560,8 +560,15 @@ class sct_prim_fifo :
 
     void addTo(sc_sensitive& s) override {
         auto procKind = sc_get_current_process_handle().proc_kind();
-        cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
-        cthread_get = cthread_put;
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method
+            cthread_put = true;
+            cthread_get = true;
+            //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+        } else {
+            cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+            cthread_get = cthread_put;
+        }
         
         if (procKind != SC_CTHREAD_PROC_) {
             s << put_event << get_event;
@@ -574,7 +581,13 @@ class sct_prim_fifo :
     
     void addToPut(sc_sensitive& s) override {
         auto procKind = sc_get_current_process_handle().proc_kind();
-        cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method
+            cthread_put = true;
+            //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+        } else {
+            cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
         
         if (procKind != SC_CTHREAD_PROC_) {
             s << put_event;
@@ -592,7 +605,14 @@ class sct_prim_fifo :
     
     void addToGet(sc_sensitive& s) override {
         auto procKind = sc_get_current_process_handle().proc_kind();
-        cthread_get = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method
+            cthread_get = true;
+            //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+        } else {
+            // Other processes
+            cthread_get = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
         
         if (procKind != SC_CTHREAD_PROC_) {
             s << get_event;
@@ -609,8 +629,16 @@ class sct_prim_fifo :
     }
 
     void addPeekTo(sc_sensitive& s) override {
+        bool cthread;
         auto procKind = sc_get_current_process_handle().proc_kind();
-        bool cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method
+            cthread = true;
+            //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+        } else {
+            // Other processes
+            cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
         
         if (peek_event) {
             if (cthread_peek != cthread) {
@@ -641,7 +669,7 @@ class sct_prim_fifo :
     const sc_event& default_event() const override {
         cout << "No default event for sct_prim_fifo " << name() << endl;
         assert (false); 
-        //return put_event; 
+        return put_event;
     }
     
     inline void print(::std::ostream& os) const override

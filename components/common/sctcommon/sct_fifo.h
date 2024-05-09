@@ -75,8 +75,14 @@ class sct_fifo<T, LENGTH, TRAITS, 0> :
                   << pop_indx << element_num_d;
         for (auto& i : buffer) sensitive << i;
 
+    #ifdef SCT_SEQ_METH
+        SC_METHOD(syncProc);
+        sensitive << (TRAITS::CLOCK ? clk.pos() : clk.neg()) 
+                  << (TRAITS::RESET ? nrst.pos() : nrst.neg()); 
+    #else
         SCT_CTHREAD(syncProc, clk, TRAITS::CLOCK);
         async_reset_signal_is(nrst, TRAITS::RESET);
+    #endif
     }
 
 public:
@@ -333,23 +339,30 @@ public:
     
     void syncProc()
     {
-        pop_indx  = 0;
-        push_indx = 0;
-        
-        if (cthread_put) put_req_d = 0;
-        if (cthread_get) get_req_d = 0;
-        element_num_d = 0;
+    #ifdef SCT_SEQ_METH
+        if (TRAITS::RESET ? nrst : !nrst) {
+    #endif
+            pop_indx  = 0;
+            push_indx = 0;
 
-        // Initialize zero cell to provide zero data before first push
-        buffer[0] = T{};
-        if (INIT_BUFFER) {
-            for (unsigned i = 1; i < LENGTH; i++) {
-                buffer[i] = T{};
+            if (cthread_put) put_req_d = 0;
+            if (cthread_get) get_req_d = 0;
+            element_num_d = 0;
+
+            // Initialize zero cell to provide zero data before first push
+            buffer[0] = T{};
+            if (INIT_BUFFER) {
+                for (unsigned i = 1; i < LENGTH; i++) {
+                    buffer[i] = T{};
+                }
             }
-        }
+    #ifdef SCT_SEQ_METH
+        } else {
+    #else
         wait();
 
         while (true) {
+    #endif
             const bool push = cthread_put ? put_req != put_req_d : put_req;
             const bool pop  = cthread_get ? get_req != get_req_d : get_req;
 
@@ -375,7 +388,9 @@ public:
             element_num_d = element_num;
             //cout << sc_time_stamp() << " " << sc_delta_count() << " : FIFO elem_num " << element_num << endl;
             
+    #ifndef SCT_SEQ_METH
             wait();
+    #endif
         }
     }
     
@@ -388,6 +403,11 @@ public:
         if (!cthread_put && !cthread_get && !SYNC_VALID && !SYNC_READY) {
             cout << "\nFIFO " << name() 
                  << " attached to method should have sync valid or sync ready" << endl;
+            assert (false);
+        }
+        if (clk.bind_count() != 1 || nrst.bind_count() != 1) {
+            cout << "\nFIFO " << name() 
+                 << " clock/reset inputs are not bound or multiple bound" << endl;
             assert (false);
         }
         PUT.fifo = nullptr;
@@ -416,9 +436,18 @@ public:
         assert (false);
     }
     
-    void addToPut(sc_sensitive& s) override {
-        auto procKind = sc_get_current_process_handle().proc_kind();
-        cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+    void addToPut(sc_sensitive& s) override 
+    {
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method
+            cthread_put = true;
+            //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+        } else {
+            // Other processes
+            auto procKind = sc_get_current_process_handle().proc_kind();
+            cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
+            
         if (cthread_put) {
             if (TRAITS::CLOCK == 2) s << clk; 
             else s << (TRAITS::CLOCK ? clk.pos() : clk.neg());
@@ -452,8 +481,15 @@ public:
     }  
     
     void addToGet(sc_sensitive& s) override {
-        auto procKind = sc_get_current_process_handle().proc_kind();
-        cthread_get = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method
+            cthread_get = true;
+            //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+        } else {
+            // Other processes
+            auto procKind = sc_get_current_process_handle().proc_kind();
+            cthread_get = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
         
         if (cthread_get) {
             if (TRAITS::CLOCK == 2) s << clk; 
@@ -488,8 +524,17 @@ public:
     }
 
     void addPeekTo(sc_sensitive& s) override {
-        auto procKind = sc_get_current_process_handle().proc_kind();
-        bool cthread_peek = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        bool cthread_peek;
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method
+            cthread_peek = true;
+            //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+        } else {
+            // Other processes
+            auto procKind = sc_get_current_process_handle().proc_kind();
+            cthread_peek = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
+        
         if (cthread_peek) {
             if (TRAITS::CLOCK == 2) s << clk; 
             else s << (TRAITS::CLOCK ? clk.pos() : clk.neg());

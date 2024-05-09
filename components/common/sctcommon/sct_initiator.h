@@ -49,18 +49,28 @@ class sct_initiator<T, TRAITS, 0> :
 
     /// \param sync -- add register in initiator or target
     explicit sct_initiator(const sc_module_name& name, bool sync_ = 0) : 
-        sc_module(name), sync(sync_)
+        sc_module(name), chan_sync(sync_), orig_sync(sync_)
     {
         //cout << "Initiator " << name << endl;
+    #ifdef SCT_SEQ_METH
+        SC_METHOD(sync_thread);
+        sensitive << (TRAITS::CLOCK ? clk.pos() : clk.neg()) 
+                  << (TRAITS::RESET ? nrst.pos() : nrst.neg()); 
+
+        SC_METHOD(core_thread);
+        sensitive << (TRAITS::CLOCK ? clk.pos() : clk.neg()) 
+                  << (TRAITS::RESET ? nrst.pos() : nrst.neg()); 
+    #else
         SCT_CTHREAD(sync_thread, clk, TRAITS::CLOCK);
         async_reset_signal_is(nrst, TRAITS::RESET);
+        
+        SCT_CTHREAD(core_thread, clk, TRAITS::CLOCK);
+        async_reset_signal_is(nrst, TRAITS::RESET);
+    #endif
 
         SC_METHOD(req_control);
         sensitive << put_req << put_req_d << core_ready_d << core_req_d;
         
-        SCT_CTHREAD(core_thread, clk, TRAITS::CLOCK);
-        async_reset_signal_is(nrst, TRAITS::RESET);
-
     #ifdef DEBUG_SYSTEMC
         SC_METHOD(debugProc);
         debug_handle = new sc_process_handle(sc_get_current_process_handle());
@@ -74,7 +84,7 @@ class sct_initiator<T, TRAITS, 0> :
 
     /// Reset put request in THREAD reset section and METHOD everywhere
     void reset_put() override {
-        if (sync) {
+        if (chan_sync) {
             sync_req  = 0;
             sync_data = T{};
         } else {
@@ -86,7 +96,7 @@ class sct_initiator<T, TRAITS, 0> :
     /// Clear put request in METHOD and THREAD after reset
     /// Do not clear @core_data in CTHREAD as it may contain current request data
     void clear_put() override {
-        if (sync) {
+        if (chan_sync) {
             if (cthread) {
                 sync_req  = sync_req.read();
             } else {
@@ -107,7 +117,7 @@ class sct_initiator<T, TRAITS, 0> :
     /// Put request if it is ready 
     /// \return true if request is pushed 
     bool put(const T& data) override {
-         if (sync) {
+         if (chan_sync) {
             if (core_ready) {
                 sync_req = cthread ? !sync_req : true;
                 // Assign input data only under request as it is register, value stored
@@ -136,7 +146,7 @@ class sct_initiator<T, TRAITS, 0> :
         }
     }
     bool put(const T& data, sc_uint<1> mask) override {
-         if (sync) {
+         if (chan_sync) {
             if (core_ready) {
                 sync_req = cthread ? (mask ? !sync_req : sync_req) : bool(mask);
                 // Assign input data only under request as it is register, value stored
@@ -171,7 +181,7 @@ class sct_initiator<T, TRAITS, 0> :
             if (!always_ready) {
                 while (!core_ready) wait();
                 // Assign input data only under request as it is register, value stored
-                if (sync) {
+                if (chan_sync) {
                     sync_req = !sync_req;
                     sync_data = data;
                 } else {
@@ -189,7 +199,8 @@ class sct_initiator<T, TRAITS, 0> :
     }
     
   public:  
-    bool sync;
+    bool chan_sync;
+    bool orig_sync;
     bool cthread = false;
     bool always_ready;       
 
@@ -210,13 +221,20 @@ class sct_initiator<T, TRAITS, 0> :
     sc_signal<T>            sync_data{"sync_data"};
     
     void sync_thread() {
-        if (sync) {
-            if (cthread) sync_req_d = 0;
-            put_req   = 0;
-            core_data = T{};
+        if (chan_sync) {
+        #ifdef SCT_SEQ_METH
+            if (TRAITS::RESET ? nrst : !nrst) {
+        #endif
+                if (cthread) sync_req_d = 0;
+                put_req   = 0;
+                core_data = T{};
+        #ifdef SCT_SEQ_METH
+            } else {
+        #else
             wait();
-            
+
             while (true) {
+        #endif            
                 bool A = cthread ? sync_req != sync_req_d : sync_req;
 
                 if (A && core_ready) {
@@ -225,13 +243,15 @@ class sct_initiator<T, TRAITS, 0> :
                     if (cthread) sync_req_d = sync_req;
                 }
 
+        #ifndef SCT_SEQ_METH
                 wait();
+        #endif
             }
         }
     }
-
+    
     void req_control() {
-        const bool A = (sync || cthread) ? put_req != put_req_d : put_req;
+        const bool A = (chan_sync || cthread) ? put_req != put_req_d : put_req;
         if (always_ready) {
             core_req = A;
         } else {
@@ -247,20 +267,29 @@ class sct_initiator<T, TRAITS, 0> :
     }
     
     void core_thread() {
-        if (sync || cthread) put_req_d = 0;
-        if (!always_ready) {
-            core_req_d   = 0;
-            core_ready_d = 0;
-        }
+    #ifdef SCT_SEQ_METH
+        if (TRAITS::RESET ? nrst : !nrst) {
+    #endif
+            if (chan_sync || cthread) put_req_d = 0;
+            if (!always_ready) {
+                core_req_d   = 0;
+                core_ready_d = 0;
+            }
+    #ifdef SCT_SEQ_METH
+        } else {
+    #else
         wait();
         
         while (true) {
-            if (sync || cthread) put_req_d = put_req;
+    #endif
+            if (chan_sync || cthread) put_req_d = put_req;
             if (!always_ready) {
                 core_req_d   = core_req;
                 core_ready_d = core_ready;
             }
+    #ifndef SCT_SEQ_METH
             wait();
+    #endif
         }
     }
     
@@ -275,14 +304,20 @@ class sct_initiator<T, TRAITS, 0> :
                  << " is not bound to target" << endl;
             assert (false);
         }
-        if (always_ready && sync) {
+        // @bind() call clears @chan_sync in Initiator if Target is always ready
+        if (always_ready && chan_sync) {
             cout << "\nInitiator " << name() 
-                 << " bound to always ready target cannot have sync option" << endl;
+                 << " bound to always ready target cannot have sync register" << endl;
             assert (false);
         }
+        if (clk.bind_count() != 1 || nrst.bind_count() != 1) {
+            cout << "\nInitiator " << name() 
+                 << " clock/reset inputs are not bound or multiple bound" << endl;
+            assert (false);
+        }        
 
     #ifdef DEBUG_SYSTEMC
-        if (sync) {
+        if (chan_sync) {
             this->sensitive << *debug_handle << sync_req << sync_req_d
                             << core_ready << sync_data;
         } else {
@@ -307,6 +342,11 @@ class sct_initiator<T, TRAITS, 0> :
         auto* sig = new sc_signal<PT>(sigName.c_str());
         dutPort(*sig);
         tbPort(*sig);
+        
+        if (always_ready && chan_sync) {
+            cout << "\nNo sync register allowed in TB initiator: " << name() << endl;
+            assert (false);
+        }
         
         bound = true;
     }
@@ -366,8 +406,16 @@ class sct_initiator<T, TRAITS, 0> :
     /// Add signals to sensitivity list of METHOD where @put() is called
     void addTo(sc_sensitive& s) override
     {
-        auto procKind = sc_get_current_process_handle().proc_kind();
-        cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method
+            cthread = true;
+            //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+        } else {
+            // Other processes
+            auto procKind = sc_get_current_process_handle().proc_kind();
+            cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
+
         if (cthread) {
             if (TRAITS::CLOCK == 2) s << clk; 
             else s << (TRAITS::CLOCK ? clk.pos() : clk.neg());
@@ -409,9 +457,9 @@ class sct_initiator<T, TRAITS, 0> :
     
     void debugProc() {
         ready_push = ready();
-        debug_put  = sync ? (cthread ? sync_req != sync_req_d : sync_req) :
+        debug_put  = chan_sync ? (cthread ? sync_req != sync_req_d : sync_req) :
                             (cthread ? put_req != put_req_d : put_req);
-        data_in    = sync ? sync_data.read() : core_data.read();
+        data_in    = chan_sync ? sync_data.read() : core_data.read();
     }
 #endif
     

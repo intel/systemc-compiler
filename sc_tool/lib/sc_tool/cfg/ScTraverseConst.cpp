@@ -1205,6 +1205,17 @@ void ScTraverseConst::run()
                 
                 //state->print();
 
+                // For sequential methods
+//                bool isLastStmt = i == block.getCfgBlock()->size()-1;
+//                if (isSeqMethod && isLastStmt) {
+//                    for (const auto& succ : block->succs()) {
+//                        if (succ.BlockID == ExitBlockId) {
+//                            // Add state to Reset/Body state collection
+//                            cout << "SEQ METH block #" << block.getCfgBlockID() << endl;
+//                        }
+//                    }
+//                }
+        
                 // Wait call, store state and continue analysis
                 if (waitCall > 0 && cthreadStates) {
                     auto cursorStack = contextStack.getCursorStack();
@@ -1466,6 +1477,13 @@ void ScTraverseConst::run()
                 CFGBlock::succ_iterator iter = cfgBlock->succ_begin();
                 AdjBlock thenBlock(*iter);
                 AdjBlock elseBlock(*(++iter));
+                
+//                if (seqMethMainIf) {
+//                    seqMethResetBlock = thenBlock.getCfgBlockID();
+//                    seqMethBodyBlock = elseBlock.getCfgBlockID();
+//                    seqMethMainIf = true;
+//                    cout << "SEQ METH Main IF " <<term->getBeginLoc().printToString(sm) << endl;
+//                }
 
                 if (!falseCond) {
                     ConstScopeInfo thenES(state, block, loopStack, visitedLoops);
@@ -1796,7 +1814,9 @@ void ScTraverseConst::run()
                 
                 bool addBodyBlock = !stableState && bodyBlock.getCfgBlock();
                 bool addExitBlock = (stableState || !trueCond) && 
-                                    exitBlock.getCfgBlock();      
+                                    exitBlock.getCfgBlock();     
+                //cout << "addBodyBlock " << addBodyBlock << " addExitBlock " << addExitBlock << endl;
+                
                 bool clone = false;    
                 if (addBodyBlock && !falseCond) {
                     ConstScopeInfo enterSI(state, block, loopStack, visitedLoops);

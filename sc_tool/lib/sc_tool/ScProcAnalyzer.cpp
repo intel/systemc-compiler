@@ -90,7 +90,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     DebugOptions::suspend();
     auto preState = shared_ptr<ScState>(globalState->clone());
     ScTraverseConst preConst(astCtx, preState, modval, 
-                             globalState, &elabDB, nullptr, nullptr, true);
+                             globalState, &elabDB, nullptr, nullptr, true, true);
     preConst.run(verMod, methodDecl);
     
     for (const auto& sval : preConst.getFinalState()->getDefArrayValues()) {
@@ -108,7 +108,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     auto start = chrono::system_clock::now();
     auto constState = shared_ptr<ScState>(globalState->clone());
     ScTraverseConst travConst(astCtx, constState, modval, 
-                              globalState, &elabDB, nullptr, nullptr, true);
+                              globalState, &elabDB, nullptr, nullptr, true, true);
     travConst.run(verMod, methodDecl);
     
     ScState* finalState = travConst.getFinalState();
@@ -582,7 +582,7 @@ std::string ScProcAnalyzer::analyzeSvaProperties(
     // Add CPA to add used variables into Verilog module with @addVarUsedInProc()
     auto constState = shared_ptr<ScState>(globalState->clone());
     ScTraverseConst travConst(astCtx, constState, modval,  
-                              globalState, &elabDB, nullptr, nullptr, true);
+                              globalState, &elabDB, nullptr, nullptr, true, true);
     travConst.setModuleSctAssert();
     
     // Add all used variable to state

@@ -97,7 +97,7 @@ VerilogProcCode ProcBuilder::generateVerilogProcess(ProcessView& procView)
 //         << procRecordView.isModularInterface() << procRecordView.isArrayElement() << endl;
 //    cout << "procView " << procView.procName << " " << procView.isCombinational() << endl;
 
-    if (procView.isScMethod()) {
+    if (procView.isCombinational()) {
         return procAnalyzer->analyzeMethodProcess(procHostClass,
                                 hostModuleDynClass, procView);
     } else {

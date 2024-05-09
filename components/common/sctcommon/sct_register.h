@@ -41,8 +41,14 @@ class sct_register<T, TRAITS, 0> :
                           const T& RESET_VAL_ = T{}) : 
         sc_module(name), RESET_VAL(RESET_VAL_)
     {
-        SCT_CTHREAD(reg_thread, clk, TRAITS::CLOCK);
-        async_reset_signal_is(nrst, TRAITS::RESET);
+        #ifdef SCT_SEQ_METH
+            SC_METHOD(reg_thread);
+            sensitive << (TRAITS::CLOCK ? clk.pos() : clk.neg()) 
+                      << (TRAITS::RESET ? nrst.pos() : nrst.neg()); 
+        #else
+            SCT_CTHREAD(reg_thread, clk, TRAITS::CLOCK);
+            async_reset_signal_is(nrst, TRAITS::RESET);
+        #endif
     }
     
     /// Call in writer METHOD process only
@@ -76,12 +82,21 @@ class sct_register<T, TRAITS, 0> :
 
     void reg_thread() 
     {
-        reg_data_d = RESET_VAL;
+    #ifdef SCT_SEQ_METH
+        if (TRAITS::RESET ? nrst : !nrst) {
+    #endif
+            reg_data_d = RESET_VAL;
+    #ifdef SCT_SEQ_METH
+        } else {
+    #else
         wait();
         
         while (true) {
+    #endif
             reg_data_d = reg_data;
+    #ifndef SCT_SEQ_METH
             wait();
+    #endif
         }
     }
     
@@ -90,6 +105,11 @@ class sct_register<T, TRAITS, 0> :
             // No assert violation here
             cout << "\nRegister " << name() 
                  << " is not attached to any process" << endl;
+        }
+        if (clk.bind_count() != 1 || nrst.bind_count() != 1) {
+            cout << "\nFIFO " << name() 
+                 << " clock/reset inputs are not bound or multiple bound" << endl;
+            assert (false);
         }
     }
     
@@ -101,8 +121,18 @@ class sct_register<T, TRAITS, 0> :
     }
     
     void addTo(sc_sensitive& s) {
-        auto procKind = sc_get_current_process_handle().proc_kind();
-        if (procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_) {
+        bool cthread;
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method
+            cthread = true;
+            //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+        } else {
+            // Other processes
+            auto procKind = sc_get_current_process_handle().proc_kind();
+            cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
+        
+        if (cthread) {
             if (TRAITS::CLOCK == 2) s << clk; 
             else s << (TRAITS::CLOCK ? clk.pos() : clk.neg());
             
@@ -294,13 +324,20 @@ class sct_register<T, TRAITS, 1> :
     }
     
     void addTo(sc_sensitive& s) {
-        auto procKind = sc_get_current_process_handle().proc_kind();
+        bool cthread;
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method
+            cthread = true;
+            //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+        } else {
+            auto procKind = sc_get_current_process_handle().proc_kind();
+            cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
         
-        if (procKind == SC_METHOD_PROC_) {
-            s << reg.default_event();   // No @nrst required here
-        } else 
-        if (procKind == SC_THREAD_PROC_) {
+        if (cthread) {
             s << reg.thread_event();    // No @nrst required here
+        } else {
+            s << reg.default_event();   // No @nrst required here
         }
     }
     

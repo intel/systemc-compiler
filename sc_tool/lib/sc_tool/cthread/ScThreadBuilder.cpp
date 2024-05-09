@@ -142,8 +142,9 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     }
     
     auto parentModView = procView.getParentModule();
-    auto verMod  = elabDB.getVerilogModule(parentModView);
+    auto verMod   = elabDB.getVerilogModule(parentModView);
     bool hasReset = !procView.resets().empty();
+    bool isMethod = procView.isScMethod();
 
     // Preliminary CPA
     std::unordered_set<SValue> defVals;
@@ -151,7 +152,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     auto preState = std::shared_ptr<ScState>(globalState->clone());
     ScTraverseConst preConst(astCtx, preState, modSval, 
                             globalState, &elabDB, &threadStates, 
-                            &findWaitVisitor, false);
+                            &findWaitVisitor, false, isMethod);
     preConst.setHasReset(hasReset);
     preConst.run(verMod, entryFuncDecl);
     
@@ -170,7 +171,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     travConst = std::make_unique<ScTraverseConst>(astCtx,
                             globalStateClone, modSval, 
                             globalState, &elabDB, &threadStates, 
-                            &findWaitVisitor, false);
+                            &findWaitVisitor, false, isMethod);
     travConst->setHasReset(hasReset);
     travConst->run(verMod, entryFuncDecl);
     
