@@ -21,6 +21,7 @@
 #include "sct_target.h"
 #include "sct_initiator.h"
 #include "sct_fifo.h"
+#include "sct_pipe.h"
 #include "sct_signal.h"
 #include "sct_register.h"
 #include "sct_ports.h"

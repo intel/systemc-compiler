@@ -31,12 +31,13 @@ struct AhbSlave : public sc_module, sc_interface
     
     SC_CTOR(AhbSlave) {
         SC_METHOD(methProc);
-        sensitive << clk.pos();
+        sensitive << s;
 
         SC_CTHREAD(threadProc, clk.pos());
         async_reset_signal_is(nrst, false);
     }
     
+    sc_signal<bool> s;
     void methProc() 
     {
         slave_port->g(0);        

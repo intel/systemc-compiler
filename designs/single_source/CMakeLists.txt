@@ -31,3 +31,7 @@ svc_target(ss_fifo_shared_meth ELAB_TOP test_top.dut GOLDEN ss_fifo_shared_meth.
 add_executable(ss_fifo_shared_thread sct_fifo_shared/sc_main.cpp)
 target_compile_definitions(ss_fifo_shared_thread PUBLIC -DTHREAD)
 svc_target(ss_fifo_shared_thread ELAB_TOP test_top.dut GOLDEN ss_fifo_shared_thread.sv)
+
+## Pipe test
+add_executable(ss_pipe_single sct_pipe/sc_main.cpp)
+svc_target(ss_pipe_single ELAB_TOP test_top.dut GOLDEN ss_pipe_single.sv)

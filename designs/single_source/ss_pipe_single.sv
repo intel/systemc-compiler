@@ -25,25 +25,24 @@ logic resp_get_req_d;
 logic resp_reg_full;
 logic resp_reg_full_d;
 logic resp_core_req_d;
-logic [15:0] resp_core_data_d;
+logic [170:0] resp_core_data_d;
+logic flip;
 logic run_clk;
 logic run_nrst;
 logic run_core_ready;
 logic run_core_req;
-logic [15:0] run_core_data;
+logic [170:0] run_core_data;
 logic resp_clk;
 logic resp_nrst;
 logic resp_core_ready;
 logic resp_core_req;
-logic [15:0] resp_core_data;
+logic [170:0] resp_core_data;
 
 // Local parameters generated for C++ constants
 localparam logic run_chan_sync = 0;
 localparam logic run_cthread = 1;
 localparam logic run_always_ready = 0;
 localparam logic resp_cthread = 1;
-localparam logic resp_always_ready = 0;
-localparam logic [31:0] N = 1;
 
 // Assignments generated for C++ channel arrays
 assign run_clk = clk;
@@ -148,7 +147,7 @@ end
 logic resp_get_req_d_next;
 logic resp_core_req_d_next;
 logic resp_reg_full_d_next;
-logic [15:0] resp_core_data_d_next;
+logic [170:0] resp_core_data_d_next;
 
 // Next-state combinational logic
 always_comb begin : resp_core_thread_comb     // sct_target.h:273:5
@@ -190,168 +189,20 @@ end
 // Empty process, no code generated 
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: init_thread (method_test.h:102:5) 
-
-// Thread-local variables
-logic run_put_req_next;
-logic [15:0] run_core_data_next;
-logic resp_get_req_next;
-logic [31:0] i;
-logic [31:0] i_next;
-logic [31:0] i0;
-logic [31:0] i_next0;
-logic [2:0] init_thread_PROC_STATE;
-logic [2:0] init_thread_PROC_STATE_next;
+// Clocked THREAD: init_thread (single_test.h:92:5) 
 
 // Next-state combinational logic
-always_comb begin : init_thread_comb     // method_test.h:102:5
+always_comb begin : init_thread_comb     // single_test.h:92:5
     init_thread_func;
 end
 function void init_thread_func;
-    logic TMP_0;
-    logic [15:0] data;
-    logic TMP_1;
-    logic TMP_2;
-    logic TMP_3;
-    logic enable;
-    logic A;
-    logic TMP_4;
-    logic TMP_5;
-    i_next = i;
-    i_next0 = i0;
-    resp_get_req_next = resp_get_req;
-    run_core_data_next = run_core_data;
-    run_put_req_next = run_put_req;
-    init_thread_PROC_STATE_next = init_thread_PROC_STATE;
-    
-    case (init_thread_PROC_STATE)
-        0: begin
-            i_next = 0;
-            data = 42 + i_next;
-            // Call put() begin
-            if (run_always_ready || run_core_ready)
-            begin
-                run_put_req_next = !run_put_req;
-                run_core_data_next = data;
-                TMP_0 = 1;
-            end else begin
-                TMP_0 = 0;
-            end
-            // Call put() end
-            if (!TMP_0)
-            begin
-                init_thread_PROC_STATE_next = 1; return;    // method_test.h:109:36;
-            end
-            init_thread_PROC_STATE_next = 2; return;    // method_test.h:110:13;
-        end
-        1: begin
-            data = 42 + i_next;
-            // Call put() begin
-            if (run_always_ready || run_core_ready)
-            begin
-                run_put_req_next = !run_put_req;
-                run_core_data_next = data;
-                TMP_1 = 1;
-            end else begin
-                TMP_1 = 0;
-            end
-            // Call put() end
-            if (!TMP_1)
-            begin
-                init_thread_PROC_STATE_next = 1; return;    // method_test.h:109:36;
-            end
-            init_thread_PROC_STATE_next = 2; return;    // method_test.h:110:13;
-        end
-        2: begin
-            ++i_next;
-            if (i_next < N)
-            begin
-                data = 42 + i_next;
-                // Call put() begin
-                if (run_always_ready || run_core_ready)
-                begin
-                    run_put_req_next = !run_put_req;
-                    run_core_data_next = data;
-                    TMP_2 = 1;
-                end else begin
-                    TMP_2 = 0;
-                end
-                // Call put() end
-                if (!TMP_2)
-                begin
-                    init_thread_PROC_STATE_next = 1; return;    // method_test.h:109:36;
-                end
-                init_thread_PROC_STATE_next = 2; return;    // method_test.h:110:13;
-            end
-            i_next0 = 0;
-            enable = 1;
-            // Call get() begin
-            A = (resp_core_req || resp_reg_full);
-            if (A)
-            begin
-                resp_get_req_next = !resp_get_req;
-                TMP_3 = enable;
-            end else begin
-                TMP_3 = 0;
-            end
-            // Call get() end
-            if (!TMP_3)
-            begin
-                init_thread_PROC_STATE_next = 3; return;    // method_test.h:116:43;
-            end
-            init_thread_PROC_STATE_next = 4; return;    // method_test.h:118:13;
-        end
-        3: begin
-            enable = 1;
-            // Call get() begin
-            A = (resp_core_req || resp_reg_full);
-            if (A)
-            begin
-                resp_get_req_next = !resp_get_req;
-                TMP_4 = enable;
-            end else begin
-                TMP_4 = 0;
-            end
-            // Call get() end
-            if (!TMP_4)
-            begin
-                init_thread_PROC_STATE_next = 3; return;    // method_test.h:116:43;
-            end
-            init_thread_PROC_STATE_next = 4; return;    // method_test.h:118:13;
-        end
-        4: begin
-            ++i_next0;
-            if (i_next0 < N)
-            begin
-                enable = 1;
-                // Call get() begin
-                A = (resp_core_req || resp_reg_full);
-                if (A)
-                begin
-                    resp_get_req_next = !resp_get_req;
-                    TMP_5 = enable;
-                end else begin
-                    TMP_5 = 0;
-                end
-                // Call get() end
-                if (!TMP_5)
-                begin
-                    init_thread_PROC_STATE_next = 3; return;    // method_test.h:116:43;
-                end
-                init_thread_PROC_STATE_next = 4; return;    // method_test.h:118:13;
-            end
-            init_thread_PROC_STATE_next = 5; return;    // method_test.h:121:9;
-        end
-        5: begin
-            init_thread_PROC_STATE_next = 5; return;    // method_test.h:124:13;
-        end
-    endcase
 endfunction
 
 // Synchronous register update
-always_ff @(posedge run_clk or negedge nrst) 
+always_ff @(posedge clk or negedge nrst) 
 begin : init_thread_ff
     if ( ~nrst ) begin
+        flip <= 0;
         // Call reset_put() begin
         run_put_req <= 0;
         run_core_data <= 0;
@@ -359,15 +210,8 @@ begin : init_thread_ff
         // Call reset_get() begin
         resp_get_req <= 0;
         // Call reset_get() end
-        init_thread_PROC_STATE <= 0;    // method_test.h:106:9;
     end
     else begin
-        run_put_req <= run_put_req_next;
-        run_core_data <= run_core_data_next;
-        resp_get_req <= resp_get_req_next;
-        i <= i_next;
-        i0 <= i_next0;
-        init_thread_PROC_STATE <= init_thread_PROC_STATE_next;
     end
 end
 
@@ -388,9 +232,7 @@ A a
   .run_clk(clk),
   .run_nrst(nrst),
   .resp_clk(clk),
-  .resp_nrst(nrst),
-  .fifo_clk(clk),
-  .fifo_nrst(nrst)
+  .resp_nrst(nrst)
 );
 
 endmodule
@@ -399,24 +241,22 @@ endmodule
 
 //==============================================================================
 //
-// Module: A (method_test.h:79:5)
+// Module: A (single_test.h:71:5)
 //
 module A // "test_top.dut.a"
 (
     output logic run_core_ready_s,
     input logic run_core_req_s,
-    input logic [15:0] run_core_data_s,
+    input logic [170:0] run_core_data_s,
     input logic resp_core_ready_s,
     output logic resp_core_req_s,
-    output logic [15:0] resp_core_data_s,
+    output logic [170:0] resp_core_data_s,
     input logic clk,
     input logic nrst,
     input logic run_clk,
     input logic run_nrst,
     input logic resp_clk,
-    input logic resp_nrst,
-    input logic fifo_clk,
-    input logic fifo_nrst
+    input logic resp_nrst
 );
 
 // Variables generated for SystemC signals
@@ -425,28 +265,31 @@ logic run_get_req_d;
 logic run_reg_full;
 logic run_reg_full_d;
 logic run_core_req_d;
-logic [15:0] run_core_data_d;
+logic [170:0] run_core_data_d;
 logic resp_put_req;
 logic resp_core_req_d;
 logic resp_core_ready_d;
-logic [15:0] fifo_buffer[2];
-logic fifo_put_req;
-logic fifo_get_req;
-logic [15:0] fifo_data_in;
-logic [15:0] fifo_data_out;
-logic fifo_ready_push;
-logic fifo_out_valid;
-logic fifo_pop_indx;
-logic fifo_push_indx;
-logic [1:0] fifo_element_num;
-logic [1:0] fifo_element_num_d;
-logic fifo_not_empty_d;
+logic pipe_put_req;
+logic pipe_get_req;
+logic pipe_ready_push;
+logic pipe_out_valid;
+logic [2:0] pipe_enable;
+logic [170:0] pipe_data_in;
+logic [170:0] pipe_data_out;
+logic pipe_reg_full;
+logic pipe_reg_full_d;
+logic [170:0] pipe_data_reg;
+logic [170:0] pipe_data_reg_d;
+logic pipe_busy_reg[3];
+logic pipe_busy_reg_d[3];
 logic run_core_ready;
 logic run_core_req;
-logic [15:0] run_core_data;
+logic [170:0] run_core_data;
 logic resp_core_ready;
 logic resp_core_req;
-logic [15:0] resp_core_data;
+logic [170:0] resp_core_data;
+logic pipe_clk;
+logic pipe_nrst;
 
 // Local parameters generated for C++ constants
 localparam logic run_cthread = 0;
@@ -454,11 +297,8 @@ localparam logic run_always_ready = 0;
 localparam logic resp_chan_sync = 0;
 localparam logic resp_cthread = 0;
 localparam logic resp_always_ready = 0;
-localparam logic fifo_SYNC_VALID = 0;
-localparam logic fifo_SYNC_READY = 1;
-localparam logic fifo_INIT_BUFFER = 0;
-localparam logic fifo_cthread_put = 0;
-localparam logic fifo_cthread_get = 0;
+localparam logic pipe_cthread_put = 0;
+localparam logic pipe_cthread_get = 0;
 
 // Assignments generated for C++ channel arrays
 assign run_core_ready_s = run_core_ready;
@@ -467,6 +307,8 @@ assign run_core_data = run_core_data_s;
 assign resp_core_ready = resp_core_ready_s;
 assign resp_core_req_s = resp_core_req;
 assign resp_core_data_s = resp_core_data;
+assign pipe_clk = clk;
+assign pipe_nrst = nrst;
 
 //------------------------------------------------------------------------------
 // Method process: run_ready_control (sct_target.h:256:5) 
@@ -505,7 +347,7 @@ end
 logic run_get_req_d_next;
 logic run_core_req_d_next;
 logic run_reg_full_d_next;
-logic [15:0] run_core_data_d_next;
+logic [170:0] run_core_data_d_next;
 
 // Next-state combinational logic
 always_comb begin : run_core_thread_comb     // sct_target.h:273:5
@@ -602,123 +444,140 @@ begin : resp_req_control     // sct_initiator.h:253:5
 end
 
 //------------------------------------------------------------------------------
-// Method process: fifo_asyncProc (sct_fifo.h:278:5) 
+// Method process: pipe_asyncProc (sct_pipe.h:353:5) 
 
 always_comb 
-begin : fifo_asyncProc     // sct_fifo.h:278:5
-    logic outValid;
-    logic readyPush;
-    logic popIndx;
-    logic notEmpty;
-    logic notFull;
+begin : pipe_asyncProc     // sct_pipe.h:353:5
     logic push;
     logic pop;
-    popIndx = 0;
-    notEmpty = fifo_element_num_d != 0;
-    notFull = fifo_element_num_d != 2;
-    push = fifo_put_req;
-    pop = fifo_get_req;
-    outValid = notEmpty;
-    popIndx = fifo_pop_indx;
-    fifo_not_empty_d = notEmpty;
-    readyPush = notFull;
-    fifo_out_valid = push || outValid;
-    if (outValid)
+    logic busyRegs[3];
+    logic regFull;
+    logic [170:0] dataReg;
+    logic [2:0] enableRegs;
+    push = pipe_put_req;
+    pop = pipe_get_req;
+    for (integer unsigned i = 0; i != 3; ++i)
     begin
-        fifo_data_out = fifo_buffer[popIndx];
-    end else begin
-        fifo_data_out = fifo_data_in;
+        busyRegs[i] = pipe_busy_reg_d[i];
     end
-    fifo_ready_push = readyPush;
-    fifo_element_num = fifo_element_num_d;
-    if (pop && !push)
+    regFull = pipe_reg_full_d;
+    dataReg = pipe_data_reg_d;
+    if (!regFull && busyRegs[3 - 1])
     begin
-        fifo_element_num = fifo_element_num_d - 1;
-    end else begin
-        if (!pop && push)
+        busyRegs[3 - 1] = 0;
+        regFull = 1;
+        dataReg = pipe_data_out;
+    end
+    enableRegs = 0;
+    for (integer unsigned i_1 = 3 - 1; i_1 != 0; --i_1)
+    begin
+        if (!busyRegs[i_1] && busyRegs[i_1 - 1])
         begin
-            fifo_element_num = fifo_element_num_d + 1;
+            busyRegs[i_1] = 1;
+            busyRegs[i_1 - 1] = 0;
+            enableRegs[i_1] = 1;
         end
     end
+    pipe_ready_push = !busyRegs[0];
+    pipe_out_valid = regFull;
+    if (push && !busyRegs[0])
+    begin
+        busyRegs[0] = 1;
+        enableRegs[0] = 1;
+    end
+    if (!pipe_cthread_get && pop)
+    begin
+        regFull = 0;
+    end
+    for (integer unsigned i_2 = 0; i_2 != 3; ++i_2)
+    begin
+        pipe_busy_reg[i_2] = busyRegs[i_2];
+    end
+    pipe_enable = enableRegs;
+    pipe_reg_full = regFull;
+    pipe_data_reg = dataReg;
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: fifo_syncProc (sct_fifo.h:340:5) 
+// Clocked THREAD: pipe_syncProc (sct_pipe.h:397:5) 
 
 // Thread-local variables
-logic fifo_pop_indx_next;
-logic fifo_push_indx_next;
-logic [1:0] fifo_element_num_d_next;
-logic [15:0] fifo_buffer_next[2];
+logic pipe_busy_reg_d_next[3];
+logic pipe_reg_full_d_next;
+logic [170:0] pipe_data_reg_d_next;
 
 // Next-state combinational logic
-always_comb begin : fifo_syncProc_comb     // sct_fifo.h:340:5
-    fifo_syncProc_func;
+always_comb begin : pipe_syncProc_comb     // sct_pipe.h:397:5
+    pipe_syncProc_func;
 end
-function void fifo_syncProc_func;
-    logic push;
-    logic pop;
-    logic A;
-    fifo_buffer_next = fifo_buffer;
-    fifo_element_num_d_next = fifo_element_num_d;
-    fifo_pop_indx_next = fifo_pop_indx;
-    fifo_push_indx_next = fifo_push_indx;
-    push = fifo_put_req;
-    pop = fifo_get_req;
-    if (pop && fifo_not_empty_d)
+function void pipe_syncProc_func;
+    pipe_busy_reg_d_next = pipe_busy_reg_d;
+    pipe_data_reg_d_next = pipe_data_reg_d;
+    pipe_reg_full_d_next = pipe_reg_full_d;
+    for (integer unsigned i_1 = 0; i_1 != 3; ++i_1)
     begin
-        fifo_pop_indx_next = (fifo_pop_indx == 2 - 1) ? 0 : fifo_pop_indx + 1;
+        pipe_busy_reg_d_next[i_1] = pipe_busy_reg[i_1];
     end
-    A = !fifo_SYNC_VALID && !fifo_not_empty_d && pop;
-    if (push && !A)
-    begin
-        fifo_buffer_next[fifo_push_indx] = fifo_data_in;
-        fifo_push_indx_next = (fifo_push_indx == 2 - 1) ? 0 : fifo_push_indx + 1;
-    end
-    fifo_element_num_d_next = fifo_element_num;
+    pipe_reg_full_d_next = pipe_reg_full;
+    pipe_data_reg_d_next = pipe_data_reg;
 endfunction
 
 // Synchronous register update
-always_ff @(posedge fifo_clk or negedge fifo_nrst) 
-begin : fifo_syncProc_ff
-    if ( ~fifo_nrst ) begin
-        fifo_pop_indx <= 0;
-        fifo_push_indx <= 0;
-        fifo_element_num_d <= 0;
-        fifo_buffer[0] <= 0;
+always_ff @(posedge pipe_clk or negedge pipe_nrst) 
+begin : pipe_syncProc_ff
+    if ( ~pipe_nrst ) begin
+        for (integer unsigned i = 0; i != 3; ++i)
+        begin
+            pipe_busy_reg_d[i] <= 0;
+        end
+        pipe_reg_full_d <= 0;
+        pipe_data_reg_d <= 0;
     end
     else begin
-        fifo_pop_indx <= fifo_pop_indx_next;
-        fifo_push_indx <= fifo_push_indx_next;
-        fifo_element_num_d <= fifo_element_num_d_next;
-        fifo_buffer <= fifo_buffer_next;
+        pipe_busy_reg_d <= pipe_busy_reg_d_next;
+        pipe_reg_full_d <= pipe_reg_full_d_next;
+        pipe_data_reg_d <= pipe_data_reg_d_next;
     end
 end
 
 //------------------------------------------------------------------------------
-// Method process: putMeth (method_test.h:40:5) 
+// Method process: methProc (single_test.h:41:5) 
 
 always_comb 
-begin : putMeth     // method_test.h:40:5
+begin : methProc     // single_test.h:41:5
     logic TMP_0;
     logic TMP_1;
-    logic [15:0] TMP_2;
+    logic [170:0] TMP_2;
     logic A;
-    logic [15:0] data;
+    logic [170:0] data;
     logic TMP_4;
+    logic TMP_5;
+    logic TMP_6;
+    logic [170:0] TMP_7;
+    logic [170:0] data_1;
+    logic TMP_9;
     // Call reset_get() begin
     run_get_req = 0;
     // Call reset_get() end
     // Call reset_put() begin
-    fifo_put_req = 0;
-    fifo_data_in = 0;
+    resp_put_req = 0;
+    resp_core_data = 0;
     // Call reset_put() end
-    // Call request() begin
-    TMP_0 = run_core_req || run_reg_full;
-    // Call request() end
+    // Call reset() begin
+    // Call reset_get() begin
+    pipe_get_req = 0;
+    // Call reset_get() end
+    // Call reset_put() begin
+    pipe_put_req = 0;
+    pipe_data_in = 0;
+    // Call reset_put() end
+    // Call reset() end
     // Call ready() begin
-    TMP_1 = fifo_ready_push;
+    TMP_0 = pipe_ready_push;
     // Call ready() end
+    // Call request() begin
+    TMP_1 = run_core_req || run_reg_full;
+    // Call request() end
     if (TMP_0 && TMP_1)
     begin
         // Call get() begin
@@ -738,68 +597,63 @@ begin : putMeth     // method_test.h:40:5
         // Call get() end
         data = TMP_2;
         // Call put() begin
-        fifo_data_in = data;
-        if (fifo_ready_push)
+        if (pipe_ready_push)
         begin
-            fifo_put_req = 1;
+            pipe_put_req = 1;
+            pipe_data_in = data;
             TMP_4 = 1;
         end else begin
-            fifo_put_req = 0;
+            pipe_put_req = 0;
+            pipe_data_in = 0;
             TMP_4 = 0;
         end
         // Call put() end
     end
-end
-
-//------------------------------------------------------------------------------
-// Method process: getMeth (method_test.h:53:5) 
-
-always_comb 
-begin : getMeth     // method_test.h:53:5
-    logic TMP_0;
-    logic TMP_1;
-    logic [15:0] TMP_2;
-    logic [15:0] data;
-    logic TMP_4;
-    // Call reset_put() begin
-    resp_put_req = 0;
-    resp_core_data = 0;
-    // Call reset_put() end
-    // Call reset_get() begin
-    fifo_get_req = 0;
-    // Call reset_get() end
     // Call request() begin
-    TMP_0 = fifo_out_valid;
+    TMP_5 = pipe_out_valid;
     // Call request() end
     // Call ready() begin
-    TMP_1 = resp_core_ready;
+    TMP_6 = resp_core_ready;
     // Call ready() end
-    if (TMP_0 && TMP_1)
+    if (TMP_5 && TMP_6)
     begin
         // Call get() begin
-        if (fifo_out_valid)
+        if (pipe_out_valid)
         begin
-            fifo_get_req = 1;
+            pipe_get_req = 1;
         end else begin
-            fifo_get_req = 0;
+            pipe_get_req = 0;
         end
-        TMP_2 = fifo_data_out;
+        TMP_7 = pipe_data_reg;
         // Call get() end
-        data = TMP_2;
+        data_1 = TMP_7;
         // Call put() begin
         if (resp_always_ready || resp_core_ready)
         begin
             resp_put_req = 1;
-            resp_core_data = data;
-            TMP_4 = 1;
+            resp_core_data = data_1;
+            TMP_9 = 1;
         end else begin
             resp_put_req = 0;
             resp_core_data = 0;
-            TMP_4 = 0;
+            TMP_9 = 0;
         end
         // Call put() end
     end
 end
+
+
+//------------------------------------------------------------------------------
+// Child module instances
+
+My_SV_pipe_reg #(171, 0, 4, 0, 0) pipe_reg
+(
+  .clk(pipe_clk),
+  .rst_n(pipe_nrst),
+  .enable(pipe_enable),
+  .data_in(pipe_data_in),
+  .data_out(pipe_data_out)
+);
 
 endmodule
 
