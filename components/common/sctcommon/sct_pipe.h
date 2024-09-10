@@ -147,7 +147,7 @@ class sct_pipe<T, N, TRAITS, 0> :
     ///                     component and should be considered as example only
     explicit sct_pipe(const sc_module_name& name, 
                       bool addInReg = 0, bool addOutReg = 0,
-                      const std::string& rtlName = "lib_pl_reg") : 
+                      const std::string& rtlName = "DW_pl_reg") : 
         sc_module(name), reg{"reg", addInReg, addOutReg, rtlName}
     {
         //cout << "PIPE " << name << " DELAY " << DELAY << endl;
@@ -572,8 +572,12 @@ class sct_pipe<T, N, TRAITS, 1> :
 
     /// \param addInReg -- add input register not moved by re-timing 
     /// \param addInReg -- add output register not moved by re-timing
+    /// \param rtlName  -- pipeline register instantiated component name,
+    ///                    the default value is not related to any existing 
+    ///                    component and should be considered as example only
     explicit sct_pipe(const sc_module_name& name, 
-                      bool addInReg = 0, bool addOutReg = 0) : 
+                      bool addInReg = 0, bool addOutReg = 0,
+                      const std::string& rtlName = "DW_pl_reg") : 
         sc_module(name), 
         fifo("fifo", N+1, 1, 1, 0)  // sync valid and ready to avoid comb loop
     {

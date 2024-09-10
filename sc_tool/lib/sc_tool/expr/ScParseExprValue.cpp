@@ -121,7 +121,7 @@ void ScParseExprValue::readFromValue(SValue val)
         
         SValue parent = val;
         if (val.isVariable()) state->getValue(val, parent);
-        //cout << "  parent " << parent << endl;
+        //cout << "val " << val << " parent " << parent << endl;
 
         // Skip temporary record
         if (!parent.isRecord() || !parent.getRecord().isTemp()) {

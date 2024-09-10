@@ -50,6 +50,11 @@ struct sct_zero_width : public sc_dt::sc_value_base
 
     sct_zero_width(const sct_zero_width& a) {}
     
+    static const sct_zero_width& get_zero_width() { 
+        static sct_zero_width val;
+        return val; 
+    }
+    
     template<class T>
     sct_zero_width& operator = (const T& v) {return *this;}
 

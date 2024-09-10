@@ -47,7 +47,7 @@ class sct_fifo<T, LENGTH, TRAITS, 0> :
     static const unsigned INDX_WIDTH = sct_addrbits1<LENGTH>;
     using Indx_t = sc_uint<INDX_WIDTH>;
     static const unsigned ELEM_NUM_WIDTH = sct_nbits<LENGTH>; 
-    using ElemNum_t = sc_uint<ELEM_NUM_WIDTH>;  
+    using ElemNum_t = sc_uint<ELEM_NUM_WIDTH>;
     
     sc_in_clk       clk{"clk"};
     sc_in<bool>     nrst{"nrst"};
@@ -248,32 +248,41 @@ public:
     sc_signal<bool>    debug_get{"get"};
 #endif
     
+    /// Using @sct_prim_signal allows to have multiple drivers for @sct_fifo
+#if defined(__SC_TOOL__) || defined(DEBUG_SYSTEMC)
+    template<class P>
+    using SignalType = sc_signal<P>;
+#else
+    template<class P>
+    using SignalType = sct_prim_signal<P>;
+#endif
+    
     /// FIFO buffer
-    sc_vector<sc_signal<T>> buffer{"buffer", LENGTH};
+    sc_vector<SignalType<T>> buffer{"buffer", LENGTH};
 
     /// Push operation is performed without @enable checking for burst on core clock,
     /// @push may be asserted when @ready_to_push is high only
-    sc_signal<bool>         put_req{"put_req"};
-    sc_signal<bool>         put_req_d{"put_req_d"};
+    SignalType<bool>        put_req{"put_req"};
+    SignalType<bool>        put_req_d{"put_req_d"};
     /// @pop may be asserted whenever, pop operation is done when @pop && @out_valid
-    sc_signal<bool>         get_req{"get_req"};
-    sc_signal<bool>         get_req_d{"get_req_d"};
+    SignalType<bool>        get_req{"get_req"};
+    SignalType<bool>        get_req_d{"get_req_d"};
     /// Push/pop data 
-    sc_signal<T>            data_in{"data_in"};
-    sc_signal<T>            data_out{"data_out"};
+    SignalType<T>           data_in{"data_in"};
+    SignalType<T>           data_out{"data_out"};
     /// FIFO is ready to @push assert signal
-    sc_signal<bool>         ready_push{"ready_push"};
+    SignalType<bool>        ready_push{"ready_push"};
     /// Output data is valid signal
-    sc_signal<bool>         out_valid{"out_valid"};
+    SignalType<bool>        out_valid{"out_valid"};
     /// Index of element that will be poped
-    sc_signal<Indx_t>       pop_indx{"pop_indx"};
+    SignalType<Indx_t>      pop_indx{"pop_indx"};
     /// Index where pushed element will be stored
-    sc_signal<Indx_t>       push_indx{"push_indx"};
+    SignalType<Indx_t>      push_indx{"push_indx"};
     
     /// Number of elements
-    sc_signal<ElemNum_t>    element_num{"element_num"};
-    sc_signal<ElemNum_t>    element_num_d{"element_num_d"};
-    sc_signal<bool>         not_empty_d{"not_empty_d"};
+    SignalType<ElemNum_t>   element_num{"element_num"};
+    SignalType<ElemNum_t>   element_num_d{"element_num_d"};
+    SignalType<bool>        not_empty_d{"not_empty_d"};
 
     void asyncProc()
     {
@@ -462,9 +471,17 @@ public:
         attached_put = true;
     }
 
-    void addToPut(sc_sensitive* s, sc_process_handle* p) override {
-        auto procKind = p->proc_kind();
-        cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+    void addToPut(sc_sensitive* s, sc_process_handle* p) override 
+    {
+        if (sct_seq_proc_handle == *p) {
+            // Sequential method
+            cthread_put = true;
+            //cout << "SEQ METHOD " << name() << " " << p->name() << endl;
+        } else {
+            // Other processes
+            auto procKind = p->proc_kind();
+            cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
         
         if (cthread_put) {
             if (TRAITS::CLOCK == 2) *s << *p << clk; 
@@ -505,9 +522,16 @@ public:
         attached_get = true;
     }
     
-    void addToGet(sc_sensitive* s, sc_process_handle* p) override {
-        auto procKind = p->proc_kind();
-        cthread_get = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+    void addToGet(sc_sensitive* s, sc_process_handle* p) override 
+    {
+        if (sct_seq_proc_handle == *p) {
+            // Sequential method
+            cthread_get = true;
+            //cout << "SEQ METHOD " << name() << " " << p->name() << endl;
+        } else {
+            auto procKind = p->proc_kind();
+            cthread_get = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
         
         if (cthread_get) {
             if (TRAITS::CLOCK == 2) *s << *p << clk; 

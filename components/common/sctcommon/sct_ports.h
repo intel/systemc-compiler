@@ -71,8 +71,12 @@ class sct_in<sc_dt::sct_zero_width, 0>: public sct_in_if<sc_dt::sct_zero_width>
     explicit sct_in(const char* name_) {}
     virtual ~sct_in() = default;
 
-    sc_dt::sct_zero_width read() const override { return 0; }
-    operator sc_dt::sct_zero_width () { return 0; }
+    const sc_dt::sct_zero_width& read() const override { 
+        return sc_dt::sct_zero_width::get_zero_width(); 
+    }
+    operator const sc_dt::sct_zero_width& () const { 
+        return sc_dt::sct_zero_width::get_zero_width(); 
+    }
 
     void operator () (signal_type& signal_) { }
     void bind(signal_type& signal_) { }
@@ -97,11 +101,11 @@ class sct_in<T, 1> : public sct_in_if<T>
     explicit sct_in(const char* name_) {}
     virtual ~sct_in() = default;
 
-    T read() const override {
+    const T& read() const override {
         return interface->read();
     }
         
-    operator T () {
+    operator const T& () const {
         return interface->read();
     }
     
@@ -176,8 +180,12 @@ class sct_in<sc_dt::sct_zero_width, 1>: public sct_in_if<sc_dt::sct_zero_width>
     explicit sct_in(const char* name_) {}
     virtual ~sct_in() = default;
 
-    sc_dt::sct_zero_width read() const override { return 0; }
-    operator sc_dt::sct_zero_width () { return 0; }
+    const sc_dt::sct_zero_width& read() const override { 
+        return sc_dt::sct_zero_width::get_zero_width(); 
+    }
+    operator const sc_dt::sct_zero_width& () const { 
+        return sc_dt::sct_zero_width::get_zero_width(); 
+    }
 
     void operator () (signal_type& signal_) { }
     void bind(signal_type& signal_) { }
@@ -248,8 +256,12 @@ class sct_out<sc_dt::sct_zero_width, 0> : public sct_inout_if<sc_dt::sct_zero_wi
     this_type& operator = (const this_type& other) { return *this; }
     this_type& operator = (const signal_type& other) { return *this; }
 
-    sc_dt::sct_zero_width read() const override { return 0; }
-    operator sc_dt::sct_zero_width () { return 0; }
+    const sc_dt::sct_zero_width& read() const override { 
+        return sc_dt::sct_zero_width::get_zero_width(); 
+    }
+    operator const sc_dt::sct_zero_width& () const { 
+        return sc_dt::sct_zero_width::get_zero_width(); 
+    }
 
     void operator () (signal_type& signal_) { }
     void bind(signal_type& signal_) { }
@@ -293,11 +305,11 @@ class sct_out<T, 1> : public sct_inout_if<T>
         return *this;
     }
 
-    T read() const override {
+    const T& read() const override {
         return interface->read();
     }
 
-    operator T () {
+    operator const T& () const {
         return interface->read();
     }
 
@@ -375,8 +387,12 @@ class sct_out<sc_dt::sct_zero_width, 1> : public sct_inout_if<sc_dt::sct_zero_wi
     this_type& operator = (const this_type& other) { return *this; }
     this_type& operator = (const signal_type& other) { return *this; }
 
-    sc_dt::sct_zero_width read() const override { return 0; }
-    operator sc_dt::sct_zero_width () { return 0; }
+    const sc_dt::sct_zero_width& read() const override { 
+        return sc_dt::sct_zero_width::get_zero_width(); 
+    }
+    operator const sc_dt::sct_zero_width& () const { 
+        return sc_dt::sct_zero_width::get_zero_width(); 
+    }
 
     void operator () (signal_type& signal_) { }
     void bind(signal_type& signal_) { }

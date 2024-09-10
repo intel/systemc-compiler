@@ -15,7 +15,6 @@
 #ifndef SCT_SIGNAL_H
 #define SCT_SIGNAL_H
 
-#include "sct_prim_signal.h"
 #include "sct_ipc_if.h"
 #include <systemc.h>
 
@@ -144,11 +143,11 @@ class sct_signal<T, 1> :
         return *this;
     }
 
-    T read() const override {
+    const T& read() const override {
         return curr_val;
     }
     
-    operator T () {
+    operator const T& () const {
         return curr_val;
     }
     

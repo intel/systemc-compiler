@@ -706,9 +706,11 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState,
             }
         }
 
+        // Last condition to check record fields in channels
         if (isScChannel(val.getType()) || isScVector(val.getType()) ||
             isScChannelArray(val.getType()) || 
-            isScToolCombSignal(val.getType())) 
+            isScToolCombSignal(val.getType()) ||
+            val.getVariable().getParent().isScChannel())
         {
             // RnD channel becomes read only if it is not defined later
             if (!threadRegVars.count(val)) {
@@ -1106,6 +1108,11 @@ void ThreadBuilder::generateThreadLocalVariables()
             auto verVars = verMod->getVerVariables(*elabObj);
             bool isRecord = elabObj->isRecord();
             
+            // Skip channels of record fields passed by reference
+            if (verVars.empty() && regVarZero.isVariable()) {
+                if (regVarZero.getVariable().getParent().isScChannel()) continue;
+            }
+
             // Constant dangling/null pointer and record have no variable
             if (verVars.empty() && !isNullPtr && !isDanglPtr && !isRecord) {
                 std::string err = "No register variable for elaboration object "+
@@ -1397,6 +1404,11 @@ void ThreadBuilder::generateThreadLocalVariables()
             auto verVars = verMod->getVerVariables(*elabObj);
             bool isRecord = elabObj->isRecord();
 
+            // Skip channels of record fields passed by reference
+            if (verVars.empty() && combVarZero.isVariable()) {
+                if (combVarZero.getVariable().getParent().isScChannel()) continue;
+            }
+            
             // Record has no variable
             if (verVars.empty() && !isRecord) {
                 std::string err = "No combinational variable for elaboration object "
@@ -1515,6 +1527,11 @@ void ThreadBuilder::generateThreadLocalVariables()
 
             // Module data members
             auto verVars = verMod->getVerVariables(*elabObj);
+            
+            // Skip channels of record fields passed by reference
+            if (verVars.empty() && roVarZero.isVariable()) {
+                if (roVarZero.getVariable().getParent().isScChannel()) continue;
+            }
 
             // Create constant in module, required for module where from
             // called MIF function which access the constant

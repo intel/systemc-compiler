@@ -3129,6 +3129,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 // Get record or record channel value 
                 state->getValue(rval, rrec);
             }
+            //cout << "rrec " << rrec << endl;
 
             // Get RHS record indices
             string rrecSuffix;

@@ -432,8 +432,15 @@ class sct_initiator<T, TRAITS, 0> :
     }
     
     void addTo(sc_sensitive* s, sc_process_handle* p) override {
-        auto procKind = p->proc_kind();
-        cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        if (sct_seq_proc_handle == *p) {
+            // Sequential method
+            cthread = true;
+            //cout << "SEQ METHOD " << p->name() << endl;
+        } else {
+            auto procKind = p->proc_kind();
+            cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
+
         if (cthread) {
             if (TRAITS::CLOCK == 2) *s << *p << clk; 
             else *s << *p << (TRAITS::CLOCK ? clk.pos() : clk.neg());

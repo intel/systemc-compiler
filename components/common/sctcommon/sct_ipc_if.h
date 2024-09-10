@@ -167,7 +167,7 @@ struct sct_fifo_if : public sct_put_if<T>, public sct_get_if<T>
 template <class T> 
 struct sct_in_if : virtual public sc_interface
 {
-    virtual T read() const = 0;
+    virtual const T& read() const = 0;
     virtual void addTo(sc_sensitive* s, sc_process_handle* p, sc_in_clk* c) {}
 };
 
@@ -468,6 +468,23 @@ template <typename T, unsigned LENGTH, class TRAITS, bool TLM_MODE>
 struct sct_fifo_peek{
     sct_fifo<T, LENGTH, TRAITS, TLM_MODE>* fifo;
 };
+
+#ifndef __SC_TOOL__
+// Buffer declaration
+template <typename T, unsigned LENGTH, class TRAITS>
+class sct_buffer;
+
+/// Buffer put/get helpers
+template<
+    class T, unsigned LENGTH, class TRAITS = SCT_CMN_TRAITS>
+struct sct_buffer_sens {
+    sct_buffer<T, LENGTH, TRAITS>* buf;
+};
+
+template<
+    class T, unsigned LENGTH, class TRAITS = SCT_CMN_TRAITS>
+struct sct_buffer_peek {};
+#endif
 
 /// Pipe general template
 template <

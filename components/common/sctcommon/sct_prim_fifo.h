@@ -9,6 +9,7 @@
  * Single Source library. Primitive FIFO channel.
  * 
  * Used as base channel in approximate time mode for Target, Initiator and FIFO.
+ * Not intended to be used in user code.
  * 
  * Author: Mikhail Moiseev
  */

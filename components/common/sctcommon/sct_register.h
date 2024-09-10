@@ -65,11 +65,11 @@ class sct_register<T, TRAITS, 0> :
         reg_data = data;
     }
     
-    T read() const override {
+    const T& read() const override {
         return reg_data_d.read();
     }
     
-    operator T () {
+    operator const T& () const {
         return reg_data_d.read();
     }
     
@@ -146,7 +146,7 @@ class sct_register<T, TRAITS, 0> :
         attached = true;
     }
 
-    void addTo(sc_sensitive* s, sc_process_handle* p, sc_in_clk* c) override {
+    void addTo(sc_sensitive* s, sc_process_handle* p, sc_in_clk* c) {
         std::cout << "\nMethod not supported for register " << name() << "\n";
         assert (false);
     }
@@ -242,7 +242,7 @@ struct sct_prim_register :
         }
     }
     
-    T read() const {
+    const T& read() const {
         return curr_val;
     }
     
@@ -269,7 +269,7 @@ struct sct_prim_register :
 template<class T, class TRAITS>
 class sct_register<T, TRAITS, 1> : 
     public sc_module, 
-    public sct_inout_if<T>
+    public sc_interface
 {
   public:
     sc_in<bool>     nrst{"nrst"};
@@ -300,7 +300,7 @@ class sct_register<T, TRAITS, 1> :
         reg.reset();
     }
     
-    void write(const T& data) override {
+    void write(const T& data) {
         reg.write(data);
     }
     
@@ -308,11 +308,11 @@ class sct_register<T, TRAITS, 1> :
         reg.write(data);
     }
     
-    T read() const override {
+    const T& read() const {
         return reg.read();
     }
     
-    operator T () {
+    operator const T& () const {
         return reg.read();
     }
     
@@ -341,7 +341,7 @@ class sct_register<T, TRAITS, 1> :
         }
     }
     
-    void addTo(sc_sensitive* s, sc_process_handle* p, sc_in_clk* c) override {
+    void addTo(sc_sensitive* s, sc_process_handle* p, sc_in_clk* c) {
         std::cout << "\nMethod not supported for register " << name() << "\n";
         assert (false);
     }

@@ -8,7 +8,8 @@
 /* 
  * Single Source library. Signal channel with multiple drivers.
  * 
- * Used in sct_signal cycle accurate implementation and in sct_prim_fifo.
+ * Used in sct_prim_fifo implementation. 
+ * Not intended to be used in user code.
  * 
  * Author: Mikhail Moiseev
  */
@@ -69,16 +70,16 @@ class sct_prim_signal :
         return *this;
     }
     
-    T read() const override {
+    const T& read() const override {
         return curr_val;
     }
     
-    operator T () {
+    operator const T& () const {
         return curr_val;
     }
     
   public:
-    const sc_event& default_event() const override {
+    const sc_event& default_event() const {
         return event; 
     }
     

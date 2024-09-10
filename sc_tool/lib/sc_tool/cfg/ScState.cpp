@@ -697,6 +697,7 @@ ScState::getValue(const SValue& lval, SValue& rval, bool deReference,
         if (deReference) {
             getDerefVariable(lval, llval);
         }
+        //cout << "getValue lval " << lval << " llval " << endl;
 
         bool unkwIndex;
         bool isArr = isArray(llval, unkwIndex);
@@ -728,6 +729,13 @@ ScState::getValue(const SValue& lval, SValue& rval, bool deReference,
                         break;
                 }
             }
+        }
+        
+        // Do not find value for channel, return channel itself
+        // Required for reference to channel as function parameter/return
+        if (llval.isScChannel()) {
+            rval = llval;
+            return std::pair<bool, bool>(true, false);
         }
         
         auto i = tuples.find(llval);
@@ -766,6 +774,7 @@ void ScState::removeValue(const SValue& lval)
 void ScState::getDerefVariable(SValue lval, SValue& rval, 
                                bool keepConstRef) const
 {
+    //cout << "getDerefVariable lval " << lval << endl;
     if (lval.isConstReference()) {
         // Constant reference can refer to variable/object or contain RValue
         auto i = tuples.find(lval);
