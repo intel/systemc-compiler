@@ -79,7 +79,7 @@ class sct_prim_signal :
     }
     
   public:
-    const sc_event& default_event() const {
+    const sc_event& default_event() const override {
         return event; 
     }
     

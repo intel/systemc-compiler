@@ -25,21 +25,37 @@ namespace sct_property_utils {
 /// Parse time interval or single time string
 /// \param first -- low interval value or single time
 /// \param second -- high interval value or single time
-void parseTimes(const std::string& s, size_t& first, size_t& second);
+inline void parseTimes(const std::string& s, size_t& first, size_t& second) {
+    const char SEPARATOR = ':';
+    size_t i = s.rfind(SEPARATOR, s.length());
+    
+    if (i != std::string::npos) {
+        size_t a = std::stoi(s.substr(0, i));
+        size_t b = std::stoi(s.substr(i+1, s.length()-i-1));
+        first = (a > b) ? b : a;
+        second = (a > b) ? a : b;
+        
+    } else {
+        first = std::stoi(s);
+        second = first;
+    }
+}
 
 /// Form string with one or more iteration values
 template <class Type>
-std::string getIterStr(Type val) {
+inline std::string getIterStr(Type val) {
     return std::to_string(val);
 }
 
 template <class Type, class... Types>
-std::string getIterStr(Type val, Types... args) {
+inline std::string getIterStr(Type val, Types... args) {
     std::string s = std::to_string(val) + "_" + getIterStr(args...);
     return s;
 }
 
-std::string getFileName(const std::string& s);
+inline std::string getFileName(const std::string& s) {
+    return s.substr(s.find_last_of("/\\") + 1);
+}
 
 } // namespace sct_property_utils
 
@@ -286,7 +302,11 @@ struct function_traits<ReturnType(ClassType::*)() const>
 class sct_property_storage {
 private:
     /// Static container of created @sct_property instances
-    static std::unordered_map<std::size_t, sct_property_base*> stor;
+    static std::unordered_map<std::size_t, sct_property_base*>& getStorage() {
+        static std::unordered_map<std::size_t, sct_property_base*> stor;
+        return stor;
+    }
+//    static std::unordered_map<std::size_t, sct_property_base*> stor;
     
 public:
     sct_property_storage() = delete;
@@ -346,6 +366,7 @@ public:
         std::string hashStr = std::string(sc_get_current_object()->name()) + 
                               ":" + propstr;
         
+        auto& stor = getStorage();
         size_t hash = calcHash(hashStr);
         auto i = stor.find(hash);
         
