@@ -15,6 +15,7 @@
 #include "sc_tool/utils/ScTypeTraits.h"
 #include "sc_tool/utils/CfgFabric.h"
 #include "sc_tool/utils/DebugOptions.h"
+#include "sc_tool/utils/CheckCppInheritance.h"
 #include "sc_tool/ScCommandLine.h"
 #include "ScParseExprValue.h"
 
@@ -42,28 +43,52 @@ void ScParseExprValue::declareValue(const SValue& val)
     }
 }
 
-void ScParseExprValue::writeToValue(const SValue& val, bool isDefined) 
+void ScParseExprValue::writeToValue(SValue val, bool isDefined) 
 {
     QualType valType = getDerefType(val.getType());
-    bool isRecord = !val.isScChannel() && isUserClass(valType, false);
-    //cout << "writeToValue val " << val << " isDefined " << isDefined 
-    //     << " isRecord " << isRecord << endl;
+    bool isRec = !val.isScChannel() && isUserClass(valType, false);
+    
+    // Do not consider record arrays here 
+    
+    //cout << "writeToValue val " << val << " isDefined " << isDefined << " isRecord " << isRec << endl;
     
     // Write all record fields, do not consider record channel
     // Do not consider record reference 
     // Record/record channel value is also written together with its fields
-    if (isRecord) {
+    if (isRec) {
         auto recDecl = valType->getAsRecordDecl();
         SCT_TOOL_ASSERT (recDecl, "No record declaration found");
         
-        SValue parent = val;
-        if (val.isVariable()) state->getValue(val, parent);
-        //cout << "  parent " << parent << endl;
+        // Get zero element for record array with unknown index
+        SValue rec = val;
+        if (val.isVariable()) {
+            state->getValue(val, rec, true, ArrayUnkwnMode::amFirstElementRec);
+        }
+        //cout << "  rec " << rec << endl;
         
         // Skip temporary record
-        if (!parent.isRecord() || !parent.getRecord().isTemp()) {
+        if (rec.isRecord() && !rec.getRecord().isTemp()) {
+            // Simple non-temporary record
+            std::vector<SValue> recFields;
+            getFieldsForRecord(rec, recFields);
+            for (const SValue& fval : recFields) {
+                writeToValue(fval, isDefined);
+            }
+        } else 
+        if (rec.isScChannel()) {
+            // Record channel
+            std::vector<SValue> recFields;
+            getFieldsForRecordChan(recDecl, rec, recFields);
+            for (const SValue& fval : recFields) {
+                writeToValue(fval, isDefined);
+            }
+        } else 
+        if (!rec.isRecord()) {
+            // Array of records
+            SCT_TOOL_ASSERT (!rec.isScChannel(), 
+                             std::string("Channel ")+rec.asString(true));
             for (auto fieldDecl : recDecl->fields()) {
-                SValue fval(fieldDecl, parent);
+                SValue fval(fieldDecl, rec);    
                 writeToValue(fval, isDefined);
             }
         }
@@ -98,6 +123,7 @@ void ScParseExprValue::writeToValue(const SValue& val, bool isDefined)
 
 void ScParseExprValue::readFromValue(SValue val) 
 {
+    //cout << "ScParseExprValue::readFromValue val " << val << endl;
     QualType valType = getDerefType(val.getType());
     
     // For record arrays it needs to get an record element to provide fields
@@ -119,15 +145,37 @@ void ScParseExprValue::readFromValue(SValue val)
         auto recDecl = valType->getAsRecordDecl();
         SCT_TOOL_ASSERT (recDecl, "No record declaration found");
         
-        SValue parent = val;
-        if (val.isVariable()) state->getValue(val, parent);
-        //cout << "val " << val << " parent " << parent << endl;
-
-        // Skip temporary record
-        if (!parent.isRecord() || !parent.getRecord().isTemp()) {
-            for (auto fieldDecl : recDecl->fields()) {
-                SValue fval(fieldDecl, parent);
+        // Get zero element for record array with unknown index
+        SValue rec = val;
+        if (val.isVariable()) {
+            state->getValue(val, rec, true, ArrayUnkwnMode::amFirstElementRec);
+        }
+        
+        if (rec.isRecord() && !rec.getRecord().isTemp()) {
+            // Simple non-temporary record
+            std::vector<SValue> recFields;
+            getFieldsForRecord(rec, recFields);
+            for (const SValue& fval : recFields) {
                 readFromValue(fval);
+                //cout << "   " << fval << endl;
+            }
+        } else
+        if (rec.isScChannel()) {
+            // Record channel
+            std::vector<SValue> recFields;
+            getFieldsForRecordChan(recDecl, rec, recFields);
+            for (const SValue& fval : recFields) {
+                readFromValue(fval);
+            }
+        } else 
+        if (!rec.isRecord()) {
+            // Array of records
+            SCT_TOOL_ASSERT (!rec.isScChannel(), 
+                             std::string("Channel ")+rec.asString(true));
+            for (auto fieldDecl : recDecl->fields()) {
+                SValue fval(fieldDecl, rec);
+                readFromValue(fval);
+                //cout << "   " << fval << endl;
             }
         }
     } else {
@@ -363,6 +411,9 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
         bool isPtr = type->isPointerType();
         bool isArray = type->isArrayType();
         bool isRec = isUserClass(getDerefType(type));
+        bool isString = isStdString(type);
+
+        if (isString) continue;    
         
         //parDecl->dumpColor();
         //arg->dump();
@@ -438,6 +489,8 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
 void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                                      clang::Expr* initExpr)
 {
+    //cout << "ScParseExprValue::parseDeclStmt decl #" << hex << decl << dec << endl;
+
     VarDecl* varDecl = dyn_cast<VarDecl>(decl);
     FieldDecl* fieldDecl = dyn_cast<FieldDecl>(decl);
     SCT_TOOL_ASSERT (varDecl || fieldDecl, "No declaration");
@@ -541,7 +594,7 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
             SValue rval = evalSubExpr(iexpr);
             SValue rrec = rval; 
             if (!rval.isRecord()) state->getValue(rval, rrec);
-
+            
             // Copy values of record fields and put it to record variable
             copyRecFieldValues(lrec, rrec);
             state->putValue(locrecvar, lrec, false, false);
@@ -2799,6 +2852,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
             }
 
             // Mark variable/object/channel as written/read
+            //cout << "parseOperatorCall readFromValue rval " << rval << endl;
             readFromValue(rval);
             writeToValue(tval);
 

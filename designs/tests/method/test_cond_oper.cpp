@@ -145,6 +145,9 @@ public:
         i = (m < k && !(m == 1)) ? ((++i) + m) : (m * k);
         i = (m == k) ? m : ((m == 1) ? 1 : 2);
         i = (m != k) ? ((m == 1) ? m++ : --k) : (m - k);
+        auto tmp = (m != k) ? ++m : --k;    // OK
+        i = tmp;
+        auto tmp2 = (m != k) ? ++m : --k;   // #321 Removed by ICSC optimization
     }    
     
     // Condition operator in IF branches

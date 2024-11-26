@@ -56,6 +56,12 @@ cl::opt<bool> initResetLocalVars(
     cl::cat(ScToolCategory)
 );
 
+cl::opt<bool> initLocalRegs(
+    "init_local_regs",
+    cl::desc("Initialize in reset local variables declared in CTHREAD main loop which becomes register"),
+    cl::cat(ScToolCategory)
+);
+
 cl::opt<std::string> modulePrefix (
     "module_prefix",
     cl::desc("Module prefix string"),

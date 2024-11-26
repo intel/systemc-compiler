@@ -652,21 +652,25 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
                                                             ObjectView objView)
 {
     using std::cout; using std::endl; using std::hex; using std::dec;
-    //std::cout << "Generate variable " << objView.getDebugString() << " id " << objView.getID() << std::endl;
+    //std::cout << "Generate variable " << objView.getDebugString() << " id " 
+    //          << objView.getID() << " nssize " << nameStack.size() << std::endl;
 
     // Check no non-static constant in channels because no constructor parameter 
     // possible in channels anyway
     if (activeSignal || activePort || activeChanArray) {
         bool isConst = objView.getType().isConstQualified();
-        if (isConst) {
-            if (objView.getFieldDecl())
+        bool isStatic = objView.isStatic();
+        if (isConst && !isStatic) {
+            if (objView.getFieldDecl()) {
                 ScDiag::reportScDiag(objView.getFieldDecl()->getBeginLoc(),
                                      ScDiag::SYNTH_CHAN_RECORD_CONST);
-            else 
+            } else {
+                cout << "Incorrect constant objView " << objView.getDebugString() << endl;
                 ScDiag::reportScDiag(ScDiag::SYNTH_CHAN_RECORD_CONST);
+            }
         }
     }
-            
+    
     FlattenReq flatten = false;
     if (objView.isModule())
         flatten = true;
@@ -761,9 +765,8 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
                 // Flatten module name
                 for (auto id : node.ids) name += "_" + std::to_string(id);
             } else
-            if (objView.isPrimitive() && objView.isConstant() && 
-                objView.isStatic()) {
-                // Do not change name of static const non-array variable
+            if (objView.isConstant() && objView.isStatic()) {
+                // Do not change name of static variable
             } else {
                 // Add array dimensions otherwise
                 for (auto dim : node.dims) arrayDims.push_back(dim);
@@ -782,11 +785,13 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
         curVerMod->addModuleInstance(objView, name);
         
     } else {
+        bool isConst;
         if (objView.isArrayLike()) {
             // Array or std::vector 
             auto arrayView = objView.array();
             
-            if (arrayView->isConstPrimitiveArray()) {
+            isConst = arrayView->isConstPrimitiveArray();
+            if (isConst) {
                 // Constant array or std::vector
                 ObjectView childObj = *arrayView;
                 while (childObj.isArrayLike()) {
@@ -797,13 +802,27 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
                 bitwidth = childObj.primitive()->value()->bitwidth();
                 
                 curVerMod->fillInitVals(initVals, isSigned, *arrayView);
-                    flatten = true;
+                flatten = true;
                 
+            } else 
+            if (arrayView->isStatic()) {
+                // Static non-constant array
+                QualType type = arrayView->getType();
+                while (isArray(type)) {
+                    arrayDims.push_back(getArraySize(type));
+                    type = getArrayDirectElementType(type);
+                }
+                
+                if (auto typeInfo = getIntTraits(type)) {
+                    bitwidth = typeInfo->first;
+                } else {
+                    ScDiag::reportScDiag(objView.getFieldDecl()->getBeginLoc(), 
+                                         ScDiag::SYNTH_STATIC_ARR_TYPE);
+                }
             } else {
                 // Non-constant array or std::vector
                 bitwidth = arrayView->getOptimizedArrayBitwidth();
             }
-                
         } else {
             // Primitive
             SCT_TOOL_ASSERT (objView.isPrimitive() && 
@@ -821,7 +840,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
                 }
             }
             
-            bool isConst = valueView->isConstant();
+            isConst = valueView->isConstant();
             if (isConst || (initVarValues && (!isDynamic || isConstPtr))) {
                 curVerMod->fillInitVal(initVals, isSigned, *valueView);
                 flatten = true;
@@ -829,19 +848,23 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
         }
 
         if (activePort) {
-            curVerMod->createChannelVariable(curScObj,
-                                    name, bitwidth, arrayDims, isSigned, 
-                                    zeroElmntMIF || noneZeroElmntMIF);
+            // Skip constant fields of record
+            if (!isConst) {
+                curVerMod->createChannelVariable(curScObj,
+                                        name, bitwidth, arrayDims, isSigned, 
+                                        zeroElmntMIF || noneZeroElmntMIF);
+            }
         } else 
         if (activeSignal) {
             auto* sigVerVar = curVerMod->createChannelVariable(curScObj,
                                     name, bitwidth, arrayDims, isSigned, 
                                     zeroElmntMIF || noneZeroElmntMIF);
+            //cout << "addSignal " << sigVerVar->getName() << " const " << isConst << endl;
             // Avoid multiple declaration of signal variable
-            if (!noneZeroElmntMIF) {
+            // Skip constant fields of record
+            if (!noneZeroElmntMIF && !isConst) {
                 curVerMod->addSignal(sigVerVar);
             }
-            
         } else {
             // Provide same name for all MIF array instances
             if (zeroElmntMIF || noneZeroElmntMIF) {

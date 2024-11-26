@@ -65,6 +65,7 @@ public:
     // Shorten version
     sc_signal<sc_uint<2>>   fifo_source;
     sc_signal<sc_uint<2>>   master_resp_data[3];
+    sc_signal<sc_uint<2>>   master_resp_data_[3];
     static const unsigned ECC_NUM           = 0;
     
     void bug_in_array_index() {
@@ -97,7 +98,7 @@ public:
             bool reqOper = a.read();
             bool reqReg;
             
-            master_resp_data[reqSource] = (
+            master_resp_data_[reqSource] = (
                     (ECC_NUM > 0) ? (sc_uint<1>)a : 
                                     (sc_uint<1>)0,
                     (ECC_NUM > 0) ? (sc_uint<1>)a : 

@@ -16,6 +16,7 @@
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "sc_tool/utils/DebugOptions.h"
 #include "sc_tool/utils/VerilogKeywords.h"
+#include "sc_tool/utils/CheckCppInheritance.h"
 #include "sc_tool/ScCommandLine.h"
 
 #include "clang/AST/ExprCXX.h"
@@ -1464,6 +1465,8 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                          (level > 0 || (!init && !funcCall))) ||
                         (!isCombProcess && !isClockThreadReset && 
                          (level > 1 || (!init && !funcCall)));
+        // Local non-reset accessed register variables
+        bool initRegZero = !isCombProcess && !isClockThreadReset && isReg;
         // Initialization of non-initialized reset local variables
         // Ignore temporary variables here as they must be initialized anyway
         bool initResetZero = !isCombProcess && isClockThreadReset && 
@@ -1473,35 +1476,45 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                          "Unexpected record variable with initialization");
         
         //cout << "putVarDecl val " << val << " isRecord " << isRecord
-        //     << " initResetZero " << initResetZero << endl;
-         
+        //     << " initRegZero " << initRegZero << " initLocalRegs " << initLocalRegs << endl;
+        
+        // Get variable name
         pair<string, string> names = getVarName(val);
+        string varName;
+        if (isReg) {
+            // Name for local register initialization in reset is current name 
+            auto i = varTraits.find(val);
+            SCT_TOOL_ASSERT (i != varTraits.end(), "No varTraits for register variable");
+            varName = *(i->second.currName);
+        } else {
+            varName = names.first;
+        }
         
         // Do not declare/initialize record as individual fields are declared 
         if (!isRecord) {
             // Register assignment statement, for declared variables only
             putVarAssignStmt(val, stmt);
 
-            if (!isReg) {
-                // Combinatorial variables and combinational process variables
-                auto i = localDeclVerilog.begin();
-                for (; i != localDeclVerilog.end(); ++i) {
-                    if (i->first == val) {
-                        break;
-                    }
+            // Combinatorial variables and combinational process variables
+            auto i = localDeclVerilog.begin();
+            for (; i != localDeclVerilog.end(); ++i) {
+                if (i->first == val) {
+                    break;
                 }
-                if (i == localDeclVerilog.end()) {
-                    string s = getVarDeclVerilog(type, names.first, init);
-                    //cout << "put to localDeclVerilog val " << val << endl;
-                    localDeclVerilog.emplace_back(val, s);
+            }
+            if (i == localDeclVerilog.end()) {
+                string s = getVarDeclVerilog(type, varName, init);
+                //cout << "put to localDeclVerilog val " << val << endl;
+                localDeclVerilog.emplace_back(val, s);
 
-                    // Add variable initialization with zero
-                    if ((initZero && initLocalVars) || 
-                        (initResetZero && initResetLocalVars)) {
-                        
-                        string s = names.first + ASSIGN_SYM + "0";
-                        localDeclInitVerilog.emplace_back(val, s);
-                    }
+                // Add variable initialization with zero
+                if ((initZero && initLocalVars) || 
+                    (initResetZero && initResetLocalVars) ||
+                    (initRegZero && initLocalRegs)) {
+
+                    string s = varName + (isReg ? NB_ASSIGN_SYM : ASSIGN_SYM) + "0";
+                    localDeclInitVerilog.emplace_back(val, s);
+                    //cout << "put to localDeclInitVerilog val " << val << " " << s << endl;
                 }
             }
 
@@ -1558,13 +1571,18 @@ void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val,
                      (level > 0 || !init)) ||
                     (!isCombProcess && !isClockThreadReset && 
                      (level > 1 || !init));
+    // Local non-reset accessed register variables
+    bool initRegZero = !isCombProcess && !isClockThreadReset && isReg;
     // Initialization of non-initialized reset local variables
     bool initResetZero = !isCombProcess && isClockThreadReset && !init;
     
+    //cout << "putArrayDecl val " << val << " isRecord " << isRecord
+    //     << " initRegZero " << initRegZero << " initResetZero " << initResetZero << endl;
+    
     // Do not declare record as individual fields are declared
-    if (!isReg && !isRecord) {
+    if (!isRecord) {
         // Register assignment statement, for declared variables only
-        putVarAssignStmt(val, stmt);
+        if (!isReg) putVarAssignStmt(val, stmt);
         
         // Combinatorial variables and combinational process variables
         auto i = localDeclVerilog.begin();
@@ -1575,8 +1593,18 @@ void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val,
         }
         
         if (i == localDeclVerilog.end()) {
+            // Get variable name
             pair<string, string> names = getVarName(val);
-
+            string varName;
+            if (isReg) {
+                // Name for local register initialization in reset is current name 
+                auto i = varTraits.find(val);
+                SCT_TOOL_ASSERT (i != varTraits.end(), "No varTraits for register variable");
+                varName = *(i->second.currName);
+            } else {
+                varName = names.first;
+            }
+            
             // Get array element indices
             string indx;
             for (auto j : arrSizes) {
@@ -1584,13 +1612,15 @@ void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val,
             }
             
             // Array variable declaration, no declaration for registers
-            string s = getVarDeclVerilog(type, names.first) + indx;
+            string s = getVarDeclVerilog(type, varName) + indx;
             localDeclVerilog.emplace_back(val, s);
             //cout << "   " << s << endl;
             
             // Add array initialization with zero
             if ((initZero && initLocalVars) || 
-                (initResetZero && initResetLocalVars)) {
+                (initResetZero && initResetLocalVars) ||
+                (initRegZero && initLocalRegs)) {
+                
                 string s;
                 size_t elmnum = getArrayElementNumber(arrSizes);
                 
@@ -1602,8 +1632,8 @@ void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val,
                         indStr += "[" + to_string(indx) + "]";
                     }
                     
-                    s += names.first + indStr + ASSIGN_SYM + "0" + 
-                         ((i == elmnum-1) ? "" : "; ");
+                    s += varName + indStr + (isReg ? NB_ASSIGN_SYM : ASSIGN_SYM) + 
+                         "0" + ((i == elmnum-1) ? "" : "; ");
                 }
 
                 localDeclInitVerilog.emplace_back(val, s);
@@ -2047,49 +2077,96 @@ void ScVerilogWriter::putAssign(const Stmt* stmt, const SValue& lval,
 
 // Assignment for record variable (record copy)
 void ScVerilogWriter::putRecordAssign(const Stmt* stmt, 
-                                      const SValue& lvar, const SValue& lrec, 
-                                      const SValue& rrec,
-                                      const string& lrecSuffix,
-                                      const string& rrecSuffix,
-                                      llvm::Optional<clang::QualType> lchanRecType) 
+                                      const SValue& lvar,
+                                      const SValue& lrec, const SValue& rrec,
+                                      bool lelemOfMifRecArr, bool relemOfMifRecArr,
+                                      string lrecSuffix,
+                                      string rrecSuffix) 
 {
     //cout << "putRecordAssign lvar " << lvar << " lrec " << lrec << ", rrec " << rrec << endl;
     //cout << "recSuffix " << lrecSuffix << " " << rrecSuffix << endl;
-    auto recDecl = lchanRecType ? (*lchanRecType)->getAsRecordDecl() : 
-                                  lrec.getType()->getAsRecordDecl();
-    auto fieldDecl = *recDecl->field_begin();
-    SValue lfval(fieldDecl, lrec);
     
+    std::vector<SValue> lrecFields;
+    if (lrec.isScChannel()) {
+        auto recType = dyn_cast<const RecordType>(lrec.getScChannel()->getType().
+                                                  getTypePtr());
+        getFieldsForRecordChan(recType->getAsRecordDecl(),lrec, lrecFields);
+    } else {
+        getFieldsForRecord(lrec, lrecFields);
+    }
+    std::vector<SValue> rrecFields;
+    if (rrec.isScChannel()) {
+        auto recType = dyn_cast<const RecordType>(rrec.getScChannel()->getType().
+                                                  getTypePtr());
+        getFieldsForRecordChan(recType->getAsRecordDecl(), rrec, rrecFields);
+    } else {
+        getFieldsForRecord(rrec, rrecFields);
+    }
+    //for (const SValue& f : lrecFields) cout << "  " << f << endl;
+    //for (const SValue& f : rrecFields) cout << "  " << f << endl;
+    
+    // Check one of the fields
     // No assign COMBSIG with CLEAR in clocked thread reset
+    SValue lfval = lrecFields.back();
     if (isCombSigClear(lfval) && isClockThreadReset) {
         clearStmt(stmt);
         return;
     }
+    
+    // Record can be inside MIF but not another record, so MIF indices are
+    // in @recordValueName or/and @MIFValueName, add one of them
+    if (lelemOfMifRecArr) {
+        if (recordValueName.first) {
+            lrecSuffix = recordValueName.second + lrecSuffix;
+        } else 
+        if (MIFValueName.first) {
+            lrecSuffix = MIFValueName.second + lrecSuffix;
+        }
+    }
+    if (relemOfMifRecArr) {
+        if (recordValueName.first) {
+            rrecSuffix = recordValueName.second + rrecSuffix;
+        } else 
+        if (MIFValueName.first) {
+            rrecSuffix = MIFValueName.second + rrecSuffix;
+        }
+    }
+
+//    cout << "varTraits: " << endl;
+//    for (auto& e : varTraits) {
+//        cout << "   " << e.first << " : " << (e.second.currName ? e.second.currName.getValue() : "---") 
+//             << " " << (e.second.nextName ? e.second.nextName.getValue() : "---") 
+//             << " isReg " << e.second.isRegister() << endl;
+//    }
+ 
     // Check for register variable and first field (required for record channel)
-    bool isReg = isRegister(lvar) || isRegister(lfval) ||
-                 isCombSig(lvar) || isCombSigClear(lvar) || isClearSig(lvar); 
-    bool nbAssign = isClockThreadReset && isReg;
-    bool secName = !isClockThreadReset && isReg && !emptySensitivity;
-    //cout << "  lfval " << lfval << " isReg " << isReg << endl;
+    bool isReg = isRegister(lvar) || isCombSig(lvar) || 
+                 isCombSigClear(lvar) || isClearSig(lvar); 
+    //cout << "  lvar " << lvar << " isReg " << isReg << endl;
     
     // Record assignment, assign all the fields
     string s;
     bool first = true;
-    for (auto fieldDecl : recDecl->fields()) {
+    for (unsigned i = 0; i != lrecFields.size(); ++i) {
+        const SValue& lfval = lrecFields[i];
+        const SValue& rfval = rrecFields[i];
+        //cout << "  lfval " << lfval << "  rfval " << rfval << endl;
+        //cout << "  lfval " << lfval << " isReg " << (isReg || isRegister(lfval)) << endl;
+
         // Skip zero width type
-        auto ftype = fieldDecl->getType();
+        auto ftype = lfval.getType();
         if (isZeroWidthType(ftype) || isZeroWidthArrayType(ftype)) continue;
-        
+
+        bool nbAssign = isClockThreadReset && (isReg || isRegister(lfval));
+        bool secName  = !isClockThreadReset && (isReg || isRegister(lfval)) && 
+                        !emptySensitivity;
+       
         // Get name for LHS
-        SValue lfval(fieldDecl, lrec);
-        //cout << "  lfval " << lfval << endl;
         const auto& lnames = lrec.isScChannel() ? 
                              getChannelName(lfval) : getVarName(lfval);
         string lhsName = (secName ? lnames.second : lnames.first) + lrecSuffix;
         
         // Get name for RHS, use read name here
-        SValue rfval(fieldDecl, rrec);
-        //cout << "  rfval " << rfval << endl;
         const auto& rnames = rrec.isScChannel() ? 
                              getChannelName(rfval) : getVarName(rfval);
         string rhsName = rnames.first + rrecSuffix;
@@ -2107,48 +2184,80 @@ void ScVerilogWriter::putRecordAssign(const Stmt* stmt,
 void ScVerilogWriter::putRecordAssignTemp(const Stmt* stmt, 
                                       const SValue& lvar, const SValue& lrec, 
                                       const SValue& rrec,
-                                      const string& lrecSuffix,
-                                      llvm::Optional<clang::QualType> lchanRecType,
+                                      bool lelemOfMifRecArr, string lrecSuffix,
                                       const ScState* state) 
 {
     //cout << "putRecordAssignTemp lrec " << lrec << ", rrec " << rrec 
     //     << ", recSuffix " << lrecSuffix << endl;
-    auto recDecl = lchanRecType ? (*lchanRecType)->getAsRecordDecl() : 
-                                  lrec.getType()->getAsRecordDecl();
-    auto fieldDecl = *recDecl->field_begin();
-    SValue lfval(fieldDecl, lrec);
     
+    std::vector<SValue> lrecFields;
+    if (lrec.isScChannel()) {
+        auto recType = dyn_cast<const RecordType>(lrec.getScChannel()->getType().
+                                                  getTypePtr());
+        getFieldsForRecordChan(recType->getAsRecordDecl(),lrec, lrecFields);
+    } else {
+        getFieldsForRecord(lrec, lrecFields);
+    }
+    std::vector<SValue> rrecFields;
+    if (rrec.isScChannel()) {
+        auto recType = dyn_cast<const RecordType>(rrec.getScChannel()->getType().
+                                                  getTypePtr());
+        getFieldsForRecordChan(recType->getAsRecordDecl(), rrec, rrecFields);
+    } else {
+        getFieldsForRecord(rrec, rrecFields);
+    }
+    //for (const SValue& f : lrecFields) cout << "  " << f << endl;
+    //for (const SValue& f : rrecFields) cout << "  " << f << endl;
+    
+    // Check one of the fields
     // No assign COMBSIG with CLEAR in clocked thread reset
+    SValue lfval = lrecFields.back();
     if (isCombSigClear(lfval) && isClockThreadReset) {
         clearStmt(stmt);
         return;
     }
+    
+    // Record can be inside MIF but not another record, so MIF indices are
+    // in @recordValueName or/and @MIFValueName, add one of them
+    if (lelemOfMifRecArr) {
+        if (recordValueName.first) {
+            lrecSuffix = recordValueName.second + lrecSuffix;
+        } else 
+        if (MIFValueName.first) {
+            lrecSuffix = MIFValueName.second + lrecSuffix;
+        }
+    }
+
     // Check for register variable and first field (required for record channel)
-    bool isReg = isRegister(lvar) || isRegister(lfval) ||
-                 isCombSig(lvar) || isCombSigClear(lvar) || isClearSig(lvar); 
-    bool nbAssign = isClockThreadReset && isReg;
-    bool secName = !isClockThreadReset && isReg && !emptySensitivity;
+    bool isReg = isRegister(lvar) || isCombSig(lvar) || 
+                 isCombSigClear(lvar) || isClearSig(lvar); 
     
     // Record assignment, assign all the fields
     string s;
     bool first = true;
-    for (auto fieldDecl : recDecl->fields()) {
+    for (unsigned i = 0; i != lrecFields.size(); ++i) {
+        const SValue& lfval = lrecFields[i];
+        const SValue& rfval = rrecFields[i];
+        //cout << "  lfval " << lfval << "  rfval " << rfval << endl;
+        //cout << "  lfval " << lfval << " isReg " << (isReg || isRegister(lfval)) << endl;
+
         // Skip zero width type
-        auto ftype = fieldDecl->getType();
+        auto ftype = lfval.getType();
         if (isZeroWidthType(ftype) || isZeroWidthArrayType(ftype)) continue;
         
+        bool nbAssign = isClockThreadReset && (isReg || isRegister(lfval));
+        bool secName  = !isClockThreadReset && (isReg || isRegister(lfval)) && 
+                        !emptySensitivity;
+        
         // Get name for LHS
-        SValue lfval(fieldDecl, lrec);
-        //cout << "  lfval " << lfval << endl;
         const auto& lnames = lrec.isScChannel() ? 
                              getChannelName(lfval) : getVarName(lfval);
         string lhsName = (secName ? lnames.second : lnames.first) + lrecSuffix;
         
         // Get RHS integer value
         SValue rrval;
-        SValue rfval(fieldDecl, rrec);
         state->getValue(rfval, rrval);
-        
+
         string rhsName;
         if (rrval.isInteger()) {
             char radix = rrval.getRadix() == 100 ? 10 : rrval.getRadix();
@@ -3215,13 +3324,13 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
         if (!isCombProcess) {
             auto i = varTraits.find(val);
             if (i != varTraits.end()) {
-                if (i->second.isReadOnlyCDR()) continue;
+                if (i->second.isRegister() || i->second.isReadOnlyCDR()) continue;
                 if (REMOVE_BODY_UNUSED() && !i->second.isAccessAfterReset()) continue;
             }
         }
         
         // Remove constant/variable which is replaced by value
-        declaredVars.insert(val);
+        if (initLocalVars) declaredVars.insert(val);
 
         printSplitString(os, pair.second, emptySensMethod ? "" : TAB_SYM);
         //cout << "   " << val << " : " << pair.second << endl;
@@ -3233,7 +3342,7 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
             // Print initialization for declared variables only
             if (declaredVars.count(pair.first) != 0) {
                 printSplitString(os, pair.second, TAB_SYM);
-                //cout << "   " << val << " : " << pair.second << endl;
+                //cout << "   " << pair.first << " : " << pair.second << endl;
             }
         }
     }
@@ -3336,7 +3445,7 @@ void ScVerilogWriter::printResetCombDecl(std::ostream &os)
         // Local constant, static constant, function parameter or
         // temporary variables not stored in @varTraits, 
         // it needs to provide them for reset section as well
-        printSplitString(os, pair.second, TAB_SYM);    
+        printSplitString(os, pair.second, TAB_SYM);
         //cout << "   " << pair.first << " : " << pair.second  << " (1)" << endl;
     }
     
@@ -3348,6 +3457,35 @@ void ScVerilogWriter::printResetCombDecl(std::ostream &os)
                 printSplitString(os, pair.second, TAB_SYM);
                 //cout << "   " << pair.first << " : " << pair.second << " (2)" << endl;
             }
+        }
+    }
+}
+
+// Print in-reset initialization for local variables which become registers
+// declared in CTHREAD main loop body (no reset for them)
+void ScVerilogWriter::printInitLocalInReset(std::ostream &os)
+{
+    //cout << "=========== printInitLocalInReset =========" << endl;
+    if (!initLocalRegs || isCombProcess) return;
+    
+    unordered_set<SValue> declaredVars;
+    for (const auto& pair : localDeclVerilog) {
+        const SValue& val = pair.first;
+        auto i = varTraits.find(val);
+        if (i != varTraits.end()) {
+            // Consider register for local variable not accessed in reset
+            if (i->second.isRegister() && !i->second.isModuleScope &&
+                !i->second.isAccessInReset() && !i->second.isConstVar) {
+                declaredVars.insert(val);
+            }
+        }
+    }
+    
+    for (const auto& pair : localDeclInitVerilog) {
+        // Print initialization for declared variables only
+        if (declaredVars.count(pair.first) != 0) {
+            printSplitString(os, pair.second, TAB_SYM);
+            //cout << "   " << pair.first << " : " << pair.second << endl;
         }
     }
 }

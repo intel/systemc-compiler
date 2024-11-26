@@ -272,11 +272,11 @@ public:
         return updated;
     }
 
-    /// Fill derived classes recursively
+    /// Fill derived classes for all base records of the given record @recval
     void fillDerived(const SValue& recval);
     
-    /// Fill derived classes map from current state tuples
-    void fillDerivedClasses(const SValue &dynmodval);
+    /// Fill derived classes map for all records in the current state tuples
+    void fillDerived();
     
     // Not used for now
     /// Set static class value for pointer to derived class
@@ -425,6 +425,9 @@ public:
     /// not current module/record
     /// \return <hasAnyArray, hasArrayAtUnknIndx>
     std::pair<bool, bool> isArrElemUnkwn(const SValue& val) const;
+    
+    /// Check if given variable has any temporary parent
+    bool hasTempVariable(const SValue &val);
     
     /// Add declared but not initialized variable, not included SC types
     /// \return zero array variable for given variable @lval
@@ -603,7 +606,7 @@ public:
     
     /// Is @val a field in any record including record array field
     /// \return parent if the value is a field or NO_VALUE
-    bool isRecField(const SValue& val);
+    bool isRecField(const SValue& val) const;
 
 public:    
     /// Check is @val is field of local record

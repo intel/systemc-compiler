@@ -499,7 +499,10 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
         bool isConst = (isRef) ? type.getNonReferenceType().
                         isConstQualified() : type.isConstQualified();
         bool isRecord = isUserClass(getDerefType(type));
+        bool isString = isStdString(type);
 
+        if (isString) continue;
+        
         if (auto dtype = dyn_cast<DecayedType>(type)) {
             type = dtype->getOriginalType();
         }
@@ -683,6 +686,51 @@ std::vector<SValue> ScGenerateExpr::getRecVector(const SValue& val)
     return recarrs;
 }
 
+// Check if @modval is a record where @val is instantiated 
+// For members only, if @val is local variable false is returned
+bool ScGenerateExpr::hasModvalInHierarchy(const SValue& val) 
+{
+    //cout << "hasModvalInHierarchy for val " << val << " : " << endl;
+    // Get parent record value
+    SValue parval;
+    if (val.isVariable()) {
+        // @val is record field variable
+        parval = val.getVariable().getParent();
+    } else 
+    if (val.isRecord()) {
+        // @val is parent record 
+        parval = val;
+    } else 
+    if (val.isScChannel()) {
+        auto chanType = val.getScChannel()->getType();
+        if (isUserClass(chanType)) {
+            // @val is record channel 
+            parval = val;
+        }
+    }
+    
+    // Skip local record variables
+    if (parval.isRecord() && parval.getRecord().isLocal()) return false;
+        
+    if (parval.isRecord() || parval.isScChannel()) {
+        //cout << " parval " << parval << ", modval " << modval << " synmodval " << synmodval << endl;
+        while (parval && parval != synmodval) {
+            if (parval == modval) return true;
+            
+            SValue recvar = state->getVariableForValue(parval);
+            //cout << " parval " << parval << ", recvar " << recvar << endl;
+            if (!recvar.isVariable()) break;
+            
+            // Go up along hierarchy 
+            parval = recvar.getVariable().getParent();
+            //cout << "  parval " << parval << endl;
+        }
+        //cout << endl;
+    }
+    return false;
+}
+
+
 // Put any member expression specified in @val for @stmt 
 void ScGenerateExpr::putMemberExpr(const Expr* expr, const SValue& val, 
                                    const string& refRecarrIndxStr) 
@@ -717,17 +765,18 @@ void ScGenerateExpr::putMemberExpr(const Expr* expr, const SValue& val,
                         state->checkRecord(val, codeWriter->getMIFName().first,
                                            ScState::MIF_CROSS_NUM);
     // Check access to member of record/MIF from this record/MIF called method,
-    // check if @tval is same or base class of current record (@this)
+    // check if @tval is same or base class of current record (@this) or visa versa
     SValue currecval = codeWriter->getRecordName().first;
     bool elemOfRecArr = tval.isRecord() && currecval.isRecord() &&
-                        checkBaseClass(tval, currecval);
+            (checkBaseClass(tval, currecval) || checkBaseClass(currecval, tval));
     // check if @tval is member or base class of member of current record (@this)
+    // or visa versa
     if (SValue tvar = state->getVariableForValue(tval)) {
         SValue tpar = tvar.getVariable().getParent();
         elemOfRecArr = elemOfRecArr || (tval.isRecord() && currecval.isRecord() && 
-                       checkBaseClass(tpar, currecval));
+            (checkBaseClass(tpar, currecval) || checkBaseClass(currecval, tpar)));
         //cout << "\nputMemberExpr(2) val " << val << ", tval " << tval << ", tvar " << tvar 
-        //     << ", currecval " << currecval << endl;
+        //     << ", currecval " << currecval << " tpar " << tpar << endl;
     }
     
     //cout << "elemOfMifArr " << elemOfMifArr << " elemOfRecArr " << elemOfRecArr << endl;
@@ -1275,6 +1324,12 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
                     state->getValue(rval, rrec);
                 }
 
+                // @lval/@rval are element of MIF array, in called MIF function/process
+                // If we are in MIF function called from an external process,
+                // it needs to add MIF array suffix
+                bool lelemOfMifRecArr = modval != synmodval && hasModvalInHierarchy(lrec);
+                bool relemOfMifRecArr = modval != synmodval && hasModvalInHierarchy(rrec);
+                
                 // Copy values of record fields or clear if @rrec is unknown
                 // Do not copy for reference as it could be array unknown element
                 if (rrec.isRecord() && !rhsRefRecord) {
@@ -1304,12 +1359,13 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
                 } else
                 if (rhsTempRecord) {
                     codeWriter->putRecordAssignTemp(expr, locrecvar, lrec, rrec, 
-                                                    "", llvm::None, state.get());
+                                                    lelemOfMifRecArr, "", state.get());
                 } else
                 if (rhsRecord || rhsRecordChan) {
                     // Put assign for records and record channels
                     codeWriter->putRecordAssign(expr, locrecvar, lrec, rrec, 
-                                                "", rrecSuffix, llvm::None);
+                                                lelemOfMifRecArr, relemOfMifRecArr,
+                                                "", rrecSuffix);
                 } else {
                     SCT_INTERNAL_FATAL (expr->getBeginLoc(), 
                                 "User defined operator= () not supported yet"); 
@@ -1628,7 +1684,7 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
 
                     // Put assign for records and record channels
                     codeWriter->putRecordAssign(stmt, locrecvar, lrec, rrec, 
-                                                "", "", llvm::None);
+                                                false, false, "", "");
                     locrecvar = NO_VALUE;
                     
                 } else 
@@ -1652,7 +1708,7 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
 }
 
 // Parse field declaration without initialization to put into @codeWriter, 
-void ScGenerateExpr::parseFieldDecl(ValueDecl* decl, const SValue& lfvar)
+void ScGenerateExpr::parseFieldDecl(const ValueDecl* decl, const SValue& lfvar)
 {
     //cout << "parseFieldDecl lfvar " << lfvar << " locrecvar " << locrecvar << endl;
     const QualType& type = decl->getType();
@@ -1663,7 +1719,7 @@ void ScGenerateExpr::parseFieldDecl(ValueDecl* decl, const SValue& lfvar)
 
 // Parse array field declaration without initialization to put into @codeWriter, 
 // used in declaration array of records
-void ScGenerateExpr::parseArrayFieldDecl(ValueDecl* decl, const SValue& lfvar, 
+void ScGenerateExpr::parseArrayFieldDecl(const ValueDecl* decl, const SValue& lfvar, 
                                          const vector<size_t>& arrSizes)
 {
     //cout << "parseArrayFieldDecl lfvar " << lfvar << " locrecvar " << locrecvar << endl;
@@ -2743,9 +2799,8 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 Expr* argExpr = args[0];
                 QualType ltype = getDerefType(cval.getType());
                 bool lhsRecord = isUserClass(ltype, true);
-                auto lrecType = isUserClassChannel(ltype, true);
                 bool lhsRecordChan = (lhsRecord && cval.isScChannel()) || 
-                                     (bool)lrecType;
+                                     isUserClassChannel(ltype, true);
 
                 //cout << "cval " << cval << " " << lhsRecord << lhsRecordChan << endl;
                 //ltype.dump();
@@ -2784,6 +2839,12 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                     // Get record or record channel value 
                     state->getValue(rval, rrec);
                 }
+                
+                // @lval/@rval are element of MIF array, in called MIF function/process
+                // If we are in MIF function called from an external process,
+                // it needs to add MIF array suffix
+                bool lelemOfMifRecArr = modval != synmodval && hasModvalInHierarchy(cval);
+                bool relemOfMifRecArr = modval != synmodval && hasModvalInHierarchy(rrec);
 
                 // Get RHS record indices 
                 string rrecSuffix;
@@ -2805,11 +2866,13 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                     } else 
                     if (rhsTempRecord) {
                         codeWriter->putRecordAssignTemp(expr, cval, cval, rrec, 
-                                                lrecSuffix, lrecType, state.get());
+                                                        lelemOfMifRecArr, lrecSuffix, 
+                                                        state.get());
                     } else {
                         // Put assign for record channel
                         codeWriter->putRecordAssign(expr, cval, cval, rrec, 
-                                                    lrecSuffix, rrecSuffix, lrecType);
+                                                    lelemOfMifRecArr, relemOfMifRecArr,
+                                                    lrecSuffix, rrecSuffix);
                     }
                 } else {
                     // Put assignment instead of method call, use @cval as it is channel
@@ -3058,11 +3121,10 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             
         } else {
             // Check for record/channel of record
-            QualType ltype = getDerefType(lval.getType());
-            bool lhsRecord = isUserClass(ltype, true);
-            auto lrecType = isUserClassChannel(ltype, true);
+            QualType ltype  = getDerefType(lval.getType());
+            bool lhsRecord  = isUserClass(ltype, true);
             bool lhsRecordChan = (lhsRecord && lval.isScChannel()) || 
-                                 (bool)lrecType;
+                                 isUserClassChannel(ltype, true);
             bool lhsRefRecord = lhsRecord && isReference(lval.getType());
 
             SValue lrec;
@@ -3129,8 +3191,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 // Get record or record channel value 
                 state->getValue(rval, rrec);
             }
-            //cout << "rrec " << rrec << endl;
-
+            
             // Get RHS record indices
             string rrecSuffix;
             if (rhsRefRecord) {
@@ -3142,6 +3203,12 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 auto rrecvecs = getRecVector(rrec);
                 rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
             }
+            
+            // @lval/@rval are element of MIF array, in called MIF function/process
+            // If we are in MIF function called from an external process,
+            // it needs to add MIF array suffix
+            bool lelemOfMifRecArr = modval != synmodval && hasModvalInHierarchy(lrec);
+            bool relemOfMifRecArr = modval != synmodval && hasModvalInHierarchy(rrec);
 
             // Get owner variable, required for arrays
             SValue lvar = state->getVariableForValue(lval);
@@ -3164,15 +3231,18 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 } else
                 if (rhsTempRecord) {
                     codeWriter->putRecordAssignTemp(expr, lvar, lrec, rrec, 
-                                                    lrecSuffix, lrecType, state.get());
+                                                    lelemOfMifRecArr, lrecSuffix, 
+                                                    state.get());
                 } else
                 if (rhsRecord || rhsRecordChan) {
                     if (getAssignStmt(rexpr)) {
                         ScDiag::reportScDiag(expr->getBeginLoc(), 
                                             ScDiag::SYNTH_MULT_ASSIGN_REC);
                     }
+                    //state->print();
                     codeWriter->putRecordAssign(expr, lvar, lrec, rrec, 
-                               lrecSuffix, rrecSuffix, lrecType);
+                                                lelemOfMifRecArr, relemOfMifRecArr,
+                                                lrecSuffix, rrecSuffix);
                 } else {
                     SCT_INTERNAL_FATAL (expr->getBeginLoc(), 
                                         "User defined operator= () not supported yet"); 
@@ -3556,6 +3626,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
 // Return statement
 void ScGenerateExpr::parseReturnStmt(ReturnStmt* stmt, SValue& val) 
 {
+    //cout << "parseReturnStmt returnValue " << returnValue << endl;
     // There is generally no value for operator call
     val = NO_VALUE;
 

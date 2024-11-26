@@ -10,7 +10,7 @@
 #include <iostream>
 #include <string>
 
-// Empty IF, loops and function calls
+// Empty IF, loops and function calls, empty call with string parameter
 struct A : public sc_module 
 {
     sc_in<bool>         clk;
@@ -37,6 +37,11 @@ struct A : public sc_module
         SC_METHOD(fcall_method);
         sensitive << s;
         
+        SC_METHOD(trace_method); sensitive << s;
+
+        SC_CTHREAD(trace_thread, clk.pos());
+        async_reset_signal_is(nrst, 0);
+          
         SC_CTHREAD(fcall_thread, clk.pos());
         async_reset_signal_is(nrst, 0);
     }
@@ -107,6 +112,60 @@ struct A : public sc_module
     void fcall_method() {
         f();
     }
+    
+    struct Flit_t {
+        static const unsigned B = 2;
+        sc_int<2> a;
+        sc_uint<3> b;
+        
+        inline friend bool operator==(const Flit_t& lhs, const Flit_t& rhs)
+        {return (lhs.a == rhs.a && lhs.b == rhs.b);}
+        
+        inline friend std::ostream& operator<< (std::ostream& os, const Flit_t &obj)
+        {return os;}
+        
+        inline friend void sc_trace(sc_trace_file*& f, const Flit_t& val, std::string name) 
+        {}
+        
+        inline Flit_t getFlitClone() const {
+             Flit_t res; res.a = 42;
+             return res;
+         }
+    };
+    
+    void traceFlit(const Flit_t& flit, const std::string &tag)
+    {
+        if (flit.a == flit.b) {
+            cout << "_TR " << sc_time_stamp() << ", " << name()
+                 << ", " << flit.getFlitClone() << ", " << tag << endl;
+        }
+    }
+    
+    void traceFlit2(std::string tag, const Flit_t& flit)
+    {
+        if (flit.a == flit.b) {
+            cout << "_TR " << sc_time_stamp() << ", " << name()
+                 << ", " << flit.getFlitClone() << ", " << tag << endl;
+        }
+    }
+
+    void trace_method() 
+    {
+        Flit_t flit;
+        traceFlit(flit, "IS nACK entered drop buff");
+        traceFlit2("IS nACK entered drop buff", flit);
+    }
+
+    void trace_thread() {
+        Flit_t flit;
+        traceFlit(flit, "IS nACK entered drop buff");
+        wait();
+        
+        while (true) {
+            traceFlit2("IS nACK entered drop buff", flit);
+            wait();
+        }
+    }    
 
     void fcall_thread() {
         

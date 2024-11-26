@@ -293,6 +293,10 @@ public:
     std::vector<RecordView> getBases() const;
     /// get fields in declaration order
     ElabObjVec getFields() const;
+    
+    /// get fields in declaration order except zero width fields,
+    /// required for matching it to verilog vars 
+    void getFieldsNoZero(ElabObjVec& fieldsVec) const;
 
     /// get static variables
     ElabObjVec getStaticFields() const;

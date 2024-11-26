@@ -114,7 +114,7 @@ public:
     /// Wrappers around similar methods of @state, 
     /// register variable in @defVarStmts/@useVarStmts
     void declareValue(const SValue& val);
-    void writeToValue(const SValue& lval, bool isDefined = false);
+    void writeToValue(SValue lval, bool isDefined = false);
     void readFromValue(SValue lval);
 
     /// Parse SCT_ASSERT in module scope to fill read value

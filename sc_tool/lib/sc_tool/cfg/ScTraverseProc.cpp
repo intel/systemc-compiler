@@ -2104,8 +2104,16 @@ void ScTraverseProc::printResetDeclarations(std::ostream &os)
     }
 }
 
+// Print in-reset initialization for local variables which become registers
+// declared in CTHREAD main loop body (no reset for them)
+void ScTraverseProc::printInitLocalInReset(std::ostream &os)
+{
+    //cout << "printInitLocalInReset " << endl;
+    codeWriter->printInitLocalInReset(os);
+}
+
 // Print function statements
-void ScTraverseProc::printFunctionBody(std::ostream &os) 
+void ScTraverseProc::printFunctionBody(std::ostream &os)
 {
     // Scope graph for most top function (process function) 
     std::shared_ptr<ScScopeGraph> topGraph;
@@ -2118,7 +2126,7 @@ void ScTraverseProc::printFunctionBody(std::ostream &os)
     
     //cout << "--------------------------------------------" << endl;
     //cout << "Top function scopeGraph #" << hex << topGraph.get() << dec << endl;
-    topGraph->printAllScopes(os); 
+    topGraph->printAllScopes(os);
 }
 
 // Print temporal assertion in thread process, printed in @always_ff

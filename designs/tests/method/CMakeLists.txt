@@ -404,6 +404,6 @@ svc_target(method_bit_range_fail WILL_FAIL)
 add_executable(method_unsupport_types_fail test_unsupport_types_fail.cpp)
 svc_target(method_unsupport_types_fail WILL_FAIL)
 
-## Not supported yet, see #304
+## Sequential method
 #add_executable(method_clock_sensitive test_clock_sensitive.cpp)
 #svc_target(method_clock_sensitive GOLDEN method_clock_sensitive.sv)

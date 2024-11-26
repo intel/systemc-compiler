@@ -136,6 +136,26 @@ svc_target(record_return_assert_method GOLDEN record_return_assert_method.sv)
 add_executable(record_return_method test_return_method.cpp)
 svc_target(record_return_method GOLDEN record_return_method.sv)
 
+add_executable(record_return_method2 test_return_method2.cpp)
+svc_target(record_return_method2 GOLDEN record_return_method2.sv)
+
+add_executable(record_return_method_mif test_return_method_mif.cpp)
+svc_target(record_return_method_mif GOLDEN record_return_method_mif.sv)
+
+add_executable(record_return_method_mif2 test_return_method_mif2.cpp)
+svc_target(record_return_method_mif2 GOLDEN record_return_method_mif2.sv)
+
+add_executable(record_return_method_mif3 test_return_method_mif3.cpp)
+svc_target(record_return_method_mif3 GOLDEN record_return_method_mif3.sv)
+
+add_executable(record_return_method3 test_return_method3.cpp)
+svc_target(record_return_method3 GOLDEN record_return_method3.sv)
+
+
+add_executable(record_operator_equal test_operator_equal.cpp)
+svc_target(record_operator_equal WILL_FAIL)
+
+
 add_executable(record_simple_method test_simple_method.cpp)
 svc_target(record_simple_method GOLDEN record_simple_method.sv)
 
@@ -169,6 +189,12 @@ svc_target(record_chan_type_thrd GOLDEN record_chan_type_thrd.sv)
 
 add_executable(record_chan_type_misc test_chan_type_misc.cpp)
 svc_target(record_chan_type_misc GOLDEN record_chan_type_misc.sv)
+
+add_executable(record_chan_const_field test_chan_const_field.cpp)
+svc_target(record_chan_const_field GOLDEN record_chan_const_field.sv)
+
+add_executable(record_base_record_chan test_base_record_chan.cpp)
+svc_target(record_base_record_chan GOLDEN record_base_record_chan.sv)
 
 add_executable(record_use_def test_use_def.cpp)
 svc_target(record_use_def GOLDEN record_use_def.sv)

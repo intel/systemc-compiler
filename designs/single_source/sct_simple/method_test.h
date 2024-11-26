@@ -21,6 +21,7 @@ struct B : public sc_module
 {
     sc_in<bool>         clk{"clk"};
     sc_in<bool>         nrst{"nrst"};
+    //sc_in<sc_uint<12>>  s[2];
 
     sct_target<T>       run{"run", 1};
     sct_initiator<T>    resp{"resp", 1};
@@ -40,7 +41,7 @@ struct B : public sc_module
         sensitive << run << resp << in;
     }
     
-    sc_signal<T> s{"s"};
+    //sc_signal<T> s{"s"};
     void methProc() {
         ss = 0; 
         run.reset_get();

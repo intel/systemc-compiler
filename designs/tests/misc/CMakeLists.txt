@@ -95,6 +95,9 @@ svc_target(misc_mif_array_differ GOLDEN misc_mif_array_differ.sv)
 add_executable(misc_mod_array_differ test_mod_array_differ.cpp)
 svc_target(misc_mod_array_differ GOLDEN misc_mod_array_differ.sv)
 
+add_executable(misc_static_array test_static_array.cpp)
+svc_target(misc_static_array GOLDEN misc_static_array.sv)
+
 
 add_executable(misc_large_array test_large_array.cpp)
 svc_target(misc_large_array)

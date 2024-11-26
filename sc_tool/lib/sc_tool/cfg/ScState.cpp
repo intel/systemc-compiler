@@ -151,11 +151,13 @@ void ScState::fillDerived(const SValue& recval)
     }
 }
 
-void ScState::fillDerivedClasses(const SValue &dynmodval) 
+void ScState::fillDerived() 
 {
+    //cout << "fillDerived " << endl;
     for (const auto& i : tuples) {
         // Check all records which can be only in right part of tuple
         if (i.second.isRecord()) {
+            //cout << "   " << i.second << " var " << getVariableForValue(i.second) << endl;
             fillDerived( i.second );
         }
     }
@@ -697,7 +699,7 @@ ScState::getValue(const SValue& lval, SValue& rval, bool deReference,
         if (deReference) {
             getDerefVariable(lval, llval);
         }
-        //cout << "getValue lval " << lval << " llval " << endl;
+        //cout << "getValue lval " << lval << " llval " << llval << endl;
 
         bool unkwIndex;
         bool isArr = isArray(llval, unkwIndex);
@@ -800,10 +802,12 @@ void ScState::getDerefVariable(SValue lval, SValue& rval,
             // Do de-reference
             rval = i->second;
             SCT_TOOL_ASSERT (!rval.isInteger() && !rval.isUnknown(), 
-                             "Incorrect reference initializer");
+                std::string("Incorrect type of variable/value for reference ") + 
+                lval.asString(true));
         } else {
             SCT_TOOL_ASSERT (isZeroWidthType(lval.getType()), 
-                             "No variable/value for reference");
+                std::string("No variable/value for reference ") + 
+                lval.asString(true));
             rval = lval;
         }
     } else {
@@ -1079,7 +1083,7 @@ SValue ScState::getVariableForValue(const SValue& rval) const
         if (rrval.isArray()) {
             rrval.getArray().setOffset(0);
         }
-        
+
         bool hasDerived;
         do {
             // Recursively find topmost variable
@@ -1251,6 +1255,21 @@ std::pair<bool, bool> ScState::isArrElemUnkwn(const SValue& val) const
     return std::make_pair(true, true);
 }
 
+// Check if given variable has any temporary parent
+bool ScState::hasTempVariable(const SValue& val) 
+{
+    SValue parval = val.getVariable().getParent();
+    if (parval.isTmpVariable()) return true;
+    if (parval.isRecord() && parval.getRecord().isTemp()) return true;
+
+    if (parval.isVariable()) {
+        parval = parval.getVariable().getParent();
+        if (parval.isTmpVariable()) return true;
+        if (parval.isRecord() && parval.getRecord().isTemp()) return true;
+    }
+    return false;
+}
+
 // Add declared but not initialized variable, not included SC types
 SValue ScState::declareValue(const SValue &lval) 
 {
@@ -1273,7 +1292,7 @@ void ScState::writeToArrElmValue(const SValue& lval)
 // \param isDefined -- all values for fields or array elements are defined 
 SValue ScState::writeToValue(SValue lval, bool isDefined) 
 {
-    //cout << "writeToValue lval " << lval << endl;
+    //cout << "ScState::writeToValue lval " << lval << endl;
     SValue llval; 
     // Remove reference, Use/Def analysis works for referenced objects
     // Return constant reference if it refers to constant
@@ -1283,8 +1302,13 @@ SValue ScState::writeToValue(SValue lval, bool isDefined)
         llval = getVariableForValue(lval);
     }
 
+    // Skip temporary variables and temporary record fields
+    if (llval.isVariable()) {
+        if ( hasTempVariable(llval) ) return NO_VALUE;
+    } else {
+        return NO_VALUE;
+    }
     // No Use/Def analysis for non-constant reference
-    if (!llval.isVariable()) return NO_VALUE;
     if (llval.isReference() && !llval.isConstReference()) return NO_VALUE;
     //cout << "   lval " << lval << " llval " << llval << " isDefined " << isDefined << endl;
     
@@ -1297,6 +1321,9 @@ SValue ScState::writeToValue(SValue lval, bool isDefined)
     // Use zero value with cross MIF/module/record analysis, as in TareadBuilder
     SValue zeroValMif = getFirstArrayElementForAny(llval, ScState::MIF_CROSS_NUM);
     access.insert(zeroValMif);
+    // Use non-zero value required for processes inside MIF access MIF members
+    access.insert(llval);
+    //cout << "Access lval " << lval << " llval " << llval << " zeroValMif " << zeroValMif << endl;
     
     if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
         cout << "   add to array_defined " << zeroVal << endl;
@@ -1340,8 +1367,8 @@ SValue ScState::writeToValue(SValue lval, bool isDefined)
 
 SValue ScState::readFromValue(SValue lval)
 {
-    //cout << "readFromValue lval " << lval << endl;
-    SValue llval; 
+    //cout << "ScState::readFromValue lval " << lval << endl;
+    SValue llval;
     // Remove reference, Use/Def analysis works for referenced objects
     // Return constant reference if it refers to constant
     getDerefVariable(lval, llval, true); lval = llval;
@@ -1350,11 +1377,16 @@ SValue ScState::readFromValue(SValue lval)
         llval = getVariableForValue(lval);
     }
 
+    // Skip temporary variables and temporary record fields
+    if (llval.isVariable()) {
+        if ( hasTempVariable(llval) ) return NO_VALUE;
+    } else {
+        return NO_VALUE;
+    }
     // No Use/Def analysis for non-constant reference
-    if (!llval.isVariable()) return NO_VALUE;
     if (llval.isReference() && !llval.isConstReference()) return NO_VALUE;
     //cout << "   lval " << lval << " llval " << llval << endl;
-
+    
     // Get zero index element if required
     SValue zeroVal = getFirstArrayElementForAny(llval);
 
@@ -1364,7 +1396,7 @@ SValue ScState::readFromValue(SValue lval)
     // Consider SVA arguments except FOR-loop counter as not defined 
     // to make them registers
     // For value which is not array element at unknown index
-    bool forLoopCounter = loopCntrVars.count(llval); 
+    bool forLoopCounter = loopCntrVars.count(llval);
     if ((!parseSvaArg || forLoopCounter) && !isArrElemUnkwn(lval).second) {
         // Check non-array element variable or record field is defined/declared 
         // (required for pointee objects and array elements)
@@ -1399,9 +1431,12 @@ SValue ScState::readFromValue(SValue lval)
 
     read.insert(zeroVal);
 
-    // Use zero value with cross MIF/module/record analysis, as in TareadBuilder
+    // Use zero value with cross MIF/module/record analysis, as in ThreadBuilder
     SValue zeroValMif = getFirstArrayElementForAny(llval, ScState::MIF_CROSS_NUM);
     access.insert(zeroValMif);
+    // Use non-zero value required for processes inside MIF access MIF members
+    access.insert(llval);
+    //cout << "Access lval " << lval << " llval " << llval << " zeroValMif " << zeroValMif << endl;
     
     if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
         cout << "   add to read " << zeroVal << endl;
@@ -1960,7 +1995,7 @@ SValue ScState::getZeroRecArrRefField(SValue val) const
 
 // Is @val a field in any record including record array field
 // \return parent if the value is a field or NO_VALUE
-bool ScState::isRecField(const SValue& val)
+bool ScState::isRecField(const SValue& val) const
 {
     if (val.isVariable()) {
         SValue parent = val.getVariable().getParent();

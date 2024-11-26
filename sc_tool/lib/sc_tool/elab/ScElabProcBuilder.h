@@ -73,6 +73,7 @@ private:
 
     sc::SValue createPrimitiveSValue(ValueView valueView);
     sc::SValue createPortSValue(PortView portView);
+    void createSignalSValue(RecordView& recView, ElabObjVec& allFields);
     sc::SValue createSignalSValue(SignalView signalView);
     sc::SValue getOrCreatePointeeSValue(PtrOrRefView ptrOrRefView);
 

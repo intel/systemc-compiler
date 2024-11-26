@@ -9,15 +9,17 @@
 function(svc_target exe_target)
 
     # Flags:
-    # REPLACE_CONST_VALUE  -- replace constant with its number value if possible
-    # NO_SVA_GENERATE      -- disable SVA generating for SCT assertions
-    # PORT_MAP_GENERATE    -- generate port map file and top module wrapper
-    # UNSIGNED             -- design uses unsigned arithmetic only
-    # NO_REMOVE_EXTRA_CODE -- disable removing unused variable and extra code
-    # INIT_LOCAL_VARS      -- initialize local variables at declaration with zero
-    # INIT_RESET_LOCAL_VARS-- initialize CTHREAD reset section local variables 
-    #                         at declaration with zero
-    # WILL_FAIL            -- test will fail on non-synthesizable code
+    # REPLACE_CONST_VALUE   -- replace constant with its number value if possible
+    # NO_SVA_GENERATE       -- disable SVA generating for SCT assertions
+    # PORT_MAP_GENERATE     -- generate port map file and top module wrapper
+    # UNSIGNED              -- design uses unsigned arithmetic only
+    # NO_REMOVE_EXTRA_CODE  -- disable removing unused variable and extra code
+    # INIT_LOCAL_VARS       -- initialize local variables at declaration with zero
+    # INIT_RESET_LOCAL_VARS -- initialize CTHREAD reset section local variables 
+    #                          at declaration with zero
+    # INIT_LOCAL_REGS       -- initialize in reset local variables declared in
+    #                          CTHREAD main loop which becomes register
+    # WILL_FAIL             -- test will fail on non-synthesizable code
     set(boolOptions REPLACE_CONST_VALUE 
                     NO_SVA_GENERATE
                     PORT_MAP_GENERATE
@@ -25,6 +27,7 @@ function(svc_target exe_target)
                     NO_REMOVE_EXTRA_CODE
                     INIT_LOCAL_VARS
                     INIT_RESET_LOCAL_VARS
+                    INIT_LOCAL_REGS
                     WILL_FAIL)
 
     # Arguments with one value
@@ -64,6 +67,10 @@ function(svc_target exe_target)
 
     if (${PARAM_INIT_RESET_LOCAL_VARS})
         set(INIT_RESET_LOCAL_VARS -init_reset_local_vars)
+    endif()
+
+    if (${PARAM_INIT_LOCAL_REGS})
+        set(INIT_LOCAL_REGS -init_local_regs)
     endif()
 
     if (${PARAM_REPLACE_CONST_VALUE})
@@ -166,8 +173,9 @@ function(svc_target exe_target)
             ${NO_REMOVE_EXTRA_CODE}
             ${INIT_LOCAL_VARS}
             ${INIT_RESET_LOCAL_VARS}
+            ${INIT_LOCAL_REGS}
             --
-            -D__SC_TOOL__ -D__SC_TOOL_ANALYZE__ -DNDEBUG
+            -D__SC_TOOL__ -D__SC_TOOL_ANALYZE__ -DNDEBUG -DSC_ALLOW_DEPRECATED_IEEE_API
             -Wno-logical-op-parentheses
             -std=c++17 ${INCLUDE_DIRS} ${COMP_DEFINITIONS}
             -I${CMAKE_SOURCE_DIR}/sc_elab2/lib

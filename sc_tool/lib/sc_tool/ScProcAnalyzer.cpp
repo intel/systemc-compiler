@@ -227,6 +227,9 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
             if (rval.isInteger() && rval.getInteger().isNullValue())
                 continue;
         }
+
+        // Do not report for record fields
+        if (finalState->isRecField(sval)) continue;
         
         // Do no need to skip members generated as @localparam
 
@@ -323,9 +326,10 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     }
 
     // Create process local variables and register defined values
+    //cout << "useDefVals " << endl;
     for (SValue val : useDefVals) {
         // Replace value to array first element
-        //cout << "val " << val << endl;
+        //cout << "  val " << val << endl;
         SValue zeroVal = finalState->getFirstArrayElementForAny(
                                     val, ScState::MIF_CROSS_NUM);
         //cout << "zeroval " << zeroVal << endl;

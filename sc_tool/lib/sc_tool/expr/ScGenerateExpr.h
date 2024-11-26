@@ -123,6 +123,10 @@ public:
     /// \return -- vector with record values in hierarchy
     std::vector<SValue> getRecVector(const SValue& val);
     
+    /// Check if @modval is a record where @val is instantiated 
+    /// For members only, if @val is local variable false is returned
+    bool hasModvalInHierarchy(const SValue& val);
+
     /// Put any member expression specified in @val for @stmt 
     void putMemberExpr(const clang::Expr* expr, const SValue& val,
                        const std::string& refRecarrIndxStr);
@@ -218,11 +222,11 @@ public:
     
     /// Parse field declaration without initialization to put into codeWriter, 
     /// \param lfvar -- field variable
-    void parseFieldDecl(clang::ValueDecl* decl, const SValue& lfvar) override;
+    void parseFieldDecl(const clang::ValueDecl* decl, const SValue& lfvar) override;
 
     /// Parse array field declaration w/o initialization to put into codeWriter, 
     /// used in declaration array of records
-    void parseArrayFieldDecl(clang::ValueDecl* decl, const SValue& lfvar,
+    void parseArrayFieldDecl(const clang::ValueDecl* decl, const SValue& lfvar,
                              const std::vector<size_t>& arrSizes) override;
 
     /// Parse statement and run @chooseExprMethod for each operand

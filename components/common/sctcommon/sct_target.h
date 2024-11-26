@@ -78,6 +78,9 @@ class sct_target<T, TRAITS, 0> :
             put_fifo_handle = new sc_process_handle(sc_get_current_process_handle());
         }
         
+        SC_METHOD(core_data_mux);
+        sensitive << reg_full << core_data << core_data_d;
+        
     #ifdef DEBUG_SYSTEMC
         SC_METHOD(debugProc); 
         debug_handle = new sc_process_handle(sc_get_current_process_handle());
@@ -119,13 +122,7 @@ class sct_target<T, TRAITS, 0> :
         if (fifo) {
             return fifo->peek();
         } else {
-            if (always_ready) {
-                if (chan_sync) return core_data_d.read(); 
-                else return core_data.read();
-            } else {
-                if (reg_full) return core_data_d.read();
-                else return core_data.read();
-            }
+            return core_data_out.read();
         }
     }
     
@@ -141,14 +138,7 @@ class sct_target<T, TRAITS, 0> :
             } else {
                 if (!cthread) get_req = 0;
             }
-            
-            if (always_ready) {
-                if (chan_sync) return core_data_d.read(); 
-                else return core_data.read();
-            } else {
-                if (reg_full) return core_data_d.read(); 
-                else return core_data.read();
-            }
+            return core_data_out.read();
         }
     }
     
@@ -158,14 +148,8 @@ class sct_target<T, TRAITS, 0> :
             return fifo->get(data, enable);
             
         } else {
-            if (always_ready) {
-                if (chan_sync) data = core_data_d.read(); 
-                else data = core_data.read(); 
-            } else {
-                if (reg_full) data = core_data_d.read(); 
-                else data = core_data.read();
-            }
-
+            data = core_data_out.read();
+        
             bool A = always_ready ? (chan_sync ? core_req_d : core_req) : 
                                     (core_req || reg_full);
             if (A) {
@@ -183,31 +167,22 @@ class sct_target<T, TRAITS, 0> :
             return fifo->b_get();
 
         } else {
-            if (cthread) {
-                if (!always_ready) {
-                    while (!core_req && !reg_full) wait();
-                } else {
-                    if (chan_sync) {
-                        while (!core_req_d) wait();
-                    } else {
-                        while (!core_req) wait();
-                    }
-                }
-
-                get_req = !get_req;
-
-                if (always_ready) {
-                    if (chan_sync) return core_data_d.read(); 
-                    else return core_data.read();
-                } else {
-                    if (reg_full) return core_data_d.read(); 
-                    else return core_data.read();
-                }
-            } else {
+            if (!cthread) {
                 cout << "\nNo blocking get allowed in METHOD process" << endl;
                 sc_assert (false);
-                return T{};
             }
+            
+            if (!always_ready) {
+                while (!core_req && !reg_full) wait();
+            } else {
+                if (chan_sync) {
+                    while (!core_req_d) wait();
+                } else {
+                    while (!core_req) wait();
+                }
+            }
+            get_req = !get_req;
+            return core_data_out.read();
         }
     }
 
@@ -237,6 +212,18 @@ class sct_target<T, TRAITS, 0> :
     sc_signal<bool>         reg_full_d{"reg_full_d"};
     sc_signal<bool>         core_req_d{"core_req_d"};
     sc_signal<T>            core_data_d{"core_data_d"};
+    sc_signal<T>            core_data_out{"core_data_out"};
+    
+    /// Output data multiplexer to support return constant reference
+    void core_data_mux() {
+        if (always_ready) {
+            if (chan_sync) core_data_out = core_data_d.read();
+            else core_data_out = core_data.read();
+        } else {
+            if (reg_full) core_data_out = core_data_d.read();
+            else core_data_out = core_data.read();
+        }
+    }
     
     /// Get request and put it to FIFO if bound
     void put_to_fifo() {
@@ -354,7 +341,7 @@ class sct_target<T, TRAITS, 0> :
         } else {
             this->sensitive << *debug_handle << get_req << get_req_d
                             << core_req_d << core_req << reg_full << reg_full_d
-                            << core_data << core_data_d;
+                            << core_data << core_data_d << core_data_out;
         }
         debug_handle = nullptr;
     #endif
@@ -503,8 +490,7 @@ class sct_target<T, TRAITS, 0> :
                 if (TRAITS::CLOCK == 2) s << clk; 
                 else s << (TRAITS::CLOCK ? clk.pos() : clk.neg());
             } else {
-                s << core_req << core_req_d << reg_full 
-                  << core_data << core_data_d;  // No @nrst required here
+                s << core_req << core_req_d << reg_full << core_data_out;  // No @nrst required here
             }
             
             if (attached) {
@@ -534,8 +520,7 @@ class sct_target<T, TRAITS, 0> :
                 if (TRAITS::CLOCK == 2) *s << *p << clk; 
                 else *s << *p << (TRAITS::CLOCK ? clk.pos() : clk.neg());
             } else {
-                *s << *p << core_req << core_req_d << reg_full 
-                   << core_data << core_data_d;  // No @nrst required here
+                *s << *p << core_req << core_req_d << reg_full << core_data_out;  // No @nrst required here
             }
             
             if (attached) {
@@ -559,8 +544,7 @@ class sct_target<T, TRAITS, 0> :
                 if (TRAITS::CLOCK == 2) s << clk; 
                 else s << (TRAITS::CLOCK ? clk.pos() : clk.neg());
             } else {
-                s << core_req << core_req_d << reg_full 
-                  << core_data << core_data_d;  // No @nrst required here
+                s << core_req << core_req_d << reg_full << core_data_out;  // No @nrst required here
             }
         }
     }

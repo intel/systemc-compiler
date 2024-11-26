@@ -24,6 +24,7 @@ extern llvm::cl::opt<bool>          noRemoveExtraCode;
 extern llvm::cl::opt<bool>          checkUnsigned;
 extern llvm::cl::opt<bool>          initLocalVars;
 extern llvm::cl::opt<bool>          initResetLocalVars;
+extern llvm::cl::opt<bool>          initLocalRegs;
 extern llvm::cl::opt<std::string>   modulePrefix;
 
 // Remove unusable variables in reset section of CTHREAD
@@ -32,8 +33,10 @@ inline bool REMOVE_RESET_UNUSED() {
 }
 
 // Remove unusable variables after reset in CTHREAD
+// Does not work for multiple MIF functions called in and after reset
 inline bool REMOVE_BODY_UNUSED() {
-    return !noRemoveExtraCode;
+    // Not used for now
+    return false;//!noRemoveExtraCode;
 }
 
 // Remove next value of register which not used after reset in CTHREAD and SVA

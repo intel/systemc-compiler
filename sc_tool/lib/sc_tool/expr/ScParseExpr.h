@@ -360,11 +360,11 @@ protected:
     
     /// Parse field declaration without initialization to put into codeWriter, 
     /// \param lfvar -- field variable
-    virtual void parseFieldDecl(clang::ValueDecl* decl, const SValue& lfvar) {}
+    virtual void parseFieldDecl(const clang::ValueDecl* decl, const SValue& lfvar) {}
     
     /// Parse array field declaration w/o initialization to put into codeWriter, 
     /// used in declaration array of records
-    virtual void parseArrayFieldDecl(clang::ValueDecl* decl,const SValue& lfvar,
+    virtual void parseArrayFieldDecl(const clang::ValueDecl* decl,const SValue& lfvar,
                                      const std::vector<size_t>& arrSizes) {}
 
     /// Parse statement and run evalSubExpr for each operand

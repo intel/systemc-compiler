@@ -233,6 +233,9 @@ public:
         SYNTH_SS_COMB_PARAM_IN_TOP  = 253,
 
         SYNTH_SS_SIG_SENS_THREAD    = 254,
+        
+        SYNTH_STATIC_ARR_TYPE       = 255,
+        SYNTH_STATIC_ARR_NONINT     = 255,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,

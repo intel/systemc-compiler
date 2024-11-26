@@ -280,4 +280,7 @@ svc_target(cthread_var_ref GOLDEN cthread_var_ref.sv)
 add_executable(cthread_var_multiple_use test_cthread_var_multiple_use.cpp)
 svc_target(cthread_var_multiple_use WILL_FAIL)
 
+add_executable(cthread_var_reset test_cthread_var_reset.cpp)
+svc_target(cthread_var_reset INIT_LOCAL_REGS GOLDEN cthread_var_reset.sv)
+
 

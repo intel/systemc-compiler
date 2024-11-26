@@ -46,6 +46,16 @@ void correctParentBaseClass(SValue& val);
 // Not used
 //std::vector<clang::Type *> getModuleBases(const clang::CXXRecordDecl *decl);
 
+    
+/// Get fields for record value, considering base class fields
+void getFieldsForRecord(const SValue& lrec, std::vector<SValue>& fields); 
+
+/// Get fields for record channel, considering base class fields
+/// All fields parent is @crec
+/// \param crec -- record channel
+void getFieldsForRecordChan(const clang::RecordDecl* recDecl, 
+                            const SValue& rec, std::vector<SValue>& fields);
+
 }
 
 #endif /* CHECKCPPINHERITANCE_H */

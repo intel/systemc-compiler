@@ -392,6 +392,10 @@ public:
     /// Print function local combinational variable declarations (for reset section)
     void printResetDeclarations(std::ostream &os);
 
+    /// Print in-reset initialization for local variables which become registers
+    /// declared in CTHREAD main loop body (no reset for them)
+    void printInitLocalInReset(std::ostream &os);
+
     /// Print function statements
     void printFunctionBody(std::ostream &os);
     

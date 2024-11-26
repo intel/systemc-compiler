@@ -492,18 +492,17 @@ public:
     /// \param lvar & lrec -- LHS variable and record/record channel value
     /// \param rrec        -- RHS record value
     /// \param lrecSuffix & rrecSuffix -- LHS an RHS record indices suffix
-    /// \param chanRecType -- LHS record type for record channel, none for other
     void putRecordAssign(const clang::Stmt* stmt, 
-                         const SValue& lvar, const SValue& lrec, const SValue& rrec,
-                         const std::string& lrecSuffix,
-                         const std::string& rrecSuffix,
-                         llvm::Optional<clang::QualType> lchanRecType);
+                         const SValue& lvar, 
+                         const SValue& lrec, const SValue& rrec,
+                         bool lelemOfMifRecArr, bool relemOfMifRecArr,
+                         std::string lrecSuffix,
+                         std::string rrecSuffix);
     
     /// Assignment record variable with temporary record object (T{}, T())
     void putRecordAssignTemp(const clang::Stmt* stmt, 
                          const SValue& lvar, const SValue& lrec, const SValue& rrec,
-                         const std::string& lrecSuffix,
-                         llvm::Optional<clang::QualType> lchanRecType,
+                         bool lelemOfMifRecArr, std::string lrecSuffix,
                          const ScState* state);
     
     /// Put array element initialization, used for array initializer list for 
@@ -666,6 +665,7 @@ public:
     void resetKeepArrayIndices() {keepArrayIndices = false;}
     
     void setRecordName(const SValue& val, std::string str) {
+        //std::cout << "setRecordName " << val << " " << str << std::endl; 
         str = getIndexFromRecordName(str);
         recordValueName = std::pair<SValue,std::string>(val, str);
     }
@@ -673,6 +673,7 @@ public:
         return recordValueName;
     }
     void setMIFName(const SValue& val, std::string str) {
+        //std::cout << "setMIFName " << val << " " << str << std::endl; 
         MIFValueName = std::pair<SValue,std::string>(val, str);
     }
     std::pair<SValue,std::string> getMIFName() {
@@ -686,7 +687,11 @@ public:
     /// Print local combinational variable declaration, 
     /// used in @always_ff reset section
     void printResetCombDecl(std::ostream &os);
-        
+    
+    /// Print in-reset initialization for local variables which become registers
+    /// declared in CTHREAD main loop body (no reset for them)
+    void printInitLocalInReset(std::ostream &os);
+ 
     /// Print variable declaration for given variable
     void printDeclString(std::ostream &os, const SValue& val, 
                          const std::string& sizeSuff = "");

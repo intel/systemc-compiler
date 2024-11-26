@@ -393,6 +393,7 @@ std::pair<SValue, std::vector<SValue> >
                                     clang::Expr* argExpr, bool checkConst, 
                                     bool removeSubValues)
 {
+    //cout << "ScParseExpr::parseValueDecl #" << hex << decl << dec << endl;
     using namespace clang;
     using namespace llvm;
     using namespace std;
@@ -457,19 +458,24 @@ std::pair<SValue, std::vector<SValue> >
                 setArrayElement(type, i, aval, rval);
                 
                 if (i == 0) zeroRec = rval;
+                
+                // Register base records for the new record 
+                state->fillDerived(rval);
             }
             
             // Get array sizes, one size for single dimensional array
             auto arrSizes = getArraySizes(type);
             
             // Put field declarations to @localDeclVerilog for zero array element
-            for (auto fdecl : recDecl->fields()) {
-                if (isZeroWidthType(fdecl->getType()) ||
-                    isZeroWidthArrayType(fdecl->getType())) {
-                    // Do nothing
-                } else
-                if (!isUserClass(fdecl->getType())) {
-                    SValue fval(fdecl, zeroRec);
+            std::vector<SValue> recFields;
+            getFieldsForRecord(zeroRec, recFields);
+            for (const SValue& fval : recFields) {
+                // Skip zero width type
+                auto ftype = fval.getType();
+                if (isZeroWidthType(ftype) || isZeroWidthArrayType(ftype)) continue;
+                
+                if (!isUserClass(ftype)) {
+                    const ValueDecl* fdecl = fval.getVariable().getDecl();
                     parseArrayFieldDecl(fdecl, fval, arrSizes);
                     
                 } else {
@@ -477,7 +483,6 @@ std::pair<SValue, std::vector<SValue> >
                                        "Inner record not supported yet");
                 }
             }
-                
         } else
         if (iexpr) {
             // Array element number
@@ -648,7 +653,19 @@ std::pair<SValue, std::vector<SValue> >
         } else 
         if (isRecord) {
             // User defined class non-module
-            //cout << "-------- iexpr for record " << iexpr << " val " << val << endl;
+            //cout << "record val " << val << " ival " << ival << endl;
+            
+            // Replace unknown index of MIF where record local variable is declared 
+            // with zero index to provide correct UseDef results 
+            // (ScParseExprValue::writeToValue/readFromValue need record for such variable)
+            bool unkwIndex;
+            bool isArr = state->isArray(val, unkwIndex);
+            isArr = isArr || state->getBottomArrayForAny(val, unkwIndex);
+            if (isArr && unkwIndex) {
+                val = state->getFirstArrayElementForAny(val);
+                //cout << "   unknown array record, val = " << val << endl;
+            }
+            
             // Enable record constructor processing
 //            locrecvar = val;
             
@@ -1166,12 +1183,15 @@ void ScParseExpr::copyRecFieldValues(const SValue& lval, const SValue& rval)
 {
     SCT_TOOL_ASSERT (lval.isRecord(), "No record value found");
     SCT_TOOL_ASSERT (rval.isRecord(), "No record value found");
-    auto recDecl = lval.getType()->getAsCXXRecordDecl();
     
-    for (auto fieldDecl : recDecl->fields()) {
-        // Get field value of copied record
-        SValue rfval(fieldDecl, rval);
-        SValue lfval(fieldDecl, lval);
+    std::vector<SValue> lrecFields;
+    getFieldsForRecord(lval, lrecFields);
+    std::vector<SValue> rrecFields;
+    getFieldsForRecord(rval, rrecFields);
+    
+    for (unsigned i = 0; i != lrecFields.size(); ++i) {
+        const SValue& lfval = lrecFields[i];
+        const SValue& rfval = rrecFields[i];
         
         // Create deep copy of @ffval in state
         SValue rffval; state->getValue(rfval, rffval);
@@ -1184,6 +1204,11 @@ void ScParseExpr::copyRecFieldValues(const SValue& lval, const SValue& rval)
         //cout << "   lfval " << lfval << " lffval " << lffval << endl;
         //cout << "   rfval " << rfval << " rffval " << rffval << endl;
 
+        SCT_TOOL_ASSERT (lfval.isVariable(), 
+                         std::string("Record field is not variable") + 
+                         lfval.asString(true));
+        const ValueDecl* fieldDecl = lfval.getVariable().getDecl();
+        
         // Put field into @codeWriter, does nothing in CPA
         if (fieldDecl->getType()->isArrayType()) {
             std::vector<size_t> arrSizes;
@@ -1200,14 +1225,19 @@ void ScParseExpr::copyRecFieldValues(const SValue& lval, const SValue& rval)
 void ScParseExpr::declareRecFields(const SValue& lval) 
 {
     SCT_TOOL_ASSERT (lval.isRecord(), "No record value found");
-    auto recDecl = lval.getType()->getAsCXXRecordDecl();
     
-    for (auto fieldDecl : recDecl->fields()) {
-        // Get field value of copied record
-        SValue lfval(fieldDecl, lval);
+    std::vector<SValue> lrecFields;
+    getFieldsForRecord(lval, lrecFields);
+
+    for (const SValue& lfval : lrecFields) {
         // Set level for record fields, no level for record values itself
         state->setValueLevel(lfval, level);
-
+        
+        SCT_TOOL_ASSERT (lfval.isVariable(), 
+                         std::string("Record field is not variable") + 
+                         lfval.asString(true));
+        const ValueDecl* fieldDecl = lfval.getVariable().getDecl();
+        
         // Put field into @codeWriter, does nothing in CPA
         if (fieldDecl->getType()->isArrayType()) {
             std::vector<size_t> arrSizes;
@@ -1345,7 +1375,8 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
         }
     }
     
-    state->fillDerivedClasses(currec);
+    // Register base records for the new record 
+    state->fillDerived(currec);
     
     return currec;
 }

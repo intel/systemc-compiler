@@ -276,8 +276,13 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
         if (i != travConst->getWaitStates().end()) {
             const ScState& resetState = i->second;
 
-            notInitReport(resetState.getReadNotInitValues(), 
-                          ScDiag::CPP_READ_NOTDEF_VAR_RESET);
+            InsertionOrderSet<SValue> values;
+            for (const auto& val : resetState.getReadNotInitValues()) {
+                // Do not report warning for record fields
+                if (!resetState.isRecField(val)) values.push_back(val);
+            }
+
+            notInitReport(values, ScDiag::CPP_READ_NOTDEF_VAR_RESET);
         }
     }
     
@@ -285,9 +290,15 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     for (const auto& entry : travConst->getWaitStates()) {
         // Skip reset section to avoid duplicate warnings
         if (hasReset && entry.first == 0) continue;
+        const ScState& waitState = entry.second;
 
-        notInitReport(entry.second.getReadNotInitValues(), 
-                      ScDiag::CPP_READ_NOTDEF_VAR);
+        InsertionOrderSet<SValue> values;
+        for (const auto& val : waitState.getReadNotInitValues()) {
+            // Do not report warning for record fields
+            if (!waitState.isRecField(val)) values.push_back(val);
+        }
+
+        notInitReport(values, ScDiag::CPP_READ_NOTDEF_VAR);
     }
     // Report warning for read and never initialized in the following cycles 
     notInitReport(threadReadNotDefVars, ScDiag::CPP_READ_NOTDEF_VAR);
@@ -555,6 +566,10 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
             
             vout << stateCodeMap[RESET_ID];
 
+            std::stringstream rs;
+            travProc->printInitLocalInReset(rs);
+            vout << rs.str();
+                    
             // Add wait(n) counter initialization in reset, not required
             // if WAIT_N counter initialized in reset when first wait is wait(N)
             if (threadStates.hasWaitNState() && !threadStates.isFirstWaitN()) {
@@ -754,7 +769,8 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState,
                 // Put variable into ReadNotDefined if meet it first time,
                 // used to report error only
                 if (!threadRegVars.count(val) && !threadCombVars.count(val)) {
-                    threadReadNotDefVars.insert(val);
+                    // Do not report warning for record fields
+                    if (!finalState->isRecField(val)) threadReadNotDefVars.insert(val);
                 }
                 // RnD variable becomes register
                 if (threadCombVars.count(val)) {
@@ -1040,7 +1056,7 @@ void ThreadBuilder::generateThreadLocalVariables()
                                         regVar, ScState::MIF_CROSS_NUM);
         bool isNonZeroElmt = regVar != regVarZero;
         SCT_TOOL_ASSERT (regVarZero, "No zero element found in global state");
-        //cout << " regVar " << regVar << " regVarZero " << regVarZero << " isNonZeroElemnt " << isNonZeroElmt << endl;
+        //cout << "   regVar " << regVar << " regVarZero " << regVarZero << " isNonZeroElemnt " << isNonZeroElmt << endl;
         
         // Get access place, access after reset includes access in SVA
         // Use zero value to consider some MIF array elements not used
@@ -1145,23 +1161,28 @@ void ThreadBuilder::generateThreadLocalVariables()
                 if (elabObj->isSignal()) {
                     SignalView signalView = *elabObj;
                     auto recView = signalView.getSignalValue().record();
-                    rcFields = recView->getFields();
+                    recView->getFieldsNoZero(rcFields);
                 } else 
                 if (elabObj->isPrimitive()) {
                     PortView portView = *elabObj;
                     SignalView signalView(portView.getBindedSignal());
                     auto recView = signalView.getSignalValue().record();
-                    rcFields = recView->getFields();
+                    recView->getFieldsNoZero(rcFields);
                 }
                 SCT_TOOL_ASSERT(rcFields.size(), "No record fields found");
             }
-             
-            //cout << "verVars (" << rcFields.size() << ") :\n";
+            
             // Loop required for record and record channel
             unsigned i = 0;
             for (auto* verVar : verVars) {
                 bool first = i == 0;
-                //cout << "  " << verVar->getName() << endl;
+
+                // Skip constant fields in record channel
+                if (isRecordChan && rcFields[i].isConstant()) {
+                    //cout << "verVar " << verVar->getName() << " isConst "
+                    //     << rcFields[i].isConstant() << endl;
+                    i++; continue;
+                }
                 
                 // Add var <= var_next in @always_ff body
                 if (sctCombSignal && sctCombSignClear) {
@@ -1204,8 +1225,8 @@ void ThreadBuilder::generateThreadLocalVariables()
                     
                     // Add @var <= @var_next in @always_ff body, 
                     // put MIF array suffix if required
-                    if (zeroElmntMIF || noneZeroElmntMIF ||
-                        verMod->checkProcUniqueVar(procView, verVar))
+                    bool isUnique = verMod->checkProcUniqueVar(procView, verVar);
+                    if (zeroElmntMIF || noneZeroElmntMIF || isUnique)
                     {
                         // Declaration of @var and @var_next
                         // No declaration for non-zero elements of MIF array
@@ -1293,6 +1314,9 @@ void ThreadBuilder::generateThreadLocalVariables()
             }
             nextName += "_next";
 
+            //cout << "Process local variable " << regName << " " << nextName << endl;
+            //cout << "   zeroElmntMIF " << zeroElmntMIF << " noneZeroElmntMIF " << noneZeroElmntMIF << endl;
+            
             // Fill array dimension and get register type
             IndexVec arrayDims;
             QualType regType = getLocalArrayDims(regVar, arrayDims);
@@ -1325,9 +1349,9 @@ void ThreadBuilder::generateThreadLocalVariables()
             }
             
             // Add var <= var_next in @always_ff body
-            if (zeroElmntMIF || noneZeroElmntMIF ||
-                verMod->checkProcUniqueVar(procView, verVar)) 
-            {
+            bool isUnique = verMod->checkProcUniqueVar(procView, verVar);
+            //cout << "isUnique " << isUnique << " afterResetAcess " << afterResetAcess << endl;
+            if (zeroElmntMIF || noneZeroElmntMIF || isUnique) {
                 if (afterResetAcess || !REMOVE_UNUSED_NEXT()) {
                     verMod->addProcRegisterNextValPair(procView, verVar, 
                                                        verNextVar);

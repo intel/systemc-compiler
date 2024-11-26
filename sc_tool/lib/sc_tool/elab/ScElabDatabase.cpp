@@ -119,16 +119,19 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
         newObj->set_kind(sc_elab::Object::ARRAY);
         newObj->mutable_array()->add_dims(arraySize);
 
-        Expr* initExpr = const_cast<Expr*>(varDecl->getAnyInitializer());
-        initExpr = removeExprCleanups(initExpr);
+        Expr* initExpr = nullptr;
+        if (auto init = varDecl->getAnyInitializer()) {
+            initExpr = removeExprCleanups(const_cast<Expr*>(init));
+        }
 
         clang::Expr::EvalResult evalResult;
-        bool evaluated = initExpr->EvaluateAsRValue(evalResult, astCtx);
+        bool evaluated = initExpr && initExpr->EvaluateAsRValue(evalResult, astCtx);
 
         if (evaluated) {
             initStaticArray(newObj, elmType, evalResult.Val);
 
-        } else {
+        } else 
+        if (initExpr) {
             if (auto initListExpr = dyn_cast<InitListExpr>(initExpr)) {
                 std::vector<APSInt> intVals;
 

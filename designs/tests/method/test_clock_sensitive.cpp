@@ -17,21 +17,35 @@ public:
     sc_in<bool>     nrst{"nrst"};
     sc_signal<int>  a{"a"};
     sc_signal<int>  b{"b"};
+    sc_signal<int>  c{"c"};
 
     SC_CTOR(A) {
-        SC_METHOD(asyncMeth); 
-        sensitive << clk.pos() << nrst.neg();
+        SC_METHOD(asyncMeth);
+        sensitive << clk.pos() << nrst << a; // nrst.neg();
 
-        SC_METHOD(syncMeth); 
-        sensitive << clk.pos();
+        //SC_CTHREAD(thrdProc, clk.pos()); 
+        //async_reset_signal_is(nrst, 0);
+
+        //SC_METHOD(syncMeth); 
+        //sensitive << clk.pos();
     }
     
     void asyncMeth() 
     {
-        if (nrst) {
+        if (nrst) 
             a = 0;
-        } else {
-            a = 1;
+         else {
+            if (b) a = 1;// else a = 2;
+            //a = a + 1;
+        }
+    }
+    
+    void thrdProc() {
+        c = 0;
+        wait();
+        while(true) {
+            c = c + 1;
+            wait();
         }
     }
 

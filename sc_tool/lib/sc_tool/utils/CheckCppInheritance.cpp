@@ -200,4 +200,40 @@ void correctParentBaseClass(SValue& val)
     return bases;
 }*/
 
+// Get fields for record value, considering base class fields
+void getFieldsForRecord(const SValue& rec, std::vector<SValue>& fields) 
+{
+    for (const SValue& base : rec.getRecord().bases) {
+        getFieldsForRecord(base, fields);
+    }
+
+    // Use canonical type for @using/@typedef, else type pointer is null
+    auto recType = dyn_cast<const RecordType>(rec.getType().getCanonicalType().
+                                              getTypePtr());
+    auto recDecl = dyn_cast<const CXXRecordDecl>(recType->getAsRecordDecl());
+    
+    for (const ValueDecl* decl : recDecl->fields()) {
+        fields.push_back( SValue(decl, rec) );
+    }
+}
+
+// Get fields for record channel, considering base class fields
+// All fields parent is @crec
+// \param crec -- record channel
+void getFieldsForRecordChan(const clang::RecordDecl* recDecl, const SValue& crec, 
+                            std::vector<SValue>& fields) 
+{
+    SCT_TOOL_ASSERT (isa<CXXRecordDecl>(recDecl), "Incorrect record declaration");
+    const CXXRecordDecl* cxxRecDecl = dyn_cast<const CXXRecordDecl>(recDecl);
+    
+    for(const auto& base : cxxRecDecl->bases()) {
+        auto recType = dyn_cast<const RecordType>(base.getType().getTypePtr());
+        getFieldsForRecordChan(recType->getAsRecordDecl(), crec, fields);
+    }
+
+    for (const ValueDecl* decl : recDecl->fields()) {
+        fields.push_back( SValue(decl, crec) );
+    }
+}
+
 }

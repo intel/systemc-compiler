@@ -115,7 +115,7 @@ void ProcBuilder::prepareState(ModuleMIFView hostModule)
     if (DebugOptions::isEnabled(DebugComponent::doElabState)) {
         moduleState->print();
     }
-    moduleState->fillDerivedClasses(hostModuleDynClass);
+    moduleState->fillDerived();
     //moduleState->updateStaticClasses();   Not required
     
     if (DebugOptions::isEnabled(DebugComponent::doElabState)) {
@@ -527,6 +527,15 @@ sc::SValue ProcBuilder::createPortSValue(PortView portView)
     return res;
 }
 
+// Recursively gather all fields from the record view
+void ProcBuilder::createSignalSValue(RecordView& recView, ElabObjVec& allFields) 
+{
+    for (RecordView& baseView : recView.getBases()) {
+        createSignalSValue(baseView, allFields);
+    }
+    allFields.append(recView.getFields());
+}
+
 sc::SValue ProcBuilder::createSignalSValue(SignalView signalView)
 {
     SValue res;
@@ -540,8 +549,11 @@ sc::SValue ProcBuilder::createSignalSValue(SignalView signalView)
         std::string verName = signalView.getName()+std::string("_REC");
         res = SValue(new ScSignal(verName, clangType));
 
+        ElabObjVec allFields;
+        createSignalSValue(*recView, allFields);
+        
         unsigned i = 0;
-        for (ObjectView fieldObj : recView->getFields()) {
+        for (ObjectView fieldObj : allFields) {
             auto* fieldDecl = fieldObj.getValueDecl();
             SCT_TOOL_ASSERT(fieldDecl, "No declaration for channel record field");
             SCT_TOOL_ASSERT(!fieldObj.isStatic() || fieldObj.isConstant(), 
@@ -549,13 +561,12 @@ sc::SValue ProcBuilder::createSignalSValue(SignalView signalView)
             // Skip zero width record field
             if (isZeroWidthType(fieldDecl->getType()) || 
                 isZeroWidthArrayType(fieldDecl->getType())) continue;
-            //cout << "   " << *fieldObj.getFieldName() << endl;
             
             // Field with record signal as parent class
             SValue fval(fieldDecl, res);
             moduleState->putElabObject(fval, fieldObj, verVars[i].var);
+            //cout << "  fval " << fval << " " << verVars[i].var->getName() << endl;
             i++;
-            //cout << "  fval " << fval << endl;
         }
     } else {
         // Normal signal

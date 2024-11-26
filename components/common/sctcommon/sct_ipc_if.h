@@ -107,6 +107,7 @@ struct sct_put_if : virtual public sc_interface
 };
 
 /// Get interface for Target and FIFO
+/// Return value by constant reference to speed up simulation
 template<class T>
 struct sct_get_if : virtual public sc_interface 
 {

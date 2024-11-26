@@ -21,11 +21,11 @@ public:
     SC_CTOR(A)
     {
         SC_METHOD(read_to_int); 
-        sensitive << s << a << b;
+        sensitive << s << a;// << b;
     }
     
     sc_in<sc_bv<38>>        a{"a"};
-    sc_in<sc_lv<42>>        b{"b"};
+    //sc_in<sc_lv<42>>        b{"b"};
     //sc_in<sc_logic>         c{"c"}; -- error reported, but leads to assert violation
     sc_out<sc_biguint<111>> d{"d"};
     
@@ -37,7 +37,7 @@ public:
         l = m + 1;
         l = n + 1;
         l = a.read().to_int();
-        l = b.read().to_int();
+        //l = b.read().to_int();
         //l = c.read().to_char();
     }
 };
@@ -46,7 +46,7 @@ class B_top : public sc_module
 {
 public:
     sc_signal<sc_bv<38>>        a{"a"};
-    sc_signal<sc_lv<42>>        b{"b"};
+    //sc_signal<sc_lv<42>>        b{"b"};
     //sc_signal<sc_logic>         c{"c"};
     sc_signal<sc_biguint<111>>  d{"d"};
 
@@ -54,7 +54,7 @@ public:
 
     SC_CTOR(B_top) {
         a_mod.a(a);
-        a_mod.b(b);
+        //a_mod.b(b);
         //a_mod.c(c);
         a_mod.d(d);
     }

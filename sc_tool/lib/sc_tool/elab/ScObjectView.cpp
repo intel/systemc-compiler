@@ -1033,6 +1033,24 @@ ElabObjVec RecordView::getFields() const
     return fieldsVec;
 }
 
+void RecordView::getFieldsNoZero(ElabObjVec& fieldsVec) const
+{
+    for (auto memberID : getProtobufObj()->record().member_ids()) {
+        auto memberObj = getDatabase()->getObj(memberID);
+        //cout << "  " << memberObj.getDebugString() << endl;
+
+        if (memberObj.isDataMember() || memberObj.isStatic()) {
+            const clang::QualType& type = memberObj.getType();
+            if (!sc::isZeroWidthType(type) && !sc::isZeroWidthArrayType(type)) {
+                fieldsVec.push_back(memberObj);
+            }
+        } else 
+        if (memberObj.isRecord()) {
+            memberObj.record()->getFieldsNoZero(fieldsVec);
+        }   
+    }
+}
+
 ElabObjVec RecordView::getStaticFields() const {
     ElabObjVec staticVec;
 

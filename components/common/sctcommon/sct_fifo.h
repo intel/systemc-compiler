@@ -155,16 +155,14 @@ public:
     }
 
     T b_get() override {
-        if (cthread_get) {
-            while (!out_valid) wait();
-            get_req = !get_req;
-            return data_out.read();
-            
-        } else {
+        if (!cthread_get) {
             cout << "No blocking get allowed in METHOD process" << endl;
             sc_assert (false);
-            return T{};
-        } 
+        }
+
+        while (!out_valid) wait();
+        get_req = !get_req;
+        return data_out.read();
     }
     
     bool put(const T& data) override {

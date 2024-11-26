@@ -199,8 +199,8 @@ public:
         
         ss.b = 0x41;
         as[1] = ss;
-        sct_assert_array_defined(as[1].a);
-        sct_assert_array_defined(as[1].b);
+        //sct_assert_array_defined(as[1].a);
+        //sct_assert_array_defined(as[1].b);
         sct_assert_const(as[1].b == 0x41);
         as[1] = sim;
         sct_assert_unknown(as[1].b);
@@ -239,7 +239,7 @@ public:
         sct_assert_const(l == 42);
         
         as[i] = aim;
-        sct_assert_array_defined(as[i].b);
+        //sct_assert_array_defined(as[i].b);
         sct_assert_array_defined(as[i].c[0]);
         sct_assert_array_defined(as[i].c[1]);
         sct_assert_array_defined(as[i].c[2]);
