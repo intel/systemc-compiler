@@ -54,6 +54,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+designs
+examples/singl_src/verif
+
 ### C++ template
 # Prerequisites
 
@@ -81,6 +85,10 @@ dkms.conf
 
 # Misc
 sc_tool/arc
+
 build/
 build_*/
-
+**/CMakeFiles/
+**/AN.DB/
+**/verif/simv*
+**/verif/csrc/

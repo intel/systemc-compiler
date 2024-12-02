@@ -306,7 +306,7 @@ protected:
     std::shared_ptr<CodeScope> getScopeForBlock(AdjBlock block, unsigned level);
     
     /// Generate temporal assertion inside of loop(s) if required
-    llvm::Optional<std::string> getSvaInLoopStr(const std::string& svaStr, 
+    std::optional<std::string> getSvaInLoopStr(const std::string& svaStr, 
                                                 bool isResetSection);
     
     /// Check if function has wait() inside from CPA stored in @hasWaitFuncs
@@ -384,7 +384,7 @@ public:
     void run(const ScProcContext& context);
 
     /// Run for SVA property declaration, result string returned in success
-    llvm::Optional<std::string> runSvaDecl(const clang::FieldDecl* fdecl);
+    std::optional<std::string> runSvaDecl(const clang::FieldDecl* fdecl);
     
     /// Print function local variable declarations
     void printLocalDeclarations(std::ostream &os);

@@ -14,7 +14,7 @@
 
 
 # NOCHECKSERT=--no-check-certificate
-export LLVM_VER=15.0.7
+export LLVM_VER=18.1.8
 export ICSC_HOME=$1
 export GCC_INSTALL_PREFIX="$(realpath "$(dirname $(which g++))"/..)"
 
@@ -141,7 +141,7 @@ echo "Press ENTER to continue...."
 read
 
 # ################################################################################
-# Download, unpack, build, install Protobuf 3.13
+# Download, unpack, build, install Protobuf 3.19
 if [ "${build_type['proto']}" != "" ]; then (
     maybe_download proto https://github.com/protocolbuffers/protobuf/archive/v3.19.4.tar.gz
     CMAKE_BUILD_TYPE="${build_type['proto']}"
@@ -175,10 +175,10 @@ fi;
 # ################################################################################
 # Download, unpack, build, install GDB with Python3
 if [ "${build_type['gdb']}" != "" ]; then (
-    maybe_download gdb https://ftp.gnu.org/gnu/gdb/gdb-12.1.tar.gz
+    maybe_download gdb https://ftp.gnu.org/gnu/gdb/gdb-13.2.tar.gz
     CMAKE_BUILD_TYPE="${build_type['gdb']}"
     (
-        cd gdb-12.1
+        cd gdb-13.2
         ./configure --prefix="$ICSC_HOME" --with-python="$(which python3)"
         make -j12 install
     )

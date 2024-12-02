@@ -765,7 +765,7 @@ VerilogModStatistic VerilogModule::getStatistic() const {
 }
 
 // Translate SystemC assertion string into SVA string
-/*llvm::Optional<std::string> VerilogModule::transSvaString(
+/*std::optional<std::string> VerilogModule::transSvaString(
                                         const std::string& origStr) const
 {
     using namespace sc;
@@ -796,7 +796,7 @@ VerilogModStatistic VerilogModule::getStatistic() const {
     
     if (!timeStr) {
         ScDiag::reportScDiag(ScDiag::SYNTH_SVA_INCORRECT_TIME) << timeTail;
-        return llvm::None;
+        return std::nullopt;
     }
     
     // Check variable names not changed during name conflict
@@ -808,12 +808,12 @@ VerilogModStatistic VerilogModule::getStatistic() const {
         //cout << "svaStr " << svaStr << endl;
         return svaStr;
     }
-    return llvm::None;
+    return std::nullopt;
 }*/
 
 // Check SVA argument does not have changed names, and do some modifications:
 // remove spaces and extra symbols like "this->" and "read()"
-llvm::Optional<std::string> VerilogModule::parseSvaArg(
+std::optional<std::string> VerilogModule::parseSvaArg(
                                             const std::string& origStr) const 
 {
     using namespace sc;
@@ -838,7 +838,7 @@ llvm::Optional<std::string> VerilogModule::parseSvaArg(
                     std::string errMsg = "Changed variable name in \"" + 
                                          origStr + "\"";
                     SCT_INTERNAL_ERROR_NOLOC (errMsg);
-                    return llvm::None;
+                    return std::nullopt;
                 }
                 name.clear();
             }
@@ -847,7 +847,7 @@ llvm::Optional<std::string> VerilogModule::parseSvaArg(
     if (nameGen.isChanged(name)) {
         std::string errMsg = "Changed variable name in \"" + origStr + "\"";
         SCT_INTERNAL_ERROR_NOLOC (errMsg);
-        return llvm::None;
+        return std::nullopt;
     }
     
     // Removing extra symbols
@@ -861,7 +861,7 @@ llvm::Optional<std::string> VerilogModule::parseSvaArg(
     if (checkArrayAccessStr(str)) {
         std::string errMsg = "Array access in \"" + origStr + "\"";
         SCT_INTERNAL_ERROR_NOLOC (errMsg);
-        return llvm::None;
+        return std::nullopt;
     }
     
     // Check for @bit() and @range()
@@ -886,7 +886,7 @@ llvm::Optional<std::string> VerilogModule::parseSvaArg(
         str.find(".") != std::string::npos) {
         std::string errMsg = "Unsupported symbol in \"" + origStr + "\"";
         SCT_INTERNAL_ERROR_NOLOC (errMsg);
-        return llvm::None;
+        return std::nullopt;
     }
     
     // Check de-reference in first symbol
@@ -895,7 +895,7 @@ llvm::Optional<std::string> VerilogModule::parseSvaArg(
     if (str[i] == '*') {
         std::string errMsg = "De-reference in \"" + origStr + "\"";
         SCT_INTERNAL_ERROR_NOLOC (errMsg);
-        return llvm::None;
+        return std::nullopt;
     }
     
     return str;
@@ -1258,7 +1258,7 @@ void VerilogModule::addProcessBody(ProcessView proc, VerilogProcCode code)
 
 static void serializeVerilogBool(llvm::raw_ostream &os, llvm::APSInt val)
 {
-    os << (val.isNullValue() ? '0' : '1');
+    os << (val.isZero() ? '0' : '1');
 }
 
 static void serializeVerilogInt(llvm::raw_ostream &os, llvm::APSInt val)
@@ -1605,7 +1605,7 @@ bool VerilogModule::isEquivalentTo(VerilogModule &otherMod) const
     return true;
 }
 
-llvm::Optional<std::string> VerilogModule::getModularIfName(ProcessView procObj) const
+std::optional<std::string> VerilogModule::getModularIfName(ProcessView procObj) const
 {
     using namespace sc;
     using std::cout; using std::endl;
@@ -1631,7 +1631,7 @@ llvm::Optional<std::string> VerilogModule::getModularIfName(ProcessView procObj)
             return decl->getNameAsString();
         }
     }
-    return llvm::Optional<std::string>();
+    return std::optional<std::string>();
 }
 
 // Get process name unique in the module

@@ -36,7 +36,7 @@ SValue getBaseClass(const SValue& tval, clang::QualType baseType);
 
 /// Get parent class from variable @val declaration
 /// \param val -- variable value
-llvm::Optional<clang::QualType> getParentClass(const SValue& val);
+std::optional<clang::QualType> getParentClass(const SValue& val);
 
 /// Correct parent to real base class parent for MIF array element member variable
 /// \param val -- variable value
@@ -56,6 +56,10 @@ void getFieldsForRecord(const SValue& lrec, std::vector<SValue>& fields);
 void getFieldsForRecordChan(const clang::RecordDecl* recDecl, 
                             const SValue& rec, std::vector<SValue>& fields);
 
+// Get fields for record array, considering base class fields
+// All fields parent is @crec same as for record channel
+void getFieldsForRecordArr(const clang::RecordDecl* recDecl, 
+                           const SValue& rec, std::vector<SValue>& fields);
 }
 
 #endif /* CHECKCPPINHERITANCE_H */

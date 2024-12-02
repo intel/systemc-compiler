@@ -329,15 +329,15 @@ bool isConstCharPtr(QualType type)
 }
 
 // Check if the type is cin/cout
-bool isIoStream(QualType type) 
+bool isIoStream(QualType type, bool isStd) 
 {
     if (type.isNull()) return false;
     
     string typeStr = type.getAsString();
     return (typeStr.find("basic_ostream") != string::npos || 
             typeStr.find("basic_istream") != string::npos || 
-            typeStr.find("std::ostream") != string::npos || 
-            typeStr.find("std::istream") != string::npos);
+            (isStd && typeStr.find("ostream") != string::npos) || 
+            (isStd && typeStr.find("istream") != string::npos));
 }
 
 // Check SC module or CXX class/structure, but not SC channel or SC data type
@@ -390,16 +390,16 @@ bool isUserDefinedClassArray(QualType type, bool checkPointer)
 }
 
 // Get user defined class from array/vector or none
-llvm::Optional<QualType> getUserDefinedClassFromArray(QualType type) 
+std::optional<QualType> getUserDefinedClassFromArray(QualType type) 
 {
-    if (type.isNull()) return llvm::None;
+    if (type.isNull()) return std::nullopt;
 
     type = getArrayElementType(type);
 
     if (isUserClass(type)) { 
         return type;
     } else {
-        return llvm::None;
+        return std::nullopt;
     }
 }
 
@@ -425,10 +425,10 @@ unsigned getTemplateArgNum(clang::QualType type)
     return 0;
 }
 
-llvm::Optional<TemplateArgument> getTemplateArg(clang::QualType type, 
+std::optional<TemplateArgument> getTemplateArg(clang::QualType type, 
                                                 std::size_t argIndx)
 {
-    if (type.isNull()) return llvm::None;
+    if (type.isNull()) return std::nullopt;
     
     type = getPureType(type);
 
@@ -445,33 +445,33 @@ llvm::Optional<TemplateArgument> getTemplateArg(clang::QualType type,
             }
         }
     }
-    return llvm::Optional<TemplateArgument>();
+    return std::optional<TemplateArgument>();
 }
 
-llvm::Optional<clang::QualType> getTemplateArgAsType(clang::QualType type, 
+std::optional<clang::QualType> getTemplateArgAsType(clang::QualType type, 
                                                      std::size_t argIndx)
 {
-    if (type.isNull()) return llvm::None;
+    if (type.isNull()) return std::nullopt;
     
     auto tmplArg = getTemplateArg(type, argIndx);
     if (tmplArg && tmplArg->getKind() == TemplateArgument::ArgKind::Type) {
         return tmplArg->getAsType();
     }
    
-    return llvm::Optional<clang::QualType>();
+    return std::optional<clang::QualType>();
 }
 
-llvm::Optional<llvm::APSInt> getTemplateArgAsInt(clang::QualType type, 
+std::optional<llvm::APSInt> getTemplateArgAsInt(clang::QualType type, 
                                                  std::size_t argIndx)
 {
-    if (type.isNull()) return llvm::None;
+    if (type.isNull()) return std::nullopt;
     
     auto tmplArg = getTemplateArg(type, argIndx);
     if (tmplArg && tmplArg->getKind() == TemplateArgument::ArgKind::Integral) {
         return tmplArg->getAsIntegral();
     }
     
-    return llvm::Optional<llvm::APSInt>();
+    return std::optional<llvm::APSInt>();
 }
 
 // Cast integer to the given type width and sign
@@ -609,7 +609,7 @@ void adjustIntegers(llvm::APSInt val1, llvm::APSInt val2, llvm::APSInt &res1,
 
 unsigned getBitsNeeded(llvm::APSInt val) 
 {
-    if (val.isNullValue()) {
+    if (val.isZero()) {
         return 1;
     } else {
         if (val < 0) {
@@ -630,7 +630,7 @@ CXXConstructExpr* getCXXCtorExprArg(Expr* expr)
     return dyn_cast<CXXConstructExpr>(expr);
 }
 
-llvm::Optional<std::string> getNamespaceAsStr(const clang::Decl *decl)
+std::optional<std::string> getNamespaceAsStr(const clang::Decl *decl)
 {
     const auto *declCtx = decl->getDeclContext();
 
@@ -639,7 +639,7 @@ llvm::Optional<std::string> getNamespaceAsStr(const clang::Decl *decl)
     }
 
     if (!declCtx->isNamespace())
-        return llvm::None;
+        return std::nullopt;
 
     auto nd = llvm::cast<clang::NamespaceDecl>(declCtx);
     return std::string(nd->getName());

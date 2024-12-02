@@ -507,10 +507,10 @@ clang::QualType getTypeForWidth(const clang::Expr* expr)
 
 // Get width of any integral type including SC data types
 // \return < width, isUnsigned >
-llvm::Optional<std::pair<size_t, bool>> getIntTraits(clang::QualType type, 
+std::optional<std::pair<size_t, bool>> getIntTraits(clang::QualType type, 
                                                      bool checkPointer)
 {
-    if (type.isNull()) return llvm::None;
+    if (type.isNull()) return std::nullopt;
     
     // Get the most inner array element type
     if (checkPointer) {
@@ -546,15 +546,15 @@ llvm::Optional<std::pair<size_t, bool>> getIntTraits(clang::QualType type,
         
     }
     
-    return Optional<std::pair<size_t, bool> >();
+    return std::optional<std::pair<size_t, bool> >();
 }
 
 // Get width of any integer type wrapped into given @type, based on @getIntTraits
 // Can work for any integral type, integral pointer, channel, pointer to channel
-llvm::Optional<size_t> getAnyTypeWidth(clang::QualType type, bool checkPointer, 
+std::optional<size_t> getAnyTypeWidth(clang::QualType type, bool checkPointer, 
                                        bool checkChannel)
 {
-    if (type.isNull()) return llvm::None;
+    if (type.isNull()) return std::nullopt;
     
     // Get array element type
     type = getArrayElementType(type);
@@ -580,12 +580,12 @@ llvm::Optional<size_t> getAnyTypeWidth(clang::QualType type, bool checkPointer,
         return typeInfo->first;
     }
     
-    return llvm::None;
+    return std::nullopt;
 }
 
-Optional<size_t> getScUintBiguintBitVec(QualType type) 
+std::optional<size_t> getScUintBiguintBitVec(QualType type) 
 {
-    if (type.isNull()) return llvm::None;
+    if (type.isNull()) return std::nullopt;
     type = getPureType(type);
 
     if (isScUInt(type) || isScBigUInt(type) || isScBitVector(type)) {
@@ -599,12 +599,12 @@ Optional<size_t> getScUintBiguintBitVec(QualType type)
             return (size_t)arg.getExtValue();
         }
     }
-    return Optional<size_t>();
+    return std::optional<size_t>();
 }
 
-Optional<size_t> getScIntBigint(QualType type) 
+std::optional<size_t> getScIntBigint(QualType type) 
 {
-    if (type.isNull()) return llvm::None;
+    if (type.isNull()) return std::nullopt;
     type = getPureType(type);
 
     if (isScInt(type) || isScBigInt(type)) {
@@ -618,7 +618,7 @@ Optional<size_t> getScIntBigint(QualType type)
             return (size_t)arg.getExtValue();
         }
     }
-    return Optional<size_t>();
+    return std::optional<size_t>();
 }
 
 // Check type is @sc_signed which is base class for @sc_bigint but not template 
@@ -889,10 +889,10 @@ bool isScChannelArray(clang::QualType type, bool checkPointer)
 }
 
 // Get record type if it is SC channel of record type, or none
-llvm::Optional<clang::QualType>  
+std::optional<clang::QualType>  
 isUserClassChannel(clang::QualType type, bool checkPointer)
 {
-    if (type.isNull()) return llvm::None;
+    if (type.isNull()) return std::nullopt;
     
     // Remove pointer
     if (checkPointer) {
@@ -909,7 +909,7 @@ isUserClassChannel(clang::QualType type, bool checkPointer)
             return *chanType;
         }
     }
-    return llvm::None;
+    return std::nullopt;
 }
 
 

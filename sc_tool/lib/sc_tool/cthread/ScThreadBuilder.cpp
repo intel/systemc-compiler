@@ -255,7 +255,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
             // Skip null pointer
             if (isPointer(type)) {
                 SValue rval = globalState->getValue(val);
-                if (rval.isInteger() && rval.getInteger().isNullValue()) {
+                if (rval.isInteger() && rval.getInteger().isZero()) {
                     continue;
                 }
             }
@@ -689,7 +689,7 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState,
         // Skip null pointer
         if (isPointer(val.getType())) {
             SValue rval = globalState->getValue(val);
-            if (rval.isInteger() && rval.getInteger().isNullValue())
+            if (rval.isInteger() && rval.getInteger().isZero())
                 continue;
         }
 
@@ -712,7 +712,7 @@ void ThreadBuilder::analyzeUseDefResults(const ScState* finalState,
             // @sc_comb_sig has second argument @CLEAR
             bool sctCombSignClear = false;
             if (auto clearArg = getTemplateArgAsInt(qtype, 1)) {
-                sctCombSignClear = !clearArg->isNullValue();
+                sctCombSignClear = !clearArg->isZero();
             }
 
             // Report fatal error as it generates incorrect code
@@ -1092,7 +1092,7 @@ void ThreadBuilder::generateThreadLocalVariables()
                 if (sctCombSignal) {
                     // @sc_comb_sig has second argument @CLEAR
                     if (auto clearArg = getTemplateArgAsInt(qtype, 1)) {
-                        sctCombSignClear = !clearArg->isNullValue();
+                        sctCombSignClear = !clearArg->isZero();
                     }
                 } else {
                     sctClearSignal = isScToolClearSignal(qtype);
@@ -1116,7 +1116,7 @@ void ThreadBuilder::generateThreadLocalVariables()
 
             if (isPointer(regVar.getType())) {
                 SValue rval = globalState->getValue(regVar);
-                isNullPtr = rval.isInteger() && rval.getInteger().isNullValue();
+                isNullPtr = rval.isInteger() && rval.getInteger().isZero();
                 isDanglPtr = rval.isUnknown();
             }
             
@@ -1196,7 +1196,7 @@ void ThreadBuilder::generateThreadLocalVariables()
                         globalState->putVerilogTraits(vval,
                             VerilogVarTraits(VerilogVarTraits::COMBSIGCLEAR, 
                             accessPlace, true, isNonZeroElmt, false,
-                            verVar->getName(), llvm::Optional<std::string>(""),
+                            verVar->getName(), std::optional<std::string>(""),
                             mifElemSuffix));
                         
                         vval = isRecordChan ? 
@@ -1204,7 +1204,7 @@ void ThreadBuilder::generateThreadLocalVariables()
                         globalState->putVerilogTraits(vval,
                             VerilogVarTraits(VerilogVarTraits::COMBSIGCLEAR, 
                             accessPlace, true, !isNonZeroElmt, false,
-                            verVar->getName(), llvm::Optional<std::string>(""),
+                            verVar->getName(), std::optional<std::string>(""),
                             mifElemSuffix));
                     }
                 } else {
@@ -1594,7 +1594,7 @@ void ThreadBuilder::generateThreadLocalVariables()
 
             if (isPointer(roVar.getType())) {
                 SValue rval = globalState->getValue(roVar);
-                isNullPtr = rval.isInteger() && rval.getInteger().isNullValue();
+                isNullPtr = rval.isInteger() && rval.getInteger().isZero();
                 isDanglPtr = rval.isUnknown();
             }
             

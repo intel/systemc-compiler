@@ -5,7 +5,7 @@
 # 
 # *****************************************************************************
 #
-# Intel(r) Compiler for SystemC*, version 1.6.1 
+# Intel(r) Compiler for SystemC*, version 1.6.9 
 #
 # *****************************************************************************
  
@@ -22,6 +22,6 @@ find_package(SVC REQUIRED)
 
 ## Add examples, tests and user designs
 add_subdirectory(designs/examples)
-add_subdirectory(designs/tests)
-add_subdirectory(designs/single_source)
-add_subdirectory(designs/template)
+#add_subdirectory(designs/tests)
+#add_subdirectory(designs/single_source)
+#add_subdirectory(designs/template)

@@ -22,7 +22,6 @@
 #include <sc_tool/dyn_elab/ElabTypeManager.h>
 #include "sc_tool/expr/ScParseExprValue.h"
 #include <sc_tool/cfg/ScState.h>
-#include <llvm/ADT/Optional.h>
 #include <clang/AST/DeclCXX.h>
 #include <sc_elab.pb.h>
 #include <vector>

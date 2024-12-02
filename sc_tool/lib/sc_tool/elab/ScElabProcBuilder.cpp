@@ -170,7 +170,8 @@ sc::SValue ProcBuilder::traverseRecord(RecordView recView, bool isVerModule)
     bool isExtrTargInit = extrTargInit.count(recView.getID()) != 0;
     unsigned valOrigSync = 0; unsigned valChanSync = 0; 
     
-    for (ObjectView memberObj : recView.getFields()) {
+    // Do not check for base class fields here, as it is done recursively
+    for (ObjectView memberObj : recView.getFields()) {    
         // Normal traverse field for any record
         const SValue& lval = traverseField(memberObj);
 
@@ -216,7 +217,7 @@ sc::SValue ProcBuilder::traverseRecord(RecordView recView, bool isVerModule)
     // try to find pointees if they were created during record traversal
     for (auto unresolvedPtr : unresolvedPointers) {
         //cout << "unresolvedPtr " << unresolvedPtr.getDebugString() << endl;
-        llvm::Optional<ObjectView> pointee = unresolvedPtr.pointeeOrArray();
+        std::optional<ObjectView> pointee = unresolvedPtr.pointeeOrArray();
 
         if (pointee) {
             //cout << "pointee " << pointee->getDebugString() << endl;
@@ -486,8 +487,14 @@ sc::SValue ProcBuilder::createPortSValue(PortView portView)
             res = SValue();
         }
         
+        ElabObjVec allFields;
+        createSignalSValue(*recView, allFields);
+        
         unsigned i = 0;
-        for (ObjectView fieldObj : recView->getFields()) {
+        for (ObjectView fieldObj : allFields) {
+            // No ports for constant fields
+            if (fieldObj.isConstant()) continue;
+            
             auto* fieldDecl = fieldObj.getValueDecl();
             SCT_TOOL_ASSERT(fieldDecl, "No declaration for channel record field");
             SCT_TOOL_ASSERT(!fieldObj.isStatic() || fieldObj.isConstant(), 
@@ -609,7 +616,7 @@ sc::SValue ProcBuilder::getOrCreatePointeeSValue(PtrOrRefView ptrOrRefView)
     }
 
     // Get pointer value
-    llvm::Optional<ObjectView> pointee = ptrOrRefView.pointeeOrArray();
+    std::optional<ObjectView> pointee = ptrOrRefView.pointeeOrArray();
 
     if (pointee) {
         if (objSValMap.count(*pointee))

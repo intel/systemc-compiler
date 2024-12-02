@@ -49,12 +49,12 @@ public:
     void addObject(TypedObject to, Object *o);
 
     Object * findElabObj (TypedObject to);
-    llvm::Optional<TypedObject> findTypedObj (const Object *eo) const;
+    std::optional<TypedObject> findTypedObj (const Object *eo) const;
 
     /// Find an object a pointer points to by analyzing an address (value) and type
     /// of pointer
     /// returns object + offset (index in array)
-    llvm::Optional<std::pair<Object *, size_t>> resolvePointer (PtrOrRefObject ptrObj);
+    std::optional<std::pair<Object *, size_t>> resolvePointer (PtrOrRefObject ptrObj);
 
 private:
 
@@ -146,7 +146,7 @@ private:
     void resolveResetFinders();
 
     /// If EO is pointer-like object, get corresponding pointer TO
-    llvm::Optional<PtrOrRefObject> getAsPtrOrRefTO(const sc_elab::Object &eo) const;
+    std::optional<PtrOrRefObject> getAsPtrOrRefTO(const sc_elab::Object &eo) const;
 
     /// Get pointer to binded channel from sc_port
     PtrOrRefObject getPortBindPtr(TypedObject portTO) const;

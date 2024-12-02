@@ -16,8 +16,8 @@
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/DeclCXX.h>
 #include <llvm/ADT/Hashing.h>
-#include <llvm/ADT/Optional.h>
 #include <llvm/ADT/APSInt.h>
+#include <optional>
 #include <type_traits>
 #include <unordered_map>
 
@@ -62,7 +62,7 @@ public:
     /// Get specific wrapper, possible Ts are:
     /// RecordObject, ScModuleObject, ArrayObject
     template <typename T>
-    llvm::Optional<T> getAs() const;
+    std::optional<T> getAs() const;
 
     /// Remove cv qualifiers
     TypedObject getUnqualified() const;
@@ -81,7 +81,7 @@ public:
         T itemDecl;
 
         template <typename U>
-        llvm::Optional<U> getAs() const { return typedObj.getAs<U>(); }
+        std::optional<U> getAs() const { return typedObj.getAs<U>(); }
     };
 
     using BaseClassObject = RecordItemObject<clang::CXXBaseSpecifier>;
@@ -139,10 +139,10 @@ public:
     BasesRange vbases() const;
 
     // return first found field with given name
-    llvm::Optional<FieldObject> findField(llvm::StringRef fieldName) const;
+    std::optional<FieldObject> findField(llvm::StringRef fieldName) const;
 
     // return first base with given name
-    llvm::Optional<BaseClassObject> findBase(llvm::StringRef baseName) const;
+    std::optional<BaseClassObject> findBase(llvm::StringRef baseName) const;
 
     template <typename OS>
     friend OS & operator << (OS & os, const RecordObject &obj);
@@ -245,7 +245,7 @@ public:
 
     bool operator==(const ArrayObject &other) const;
 
-    static llvm::Optional<KIND> getArrayObjectKind(clang::QualType canonicalType);
+    static std::optional<KIND> getArrayObjectKind(clang::QualType canonicalType);
 
     template <typename OS>
     friend OS & operator << (OS & os, const ArrayObject &obj);
@@ -341,12 +341,12 @@ inline TypedObject TypedObject::getUnqualified() const
 
 
 template<typename T>
-inline llvm::Optional<T> TypedObject::getAs() const
+inline std::optional<T> TypedObject::getAs() const
 {
     if (isKindOf<T>())
         return T(*this);
 
-    return llvm::None;
+    return std::nullopt;
 }
 
 template<typename OS> OS &operator<<(OS &os, const TypedObject &obj)

@@ -99,7 +99,7 @@ bool isStdString(clang::QualType type);
 bool isConstCharPtr(clang::QualType type);
 
 /// Check if the type is IO stream
-bool isIoStream(clang::QualType type);
+bool isIoStream(clang::QualType type, bool isStd);
 
 /// Check SC module or CXX class/structure, but not SC channel or SC data type
 /// Do not check reference, use type.getNonReferenceType() if required
@@ -110,7 +110,7 @@ bool isUserClass(clang::QualType type, bool checkPointer = false);
 bool isUserDefinedClassArray(clang::QualType type, bool checkPointer);
 
 /// Get user defined class from array/vector or none
-llvm::Optional<clang::QualType> getUserDefinedClassFromArray(clang::QualType type);
+std::optional<clang::QualType> getUserDefinedClassFromArray(clang::QualType type);
 
 /// Check if a class declaration is template
 bool isTemplateClass(clang::CXXRecordDecl *decl);
@@ -119,17 +119,17 @@ bool isTemplateClass(clang::CXXRecordDecl *decl);
 unsigned getTemplateArgNum(clang::QualType type);
 
 /// Get template argument at index argIndx or nothing
-llvm::Optional<clang::TemplateArgument> 
+std::optional<clang::TemplateArgument> 
 getTemplateArg(clang::QualType type, std::size_t argIndx);
 
 /// Get template argument at index argIndx as type,
 /// return none if it is nota type or there less arguments
-llvm::Optional<clang::QualType> 
+std::optional<clang::QualType> 
 getTemplateArgAsType(clang::QualType type, std::size_t argIndx);
 
 /// Get template argument at index argIndx as integral value, 
 /// return none if it is nota type or there less arguments
-llvm::Optional<llvm::APSInt> 
+std::optional<llvm::APSInt> 
 getTemplateArgAsInt(clang::QualType type, std::size_t argIndx);
 
 /// Cast integer to the given type width and sign
@@ -158,7 +158,7 @@ unsigned getBitsNeeded(llvm::APSInt val);
 clang::CXXConstructExpr* getCXXCtorExprArg(clang::Expr* expr);
 
 /// Get namespace name string from declaration or none
-llvm::Optional<std::string> getNamespaceAsStr(const clang::Decl *decl);
+std::optional<std::string> getNamespaceAsStr(const clang::Decl *decl);
 
 /// Check if declaration context of @decl has LinkageSpec kind, 
 /// used for @std functions 

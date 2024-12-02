@@ -1005,13 +1005,13 @@ const std::pair<std::string, std::string>&  ScState::getWaitNVarName() const
     return staticState->waitNVarName;
 }
 
-llvm::Optional<sc_elab::ObjectView> ScState::getElabObject(const SValue &sval) const
+std::optional<sc_elab::ObjectView> ScState::getElabObject(const SValue &sval) const
 {
     auto searchRes = staticState->sVal2ElabMap.find(sval);
     if (searchRes != staticState->sVal2ElabMap.end()) {
         return searchRes->second;
     }
-    return llvm::None;
+    return std::nullopt;
 }
 
 const unordered_map<SValue, string>& ScState::getExtrValNames() const {
@@ -2094,7 +2094,9 @@ llvm::APSInt ScState::getIntFromView(bool isSigned, sc_elab::ValueView valueView
     } else 
     if (valueView.uint64Val()) {
         return llvm::APSInt(llvm::APInt(bitwidth,*valueView.uint64Val()), !isSigned);
-    }
+    }    
+    SCT_TOOL_ASSERT(false, "No integer for valueView");
+    return llvm::APSInt::get(0);
 }
 
 bool ScState::isMemberPrimVar(const SValue& val, const ScState* state) 

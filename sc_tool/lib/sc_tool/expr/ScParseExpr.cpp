@@ -614,7 +614,7 @@ std::pair<SValue, std::vector<SValue> >
                 // Check pointed object
                 if (iival.isInteger()) {
                     // Have integer constant for pointer
-                    if (!iival.getInteger().isNullValue()) {
+                    if (!iival.getInteger().isZero()) {
                         ScDiag::reportScDiag(argExpr->getBeginLoc(),
                                              ScDiag::SYNTH_POINTER_NONZERO_INIT)
                                              << val.asString(false);
@@ -937,7 +937,7 @@ void ScParseExpr::parseExpr(clang::IntegerLiteral* expr, SValue& val)
 
 void ScParseExpr::parseExpr(clang::ConstantExpr* expr, SValue& val)
 {
-    if (expr->getResultStorageKind() == ConstantExpr::ResultStorageKind::RSK_Int64) {
+    if (expr->getResultStorageKind() == ConstantResultStorageKind::Int64) {
         val = SValue(expr->getResultAsAPSInt(), 10);
     } else {
         val = evalSubExpr(expr->getSubExpr());

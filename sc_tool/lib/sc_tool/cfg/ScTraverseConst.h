@@ -285,10 +285,10 @@ protected:
     void evaluateTermCond(clang::Stmt* stmt, SValue& val);
     
     /// Evaluate literal or constant expression as non-negative integer
-    llvm::Optional<unsigned> evaluateConstExpr(clang::Expr* expr);
+    std::optional<unsigned> evaluateConstExpr(clang::Expr* expr);
 
     /// Evaluate loop iteration number from conditional expression
-    llvm::Optional<unsigned> evaluateIterNumber(const clang::Stmt* stmt);
+    std::optional<unsigned> evaluateIterNumber(const clang::Stmt* stmt);
     
     /// Store ternary statement condition for SVA property
     void putSvaCondTerm(const clang::Stmt* stmt, SValue val) override;

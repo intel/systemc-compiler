@@ -91,11 +91,13 @@ function(svc_target exe_target)
 
     # Simulation target (exe_target), used for tool tests only 
     # Add ScTool include to provide access to sct_memory and sct_common
+    # Add CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES to provide path to standard C++ headers
     target_include_directories(${exe_target} PUBLIC 
             $ENV{ICSC_HOME}/include
             $ENV{ICSC_HOME}/include/sctcommon
             $ENV{ICSC_HOME}/include/sctmemory
             $ENV{ICSC_HOME}/include/sctmemory/utils
+            $ENV{CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
     )
 
     # __SC_TOOL__ not required for SC simulation target to have sct_assert 
@@ -209,11 +211,13 @@ function(svc_target exe_target)
     # and SystemC added above
     target_link_libraries(${exe_target_sctool} ${targetLibraries} SVC::SCTool)
     # Add ScTool include to provide access to sct_memory and sct_common
+    # Add CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES to provide path to standard C++ headers
     target_include_directories(${exe_target_sctool} PUBLIC 
             $ENV{ICSC_HOME}/include
             $ENV{ICSC_HOME}/include/sctcommon
             $ENV{ICSC_HOME}/include/sctmemory
             $ENV{ICSC_HOME}/include/sctmemory/utils
+            $ENV{CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
     )
                                 
     # Copy user includes

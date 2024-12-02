@@ -61,14 +61,14 @@ struct VerilogVarTraits
     /// For registers holds name of register
     /// For module-level combinational variables, holds variable name
     /// For local combinational variables is empty
-    llvm::Optional<std::string> currName;
+    std::optional<std::string> currName;
 
     /// For registers holds name of next-value combinational variable
     /// empty otherwise
-    llvm::Optional<std::string> nextName;
+    std::optional<std::string> nextName;
     
     /// MIF array element suffix, used in @var_next = @var assignment
-    llvm::Optional<std::string> mifElemSuffix;
+    std::optional<std::string> mifElemSuffix;
 
     static inline AccessPlace getAccessPlace(bool inResetAccess, 
                                              bool afterResetAcess) {
@@ -87,9 +87,9 @@ struct VerilogVarTraits
     
     VerilogVarTraits(VarKind kind, AccessPlace place,
                      bool isModuleScope, bool skipNextAssign, bool isConstVar,
-                     llvm::Optional<std::string> curr = llvm::None,
-                     llvm::Optional<std::string> next = llvm::None,
-                     llvm::Optional<std::string> suffix = llvm::None) :
+                     std::optional<std::string> curr = std::nullopt,
+                     std::optional<std::string> next = std::nullopt,
+                     std::optional<std::string> suffix = std::nullopt) :
         kind(kind), place(place), isModuleScope(isModuleScope), 
         skipNextAssign(skipNextAssign), isConstVar(isConstVar),
         currName(curr), nextName(next), mifElemSuffix(suffix)
@@ -397,7 +397,7 @@ public:
     const std::pair<std::string, std::string>&  getWaitNVarName() const;
 
     /// Get elaboration object for SValue if exists
-    llvm::Optional<sc_elab::ObjectView> getElabObject(const SValue &sval) const;
+    std::optional<sc_elab::ObjectView> getElabObject(const SValue &sval) const;
 
     /// Get elaboration object map
     const std::unordered_map<SValue, std::string>& getExtrValNames() const;

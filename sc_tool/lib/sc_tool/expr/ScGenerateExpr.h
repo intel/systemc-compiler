@@ -18,7 +18,6 @@
 
 #include "sc_tool/scope/ScVerilogWriter.h"
 #include "sc_tool/expr/ScParseExpr.h"
-#include "llvm/ADT/Optional.h"
 #include <unordered_map>
 
 namespace sc {
@@ -69,7 +68,7 @@ public:
     virtual bool isWaitInCurrFunc() = 0;
 
     /// Get string from char* argument
-    llvm::Optional<std::string> getStringFromArg(clang::Expr* argExpr);
+    std::optional<std::string> getStringFromArg(clang::Expr* argExpr);
 
     /// Get terminator condition, implemented in ScTraverseProc
     /// \param val  -- at all iterations including first
@@ -107,7 +106,7 @@ public:
     bool evaluateRangeExpr(clang::Expr* hexpr, clang::Expr* lexpr);
 
     /// Get time argument(s) of get_lo_time() and return lo/hi time pair
-    //llvm::Optional<std::pair<int, int>> getTimeFromCall(clang::Expr* expr);
+    //std::optional<std::pair<int, int>> getTimeFromCall(clang::Expr* expr);
 
     /// Parse SCT_ASSERT in module scope and put assertion string into codeWriter
     /// \return statement for which assertion string is stored
@@ -262,10 +261,10 @@ public:
     
 public:
     /// Parse one statement, clear @terms and run @chooseExprMethod
-    llvm::Optional<std::string> parse(const clang::Stmt* stmt);
+    std::optional<std::string> parse(const clang::Stmt* stmt);
     
     /// Parse block terminator statement 
-    llvm::Optional<std::string> parseTerm(const clang::Stmt* stmt,
+    std::optional<std::string> parseTerm(const clang::Stmt* stmt,
                                           const SValue& termCond,
                                           bool artifIf = false); 
     
@@ -286,7 +285,7 @@ protected:
     std::string refRecarrIndx = "";
 
     /// Name for temporal assertion    
-    llvm::Optional<std::string> assertName = llvm::None;
+    std::optional<std::string> assertName = std::nullopt;
     
     /// Function calls replaced by constant
     std::unordered_map<clang::Stmt*, clang::Stmt*> constReplacedFunc;

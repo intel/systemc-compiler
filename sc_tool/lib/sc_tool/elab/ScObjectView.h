@@ -17,7 +17,6 @@
 #ifndef SCTOOL_SCOBJECTVIEW_H
 #define SCTOOL_SCOBJECTVIEW_H
 
-#include <llvm/ADT/Optional.h>
 #include <llvm/Support/raw_ostream.h>
 #include <clang/AST/Type.h>
 #include <clang/AST/DeclCXX.h>
@@ -169,10 +168,10 @@ public:
 
     /// If Object is array element, or pointee of array of pointers
     /// returns array
-    llvm::Optional<ObjectView> getTopmostParentArray() const;
+    std::optional<ObjectView> getTopmostParentArray() const;
 
     /// Return topmost array or pointer variable 
-    llvm::Optional<ObjectView> getTopmostParentArrayOrPointer() const;
+    std::optional<ObjectView> getTopmostParentArrayOrPointer() const;
     
     /// Find common parent module for two objects
     /// If one is top, behavior undefined
@@ -185,7 +184,7 @@ public:
     std::deque<ModuleMIFView> getParentModulesList(const ModuleMIFView &rootMod) const;
 
     /// If Object is array element, returns index of element in array
-    llvm::Optional<uint32_t> getElementIndex() const;
+    std::optional<uint32_t> getElementIndex() const;
 
     /// If Object is inside array, or hierarchy of arrays, selects all
     /// similar objects in hierarchy of arrays.
@@ -205,12 +204,12 @@ public:
 
     /// If Object is pointer or reference, recursively deferefence it
     /// at return pointee object
-    llvm::Optional<ObjectView> derefRecursively() const;
+    std::optional<ObjectView> derefRecursively() const;
 
     /// Get related ObjectView that has name in Verilog
     /// 1. Dereferences pointers and references
     /// 2. For non-const arrays name is stored inside first array element
-    llvm::Optional<ObjectView> getVerilogNameOwner() const;
+    std::optional<ObjectView> getVerilogNameOwner() const;
 
     /// If Object is data member or static member, returns declaration
     clang::ValueDecl *getValueDecl() const;
@@ -226,12 +225,12 @@ public:
     /// Do not change offset to zero
     llvm::SmallVector<VerilogVarRef, 1> getVerilogVarsOffset() const;
     
-    llvm::Optional<PrimitiveView> primitive() const;
-    llvm::Optional<RecordView> record() const;
-    llvm::Optional<ModuleMIFView> moduleMIF() const;
-    llvm::Optional<ArrayView> array() const;
-    llvm::Optional<SignalView> signal() const;
-    llvm::Optional<std::string> string() const;
+    std::optional<PrimitiveView> primitive() const;
+    std::optional<RecordView> record() const;
+    std::optional<ModuleMIFView> moduleMIF() const;
+    std::optional<ArrayView> array() const;
+    std::optional<SignalView> signal() const;
+    std::optional<std::string> string() const;
 
     std::string getDebugString() const;
 
@@ -271,7 +270,7 @@ public:
     std::vector<size_t> getOptimizedArrayDims() const;
     std::size_t getOptimizedArrayBitwidth() const;
 
-    llvm::Optional<ObjectView> getFirstNonArrayEl() const;
+    std::optional<ObjectView> getFirstNonArrayEl() const;
     bool isChannelArray() const;
 
     bool isConstPrimitiveArray() const;
@@ -284,10 +283,10 @@ class RecordView : public ObjectView
 public:
     RecordView(const ObjectView &objView);
 
-    llvm::Optional<ObjectView> getField(const clang::FieldDecl *fieldDecl) const;
-    llvm::Optional<ObjectView> getField(const std::string fieldName) const;
+    std::optional<ObjectView> getField(const clang::FieldDecl *fieldDecl) const;
+    std::optional<ObjectView> getField(const std::string fieldName) const;
 
-    llvm::Optional<ObjectView> getBase(clang::QualType baseType) const;
+    std::optional<ObjectView> getBase(clang::QualType baseType) const;
 
     /// get base classes in declaration order
     std::vector<RecordView> getBases() const;
@@ -396,10 +395,10 @@ public:
         return getProtobufObj()->primitive().kind() == Primitive::UNSUPPORTED;
     }
 
-    llvm::Optional<ValueView> value() const;
-    llvm::Optional<PtrOrRefView> ptrOrRef() const;
-    llvm::Optional<PortView> port() const;
-    llvm::Optional<ProcessView> process() const;
+    std::optional<ValueView> value() const;
+    std::optional<PtrOrRefView> ptrOrRef() const;
+    std::optional<PortView> port() const;
+    std::optional<ProcessView> process() const;
 };
 
 class ValueView : public PrimitiveView
@@ -412,9 +411,9 @@ public:
     /// Bitwidth defined during elaboration, not compile-time
     bool isDynamicBitwidth() const;
 
-    llvm::Optional<int64_t> int64Val() const;
-    llvm::Optional<uint64_t> uint64Val() const;
-    llvm::Optional<double> doubleVal() const;
+    std::optional<int64_t> int64Val() const;
+    std::optional<uint64_t> uint64Val() const;
+    std::optional<double> doubleVal() const;
 };
 
 class PtrOrRefView : public PrimitiveView
@@ -429,18 +428,18 @@ public:
     bool isBaseOffsetPtr() const;
 
     /// If not dangling, returns ID of pointee
-    llvm::Optional<uint32_t> getPointeeID() const;
+    std::optional<uint32_t> getPointeeID() const;
 
     /// if pointer is BaseOffsetPtr, returns offset
-    llvm::Optional<uint32_t> getOffset() const;
+    std::optional<uint32_t> getOffset() const;
 
-    llvm::Optional<ObjectView> pointee() const;
+    std::optional<ObjectView> pointee() const;
 
     /// if pointer is pointer to first element of array, returns array
     /// othersise works as a regular pointee()
-    llvm::Optional<ObjectView> pointeeOrArray() const;
+    std::optional<ObjectView> pointeeOrArray() const;
 
-    llvm::Optional<ObjectView> getFirstNonPointerPointee() const;
+    std::optional<ObjectView> getFirstNonPointerPointee() const;
 
 };
 
@@ -465,7 +464,7 @@ public:
     bool isInout() const { return getDirection() == PortDirection::INOUT; }
 
     /// Get pointee module/MIF for sc_port<IF>
-    llvm::Optional<ObjectView> pointee() const;
+    std::optional<ObjectView> pointee() const;
     
     /// sc_object name
     const std::string &getSCName() const { return getProtobufObj()->sc_name(); }

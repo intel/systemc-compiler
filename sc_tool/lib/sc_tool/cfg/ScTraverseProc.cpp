@@ -65,7 +65,7 @@ shared_ptr<CodeScope> ScTraverseProc::getScopeForBlock(AdjBlock block, unsigned 
 }
 
 // Generate temporal assertion inside of loop(s) if required
-llvm::Optional<std::string> 
+std::optional<std::string> 
 ScTraverseProc::getSvaInLoopStr(const std::string& svaStr, bool isResetSection) 
 {
     std::string tabStr = "        ";
@@ -75,7 +75,7 @@ ScTraverseProc::getSvaInLoopStr(const std::string& svaStr, bool isResetSection)
         if (!isa<const ForStmt>(i->stmt)) {
             ScDiag::reportScDiag(i->stmt->getBeginLoc(), 
                                  ScDiag::SYNTH_SVA_INCORRECT_LOOP);
-            return llvm::None;
+            return std::nullopt;
         }
         // Get terminator condition value for all/first iteration from CPA
         SValue termCValue; SValue termCValueFirst;
@@ -84,7 +84,7 @@ ScTraverseProc::getSvaInLoopStr(const std::string& svaStr, bool isResetSection)
         if (auto str = parseTerm(i->stmt, termCValue)) {
             loopStr += tabStr + *str + " begin\n";
         } else {
-            return llvm::None;
+            return std::nullopt;
         }
         tabStr += "    ";
     }
@@ -493,7 +493,7 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             }
 
             // Check function is not pure
-            if (methodDecl->isPure()) {
+            if (methodDecl->isPureVirtual()) {
                 ScDiag::reportScDiag(expr->getSourceRange().getBegin(), 
                                      ScDiag::CPP_PURE_FUNC_CALL) << fname;
                 // Pure function call leads to SIGSEGV in cfg->dump(), 
@@ -1303,9 +1303,9 @@ void ScTraverseProc::run()
             getTermCondValue(term, termCValue, termCValueFirst);
             
             bool trueCond = termCValue.isInteger() && 
-                            !termCValue.getInteger().isNullValue();
+                            !termCValue.getInteger().isZero();
             bool falseCond = termCValue.isInteger() && 
-                             termCValue.getInteger().isNullValue();
+                             termCValue.getInteger().isZero();
             
             if (DebugOptions::isEnabled(DebugComponent::doGenTerm)) {
                 term->dumpColor();
@@ -1565,9 +1565,9 @@ void ScTraverseProc::run()
                                         termCValue : termCValueFirst;
                     
                     noLoopStmt = !loopVisited && iterCValue.isInteger() && 
-                                 !iterCValue.getInteger().isNullValue();
+                                 !iterCValue.getInteger().isZero();
                     skipLoop = !loopVisited && iterCValue.isInteger() && 
-                                iterCValue.getInteger().isNullValue();
+                                iterCValue.getInteger().isZero();
                     // Check @skipDoWhile required for do/while with wait()
                     ifStmt = (loopVisited || iterCValue.isUnknown()) && 
                              !skipDoWhile;
@@ -2050,7 +2050,7 @@ void ScTraverseProc::run(const ScProcContext& cntxStack)
 }
 
 // Run for SVA property declaration, result string returned in success
-llvm::Optional<std::string> ScTraverseProc::runSvaDecl(const FieldDecl* fdecl) 
+std::optional<std::string> ScTraverseProc::runSvaDecl(const FieldDecl* fdecl) 
 {
     codeWriter->startStmt();
     const Stmt* stmt = parseSvaDecl(fdecl);
@@ -2062,7 +2062,7 @@ llvm::Optional<std::string> ScTraverseProc::runSvaDecl(const FieldDecl* fdecl)
         return s;
     }
     
-    return llvm::None;
+    return std::nullopt;
 }
 
 // Print function local variable declarations

@@ -684,11 +684,11 @@ string ScVerilogWriter::addLeadMinus(const string& s)
 }
  
 // Extract signed or unsigned value from given literal string 
-std::pair<llvm::Optional<uint64_t>, llvm::Optional<int64_t>> 
+std::pair<std::optional<uint64_t>, std::optional<int64_t>> 
 ScVerilogWriter::getLiteralVal(const std::string& literStr)
 {
-    std::pair<llvm::Optional<uint64_t>, 
-              llvm::Optional<int64_t>> res(llvm::None, llvm::None);
+    std::pair<std::optional<uint64_t>, 
+              std::optional<int64_t>> res(std::nullopt, std::nullopt);
     
     APSInt val(literStr);
     // Do not call @getZExtValue/getExtValue() for value more than 64bits
@@ -732,7 +732,7 @@ std::string ScVerilogWriter::makeLiteralStr(APSInt val,
                                             CastSign castSign, 
                                             bool addNegBrackets)
 {
-    bool isZero = val.isNullValue();
+    bool isZero = val.isZero();
     bool isOne = val == 1;
     bool isNegative = val < 0;
     unsigned bitNeeded = getBitsNeeded(val);
@@ -2483,7 +2483,7 @@ void ScVerilogWriter::putPartSelectExpr(const Stmt* stmt,  const SValue& val,
                 ScDiag::reportScDiag(hindx->getBeginLoc(), 
                                      ScDiag::SC_RANGE_WRONG_INDEX);
             }
-            if (intrWidth == 1 && (!lval.isNullValue() || !hval.isNullValue())) {
+            if (intrWidth == 1 && (!lval.isZero() || !hval.isZero())) {
                 ScDiag::reportScDiag(base->getBeginLoc(), 
                                      ScDiag::SC_RANGE_WRONG_INDEX);
             }
@@ -2545,7 +2545,7 @@ void ScVerilogWriter::putBitSelectExpr(const Stmt* stmt, const SValue& val,
                 ScDiag::reportScDiag(index->getBeginLoc(), 
                                      ScDiag::SC_BIT_WRONG_INDEX);
             }
-            if (intrWidth == 1 && !lval.isNullValue()) {
+            if (intrWidth == 1 && !lval.isZero()) {
                 ScDiag::reportScDiag(base->getBeginLoc(), 
                                      ScDiag::SC_BIT_WRONG_INDEX);
             }
@@ -3232,10 +3232,10 @@ void ScVerilogWriter::clearStmt(const Stmt* stmt) {
 
 // Get string for @stmt, which may be sub-expression
 // \return expression string to read
-llvm::Optional<string> ScVerilogWriter::getStmtString(const Stmt* stmt) 
+std::optional<string> ScVerilogWriter::getStmtString(const Stmt* stmt) 
 {
-    return (terms.count(stmt)) ? llvm::Optional<string>(terms.at(stmt).str.first) : 
-                                 llvm::Optional<string>();
+    return (terms.count(stmt)) ? std::optional<string>(terms.at(stmt).str.first) : 
+                                 std::optional<string>();
 }
 
 // Get string for IF statement

@@ -199,7 +199,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         // Skip null pointer
         if (isPointer(type)) {
             SValue rval = globalState->getValue(sval);
-            if (rval.isInteger() && rval.getInteger().isNullValue())
+            if (rval.isInteger() && rval.getInteger().isZero())
                 continue;
         }
 
@@ -224,7 +224,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         // Skip null pointer
         if (isPointer(type)) {
             SValue rval = globalState->getValue(sval);
-            if (rval.isInteger() && rval.getInteger().isNullValue())
+            if (rval.isInteger() && rval.getInteger().isZero())
                 continue;
         }
 
@@ -282,7 +282,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
             if (isPointer(val.getType())) {
                 SValue rval = globalState->getValue(val);
                 isNullPtr = rval.isInteger() && 
-                            rval.getInteger().isNullValue();
+                            rval.getInteger().isZero();
                 isDanglPtr = rval.isUnknown();
             }
 
@@ -363,7 +363,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
 
             if (isPtr) {
                 SValue rval = globalState->getValue(val);
-                isNullPtr = rval.isInteger() && rval.getInteger().isNullValue();
+                isNullPtr = rval.isInteger() && rval.getInteger().isZero();
                 isDanglPtr = rval.isUnknown();
             }
 
@@ -633,7 +633,7 @@ std::string ScProcAnalyzer::analyzeSvaProperties(
             if (isPointer(val.getType())) {
                 SValue rval = globalState->getValue(val);
                 isNullPtr = rval.isInteger() && 
-                            rval.getInteger().isNullValue();
+                            rval.getInteger().isZero();
                 isDanglPtr = rval.isUnknown();
             }
 

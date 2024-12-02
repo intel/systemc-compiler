@@ -74,9 +74,9 @@ bool isAnyInteger(clang::QualType type);
 bool isScIntegerArray(clang::QualType type, bool checkPointer = true);
 
 /// Check @sc_uint or @sc_biguint or @sc_bv type and optionally return bit number
-llvm::Optional<size_t> getScUintBiguintBitVec(clang::QualType type);
+std::optional<size_t> getScUintBiguintBitVec(clang::QualType type);
 /// Check @sc_int or @sc_bigint type and optionally return bit number
-llvm::Optional<size_t> getScIntBigint(clang::QualType type);
+std::optional<size_t> getScIntBigint(clang::QualType type);
 
 /// Check type is @sc_signed which is base class for @sc_bigint but not template, 
 /// used for operation result of @sc_bigint
@@ -90,12 +90,12 @@ clang::QualType getTypeForWidth(const clang::Expr* expr);
 
 /// Get width of any integral type including SC data types
 /// \return < width, isUnsigned >
-llvm::Optional<std::pair<size_t, bool> > getIntTraits(clang::QualType type, 
+std::optional<std::pair<size_t, bool> > getIntTraits(clang::QualType type, 
                                                       bool checkPointer = false);
 
 /// Get width of any integer type wrapped into given @type, based on @getIntTraits
 /// Can work for any integral type, integral pointer, channel, pointer to channel
-llvm::Optional<size_t> getAnyTypeWidth(clang::QualType type, bool checkPointer, 
+std::optional<size_t> getAnyTypeWidth(clang::QualType type, bool checkPointer, 
                                        bool checkChannel);
 
 /// Check for module only
@@ -139,7 +139,7 @@ bool isScChannel(clang::QualType type, bool checkPointer = true);
 bool isScChannelArray(clang::QualType type, bool checkPointer = true);
 
 /// Get record type if it is SC channel of record type, or none
-llvm::Optional<clang::QualType>  
+std::optional<clang::QualType>  
 isUserClassChannel(clang::QualType type, bool checkPointer = true);
 
 /// Any the type in sc_core namespace

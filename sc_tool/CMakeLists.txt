@@ -151,22 +151,6 @@ target_link_libraries(SCTool
         sc_elab_proto
         SysCRTTI
         PRIVATE
-        clangFrontend
-        clangSerialization
-        clangDriver
-        clangTooling
-        clangParse
-        clangSema
-        clangStaticAnalyzerFrontend
-        clangStaticAnalyzerCheckers
-        clangStaticAnalyzerCore
-        clangAnalysis
-        clangEdit
-        clangAST
-        clangASTMatchers
-        clangLex
-        clangBasic
-        clangSupport
         LLVMX86AsmParser
         LLVMX86Desc
         LLVMX86Info
@@ -185,6 +169,7 @@ target_link_libraries(SCTool
         LLVMSupport
         LLVMFrontendOpenMP
         LLVMWindowsDriver
+        clang-cpp
         ${system_libs}
         )
 

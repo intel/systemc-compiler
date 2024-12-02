@@ -83,7 +83,7 @@ pair<SValue, FunctionDecl*> getVirtualFunc(const SValue& tval,
     // Return exact class with method definition required to access channel in it. 
     if (dynMetDecl && dynMetDecl->getParent() == recordDecl) {
 
-        if (dynMetDecl->isPure()) {
+        if (dynMetDecl->isPureVirtual()) {
             cout << recordDecl->getQualifiedNameAsString() << endl;
             recordDecl->dumpColor();
             SCT_TOOL_ASSERT(false, "Pure virtual method");
@@ -132,7 +132,7 @@ SValue getBaseClass(const SValue& tval, QualType baseType)
 
 // Get parent class where variable @val is declared
 // \param val -- variable value
-llvm::Optional<QualType> getParentClass(const SValue& val)
+std::optional<QualType> getParentClass(const SValue& val)
 {
     SCT_TOOL_ASSERT (val.isVariable(), "Value is not variable");
     
@@ -151,7 +151,7 @@ llvm::Optional<QualType> getParentClass(const SValue& val)
         }    
     }
     
-    return llvm::None;
+    return std::nullopt;
 }
 
 
@@ -227,13 +227,22 @@ void getFieldsForRecordChan(const clang::RecordDecl* recDecl, const SValue& crec
     const CXXRecordDecl* cxxRecDecl = dyn_cast<const CXXRecordDecl>(recDecl);
     
     for(const auto& base : cxxRecDecl->bases()) {
-        auto recType = dyn_cast<const RecordType>(base.getType().getTypePtr());
+        auto recType = dyn_cast<const RecordType>(base.getType().getCanonicalType().
+                                                  getTypePtr());
         getFieldsForRecordChan(recType->getAsRecordDecl(), crec, fields);
     }
 
     for (const ValueDecl* decl : recDecl->fields()) {
         fields.push_back( SValue(decl, crec) );
     }
+}
+
+// Get fields for record array, considering base class fields
+// All fields parent is @crec same as for record channel
+void getFieldsForRecordArr(const clang::RecordDecl* recDecl, const SValue& crec, 
+                           std::vector<SValue>& fields) 
+{
+    getFieldsForRecordChan(recDecl, crec, fields);
 }
 
 }

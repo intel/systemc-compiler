@@ -89,9 +89,6 @@ void RecordObject::dump() const
     llvm::outs() << "RecordObject DUMP\n";
 
     llvm::outs() << this->typedObj << "\n";
-
-    std::vector<int> ivec;
-    ivec.data();
 }
 
 void RecordObject::dumpDynamicType() const
@@ -216,7 +213,7 @@ ptrdiff_t RecordObject::getOffsetToTop() const
     return (*vptr)[-2];
 }
 
-Optional<RecordObject::FieldObject>
+std::optional<RecordObject::FieldObject>
 RecordObject::findField(llvm::StringRef fieldName) const
 {
     for (auto field : fields()) {
@@ -230,10 +227,10 @@ RecordObject::findField(llvm::StringRef fieldName) const
         }
     }
 
-    return llvm::None;
+    return std::nullopt;
 }
 
-llvm::Optional<RecordObject::BaseClassObject>
+std::optional<RecordObject::BaseClassObject>
 RecordObject::findBase(llvm::StringRef baseName) const {
     for (auto base : bases()) {
         //llvm::outs() << "found_base " << base.itemDecl.getType()->getAsCXXRecordDecl()->getName() << "\n";
@@ -248,7 +245,7 @@ RecordObject::findBase(llvm::StringRef baseName) const {
         }
     }
 
-    return llvm::None;
+    return std::nullopt;
 }
 
 
@@ -401,7 +398,7 @@ llvm::APSInt IntegerObject::getAPSInt() const
 
 // class ArrayObject  ----------------------------------------------------------
 
-llvm::Optional<ArrayObject::KIND>
+std::optional<ArrayObject::KIND>
 ArrayObject::getArrayObjectKind(clang::QualType canonicalType)
 {
     if (canonicalType->isConstantArrayType()) {
@@ -420,7 +417,7 @@ ArrayObject::getArrayObjectKind(clang::QualType canonicalType)
             return ArrayObject::STD_ARRAY;
     }
 
-    return llvm::None;
+    return std::nullopt;
 }
 
 ArrayObject::ArrayObject(sc_elab::TypedObject typedObj)

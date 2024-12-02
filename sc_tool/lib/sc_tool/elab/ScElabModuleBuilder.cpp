@@ -175,10 +175,10 @@ private:
 
     void createProcessBodies(VerilogModule &verMod);
 
-    llvm::Optional<std::string> getVerilogIntrinsic(const ModuleMIFView& modView);
+    std::optional<std::string> getVerilogIntrinsic(const ModuleMIFView& modView);
     /// Get vendor memory name to use in Verilog module instead of module name
     /// @__SC_TOOL_MODULE_NAME__ string in module 
-    llvm::Optional<std::string> getVerilogModName(const ModuleMIFView& modView);
+    std::optional<std::string> getVerilogModName(const ModuleMIFView& modView);
 
     /// Get assert properties from @SCT_ASSERT macro in module scope
     std::vector<const clang::FieldDecl*> 
@@ -580,7 +580,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traversePtrOrRef(
         return true;
     }
 
-    llvm::Optional<ObjectView> pointee = ptrref.pointeeOrArray();
+    std::optional<ObjectView> pointee = ptrref.pointeeOrArray();
 
     if (pointee) {
         //std::cout << "pointee " << pointee->getDebugString() << std::endl;
@@ -2144,7 +2144,7 @@ void ScElabModuleBuilder::createProcessBodies(VerilogModule &verMod)
 }
 
 /// Get string value from const std::string and const char*
-llvm::Optional<std::string> ScElabModuleBuilder::getVerilogIntrinsic(
+std::optional<std::string> ScElabModuleBuilder::getVerilogIntrinsic(
                                     const ModuleMIFView& modView)
 {
     for (const ObjectView& field : modView.getFields()) {
@@ -2163,11 +2163,11 @@ llvm::Optional<std::string> ScElabModuleBuilder::getVerilogIntrinsic(
         }
     }
 
-    return llvm::None;
+    return std::nullopt;
 }
 
 // Get string value from const std::string and const char*
-llvm::Optional<std::string> ScElabModuleBuilder::getVerilogModName(
+std::optional<std::string> ScElabModuleBuilder::getVerilogModName(
                                     const ModuleMIFView& modView)
 {
     for (const ObjectView& field : modView.getFields()) {
@@ -2181,7 +2181,7 @@ llvm::Optional<std::string> ScElabModuleBuilder::getVerilogModName(
         }
     }
 
-    return llvm::None;
+    return std::nullopt;
 }
 
 
@@ -2210,7 +2210,7 @@ ScElabModuleBuilder::getSvaProperties(const RecordView& recView)
     return props;
 }
 
-/*llvm::Optional<std::string> ScElabModuleBuilder::getSvaProperty(
+/*std::optional<std::string> ScElabModuleBuilder::getSvaProperty(
                                     const ModuleMIFView& modView)
 {
     const std::string& typeName = modView.getType().getAsString();
@@ -2232,11 +2232,11 @@ ScElabModuleBuilder::getSvaProperties(const RecordView& recView)
         SCT_INTERNAL_ERROR_NOLOC("Incorrect sct_property_method");
     }
 
-    return llvm::None;
+    return std::nullopt;
 }*/
 
 /// Get string value from const char[]
-// llvm::Optional<std::string> ScElabModuleBuilder::getVerilogMemName(
+// std::optional<std::string> ScElabModuleBuilder::getVerilogMemName(
 //                                    const ModuleMIFView& modView)
 //{
 //    using namespace std;
@@ -2255,16 +2255,16 @@ ScElabModuleBuilder::getSvaProperties(const RecordView& recView)
 //                
 //                std::string verNameS = verName;
 //                delete [] (verName);
-//                return llvm::Optional<std::string>(verNameS);
+//                return std::optional<std::string>(verNameS);
 //            }
 //        }
 //    }
 //
-//    return llvm::None;
+//    return std::nullopt;
 //}
 
 /// Getting value from static constexpr char
-//llvm::Optional<std::string> ScElabModuleBuilder::getVerilogIntrinsic(
+//std::optional<std::string> ScElabModuleBuilder::getVerilogIntrinsic(
 //                                    clang::CXXRecordDecl *recordDecl)
 //{
 //    for (clang::Decl *decl: recordDecl->decls()) {
@@ -2283,7 +2283,7 @@ ScElabModuleBuilder::getSvaProperties(const RecordView& recView)
 //        }
 //    }
 //
-//    return llvm::None;
+//    return std::nullopt;
 //}
 
 

@@ -16,7 +16,6 @@
 
 #include "sc_tool/cfg/ScState.h"
 #include "sc_tool/utils/NameGenerator.h"
-#include "llvm/ADT/Optional.h"
 
 namespace std {
 
@@ -268,7 +267,7 @@ protected:
     
     /// Extract signed or unsigned value from given literal string 
     /// \return <unsigned, signed> optional values
-    std::pair<llvm::Optional<uint64_t>, llvm::Optional<int64_t>> getLiteralVal(
+    std::pair<std::optional<uint64_t>, std::optional<int64_t>> getLiteralVal(
                                             const std::string& literStr);
 
     /// Get absolute value of given literal statements
@@ -632,7 +631,7 @@ public:
     
     /// Get string for @stmt, which may be sub-expression
     /// \return expression string to read
-    llvm::Optional<std::string> getStmtString(const clang::Stmt* stmt);
+    std::optional<std::string> getStmtString(const clang::Stmt* stmt);
 
     /// Get string for IF statement
     std::string getIfString(const clang::Expr* cexpr);

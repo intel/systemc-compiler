@@ -88,14 +88,14 @@ Object *ObjectMap::findElabObj(TypedObject to)
     return nullptr;
 }
 
-llvm::Optional<TypedObject> ObjectMap::findTypedObj(const Object *eo) const
+std::optional<TypedObject> ObjectMap::findTypedObj(const Object *eo) const
 {
     auto iter = elab2RflMap.find(eo);
 
     if (iter != elab2RflMap.end()) {
         return iter->second;
     }
-    return llvm::None;
+    return std::nullopt;
 }
 
 
@@ -124,12 +124,12 @@ static bool typesMatch(TypedObject ptr, TypedObject target) {
     return false;
 }
 
-llvm::Optional<std::pair<Object *, size_t>>
+std::optional<std::pair<Object *, size_t>>
 ObjectMap::resolvePointer(PtrOrRefObject ptrObj)
 {
 
     if (ptrObj.isNullPtr()) {
-        return llvm::None;
+        return std::nullopt;
     }
     
     // Dereference a pointer to get a possibly invalid 
@@ -149,7 +149,7 @@ ObjectMap::resolvePointer(PtrOrRefObject ptrObj)
     }
 
     if (typedObjsAtAddr.empty()) {
-        return llvm::None;
+        return std::nullopt;
     
     } else {
 
@@ -192,7 +192,7 @@ ObjectMap::resolvePointer(PtrOrRefObject ptrObj)
         }
     }
 
-    return llvm::None;
+    return std::nullopt;
 }
 
 
@@ -600,7 +600,7 @@ void DesignDbGenerator::addModuleDynamicAllocs(TypedObject moduleTO,
             llvm::APInt arraySize(64, alloc.array_size);
             // Use no @SizeExpr, hope that works
             qualType = getAstCtx()->getConstantArrayType(
-                            qualType, arraySize, nullptr, ArrayType::Normal, 0);
+                            qualType, arraySize, nullptr, ArraySizeModifier::Normal, 0);
         }
 
         TypedObject dynTO{alloc.ptr, qualType};
@@ -721,7 +721,7 @@ PtrOrRefObject DesignDbGenerator::getPortBindPtr(TypedObject portTO) const
     return *TypedObject(parentPtr, parentPtrType).getAs<PtrOrRefObject>();
 }
 
-llvm::Optional<PtrOrRefObject>
+std::optional<PtrOrRefObject>
 DesignDbGenerator::getAsPtrOrRefTO(const sc_elab::Object &eo) const
 {
     if (eo.has_primitive()) {
@@ -736,7 +736,7 @@ DesignDbGenerator::getAsPtrOrRefTO(const sc_elab::Object &eo) const
         }
     }
 
-    return llvm::None;
+    return std::nullopt;
 
 }
 

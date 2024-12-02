@@ -65,7 +65,7 @@ MangledTypeDB::MangledTypeDB(clang::ASTContext &astCtx)
             // Ibm128 is not supported, required for Clang/LLVM 16
             if (type->isIbm128Type()) continue;
             //llvm::outs() << "Is placeholder? " << cannonType->isPlaceholderType() << " "<< cannonType.getAsString() << "\n";
-            mangleCtx->mangleTypeName(cannonType, osStr);
+            mangleCtx->mangleCanonicalTypeName(cannonType, osStr);
             osStr.str();
 
 #ifndef _MSC_VER 

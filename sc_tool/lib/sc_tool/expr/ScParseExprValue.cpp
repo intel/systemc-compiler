@@ -83,14 +83,17 @@ void ScParseExprValue::writeToValue(SValue val, bool isDefined)
                 writeToValue(fval, isDefined);
             }
         } else 
-        if (!rec.isRecord()) {
+        if (rec.isArray()) {
             // Array of records
             SCT_TOOL_ASSERT (!rec.isScChannel(), 
                              std::string("Channel ")+rec.asString(true));
-            for (auto fieldDecl : recDecl->fields()) {
-                SValue fval(fieldDecl, rec);    
+            std::vector<SValue> recFields;
+            getFieldsForRecordArr(recDecl, rec, recFields);
+            for (const SValue& fval : recFields) {
                 writeToValue(fval, isDefined);
             }
+        } else {
+            // Do nothing
         }
     } else {
 
@@ -168,15 +171,17 @@ void ScParseExprValue::readFromValue(SValue val)
                 readFromValue(fval);
             }
         } else 
-        if (!rec.isRecord()) {
+        if (rec.isArray()) {
             // Array of records
             SCT_TOOL_ASSERT (!rec.isScChannel(), 
                              std::string("Channel ")+rec.asString(true));
-            for (auto fieldDecl : recDecl->fields()) {
-                SValue fval(fieldDecl, rec);
+            std::vector<SValue> recFields;
+            getFieldsForRecordArr(recDecl, rec, recFields);
+            for (const SValue& fval : recFields) {
                 readFromValue(fval);
-                //cout << "   " << fval << endl;
             }
+        } else {
+            // Do nothing
         }
     } else {
 
@@ -2101,32 +2106,32 @@ SValue ScParseExprValue::getReducedVal(const string& fname, const SValue& rval)
         APSInt intVal = rval.getInteger();
 
         if (fname == "or_reduce") {
-            val = SValue(SValue::boolToAPSInt(!intVal.isNullValue()), 10);
+            val = SValue(SValue::boolToAPSInt(!intVal.isZero()), 10);
         } else 
         if (fname == "nor_reduce") {
-            val = SValue(SValue::boolToAPSInt(intVal.isNullValue()), 10);
+            val = SValue(SValue::boolToAPSInt(intVal.isZero()), 10);
         } else 
         if (fname == "and_reduce") {
-            val = SValue(SValue::boolToAPSInt(intVal.isAllOnesValue()), 10);
+            val = SValue(SValue::boolToAPSInt(intVal.isAllOnes()), 10);
         } else 
         if (fname == "nand_reduce") {
-            val = SValue(SValue::boolToAPSInt(!intVal.isAllOnesValue()), 10);
+            val = SValue(SValue::boolToAPSInt(!intVal.isAllOnes()), 10);
         } else 
         if (fname == "xor_reduce") {
-            if (intVal.isNullValue()) {
+            if (intVal.isZero()) {
                 val = SValue(SValue::boolToAPSInt(false), 10);
             } else 
-            if (intVal.isOneValue()) {
+            if (intVal.isOne()) {
                 val = SValue(SValue::boolToAPSInt(true), 10);
             } else {
                 // May be implemented
             }
         } else 
         if (fname == "xnor_reduce") {
-            if (intVal.isNullValue()) {
+            if (intVal.isZero()) {
                 val = SValue(SValue::boolToAPSInt(true), 10);
             } else 
-            if (intVal.isOneValue()) {
+            if (intVal.isOne()) {
                 val = SValue(SValue::boolToAPSInt(false), 10);
             } else {
                 // May be implemented
@@ -2892,7 +2897,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
             val = parseArraySubscript(expr, tval, rval);
         }
     } else
-    if (isIoStream(thisType)) {
+    if (isIoStream(thisType, nsname && *nsname == "std")) {
         // Do nothing for @cout << and @cin >>, do not parse other arguments
         
     } else 
@@ -3093,7 +3098,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                     //cout << "val1 " << sc::APSintToString(val1, 16) << " val2 " << sc::APSintToString(val2, 16) << endl;
                 }
             
-                llvm::Optional<APSInt> res;
+                std::optional<APSInt> res;
                 if (opcode == OO_Plus) {
                     res = val1 + val2;
                 } else 
@@ -3413,7 +3418,7 @@ SValue ScParseExprValue::derefPointer(const SValue& rval, Stmt* stmt,
                                  ScDiag::CPP_DANGLING_PTR_DEREF) << 
                                  rvar.asString(rvar.isObject());
         } else 
-        if (valzero.isInteger() && valzero.getInteger().isNullValue()) {
+        if (valzero.isInteger() && valzero.getInteger().isZero()) {
             SValue rvar = state->getVariableForValue(rval);
             ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                  ScDiag::CPP_NULL_PTR_DEREF) << 

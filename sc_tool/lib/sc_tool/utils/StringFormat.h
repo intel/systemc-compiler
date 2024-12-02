@@ -13,7 +13,6 @@
 #ifndef STRINGFORMAT_H
 #define STRINGFORMAT_H
 
-#include "llvm/ADT/Optional.h"
 #include "llvm/ADT/APSInt.h"
 #include <vector>
 #include <string>
@@ -37,7 +36,7 @@ std::string getTail(const std::string& source, const std::size_t length);
 
 /// Split given string by "\n" and fill string string, return string vector 
 /// if it is not empty or none else
-llvm::Optional<std::vector<std::string>> splitString(const std::string& str);
+std::optional<std::vector<std::string>> splitString(const std::string& str);
 
 /// Split given string by "\n" and print it to os
 void printSplitString(std::ostream &os, const std::string& str,
@@ -56,7 +55,7 @@ bool checkArrayAccessStr(const std::string& str);
 std::string parseSvaTime(int lotime, int hitime, unsigned stable = 0);
 
 /// Check temporal assertion time string and convert it into SVA form 
-//llvm::Optional<std::string> parseSvaTime(const std::string& origStr);
+//std::optional<std::string> parseSvaTime(const std::string& origStr);
 
 }
 

@@ -184,8 +184,13 @@ bool ScGenerateExpr::isIoStreamStmt(const Stmt* stmt)
 {
     if (auto callExpr = dyn_cast<CXXOperatorCallExpr>(stmt)) {
         if (callExpr->getNumArgs() > 0) {
+            bool isStd = false;
+            if (auto callDecl = callExpr->getCalleeDecl()->getAsFunction()) {
+                auto nsname = callDecl ? getNamespaceAsStr(callDecl) : std::nullopt;
+                isStd = nsname && *nsname == "std";
+            }
             QualType thisType = callExpr->getArg(0)->getType();
-            return isIoStream(thisType);
+            return isIoStream(thisType, isStd);
         }
     }
     return false;
@@ -243,7 +248,7 @@ bool ScGenerateExpr::isSctAssert(const Stmt* stmt) const
 }
 
 // Get string from char* argument
-llvm::Optional<std::string> 
+std::optional<std::string> 
 ScGenerateExpr::getStringFromArg(Expr* argExpr) {
     
     Expr* expr = argExpr;
@@ -255,7 +260,7 @@ ScGenerateExpr::getStringFromArg(Expr* argExpr) {
         return res;
     }
     
-    return llvm::None;
+    return std::nullopt;
 }
 
 // Parse and evaluate pointer/time expression as constant integer, operates
@@ -1773,8 +1778,8 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
         //cout << "BO lexpr " << hex << stmt << dec << " lval " << lval << endl;
         
         if (lval.isInteger() && 
-            ((opcode == BO_LOr && !lval.getInteger().isNullValue()) ||
-             (opcode == BO_LAnd && lval.getInteger().isNullValue()))) {
+            ((opcode == BO_LOr && !lval.getInteger().isZero()) ||
+             (opcode == BO_LAnd && lval.getInteger().isZero()))) {
             
             val = lval;
             
@@ -2971,7 +2976,7 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
     if (codeWriter->isParseSvaArg()) {
         // For function call in assert replace it with returned expression
         if (argNum == 0) {
-            if (ttval.isInteger() && ttval.getInteger().isNullValue()) {
+            if (ttval.isInteger() && ttval.getInteger().isZero()) {
                 // No record, @fifo in target is @nullptr, use zero value
                 codeWriter->putLiteral(expr, SValue(APSInt(64, true), 10));
                 
@@ -3317,7 +3322,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         val = parseArraySubscript(expr, lexpr, rexpr);
 
     } else
-    if (isIoStream(thisType)) {
+    if (isIoStream(thisType, nsname && *nsname == "std")) {
         // Do nothing for @cout << and @cin >>
         
     } else 
@@ -3736,7 +3741,7 @@ void ScGenerateExpr::parseConditionalStmt(ConditionalOperator* stmt, SValue& val
     } else
     if (cval.isInteger()) {
         // Try to calculate condition into integer constant
-        if (cval.getInteger().isNullValue()) {
+        if (cval.getInteger().isZero()) {
             SValue rval;
             chooseExprMethod(rexpr, rval);
             val = rval;
@@ -3765,7 +3770,7 @@ void ScGenerateExpr::chooseExprMethod(Stmt *stmt, SValue &val)
 
 // ----------------------------------------------------------------------------
 // Parse general statement 
-llvm::Optional<string> ScGenerateExpr::parse(const Stmt* stmt)
+std::optional<string> ScGenerateExpr::parse(const Stmt* stmt)
 {
     codeWriter->startStmt();
     // Clear indices after previous statement
@@ -3775,13 +3780,13 @@ llvm::Optional<string> ScGenerateExpr::parse(const Stmt* stmt)
     auto ncstmt = const_cast<Stmt*>(stmt);
     chooseExprMethod(ncstmt, val);
 
-    if (val.isScZeroWidth()) return llvm::None;
+    if (val.isScZeroWidth()) return std::nullopt;
     
     return codeWriter->getStmtString(ncstmt);
 }
 
 // Parse block terminator statement 
-llvm::Optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt, 
+std::optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt, 
                                                  const SValue& termCond, 
                                                  bool artifIf)
 {
@@ -3936,7 +3941,7 @@ llvm::Optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt,
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(), string("Unsupported terminator ")+
                          stmt->getStmtClassName());
         
-        return llvm::Optional<string>();
+        return std::optional<string>();
     }    
 }
 
