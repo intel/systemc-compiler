@@ -97,7 +97,7 @@ function(svc_target exe_target)
             $ENV{ICSC_HOME}/include/sctcommon
             $ENV{ICSC_HOME}/include/sctmemory
             $ENV{ICSC_HOME}/include/sctmemory/utils
-            $ENV{CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
+            ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
     )
 
     # __SC_TOOL__ not required for SC simulation target to have sct_assert 
@@ -217,7 +217,7 @@ function(svc_target exe_target)
             $ENV{ICSC_HOME}/include/sctcommon
             $ENV{ICSC_HOME}/include/sctmemory
             $ENV{ICSC_HOME}/include/sctmemory/utils
-            $ENV{CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
+            ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
     )
                                 
     # Copy user includes
