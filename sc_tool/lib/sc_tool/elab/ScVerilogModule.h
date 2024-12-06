@@ -400,7 +400,9 @@ public:
     VerilogModule& operator=(const VerilogModule&) = delete;
     VerilogModule& operator=(VerilogModule&&) = delete;
 
-    bool operator == (VerilogModule &other) const { return getName() == other.getName(); }
+    bool operator == (const VerilogModule &other) const { 
+        return getName() == other.getName(); 
+    }
 
     /// Remove assignments for unused variables (@assignments) and 
     /// update required variables (@requiredVars)

@@ -1271,8 +1271,9 @@ bool ScState::hasTempVariable(const SValue& val)
 }
 
 // Add declared but not initialized variable, not included SC types
-SValue ScState::declareValue(const SValue &lval) 
+SValue ScState::declareValue(const SValue& lval) 
 {
+    //cout << "ScState::declareValue lval " << lval << endl;
     declared.insert(lval);
     //if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
     //    cout << "   add to declared " << lval << endl;
@@ -1285,6 +1286,7 @@ SValue ScState::declareValue(const SValue &lval)
 void ScState::writeToArrElmValue(const SValue& lval) 
 {
     // Array element cannot be reference
+    //cout << "ScState::writeToArrElmValue lval " << lval << endl;
     defined.insert(lval);
 }
 
@@ -1393,11 +1395,10 @@ SValue ScState::readFromValue(SValue lval)
     bool isDefined = false;
     bool isDeclared = false;
     
-    // Consider SVA arguments except FOR-loop counter as not defined 
-    // to make them registers
-    // For value which is not array element at unknown index
+    // Consider SVA arguments except FOR-loop counter as not defined to make them registers
+    // Array element at unknown index is not register if array declared/defined this cycle
     bool forLoopCounter = loopCntrVars.count(llval);
-    if ((!parseSvaArg || forLoopCounter) && !isArrElemUnkwn(lval).second) {
+    if (!parseSvaArg || forLoopCounter) {
         // Check non-array element variable or record field is defined/declared 
         // (required for pointee objects and array elements)
         // Also check if variable is already defined/declared 

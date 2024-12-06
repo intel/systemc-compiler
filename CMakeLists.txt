@@ -8,8 +8,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(sctool)
 
-set(CMAKE_CXX_STANDARD 17)
-
 find_package(LLVM $ENV{LLVM_VER} EXACT REQUIRED CONFIG)
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
