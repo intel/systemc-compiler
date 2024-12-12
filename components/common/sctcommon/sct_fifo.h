@@ -236,7 +236,10 @@ public:
   protected:
     bool cthread_put = false;
     bool cthread_get = false;
-    
+#ifndef __SC_TOOL__
+    sc_process_handle   put_proc;
+    sc_process_handle   get_proc;
+#endif
     /// This FIFO attached to a processes
     bool attached_put = false;
     bool attached_get = false;
@@ -412,6 +415,14 @@ public:
                  << " attached to method should have sync valid or sync ready" << endl;
             assert (false);
         }
+    #ifndef __SC_TOOL__
+        if (get_proc == put_proc && !cthread_get && (!SYNC_VALID || !SYNC_READY)) {
+            assert (!cthread_put); // Different process types for the same process
+            cout << "\nFIFO " << name() 
+                 << " used in one method should have sync valid and sync ready" << endl;
+            assert (false);
+        }
+    #endif
         if (clk.bind_count() != 1 || nrst.bind_count() != 1) {
             cout << "\nFIFO " << name() 
                  << " clock/reset inputs are not bound or multiple bound" << endl;
@@ -454,7 +465,10 @@ public:
             auto procKind = sc_get_current_process_handle().proc_kind();
             cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
         }
-            
+    #ifndef __SC_TOOL__
+        put_proc = sc_get_current_process_handle();
+    #endif        
+
         if (cthread_put) {
             if (TRAITS::CLOCK == 2) s << clk; 
             else s << (TRAITS::CLOCK ? clk.pos() : clk.neg());
@@ -480,6 +494,9 @@ public:
             auto procKind = p->proc_kind();
             cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
         }
+    #ifndef __SC_TOOL__
+        put_proc = sc_get_current_process_handle();
+    #endif        
         
         if (cthread_put) {
             if (TRAITS::CLOCK == 2) *s << *p << clk; 
@@ -505,6 +522,9 @@ public:
             auto procKind = sc_get_current_process_handle().proc_kind();
             cthread_get = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
         }
+    #ifndef __SC_TOOL__
+        get_proc = sc_get_current_process_handle();
+    #endif        
         
         if (cthread_get) {
             if (TRAITS::CLOCK == 2) s << clk; 
@@ -530,6 +550,9 @@ public:
             auto procKind = p->proc_kind();
             cthread_get = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
         }
+    #ifndef __SC_TOOL__
+        get_proc = sc_get_current_process_handle();
+    #endif        
         
         if (cthread_get) {
             if (TRAITS::CLOCK == 2) *s << *p << clk; 

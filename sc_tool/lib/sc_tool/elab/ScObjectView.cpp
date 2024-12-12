@@ -977,7 +977,7 @@ RecordView::RecordView(const ObjectView &parent)
 std::optional<ObjectView> RecordView::getField(const clang::FieldDecl *fieldDecl) const
 {
     for (auto fieldView : getFields()) {
-        if (fieldDecl->getName().equals(*fieldView.getFieldName()))
+        if (fieldDecl->getName().compare(*fieldView.getFieldName()) == 0)
             return fieldView;
     }
 
