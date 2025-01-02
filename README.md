@@ -10,13 +10,13 @@ ICSC checks a SystemC design for common coding mistakes and generates human-read
 
 See more information at [Intel Compiler for SystemC wiki](https://github.com/intel/systemc-compiler/wiki).
 
-## Common SystemC Library
+## SingleSource Library
 
-Common SystemC Library consists of types, modules and functions which could be used in SystemC designs and testbench code. The main part of the library are communication channels including Target/Initiator, FIFO, Register and others. The channels have functional interfaces similar to TLM 1.0.
+SingleSource library consists of communication channels including Target/Initiator, FIFO, Pipe, Buffer, Register and others. The channels have functional interfaces similar to TLM 1.0.
 
-There are [Communication channels training slides](https://github.com/intel/systemc-compiler/blob/main/doc/papers/single_source_training.pdf).
+There are [SingleSource training slides](https://github.com/intel/systemc-compiler/blob/main/doc/papers/single_source_training.pdf).
 
-See more information at [Common SystemC Library](https://github.com/intel/systemc-compiler/wiki/Common-SystemC-Library) .
+See more information at [SingleSource library](https://github.com/intel/systemc-compiler/wiki/SingleSource-library).
 
 ## License
 
