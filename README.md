@@ -10,13 +10,13 @@ ICSC checks a SystemC design for common coding mistakes and generates human-read
 
 See more information at [Intel Compiler for SystemC wiki](https://github.com/intel/systemc-compiler/wiki).
 
-## SingleSource Library
+## Single Source Library
 
-SingleSource library consists of communication channels including Target/Initiator, FIFO, Pipe, Buffer, Register and others. The channels have functional interfaces similar to TLM 1.0.
+Single Source library consists of communication channels including Target/Initiator, FIFO, Pipe, Buffer, Register and others. The channels have functional interfaces similar to TLM 1.0.
 
-There are [SingleSource training slides](https://github.com/intel/systemc-compiler/blob/main/doc/papers/single_source_training.pdf).
+There are [Single Source training slides](https://github.com/intel/systemc-compiler/blob/main/doc/papers/single_source_training.pdf).
 
-See more information at [SingleSource library](https://github.com/intel/systemc-compiler/wiki/SingleSource-library).
+See more information at [Single Source library](https://github.com/intel/systemc-compiler/wiki/Single-Source-library).
 
 ## License
 
