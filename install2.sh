@@ -160,6 +160,11 @@ if [ "${build_type['llvm']}" != "" ]; then (
     maybe_download llvm https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VER/clang-$LLVM_VER.src.tar.xz
     maybe_download llvm https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VER/llvm-$LLVM_VER.src.tar.xz
     maybe_download llvm https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VER/cmake-$LLVM_VER.src.tar.xz
+
+    ln -sf clang-$LLVM_VER.src clang
+    ln -sf llvm-$LLVM_VER.src llvm
+    ln -sf cmake-$LLVM_VER.src cmake
+
     CMAKE_BUILD_TYPE="${build_type['llvm']}"
     (
         cd llvm-$LLVM_VER.src
