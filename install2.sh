@@ -160,12 +160,20 @@ if [ "${build_type['llvm']}" != "" ]; then (
     maybe_download llvm https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VER/clang-$LLVM_VER.src.tar.xz
     maybe_download llvm https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VER/llvm-$LLVM_VER.src.tar.xz
     maybe_download llvm https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VER/cmake-$LLVM_VER.src.tar.xz
+
+    ln -sf clang-$LLVM_VER.src clang
+    ln -sf llvm-$LLVM_VER.src llvm
+    ln -sf cmake-$LLVM_VER.src cmake
+
     CMAKE_BUILD_TYPE="${build_type['llvm']}"
     (
         cd llvm-$LLVM_VER.src
         ln -sf ../../clang-$LLVM_VER.src tools/clang
         cp ../cmake-$LLVM_VER.src/Modules/* cmake/modules
-        cmake ./ -Bbuild -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD=X86 -DGCC_INSTALL_PREFIX=$GCC_INSTALL_PREFIX -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DLLVM_INCLUDE_BENCHMARKS=OFF
+        cmake ./ -Bbuild -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD=X86 \
+            -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE  -G "Unix Makefiles" \
+            -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX -DGCC_INSTALL_PREFIX=$GCC_INSTALL_PREFIX \
+            -DCMAKE_CXX_STANDARD=17  -DLLVM_INCLUDE_BENCHMARKS=OFF  -DLLVM_INCLUDE_TESTS=OFF
         cd build
         make -j12 install
     )
