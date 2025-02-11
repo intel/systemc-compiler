@@ -988,7 +988,8 @@ void ScTraverseProc::run()
                                      !isIoStreamStmt(superStmt) &&
                                      !codeWriter->isParseSvaArg();
                         }
-                        //cout << hex << "getSubStmtLevel " << currStmt << endl;
+                        //cout << hex << "getSubStmtLevel " << currStmt 
+                        //     << " isCallSubStmt " << isCallSubStmt << endl;
                         
                     } else {
                         cout << hex << "#" << currStmt << dec << endl;
@@ -1002,8 +1003,8 @@ void ScTraverseProc::run()
                         auto callStack = contextStack.getStmtStack();
                         callStack.push_back(currStmt);
                         isStmt = constEvalFuncs.count(callStack) == 0;
-                        //cout << "isCallSubStmt " << isStmt << " " << hex << currStmt << dec << endl;
                     }
+                    //cout << "isStmt " << isStmt << " " << hex << currStmt << dec << endl;
 
                     // Set level for statement and sub-statement
                     scopeGraph->setCurrLevel(level);

@@ -942,6 +942,15 @@ bool isScCoreType(clang::QualType type)
     return false;
 }
 
+bool isSctVector(clang::QualType type)
+{
+    if (type.isNull()) return false;
+    type = getPureType(type);
+    
+    std::string typeStr = type.getAsString();
+    return (typeStr.find("sct_vector") != std::string::npos);
+}
+
 bool isSctFifo(clang::QualType type) {
     if (type.isNull()) return false;
     type = getPureType(type);

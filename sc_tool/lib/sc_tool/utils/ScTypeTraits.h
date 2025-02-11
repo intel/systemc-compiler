@@ -148,7 +148,7 @@ bool isAnyScCoreObject(clang::QualType type);
 /// \return true if type is in sc_core namespace
 bool isScCoreType(clang::QualType type);
 
-/// ...
+bool isSctVector(clang::QualType type);
 bool isSctFifo(clang::QualType type);
 bool isSctTarg(clang::QualType type);
 bool isSctCombTarg(clang::QualType type);

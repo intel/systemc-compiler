@@ -556,6 +556,8 @@ public:
     
     /// Get all fields for given record value with 
     InsertionOrderSet<SValue> getRecordFields(const SValue& recval) const;
+    /// Get field value by name or return NO_VALUE
+    SValue getRecordFieldByName(SValue recval, const std::string& fieldName) const;
     
     /// Get array indices for one/multidimensional array element
     /// \param eval -- element which specifies array 

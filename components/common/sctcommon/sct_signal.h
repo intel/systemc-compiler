@@ -21,12 +21,12 @@
 namespace sct {
 
 /// Cycle accurate implementation
-template <class T>
-class sct_signal<T, 0> : public sc_signal<T>
+template <class T, class ENABLE_EVENT>
+class sct_signal<T, ENABLE_EVENT, 0> : public sc_signal<T>
 {
   public:
     using base_type = sc_signal<T>;
-    using this_type = sct_signal<T, 0>; 
+    using this_type = sct_signal<T, ENABLE_EVENT, 0>; 
       
     explicit sct_signal(const sc_module_name& name) : base_type(name)
     {}
@@ -66,13 +66,17 @@ class sct_signal<T, 0> : public sc_signal<T>
 //==============================================================================
 
 /// Approximate time implementation
-template <class T>
-class sct_signal<T, 1> : 
+template <class T, class ENABLE_EVENT>
+class sct_signal<T, ENABLE_EVENT, 1> : 
     public sc_prim_channel,
     public sct_inout_if<T>
 {
   public:
-    using this_type = sct_signal<T, 1>; 
+    using this_type = sct_signal<T, ENABLE_EVENT, 1>; 
+
+    /// Generate events for thread process every clock period if the signal
+    /// level is as specified by @ENABLE_EVENT::LEVEL
+    static const bool USE_ENABLE_EVENT = !std::is_void_v<ENABLE_EVENT>;
 
     SC_HAS_PROCESS(sct_signal);
     
@@ -80,7 +84,18 @@ class sct_signal<T, 1> :
         sc_prim_channel(name),
         meth_event(std::string(std::string(name)+"_meth_event").c_str()),
         thrd_event(std::string(std::string(name)+"_thrd_event").c_str())
-    {}
+    {
+        if constexpr (USE_ENABLE_EVENT) {
+            sc_spawn_options edge_options;
+            edge_options.spawn_method(); 
+            edge_options.dont_initialize();
+            edge_options.set_sensitivity(&thrd_event); 
+            sc_spawn([this]() {
+                        if (this->curr_val == ENABLE_EVENT::LEVEL) 
+                            this->thrd_event.notify(this->clk_period);
+                    }, sc_gen_unique_name("updateProc"), &edge_options);
+        }
+    }
 
     explicit sct_signal() {
         sct_signal("sct_signal");
@@ -118,7 +133,7 @@ class sct_signal<T, 1> :
                 clk_period = get_clk_period(clk_in);
             } else {
                 std::cout << "Signal " << name() << " in process sensitivity"
-                          << " list requires SCT_THREAD macro\n";
+                          << " list requires SCT_THREAD macro" << std::endl;
                 assert (false);
             }
         }
@@ -161,6 +176,11 @@ class sct_signal<T, 1> :
             clk_in = sct_curr_clock;
             thrdEvent = true;
         } else {
+            if constexpr (USE_ENABLE_EVENT) {
+                std::cout << "Signal " << name() << " with event enable added"
+                          << " to method process" << std::endl;
+                assert(false);
+            }
             s << meth_event;
             methEvent = true;
         }
@@ -175,12 +195,17 @@ class sct_signal<T, 1> :
             }
             if (clk_in && clk_in->get_interface() != c->get_interface()) {
                 std::cout << "Signal " << name() << " added to process sensitivity"
-                          << " lists which have different clock inputs\n";
+                          << " lists which have different clock inputs" << std::endl;
                 assert(false);
             }
             clk_in = c;
             thrdEvent = true;
         } else {
+            if constexpr (USE_ENABLE_EVENT) {
+                std::cout << "Signal " << name() << " with event enable added"
+                          << " to method process" << std::endl;
+                assert(false);
+            }
             *s << *p << meth_event;
             methEvent = true;
         }
@@ -210,9 +235,9 @@ class sct_signal<T, 1> :
 
 namespace sc_core {
     
-    template<class T, bool TLM_MODE>
+    template<class T, class ENABLE_EVENT, bool TLM_MODE>
     sc_sensitive& 
-    operator << ( sc_sensitive& s, sct::sct_signal<T, TLM_MODE>& signal )
+    operator << ( sc_sensitive& s, sct::sct_signal<T, ENABLE_EVENT, TLM_MODE>& signal )
     {
         signal.addTo(s);
         return s;

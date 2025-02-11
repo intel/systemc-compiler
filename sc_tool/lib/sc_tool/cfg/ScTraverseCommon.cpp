@@ -40,9 +40,11 @@ bool sc::isUserCallExpr(clang::Stmt* stmt)
 
         // Functions from @sc_core:: and @sc_dt:: not analyzed, 
         // some functions from @std:: not analyzed
+        // @sct::operator[] of @sct_vector is not considered as user function
+        // as it replaced with @vec[]
         if ((fname == "__assert" || fname == "__assert_fail") ||
             (nsname && (*nsname == "sc_core" || *nsname == "sc_dt")) ||
-            (((nsname && *nsname == "std") || isLinkageDecl(funcDecl)) &&
+            (((nsname && (*nsname == "std" || *nsname == "sct")) || isLinkageDecl(funcDecl)) &&
                (fname == "printf" || fname == "fprintf" || 
                 fname == "sprintf" || fname == "snprintf" ||
                 fname == "fopen" || fname == "fclose" || 

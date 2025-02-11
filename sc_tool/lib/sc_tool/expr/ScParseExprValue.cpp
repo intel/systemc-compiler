@@ -512,7 +512,8 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
     bool isPtr = type->isPointerType();
     bool isArr = type->isArrayType();
     bool isRec = isUserClass(getDerefType(type));
-    bool isRecArr = !isRec && getUserDefinedClassFromArray(type);
+    auto recType = getUserDefinedClassFromArray(type);
+    bool isRecArr = !isRec && recType;
     
     if (iexpr) {
         // Remove ExprWithCleanups wrapper
@@ -541,6 +542,19 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
     if (isRecArr) {
         // No UseDef for record array supported yet, can lead only to registers
         // declared if read after declaration
+        if (iexpr && recType && !isZeroWidthType(*recType)) {
+            // Checking for record with non-default constructor in array
+            if (auto recDecl = (*recType)->getAsCXXRecordDecl()) {
+                if (CXXConstructExpr* ctorExpr = dyn_cast<CXXConstructExpr>(iexpr)) {
+                    // Check for non-trivial constructor
+                    auto ctorFunc = ctorExpr->getConstructor()->getAsFunction();
+                    if (!ctorFunc->isDefaulted() && ctorFunc->isDefined()) {
+                        ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                             ScDiag::SYNTH_CTOR_REC_ARRAY);
+                    }
+                }
+            }
+        }
     } else {
         if (isArr) {
             // All array element are defined
@@ -2784,6 +2798,8 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
             opcode == OO_GreaterGreaterEqual || opcode == OO_LessLessEqual ||
             opcode == OO_AmpEqual || opcode == OO_PipeEqual || 
             opcode == OO_CaretEqual;
+    
+    bool isSctVectorAccess = isSctVector(thisType) && opcode == OO_Subscript;
     bool isAccessAtIndex = (isStdArray(thisType) || isStdVector(thisType) || 
                             isScVector(thisType)) && opcode == OO_Subscript;
     
@@ -2880,7 +2896,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
             val = tval;
         }
     } else
-    if (isAccessAtIndex) {
+    if (isAccessAtIndex || isSctVectorAccess) {
         // std::array, std::vector, @sc_vector access at index
         SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
         
@@ -2894,6 +2910,15 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
             assignLHS = lastAssignLHS;
             readFromValue(rval);
 
+            // For @sct_vector operator [] called from outside of the @sct_vector only
+            if (isSctVectorAccess && !isSctVector(modval.getType())) {
+                // Replace sct_vector value with @vec field value
+                SValue recval;
+                state->getValue(tval, recval, true, ArrayUnkwnMode::amFirstElementRec);
+                tval = state->getRecordFieldByName(recval, "vec");
+                SCT_TOOL_ASSERT (tval, "No vec field found in sct_vector");
+            }
+            
             val = parseArraySubscript(expr, tval, rval);
         }
     } else

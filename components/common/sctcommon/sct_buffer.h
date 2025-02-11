@@ -52,15 +52,19 @@ class sct_buffer :
     explicit sct_buffer(const char* name, 
                         bool sync_valid = 0, bool sync_ready = 0,
                         bool use_elem_num = 0, bool init_buffer = 0) :
-        sc_prim_channel(name), INIT_BUFFER(init_buffer)
+        sc_prim_channel(name), INIT_BUFFER(init_buffer),
+        event(std::string(std::string(name)+"_event").c_str())
     {
         static_assert (LENGTH > 0);
         // This implementation equals to async valid/ready FIFO
         assert (!sync_valid && !sync_ready && 
-                "No sync valid/ready allowed for  Buffer");
+                "No sync valid/ready allowed for Buffer");
     }
 
-public:
+  public:
+    // No @event notified after exit from reset, the processes should be
+    // waken up by another channel  
+      
     bool ready() const override {
         return (element_num != LENGTH);
     }
@@ -78,7 +82,7 @@ public:
     
     /// Call in METHOD everywhere and CTHREAD reset sections
     void reset_put() override {
-        push_indx   = 0;
+        push_indx = 0;
         put_req = 0; data_in = T{};
         element_num = 0;
         
@@ -117,6 +121,7 @@ public:
         if (element_num != 0) {
             get_req = 1;
             request_update();
+            if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
         }
         return data_out;
     }
@@ -127,6 +132,7 @@ public:
         if (element_num != 0) {
             get_req = enable;
             request_update();
+            if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
             return enable;
         } else {
             return false;
@@ -137,6 +143,7 @@ public:
         while (element_num == 0) wait();
         get_req = 1;
         request_update();
+        if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
         return data_out;
     }
     
@@ -145,6 +152,7 @@ public:
         if (element_num != LENGTH) {
             put_req = 1;
             request_update();
+            if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
             return true;
         } else {
             return false;
@@ -152,10 +160,11 @@ public:
     }
 
     bool put(const T& data, sc_uint<1> mask) override {
-        data_in = data; 
+        data_in = data;
         if (element_num != LENGTH) {
             put_req = bool(mask);
             request_update();
+            if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
             return mask;
         } else {
             return false;
@@ -167,6 +176,7 @@ public:
         while (element_num == LENGTH) wait();
         put_req = 1;
         request_update();
+        if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
     }
     
     /// Maximal number of elements
@@ -190,6 +200,13 @@ public:
     }
     
   protected:
+    /// This buffer attached to a processes
+    bool attached_put = false;
+    bool attached_get = false;
+
+    sc_in_clk*      clk_in = nullptr;
+    sc_time         clk_period = SC_ZERO_TIME;
+
     T               buffer[LENGTH];
     
     /// Index of element that will be poped
@@ -205,6 +222,8 @@ public:
     bool            get_req;
     T               data_out;
     
+    sc_event        event;
+
     void update() {
         if (get_req) {
             pop_indx = (pop_indx == LENGTH-1) ? 0 : (pop_indx+1);
@@ -220,34 +239,102 @@ public:
         data_out = buffer[pop_indx];
     }
     
-  public:
-    void clk_nrst(sc_in_clk& clk_in, sc_in<bool>& nrst_in) {}
+    void end_of_elaboration() override {
+        if (!attached_put || !attached_get) {
+            cout << "\nBuffer " << name() 
+                 << " is not fully attached to process(es)" << endl;
+            assert (false);
+        }
+        if constexpr (SCT_CMN_TLM_MODE) {
+            if (clk_in) {
+                clk_period = get_clk_period(clk_in);
+            } else {
+                cout << "\nBuffer " << name() << " clock input is not bound" << endl;
+                assert (false);
+            }
+        }
+    }
     
-    void addTo(sc_sensitive& s) override {
-        if (sct_seq_proc_handle != sc_get_current_process_handle()) {
+  public:
+    void clk_nrst(sc_in_clk& clk_in_, sc_in<bool>& nrst_in) {
+        if constexpr (SCT_CMN_TLM_MODE) { clk_in = &clk_in_; }
+    }
+    
+    void add_to(sc_sensitive& s, bool attachedPut, bool attachedGet) {
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method
+            if constexpr (SCT_CMN_TLM_MODE) { s << event; }
+        } else {
             auto procKind = sc_get_current_process_handle().proc_kind();
             if (procKind != SC_THREAD_PROC_ && procKind != SC_CTHREAD_PROC_) {
                 cout << "Buffer cannot be used in combinational method process" << endl;
                 assert (false);
             }
+            if constexpr (SCT_CMN_TLM_MODE) { 
+                if (procKind != SC_CTHREAD_PROC_) { s << event; }
+            }                
+        }
+        if (attachedPut) {
+            if (attached_put) {
+                cout <<  "Double addToPut() for Buffer: " << name() << endl; 
+                assert (false);
+            }
+            attached_put = true;
+        }
+        if (attachedGet) {
+            if (attached_get) {
+                cout <<  "Double addToGet() for Buffer: " << name() << endl;
+                assert (false);
+            }
+            attached_get = true;
         }
     }
     
-    void addTo(sc_sensitive* s, sc_process_handle* p) override {
-        if (sct_seq_proc_handle != *p) {
+    void add_to(sc_sensitive* s, sc_process_handle* p, bool attachedPut, 
+                bool attachedGet) {
+        if (sct_seq_proc_handle == *p) {
+            // Sequential method
+            if constexpr (SCT_CMN_TLM_MODE) { *s << *p << event; }
+        } else {
             auto procKind = p->proc_kind();
             if (procKind != SC_THREAD_PROC_ && procKind != SC_CTHREAD_PROC_) {
                 cout << "Buffer cannot be used in combinational method process" << endl;
                 assert (false);
             }
+            if constexpr (SCT_CMN_TLM_MODE) { 
+                if (procKind != SC_CTHREAD_PROC_) { *s << *p << event; }
+            }                
+        }
+        if (attachedPut) {
+            if (attached_put) {
+                cout <<  "Double addToPut() for Buffer: " << name() << endl; 
+                assert (false);
+            }
+            attached_put = true;
+        }
+        if (attachedGet) {
+            if (attached_get) {
+                cout <<  "Double addToGet() for Buffer: " << name() << endl;
+                assert (false);
+            }
+            attached_get = true;
         }
     }
         
-    void addToPut(sc_sensitive& s) override { addTo(s); }
-    void addToPut(sc_sensitive* s, sc_process_handle* p) override { addTo(s, p); }
-    void addToGet(sc_sensitive& s) override { addTo(s); }
-    void addToGet(sc_sensitive* s, sc_process_handle* p) override { addTo(s, p); }
-    void addPeekTo(sc_sensitive& s) override {}
+    void addTo(sc_sensitive& s) override { add_to(s, true, true); }
+    void addTo(sc_sensitive* s, sc_process_handle* p) override { 
+            add_to(s, p, true, true); }
+    void addToPut(sc_sensitive& s) override { add_to(s, true, false); }
+    void addToPut(sc_sensitive* s, sc_process_handle* p) override {
+            add_to(s, p, true, false); }
+    void addToGet(sc_sensitive& s) override { add_to(s, false, true); }
+    void addToGet(sc_sensitive* s, sc_process_handle* p) override {
+            add_to(s, p, false, true); }
+    
+    void addPeekTo(sc_sensitive& s) override { 
+        cout << "addPeekTo() for Buffer is not supported yet" << endl;
+        assert (false);
+    }
     
     inline void print(::std::ostream& os) const override
     {
@@ -267,9 +354,9 @@ public:
         os << ::std::endl;
     }
 
-    sct_buffer_sens<T, LENGTH, TRAITS> PUT{this};
-    sct_buffer_sens<T, LENGTH, TRAITS> GET{this};
-    sct_buffer_peek<T, LENGTH, TRAITS> PEEK{};
+    sct_buffer_put<T, LENGTH, TRAITS> PUT{this};
+    sct_buffer_get<T, LENGTH, TRAITS> GET{this};
+    sct_buffer_peek<T, LENGTH, TRAITS> PEEK{this};
 };
 
 #else
@@ -304,19 +391,26 @@ operator << ( sc_sensitive& s,
 
 template<class T, unsigned LENGTH, class TRAITS>
 sc_sensitive& 
-operator << ( sc_sensitive& s, 
-              sct::sct_buffer_sens<T, LENGTH, TRAITS>& buffer )
+operator << ( sc_sensitive& s, sct::sct_buffer_put<T, LENGTH, TRAITS>& put )
 {
-    buffer.buf->addTo(s);
+    put.buf->addToPut(s);
+    return s;
+}
+
+template<class T, unsigned LENGTH, class TRAITS>
+sc_sensitive& 
+operator << ( sc_sensitive& s, sct::sct_buffer_get<T, LENGTH, TRAITS>& get )
+{
+    get.buf->addToGet(s);
     return s;
 }
 
 template<class T, unsigned LENGTH, class TRAITS>
 sc_sensitive& 
 operator << ( sc_sensitive& s, 
-              sct::sct_buffer_peek<T, LENGTH, TRAITS>& buffer )
+              sct::sct_buffer_peek<T, LENGTH, TRAITS>& peek )
 {
-    // Peek can be done from combinational method process, do nothing
+    peek.buf->addPeekTo(s);
     return s;
 }
 

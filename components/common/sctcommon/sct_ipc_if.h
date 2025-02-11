@@ -250,13 +250,11 @@ static sc_process_handle sct_seq_proc_handle;
     /// Reset callback storage <reset input port, callback>
     static std::unordered_map<size_t, sct_reset_callback*> sct_reset_stor;
 
-    /// Thread process macro if it is sensitive to signals only
+    /// Thread process macro if it is sensitive to SS signals/ports only
+    /// @sct_signal/@sct_in/@sct_out get clock period from @sct_curr_clock
+    /// Spawn method provides reset event with @sct_reset_callback
     #define SCT_THREAD3(proc, clk, rst) \
         { \
-            sc_spawn_options edge_options; \
-            edge_options.spawn_method(); \
-            edge_options.dont_initialize(); \
-            edge_options.set_sensitivity(&rst.value_changed()); \
             sct_reset_callback* callback; \
             auto i = sct_reset_stor.find((size_t)&rst); \
             if (i != sct_reset_stor.end()) { \
@@ -267,6 +265,10 @@ static sc_process_handle sct_seq_proc_handle;
                     assert (false); \
                 } \
             } else { \
+                sc_spawn_options edge_options; \
+                edge_options.spawn_method(); \
+                edge_options.dont_initialize(); \
+                edge_options.set_sensitivity(&rst.value_changed()); \
                 callback = new sct_reset_callback(new sc_event("e"), &clk); \
                 sc_spawn(*callback, sc_gen_unique_name("reset_callback"), &edge_options); \
                 sct_reset_stor.emplace((size_t)&rst, callback); \
@@ -276,7 +278,8 @@ static sc_process_handle sct_seq_proc_handle;
             sct_curr_clock = &clk; \
         }
 
-    /// Thread process macro if it is sensitive to signals and channels
+    /// Thread process macro if it is sensitive to channels and SS signals/ports
+    /// @sct_signal/@sct_in/@sct_out get clock period from @sct_curr_clock
     #define SCT_THREAD2(proc, clk) \
             SC_THREAD(proc); \
             sct_curr_clock = &clk; 
@@ -335,8 +338,8 @@ static sc_process_handle sct_seq_proc_handle;
 #define SCT_METHOD(...) SCT_GET_MACRO(__VA_ARGS__, , SCT_METHOD3,\
                                       SCT_METHOD2, SCT_METHOD1)(__VA_ARGS__)
 
-/// Use default clock input name
-#define SCT_THREAD1(proc) SCT_THREAD2(proc, clk);
+/// Default thread process
+#define SCT_THREAD1(proc) SC_THREAD(proc)
 
 /// Macro argument number overload
 #ifndef SCT_GET_MACRO
@@ -478,13 +481,20 @@ class sct_buffer;
 /// Buffer put/get helpers
 template<
     class T, unsigned LENGTH, class TRAITS = SCT_CMN_TRAITS>
-struct sct_buffer_sens {
+struct sct_buffer_put {
+    sct_buffer<T, LENGTH, TRAITS>* buf;
+};
+template<
+    class T, unsigned LENGTH, class TRAITS = SCT_CMN_TRAITS>
+struct sct_buffer_get {
     sct_buffer<T, LENGTH, TRAITS>* buf;
 };
 
 template<
     class T, unsigned LENGTH, class TRAITS = SCT_CMN_TRAITS>
-struct sct_buffer_peek {};
+struct sct_buffer_peek {
+    sct_buffer<T, LENGTH, TRAITS>* buf;
+};
 #endif
 
 /// Pipe general template
@@ -516,18 +526,36 @@ template<
     bool TLM_MODE = SCT_CMN_TLM_MODE>
 class sct_register {};
 
+/// Clock and reset traits:
+///  LEVEL -- signal level to generate events
+struct SCT_ENABLE_HIGH {
+    static constexpr bool LEVEL = 1;
+};
+struct SCT_ENABLE_LOW {
+    static constexpr bool LEVEL = 0;
+};
+
 /// Input and output port general templates
+/// ENABLE_EVENT -- if not @void generate events for sensitive thread process 
+///                 every clock period if signal value corresponded to @LEVEL
 template<
-    class T, bool TLM_MODE = SCT_CMN_TLM_MODE>
+    class T, class ENABLE_EVENT = void, bool TLM_MODE = SCT_CMN_TLM_MODE>
 class sct_in {};
 template<
-    class T, bool TLM_MODE = SCT_CMN_TLM_MODE>
+    class T, class ENABLE_EVENT = void, bool TLM_MODE = SCT_CMN_TLM_MODE>
 class sct_out {};
 
 /// Signal general template 
+/// ENABLE_EVENT -- if not @void generate events for sensitive thread process 
+///                 every clock period if signal value corresponded to @LEVEL
 template<
-    class T, bool TLM_MODE = SCT_CMN_TLM_MODE>
+    class T, class ENABLE_EVENT = void, bool TLM_MODE = SCT_CMN_TLM_MODE>
 class sct_signal {};
+
+/// Default enable signal and ports
+using sct_enable_signal = sct_signal<bool, SCT_ENABLE_HIGH, SCT_CMN_TLM_MODE>;
+using sct_enable_in = sct_in<bool, SCT_ENABLE_HIGH, SCT_CMN_TLM_MODE>;
+using sct_enable_out = sct_out<bool, SCT_ENABLE_HIGH, SCT_CMN_TLM_MODE>;
 
 /// Flip-Flop Synchronizer Cell Wrapper
 /// SyncType: 1 - single msff, 2 - double msff, 3 - triple msff

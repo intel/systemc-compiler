@@ -597,7 +597,13 @@ class sct_prim_fifo :
     
     void addToPut(sc_sensitive* s, sc_process_handle* p) override {
         auto procKind = p->proc_kind();
-        cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        if (sct_seq_proc_handle == *p) {
+            // Sequential method
+            cthread_put = true;
+            //cout << "SEQ METHOD " << name() << " " << p->name() << endl;
+        } else {
+            cthread_put = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
         
         if (procKind != SC_CTHREAD_PROC_) {
             *s << *p << put_event;
@@ -622,7 +628,13 @@ class sct_prim_fifo :
     
     void addToGet(sc_sensitive* s, sc_process_handle* p) override {
         auto procKind = p->proc_kind();
-        cthread_get = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        if (sct_seq_proc_handle == *p) {
+            // Sequential method
+            cthread_get = true;
+            //cout << "SEQ METHOD " << name() << " " << p->name() << endl;
+        } else {
+            cthread_get = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        }
         
         if (procKind != SC_CTHREAD_PROC_) {
             *s << *p << get_event;

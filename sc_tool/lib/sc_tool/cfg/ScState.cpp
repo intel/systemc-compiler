@@ -1877,6 +1877,27 @@ InsertionOrderSet<SValue> ScState::getRecordFields(const SValue& recval) const
     return res;
 }
 
+// Get field value by name or return NO_VALUE
+SValue ScState::getRecordFieldByName(SValue recval, 
+                                     const std::string& fieldName) const
+{
+    // Get record for array element
+    if (recval.isArray()) {
+        getValue(recval, recval, false, ArrayUnkwnMode::amFirstElementRec);
+    }
+    SCT_TOOL_ASSERT (recval.isRecord(), "No record found in getRecordFieldByName()");
+    
+    auto recDecl = recval.getType()->getAsCXXRecordDecl();
+    SCT_TOOL_ASSERT (recDecl, "No record declaration in getRecordFieldByName()");
+    
+    for (const auto& fieldDecl : recDecl->fields()) {
+        if (fieldDecl->getNameAsString().find(fieldName) != string::npos)
+            return SValue(fieldDecl, recval);
+    }
+    
+    return NO_VALUE;
+}
+
 // Get array indices for one/multidimensional array element
 // \param eval -- element which specifies array 
 // \param mval -- topmost array value

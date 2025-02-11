@@ -471,6 +471,9 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
                   << methodDecl->getNameAsString() << endl;
         cout << "Run process in module " << modval << endl;
     }
+    if (DebugOptions::isEnabled(DebugComponent::doModuleBuilder)) {
+        cout << "\n=========================  METHOD GEN =============================\n";
+    }
 
     // Name generator with all member names for current module
     UniqueNamesGenerator& nameGen = verMod->getNameGen();

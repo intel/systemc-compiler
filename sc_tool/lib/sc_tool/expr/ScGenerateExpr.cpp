@@ -2245,7 +2245,16 @@ SValue ScGenerateExpr::parseArraySubscript(Expr* expr,
     SValue ival;    
     chooseExprMethod(indxExpr, ival);
     assignLHS = lastAssignLHS;
-    
+
+    // For @sct_vector operator [] called from outside of the @sct_vector only
+    if (isSctVector(baseExpr->getType()) && !isSctVector(modval.getType())) {
+        // Replace sct_vector value with @vec field value
+        SValue recval;
+        state->getValue(bval, recval, true, ArrayUnkwnMode::amFirstElementRec);
+        bval = state->getRecordFieldByName(recval, "vec");
+        SCT_TOOL_ASSERT (bval, "No vec field found in sct_vector");
+    }
+
     codeWriter->setSkipSignCast(skipSignCastOrig);
     
     // Get referenced variable for array (reference to array: T (&a)[N])
@@ -3074,6 +3083,10 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             opcode == OO_AmpEqual || opcode == OO_PipeEqual || 
             opcode == OO_CaretEqual;
     
+    bool isSctVectorAccess = isSctVector(thisType) && opcode == OO_Subscript;
+    bool isAccessAtIndex = (isStdArray(thisType) || isStdVector(thisType) || 
+                            isScVector(thisType)) && opcode == OO_Subscript;
+    
     if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
         cout << "ScGeneratExpr::parseOperatorCall fname : " << fname 
              << ", type : " << thisType.getAsString() << endl;
@@ -3314,8 +3327,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             }
         }
     } else 
-    if ((isStdArray(thisType) || isStdVector(thisType) || isScVector(thisType)) && 
-        opcode == OO_Subscript) {
+    if (isAccessAtIndex || isSctVectorAccess) {
         // sc_vector access at index
         SCT_TOOL_ASSERT (argNum == 2, "Incorrect argument number");
         Expr* rexpr = args[1];

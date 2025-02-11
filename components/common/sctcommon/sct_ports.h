@@ -36,13 +36,13 @@ struct sct_sens_handle
 /// Input port sct_in to bind to sct_signal
     
 /// Cycle accurate implementation, inherits sc_in to compatibility with simulators
-template <class T>
-class sct_in<T, 0> : public sc_in<T>
+template <class T, class ENABLE_EVENT>
+class sct_in<T, ENABLE_EVENT, 0> : public sc_in<T>
 {
   public:
     using base_type = sc_in<T>; 
-    using this_type = sct_in<T, 0>;
-    using signal_type = sct_signal<T, 0>;
+    using this_type = sct_in<T, ENABLE_EVENT, 0>;
+    using signal_type = sct_signal<T, ENABLE_EVENT, 0>;
 
     explicit sct_in() : base_type("sct_in") {}
     explicit sct_in(const char* name_) : base_type(name_) {}
@@ -61,11 +61,12 @@ class sct_in<T, 0> : public sc_in<T>
 
 /// Specialization for sct_zero_width, cycle accurate implementation
 template<>
-class sct_in<sc_dt::sct_zero_width, 0>: public sct_in_if<sc_dt::sct_zero_width>
+class sct_in<sc_dt::sct_zero_width, void, 0> : 
+    public sct_in_if<sc_dt::sct_zero_width>
 {
   public:
-    using this_type = sct_in<sc_dt::sct_zero_width, 0>;
-    using signal_type = sct_signal<sc_dt::sct_zero_width, 0>;
+    using this_type = sct_in<sc_dt::sct_zero_width, void, 0>;
+    using signal_type = sct_signal<sc_dt::sct_zero_width, void, 0>;
 
     explicit sct_in() {}
     explicit sct_in(const char* name_) {}
@@ -89,13 +90,13 @@ class sct_in<sc_dt::sct_zero_width, 0>: public sct_in_if<sc_dt::sct_zero_width>
 
 
 /// Approximate time implementation
-template <class T>
-class sct_in<T, 1> : public sct_in_if<T>
+template <class T, class ENABLE_EVENT>
+class sct_in<T, ENABLE_EVENT, 1> : public sct_in_if<T>
 {
   public:   
     using IF = sct_in_if<T>;
-    using this_type = sct_in<T, 1>;
-    using signal_type = sct_signal<T, 1>;
+    using this_type = sct_in<T, ENABLE_EVENT, 1>;
+    using signal_type = sct_signal<T, ENABLE_EVENT, 1>;
 
     explicit sct_in() {}
     explicit sct_in(const char* name_) {}
@@ -130,7 +131,8 @@ class sct_in<T, 1> : public sct_in_if<T>
             sens_handle.clear();
             interface = &signal_;
         } else {
-            std::cout << "Double bind sct_in to sct_signal " << signal_.name() << "\n";
+            std::cout << "Double bind sct_in to sct_signal " 
+                      << signal_.name() << std::endl;
             assert (false);
         } 
     }
@@ -148,7 +150,7 @@ class sct_in<T, 1> : public sct_in_if<T>
             sens_handle.clear();
             interface = &port_;
         } else {
-            std::cout << "Double bind sct_in to parent sct_in port\n";
+            std::cout << "Double bind sct_in to parent sct_in port"<< std::endl;
             assert (false);
         }
     }
@@ -170,11 +172,12 @@ class sct_in<T, 1> : public sct_in_if<T>
 
 /// Specialization for sct_zero_width, approximate time implementation
 template<>
-class sct_in<sc_dt::sct_zero_width, 1>: public sct_in_if<sc_dt::sct_zero_width>
+class sct_in<sc_dt::sct_zero_width, void, 1> : 
+    public sct_in_if<sc_dt::sct_zero_width>
 {
   public:
-    using this_type = sct_in<sc_dt::sct_zero_width, 1>;
-    using signal_type = sct_signal<sc_dt::sct_zero_width, 1>;
+    using this_type = sct_in<sc_dt::sct_zero_width, void, 1>;
+    using signal_type = sct_signal<sc_dt::sct_zero_width, void, 1>;
 
     explicit sct_in() {}
     explicit sct_in(const char* name_) {}
@@ -200,14 +203,15 @@ class sct_in<sc_dt::sct_zero_width, 1>: public sct_in_if<sc_dt::sct_zero_width>
 
 /// Output port sc_out to bind to sct_signal
 
-/// Cycle accurate implementation, inherits sc_out to compatibility with simulators
-template <class T>
-class sct_out<T, 0> : public sc_out<T>
+/// Cycle accurate implementation, inherits sc_out to compatibility with 
+/// simulators
+template <class T, class ENABLE_EVENT>
+class sct_out<T, ENABLE_EVENT, 0> : public sc_out<T>
 {
   public:   
     using base_type = sc_out<T>; 
-    using this_type = sct_out<T, 0>;
-    using signal_type = sct_signal<T, 0>;
+    using this_type = sct_out<T, ENABLE_EVENT, 0>;
+    using signal_type = sct_signal<T, ENABLE_EVENT, 0>;
 
     explicit sct_out() : base_type("sct_out") {}
     explicit sct_out(const char* name_) : base_type(name_) {}
@@ -241,11 +245,12 @@ class sct_out<T, 0> : public sc_out<T>
 
 /// Specialization for sct_zero_width, cycle accurate implementation
 template<>
-class sct_out<sc_dt::sct_zero_width, 0> : public sct_inout_if<sc_dt::sct_zero_width>
+class sct_out<sc_dt::sct_zero_width, void, 0> : 
+    public sct_inout_if<sc_dt::sct_zero_width>
 {
   public:   
-    using this_type = sct_out<sc_dt::sct_zero_width, 0>;
-    using signal_type = sct_signal<sc_dt::sct_zero_width, 0>;
+    using this_type = sct_out<sc_dt::sct_zero_width, void, 0>;
+    using signal_type = sct_signal<sc_dt::sct_zero_width, void, 0>;
 
     explicit sct_out() { }
     explicit sct_out(const char* name_) { }
@@ -274,13 +279,13 @@ class sct_out<sc_dt::sct_zero_width, 0> : public sct_inout_if<sc_dt::sct_zero_wi
 
 
 /// Approximate time implementation
-template <class T>
-class sct_out<T, 1> : public sct_inout_if<T>
+template <class T, class ENABLE_EVENT>
+class sct_out<T, ENABLE_EVENT, 1> : public sct_inout_if<T>
 {
   public:   
     using IF = sct_inout_if<T>;
-    using this_type = sct_out<T, 1>;
-    using signal_type = sct_signal<T, 1>;
+    using this_type = sct_out<T, ENABLE_EVENT, 1>;
+    using signal_type = sct_signal<T, ENABLE_EVENT, 1>;
 
     explicit sct_out() {}
     explicit sct_out(const char* name) {}
@@ -334,7 +339,8 @@ protected:
             sens_handle.clear();
             interface = &signal_;
         } else {
-            std::cout << "Double bind sct_out to sct_signal " << signal_.name() << "\n";
+            std::cout << "Double bind sct_out to sct_signal " << signal_.name() 
+                      << std::endl;
             assert (false);
         } 
     }
@@ -352,7 +358,7 @@ protected:
             sens_handle.clear();
             interface = &port_;
         } else {
-            std::cout << "Double bind sct_out to parent sct_in port\n";
+            std::cout << "Double bind sct_out to parent sct_in port"<<std::endl;
             assert (false);
         }
     }
@@ -372,11 +378,12 @@ protected:
 
 /// Specialization for sct_zero_width, approximate time implementation
 template<>
-class sct_out<sc_dt::sct_zero_width, 1> : public sct_inout_if<sc_dt::sct_zero_width>
+class sct_out<sc_dt::sct_zero_width, void, 1> : 
+    public sct_inout_if<sc_dt::sct_zero_width>
 {
   public:   
-    using this_type = sct_out<sc_dt::sct_zero_width, 1>;
-    using signal_type = sct_signal<sc_dt::sct_zero_width, 1>;
+    using this_type = sct_out<sc_dt::sct_zero_width, void, 1>;
+    using signal_type = sct_signal<sc_dt::sct_zero_width, void, 1>;
 
     explicit sct_out() { }
     explicit sct_out(const char* name_) { }
@@ -462,8 +469,8 @@ class sc_port< sct::sct_initiator<T, TRAITS, TLM_MODE>, 1, SC_ONE_OR_MORE_BOUND>
         auto& parent_port = dynamic_cast<this_type&>(parent_);
         if (p) {
             if (parent_port.p) {
-                ::std::cout << "\nParent port " << parent_.name() 
-                            << " already attached to a process\n";
+                std::cout << "\nParent port " << parent_.name() 
+                          << " already attached to a process" << std::endl;
                 assert (false);
             }
             parent_port.p = p; parent_port.s = s;
@@ -476,7 +483,8 @@ class sc_port< sct::sct_initiator<T, TRAITS, TLM_MODE>, 1, SC_ONE_OR_MORE_BOUND>
         if (!p) {
             p = p_; s = s_;
         } else {
-            ::std::cout << "Double attach port " << this->name() << " to a process\n";
+            std::cout << "Double attach port " << this->name() 
+                      << " to a process" << std::endl;
             assert (false);
         }
     }    
@@ -522,8 +530,8 @@ class sc_port< sct::sct_target<T, TRAITS, TLM_MODE>, 1, SC_ONE_OR_MORE_BOUND> :
         auto& parent_port = dynamic_cast<this_type&>(parent_);
         if (p) {
             if (parent_port.p) {
-                ::std::cout << "Parent port " << parent_.name() 
-                            << " already attached to a process\n";
+                std::cout << "Parent port " << parent_.name() 
+                          << " already attached to a process" << std::endl;
                 assert (false);
             }
             parent_port.p = p; parent_port.s = s;
@@ -536,7 +544,8 @@ class sc_port< sct::sct_target<T, TRAITS, TLM_MODE>, 1, SC_ONE_OR_MORE_BOUND> :
         if (!p) {
             p = p_; s = s_;
         } else {
-            ::std::cout << "Double attach port " << this->name() << " to a process\n";
+            std::cout << "Double attach port " << this->name() 
+                      << " to a process" << std::endl;
             assert (false);
         }
     }    
@@ -560,18 +569,18 @@ class sc_port< sct::sct_target<T, TRAITS, TLM_MODE>, 1, SC_ONE_OR_MORE_BOUND> :
 
 //==============================================================================
 
-template<class T, bool TLM_MODE>
+template<class T, class ENABLE_EVENT, bool TLM_MODE>
 sc_sensitive& 
-operator << ( sc_sensitive& s, sct::sct_in<T, TLM_MODE>& in_port )
+operator << ( sc_sensitive& s, sct::sct_in<T, ENABLE_EVENT, TLM_MODE>& in_port )
 {
     auto* p = new sc_process_handle(sc_get_current_process_handle());
     in_port.addTo(&s, p, sct::sct_curr_clock);
     return s;
 }
 
-template<class T, bool TLM_MODE>
+template<class T, class ENABLE_EVENT, bool TLM_MODE>
 sc_sensitive& 
-operator << ( sc_sensitive& s, sct::sct_out<T, TLM_MODE>& out_port )
+operator << ( sc_sensitive& s, sct::sct_out<T, ENABLE_EVENT, TLM_MODE>& out_port )
 {
     auto* p = new sc_process_handle(sc_get_current_process_handle());
     out_port.addTo(&s, p, sct::sct_curr_clock);
