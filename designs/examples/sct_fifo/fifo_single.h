@@ -31,7 +31,7 @@ struct A : public sc_module
     sc_out<bool>        resp_req;
     sc_out<T>           resp_data;
 
-    sct_fifo<T, 2>      fifo{"fifo", 1, 1};
+    sct_fifo<T, 2>      fifo{"fifo", 0, 0};
   
     SC_HAS_PROCESS(A);
     

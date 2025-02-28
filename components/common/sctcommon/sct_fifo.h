@@ -18,6 +18,7 @@
 #ifndef SCT_FIFO_H
 #define SCT_FIFO_H
 
+#include "sct_comb_signal.h"
 #include "sct_prim_fifo.h"
 #include "sct_static_log.h"
 #include "sct_ipc_if.h"
@@ -60,7 +61,8 @@ class sct_fifo<T, LENGTH, TRAITS, 0> :
     /// \param init_buffer  -- Initialize all buffer elements with zeros in reset
     ///                        First element to get is always initialized to zero id 
     explicit sct_fifo(const sc_module_name& name, 
-                      bool sync_valid = 0, bool sync_ready = 0,
+                      bool sync_valid = 0, bool sync_ready = 0, 
+                      /*bool add_output_reg, bool init_buffer*/
                       bool use_elem_num = 0,
                       bool init_buffer = 0) :
         sc_module(name), 
@@ -71,8 +73,10 @@ class sct_fifo<T, LENGTH, TRAITS, 0> :
         //cout << "RTL FIFO " << name << " SYNC " << SYNC_VALID << SYNC_READY << endl;
         
         SC_METHOD(asyncProc);
-        sensitive << data_in << put_req << put_req_d << get_req << get_req_d 
-                  << pop_indx << element_num_d;
+        sensitive << data_in << put_req << get_req << pop_indx << element_num_d;
+    #ifndef __SC_TOOL__
+        sensitive << put_req_d << get_req_d;
+    #endif
         for (auto& i : buffer) sensitive << i;
 
     #ifdef SCT_SEQ_METH
@@ -102,7 +106,7 @@ public:
     /// Call in METHOD everywhere and CTHREAD reset sections
     void reset_put() override {
         put_req = 0;
-        data_in = T{};
+        data_in = T{}; 
     }
     
     /// Call both put and get resets if used from the same process
@@ -113,7 +117,11 @@ public:
     
     void clear_get() override {
         if (cthread_get) {
-            get_req = get_req.read();
+        #ifdef __SC_TOOL__ 
+            get_req = 0; 
+        #else 
+            get_req = get_req; 
+        #endif
         } else {
             get_req = 0;
         }
@@ -121,9 +129,13 @@ public:
     
     void clear_put() override {
         if (cthread_put) {
-            put_req = put_req.read();
+        #ifdef __SC_TOOL__ 
+            put_req = 0; 
+        #else 
+            put_req = put_req;
+        #endif
         } else {
-            put_req = 0;
+            put_req = 0;    
         }
         data_in = T{};
     }
@@ -131,13 +143,17 @@ public:
     T peek() const override {
         return data_out.read();
     }
-    
+
     /// \return current request data, if no request last data returned
     T get() override {
-        if (out_valid) {
-            get_req = cthread_get ? !get_req : 1;
+        if (cthread_get) {
+        #ifdef __SC_TOOL__ 
+            get_req = out_valid; 
+        #else 
+            get_req = out_valid ? !get_req : get_req; 
+        #endif
         } else {
-            if (!cthread_get) get_req = 0;
+            get_req = out_valid;
         }
         return data_out.read();
     }
@@ -145,13 +161,16 @@ public:
     /// \return true if request is valid and enable is true
     bool get(T& data, bool enable = true) override {
         data = data_out.read();
-        if (out_valid) {
-            get_req = cthread_get ? (enable ? !get_req : get_req) : enable;
-            return enable;
+        if (cthread_get) {
+        #ifdef __SC_TOOL__ 
+            get_req = out_valid && enable; 
+        #else 
+            get_req = (out_valid && enable) ? !get_req : get_req; 
+        #endif
         } else {
-            if (!cthread_get) get_req = 0;
-            return false;
+            get_req = out_valid && enable;
         }
+        return (out_valid && enable);
     }
 
     T b_get() override {
@@ -161,31 +180,42 @@ public:
         }
 
         while (!out_valid) wait();
-        get_req = !get_req;
+    #ifdef __SC_TOOL__ 
+        get_req = 1; 
+    #else 
+        get_req = !get_req; 
+    #endif
         return data_out.read();
     }
     
     bool put(const T& data) override {
         // Assign input data as it does not store any value
         data_in = data;
-        if (ready_push) {
-            put_req = cthread_put ? !put_req : true;
-            return true;
+        if (cthread_put) {
+        #ifdef __SC_TOOL__ 
+            put_req = ready_push; 
+        #else 
+            put_req = ready_push ? !put_req : put_req; 
+        #endif
         } else {
-            if (!cthread_put) put_req = 0;
-            return false;
+            put_req = ready_push;
         }
+        return ready_push.read();
     }
+    
     bool put(const T& data, sc_uint<1> mask) override {
         // Assign input data as it does not store any value
         data_in = data;
-        if (ready_push) {
-            put_req = cthread_put ? (mask ? !put_req : put_req) : bool(mask);
-            return mask;
+        if (cthread_put) {
+        #ifdef __SC_TOOL__ 
+            put_req = ready_push && mask; 
+        #else 
+            put_req = (ready_push && mask) ? !put_req : put_req; 
+        #endif
         } else {
-            if (!cthread_put) put_req = 0;
-            return false;
+            put_req = ready_push && mask;
         }
+        return (ready_push && mask);
     }
     
     void b_put(const T& data) override {
@@ -193,49 +223,70 @@ public:
             // Assign input data as it does not store any value 
             data_in = data;
             while (!ready_push) wait();
-            put_req = !put_req;
-            
+        #ifdef __SC_TOOL__ 
+            put_req = 1; 
+        #else 
+            put_req = !put_req; 
+        #endif
         } else {
             cout << "No blocking put allowed in METHOD process" << endl;
             sc_assert (false);
         }
     }
     
-    /// Maximal number of elements
-    unsigned size() const override {
-        return LENGTH;
-    }
+  public:
+    /// Using @sct_prim_signal allows to have multiple drivers for @sct_fifo
+#if defined(__SC_TOOL__) || defined(DEBUG_SYSTEMC)
+    template<class P>
+    using SignalType = sc_signal<P>;
+#else
+    template<class P>
+    using SignalType = sct_prim_signal<P>;
+#endif
+    
+    /// Number of elements to be accessed in user code
+    /// Number of elements updated last delta cycle (normally used in threads)
+    SignalType<ElemNum_t>   element_num{"element_num"};
+    /// Number of elements updated last clock cycle (normally used in methods)
+    SignalType<ElemNum_t>   element_num_d{"element_num_d"};
     
     /// Number of elements in FIFO after last/current clock edge
-    unsigned elem_num() const override {
-        return (sct_is_method_proc() ? element_num_d.read() : element_num.read());
+    ///   PUT    GET        SC               RTL
+    ///    T      T     element_num     element_num_d
+    ///    T      M     element_num     element_num_d
+    ///    M      T     element_num     element_num_d
+    ///    M      M     element_num_d   element_num_d
+    inline unsigned elem_num() const override {
+    #ifdef __SC_TOOL__ 
+        return element_num_d.read();
+    #else 
+        return ((!cthread_put && !cthread_get) ? 
+                element_num_d.read() : element_num.read());
+    #endif
     }
     
     /// FIFO has (size()-N) elements or more
-    bool almost_full(const unsigned& N = 0) const override {
+    inline bool almost_full(const unsigned& N = 0) const override {
         sc_assert (N <= LENGTH);
-        
-        if (sct_is_method_proc()) {
-            return (element_num_d.read() >= LENGTH-N);
-        } else {
-            return (element_num.read() >= LENGTH-N);
-        }
+        //const unsigned elemNum = elem_num();
+        return (elem_num() >= LENGTH-N);
     }
     
     /// FIFO has N elements or less
-    bool almost_empty(const unsigned& N = 0) const override {
+    inline bool almost_empty(const unsigned& N = 0) const override {
         sc_assert (N <= LENGTH);
-        
-        if (sct_is_method_proc()) {
-            return (element_num_d.read() <= N);
-        } else {
-            return (element_num.read() <= N);
-        }
+        return (elem_num() <= N);
     }
     
+    /// Maximal number of elements
+    inline unsigned size() const override {
+        return LENGTH;
+    }
+
   protected:
     bool cthread_put = false;
     bool cthread_get = false;
+    
 #ifndef __SC_TOOL__
     sc_process_handle   put_proc;
     sc_process_handle   get_proc;
@@ -249,27 +300,22 @@ public:
     sc_signal<bool>    debug_get{"get"};
 #endif
     
-    /// Using @sct_prim_signal allows to have multiple drivers for @sct_fifo
-#if defined(__SC_TOOL__) || defined(DEBUG_SYSTEMC)
-    template<class P>
-    using SignalType = sc_signal<P>;
-#else
-    template<class P>
-    using SignalType = sct_prim_signal<P>;
-#endif
-    
     /// FIFO buffer
     sc_vector<SignalType<T>> buffer{"buffer", LENGTH};
 
-    /// Push operation is performed without @enable checking for burst on core clock,
-    /// @push may be asserted when @ready_to_push is high only
+    /// Put and get signals and registers for thread process usage
+#ifdef __SC_TOOL__
+    sct_comb_signal<bool>   put_req{"put_req"};
+    sct_comb_signal<bool>   get_req{"get_req"};
+    sct_comb_signal<T>      data_in{"data_in"};
+#else
     SignalType<bool>        put_req{"put_req"};
-    SignalType<bool>        put_req_d{"put_req_d"};
-    /// @pop may be asserted whenever, pop operation is done when @pop && @out_valid
     SignalType<bool>        get_req{"get_req"};
+    SignalType<bool>        put_req_d{"put_req_d"};
     SignalType<bool>        get_req_d{"get_req_d"};
-    /// Push/pop data 
     SignalType<T>           data_in{"data_in"};
+#endif
+    /// Push/pop data 
     SignalType<T>           data_out{"data_out"};
     /// FIFO is ready to @push assert signal
     SignalType<bool>        ready_push{"ready_push"};
@@ -280,11 +326,6 @@ public:
     /// Index where pushed element will be stored
     SignalType<Indx_t>      push_indx{"push_indx"};
     
-    /// Number of elements
-    SignalType<ElemNum_t>   element_num{"element_num"};
-    SignalType<ElemNum_t>   element_num_d{"element_num_d"};
-    SignalType<bool>        not_empty_d{"not_empty_d"};
-
     void asyncProc()
     {
         bool outValid; 
@@ -294,39 +335,64 @@ public:
         const bool notOne     = element_num_d.read() != 1;
         const bool notFullOne = element_num_d.read() != LENGTH-1;
         const bool notFull    = element_num_d.read() != LENGTH;
+    #ifdef __SC_TOOL__
+        const bool push = put_req;
+        const bool pop  = get_req;
+    #else
         const bool push = cthread_put ? put_req != put_req_d : put_req;
         const bool pop  = cthread_get ? get_req != get_req_d : get_req;
+    #endif
         
+    #ifdef __SC_TOOL__
+        outValid  = notEmpty;
+        readyPush = notFull;
+        popIndx   = pop_indx;
+    #else
         // Consider pop in CTHREAD performed at next clock edge 
-        if (cthread_get && pop) {
-            outValid = notEmpty && notOne;
+        if (cthread_get && pop) { 
+            outValid = notEmpty && notOne; 
             popIndx  = (pop_indx.read() == LENGTH-1) ? 0 : pop_indx.read()+1;
-        } else {
-            outValid = notEmpty;
+        } else { 
+            outValid = notEmpty; 
             popIndx  = pop_indx;
         }
-        not_empty_d = notEmpty;
-        
-        if (cthread_put && push) {
-            readyPush = notFull && notFullOne;
-        } else {
-            readyPush = notFull;
+        if (cthread_put && push) { 
+            readyPush = notFull && notFullOne; 
+        } else { 
+            readyPush = notFull; 
         }
+    #endif
         
         if (!SYNC_VALID) {
+        #ifdef __SC_TOOL__
+            if (cthread_put) {
+                out_valid = outValid;  
+                data_out  = buffer[popIndx];  
+            } else {
+                out_valid = push || outValid; 
+                if (outValid) data_out = buffer[popIndx];  
+                else data_out = data_in;
+            }
+        #else
             // Empty FIFO with push, input data taken by pop
             out_valid = push || outValid;
-            if (outValid) data_out = buffer[popIndx]; 
+            if (outValid) data_out = buffer[popIndx];  
             else data_out = data_in;
+        #endif
         } else {
             out_valid = outValid;
             data_out  = buffer[popIndx];
         }
 
         if (!SYNC_READY) {
-            ready_push = pop || readyPush;
-        } else {
-            ready_push = readyPush;
+        #ifdef __SC_TOOL__
+            if (cthread_get) ready_push = readyPush;  
+            else ready_push = pop || readyPush; 
+        #else
+            ready_push = pop || readyPush; 
+        #endif
+        } else { 
+            ready_push = readyPush; 
         }
         
         element_num = element_num_d.read();
@@ -354,9 +420,11 @@ public:
     #endif
             pop_indx  = 0;
             push_indx = 0;
-
+        
+        #ifndef __SC_TOOL__
             if (cthread_put) put_req_d = 0;
             if (cthread_get) get_req_d = 0;
+        #endif
             element_num_d = 0;
 
             // Initialize zero cell to provide zero data before first push
@@ -373,30 +441,34 @@ public:
 
         while (true) {
     #endif
+        #ifdef __SC_TOOL__
+            const bool push = put_req;
+            const bool pop  = get_req;
+        #else
             const bool push = cthread_put ? put_req != put_req_d : put_req;
             const bool pop  = cthread_get ? get_req != get_req_d : get_req;
+        #endif
 
-            // No pop from empty buffer
-            if (pop && not_empty_d) {
+            if (pop) {
                 pop_indx = (pop_indx.read() == LENGTH-1) ? 
                             0 : pop_indx.read()+1;
                 //cout << sc_time_stamp() << " " << sc_delta_count() << " : pop done" << endl;
             }
 
-            // No push to empty buffer if there is @pop in not @SYNC_VALID mode
-            bool A = !SYNC_VALID && !not_empty_d && pop;
-            if (push && !A) {
+            if (push) {
                 buffer[push_indx.read()] = data_in;
-
                 push_indx = (push_indx.read() == LENGTH-1) ? 
                             0 : push_indx.read()+1;
                 //cout << sc_time_stamp() << " " << sc_delta_count() << " : push done" << endl;
             }
 
+        #ifndef __SC_TOOL__
             if (cthread_put) put_req_d = put_req;
             if (cthread_get) get_req_d = get_req;
+        #endif
             element_num_d = element_num;
-            //cout << sc_time_stamp() << " " << sc_delta_count() << " : FIFO elem_num " << element_num << endl;
+            //cout << sc_time_stamp() << " " << sc_delta_count() << " SYNC elem_num " 
+            //     << element_num.read() << " " << pop_indx.read() << " " << push_indx.read() << endl;
             
     #ifndef SCT_SEQ_METH
             wait();
@@ -413,6 +485,16 @@ public:
         if (!cthread_put && !cthread_get && !SYNC_VALID && !SYNC_READY) {
             cout << "\nFIFO " << name() 
                  << " attached to method should have sync valid or sync ready" << endl;
+            assert (false);
+        }
+        if (cthread_put && SYNC_VALID) {
+            cout << "\nFIFO " << name() 
+                 << " with PUT from thread cannot have SYNC valid" << endl;
+            assert (false);
+        }
+        if (cthread_get && SYNC_READY) {
+            cout << "\nFIFO " << name() 
+                 << " with GET from thread cannot have SYNC ready" << endl;
             assert (false);
         }
     #ifndef __SC_TOOL__

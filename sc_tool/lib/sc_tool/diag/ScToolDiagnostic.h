@@ -235,7 +235,9 @@ public:
         SYNTH_SS_SIG_SENS_THREAD    = 254,
         
         SYNTH_STATIC_ARR_TYPE       = 255,
-        SYNTH_STATIC_ARR_NONINT     = 255,
+        SYNTH_STATIC_ARR_NONINT     = 256,
+
+        SYNTH_REC_CTOR_INCOR_STMT   = 257,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -792,6 +794,10 @@ private:
         idFormatMap[SYNTH_INNER_RECORD] =
             {clang::DiagnosticIDs::Fatal, 
             "Inner record is not supported"};
+        
+        idFormatMap[SYNTH_REC_CTOR_INCOR_STMT] =
+            {clang::DiagnosticIDs::Error, 
+            "Statement not supported for/in record constructor"};
         
         idFormatMap[SYNTH_SC_PORT_ARRAY] =
             {clang::DiagnosticIDs::Fatal, 

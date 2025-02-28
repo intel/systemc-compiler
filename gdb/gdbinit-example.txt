@@ -3,16 +3,18 @@
 
 python
 import sys, os
-libstdcxx_printers_path = '/usr/intel/pkgs/gcc/10.1.0/share/gcc-10.1.0/python/'
-sysc23x_printers_path = '$ICSC_HOME/share/gdb/python/sysc23x_printers/'
+# Configure paths to pretty-printers
+libstdcxx_printers_path = '/usr/intel/pkgs/gcc/13.2.0/share/gcc-13.2.0/python/'
+sysc_printers_path = '$ICSC_HOME/share/gdb/python/sysc_printers/'
+#
 libstdcxx_printers_path = os.path.expandvars(libstdcxx_printers_path)
-sysc23x_printers_path = os.path.expandvars(sysc23x_printers_path)
+sysc_printers_path = os.path.expandvars(sysc_printers_path)
 sys.path.insert(0, libstdcxx_printers_path)
-sys.path.insert(0, sysc23x_printers_path)
+sys.path.insert(0, sysc_printers_path)
 from libstdcxx.v6.printers import register_libstdcxx_printers
 register_libstdcxx_printers (None)
-from sysc23x_printers import register_sysc23x_printers
-register_sysc23x_printers (None)
+from sysc30x_printers import register_sysc30x_printers
+register_sysc30x_printers (None)
 from singlsrc_printers import register_singlsrc_printers
 register_singlsrc_printers (None)
 end

@@ -535,6 +535,14 @@ public:
     SValue getFirstArrayElementForAny(const SValue& val, 
                                       unsigned crossModule = 0) const;
     
+    /// Same as @getFirstArrayElementForAny() but also returns owner variable
+    /// \return <top owner variable, 
+    ///         first array(s) element or the same field as @val of first 
+    ///          array(s) element>
+    std::pair<SValue, SValue> 
+    getTopAndFirstArrayElementForAny(const SValue& val, 
+                                     unsigned crossModule = 0) const;
+    
     /// Restore correct parent for record field accessed at unknown index(es)
     /// Required for multidimensional array and array in record array
     /// For T a[N][M] accessed at unknown indices there is ARR2[UNKW].a which is 

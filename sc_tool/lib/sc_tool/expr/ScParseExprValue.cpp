@@ -554,6 +554,8 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                     }
                 }
             }
+            // Declare owner variable to avoid registers for record array
+            declareValue(val);
         }
     } else {
         if (isArr) {
@@ -573,13 +575,13 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                     state->declareValue(eval);
             }
         }
-        
+
         // Constant reference initialized with constant value
         bool isConstRefInit = false;
         if (!isRec && isConstRef) {
             isConstRefInit = checkConstRefValue(val);
         }
-        
+
         // Only initialized variable is defined, SC data type has zero initializer
         // Declare variable to avoid register creation and remove declaration 
         // Declare variable/array variable to remove declaration if not used 
@@ -602,7 +604,7 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
             // Create record value 
             SValue lrec = createRecValue(type->getAsCXXRecordDecl(), 
                                          modval, locrecvar, true, 0, false);
-
+            
             // Restore initialization expression
             iexpr = initExpr ? initExpr : 
                    (hasInit ? (varDecl ? varDecl->getInit() : 

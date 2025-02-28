@@ -9,6 +9,7 @@
  * Single Source library. Buffer channel.
  * 
  * Buffer is a kind of FIFO to use in single or two clocked processes. 
+ * Put, get and peek processes should be sequential processes.
  * It is implemented as @sc_prim_channel to speed up simulation.
  * Buffer does not have separate implementation for TLM mode.
  * 
@@ -203,7 +204,7 @@ class sct_buffer :
     /// This buffer attached to a processes
     bool attached_put = false;
     bool attached_get = false;
-
+    
     sc_in_clk*      clk_in = nullptr;
     sc_time         clk_period = SC_ZERO_TIME;
 
@@ -221,7 +222,8 @@ class sct_buffer :
     
     bool            get_req;
     T               data_out;
-    
+
+    /// Event for put, get and peek thread processes notification
     sc_event        event;
 
     void update() {
@@ -330,11 +332,7 @@ class sct_buffer :
     void addToGet(sc_sensitive& s) override { add_to(s, false, true); }
     void addToGet(sc_sensitive* s, sc_process_handle* p) override {
             add_to(s, p, false, true); }
-    
-    void addPeekTo(sc_sensitive& s) override { 
-        cout << "addPeekTo() for Buffer is not supported yet" << endl;
-        assert (false);
-    }
+    void addPeekTo(sc_sensitive& s) override {add_to(s, false, false); }
     
     inline void print(::std::ostream& os) const override
     {

@@ -690,11 +690,25 @@ void ScTraverseProc::initContext()
                              "Unknown index for MIF array element");
             auto i = val.getArray().getOffset();
             s += "["+ to_string(i) +"]";
+            //s += "[i"+ to_string(i)+"]";
         }
         
         if (!mifarrs.empty()) {
             //std::cout << "\nsetMIFName " << modval << " " << s << std::endl;
             codeWriter->setMIFName(modval, s);
+            // XXX
+            /*if (auto mdecl = dyn_cast<CXXMethodDecl>(funcDecl)) {
+                Stmt* s = mdecl->getBody();
+                scopeGraph->storeStmt(s, "for (...)");
+                cout << "!!!" << endl;
+            }
+            level = 1; 
+            auto mifFirstScope = createScope(level);
+            scopeGraph->addScopeSucc(mifFirstScope);
+            scopeGraph->setCurrScope(mifFirstScope);
+            scopeGraph->addScopePred(firstScope);
+            scopeGraph->setCurrLevel(level);*/
+            // XXX
         }
     }
 

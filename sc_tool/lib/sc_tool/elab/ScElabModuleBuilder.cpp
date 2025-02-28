@@ -503,6 +503,8 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseArray(
                                          {0}));
             initVarValues = false;
             flatten = traverseDFS(arrView.at(0));
+            //cout << "traverseDFS array 0 : " << arrView.at(0).getDebugString() << endl; 
+
             nameStack.pop_back();
             
             if (flatten) {
@@ -512,6 +514,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseArray(
                                                  {arrView.size()},
                                                  {i}));
                     flatten = traverseDFS(arrView.at(i));
+                    //cout << "traverseDFS array i : " << arrView.at(i).getDebugString() << endl;
                     SCT_TOOL_ASSERT (flatten, "");
                     nameStack.pop_back();
                 }
@@ -2111,8 +2114,8 @@ void ScElabModuleBuilder::materializePort(VerilogModule &verMod, PortView port)
 // Run for each module in design
 void ScElabModuleBuilder::createProcessBodies(VerilogModule &verMod)
 {
-    //using std::cout; using std::endl;
-    //cout << "createProcessBodies verMod " << verMod.getName() << endl;
+    using std::cout; using std::endl;
+    cout << "createProcessBodies verMod " << verMod.getName() << endl;
     
     // Avoid black boxed module process analysis
     if (verMod.isIntrinsic()) return;

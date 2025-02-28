@@ -1390,7 +1390,11 @@ SValue ScState::readFromValue(SValue lval)
     //cout << "   lval " << lval << " llval " << llval << endl;
     
     // Get zero index element if required
-    SValue zeroVal = getFirstArrayElementForAny(llval);
+    auto entry = getTopAndFirstArrayElementForAny(llval);
+    SValue topVal = entry.first;
+    SValue zeroVal = entry.second;
+    //cout << "   lval " << lval << " llval " << llval << " zeroVal " << zeroVal
+    //     << " topVal " << topVal << endl;
 
     bool isDefined = false;
     bool isDeclared = false;
@@ -1403,8 +1407,11 @@ SValue ScState::readFromValue(SValue lval)
         // (required for pointee objects and array elements)
         // Also check if variable is already defined/declared 
         // (required for constant references)
+        // Check top variable declared required for record array which element
+        // fields are not declared
         isDefined = defined.count(lval) || defined.count(llval);
-        isDeclared = declared.count(lval) || declared.count(llval);
+        isDeclared = declared.count(lval) || declared.count(llval) || 
+                     declared.count(topVal);
         
         if (DebugOptions::isEnabled(DebugComponent::doUseDef)) {
             cout << "   check defined lval " << lval << " isDefined " 
@@ -1729,6 +1736,42 @@ SValue ScState::getFirstArrayElementForAny(const SValue& val,
     
     //cout << " getFirstArrayElementForAny " << val << " " << mval << endl;
     return mval;
+}
+
+std::pair<SValue, SValue> 
+ScState::getTopAndFirstArrayElementForAny(const SValue& val, 
+                                          unsigned crossModule) const
+{
+    SValue mval = val;
+    correctUnknownIndexValue(mval);
+    //cout << "correctUnknownIndexValue val " << val << " mval " << mval << endl;
+    
+    std::vector<const clang::ValueDecl*> decls;
+    SValue topval = getTopForAny(mval, crossModule, decls);
+    mval = topval;
+    
+//    cout << "  getTopArrayForAny val " << val << " mval " << mval << endl;
+//    for (auto i = decls.rbegin(); i != decls.rend(); ++i) {
+//        cout << "    " << hex << (uint64_t)(*i) << dec << endl;
+//    }
+    
+    // Traverse down recovering variable declaration and clearing array offset
+    //cout << "  Recovering zero value " << endl;
+    for (auto i = decls.rbegin(); i != decls.rend(); ++i) {
+        if (*i) {
+            mval = SValue(*i, mval);
+            // Restore correct parent module which can be changed
+            correctParentBaseClass(mval);
+            //cout << "    " << mval << endl;
+        } else {
+            // Clear array index at get array value or pointer de-reference
+            mval = getValue(mval);
+            //cout << "    " << mval << endl;
+        }
+    }
+    
+    //cout << " getFirstArrayElementForAny " << val << " " << mval << endl;
+    return std::make_pair(topval, mval);
 }
 
 // Restore correct parent for record field accessed at unknown index(es)

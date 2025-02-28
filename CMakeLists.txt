@@ -106,9 +106,10 @@ install(FILES cmake/setenv.sh gdb/gdbinit-example.txt
         DESTINATION $ENV{ICSC_HOME})
 
 # Install GDB pretty-printers
-install(FILES gdb/sysc23x_printers/singlsrc_printers.py
-        gdb/sysc23x_printers/sysc23x_printers.py
-        DESTINATION $ENV{ICSC_HOME}/share/gdb/python/sysc23x_printers)
+install(FILES gdb/sysc_printers/singlsrc_printers.py
+        gdb/sysc_printers/sysc23x_printers.py
+        gdb/sysc_printers/sysc30x_printers.py
+        DESTINATION $ENV{ICSC_HOME}/share/gdb/python/sysc_printers)
 
 # Install designs
 install(DIRECTORY designs DESTINATION $ENV{ICSC_HOME})

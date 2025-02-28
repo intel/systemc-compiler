@@ -2099,8 +2099,12 @@ void ScVerilogWriter::putRecordAssign(const Stmt* stmt,
         auto recType = dyn_cast<const RecordType>(rrec.getScChannel()->getType().
                                                   getTypePtr());
         getFieldsForRecordChan(recType->getAsRecordDecl(), rrec, rrecFields);
-    } else {
+    } else 
+    if (rrec.isRecord()) {
         getFieldsForRecord(rrec, rrecFields);
+    } else {
+        ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                             ScDiag::SYNTH_REC_CTOR_INCOR_STMT);
     }
     //for (const SValue& f : lrecFields) cout << "  " << f << endl;
     //for (const SValue& f : rrecFields) cout << "  " << f << endl;
@@ -2203,8 +2207,12 @@ void ScVerilogWriter::putRecordAssignTemp(const Stmt* stmt,
         auto recType = dyn_cast<const RecordType>(rrec.getScChannel()->getType().
                                                   getTypePtr());
         getFieldsForRecordChan(recType->getAsRecordDecl(), rrec, rrecFields);
-    } else {
+    } else 
+    if (rrec.isRecord()) {
         getFieldsForRecord(rrec, rrecFields);
+    } else {
+        ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                             ScDiag::SYNTH_REC_CTOR_INCOR_STMT);
     }
     //for (const SValue& f : lrecFields) cout << "  " << f << endl;
     //for (const SValue& f : rrecFields) cout << "  " << f << endl;
