@@ -218,10 +218,15 @@ public:
     /// \corr -- tab number correction, can be negative
     std::string getTabString(std::shared_ptr<CodeScope> scope, int corr = 0);
     std::string getTabString(unsigned level);
+    std::string getEmptyTabString();
     
     /// Set function name
     /// \param funcCall -- real function call, not break/continue
     void setName(const std::string& fname, bool fcall = true);
+    
+    void setEmptyLevel(unsigned level) {
+        emptyLevel = level;
+    }
 
     /// Add scope graph for function call
     void addFCallScope(const clang::Stmt* stmt, const clang::Stmt* loopTerm,
@@ -252,7 +257,7 @@ public:
     void clearAfterPrint();
 
     /// Print all scopes
-    void printAllScopes(std::ostream &os);
+    void printAllScopes(std::ostream &os, unsigned printLevel);
     
     /// Clone scope graph at @wait()
     /// \param innerGraph -- inner graph for last function call or nullptr
@@ -277,6 +282,9 @@ protected:
     const unsigned REMOVE_STMT_PRED = 5;
     /// Maximal allowed level, restricted to detect level overflow error
     unsigned MAX_LEVEL  = 100;
+    
+    /// Level for empty sensitive process statements 
+    unsigned emptyLevel = 0;    // 1 for MIF array generate block
             
     /// Scope graph name and function call flag
     std::string name;

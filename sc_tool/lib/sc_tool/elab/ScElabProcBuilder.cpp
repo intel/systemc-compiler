@@ -46,6 +46,49 @@ ProcBuilder::ProcBuilder(ModuleMIFView moduleView, ElabDatabase &elabDB,
     // Fill state from elabDB, recursively add module fields
     traverseRecord(moduleView, true);
     SCT_TOOL_ASSERT (classHierStack.empty(), "Parent hierarchy is not empty");
+
+    //moduleState->print();
+    
+    // Removing constant/variable values different for various MIF array elements
+    for (const auto& entry: mifArrayVars) {
+        //cout << endl; entry.first.print(); std::cout << " : "; entry.second.print();
+        
+        // Value for every variable declaration, for different values NO_VALUE stored
+        std::unordered_map<const clang::ValueDecl*, SValue> varValues;
+        for (const SValue& lval: entry.second) {
+            if (!lval.isVariable()) continue;
+            auto valDecl = lval.getVariable().getDecl();
+            const SValue& rval = moduleState->getValue(lval);
+            //cout << "   " << lval << " " << rval << endl;
+
+            auto res = varValues.emplace(valDecl, rval);
+            if (!res.second) {
+                if (res.first->second != rval) {
+                    res.first->second = NO_VALUE;
+                }
+            }
+        }
+        
+//        cout << "varValues : " << endl;
+//        for (const auto& entry : varValues) {
+//            entry.first->dump();
+//            cout << " " << hex << entry.first << dec << " " << entry.second << endl;
+//        }
+        
+        // Remove all tuples from @moduleState 
+        for (const SValue& lval: entry.second) {
+            if (!lval.isVariable()) continue;
+            auto valDecl = lval.getVariable().getDecl();
+            
+            auto i = varValues.find(valDecl);
+            if (i != varValues.end()) {
+                if (!i->second) {
+                    moduleState->removeIntSubValues(lval, false);
+                    //cout << "Remove value for " << lval << endl;
+                }
+            }
+        }
+    }
     
     // Checking for NO_VALUE tuple in @state 
     moduleState->checkNoValueTuple();
@@ -155,6 +198,8 @@ sc::SValue ProcBuilder::traverseRecord(RecordView recView, bool isVerModule)
         currentModSVal = SValue(recView.getType(), baseValues, parent);
     }
     classHierStack.push_back(currentModSVal);
+ 
+    //cout << "traverseRecord " << recView.getDebugString() << " currentModSVal " << currentModSVal << " isMIF " << recView.isModularInterface() << endl;
 
     if (isVerModule) {
         // Variable for module
@@ -293,15 +338,43 @@ sc::SValue ProcBuilder::traverseField(ObjectView memberObj)
         bool isStatic = memberObj.isStatic();
 
         SValue lSVal;
+        bool isMifArrayVar = false;
         if (isStatic) {
             lSVal = SValue(valDecl, SValue() );
         } else {
             lSVal = SValue(valDecl, classHierStack.back());
             // Pointer to constant flag to get value of its pointe
             constPointe = isPointerToConst(memberObj.getType());
+            
+            // Add single MIF and MIF array/vector variable
+            auto T = valDecl->getType();
+            if (isScVector(T) || isArray(T)) {
+                T = getArrayElementType(T);
+            }
+            if (isScModularInterface(T)) {
+                isMifArrayVar = true;
+                mifArrayCtx.push_back(valDecl); 
+                //cout << "+++ lSVal " << lSVal << " " << isMifArrayVar << endl;
+            }
+            
+            // Skip MIF and SC channels as well as arrays/vectors of them
+            if (!mifArrayCtx.empty() && !isMifArrayVar &&
+                !isScChannel(T) && !isScChannelArray(T) && !isScVector(T))
+            {
+                auto res = mifArrayVars.emplace(mifArrayCtx, SValueVector(lSVal));
+                if (!res.second) {
+                    res.first->second.push_back(lSVal);
+                }
+                //cout << "    " << lSVal << endl;
+            }
         }
 
         SValue rSval = traverse(memberObj);
+        
+        if (isMifArrayVar) { 
+            mifArrayCtx.pop_back(); 
+            //cout << "--- lSVal " << lSVal << endl;
+        }
         constPointe = false;
 
         objSValMap[memberObj] = lSVal;

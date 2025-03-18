@@ -568,6 +568,38 @@ public:
         id_gen = 0;
     }
 };
+
+/// Vector of SValue, hash function provided
+class SValueVector : public std::vector<SValue> {
+  public:
+    using base_type = std::vector<SValue>;
+    
+    SValueVector() = default;
+    explicit SValueVector(const SValue& value) : base_type({value}) {}
+    
+    void print() const {
+        for (const auto& val : *this) {
+            std::cout << val << " ";
+        }
+        std::cout << std::endl;
+    }
+};
+
+class ValDeclVector : public std::vector<clang::ValueDecl*> {
+  public:
+    using base_type = std::vector<clang::ValueDecl*>;
+    
+    ValDeclVector() = default;
+    explicit ValDeclVector(clang::ValueDecl* value) : base_type({value}) {}
+    
+    void print() const {
+        for (const auto& valDecl : *this) {
+            std::cout << std::hex << valDecl << std::dec << " ";
+        }
+        std::cout << std::endl;
+    }
+};
+
 }
 
 // ----------------------------------------------------------------------------
@@ -593,6 +625,15 @@ struct hash<sc::SValue>
     std::size_t operator () (const sc::SValue& obj) const;
 };
 
+template<>
+struct hash<sc::SValueVector> {
+    std::size_t operator()(const sc::SValueVector& vec) const;
+};
+
+template<>
+struct hash<sc::ValDeclVector> {
+    std::size_t operator()(const sc::ValDeclVector& vec) const;
+};
 }
 
 

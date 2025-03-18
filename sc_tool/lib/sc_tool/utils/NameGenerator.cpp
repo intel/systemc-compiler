@@ -1,8 +1,16 @@
 #include "sc_tool/utils/NameGenerator.h"
+#include "sc_tool/scope/ScVerilogWriter.h"
 #include "sc_tool/utils/VerilogKeywords.h"
 #include <iostream>
 
 using std::cout; using std::endl;
+
+
+UniqueNamesGenerator::UniqueNamesGenerator () {
+    for (unsigned i = 0; i != sc::ScVerilogWriter::MAX_MIF_INDX_NAME; ++i) {
+        takenNames.insert(sc::ScVerilogWriter::MIF_INDX_NAME[i]);
+    }
+}
 
 std::string UniqueNamesGenerator::getUniqueName(const std::string &suggestedName,
                                                 bool checkLocalNames)

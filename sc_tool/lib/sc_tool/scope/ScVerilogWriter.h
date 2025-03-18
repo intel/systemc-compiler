@@ -234,6 +234,8 @@ public:
     /// Return true if @val is register in @varTraits, only in splitting thread mode
     bool isRegister(const SValue& val);
     
+    bool isReadOnlyCDR(const SValue& val);
+    
     /// Check @sct_comb_sig wit CLEAR flag false
     bool isCombSig(const SValue& val);
     
@@ -407,7 +409,8 @@ public:
     ///                              with evaluated initialization value
     void putVarDecl(const clang::Stmt* stmt, const SValue& val, 
                     const clang::QualType& type, const clang::Expr* init,
-                    bool funcCall, unsigned level, bool replaceConstEnable = false);
+                    bool funcCall, unsigned level, bool elemOfMifArr,
+                    bool replaceConstEnable = false);
 
     /// Array declaration statement w/o initialization 
     void putArrayDecl(const clang::Stmt* stmt, const SValue& val, 
@@ -441,7 +444,9 @@ public:
                       const SValue& recarr = NO_VALUE,
                       bool elemOfMifArr = false, bool elemOfRecArr = false,
                       const std::string& refRecarrIndxStr = "");
-     
+    
+    std::string checkRecForMifArrIndex(const SValue& val, bool elemOfMifArr);
+    
     /// Any access to member/local variable/local record field variable 
     /// and any other expression
     /// \param recarrs -- vector of record arrays, used to get indices string
@@ -508,13 +513,14 @@ public:
     /// local variable
     void putArrayElemInit(const clang::Stmt* stmt, const SValue& bval, 
                           const std::vector<std::size_t>& indices, 
-                          const clang::Expr* iexpr);
+                          const clang::Expr* iexpr, bool elemOfMifArr);
 
     /// Put array element initialization with zero
     /// \param bval -- array variable
     /// \param ival -- array index integer
     void putArrayElemInitZero(const clang::Stmt* stmt, const SValue& bval, 
-                              const std::vector<std::size_t>& indices);
+                              const std::vector<std::size_t>& indices,
+                              bool elemOfMifArr);
     
     /// Add array subscript index into @arraySubIndices
     void addSubscriptIndex(const SValue& bval, const clang::Expr* indx);
@@ -732,6 +738,19 @@ public:
         refValueDecl = ctx.refValueDecl;
         ptrValueDecl = ctx.ptrValueDecl;
     }
+
+public:    
+    /// MIF array index variable name
+    static const unsigned MAX_MIF_INDX_NAME = 10;
+    static const std::string MIF_INDX_NAME[MAX_MIF_INDX_NAME];
+    
+    static std::string getMifArrIndxName(unsigned indx) {
+        if (indx < MAX_MIF_INDX_NAME) {
+            return MIF_INDX_NAME[indx];
+        }
+        ScDiag::reportScDiag(ScDiag::SYNTH_MIFARR_DIM_LIMIT);
+        return "";
+    }
     
 protected:
     /// Blocking and non-blocking assignment symbols: "=" and "<="
@@ -744,7 +763,7 @@ protected:
     const std::string NEXT_VAR_SUFFIX = "_next";
     /// Verilog keyword suffix
     const std::string VERILOG_KEYWORD_SUFFIX = "_v";
-    // Tabulation
+    /// Tabulation
     std::string TAB_SYM = "    ";
 
     const clang::SourceManager    &sm;

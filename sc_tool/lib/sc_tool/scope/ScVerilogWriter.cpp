@@ -562,6 +562,19 @@ bool ScVerilogWriter::isRegister(const SValue& val)
     return false;
 } 
 
+bool ScVerilogWriter::isReadOnlyCDR(const SValue& val) 
+{
+    if (val.isUnknown()) {
+        return false;
+    }
+    
+    if (!isCombProcess) {
+        auto i = varTraits.find(val);
+        return ((i != varTraits.end()) && i->second.isReadOnlyCDR());
+    }
+    return false;
+} 
+
 // Check @sct_comb_sig wit CLEAR flag false
 bool ScVerilogWriter::isCombSig(const SValue& val) 
 {
@@ -1408,7 +1421,7 @@ void ScVerilogWriter::putLiteral(const Stmt* stmt, const SValue& val)
 void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val, 
                                  const QualType& type, const Expr* init,
                                  bool funcCall, unsigned level, 
-                                 bool replaceConstEnable) 
+                                 bool elemOfMifArr, bool replaceConstEnable)
 {
     if (skipTerm) return;
     SCT_TOOL_ASSERT (val.isVariable() || val.isTmpVariable(), 
@@ -1458,6 +1471,7 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
     } else {
         // Normal variable declaration
         bool isReg = isRegister(val);
+        bool isRoCDR = isReadOnlyCDR(val);
         bool isRecord = isUserClass(getDerefType(val.getType()), true);
         // Initialization of local variable required for variables w/o initializer
         // and variables at no-zero level (funcCall variable is initialized)
@@ -1528,6 +1542,17 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                          !i->second.isAccessInReset()) :
                         (i->second.isReadOnlyCDR() || 
                          !i->second.isAccessAfterReset());
+                }
+            }
+            
+            // Add MIF variable prefix for its member access
+            if (elemOfMifArr) {
+                // Consider CDR for reset assigned read only variable/constant
+                if (isReg || isRoCDR) {
+                    string indxSuff = MIFValueName.second;
+                    names.first += indxSuff;
+                    names.second += indxSuff;
+                    //cout << "  MIF array add suffix " << indxSuff << endl;
                 }
             }
 
@@ -1661,7 +1686,7 @@ void ScVerilogWriter::storeRefVarDecl(const SValue& val, const Expr* init,
             SCT_INTERNAL_FATAL(init->getBeginLoc(),
                                "putRefVarDecl : no term for right part ");
         } else {
-            // Do nothing, that is for reference to channel record
+            refValueDecl[val] = getVarName(val); 
         }
     }
 }
@@ -1746,6 +1771,21 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
                  refRecarrIndxStr);
 }
 
+
+std::string ScVerilogWriter::checkRecForMifArrIndex(const SValue& val,
+                                                    bool elemOfMifArr) 
+{
+    // Do not use MIF indices in reset section as variable is declared locally
+    bool isExtrCombVarNoIndx = isClockThreadReset && 
+                               extrCombVarUsedRst.count(val) != 0;
+    // Access to member of MIF from its process body 
+    // No index for local variables, but registers are MIF arrays
+    if ((!isLocalVariable(val) && !isExtrCombVarNoIndx) || isRegister(val)) {
+        return MIFValueName.second;
+    }
+    return "";
+}
+
 // Any access to member/local variable/local record field variable 
 // and any other expression
 // \param recarrs -- vector of record arrays, used to get indices string
@@ -1774,15 +1814,14 @@ void ScVerilogWriter::putValueExpr(const Stmt* stmt, const SValue& val,
         pair<string, string> names = getVarName(val);
         //cout << "val " << val << " name " << names.first << endl;
         
-        // Do not use MIF indices in reset section as variable is declared locally
-        bool isExtrCombVarNoIndx = isClockThreadReset && 
-                                   extrCombVarUsedRst.count(val) != 0;
-        
         // Add MIF variable prefix for its member access
-        if (elemOfMifArr && !isExtrCombVarNoIndx) {
+        if (elemOfMifArr) { 
+            // Do not use MIF indices in reset section as variable is declared locally
+            bool isExtrCombVarNoIndx = isClockThreadReset && 
+                                       extrCombVarUsedRst.count(val) != 0;
             // Access to member of MIF from its process body 
-            // No index for local variables 
-            if (!isLocalVariable(val)) {
+            // No index for local variables, but registers are MIF arrays
+            if ((!isLocalVariable(val) && !isExtrCombVarNoIndx) || isRegister(val)) {
                 string indxSuff = MIFValueName.second;
                 names.first += indxSuff;
                 names.second += indxSuff;
@@ -2084,7 +2123,8 @@ void ScVerilogWriter::putRecordAssign(const Stmt* stmt,
                                       string rrecSuffix) 
 {
     //cout << "putRecordAssign lvar " << lvar << " lrec " << lrec << ", rrec " << rrec << endl;
-    //cout << "recSuffix " << lrecSuffix << " " << rrecSuffix << endl;
+    //cout << "lelemOfMifRecArr " << lelemOfMifRecArr << " relemOfMifRecArr " << relemOfMifRecArr 
+    //     << " recSuffix " << lrecSuffix << " : " << rrecSuffix << endl;
     
     std::vector<SValue> lrecFields;
     if (lrec.isScChannel()) {
@@ -2117,24 +2157,32 @@ void ScVerilogWriter::putRecordAssign(const Stmt* stmt,
         return;
     }
     
-    // Record can be inside MIF but not another record, so MIF indices are
-    // in @recordValueName or/and @MIFValueName, add one of them
+    // For local registers in MIF array process needs to add suffix
+    // Any record including local registers has MIF element index(ces)
+    bool lfvalArrSuffix = MIFValueName.first;
+    bool rfvalArrSuffix = MIFValueName.first;
+
+    // Record can be inside MIF (not inside another record) 
     if (lelemOfMifRecArr) {
         if (recordValueName.first) {
             lrecSuffix = recordValueName.second + lrecSuffix;
-        } else 
+        } 
         if (MIFValueName.first) {
             lrecSuffix = MIFValueName.second + lrecSuffix;
+            lfvalArrSuffix = false; // To prevent double add MIF suffix
         }
     }
     if (relemOfMifRecArr) {
         if (recordValueName.first) {
             rrecSuffix = recordValueName.second + rrecSuffix;
-        } else 
+        } 
         if (MIFValueName.first) {
             rrecSuffix = MIFValueName.second + rrecSuffix;
+            rfvalArrSuffix = false; // To prevent double add MIF suffix
         }
     }
+    //cout << "lrecSuffix " << lrecSuffix << " rrecSuffix " << rrecSuffix 
+    //     << " MIFValueName.second " << MIFValueName.second << endl;
 
 //    cout << "varTraits: " << endl;
 //    for (auto& e : varTraits) {
@@ -2154,26 +2202,30 @@ void ScVerilogWriter::putRecordAssign(const Stmt* stmt,
     for (unsigned i = 0; i != lrecFields.size(); ++i) {
         const SValue& lfval = lrecFields[i];
         const SValue& rfval = rrecFields[i];
-        //cout << "  lfval " << lfval << "  rfval " << rfval << endl;
-        //cout << "  lfval " << lfval << " isReg " << (isReg || isRegister(lfval)) << endl;
+        bool lfvalReg = isRegister(lfval);
+        bool rfvalReg = isRegister(rfval);
+        //cout << "  lfval " << lfval << "  rfval " << rfval << " isReg " << lfvalReg << rfvalReg << endl;
 
         // Skip zero width type
         auto ftype = lfval.getType();
         if (isZeroWidthType(ftype) || isZeroWidthArrayType(ftype)) continue;
 
-        bool nbAssign = isClockThreadReset && (isReg || isRegister(lfval));
-        bool secName  = !isClockThreadReset && (isReg || isRegister(lfval)) && 
-                        !emptySensitivity;
+        bool nbAssign = isClockThreadReset && (isReg || lfvalReg);
+        bool secName  = !isClockThreadReset && (isReg || lfvalReg) && !emptySensitivity;
        
         // Get name for LHS
         const auto& lnames = lrec.isScChannel() ? 
                              getChannelName(lfval) : getVarName(lfval);
-        string lhsName = (secName ? lnames.second : lnames.first) + lrecSuffix;
+        string lhsName = (secName ? lnames.second : lnames.first) +
+                         ((lfvalArrSuffix && lfvalReg) ? MIFValueName.second : "") + 
+                         lrecSuffix;
         
         // Get name for RHS, use read name here
         const auto& rnames = rrec.isScChannel() ? 
                              getChannelName(rfval) : getVarName(rfval);
-        string rhsName = rnames.first + rrecSuffix;
+        string rhsName = rnames.first + 
+                        ((rfvalArrSuffix && rfvalReg) ? MIFValueName.second : "") + 
+                         rrecSuffix;
 
         string f = lhsName + (nbAssign ? NB_ASSIGN_SYM : ASSIGN_SYM) + rhsName;
         s = s + (first ? "" : "; ") + f;
@@ -2225,14 +2277,18 @@ void ScVerilogWriter::putRecordAssignTemp(const Stmt* stmt,
         return;
     }
     
-    // Record can be inside MIF but not another record, so MIF indices are
-    // in @recordValueName or/and @MIFValueName, add one of them
+    // For local registers in MIF array process needs to add suffix
+    // Any record including local registers has MIF element index(ces)
+    bool lfvalArrSuffix = MIFValueName.first;
+    
+    // Record can be inside MIF (not inside another record) 
     if (lelemOfMifRecArr) {
         if (recordValueName.first) {
             lrecSuffix = recordValueName.second + lrecSuffix;
-        } else 
+        } 
         if (MIFValueName.first) {
             lrecSuffix = MIFValueName.second + lrecSuffix;
+            lfvalArrSuffix = false; // To prevent double add MIF suffix
         }
     }
 
@@ -2246,6 +2302,7 @@ void ScVerilogWriter::putRecordAssignTemp(const Stmt* stmt,
     for (unsigned i = 0; i != lrecFields.size(); ++i) {
         const SValue& lfval = lrecFields[i];
         const SValue& rfval = rrecFields[i];
+        bool lfvalReg = isRegister(lfval);
         //cout << "  lfval " << lfval << "  rfval " << rfval << endl;
         //cout << "  lfval " << lfval << " isReg " << (isReg || isRegister(lfval)) << endl;
 
@@ -2253,14 +2310,15 @@ void ScVerilogWriter::putRecordAssignTemp(const Stmt* stmt,
         auto ftype = lfval.getType();
         if (isZeroWidthType(ftype) || isZeroWidthArrayType(ftype)) continue;
         
-        bool nbAssign = isClockThreadReset && (isReg || isRegister(lfval));
-        bool secName  = !isClockThreadReset && (isReg || isRegister(lfval)) && 
-                        !emptySensitivity;
+        bool nbAssign = isClockThreadReset && (isReg || lfvalReg);
+        bool secName  = !isClockThreadReset && (isReg || lfvalReg) && !emptySensitivity;
         
         // Get name for LHS
         const auto& lnames = lrec.isScChannel() ? 
                              getChannelName(lfval) : getVarName(lfval);
-        string lhsName = (secName ? lnames.second : lnames.first) + lrecSuffix;
+        string lhsName = (secName ? lnames.second : lnames.first) + 
+                         ((lfvalArrSuffix && lfvalReg) ? MIFValueName.second : "") + 
+                         lrecSuffix;
         
         // Get RHS integer value
         SValue rrval;
@@ -2289,7 +2347,7 @@ void ScVerilogWriter::putRecordAssignTemp(const Stmt* stmt,
 // \param ival -- array index integer
 void ScVerilogWriter::putArrayElemInit(const Stmt* stmt, const SValue& bval, 
                                        const std::vector<std::size_t>& indices, 
-                                       const Expr* iexpr) 
+                                       const Expr* iexpr, bool elemOfMifArr) 
 {
     if (skipTerm) return;
     SCT_TOOL_ASSERT ((bval.isVariable() || bval.isTmpVariable()), 
@@ -2304,6 +2362,15 @@ void ScVerilogWriter::putArrayElemInit(const Stmt* stmt, const SValue& bval,
         bool nbAssign = isClockThreadReset && isReg;
         bool secName = !isClockThreadReset && isReg;
 
+        // Add MIF variable prefix for its member access
+        if (elemOfMifArr) {
+            if (isReg) {
+                string indxSuff = MIFValueName.second;
+                names.first += indxSuff;
+                names.second += indxSuff;
+            }
+        }
+        
         string s;
         for (auto indx : indices) {
             s += "[" + to_string(indx) + "]";
@@ -2326,7 +2393,8 @@ void ScVerilogWriter::putArrayElemInit(const Stmt* stmt, const SValue& bval,
 // \param bval -- array variable
 // \param ival -- array index integer
 void ScVerilogWriter::putArrayElemInitZero(const Stmt* stmt, const SValue& bval, 
-                                           const std::vector<std::size_t>& indices) 
+                                           const std::vector<std::size_t>& indices,
+                                           bool elemOfMifArr) 
 {
     if (skipTerm) return;
     SCT_TOOL_ASSERT ((bval.isVariable() || bval.isTmpVariable()), 
@@ -2338,6 +2406,15 @@ void ScVerilogWriter::putArrayElemInitZero(const Stmt* stmt, const SValue& bval,
     bool isReg = isRegister(bval);
     bool nbAssign = isClockThreadReset && isReg;
     bool secName = !isClockThreadReset && isReg;
+
+    // Add MIF variable prefix for its member access
+    if (elemOfMifArr) {
+        if (isReg) {
+            string indxSuff = MIFValueName.second;
+            names.first += indxSuff;
+            names.second += indxSuff;
+        }
+    }
 
     string s;
     for (auto indx : indices) {
@@ -3321,6 +3398,11 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
 {
     // METHOD with empty sensitivity
     bool emptySensMethod = isCombProcess && emptySensitivity;
+    // Use generate block for MIF array
+    bool inGenBlock = MIFValueName.first;
+    const std::string GEN_TAB = inGenBlock ? "    " : "";
+
+    const std::string USE_TAB = (emptySensMethod ? "" : TAB_SYM) + GEN_TAB;
     
     // Local variables declarations
     unordered_set<SValue> declaredVars;
@@ -3340,7 +3422,7 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
         // Remove constant/variable which is replaced by value
         if (initLocalVars) declaredVars.insert(val);
 
-        printSplitString(os, pair.second, emptySensMethod ? "" : TAB_SYM);
+        printSplitString(os, pair.second, USE_TAB);
         //cout << "   " << val << " : " << pair.second << endl;
     }
     
@@ -3349,7 +3431,7 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
         for (const auto& pair : localDeclInitVerilog) {
             // Print initialization for declared variables only
             if (declaredVars.count(pair.first) != 0) {
-                printSplitString(os, pair.second, TAB_SYM);
+                printSplitString(os, pair.second, TAB_SYM+GEN_TAB);
                 //cout << "   " << pair.first << " : " << pair.second << endl;
             }
         }
@@ -3427,13 +3509,17 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
 
     std::sort(sortAssign.begin(), sortAssign.end());
     for (const auto& s : sortAssign) {
-        printSplitString(os, s, emptySensMethod ? "" : TAB_SYM);
+        printSplitString(os, s, USE_TAB);
     }
 }
 
 // Print local combinational variable declaration in @always_ff reset section
 void ScVerilogWriter::printResetCombDecl(std::ostream &os)
 {
+    // Use generate block for MIF array
+    bool inGenBlock = MIFValueName.first;
+    const std::string GEN_TAB = inGenBlock ? "    " : "";
+
     //cout << "------------ printResetCombDecl" << endl;
     unordered_set<SValue> declaredVars;
     // Normal local variable declarations
@@ -3453,7 +3539,7 @@ void ScVerilogWriter::printResetCombDecl(std::ostream &os)
         // Local constant, static constant, function parameter or
         // temporary variables not stored in @varTraits, 
         // it needs to provide them for reset section as well
-        printSplitString(os, pair.second, TAB_SYM);
+        printSplitString(os, pair.second, TAB_SYM+GEN_TAB);
         //cout << "   " << pair.first << " : " << pair.second  << " (1)" << endl;
     }
     
@@ -3462,7 +3548,7 @@ void ScVerilogWriter::printResetCombDecl(std::ostream &os)
         for (const auto& pair : localDeclInitVerilog) {
             // Print initialization for declared variables only
             if (declaredVars.count(pair.first) != 0) {
-                printSplitString(os, pair.second, TAB_SYM);
+                printSplitString(os, pair.second, TAB_SYM+GEN_TAB);
                 //cout << "   " << pair.first << " : " << pair.second << " (2)" << endl;
             }
         }
@@ -3475,6 +3561,10 @@ void ScVerilogWriter::printInitLocalInReset(std::ostream &os)
 {
     //cout << "=========== printInitLocalInReset =========" << endl;
     if (!initLocalRegs || isCombProcess) return;
+    
+   // Use generate block for MIF array
+    bool inGenBlock = MIFValueName.first;
+    const std::string GEN_TAB = inGenBlock ? "    " : "";
     
     unordered_set<SValue> declaredVars;
     for (const auto& pair : localDeclVerilog) {
@@ -3492,7 +3582,7 @@ void ScVerilogWriter::printInitLocalInReset(std::ostream &os)
     for (const auto& pair : localDeclInitVerilog) {
         // Print initialization for declared variables only
         if (declaredVars.count(pair.first) != 0) {
-            printSplitString(os, pair.second, TAB_SYM);
+            printSplitString(os, pair.second, TAB_SYM+GEN_TAB);
             //cout << "   " << pair.first << " : " << pair.second << endl;
         }
     }
@@ -3502,6 +3592,10 @@ void ScVerilogWriter::printInitLocalInReset(std::ostream &os)
 void ScVerilogWriter::printDeclString(std::ostream &os, const SValue& val, 
                                       const std::string& sizeSuff) 
 {
+    // Use generate block for MIF array
+    bool inGenBlock = MIFValueName.first;
+    const std::string GEN_TAB = inGenBlock ? "    " : "";
+
     // Array indices
     string indx;
     const QualType& type = val.getType();
@@ -3516,5 +3610,11 @@ void ScVerilogWriter::printDeclString(std::ostream &os, const SValue& val,
         
     auto names = getVarName(val);
     string s = getVarDeclVerilog(val.getType(), names.first) + sizeSuff + indx;
-    printSplitString(os, s, TAB_SYM);
+    printSplitString(os, s, TAB_SYM+GEN_TAB);
 }
+
+//==============================================================================
+
+const std::string ScVerilogWriter::MIF_INDX_NAME[MAX_MIF_INDX_NAME] = 
+    {"sct_i", "sct_j", "sct_k", "sct_l", "sct_m", "sct_n", "sct_o", "sct_p", 
+     "sct_r", "sct_q"};

@@ -720,4 +720,26 @@ std::size_t hash<sc::SValue>::operator () (const sc::SValue& obj) const {
     }
 }
 
+std::size_t hash<sc::SValueVector>::operator()(const sc::SValueVector& vec) const 
+{
+    using std::hash;
+    std::size_t seed = 0;
+    for (const auto& svalue : vec) {
+        seed ^= std::hash<sc::SValue>()(svalue) + 0x9e3779b9 + 
+                (seed << 6) + (seed >> 2);
+    }
+    return seed;
+}
+
+std::size_t hash<sc::ValDeclVector>::operator()(const sc::ValDeclVector& vec) const 
+{
+    using std::hash;
+    std::size_t seed = 0;
+    for (const auto* valDecl : vec) {
+        seed ^= std::hash<const void*>()(valDecl) + 0x9e3779b9 + 
+                (seed << 6) + (seed >> 2);
+    }
+    return seed;
+}
+
 }

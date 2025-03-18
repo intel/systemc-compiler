@@ -597,6 +597,11 @@ protected:
     std::unordered_set<SValue> afterResetAccessVars;
     /// Accessed in CTHREAD process SVA
     std::unordered_set<SValue> inSvaAccessVars;
+    
+  public:
+    /// If process located in MIF array element, all dimensions of the MIF arrays 
+    std::vector<unsigned> mifArrDims;
+    
 };
 
 }

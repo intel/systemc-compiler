@@ -450,6 +450,11 @@ public:
     void reportSctChannel(sc_elab::ProcessView procView,
                           const clang::FunctionDecl* funcDecl);
     
+    /// Get all dimensions of the MIF arrays for the current process
+    const std::vector<unsigned>& getMifArrDims() const {
+        return mifArrDims;
+    }
+    
 protected:
     /// CFG fabric singleton
     CfgFabric* cfgFabric = CfgFabric::getFabric(astCtx);
@@ -541,6 +546,9 @@ protected:
     
     /// Functions with wait()
     std::unordered_set<const clang::FunctionDecl*>  hasWaitFuncs;
+    
+    /// If process located in MIF array element, all dimensions of the MIF arrays 
+    std::vector<unsigned> mifArrDims;
 
  public:    
     /// SS channels used in the process, should be in sensitivity list

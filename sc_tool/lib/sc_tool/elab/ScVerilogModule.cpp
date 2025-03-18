@@ -10,14 +10,13 @@
  */
 
 #include <sc_tool/elab/ScVerilogModule.h>
+#include "sc_tool/scope/ScVerilogWriter.h"
 #include <sc_tool/utils/ScTypeTraits.h>
 #include <sc_tool/utils/CppTypeTraits.h>
 #include <sc_tool/utils/StringFormat.h>
 #include <sc_tool/diag/ScToolDiagnostic.h>
 #include <sc_tool/utils/VerilogKeywords.h>
 #include <sc_tool/ScCommandLine.h>
-#include "ScVerilogModule.h"
-#include "sc_tool/scope/ScVerilogWriter.h"
 
 namespace sc_elab
 {
@@ -1066,7 +1065,7 @@ VerilogVar *VerilogModule::createProcessLocalVariable(
         VerilogVar(nameGen.getUniqueName(suggestedName, true), bitwidth,
             std::move(arrayDims), isSigned, std::move(initVals), comment) );
 
-//    std::cout << "createProcessLocalVariable procVar " << procVar->getName() 
+//    std::cout << "   createProcessLocalVariable procVar " << procVar->getName() 
 //              << " arrayDims " << procVar->getArrayDims().size() << " arraDims[0] "
 //              << (procVar->getArrayDims().size() > 0 ? 
 //                  std::to_string(procVar->getArrayDims()[0]) : "-") << std::endl;
@@ -1248,6 +1247,7 @@ void VerilogModule::addVerilogPort(VerilogVar *var, PortDirection dir)
 
 void VerilogModule::addProcess(ProcessView proc)
 {
+    //cout << "-- " << this->getName() << " addProcess " << proc.getDebugString() << endl;
     processes.push_back(proc);
 }
 
@@ -1679,39 +1679,66 @@ void VerilogModule::serializeProcSingle(llvm::raw_ostream &os,
         os << "\n";
     }
 
+    // Use generate block for MIF array
+    bool inGenBlock = !procCode.mifArrDims.empty();
+    const std::string GEN_TAB = inGenBlock ? "    " : "";
+    
+    if (inGenBlock) {
+        os << "// Modular interfaces array generate block\n";
+        os << "generate \n"; 
+
+        unsigned indxDim = 0;
+        for (auto arrSize : procCode.mifArrDims) {
+            std::string varName = sc::ScVerilogWriter::getMifArrIndxName(indxDim);
+            os << "for (genvar " << varName << " = 0; ";
+            os << varName << " != " << arrSize << "; ";
+            os << varName << " = " << varName << " + 1) \n";
+            os << "begin : " << procObj.procName << "_" << varName << " \n";
+            indxDim++;
+        }
+        os << "\n"; 
+    }
+    
     if (generateAlways) {
         if (procObj.isScMethod()) {
             if (procObj.getHasLatch()) {
-                os << "always_latch \n";
+                os << GEN_TAB << "always_latch \n";
             } else {
-                os << "always_comb \n";
+                os << GEN_TAB << "always_comb \n";
             }
         } else {
             // For non-split cthread and thread
-            os << "always @(";
-            serializeSensList(os, procObj);
-            os << ") \n";
+            os << GEN_TAB << "always @(";
+            serializeSensList(os, procObj, procCode.mifArrDims.size());
+            os << GEN_TAB << ") \n";
         }
     }
     
     if (generateAlways)
-        os << "begin : " << procObj.procName << "     // " << procLoc << "\n";
+        os << GEN_TAB << "begin : " << procObj.procName << "     // " << procLoc << "\n";
 
     if (!procObj.isScMethod()) {
         os << procCode.localVars;
 
-        os << "    ";
+        os << GEN_TAB << "    ";
         if (!procObj.resets().empty()) {
-            serializeResetCondition(os, procObj);
+            serializeResetCondition(os, procObj, procCode.mifArrDims.size());
             os << procCode.resetSection;
-            os << "    else ";
+            os << GEN_TAB << "    else ";
         }
     }
 
     os << procBodies.at(procObj).body;
 
     if (generateAlways)
-        os << "end\n";
+        os << GEN_TAB << "end\n";
+    
+    if (inGenBlock) {
+        os << "\n";
+        for (auto arrSize : procCode.mifArrDims) { os << "end\n"; }
+        os << "endgenerate\n";
+    }
+
     os << "\n";
 
 }
@@ -1760,41 +1787,63 @@ void VerilogModule::serializeProcSplit(llvm::raw_ostream &os,
     auto ffName = procObj.procName + "_ff";
     auto funcName = procObj.procName + "_func";
 
-    os << "// Next-state combinational logic\n";
-    os << "always_comb begin : " << combName << "     // " << procLoc << "\n";
-    os << "    " << funcName << ";\n";
-    os << "end\n";
-    os << "function void " << funcName << ";\n";
+    // Use generate block for MIF array
+    bool inGenBlock = !procCode.mifArrDims.empty();
+    const std::string GEN_TAB = inGenBlock ? "    " : "";
+    
+    if (inGenBlock) {
+        os << "// Modular interfaces array generate block\n";
+        os << "generate \n"; 
+
+        unsigned indxDim = 0;
+        for (auto arrSize : procCode.mifArrDims) {
+            std::string varName = sc::ScVerilogWriter::getMifArrIndxName(indxDim);
+            os << "for (genvar " << varName << " = 0; ";
+            os << varName << " != " << arrSize << "; ";
+            os << varName << " = " << varName << " + 1) \n";
+            os << "begin : " << procObj.procName << "_" << varName << " \n";
+            indxDim++;
+        }
+        os << "\n";
+    }
+    
+    os << GEN_TAB << "// Next-state combinational logic\n";
+    os << GEN_TAB << "always_comb begin : " << combName << "     // " << procLoc << "\n";
+    os << GEN_TAB << "    " << funcName << ";\n";
+    os << GEN_TAB << "end\n";
+    os << GEN_TAB << "function void " << funcName << ";\n";
     os << procCode.localVars;
     os << procCode.body;
 
-    os << "endfunction\n\n";
+    os << GEN_TAB << "endfunction\n\n";
 
-    os << "// Synchronous register update\n";
+    os << GEN_TAB << "// Synchronous register update\n";
 
-    os << "always_ff @(";
-    serializeSensList(os, procObj);
+    os << GEN_TAB << "always_ff @(";
+    serializeSensList(os, procObj, procCode.mifArrDims.size());
     os << ") \n";
-    os << "begin : " << ffName << "\n";
-    os << "    ";
+    os << GEN_TAB << "begin : " << ffName << "\n";
+    os << GEN_TAB << "    ";
+    
     if (!procObj.resets().empty()) {
-        serializeResetCondition(os, procObj);
+        serializeResetCondition(os, procObj, procCode.mifArrDims.size());
         os << procCode.resetSection;
         
         if (!procCode.tempRstAsserts.empty()) {
-            os << "\n    `ifndef INTEL_SVA_OFF\n";
+            os << "\n" << GEN_TAB << "    `ifndef INTEL_SVA_OFF\n";
             os << procCode.tempRstAsserts;
-            os << "    `endif // INTEL_SVA_OFF\n";
+            os << GEN_TAB << "    `endif // INTEL_SVA_OFF\n";
         }
         
-        os << "    end\n";
-        os << "    else ";
+        os << GEN_TAB << "    end\n";
+        os << GEN_TAB << "    else begin\n";
+    } else {
+        os << GEN_TAB << "begin\n";
     }
-    os << "begin\n";
 
     if (procRegNextPairs.count(procObj)) {
         for (const auto &regNextPair : procRegNextPairs.at(procObj)) {
-            os << "        " << regNextPair.first.first->getName() 
+            os << GEN_TAB << "        " << regNextPair.first.first->getName() 
                << regNextPair.second; // Add MIF element suffix
             os << " <= ";
             os << regNextPair.first.second->getName() 
@@ -1803,24 +1852,36 @@ void VerilogModule::serializeProcSplit(llvm::raw_ostream &os,
     }
     
     if (!procCode.tempAsserts.empty()) {
-        os << "\n    `ifndef INTEL_SVA_OFF\n";
+        os << "\n" << GEN_TAB << "    `ifndef INTEL_SVA_OFF\n";
         os << procCode.tempAsserts;
-        os << "    `endif // INTEL_SVA_OFF\n";
+        os << GEN_TAB << "    `endif // INTEL_SVA_OFF\n";
     }
-
-    os << "    end\n";
-    os << "end\n\n";
+    
+    os << GEN_TAB << "    end\n";
+    os << GEN_TAB << "end\n";
+    
+    if (inGenBlock) {
+        os << "\n";
+        for (auto arrSize : procCode.mifArrDims) { os << "end\n"; }
+        os << "endgenerate\n";
+    }
+    os << "\n";
 }
 
 void VerilogModule::serializeSensList(llvm::raw_ostream &os,
-                                      ProcessView procObj) const
+                                      ProcessView procObj, 
+                                      unsigned mifArrDimNum) const
 {
     bool first = true;
     for (auto sensEvent : procObj.staticSensitivity()) {
 
         ArrayElemObjWithIndices source{sensEvent.sourceObj};
         source = source.obj.getAsArrayElementWithIndicies();
-
+        
+        unsigned indxSize = source.indices.size();
+        //cout << "source " << source.obj.getDebugString() << " " << indxSize
+        //     << " mifArrDimNum " << mifArrDimNum << endl;
+        
         auto &verSources = channelVarMap.at(source.obj);
         for (auto *var : verSources) {
             if (first)
@@ -1835,9 +1896,17 @@ void VerilogModule::serializeSensList(llvm::raw_ostream &os,
                 os << "posedge ";
 
             os << var->getName();
-
-            for (auto idx : source.indices)
-                os << "[" << idx << "]";
+            // If @indxSize non-empty but @mifArrDimNum zero then thread
+            // is sensitive to first SS channel of array
+            if (indxSize != 0 && mifArrDimNum == 0) {
+                for (auto i : source.indices) {
+                    os << "[" << i << "]";
+                }
+            } else {
+                for (unsigned i = 0; i != mifArrDimNum; ++i) {
+                    os << "[" << sc::ScVerilogWriter::getMifArrIndxName(i) << "]";
+                }
+            }
             // Only one clock is required
             break;  
         }
@@ -1863,9 +1932,9 @@ void VerilogModule::serializeSensList(llvm::raw_ostream &os,
                     os << "negedge ";
 
                 os << var->getName();
-                for (auto idx : source.indices)
-                    os << "[" << idx << "]";
-
+                for (unsigned i = 0; i != mifArrDimNum; ++i) {
+                    os << "[" << sc::ScVerilogWriter::getMifArrIndxName(i) << "]";
+                }
             } else {
                 os << " /*sync " << var->getName();
                 for (auto idx : source.indices)
@@ -1911,7 +1980,8 @@ std::string VerilogModule::getSensEventStr(const ProcessView& procObj) const
 
 
 void VerilogModule::serializeResetCondition(llvm::raw_ostream &os,
-                                            ProcessView procObj) const
+                                            ProcessView procObj, 
+                                            unsigned mifArrDimNum) const
 {
     os << "if ( ";
     bool first = true;
@@ -1930,8 +2000,9 @@ void VerilogModule::serializeResetCondition(llvm::raw_ostream &os,
                 os << "~";
 
             os << var->getName();
-            for (auto idx : source.indices)
-                os << "[" << idx << "]";
+            for (unsigned i = 0; i != mifArrDimNum; ++i) {
+                os << "[" << sc::ScVerilogWriter::getMifArrIndxName(i) << "]";
+            }
             
             // Previous version:
 //            if (auto signal = reset.sourceObj.signal()) {

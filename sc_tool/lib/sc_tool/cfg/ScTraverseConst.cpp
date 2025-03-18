@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 #include "sc_tool/cfg/ScTraverseConst.h"
+#include "sc_tool/scope/ScVerilogWriter.h"
 #include "sc_tool/expr/ScParseExprValue.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "sc_tool/utils/CheckCppInheritance.h"
@@ -14,6 +15,7 @@
 #include "sc_tool/elab/ScVerilogModule.h"
 #include "sc_tool/elab/ScObjectView.h"
 #include "sc_tool/utils/CppTypeTraits.h"
+#include <sc_tool/ScCommandLine.h>
 
 #include "clang/AST/Decl.h"
 #include <memory>
@@ -781,6 +783,7 @@ void ScTraverseConst::initContext()
     // Check if current module if element of array of MIF
     zeroElmtMIF = false;
     nonZeroElmtMIF = false;
+    unsigned indxDim = 0;
     if (isScModularInterface(modval.getType())) {
         // Get all MIF arrays up to the parent module
         auto mifarrs = state->getAllMifArrays(modval, ScState::MIF_CROSS_NUM);
@@ -791,7 +794,14 @@ void ScTraverseConst::initContext()
                              "Unknown index for MIF array element");
             auto i = val.getArray().getOffset();
             nonZeroElmtMIF = nonZeroElmtMIF || i != 0;
-            mifElmtSuffix += "["+ to_string(i) +"]";
+//            auto size = val.getArray().getSize();
+//            if (size == 1) {
+//                mifElmtSuffix += "["+ to_string(i) +"]";
+//            } else {
+                mifElmtSuffix += "[" + ScVerilogWriter::getMifArrIndxName(indxDim) + "]";
+                mifArrDims.push_back(val.getArray().getSize());
+                indxDim++;
+//            }
         }
         
         if (!mifarrs.empty()) {

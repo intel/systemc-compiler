@@ -238,6 +238,9 @@ public:
         SYNTH_STATIC_ARR_NONINT     = 256,
 
         SYNTH_REC_CTOR_INCOR_STMT   = 257,
+        
+        SYNTH_NOSENSITIV_DECL_IN_MIFARR = 258,
+        SYNTH_MIFARR_DIM_LIMIT = 259,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -829,6 +832,15 @@ private:
         idFormatMap[SYNTH_SS_SIG_SENS_THREAD] =
             {clang::DiagnosticIDs::Warning, 
             "Thread is sensitive to sc_signal which may lead to extra activation"};
+        
+        idFormatMap[SYNTH_NOSENSITIV_DECL_IN_MIFARR] =
+            {clang::DiagnosticIDs::Error, 
+            "No local variable allowed in SC_METHOD with empty sensitivity in MIF array"};
+        
+        idFormatMap[SYNTH_MIFARR_DIM_LIMIT] =
+            {clang::DiagnosticIDs::Error, 
+            "MIF array dimension number exceeded, limited with 10 "};
+        
         
         
         // Elaboration

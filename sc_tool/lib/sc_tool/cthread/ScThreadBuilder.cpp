@@ -29,6 +29,7 @@
 using namespace llvm;
 using namespace clang;
 using namespace sc_elab;
+using namespace std;
 
 namespace sc
 {
@@ -331,7 +332,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
 
     // Fill verVarTrais and put defined non-channel variables to process 
     // variable storage to be generated before the process
-    generateThreadLocalVariables();
+    generateThreadLocalVariables(travConst->mifArrDims);
 
     //globalState->print();
     
@@ -388,7 +389,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     }
 
     // Generate state variable declaration
-    generateThreadStateVariable();
+    generateThreadStateVariable(travConst->mifArrDims);
     
     // Second traverse process stage, final code generation w/o duplicated states
     if (!isSingleState) {
@@ -433,6 +434,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
 
     // Skip MIF non-zero elements to get number of unique statements
     if (!noneZeroElmntMIF) {
+        procCode.mifArrDims  = travProc->getMifArrDims();
         procCode.statStmtNum = travProc->statStmts.size();
         procCode.statTermNum = travProc->statTerms.size();
         procCode.statAsrtNum = travProc->statAsrts.size();
@@ -541,6 +543,10 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
     std::string caseBody;
     std::string resetSection;
 
+    // Use generate block for MIF array
+    bool inGenBlock = !travProc->getMifArrDims().empty();
+    const std::string GEN_TAB = inGenBlock ? "    " : "";
+    
     {
         // Generate Local Variables
         std::stringstream ls;
@@ -548,8 +554,8 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
         
         // Add wait(n) counter current to next assignment
         if (threadStates.hasWaitNState()) {
-            ls << "    " << waitNRegNames.second << " = " 
-                         << waitNRegNames.first << ";\n";
+            ls << GEN_TAB << "    " << waitNRegNames.second << " = " 
+               << waitNRegNames.first << ";\n";
         }
         localVars = ls.str();
     }
@@ -573,7 +579,7 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
             // Add wait(n) counter initialization in reset, not required
             // if WAIT_N counter initialized in reset when first wait is wait(N)
             if (threadStates.hasWaitNState() && !threadStates.isFirstWaitN()) {
-                vout << "    " << waitNRegNames.first << " <= 0;\n";
+                vout << GEN_TAB << "    " << waitNRegNames.first << " <= 0;\n";
             }
         }
 
@@ -588,11 +594,11 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
 
         if (!isSingleState) {
             vout.pushF("    ");
-            vout << "    " << stateRegNames.second << " = " 
-                           << stateRegNames.first << ";\n";
+            vout << GEN_TAB << "    " << stateRegNames.second << " = " 
+                 << stateRegNames.first << ";\n";
             vout << "\n";
 
-            vout << "case (" << stateRegNames.first << ")\n";
+            vout << GEN_TAB << "case (" << stateRegNames.first << ")\n";
             vout.pushF("    ");
         }
 
@@ -601,19 +607,19 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
             if (replacedStates.find(waitID) != replacedStates.end()) continue;
 
             if (!isSingleState) {
-                vout << waitID << ": begin\n";
+                vout << GEN_TAB << waitID << ": begin\n";
             }
 
             vout << stateCodeMap[waitID];
 
             if (!isSingleState) {
-                vout << "end\n";
+                vout << GEN_TAB << "end\n";
             }
         }
 
         if (!isSingleState) {
             vout.popF();
-            vout << "endcase\n";
+            vout << GEN_TAB << "endcase\n";
             vout.popF();
         }
 
@@ -932,7 +938,7 @@ sc::SValue createRecChanField(ObjectView fieldObj, SValue parent)
     return SValue(fieldDecl, parent);
 }
 
-void ThreadBuilder::generateThreadStateVariable()
+void ThreadBuilder::generateThreadStateVariable(const std::vector<unsigned>& mifArrDims)
 {
     using std::cout; using std::endl;
     
@@ -946,23 +952,35 @@ void ThreadBuilder::generateThreadStateVariable()
             size_t stateCount = threadStates.getNumFSMStates();
             size_t bitWidth = bitsForIndex(stateCount);
 
+            
             auto procStateName = procName + "_PROC_STATE";
             auto procStateNextName = procName + "_PROC_STATE_next";
 
+            IndexVec arrayDims;
+            std::string mifElemSuffix = "";
+            bool zeroElmntMIF = travConst->isZeroElmtMIF();
+            bool noneZeroElmntMIF = travConst->isNonZeroElmtMIF();
+            mifElemSuffix = (zeroElmntMIF || noneZeroElmntMIF) ?
+                            travConst->getMifElmtSuffix() : "";
+            // Add MIF array indices for this variable suffix
+            for (auto i : mifArrDims) arrayDims.push_back(i);
+            
             auto* procStateVar= verMod->createProcessLocalVariable(
                                         procView, procStateName, bitWidth, 
-                                        {}, false);
+                                        arrayDims, false);
             auto* procStateNextVar = verMod->createProcessLocalVariable(
                                         procView, procStateNextName, bitWidth, 
-                                        {}, false);
+                                        arrayDims, false);
             verMod->procVarMap[procView].insert(procStateVar);
             verMod->procVarMap[procView].insert(procStateNextVar);                            
 
-            stateRegNames = make_pair(procStateVar->getName(), 
-                                      procStateNextVar->getName());
+            stateRegNames = make_pair(procStateVar->getName()+mifElemSuffix, 
+                                      procStateNextVar->getName()+mifElemSuffix);
 
-            globalState->setProcStateName(procStateVar->getName(), procStateNextVar->getName());
-            verMod->addProcRegisterNextValPair(procView, procStateVar, procStateNextVar);
+            globalState->setProcStateName(procStateVar->getName()+mifElemSuffix, 
+                                          procStateNextVar->getName()+mifElemSuffix);
+            verMod->addProcRegisterNextValPair(procView, procStateVar, 
+                                               procStateNextVar, mifElemSuffix);
 
             verMod->addVarUsedInProc(procView, procStateVar, 0, 0);
             verMod->addVarDefinedInProc(procView, procStateVar, 0, 0);
@@ -972,7 +990,7 @@ void ThreadBuilder::generateThreadStateVariable()
     }
 }
 
-void ThreadBuilder::generateThreadLocalVariables()
+void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mifArrDims)
 {
     using std::cout; using std::endl;
     // Clear verVarTraits after previous process, required for channels
@@ -991,8 +1009,8 @@ void ThreadBuilder::generateThreadLocalVariables()
     bool noneZeroElmntMIF = travConst->isNonZeroElmtMIF();
     std::string mifElemSuffix = (zeroElmntMIF || noneZeroElmntMIF) ?
                                  travConst->getMifElmtSuffix() : "";
-//    cout << "Thread is zeroElmntMIF " << zeroElmntMIF << " noneZeroElmntMIF " 
-//         << noneZeroElmntMIF << " nonZeroSuffix " << mifElemSuffix << endl;
+    //cout << "Thread is zeroElmntMIF " << zeroElmntMIF << " noneZeroElmntMIF " 
+    //     << noneZeroElmntMIF << " mifElemSuffix " << mifElemSuffix << endl;
     
     {
         // Thread has wait(N), create counter variable
@@ -1001,24 +1019,33 @@ void ThreadBuilder::generateThreadLocalVariables()
             auto counterName = procName + "_WAIT_N_COUNTER";
             auto counterNextName = procName + "_WAIT_N_COUNTER_next";
 
+            std::string elemSuffix = "";
+            IndexVec arrayDims;
+            elemSuffix = mifElemSuffix;
+            // Add MIF array indices for this variable suffix
+            for (auto i : mifArrDims) arrayDims.push_back(i);
+                
             size_t bitWidth = bitsInNumber(threadStates.getMaxWaitN());
 
             // Create variable for counter in VerilogModule
             auto* counterVar = verMod->createProcessLocalVariable(
-                                    procView, counterName, bitWidth, {}, false);
+                                    procView, counterName, bitWidth, 
+                                    arrayDims, false);
             auto* counterNextVar = verMod->createProcessLocalVariable(
-                                    procView, counterNextName, bitWidth, {}, false);
+                                    procView, counterNextName, bitWidth, 
+                                    arrayDims, false);
             verMod->procVarMap[procView].insert(counterVar);
             verMod->procVarMap[procView].insert(counterNextVar);
 
-            waitNRegNames = make_pair(counterVar->getName(), 
-                                      counterNextVar->getName());
+            waitNRegNames = make_pair(counterVar->getName()+elemSuffix, 
+                                      counterNextVar->getName()+elemSuffix);
             
             // Add name for counter to state
-            globalState->setWaitNVarName(counterVar->getName(), 
-                                         counterNextVar->getName());
+            globalState->setWaitNVarName(counterVar->getName()+elemSuffix, 
+                                         counterNextVar->getName()+elemSuffix);
             verMod->addProcRegisterNextValPair(procView, counterVar, 
-                                               counterNextVar);
+                                               counterNextVar, elemSuffix);
+            
             verMod->addVarUsedInProc(procView, counterVar, 0, 0);
             verMod->addVarDefinedInProc(procView, counterVar, 0, 0);
             verMod->addVarUsedInProc(procView, counterNextVar, 0, 0);
@@ -1319,6 +1346,10 @@ void ThreadBuilder::generateThreadLocalVariables()
             
             // Fill array dimension and get register type
             IndexVec arrayDims;
+            
+            // Add MIF array indices for this variable suffix
+            for (auto i : mifArrDims) arrayDims.push_back(i);
+            
             QualType regType = getLocalArrayDims(regVar, arrayDims);
             if (isReference(regType)) regType = regType.getNonReferenceType();
 
@@ -1340,7 +1371,7 @@ void ThreadBuilder::generateThreadLocalVariables()
             
             // No variable declaration for non zero elements of MIF array
             auto* verVar = verMod->createProcessLocalVariable(procView,
-                                regName, width, arrayDims, isSigned);    
+                                regName, width, arrayDims, isSigned);
             auto* verNextVar = verMod->createProcessLocalVariable(procView,
                                 nextName, width, arrayDims, isSigned);
             verMod->procVarMap[procView].insert(verVar);
@@ -1354,7 +1385,7 @@ void ThreadBuilder::generateThreadLocalVariables()
             if (zeroElmntMIF || noneZeroElmntMIF || isUnique) {
                 if (afterResetAcess || !REMOVE_UNUSED_NEXT()) {
                     verMod->addProcRegisterNextValPair(procView, verVar, 
-                                                       verNextVar);
+                            verNextVar, mifElemSuffix);
                 }
             }
             
@@ -1362,11 +1393,13 @@ void ThreadBuilder::generateThreadLocalVariables()
             globalState->putVerilogTraits(regVar,
                                 VerilogVarTraits(VerilogVarTraits::REGISTER, 
                                     accessPlace, false, isNonZeroElmt, false,
-                                    verVar->getName(), verNextVar->getName()));
+                                    verVar->getName(), verNextVar->getName(),
+                                    mifElemSuffix));
             globalState->putVerilogTraits(regVarZero,
                                 VerilogVarTraits(VerilogVarTraits::REGISTER, 
                                     accessPlace, false, !isNonZeroElmt, false, 
-                                    verVar->getName(), verNextVar->getName()));
+                                    verVar->getName(), verNextVar->getName(),
+                                    mifElemSuffix));
             
             bool isConst = regVar.getType().isConstQualified() || 
                            isPointerToConst(regVar.getType());
@@ -1524,6 +1557,10 @@ void ThreadBuilder::generateThreadLocalVariables()
                                                             afterResetAcess);
 
         if (auto elabObj = globalState->getElabObject(roVarZero)) {
+            // Module/class field
+            //cout << "Convert to proc local: " << elabObj->getDebugString() 
+            //     << " id " << elabObj->getID() << endl;
+            
             // Get first array element for non-first element and dereference 
             // pointer to get Verilog variable name
             if (!elabObj) {
@@ -1654,6 +1691,9 @@ void ThreadBuilder::generateThreadLocalVariables()
                 }
                 
                 IndexVec arrayDims;
+                // Add MIF array indices for this variable suffix
+                for (auto i : mifArrDims) arrayDims.push_back(i);
+                
                 QualType roType = getLocalArrayDims(roVar, arrayDims);
                 if (isReference(roType)) roType = roType.getNonReferenceType();
 
@@ -1685,11 +1725,12 @@ void ThreadBuilder::generateThreadLocalVariables()
                 // Add to verVarTraits, this constant not declared in always blocks
                 globalState->putVerilogTraits(roVar, VerilogVarTraits(
                                      VerilogVarTraits::READONLY_CDR, accessPlace,
-                                     true, isNonZeroElmt, false, verVar->getName()));
+                                     true, isNonZeroElmt, false, 
+                                     verVar->getName(), "", mifElemSuffix));
                 globalState->putVerilogTraits(roVarZero, VerilogVarTraits(
                                      VerilogVarTraits::READONLY_CDR, accessPlace,
-                                     true, !isNonZeroElmt, false, verVar->getName()));
-                
+                                     true, !isNonZeroElmt, false, 
+                                     verVar->getName(), "", mifElemSuffix));
             } else {
                 // Other local constant
                 globalState->putVerilogTraits(roVar, VerilogVarTraits(

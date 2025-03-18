@@ -26,8 +26,8 @@ namespace sct {
 /// Cycle accurate implementation    
 template<class T, class TRAITS>
 class sct_register<T, TRAITS, 0> : 
-    public sc_module,
-    public sct_inout_if<T>
+    public sc_module, 
+    public sc_interface
 {
  public:
     sc_in<bool>             clk{"clk"};
@@ -57,7 +57,7 @@ class sct_register<T, TRAITS, 0> :
     }
     
     /// Call in writer METHOD process only
-    void write(const T& data) override {
+    void write(const T& data) {
         reg_data = data;
     }
     
@@ -65,11 +65,11 @@ class sct_register<T, TRAITS, 0> :
         reg_data = data;
     }
     
-    const T& read() const override {
+    T read() const {
         return reg_data_d.read();
     }
     
-    operator const T& () const {
+    operator T () const {
         return reg_data_d.read();
     }
     

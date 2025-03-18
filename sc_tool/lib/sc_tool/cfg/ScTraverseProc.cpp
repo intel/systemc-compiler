@@ -68,6 +68,10 @@ shared_ptr<CodeScope> ScTraverseProc::getScopeForBlock(AdjBlock block, unsigned 
 std::optional<std::string> 
 ScTraverseProc::getSvaInLoopStr(const std::string& svaStr, bool isResetSection) 
 {
+    // Use generate block for MIF array
+    bool inGenBlock = codeWriter->getMIFName().first;
+    const std::string GEN_TAB = inGenBlock ? "    " : "";
+    
     std::string tabStr = "        ";
     std::string loopStr;
     
@@ -82,19 +86,19 @@ ScTraverseProc::getSvaInLoopStr(const std::string& svaStr, bool isResetSection)
         getTermCondValue(i->stmt, termCValue, termCValueFirst);
 
         if (auto str = parseTerm(i->stmt, termCValue)) {
-            loopStr += tabStr + *str + " begin\n";
+            loopStr += GEN_TAB + tabStr + *str + " begin\n";
         } else {
             return std::nullopt;
         }
         tabStr += "    ";
     }
     
-    loopStr += tabStr + (assertName ? (*assertName+(isResetSection ? "r":"")+
-                         " : ") : "") + "assert property ( " + svaStr + " );\n";
+    loopStr += GEN_TAB + tabStr + (assertName ? (*assertName+(isResetSection ? "r":"")+
+               " : ") : "") + "assert property ( " + svaStr + " );\n";
     
     for (size_t i = 0; i != loopStack.size(); ++i) {
         tabStr = tabStr.substr(0, tabStr.size()-4);
-        loopStr += tabStr + "end\n";
+        loopStr += GEN_TAB + tabStr + "end\n";
     }
 
     return loopStr;
@@ -370,7 +374,7 @@ void ScTraverseProc::parseCall(CallExpr* expr, SValue& val)
             // Declare temporal variable if it is not a pointer
             if (!isVoidType(retType) && !isPointer(retType)) {
                 codeWriter->putVarDecl(nullptr, retVal, retType, nullptr, false, 
-                                       level);
+                                       level, false);
             }
             
             // Generate function parameter assignments
@@ -456,7 +460,7 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             // Declare temporal variable if it is not a pointer
             if (!isVoidType(retType) && !isPointer(retType)) {
                 codeWriter->putVarDecl(nullptr, retVal, retType, nullptr, false, 
-                                       level);
+                                       level, false);
             }
 
             // Get record from variable/dynamic object, no unknown index here
@@ -576,7 +580,8 @@ void ScTraverseProc::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         
         // Declare temporal variable if it is not a pointer
         if (!isVoidType(retType) && !isPointer(retType)) {
-            codeWriter->putVarDecl(nullptr, retVal, retType, nullptr, false, level);
+            codeWriter->putVarDecl(nullptr, retVal, retType, nullptr, false, 
+                                   level, false, false);
         }
 
         // Get record from variable/dynamic object, no unknown index here
@@ -667,14 +672,15 @@ void ScTraverseProc::initContext()
 
     // Clear temporary variable index generator
     STmpVariable::clearId();
-    
+
+    // Initial scope level
+    level = 0;
     scopeGraph = std::make_shared<ScScopeGraph>();
-    auto firstScope = createScope(0);
+    auto firstScope = createScope(level);
     scopeGraph->setFirstScope(firstScope);
     scopeGraph->setCurrScope(firstScope);
     scopeGraph->setName(funcDecl->getNameAsString());
-    scopeGraph->setCurrLevel(0);
-    level = 0;
+    scopeGraph->setCurrLevel(level);
     
     // Setup first non-MIF module value
     synmodval = state->getSynthModuleValue(modval, ScState::MIF_CROSS_NUM);
@@ -685,30 +691,25 @@ void ScTraverseProc::initContext()
         auto mifarrs = state->getAllMifArrays(modval, ScState::MIF_CROSS_NUM);
         
         string s;
+        unsigned indxDim = 0;
         for (const SValue& val : mifarrs) {
             SCT_TOOL_ASSERT (val.isArray() && !val.getArray().isUnknown(), 
                              "Unknown index for MIF array element");
-            auto i = val.getArray().getOffset();
-            s += "["+ to_string(i) +"]";
-            //s += "[i"+ to_string(i)+"]";
+//            auto size = val.getArray().getSize();
+//            if (size == 1) {
+//                auto i = val.getArray().getOffset();
+//                s += "["+ to_string(i) +"]";
+//            } else {
+                s += "[" + ScVerilogWriter::getMifArrIndxName(indxDim) + "]";
+//            }
+            mifArrDims.push_back(val.getArray().getSize());
+            indxDim++;
         }
         
         if (!mifarrs.empty()) {
             //std::cout << "\nsetMIFName " << modval << " " << s << std::endl;
             codeWriter->setMIFName(modval, s);
-            // XXX
-            /*if (auto mdecl = dyn_cast<CXXMethodDecl>(funcDecl)) {
-                Stmt* s = mdecl->getBody();
-                scopeGraph->storeStmt(s, "for (...)");
-                cout << "!!!" << endl;
-            }
-            level = 1; 
-            auto mifFirstScope = createScope(level);
-            scopeGraph->addScopeSucc(mifFirstScope);
-            scopeGraph->setCurrScope(mifFirstScope);
-            scopeGraph->addScopePred(firstScope);
-            scopeGraph->setCurrLevel(level);*/
-            // XXX
+            scopeGraph->setEmptyLevel(1);
         }
     }
 
@@ -879,7 +880,7 @@ void ScTraverseProc::run()
         isResetSection = !isCombProcess && hasReset;
 
         // Fill statement levels for entry function
-        stmtInfo.run(funcDecl, 0);
+        stmtInfo.run(funcDecl, level);
     
     } else {
         // Start with given context, used at wait() statement in CTHREAD
@@ -2072,7 +2073,10 @@ std::optional<std::string> ScTraverseProc::runSvaDecl(const FieldDecl* fdecl)
     auto stmtStr = codeWriter->getStmtString(stmt);
     
     if (stmtStr) {
-        std::string s = (assertName ? (*assertName+" : ") : "") +
+        // Use generate block for MIF array
+        bool inGenBlock = codeWriter->getMIFName().first;
+        const std::string GEN_TAB = inGenBlock ? "    " : "";
+        std::string s = GEN_TAB + (assertName ? (*assertName+" : ") : "") +
                         "assert property (\n    " + *stmtStr + " );\n";
         return s;
     }
@@ -2141,7 +2145,9 @@ void ScTraverseProc::printFunctionBody(std::ostream &os)
     
     //cout << "--------------------------------------------" << endl;
     //cout << "Top function scopeGraph #" << hex << topGraph.get() << dec << endl;
-    topGraph->printAllScopes(os);
+    bool isMifArr = !mifArrDims.empty();
+    unsigned printLevel = isMifArr ? 1 : 0;
+    topGraph->printAllScopes(os, printLevel);
 }
 
 // Print temporal assertion in thread process, printed in @always_ff

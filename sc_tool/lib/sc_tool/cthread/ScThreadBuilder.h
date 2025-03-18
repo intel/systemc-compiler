@@ -111,11 +111,12 @@ private:
     /// Get process code including declarations and SVA code
     sc_elab::VerilogProcCode getVerilogCode(bool isSingleState);
 
-    /// ...
-    void generateThreadStateVariable();
+    /// Generate thread state variable register (PROC_STATE & PROC_STATE_next)
+    void generateThreadStateVariable(const std::vector<unsigned>& mifArrDims);
     
     /// Generate Verilog module variables for registers discovered in thread
-    void generateThreadLocalVariables();
+    /// \param mifArrDims -- MIF array dimensions is process in the array element
+    void generateThreadLocalVariables(const std::vector<unsigned>& mifArrDims);
 
     const clang::SourceManager &sm;
     const clang::ASTContext &astCtx;

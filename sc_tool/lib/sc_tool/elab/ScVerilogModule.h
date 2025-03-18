@@ -333,11 +333,15 @@ struct VerilogProcCode {
 
     VerilogProcCode (std::string body, std::string localVars, 
                      std::string resetSection, std::string tempAsserts,
-                     std::string tempRstAsserts) : 
-        body(std::move(body)), localVars(std::move(localVars)), 
+                     std::string tempRstAsserts, 
+                     const std::vector<unsigned>& mifArrDims_ = {}
+                     ) : 
+        body(std::move(body)), 
+        localVars(std::move(localVars)), 
         resetSection(std::move(resetSection)), 
         tempAsserts(std::move(tempAsserts)),
-        tempRstAsserts(std::move(tempRstAsserts))
+        tempRstAsserts(std::move(tempRstAsserts)),
+        mifArrDims(mifArrDims_)
     {}
 
     bool emptyProcess = false;
@@ -346,6 +350,8 @@ struct VerilogProcCode {
     std::string resetSection = "";
     std::string tempAsserts = "";
     std::string tempRstAsserts = "";
+    /// If process located in MIF array element, all dimensions of the MIF arrays 
+    std::vector<unsigned> mifArrDims;
     
     unsigned long statStmtNum = 0;
     unsigned long statTermNum = 0;
@@ -686,11 +692,13 @@ public:
     /// Generate pair of always_comb/always_ff for thread process in split mode
     void serializeProcSplit(llvm::raw_ostream &os, ProcessView procObj) const;
     /// generate sensitivity list for always @(...)
-    void serializeSensList(llvm::raw_ostream &os, ProcessView procObj) const;
+    void serializeSensList(llvm::raw_ostream &os, ProcessView procObj,
+                           unsigned mifArrDimNum) const;
     /// Get process sensitivity string
     std::string getSensEventStr(const ProcessView& procObj) const;
     /// serialize reset condition : if ( ~reset )
-    void serializeResetCondition(llvm::raw_ostream &os, ProcessView procObj) const;
+    void serializeResetCondition(llvm::raw_ostream &os, ProcessView procObj,
+                                 unsigned mifArrDimNum) const;
 
     ModuleMIFView elabModObj;
 

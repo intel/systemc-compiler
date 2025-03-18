@@ -647,7 +647,21 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traversePort(PortView port)
 ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseProcess(
                                                            ProcessView proc)
 {
-    curVerMod->addProcess(proc);
+    ModuleMIFView parent = proc.getParentModuleOrMIF();
+    //std::cout << "Proc parent " << parent.getDebugString() << std::endl;
+    
+    // Check zero/non-zero MIF array element
+    const auto& objIndx = parent.getAsArrayElementWithIndicies();
+    bool zeroElmntMIF = true;
+    if (!objIndx.indices.empty()) {
+        for (auto i : objIndx.indices) {
+            if (i != 0) zeroElmntMIF = false;
+        }
+    }
+    
+    if (zeroElmntMIF) {
+        curVerMod->addProcess(proc);
+    }
     return true;
 }
 

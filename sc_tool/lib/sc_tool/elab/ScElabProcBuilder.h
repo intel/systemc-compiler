@@ -84,6 +84,11 @@ private: // data
     ModuleMIFView rootModView;
     ElabDatabase &elabDB;
 
+    /// Current context: array of MIF array variables
+    sc::ValDeclVector mifArrayCtx;
+    /// <array of MIF array variables, array of fields in this context>
+    std::unordered_map<sc::ValDeclVector, sc::SValueVector> mifArrayVars;
+    
     std::shared_ptr<sc::ScState> moduleState;
     // Parent hierarchy to create SRecord
     std::vector<sc::SValue> classHierStack;

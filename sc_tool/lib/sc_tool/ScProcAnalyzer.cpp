@@ -89,6 +89,10 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     unordered_set<SValue> defVals;
     DebugOptions::suspend();
     auto preState = shared_ptr<ScState>(globalState->clone());
+    
+    //cout << "modval " << modval << endl;
+    //preState->print();
+    
     ScTraverseConst preConst(astCtx, preState, modval, 
                              globalState, &elabDB, nullptr, nullptr, true, true);
     preConst.run(verMod, methodDecl);
@@ -107,6 +111,9 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     }
     auto start = chrono::system_clock::now();
     auto constState = shared_ptr<ScState>(globalState->clone());
+    
+    //constState->print();
+    
     ScTraverseConst travConst(astCtx, constState, modval, 
                               globalState, &elabDB, nullptr, nullptr, true, true);
     travConst.run(verMod, methodDecl);
@@ -511,6 +518,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
 
     // Skip MIF non-zero elements to get number of unique statements
     if (!noneZeroElmntMIF) {
+        procCode.mifArrDims  = travProc.getMifArrDims();
         procCode.statStmtNum = travProc.statStmts.size();
         procCode.statTermNum = travProc.statTerms.size();
         procCode.statAsrtNum = travProc.statAsrts.size();

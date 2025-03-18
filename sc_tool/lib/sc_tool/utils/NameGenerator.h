@@ -46,7 +46,7 @@ public:
         takenNames.insert(names.begin(), names.end());
     }
 
-    UniqueNamesGenerator () = default;
+    UniqueNamesGenerator ();
     UniqueNamesGenerator (UniqueNamesGenerator &&) = default;
     UniqueNamesGenerator (const UniqueNamesGenerator &) = delete;
     UniqueNamesGenerator& operator=(UniqueNamesGenerator &&) = default;

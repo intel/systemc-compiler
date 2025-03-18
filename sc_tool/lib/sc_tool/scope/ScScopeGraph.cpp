@@ -253,6 +253,11 @@ string ScScopeGraph::getTabString(unsigned level) {
     return result;
 }
 
+string ScScopeGraph::getEmptyTabString() {
+    if (emptyLevel == 1) return TAB_SYM;
+    else return "";
+}
+
 /// Set function name
 void ScScopeGraph::setName(const string& fname, bool fcall) {
     name = fname;
@@ -478,8 +483,8 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                     if (i != stmtComments.end()) {
                         comment = "// "+i->second;
                     }
-                    printSplitString(os, stmtStr, 
-                                     noTabStmt ? "" : getTabString(level), 
+                    printSplitString(os, stmtStr, noTabStmt ? 
+                                     getEmptyTabString() : getTabString(level), 
                                      comment);
                     
                     if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
@@ -626,12 +631,12 @@ void ScScopeGraph::clearAfterPrint()
     visited.clear();
 }
 
-void ScScopeGraph::printAllScopes(ostream &os) 
+void ScScopeGraph::printAllScopes(ostream &os, unsigned printLevel) 
 {
     if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
         cout << endl << "------------ printAllScopes --------------" << endl;
     }
-    printCurrentScope(os, getFirstScope(), 0, true);
+    printCurrentScope(os, getFirstScope(), printLevel, true);
     clearAfterPrint();
 }
 

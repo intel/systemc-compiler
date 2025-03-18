@@ -123,8 +123,8 @@ Object* getOuterArray(SCDesign& designDB, Object* memberObj)
     return arrayObj;
 }
 
-const std::string SCElabASTConsumer::TOOL_VERSION = "1.6.13";
-const std::string SCElabASTConsumer::TOOL_DATE = "Mar 03,2025";
+const std::string SCElabASTConsumer::TOOL_VERSION = "1.6.15";
+const std::string SCElabASTConsumer::TOOL_DATE = "Mar 18,2025";
 
 void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 {
@@ -142,14 +142,14 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
     //const char* optNames[] = {doModuleBuilder, doConstStmt, doConstCfg/*, doState*/};
     //const char* optNames[] = {doModuleBuilder, doGenStmt};
     //const char* optNames[] = {doGenTerm, doGenCfg, doGenStmt, doModuleBuilder};
-    //const char* optNames[] = {doConstCfg, doConstLoop, doConstStmt, doConstBlock, doModuleBuilder};
     //const char* optNames[] = {doUseDef, /*doState,*/ doConstStmt, doModuleBuilder};  
-    //const char* optNames[] = {doGenRTL, doGenStmt, doModuleBuilder};
-    //const char* optNames[] = {doConstStmt, doGenStmt, doModuleBuilder};
+    //const char* optNames[] = {doGenName, doGenFuncCall, doGenRTL, doGenStmt, doModuleBuilder};
+    //const char* optNames[] = {doGenStmt, doModuleBuilder};
+    //const char* optNames[] = {doConstCfg, doConstStmt, doModuleBuilder};
     const char* optNames[] = {doModuleBuilder};
     size_t optSize = sizeof(optNames)/sizeof(const char*);
     //DebugOptions::enable(optNames, optSize);
-    
+
     //keepConstVariables = true;
  
     // Find pointer to top-level module by SystemC name

@@ -535,6 +535,9 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
                 codeWriter->putLiteral(arg, ival);
             }
         }
+
+        //cout << "Arg #" << hex << argExpr << dec << " isRef " << isRef 
+        //     << " isConstRef " << isConstRef << " isRecord " << isRecord << endl;
         
         if (isRef) {
             //cout << "Ref pval " << pval << " ival " << ival << " iival " << iival << endl;
@@ -559,7 +562,7 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
                 // Declare constant reference variable w/o initialization,
                 // always declare parameter as range/bit selection can be used
                 codeWriter->putVarDecl(nullptr, pval, refType, nullptr, true, 
-                                       level);
+                                       level, false);
                 // Add initialization with the argument corresponds to declaration
                 codeWriter->putFCallParam(expr, pval, arg);
                 //cout << "prepareCallParams ConstRef pval " << pval << " iival " << iival << endl;
@@ -579,6 +582,14 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
                     } else {
                         s = codeWriter->getIndexString(ival);
                     }
+                    
+                    // Check current MIF array element as a parent of the member
+                    bool elemOfMifArr = ival.isVariable() && 
+                        state->checkRecord(ival, codeWriter->getMIFName().first,
+                                           ScState::MIF_CROSS_NUM);
+                    string mifArrSuffix = codeWriter->checkRecForMifArrIndex(
+                                                    ival, elemOfMifArr);
+                    s += mifArrSuffix;
                     recarrRefIndices[pval] = s;
                     //cout << "prepareCallParams for isRecordRef pval " << pval 
                     //     << " ival " << ival << " indxStr " << s << endl;
@@ -604,7 +615,7 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
 
         } else {
             // Variable declaration w/o initialization
-            codeWriter->putVarDecl(nullptr, pval, type, nullptr, true, level);
+            codeWriter->putVarDecl(nullptr, pval, type, nullptr, true, level, false);
 
             // Add parameter initialization with the argument
             if (isRecord) {
@@ -885,6 +896,7 @@ void ScGenerateExpr::parseExpr(DeclRefExpr* expr, SValue& val)
 {
     ScParseExpr::parseExpr(expr, val);
     // Do not need to get zero element Rec/Mif array for reference parameters here 
+    //cout << "DeclRefExpr # " << hex << expr << dec << " val " << val << endl;
     
     refRecarrIndx = "";
     
@@ -910,7 +922,7 @@ void ScGenerateExpr::parseExpr(DeclRefExpr* expr, SValue& val)
         // Module/global reference
         SValue lval(val);
         // Put referenced variable into @val
-        state->getValue(lval, val, false);  
+        state->getValue(lval, val, false);
         
     } else 
     if (val.isPointer()) {
@@ -923,8 +935,13 @@ void ScGenerateExpr::parseExpr(DeclRefExpr* expr, SValue& val)
     
     // Do not put channel, it could be used in reference to channel
     if (!val.isScChannel()) {
+        // Check current MIF array element as a parent of the member
+        bool elemOfMifArr = val.isVariable() && 
+                            state->checkRecord(val, codeWriter->getMIFName().first,
+                                               ScState::MIF_CROSS_NUM);
+        
         // Local variable declared w/o record prefix, no @recvecs and no @tval used
-        codeWriter->putValueExpr(expr, val);
+        codeWriter->putValueExpr(expr, val, NO_VALUE, elemOfMifArr);
     }
 }
 
@@ -1496,6 +1513,16 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
     auto varvals = parseValueDecl(decl, recVal, iexpr, true, !isRef);
     val = varvals.first;
 
+    // Check current MIF array element as a parent of the member
+    bool elemOfMifArr = val.isVariable() && 
+                        state->checkRecord(val, codeWriter->getMIFName().first,
+                                           ScState::MIF_CROSS_NUM);
+    
+    if (elemOfMifArr && codeWriter->isEmptySensitivity()) {
+        ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                             ScDiag::SYNTH_NOSENSITIV_DECL_IN_MIFARR);
+    } 
+    
     // Fill state with array elements and initialization values if 
     // variable is constant type
     if (type->isArrayType()) {
@@ -1518,14 +1545,16 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                 // Put initialized array elements
                 for (size_t i = 0; i < subexpr.size(); ++i) {
                     auto arrInds = getArrayIndices(type, i);
-                    codeWriter->putArrayElemInit(stmt, val, arrInds, subexpr[i]);
+                    codeWriter->putArrayElemInit(stmt, val, arrInds, subexpr[i],
+                                                 elemOfMifArr);
                 }
 
                 // Array filler, used for rest of array element 
                 if (init->getArrayFiller()) {
                     for (size_t i = subexpr.size(); i < elmnum; i++) {
                         auto arrInds = getArrayIndices(type, i);
-                        codeWriter->putArrayElemInitZero(stmt, val, arrInds);
+                        codeWriter->putArrayElemInitZero(stmt, val, arrInds,
+                                                         elemOfMifArr);
                     }
                 }
             } else 
@@ -1533,7 +1562,8 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                 // Default initialization SC data type array, fill with zeros
                 for (size_t i = 0; i < elmnum; i++) {
                     auto arrInds = getArrayIndices(type, i);
-                    codeWriter->putArrayElemInitZero(stmt, val, arrInds);
+                    codeWriter->putArrayElemInitZero(stmt, val, arrInds, 
+                                                     elemOfMifArr);
                 }
             } else {
                 string s = iexpr->getStmtClassName();
@@ -1606,7 +1636,7 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                 // Declare constant reference variable w/o initialization,
                 // always declare parameter as range/bit selection can be used
                 codeWriter->putVarDecl(nullptr, val, refType, nullptr, false, 
-                                       level);
+                                       level, elemOfMifArr);
                 // Add initialization with the initializer
                 codeWriter->putAssign(stmt, val, iexpr);
                 
@@ -1698,8 +1728,8 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                     codeWriter->copyTerm(iexpr, stmt);
                 }
             } else {
-                codeWriter->putVarDecl(stmt, val, type, iexpr, false, level, 
-                                       iival.isInteger());
+                codeWriter->putVarDecl(stmt, val, type, iexpr, false, 
+                                       level, elemOfMifArr, iival.isInteger());
 
                 // Register this statement to add comment into scope graph
                 auto i = constReplacedFunc.find(iexpr);
@@ -1719,7 +1749,7 @@ void ScGenerateExpr::parseFieldDecl(const ValueDecl* decl, const SValue& lfvar)
     const QualType& type = decl->getType();
     
     // Put field declaration to @localDeclVerilog, @nullptr no initialization
-    codeWriter->putVarDecl(nullptr, lfvar, type, nullptr, false, level);
+    codeWriter->putVarDecl(nullptr, lfvar, type, nullptr, false, level, false);
 }
 
 // Parse array field declaration without initialization to put into @codeWriter, 
