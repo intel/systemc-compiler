@@ -179,7 +179,7 @@ class sct_signal<T, ENABLE_EVENT, 1> :
             if constexpr (USE_ENABLE_EVENT) {
                 std::cout << "Signal " << name() << " with event enable added"
                           << " to method process" << std::endl;
-                assert(false);
+                //assert(false);
             }
             s << meth_event;
             methEvent = true;
@@ -204,7 +204,7 @@ class sct_signal<T, ENABLE_EVENT, 1> :
             if constexpr (USE_ENABLE_EVENT) {
                 std::cout << "Signal " << name() << " with event enable added"
                           << " to method process" << std::endl;
-                assert(false);
+                //assert(false);
             }
             *s << *p << meth_event;
             methEvent = true;

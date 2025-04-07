@@ -429,17 +429,12 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
         }
     }
     
-    bool noneZeroElmntMIF = travConst->isNonZeroElmtMIF();
     VerilogProcCode procCode = getVerilogCode(isSingleState);
-
-    // Skip MIF non-zero elements to get number of unique statements
-    if (!noneZeroElmntMIF) {
-        procCode.mifArrDims  = travProc->getMifArrDims();
-        procCode.statStmtNum = travProc->statStmts.size();
-        procCode.statTermNum = travProc->statTerms.size();
-        procCode.statAsrtNum = travProc->statAsrts.size();
-        procCode.statWaitNum = travProc->statWaits.size();
-    }
+    procCode.mifArrDims  = travProc->getMifArrDims();
+    procCode.statStmtNum = travProc->statStmts.size();
+    procCode.statTermNum = travProc->statTerms.size();
+    procCode.statAsrtNum = travProc->statAsrts.size();
+    procCode.statWaitNum = travProc->statWaits.size();
 
     // Report error for lack/extra sensitive to SS channels
     travProc->reportSctChannel(procView, entryFuncDecl);
@@ -959,9 +954,7 @@ void ThreadBuilder::generateThreadStateVariable(const std::vector<unsigned>& mif
             IndexVec arrayDims;
             std::string mifElemSuffix = "";
             bool zeroElmntMIF = travConst->isZeroElmtMIF();
-            bool noneZeroElmntMIF = travConst->isNonZeroElmtMIF();
-            mifElemSuffix = (zeroElmntMIF || noneZeroElmntMIF) ?
-                            travConst->getMifElmtSuffix() : "";
+            mifElemSuffix = zeroElmntMIF ? travConst->getMifElmtSuffix() : "";
             // Add MIF array indices for this variable suffix
             for (auto i : mifArrDims) arrayDims.push_back(i);
             
@@ -1006,11 +999,8 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
     
     // Do not generate variable declarations for non-zero elements of MIF array
     bool zeroElmntMIF = travConst->isZeroElmtMIF();
-    bool noneZeroElmntMIF = travConst->isNonZeroElmtMIF();
-    std::string mifElemSuffix = (zeroElmntMIF || noneZeroElmntMIF) ?
-                                 travConst->getMifElmtSuffix() : "";
-    //cout << "Thread is zeroElmntMIF " << zeroElmntMIF << " noneZeroElmntMIF " 
-    //     << noneZeroElmntMIF << " mifElemSuffix " << mifElemSuffix << endl;
+    std::string mifElemSuffix = zeroElmntMIF ? travConst->getMifElmtSuffix() : "";
+    //cout << "Thread is zeroElmntMIF " << zeroElmntMIF << " mifElemSuffix " << mifElemSuffix << endl;
     
     {
         // Thread has wait(N), create counter variable
@@ -1241,31 +1231,22 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
                     }
                     nextName += "_next";
                     
-                    // Do not change name for non-zero elements of MIF array
-                    auto* nextVar = (noneZeroElmntMIF) ? 
-                        verMod->createProcessLocalVariableMIFNonZero(procView,
-                            nextName, verVar->getBitwidth(), verVar->getArrayDims(),
-                            verVar->isSigned(), verVar->getInitVals()) :
-                        verMod->createProcessLocalVariable(procView,
+                    auto* nextVar = verMod->createProcessLocalVariable(procView,
                             nextName, verVar->getBitwidth(), verVar->getArrayDims(),
                             verVar->isSigned(), verVar->getInitVals());
                     
                     // Add @var <= @var_next in @always_ff body, 
                     // put MIF array suffix if required
                     bool isUnique = verMod->checkProcUniqueVar(procView, verVar);
-                    if (zeroElmntMIF || noneZeroElmntMIF || isUnique)
-                    {
+                    if (zeroElmntMIF || isUnique) {
                         // Declaration of @var and @var_next
-                        // No declaration for non-zero elements of MIF array
-                        if (!noneZeroElmntMIF) {
-                            if (!elabObj->isChannel()) {
-                               verMod->convertToProcessLocalVar(verVar, procView);
-                            }
-                            if (sctCombSignal || sctCombSignClear || 
-                                afterResetAcess || !REMOVE_UNUSED_NEXT()) 
-                            {
-                                verMod->procVarMap[procView].insert(nextVar);
-                            }
+                        if (!elabObj->isChannel()) {
+                           verMod->convertToProcessLocalVar(verVar, procView);
+                        }
+                        if (sctCombSignal || sctCombSignClear || 
+                            afterResetAcess || !REMOVE_UNUSED_NEXT()) 
+                        {
+                            verMod->procVarMap[procView].insert(nextVar);
                         }
                             
                         // MIF array element process or @verVar added first time
@@ -1382,7 +1363,7 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
             // Add var <= var_next in @always_ff body
             bool isUnique = verMod->checkProcUniqueVar(procView, verVar);
             //cout << "isUnique " << isUnique << " afterResetAcess " << afterResetAcess << endl;
-            if (zeroElmntMIF || noneZeroElmntMIF || isUnique) {
+            if (zeroElmntMIF || isUnique) {
                 if (afterResetAcess || !REMOVE_UNUSED_NEXT()) {
                     verMod->addProcRegisterNextValPair(procView, verVar, 
                             verNextVar, mifElemSuffix);
@@ -1493,13 +1474,10 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
             
             // Add thread variable declaration    
             if (!verVars.empty()) {
-                if (zeroElmntMIF || noneZeroElmntMIF ||
-                    verMod->checkProcUniqueVar(procView, verVars[0])) {
-                    // Do not generate variable declarations for non-zero elements of MIF array
-                    if (!noneZeroElmntMIF) {
-                        for (auto* verVar : verVars) {
-                            verMod->convertToProcessLocalVar(verVar, procView);
-                        }
+                bool isUnique = verMod->checkProcUniqueVar(procView, verVars[0]);
+                if (zeroElmntMIF || isUnique) {
+                    for (auto* verVar : verVars) {
+                        verMod->convertToProcessLocalVar(verVar, procView);
                     }
                 }
             }

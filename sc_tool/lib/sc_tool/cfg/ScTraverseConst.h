@@ -443,7 +443,6 @@ public:
     
     /// This process is in zero/non-zero element of array of modular interfaces
     bool isZeroElmtMIF() {return zeroElmtMIF;}
-    bool isNonZeroElmtMIF() {return nonZeroElmtMIF;}
     
     /// Get string suffix for non-zero element of array of modular interfaces
     std::string getMifElmtSuffix() {
@@ -582,10 +581,8 @@ protected:
     /// Main loop terminator for CTHREAD
     const clang::Stmt* mainLoopStmt = nullptr;
     
-    /// Current process is in zero/non-zero element of array of modular interfaces
-    /// Used to suppress process variable generation
+    /// Current process is in zero element of array of modular interfaces
     bool zeroElmtMIF = false;
-    bool nonZeroElmtMIF = false;
     /// String suffix for non-zero element of array of modular interfaces
     std::string mifElmtSuffix = "";
     

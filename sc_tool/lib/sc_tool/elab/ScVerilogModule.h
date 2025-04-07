@@ -486,17 +486,6 @@ public:
                                            APSIntVec initVals = {},
                                            const std::string& comment = "");
     
-    // Create process local variable or member variable used in the process
-    // Do not register variable in @procVarMap to avoid its declaration,
-    // required for non zero elements of MIF array
-    VerilogVar* createProcessLocalVariableMIFNonZero(ProcessView procView,
-                                           const std::string& suggestedName,
-                                           size_t bitwidth,
-                                           IndexVec arrayDims,
-                                           bool isSigned,
-                                           APSIntVec initVals = {},
-                                           const std::string& comment = "");
-
     // Create auxiliary Verilog variable for port binding purposes, it has no mapping
     // to elaboration object (not exists in SystemC source)
     VerilogVar* createAuxilarySignal(const std::string& suggestedName,

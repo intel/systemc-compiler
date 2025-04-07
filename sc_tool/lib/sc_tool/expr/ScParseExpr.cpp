@@ -1349,7 +1349,8 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
             // Do not remove @stmt as it`s used to store expression in scope graph
             SValue val;
             // Field is initialized with @init
-            parseDeclStmt(stmt, fieldDecl, val, init);
+            // Use @currecvar to ensure correct MIF found for base record fields
+            parseDeclStmt(stmt, fieldDecl, val, init, currecvar);
 
             storeStmtStr(stmt);
         }

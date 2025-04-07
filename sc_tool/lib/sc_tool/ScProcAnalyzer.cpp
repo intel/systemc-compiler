@@ -173,9 +173,6 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
         useVals.insert(sval);
     }
     
-    // Do not generate variable declarations for non-zero elements of MIF array
-    bool noneZeroElmntMIF = travConst.isNonZeroElmtMIF();
-
     // All the variables defined/used in this method process
     defVals.clear();
     InsertionOrderSet<SValue> useDefVals;
@@ -401,14 +398,11 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
             if (isConst) continue;
 
             // Declaration of variable at module level
-            // No declaration for non-zero elements of MIF array
-            if (!noneZeroElmntMIF) {
-                if (!elabObj->isChannel()) {
-                    // Store the variable to generate before its process
-                    for (auto* verVar : verVars) {
-                        //cout << "   convertToProcessLocalVar " << verVar->getName() << endl;
-                        verMod->convertToProcessLocalVar(verVar, procView);
-                    }
+            if (!elabObj->isChannel()) {
+                // Store the variable to generate before its process
+                for (auto* verVar : verVars) {
+                    //cout << "   convertToProcessLocalVar " << verVar->getName() << endl;
+                    verMod->convertToProcessLocalVar(verVar, procView);
                 }
             }
 
@@ -515,21 +509,14 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     }
     
     VerilogProcCode procCode(os.str());
-
-    // Skip MIF non-zero elements to get number of unique statements
-    if (!noneZeroElmntMIF) {
-        procCode.mifArrDims  = travProc.getMifArrDims();
-        procCode.statStmtNum = travProc.statStmts.size();
-        procCode.statTermNum = travProc.statTerms.size();
-        procCode.statAsrtNum = travProc.statAsrts.size();
-        procCode.statWaitNum = 0;
-    }
+    procCode.mifArrDims  = travProc.getMifArrDims();
+    procCode.statStmtNum = travProc.statStmts.size();
+    procCode.statTermNum = travProc.statTerms.size();
+    procCode.statAsrtNum = travProc.statAsrts.size();
+    procCode.statWaitNum = 0;
     
     // Report error for lack/extra sensitive to SS channels
-    // Do not report for non-zero MIF elements
-    if (!noneZeroElmntMIF) {
-        travProc.reportSctChannel(procView, methodDecl->getAsFunction());
-    }
+    travProc.reportSctChannel(procView, methodDecl->getAsFunction());
     
     return procCode;
 }

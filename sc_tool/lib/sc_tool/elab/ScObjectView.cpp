@@ -406,8 +406,6 @@ std::optional<ObjectView> ObjectView::getVerilogNameOwner() const
     return this->derefRecursively();
 }
 
-
-
 clang::ValueDecl* ObjectView::getValueDecl() const
 {
     if (isDataMember() || isStatic()) {
@@ -818,9 +816,10 @@ std::optional<ObjectView> ObjectView::getTopmostParentArrayOrPointer() const
         ObjectView parParent;
         
         if (parent.isDynamic()) {
-            if(parent.getPointers().size() == 1)
+            if (parent.getPointers().size() == 1)
                 parParent = parent.getPointers()[0];
-            else if (parent.array()->at(0).getPointers().size() == 1)
+            else 
+            if (parent.array()->at(0).getPointers().size() == 1)
                 parParent = parent.array()->at(0).getPointers()[0];
             else
                 ScDiag::reportErrAndDie(

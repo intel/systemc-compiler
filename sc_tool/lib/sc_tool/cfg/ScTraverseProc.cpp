@@ -695,13 +695,7 @@ void ScTraverseProc::initContext()
         for (const SValue& val : mifarrs) {
             SCT_TOOL_ASSERT (val.isArray() && !val.getArray().isUnknown(), 
                              "Unknown index for MIF array element");
-//            auto size = val.getArray().getSize();
-//            if (size == 1) {
-//                auto i = val.getArray().getOffset();
-//                s += "["+ to_string(i) +"]";
-//            } else {
-                s += "[" + ScVerilogWriter::getMifArrIndxName(indxDim) + "]";
-//            }
+            s += "[" + ScVerilogWriter::getMifArrIndxName(indxDim) + "]";
             mifArrDims.push_back(val.getArray().getSize());
             indxDim++;
         }

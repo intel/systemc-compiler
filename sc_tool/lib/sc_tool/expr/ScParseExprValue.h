@@ -166,7 +166,7 @@ protected:
     /// \param initExpr -- record/record field initializer, 
     ///                    not used for normal variables
     void parseDeclStmt(clang::Stmt* stmt, clang::ValueDecl* decl, 
-                       SValue& val, clang::Expr* initExpr) override;
+                       SValue& val, clang::Expr* initExpr, const SValue& currecvar) override;
 
     /// Used for local variables usage like assignment statement in left/right parts
     void parseExpr(clang::DeclRefExpr* expr, SValue& val) override;

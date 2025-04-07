@@ -94,6 +94,7 @@ void ScState::parseParentForRec(SValue val, unsigned crossModule,
 void ScState::parseValueHierarchy(SValue val, unsigned crossModule,
                                   vector<SValue>& valStack) const
 {
+    //cout << "   " << val << endl;
     if (val.isVariable()) {
         parseParentForVar(val, crossModule, valStack);
 
@@ -114,6 +115,7 @@ bool ScState::checkRecord(const SValue& val,
                           unsigned crossModule) const
 {
     if (!recval.isRecord()) return false;
+    //cout << "parseValueHierarchy for " << val << " recval " << recval << endl;
     
     vector<SValue> valStack;
     parseValueHierarchy(val, crossModule, valStack);
@@ -121,7 +123,7 @@ bool ScState::checkRecord(const SValue& val,
     // Compare most derived classes
     SValue drecval;
     getMostDerivedClass(recval, drecval);
-    
+
     // Return first (most bottom) array or no value
     for (auto mval : valStack) {
         if (mval == drecval) {

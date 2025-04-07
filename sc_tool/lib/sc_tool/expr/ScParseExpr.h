@@ -356,7 +356,8 @@ protected:
     /// Declared variable may be initialized with expression inside
     /// Used for variable declaration with and without initialization
     virtual void parseDeclStmt(clang::Stmt* stmt, clang::ValueDecl* decl, 
-                               SValue& val, clang::Expr* initExpr = nullptr) {}
+                               SValue& val, clang::Expr* initExpr = nullptr,
+                               const SValue& currecvar = NO_VALUE) {}
     
     /// Parse field declaration without initialization to put into codeWriter, 
     /// \param lfvar -- field variable

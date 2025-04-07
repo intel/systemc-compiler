@@ -782,7 +782,6 @@ void ScTraverseConst::initContext()
 
     // Check if current module if element of array of MIF
     zeroElmtMIF = false;
-    nonZeroElmtMIF = false;
     unsigned indxDim = 0;
     if (isScModularInterface(modval.getType())) {
         // Get all MIF arrays up to the parent module
@@ -793,20 +792,11 @@ void ScTraverseConst::initContext()
             SCT_TOOL_ASSERT (val.isArray() && !val.getArray().isUnknown(), 
                              "Unknown index for MIF array element");
             auto i = val.getArray().getOffset();
-            nonZeroElmtMIF = nonZeroElmtMIF || i != 0;
-//            auto size = val.getArray().getSize();
-//            if (size == 1) {
-//                mifElmtSuffix += "["+ to_string(i) +"]";
-//            } else {
-                mifElmtSuffix += "[" + ScVerilogWriter::getMifArrIndxName(indxDim) + "]";
-                mifArrDims.push_back(val.getArray().getSize());
-                indxDim++;
-//            }
+            mifElmtSuffix += "[" + ScVerilogWriter::getMifArrIndxName(indxDim) + "]";
+            mifArrDims.push_back(val.getArray().getSize());
+            indxDim++;
         }
-        
-        if (!mifarrs.empty()) {
-            zeroElmtMIF = !nonZeroElmtMIF;
-        }
+        zeroElmtMIF = !mifarrs.empty();
     }
     
     state->clearValueLevels();

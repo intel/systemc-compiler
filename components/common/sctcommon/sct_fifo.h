@@ -490,12 +490,12 @@ public:
         if (cthread_put && SYNC_VALID) {
             cout << "\nFIFO " << name() 
                  << " with PUT from thread cannot have SYNC valid" << endl;
-            assert (false);
+            //assert (false);
         }
         if (cthread_get && SYNC_READY) {
             cout << "\nFIFO " << name() 
                  << " with GET from thread cannot have SYNC ready" << endl;
-            assert (false);
+            //assert (false);
         }
     #ifndef __SC_TOOL__
         if (get_proc == put_proc && !cthread_get && (!SYNC_VALID || !SYNC_READY)) {

@@ -1467,7 +1467,7 @@ void ScGenerateExpr::parseExpr(SubstNonTypeTemplateParmExpr* expr, SValue& val)
 
 // Used for local variable declaration
 void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val, 
-                                   clang::Expr* initExpr)
+                                   clang::Expr* initExpr, const SValue& currecvar)
 {
     VarDecl* varDecl = dyn_cast<VarDecl>(decl);
     FieldDecl* fieldDecl = dyn_cast<FieldDecl>(decl);
@@ -1513,9 +1513,11 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
     auto varvals = parseValueDecl(decl, recVal, iexpr, true, !isRef);
     val = varvals.first;
 
-    // Check current MIF array element as a parent of the member
-    bool elemOfMifArr = val.isVariable() && 
-                        state->checkRecord(val, codeWriter->getMIFName().first,
+    // Check if current MIF array element is parent of the member
+    // Use @currecvar required for base record fields construction
+    bool elemOfMifArr = val.isVariable() &&  
+                        state->checkRecord(currecvar ? currecvar : val, 
+                                           codeWriter->getMIFName().first, 
                                            ScState::MIF_CROSS_NUM);
     
     if (elemOfMifArr && codeWriter->isEmptySensitivity()) {

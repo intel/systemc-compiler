@@ -451,6 +451,12 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseRecord(
         for (auto member : record.moduleMIF()->getAllMembers())
             flatten |= traverseDFS(member);
         
+        // Add SVA properties to Verilog module, TODO for #326
+        //if (!noSvaGenerate) {
+            //std::cout << "addSvaProperties " << record.getDebugString() << std::endl;
+            //curVerMod->addSvaProperties(getSvaProperties(record));
+        //}
+        
     } else {
         // Plain record
         // Base class of MIF (which is really MIF) comes here

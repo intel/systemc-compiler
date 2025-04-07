@@ -992,6 +992,7 @@ VerilogVar* VerilogModule::createDataVariableMIFArray(ObjectView cppObject,
                                               const std::string& comment)
 {
     using namespace sc;
+    using namespace std;
     
 //    cout << "    createDataVariableMIFArray parentObject " 
 //         << parentObject.getID() << ", cppObject " 
@@ -1014,12 +1015,15 @@ VerilogVar* VerilogModule::createDataVariableMIFArray(ObjectView cppObject,
     // Create name key with parent module/MIF and all parent records
     ObjectView objView = varObj;
     RecordMemberNameKey nameKey(parentObject, varObj.getValueDecl()); 
-    //std::cout << "    parent to key " << parentObject.getDebugString() << std::endl;
+    //cout << "    parent to key " << parentObject.getDebugString() 
+    //     << " #" << hex << varObj.getValueDecl() << dec << endl;
         
     while (objView.isDataMember() || objView.isArrayElement()) {
         objView = objView.getParent();
         if (objView.isModule() || objView.isModularInterface()) break;
-    
+        // Get inheritor record object as @getValueDecl() returns 0 for base record
+        while (objView.isBaseClass()) { objView = objView.getParent(); }
+        
         nameKey.parDecls.push_back(objView.getValueDecl());
         //std::cout << "    add to key " << objView.getDebugString() << " " << objView.getID() << std::endl;
     }
@@ -1066,29 +1070,6 @@ VerilogVar *VerilogModule::createProcessLocalVariable(
             std::move(arrayDims), isSigned, std::move(initVals), comment) );
 
 //    std::cout << "   createProcessLocalVariable procVar " << procVar->getName() 
-//              << " arrayDims " << procVar->getArrayDims().size() << " arraDims[0] "
-//              << (procVar->getArrayDims().size() > 0 ? 
-//                  std::to_string(procVar->getArrayDims()[0]) : "-") << std::endl;
-
-    return procVar;
-}
-
-// Create process local variable or member variable used in the process for 
-// members of non zero elements of MIF array
-// Do not register variable in @procVarMap to avoid its declaration, and 
-// do not change given name (it is unique because of zero element)
-VerilogVar *VerilogModule::createProcessLocalVariableMIFNonZero(
-                                            ProcessView procView, 
-                                            const std::string& suggestedName,
-                                            size_t bitwidth, IndexVec arrayDims, 
-                                            bool isSigned, APSIntVec initVals, 
-                                            const std::string& comment)
-{
-    auto* procVar = &procVars.emplace_back(
-        VerilogVar(suggestedName, bitwidth, std::move(arrayDims), 
-                   isSigned, std::move(initVals), comment) );
-
-//    std::cout << "createProcessLocalVariableMIFNonZero procVar " << procVar->getName() 
 //              << " arrayDims " << procVar->getArrayDims().size() << " arraDims[0] "
 //              << (procVar->getArrayDims().size() > 0 ? 
 //                  std::to_string(procVar->getArrayDims()[0]) : "-") << std::endl;

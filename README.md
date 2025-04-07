@@ -18,13 +18,9 @@ There are [Single Source training slides](https://github.com/intel/systemc-compi
 
 See more information at [Single Source library](https://github.com/intel/systemc-compiler/wiki/Single-Source-library).
 
-## License
-
-ICSC is distributed under the [Apache License v2.0 with LLVM Exceptions](https://github.com/intel/systemc-compiler/blob/main/LICENSE.txt).
-
 ## Getting started
 
-ICSC is based on Clang/LLVM frontend and can be installed at most Linux OS. There is ```install.sh``` script that downloads and builds ICSC and the required dependencies at **SLES12**, **Ubuntu 22.04**, and **Ubuntu 20.04**.
+ICSC is based on Clang/LLVM frontend and can be installed at most Linux OS. There is ```install.sh``` script that downloads and builds ICSC and the required dependencies at **SLES15**, **SLES12**, **Ubuntu 22.04**, and **Ubuntu 20.04**.
 
 An instruction how to install and run ISCS is given at [Getting started](https://github.com/intel/systemc-compiler/wiki/Getting-started). 
 
@@ -40,6 +36,10 @@ ICSC supports [SystemC Synthesizable Subset](https://www.accellera.org/images/do
 * [Intel Compiler for SystemC and SystemC common library](https://github.com/intel/systemc-compiler/blob/main/doc/papers/common_library_2022.pdf) at CHIPS tech summit 2022
 * [Temporal assertions in SystemC](https://github.com/intel/systemc-compiler/blob/main/doc/papers/sct_assert.pdf) at DvCon'2020 and SystemC evolution day'2020
 * [SystemC-to-Verilog Compiler: a productivity-focused tool for hardware design in cycle-accurate SystemC](https://github.com/intel/systemc-compiler/blob/main/doc/papers/icsc.pdf) at DvCon'2019
+
+## License
+
+ICSC is distributed under the [Apache License v2.0 with LLVM Exceptions](https://github.com/intel/systemc-compiler/blob/main/LICENSE.txt).
 
 ## Help
 

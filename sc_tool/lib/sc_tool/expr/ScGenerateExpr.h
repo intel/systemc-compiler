@@ -217,7 +217,7 @@ public:
     
     /// Used for local variable declaration
     void parseDeclStmt(clang::Stmt* stmt, clang::ValueDecl* decl, 
-                       SValue& val, clang::Expr* initExpr) override;
+                       SValue& val, clang::Expr* initExpr, const SValue& currecvar) override;
     
     /// Parse field declaration without initialization to put into codeWriter, 
     /// \param lfvar -- field variable

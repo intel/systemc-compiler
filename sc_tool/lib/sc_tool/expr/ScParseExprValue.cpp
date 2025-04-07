@@ -492,7 +492,7 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
 // Used for variable declaration with and without initialization
 // \param initExpr -- record/record field initializer, not used for normal variables
 void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
-                                     clang::Expr* initExpr)
+                                     clang::Expr* initExpr, const SValue& currecvar)
 {
     //cout << "ScParseExprValue::parseDeclStmt decl #" << hex << decl << dec << endl;
 
