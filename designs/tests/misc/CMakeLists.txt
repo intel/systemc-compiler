@@ -198,6 +198,9 @@ svc_target(misc_signal_reset GOLDEN misc_signal_reset.sv)
 add_executable(misc_const_init test_const_init.cpp)
 svc_target(misc_const_init GOLDEN misc_const_init.sv NO_REMOVE_EXTRA_CODE)
 
+add_executable(misc_const_init_large test_const_init_large.cpp)
+svc_target(misc_const_init_large)
+
 add_executable(misc_const_init_fcall test_const_init_fcall.cpp)
 svc_target(misc_const_init_fcall GOLDEN misc_const_init_fcall.sv NO_REMOVE_EXTRA_CODE)
 
@@ -355,6 +358,10 @@ svc_target(misc_sva_generate ELAB_TOP test_top.a_mod NO_REMOVE_EXTRA_CODE)
 add_executable(misc_sva_generate_mod test_sva_generate_mod.cpp)
 svc_target(misc_sva_generate_mod GOLDEN misc_sva_generate_mod.sv 
            ELAB_TOP test_top.a_mod NO_REMOVE_EXTRA_CODE)
+
+add_executable(misc_sva_generate_mif test_sva_generate_mif.cpp)
+svc_target(misc_sva_generate_mif GOLDEN misc_sva_generate_mif.sv 
+           ELAB_TOP test_top.a_mod)
 
 add_executable(misc_sva_generate_base_mod test_sva_generate_base_mod.cpp)
 svc_target(misc_sva_generate_base_mod GOLDEN misc_sva_generate_base_mod.sv 

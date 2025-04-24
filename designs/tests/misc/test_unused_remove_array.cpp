@@ -86,9 +86,13 @@ struct A : public sc_module
 
         unsigned u1[3] = {1,2,3};       // not removed
         t0a = u1[0];
+
+        unsigned u2[3] = {1,2,3};       // not removed
         wait();
 
         while (true) {
+            t0a = u2[s.read()];
+
             unsigned u2[3] = {1,2,3};       // not removed
             t0a = u2[s.read()];
 

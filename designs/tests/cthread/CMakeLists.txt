@@ -38,6 +38,9 @@ svc_target(cthread_reset_noninit_read GOLDEN cthread_reset_noninit_read.sv)
 add_executable(cthread_reset_after test_cthread_reset_after.cpp)
 svc_target(cthread_reset_after GOLDEN cthread_reset_after.sv)
 
+add_executable(cthread_reset_reg test_cthread_reset_reg.cpp)
+svc_target(cthread_reset_reg GOLDEN cthread_reset_reg.sv)
+
 add_executable(cthread_simple_reset test_cthread_simple_reset.cpp)
 svc_target(cthread_simple_reset GOLDEN cthread_simple_reset.sv)
 

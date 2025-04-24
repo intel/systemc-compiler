@@ -28,13 +28,18 @@ struct mod_if : public sc_module, sc_interface
     
     void mifProc() 
     {
-        const unsigned L = 56;
-        unsigned i = A + B + C + L;
+        unsigned lr = 55;
+        const unsigned LR = 56;
+        const unsigned LA = 57;
+        unsigned i = A + B + C + LA;
         wait();
         while (true) {
-            unsigned j = A + B + C + L;
-            t = i + j;
+            const unsigned LB = 58;
+            const unsigned LC = 59;
+            unsigned j = A + B + C + LR + lr;
+            t = j+i+LC;
             wait();
+            t = LB;
         }
     }
 };

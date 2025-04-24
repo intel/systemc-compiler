@@ -196,6 +196,18 @@ svc_target(record_chan_const_field GOLDEN record_chan_const_field.sv)
 add_executable(record_base_record_chan test_base_record_chan.cpp)
 svc_target(record_base_record_chan GOLDEN record_base_record_chan.sv)
 
+add_executable(record_base_record_chan_in_mif test_base_record_chan_in_mif.cpp)
+svc_target(record_base_record_chan_in_mif GOLDEN record_base_record_chan_in_mif.sv)
+
+add_executable(record_base_record_chan_in_mif_arr test_base_record_chan_in_mif_arr.cpp)
+svc_target(record_base_record_chan_in_mif_arr GOLDEN record_base_record_chan_in_mif_arr.sv)
+
+add_executable(record_base_record_in_mif_arr test_base_record_in_mif_arr.cpp)
+svc_target(record_base_record_in_mif_arr GOLDEN record_base_record_in_mif_arr.sv)
+
+add_executable(record_base_record_port test_base_record_port.cpp)
+svc_target(record_base_record_port GOLDEN record_base_record_port.sv)
+
 add_executable(record_use_def test_use_def.cpp)
 svc_target(record_use_def GOLDEN record_use_def.sv)
 

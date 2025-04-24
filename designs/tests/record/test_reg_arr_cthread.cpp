@@ -14,6 +14,15 @@ struct SinCosTuple
 {
     int sin;
     int cos;
+    sc_biguint<65> m;
+    
+    inline bool type() const {
+        return m.bit(42);
+    }
+    
+    inline bool isBwdUser() const {
+        return type();
+    }
 };
 
 class A : public sc_module {
@@ -24,15 +33,55 @@ public:
     
     SC_CTOR(A)
     {
-        SC_CTHREAD(record_arr_reg, clk.pos());
+        SC_CTHREAD(record_arr_comb, clk.pos());
+        async_reset_signal_is(rstn, false);
+
+        SC_CTHREAD(record_arr_reg1, clk.pos());
+        async_reset_signal_is(rstn, false);
+
+        SC_CTHREAD(record_arr_reg2, clk.pos());
         async_reset_signal_is(rstn, false);
 
         SC_CTHREAD(record_arr_glob_reg, clk.pos());
         async_reset_signal_is(rstn, false);
     }
 
+    // Local record array non-registers
+    sc_signal<int> t2;
+    void record_arr_comb() {
+        t2 = 0;
+        wait();
+        
+        while (true) {
+            int uu[2];
+            SinCosTuple l;          // No register should be generated 
+            SinCosTuple ll[2];      // for @l and @ll
+
+            t2 = uu[s.read()];
+            t2 = l.sin;
+            t2 = ll[s.read()].sin;
+            t2 = ll[s.read()].m.to_int();
+            if (ll[s.read()].isBwdUser()) { t2 = 1; }
+            
+            wait();
+        }
+    }
+
+    // Local record array before wait() becomes registers
+    sc_signal<int> t3;
+    void record_arr_reg1() {
+        t3 = 0;
+        wait();
+        
+        while (true) {
+            SinCosTuple nn[2];      
+            wait();
+            t3 = nn[s.read()].sin;
+        }
+    }
+    
     // Local record array registers
-    void record_arr_reg() {
+    void record_arr_reg2() {
         
         SinCosTuple r[2];
         wait();

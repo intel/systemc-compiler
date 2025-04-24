@@ -378,6 +378,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
 
                 for (auto j = i+1; j != waitStatesVec.end(); ++j) {
                     if (replacedStates.find(*j) != replacedStates.end()) continue;
+                    // Compare states code as strings
                     if (stateCodeMap[*i] != stateCodeMap[*j]) continue;
                     replacedStates.emplace(*j, *i);
                     //cout << "  " << *j << " " << *i << endl;
@@ -388,17 +389,25 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
         }
     }
 
+    // If there is two states and one is replaced, that are probably assertions
+    // after reset section, so the process can be considered as single state
+    bool secondStage = false;
+    if (!replacedStates.empty() && threadStates.getNumFSMStates() == 2) {
+        isSingleState = true;
+        secondStage = true;
+    }
+                
     // Generate state variable declaration
     generateThreadStateVariable(travConst->mifArrDims);
     
     // Second traverse process stage, final code generation w/o duplicated states
-    if (!isSingleState) {
+    if (!isSingleState || secondStage) {
         //cout << " ==================== 2nd stage ====================" << endl;
         // Clear before second stage
         procWriter->clear();
         traverseContextMap.clear();
         stateCodeMap.clear();
-        
+
         travProc = std::make_unique<ScTraverseProc>(
                         astCtx, std::make_shared<ScState>(*globalState), modSval, 
                         procWriter.get(), &threadStates, &findWaitVisitor, 

@@ -19,8 +19,39 @@ svc_target(mif_const1 GOLDEN mif_const1.sv)
 add_executable(mif_const2 test_mif_const2.cpp)
 svc_target(mif_const2 GOLDEN mif_const2.sv)
 
+
+## Constant analysis for MIF array elements for @generate block
 add_executable(mif_array_differ test_mif_array_differ.cpp)
 svc_target(mif_array_differ GOLDEN mif_array_differ.sv)
+
+add_executable(mif_array_differ1 test_mif_array_differ.cpp)
+target_compile_definitions(mif_array_differ1 PUBLIC OPT1)
+svc_target(mif_array_differ1 GOLDEN mif_array_differ1.sv)
+
+add_executable(mif_array_differ2 test_mif_array_differ.cpp)
+target_compile_definitions(mif_array_differ2 PUBLIC OPT2)
+svc_target(mif_array_differ2 GOLDEN mif_array_differ2.sv)
+
+add_executable(mif_array_differ3 test_mif_array_differ.cpp)
+target_compile_definitions(mif_array_differ3 PUBLIC OPT3)
+svc_target(mif_array_differ3 GOLDEN mif_array_differ3.sv)
+
+add_executable(mif_array_differ4 test_mif_array_differ.cpp)
+target_compile_definitions(mif_array_differ4 PUBLIC OPT1 OPT2 OPT3)
+svc_target(mif_array_differ4 GOLDEN mif_array_differ4.sv)
+
+add_executable(mif_array_differ_rec test_mif_array_differ_rec.cpp)
+svc_target(mif_array_differ_rec GOLDEN mif_array_differ_rec.sv)
+
+add_executable(mif_array_differ_locparam test_mif_array_differ_locparam.cpp)
+svc_target(mif_array_differ_locparam GOLDEN mif_array_differ_locparam.sv)
+
+add_executable(mif_array_differ_mif_ptr test_mif_array_differ_mif_ptr.cpp)
+svc_target(mif_array_differ_mif_ptr GOLDEN mif_array_differ_mif_ptr.sv)
+
+add_executable(mif_array_differ_mif_ptr2 test_mif_array_differ_mif_ptr2.cpp)
+svc_target(mif_array_differ_mif_ptr2 GOLDEN mif_array_differ_mif_ptr2.sv)
+
 
 ## sc_vector/array in MIF
 add_executable(mif_sc_vector test_sc_vector.cpp)
@@ -166,12 +197,25 @@ svc_target(mif_sc_vector_ptr GOLDEN mif_sc_vector_ptr.sv NO_REMOVE_EXTRA_CODE)
 add_executable(mif_sc_vector_mif_2d test_sc_vector_mif_2d.cpp)
 svc_target(mif_sc_vector_mif_2d GOLDEN mif_sc_vector_mif_2d.sv NO_REMOVE_EXTRA_CODE)
 
+add_executable(mif_sc_vector_mif_simple test_sc_vector_mif_simple.cpp)
+svc_target(mif_sc_vector_mif_simple GOLDEN mif_sc_vector_mif_simple.sv)
+
+add_executable(mif_sc_vector_mif_simple2D test_sc_vector_mif_simple.cpp)
+target_compile_definitions(mif_sc_vector_mif_simple2D PUBLIC VEC_2D)
+svc_target(mif_sc_vector_mif_simple2D GOLDEN mif_sc_vector_mif_simple2D.sv)
+
 add_executable(mif_glob_const test_glob_const.cpp)
 svc_target(mif_glob_const GOLDEN mif_glob_const.sv)
 
 add_executable(dttc2021 test_dttc2021.cpp)
 svc_target(dttc2021 GOLDEN dttc2021.sv)
 
+## MIF/MIF array inside of MIF array
+add_executable(mif_array_with_mif test_mif_array_with_mif.cpp)
+svc_target(mif_array_with_mif ELAB_TOP top GOLDEN mif_array_with_mif.sv)
+
+add_executable(mif_array_with_mif_array test_mif_array_with_mif_array.cpp)
+svc_target(mif_array_with_mif_array ELAB_TOP top GOLDEN mif_array_with_mif_array.sv)
 
 ## UseDef tests
 add_executable(mif_use_def1 test_use_def1.cpp)

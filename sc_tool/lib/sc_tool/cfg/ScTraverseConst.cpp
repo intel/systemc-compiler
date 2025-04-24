@@ -1179,8 +1179,7 @@ void ScTraverseConst::run()
                     //state->print();
                 }
                 
-                // Skip @SCT_ASSERT_THREAD, as no code generated in @always_comb
-                if (firstStmtAfterWait && !isAssertInThread(currStmt)) {
+                if (firstStmtAfterWait) {
                     waitSuccsSet.insert(currStmt);
                     firstStmtAfterWait = false;
                 }

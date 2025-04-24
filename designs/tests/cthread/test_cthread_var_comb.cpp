@@ -83,6 +83,9 @@ public:
 
         SC_CTHREAD(readonly_var_in_reset2, clk.pos());
         async_reset_signal_is(arstn, false);       
+        
+        SC_CTHREAD(incorrect_reg, clk.pos());
+        async_reset_signal_is(arstn, false);       
     }
 
     // BUG in real design -- fixed
@@ -273,6 +276,30 @@ public:
         while (true) {
             lc = f+1;
             s8 = lc;
+            wait();
+        }
+    }
+    
+    // Incorrect register generated instead of comb variable (sleek bkw switch)
+    sc_signal<int> s9;
+    static const unsigned M = 20;
+    void incorrect_reg()
+    {
+        s9 = 0;
+        wait();
+        
+        while (true) {
+            bool st1Request[M] = {};
+            bool b = st1Request[in.read()];
+            if (b) s9 = 1;
+            
+            bool st2Request[M] = {};
+            for (unsigned j = 0; j != M; ++j) {
+                if (st2Request[j]) {
+                    s9 = in.read();
+                }
+            }
+            
             wait();
         }
     }

@@ -146,8 +146,8 @@ public:
         sct_assert_unknown(b);
 
         sct_assert_read(s[0].a);
-        sct_assert_register(s[0].a);
     }
+    
     
     int f(int par) {
         int l;

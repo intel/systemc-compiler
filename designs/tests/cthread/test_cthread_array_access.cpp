@@ -186,13 +186,20 @@ public:
             y[j] = 0;
             i = y[0];
             
-            // @x is register because of unknown index read
+            // @x is not register
             int x[2];
             x[j] = 0;
             i = x[j];
 
+            // @w & @ww are register
+            int w[2];
+            int ww[2] = {};
+            w[j] = 0;
+
             t4 = i;
             wait();
+
+            t4 = w[j] + ww[j];
         }
     }
     

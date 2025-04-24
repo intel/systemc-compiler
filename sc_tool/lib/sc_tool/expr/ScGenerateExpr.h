@@ -291,6 +291,8 @@ protected:
     std::unordered_map<clang::Stmt*, clang::Stmt*> constReplacedFunc;
     /// Removed reference parameter arguments during CPA as unused code
     std::unordered_set<clang::Stmt*> removedArgExprs;
+    /// Return values for function calls to reuse to provide duplicate state removal
+    std::unordered_map<clang::CallExpr*, SValue> funcReturnValues;
     
 };
 }

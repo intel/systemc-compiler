@@ -11,6 +11,7 @@
 using namespace sc_core;
 
 // Local and member variables name conflicts
+// Conflict with generate block variable name
 class A : public sc_module {
 public:
     sc_in_clk       clk;
@@ -25,6 +26,7 @@ public:
         SC_METHOD(both_var2); sensitive << s;
     }
         
+    sc_signal<int> t0;
     void local_var() 
     {
 	bool a;
@@ -33,6 +35,9 @@ public:
         
         i = s.read();
         long sum = a ? i : x.to_int();
+        
+        int sct_i = 42;
+        t0 = sct_i;
     }
 
     
@@ -40,11 +45,17 @@ public:
     int i;
     sc_uint<4> x= 11;
     long sum;
+    sc_uint<3> sct_j;
+    sc_signal<int> t1;
     
     void member_var() 
     {
+        sct_j = s.read();
         i = s.read();
         sum = !a ? i : x.to_int();
+        t1 = sct_j+1;
+        int sct_j = s.read();
+        t1 = sct_j;
     }
 
 

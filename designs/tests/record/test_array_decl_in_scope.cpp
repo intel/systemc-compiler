@@ -193,7 +193,7 @@ public:
         while (true) 
         {
             if (i == 1) {
-                Simple r[3];   // reg
+                Simple r[3];   // comb
                 Simple s;      // reg
                 s.b = i+1;
 

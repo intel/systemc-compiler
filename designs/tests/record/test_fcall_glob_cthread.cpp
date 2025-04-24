@@ -96,7 +96,7 @@ public:
             s.setA(1);
             wait();
 
-            bool c = s.getA();
+            bool c = s.getA();      // Removed unused code
         }
     }
 

@@ -867,8 +867,9 @@ bool isScChannel(clang::QualType type, bool checkPointer)
     }
     type = getPureType(type);
     
-    // sc_port<IF> is not a channel
-    return (!isScPort(type) && (isScSignal(type) || isScBasePort(type)) );
+    // sc_port<IF> is not a channel, check isScIn/isScOut for sct_in/out of zero width
+    return (!isScPort(type) && (isScSignal(type) || isScBasePort(type) || 
+                                isScIn(type) || isScOut(type)) );
 }
 
 // Check array of any SC channel type
@@ -903,7 +904,9 @@ isUserClassChannel(clang::QualType type, bool checkPointer)
     }
     type = getPureType(type);
     
-    if ((!isScPort(type) && (isScSignal(type) || isScBasePort(type)))) {
+    // sc_port<IF> is not a channel, check isScIn/isScOut for sct_in/out of zero width
+    if (!isScPort(type) && (isScSignal(type) || isScBasePort(type) ||
+                            isScIn(type) || isScOut(type))) {
         auto chanType = getTemplateArgAsType(type, 0);
         if (chanType && isUserClass(*chanType)) {
             return *chanType;

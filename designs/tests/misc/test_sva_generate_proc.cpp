@@ -5,7 +5,7 @@
 * 
 *****************************************************************************/
 
-#include "sct_assert.h"
+#include "sct_common.h"
 #include "systemc.h"
 #include <iostream>
 #include <cassert>
@@ -25,6 +25,8 @@ class A : public B
 public:
     sc_in<bool>         clk{"clk"};
     sc_in<bool>         rstn{"rstn"};
+    sc_in<sct_uint<0>>  z1{"z1"};
+    sct_in<sct_uint<0>> z2{"z2"};
     
     bool                a;
     sc_uint<8>          b;
@@ -61,6 +63,23 @@ public:
         for (int i = 0; i < 3; i++) {
             psarr[i] = new sc_signal<sc_uint<3>>("psarr");
         }
+        
+        SC_CTHREAD(thread_state_call1, clk.pos());
+        async_reset_signal_is(rstn, false);
+
+        // Recursion test hangs up -- that is OK
+//        SC_CTHREAD(thread_state_call2, clk.pos());
+//        async_reset_signal_is(rstn, false);
+
+        // Recursion test hangs up -- that is OK
+//        SC_CTHREAD(thread_state_call3, clk.pos());
+//        async_reset_signal_is(rstn, false);
+
+        SC_CTHREAD(thread_state, clk.pos());
+        async_reset_signal_is(rstn, false);
+
+        SC_CTHREAD(zero_width, clk.pos());
+        async_reset_signal_is(rstn, false);
 
         SC_CTHREAD(sct_assert_imm, clk.pos());
         async_reset_signal_is(rstn, false);
@@ -104,7 +123,99 @@ public:
         SC_CTHREAD(sct_assert_cond, clk.pos());
         async_reset_signal_is(rstn, false);
     }
+
+    sc_uint<3> w_log2(sc_uint<8> val)
+    {
+        return (val == s.read() ? 1 : 2);
+    }    
+
+    int f(int par) {
+        return w_log2(par);
+    }
     
+    int g(int par) {
+        return g(par-1);
+    }
+    
+    int ff(int par) {
+        gg(par-1);
+    }
+    
+    int gg(int par) {
+        return ff(par-1);
+    }
+
+    // Check single state for thread with function call in body 
+    // For function call @replicate state doe snot work because of 
+    // different temporary variables used
+    void thread_state_call1() 
+    {
+        wait();
+
+        SCT_ASSERT_THREAD(s, (1), s, clk.pos()); 
+        
+        while (true) {
+            s = f(1) + f(2);
+            wait();
+        }
+    }
+
+    void thread_state_call2() 
+    {
+        wait();
+
+        SCT_ASSERT_THREAD(s, (1), s, clk.pos()); 
+
+        while (true) {
+            g(1);
+            wait();
+        }
+    }
+    
+    void thread_state_call3() 
+    {
+        wait();
+
+        SCT_ASSERT_THREAD(s, (1), s, clk.pos()); 
+
+        while (true) {
+            gg(1);
+            wait();
+        }
+    }
+    
+    // Check single state for thread with loop assertion
+    void thread_state() 
+    {
+        int l = 0;
+        int arr[2];
+        wait();
+        
+        SCT_ASSERT_THREAD(l == s, (1), l != s, clk.pos()); 
+
+        for (unsigned i = 0; i < 2; i++) {
+            SCT_ASSERT_LOOP(arr[i], (0), arr[i], clk.pos(), i);
+        }
+        
+        while (true) {
+            l = s.read() + 1;
+            wait();
+        }
+    }
+    
+    
+    void zero_width() 
+    {
+        SCT_ASSERT_THREAD(z1.read(), (0), 0, clk.pos());
+        SCT_ASSERT_THREAD(z2.read(), (0), 0, clk.pos());
+        
+        wait();
+        
+        while (true) {
+            wait();
+        }
+    }
+
     // Immediate asserts
     void sct_assert_imm() 
     {
@@ -312,6 +423,8 @@ class Test_top : public sc_module
 public:
     sc_signal<bool>        rstn{"rstn"};
     sc_clock clk{"clock", 10, SC_NS};
+    sc_signal<sct_uint<0>> z1{"z1"};
+    sct_signal<sct_uint<0>> z2{"z2"};
 
     A a_mod{"a_mod"};
 
@@ -319,7 +432,8 @@ public:
         a_mod.clk(clk);
         SC_CTHREAD(testProc, clk);
         a_mod.rstn(rstn);
-
+        a_mod.z1(z1);
+        a_mod.z2(z2);
     }
 
     void testProc() {

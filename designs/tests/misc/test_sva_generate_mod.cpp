@@ -5,7 +5,7 @@
 * 
 *****************************************************************************/
 
-#include "sct_assert.h"
+#include "sct_common.h"
 #include "systemc.h"
 #include <iostream>
 #include <cassert>
@@ -26,6 +26,8 @@ class A : public B
 public:
     sc_in<bool>         clk{"clk"};
     sc_in<bool>         rstn{"rstn"};
+
+    sct_in<sct_uint<0>> z{"z"};
     
     sc_signal<int>      s;
     sc_signal<int>      _s;
@@ -83,6 +85,8 @@ public:
 
     }
 
+    SCT_ASSERT(z.read(), (0), z.read(), clk.pos());
+    
     // Various time parameters
     SCT_ASSERT(s, (0), s, clk.pos());  
     SCT_ASSERT(s, SCT_TIME(1) , s_d, clk.pos());
@@ -168,6 +172,7 @@ public:
     sc_clock clk{"clock", 10, SC_NS};
     sc_signal<bool> rstn;
     sc_signal<bool> nrp;
+    sct_signal<sct_uint<0>> z{"z"};
 
     A<2> a_mod{"a_mod"};
 
@@ -177,6 +182,7 @@ public:
         a_mod.rstn(rstn);
         a_mod.nrpi(nrp);
         a_mod.nrpo(nrp);
+        a_mod.z(z);
     }
 
     void testProc() {

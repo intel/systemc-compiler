@@ -22,7 +22,7 @@ struct A : public sc_module
     
     const sc_uint<64> AA = 0x8000000000000000;
     const sc_uint<64> BB = 0x8000000000000000;
-    //const sc_biguint<128> C = (AA, BB);  -- error reported
+    
     
     static const size_t N = 3;
     const unsigned arr[N] = {0,0,0};

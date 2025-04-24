@@ -143,8 +143,6 @@ public:
             auto i = ad[0].b;
             t0 = i;
             
-            sct_assert_register(ad[0].b);
-            sct_assert_register(ad[1].b);
             wait();
         }
     }
@@ -195,7 +193,7 @@ public:
         
         wait(); 
         while (true) {
-            Simple br[2];            // @br is register as unknown index access
+            Simple br[2];            // @br is comb
             int i = sig.read();
 
             br[i].a = 1;
@@ -212,7 +210,7 @@ public:
         wait(); 
         while (true) {
             Simple cr[2];       // @cr is comb
-            Simple crr[2][3];   // @crr is register
+            Simple crr[2][3];   // @crr is comb
 
             cr[1].a = 2;
             crr[1][2].a = cr[1].a;
@@ -232,7 +230,7 @@ public:
         
         while (true) {
             {
-                Simple dd[2];           // reg
+                Simple dd[2];           // comb
                 dd[k].a = 1;
             }
             int j = k;
@@ -249,7 +247,7 @@ public:
         
         while (true) {
             {
-                Simple dd[2];           // reg
+                Simple dd[2];           // comb
                 dd[k].a = 1;
 
                 wait();
@@ -271,7 +269,7 @@ public:
         
         while (true) {
             {
-                Simple dd[2];           // reg
+                Simple dd[2];           // comb
                 dd[k].a = 1;
 
                 wait();
@@ -289,7 +287,7 @@ public:
         int k;
         wait(); 
         while (true) {
-            Simple dd[2];           // reg
+            Simple dd[2];           // comb
             
             k = sig.read();
             dd[k].a = 2;
@@ -305,9 +303,9 @@ public:
     {
         wait(); 
         while (true) {
-            Simple dr[2];           // reg
+            Simple dr[2];           // comb
             Simple drr[2][3];       // reg
-            int i = sig.read();
+            int i = sig.read();     // reg 
 
             dr[i].a = 2;
             drr[1][i+1].a = dr[1].a;

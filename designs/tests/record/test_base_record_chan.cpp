@@ -14,6 +14,7 @@
 
 struct B {
     static const unsigned SIZE = 42;
+    static const unsigned SIZE1 = 43;
     typedef sc_uint<SIZE> Bits_t;
 
     bool a;
@@ -29,6 +30,8 @@ struct B {
 
 struct D : public B {
     sc_uint<4> c;
+    static const unsigned SIZE2 = 44;
+    static const unsigned SIZE3 = 45;
     static constexpr unsigned ARR[2] = {11,12};
 
     
@@ -130,6 +133,11 @@ public:
 
         SC_CTHREAD(record_chan6, clk.pos());
         async_reset_signal_is(nrst, 0);
+
+        SC_METHOD(record_chan7); sensitive << s;
+
+        SC_CTHREAD(record_chan8, clk.pos());
+        async_reset_signal_is(nrst, 0);
     }
     
     sct_register<ZeroField>  reg{"reg"};
@@ -224,6 +232,45 @@ public:
             e[s.read()].a = e[s.read()].b == 1;
             e[s.read()+1].b = s.read();
             t8[s.read()] = e[s.read()];
+            wait();
+        }
+    }
+    
+    sc_signal<int> t9{"t9"};
+    D m8;
+    D m9[2];
+    sc_vector<sc_signal<D>> tt9{"tt9",2};
+    B mm9[2];
+    void record_chan7() {
+        D d;
+        D e[2];
+        m8 = d;
+        m8 = e[0];
+        m9[s.read()] = d;   
+        t9 = m9[s.read()].b;
+        t9 = m9[s.read()].c;
+        m9[s.read()].b = m9[s.read()+1].c;
+
+        tt9[s.read()] = d;
+        mm9[s.read()] = d;   
+
+        t9 = d.SIZE2;
+        t9 = m8.SIZE2;
+        t9 = m9[s.read()].SIZE2;
+    }
+    
+    sc_signal<D> t10{"t10"};
+    D m10;
+    D m11[2];
+    void record_chan8() {
+        D f[2];
+        f[0].b = m10.SIZE1;
+        f[1].c = m10.SIZE1;
+        t10 = f[0];
+        wait();
+        while(true) {
+            f[s.read()+1].b = m11[s.read()].SIZE3;
+            t10 = f[s.read()];
             wait();
         }
     }

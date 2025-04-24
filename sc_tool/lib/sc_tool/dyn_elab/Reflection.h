@@ -172,7 +172,6 @@ class ScObject : public RecordObject {
 public:
     ScObject(TypedObject typedObj);
 
-    bool isPort() const;
     bool isInPort() const;
     bool isOutPort() const;
     bool isInOutPort() const;

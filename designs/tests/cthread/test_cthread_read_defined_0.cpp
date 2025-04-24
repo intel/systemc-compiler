@@ -344,10 +344,12 @@ public:
             sct_assert_read(bb, true);
 
             int cc[2][2];
+            int dd[2][2];           // register
             func_arr3a(cc);
             sct_assert_read(cc, true);
 
             wait();
+            func_arr3a(dd);
         }
     }
     

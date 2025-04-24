@@ -242,6 +242,8 @@ void ScElabModuleBuilder::run()
         
         // Detect multiple used/defined variable/channel in different processes
         verMod.detectUseDefErrors();
+        
+        cout << ".";
     }
     
     // Compare and remove redundant modules, only equivalent C++ types compared
@@ -252,7 +254,7 @@ void ScElabModuleBuilder::run()
         //std::cout << "   " << mod.getName() << std::endl;
         modTypes.insert(mod.getType());
     }
-    std::cout << "------------------------------------------------" << std::endl 
+    std::cout << "\n------------------------------------------------" << std::endl 
               << "  Module number       " << modTypes.size()  << std::endl;
 
     size_t procNum = 0;
@@ -2135,7 +2137,7 @@ void ScElabModuleBuilder::materializePort(VerilogModule &verMod, PortView port)
 void ScElabModuleBuilder::createProcessBodies(VerilogModule &verMod)
 {
     using std::cout; using std::endl;
-    cout << "createProcessBodies verMod " << verMod.getName() << endl;
+    //cout << "createProcessBodies verMod " << verMod.getName() << endl;
     
     // Avoid black boxed module process analysis
     if (verMod.isIntrinsic()) return;

@@ -184,6 +184,7 @@ struct A : public sc_module {
         
         while (true) {
             T r = p;
+            T rr = p;
             t3 = r;
             p = t4[r.a[s.read()]];
             p = mif[s.read()].read_val_();
@@ -192,6 +193,7 @@ struct A : public sc_module {
             i = mif[0].read_int();
             wait();
             t4[0] = p;
+            t4[1] = rr;
         }
     }
 };

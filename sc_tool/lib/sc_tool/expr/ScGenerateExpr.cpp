@@ -2580,7 +2580,15 @@ void ScGenerateExpr::parseCall(CallExpr* expr, SValue& val)
 
         // Declare temporary return variable in current module
         if (!isVoidType(retType)) {
-            val = SValue(retType, modval);
+            // Reuse temporary return value for same call expression to 
+            // remove duplicate states with function calls
+            auto i = funcReturnValues.find(expr);
+            if (i == funcReturnValues.end()) {
+                val = SValue(retType, modval);
+                funcReturnValues.emplace(expr, val);
+            } else {
+                val = i->second;
+            }
             // cout << "Return value " << val << endl;
         }
     }
@@ -3075,7 +3083,15 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
 
         // Declare temporary return variable in current module
         if (!isVoidType(retType)) {
-            val = SValue(retType, modval);
+            // Reuse temporary return value for same call expression to 
+            // remove duplicate states with function calls
+            auto i = funcReturnValues.find(expr);
+            if (i == funcReturnValues.end()) {
+                val = SValue(retType, modval);
+                funcReturnValues.emplace(expr, val);
+            } else {
+                val = i->second;
+            }
             //cout << "Return value " << val << endl;
         }
     }
@@ -3165,7 +3181,15 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             // Declare temporary return variable in current module
             val = NO_VALUE;
             if (!isVoidType(retType)) {
-                val = SValue(retType, modval);
+                // Reuse temporary return value for same call expression to 
+                // remove duplicate states with function calls
+                auto i = funcReturnValues.find(expr);
+                if (i == funcReturnValues.end()) {
+                    val = SValue(retType, modval);
+                    funcReturnValues.emplace(expr, val);
+                } else {
+                    val = i->second;
+                }
                 //cout << "Return value " << val << endl;
             }
             

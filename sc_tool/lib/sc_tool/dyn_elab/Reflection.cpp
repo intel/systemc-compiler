@@ -631,11 +631,6 @@ const std::string & ScObject::scName() const {
     return *reinterpret_cast<const std::string *>(nameField->typedObj.getPtr());
 }
 
-bool ScObject::isPort() const
-{
-    return isScBasePort(typedObj.getType());
-}
-
 bool ScObject::isInPort() const
 {
     return isScIn(typedObj.getType());
