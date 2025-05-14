@@ -30,25 +30,7 @@ struct sct_zero_width;
 struct sct_zero_width : public sc_dt::sc_value_base 
 {
     sct_zero_width() {}
-    sct_zero_width(int_type v) {}
-    sct_zero_width(uint_type v) {}
-    sct_zero_width(const char* a) {}
-    sct_zero_width(unsigned long a) {}
-    sct_zero_width(long a) {}
-    sct_zero_width(unsigned int a) {}
-    sct_zero_width(int a) {}
-    sct_zero_width(double a) {}
-
-    sct_zero_width(const sc_uint_base& a) {}
-    sct_zero_width(const sc_unsigned& a) {}
-    sct_zero_width(const sc_int_base& a) {}
-    sct_zero_width(const sc_signed& a) {}
-    sct_zero_width(const sc_bv_base& a) {}
-    sct_zero_width(const sc_bit& a) {}
-
-    sct_zero_width(const sc_concatref& a) {}
-
-    sct_zero_width(const sct_zero_width& a) {}
+    template<class T> sct_zero_width(const T&) {}
     
     static const sct_zero_width& get_zero_width() { 
         static sct_zero_width val;
@@ -56,7 +38,7 @@ struct sct_zero_width : public sc_dt::sc_value_base
     }
     
     template<class T>
-    sct_zero_width& operator = (const T& v) {return *this;}
+    sct_zero_width& operator = (const T&) {return *this;}
 
     template<class T>
     sct_zero_width& operator += (T v) {return *this;}
@@ -83,12 +65,6 @@ struct sct_zero_width : public sc_dt::sc_value_base
     sct_zero_width& operator ++ (int) {return *this;}
     sct_zero_width& operator -- () {return *this;}
     sct_zero_width& operator -- (int) {return *this;}
-
-    bool operator == (const sct_zero_width&) {return true;}
-    bool operator == (int_type v) {return v == 0;}
-    bool operator == (uint_type v) {return v == 0;}
-    bool operator == (int v) {return v == 0;}
-    bool operator == (unsigned int v) {return v == 0;}
 
     bool operator ! () {return true;}
     bool operator ~ () {return true;}

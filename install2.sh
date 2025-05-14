@@ -147,7 +147,7 @@ if [ "${build_type['proto']}" != "" ]; then (
     CMAKE_BUILD_TYPE="${build_type['proto']}"
     (
         cd protobuf-3.19.4
-        cmake cmake/ -Bbuild -DBUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
+        cmake cmake/ -Bbuild -DBUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_CXX_STANDARD=20 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
         cd build
         make -j12 install
     )
@@ -173,7 +173,7 @@ if [ "${build_type['llvm']}" != "" ]; then (
         cmake ./ -Bbuild -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD=X86 \
             -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE  -G "Unix Makefiles" \
             -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX -DGCC_INSTALL_PREFIX=$GCC_INSTALL_PREFIX \
-            -DCMAKE_CXX_STANDARD=17  -DLLVM_INCLUDE_BENCHMARKS=OFF  -DLLVM_INCLUDE_TESTS=OFF
+            -DCMAKE_CXX_STANDARD=20  -DLLVM_INCLUDE_BENCHMARKS=OFF  -DLLVM_INCLUDE_TESTS=OFF
         cd build
         make -j12 install
     )
@@ -197,10 +197,10 @@ fi;
 # Build and install ISCC
 if [ "${build_type['icsc']}" != "" ]; then (
     cd $CWD_DIR
-    cmake . -Bbuild_icsc/release -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX
+    cmake . -Bbuild_icsc/release -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX
     cd build_icsc/release && make -j12 install
 
-    cmake . -Bbuild_icsc/debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX
+    cmake . -Bbuild_icsc/debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_CXX_STANDARD=20 -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX
     cd build_icsc/debug && make -j12 install
 );
 fi;

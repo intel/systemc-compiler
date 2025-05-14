@@ -1,10 +1,10 @@
-diff -crBN systemc-3.0.0/CMakeLists.txt systemc-3.0.0_patched/CMakeLists.txt
-*** systemc-3.0.0/CMakeLists.txt	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/CMakeLists.txt	2024-09-09 11:00:54.521689000 -0700
+diff -crBN systemc-3.0.1/CMakeLists.txt systemc-3.0.1_patched/CMakeLists.txt
+*** systemc-3.0.1/CMakeLists.txt	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/CMakeLists.txt	2025-05-13 16:58:16.843306000 -0700
 ***************
-*** 253,266 ****
+*** 255,268 ****
          FORCE)
-  endif (NOT CMAKE_BUILD_TYPE)
+  endif()
   
 ! if (NOT (WIN32 OR CYGWIN))
 !   option (BUILD_SHARED_LIBS "Build shared libraries." ON)
@@ -17,9 +17,9 @@ diff -crBN systemc-3.0.0/CMakeLists.txt systemc-3.0.0_patched/CMakeLists.txt
   
   option (BUILD_SOURCE_DOCUMENTATION "Build source documentation with Doxygen." OFF)
   
---- 253,266 ----
+--- 255,268 ----
          FORCE)
-  endif (NOT CMAKE_BUILD_TYPE)
+  endif()
   
 ! #if (NOT (WIN32 OR CYGWIN))
 ! #  option (BUILD_SHARED_LIBS "Build shared libraries." ON)
@@ -33,7 +33,7 @@ diff -crBN systemc-3.0.0/CMakeLists.txt systemc-3.0.0_patched/CMakeLists.txt
   option (BUILD_SOURCE_DOCUMENTATION "Build source documentation with Doxygen." OFF)
   
 ***************
-*** 487,507 ****
+*** 457,477 ****
   # Set the installation paths
   ###############################################################################
   
@@ -55,7 +55,7 @@ diff -crBN systemc-3.0.0/CMakeLists.txt systemc-3.0.0_patched/CMakeLists.txt
   
   # Set the installation paths for headers, libraries, and documentation.
   set (CMAKE_INSTALL_DOCDIR "share/doc/systemc" CACHE PATH
---- 487,507 ----
+--- 457,477 ----
   # Set the installation paths
   ###############################################################################
   
@@ -78,7 +78,7 @@ diff -crBN systemc-3.0.0/CMakeLists.txt systemc-3.0.0_patched/CMakeLists.txt
   # Set the installation paths for headers, libraries, and documentation.
   set (CMAKE_INSTALL_DOCDIR "share/doc/systemc" CACHE PATH
 ***************
-*** 648,655 ****
+*** 637,644 ****
   list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
   add_subdirectory (src)
   add_subdirectory (docs)
@@ -87,7 +87,7 @@ diff -crBN systemc-3.0.0/CMakeLists.txt systemc-3.0.0_patched/CMakeLists.txt
   
   ###############################################################################
   # Install README files
---- 648,655 ----
+--- 637,644 ----
   list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
   add_subdirectory (src)
   add_subdirectory (docs)
@@ -97,7 +97,7 @@ diff -crBN systemc-3.0.0/CMakeLists.txt systemc-3.0.0_patched/CMakeLists.txt
   ###############################################################################
   # Install README files
 ***************
-*** 671,711 ****
+*** 660,700 ****
   ###############################################################################
   
   # Export the systemc library target for usage by other programs to installation tree
@@ -139,7 +139,7 @@ diff -crBN systemc-3.0.0/CMakeLists.txt systemc-3.0.0_patched/CMakeLists.txt
 !               "${PROJECT_BINARY_DIR}/SystemCTLMConfigVersion.cmake"
 !         DESTINATION "${SystemCTLM_INSTALL_CMAKEDIR}"
 !         COMPONENT dev)
---- 671,711 ----
+--- 660,700 ----
   ###############################################################################
   
   # Export the systemc library target for usage by other programs to installation tree
@@ -181,12 +181,29 @@ diff -crBN systemc-3.0.0/CMakeLists.txt systemc-3.0.0_patched/CMakeLists.txt
 ! #              "${PROJECT_BINARY_DIR}/SystemCTLMConfigVersion.cmake"
 ! #        DESTINATION "${SystemCTLM_INSTALL_CMAKEDIR}"
 ! #        COMPONENT dev)
-diff -crBN systemc-3.0.0/src/CMakeLists.txt systemc-3.0.0_patched/src/CMakeLists.txt
-*** systemc-3.0.0/src/CMakeLists.txt	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/CMakeLists.txt	2024-09-09 11:37:28.371502000 -0700
+diff -crBN systemc-3.0.1/src/CMakeLists.txt systemc-3.0.1_patched/src/CMakeLists.txt
+*** systemc-3.0.1/src/CMakeLists.txt	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/CMakeLists.txt	2025-05-14 11:30:13.098725000 -0700
 ***************
-*** 408,413 ****
---- 408,420 ----
+*** 51,57 ****
+      target_compile_features(
+          ${libName}
+          PUBLIC
+!         cxx_std_17)
+  
+      target_compile_definitions (
+          ${libName}
+--- 51,57 ----
+      target_compile_features(
+          ${libName}
+          PUBLIC
+!         cxx_std_20)
+  
+      target_compile_definitions (
+          ${libName}
+***************
+*** 409,414 ****
+--- 409,421 ----
           tlm_utils/simple_initiator_socket.h
           tlm_utils/simple_target_socket.h
           tlm_utils/tlm_quantumkeeper.h
@@ -199,22 +216,22 @@ diff -crBN systemc-3.0.0/src/CMakeLists.txt systemc-3.0.0_patched/src/CMakeLists
 + 
           # QuickThreads
           $<$<BOOL:${QT_ARCH}>:
-          sysc/packages/qt/qt.c
+            sysc/packages/qt/qt.c
 ***************
-*** 497,502 ****
---- 504,512 ----
+*** 486,491 ****
+--- 493,501 ----
   
   add_library(SystemC::systemc ALIAS systemc)
   
 + add_library (SVC::systemc ALIAS systemc)
-+ target_compile_features(systemc PUBLIC cxx_std_17)
++ target_compile_features(systemc PUBLIC cxx_std_20)
 + 
   install(TARGETS ${SYSTEMC_TARGETS} EXPORT SystemCLanguageTargets
           RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
           LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 ***************
-*** 512,517 ****
---- 522,533 ----
+*** 501,506 ****
+--- 511,522 ----
           NAMESPACE SystemC::
           FILE ${CMAKE_BINARY_DIR}/SystemCLanguageTargets.cmake)
   
@@ -227,9 +244,9 @@ diff -crBN systemc-3.0.0/src/CMakeLists.txt systemc-3.0.0_patched/src/CMakeLists
   # Install the SystemC and TLM headers
   install (FILES systemc tlm
            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-diff -crBN systemc-3.0.0/src/sc_elab/allocated_node.h systemc-3.0.0_patched/src/sc_elab/allocated_node.h
-*** systemc-3.0.0/src/sc_elab/allocated_node.h	1969-12-31 16:00:00.000000000 -0800
---- systemc-3.0.0_patched/src/sc_elab/allocated_node.h	2024-09-09 10:54:58.667732000 -0700
+diff -crBN systemc-3.0.1/src/sc_elab/allocated_node.h systemc-3.0.1_patched/src/sc_elab/allocated_node.h
+*** systemc-3.0.1/src/sc_elab/allocated_node.h	1969-12-31 16:00:00.000000000 -0800
+--- systemc-3.0.1_patched/src/sc_elab/allocated_node.h	2025-05-13 16:58:16.855309000 -0700
 ***************
 *** 0 ****
 --- 1,41 ----
@@ -274,9 +291,9 @@ diff -crBN systemc-3.0.0/src/sc_elab/allocated_node.h systemc-3.0.0_patched/src/
 + }
 + 
 + #endif //SCTOOL_ALLOCATED_NODE_H
-diff -crBN systemc-3.0.0/src/sc_elab/elab_alloc.cpp systemc-3.0.0_patched/src/sc_elab/elab_alloc.cpp
-*** systemc-3.0.0/src/sc_elab/elab_alloc.cpp	1969-12-31 16:00:00.000000000 -0800
---- systemc-3.0.0_patched/src/sc_elab/elab_alloc.cpp	2024-09-09 10:54:58.669742000 -0700
+diff -crBN systemc-3.0.1/src/sc_elab/elab_alloc.cpp systemc-3.0.1_patched/src/sc_elab/elab_alloc.cpp
+*** systemc-3.0.1/src/sc_elab/elab_alloc.cpp	1969-12-31 16:00:00.000000000 -0800
+--- systemc-3.0.1_patched/src/sc_elab/elab_alloc.cpp	2025-05-13 16:58:16.857338000 -0700
 ***************
 *** 0 ****
 --- 1,135 ----
@@ -415,9 +432,9 @@ diff -crBN systemc-3.0.0/src/sc_elab/elab_alloc.cpp systemc-3.0.0_patched/src/sc
 + }
 + 
 + }
-diff -crBN systemc-3.0.0/src/sc_elab/elab_alloc.h systemc-3.0.0_patched/src/sc_elab/elab_alloc.h
-*** systemc-3.0.0/src/sc_elab/elab_alloc.h	1969-12-31 16:00:00.000000000 -0800
---- systemc-3.0.0_patched/src/sc_elab/elab_alloc.h	2024-09-09 10:54:58.671725000 -0700
+diff -crBN systemc-3.0.1/src/sc_elab/elab_alloc.h systemc-3.0.1_patched/src/sc_elab/elab_alloc.h
+*** systemc-3.0.1/src/sc_elab/elab_alloc.h	1969-12-31 16:00:00.000000000 -0800
+--- systemc-3.0.1_patched/src/sc_elab/elab_alloc.h	2025-05-13 16:58:16.860302000 -0700
 ***************
 *** 0 ****
 --- 1,110 ----
@@ -532,9 +549,9 @@ diff -crBN systemc-3.0.0/src/sc_elab/elab_alloc.h systemc-3.0.0_patched/src/sc_e
 + 
 + #endif // ELAB_ALLOC_H
 \ No newline at end of file
-diff -crBN systemc-3.0.0/src/sc_elab/process_type_info.h systemc-3.0.0_patched/src/sc_elab/process_type_info.h
-*** systemc-3.0.0/src/sc_elab/process_type_info.h	1969-12-31 16:00:00.000000000 -0800
---- systemc-3.0.0_patched/src/sc_elab/process_type_info.h	2024-09-09 10:54:58.673700000 -0700
+diff -crBN systemc-3.0.1/src/sc_elab/process_type_info.h systemc-3.0.1_patched/src/sc_elab/process_type_info.h
+*** systemc-3.0.1/src/sc_elab/process_type_info.h	1969-12-31 16:00:00.000000000 -0800
+--- systemc-3.0.1_patched/src/sc_elab/process_type_info.h	2025-05-13 16:58:16.861366000 -0700
 ***************
 *** 0 ****
 --- 1,18 ----
@@ -556,9 +573,9 @@ diff -crBN systemc-3.0.0/src/sc_elab/process_type_info.h systemc-3.0.0_patched/s
 + }
 + 
 + #endif //SCTOOL_PROCESS_TYPE_INFO_H
-diff -crBN systemc-3.0.0/src/sc_elab/sc_tool_opts.cpp systemc-3.0.0_patched/src/sc_elab/sc_tool_opts.cpp
-*** systemc-3.0.0/src/sc_elab/sc_tool_opts.cpp	1969-12-31 16:00:00.000000000 -0800
---- systemc-3.0.0_patched/src/sc_elab/sc_tool_opts.cpp	2024-09-09 10:54:58.674725000 -0700
+diff -crBN systemc-3.0.1/src/sc_elab/sc_tool_opts.cpp systemc-3.0.1_patched/src/sc_elab/sc_tool_opts.cpp
+*** systemc-3.0.1/src/sc_elab/sc_tool_opts.cpp	1969-12-31 16:00:00.000000000 -0800
+--- systemc-3.0.1_patched/src/sc_elab/sc_tool_opts.cpp	2025-05-13 16:58:16.864303000 -0700
 ***************
 *** 0 ****
 --- 1,7 ----
@@ -569,9 +586,9 @@ diff -crBN systemc-3.0.0/src/sc_elab/sc_tool_opts.cpp systemc-3.0.0_patched/src/
 + #include "sc_tool_opts.h"
 + 
 + std::string *sctool_extra_opts = nullptr;
-diff -crBN systemc-3.0.0/src/sc_elab/sc_tool_opts.h systemc-3.0.0_patched/src/sc_elab/sc_tool_opts.h
-*** systemc-3.0.0/src/sc_elab/sc_tool_opts.h	1969-12-31 16:00:00.000000000 -0800
---- systemc-3.0.0_patched/src/sc_elab/sc_tool_opts.h	2024-09-09 10:54:58.676714000 -0700
+diff -crBN systemc-3.0.1/src/sc_elab/sc_tool_opts.h systemc-3.0.1_patched/src/sc_elab/sc_tool_opts.h
+*** systemc-3.0.1/src/sc_elab/sc_tool_opts.h	1969-12-31 16:00:00.000000000 -0800
+--- systemc-3.0.1_patched/src/sc_elab/sc_tool_opts.h	2025-05-13 16:58:16.866321000 -0700
 ***************
 *** 0 ****
 --- 1,12 ----
@@ -587,9 +604,9 @@ diff -crBN systemc-3.0.0/src/sc_elab/sc_tool_opts.h systemc-3.0.0_patched/src/sc
 + extern std::string *sctool_extra_opts;
 + 
 + #endif //SCTOOL_SC_TOOL_OPTS_H
-diff -crBN systemc-3.0.0/src/sc_elab/sensitivity.h systemc-3.0.0_patched/src/sc_elab/sensitivity.h
-*** systemc-3.0.0/src/sc_elab/sensitivity.h	1969-12-31 16:00:00.000000000 -0800
---- systemc-3.0.0_patched/src/sc_elab/sensitivity.h	2024-09-09 10:54:58.678700000 -0700
+diff -crBN systemc-3.0.1/src/sc_elab/sensitivity.h systemc-3.0.1_patched/src/sc_elab/sensitivity.h
+*** systemc-3.0.1/src/sc_elab/sensitivity.h	1969-12-31 16:00:00.000000000 -0800
+--- systemc-3.0.1_patched/src/sc_elab/sensitivity.h	2025-05-13 16:58:16.868309000 -0700
 ***************
 *** 0 ****
 --- 1,21 ----
@@ -614,9 +631,9 @@ diff -crBN systemc-3.0.0/src/sc_elab/sensitivity.h systemc-3.0.0_patched/src/sc_
 + }
 + 
 + #endif //SCTOOL_SENSITIVITY_H
-diff -crBN systemc-3.0.0/src/sysc/communication/sc_event_finder.h systemc-3.0.0_patched/src/sysc/communication/sc_event_finder.h
-*** systemc-3.0.0/src/sysc/communication/sc_event_finder.h	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/communication/sc_event_finder.h	2024-09-09 10:54:58.680704000 -0700
+diff -crBN systemc-3.0.1/src/sysc/communication/sc_event_finder.h systemc-3.0.1_patched/src/sysc/communication/sc_event_finder.h
+*** systemc-3.0.1/src/sysc/communication/sc_event_finder.h	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/communication/sc_event_finder.h	2025-05-13 16:58:16.871335000 -0700
 ***************
 *** 110,115 ****
 --- 110,121 ----
@@ -632,9 +649,9 @@ diff -crBN systemc-3.0.0/src/sysc/communication/sc_event_finder.h systemc-3.0.0_
   private:
   
       const sc_event& (IF::*m_event_method) () const;
-diff -crBN systemc-3.0.0/src/sysc/communication/sc_port.cpp systemc-3.0.0_patched/src/sysc/communication/sc_port.cpp
-*** systemc-3.0.0/src/sysc/communication/sc_port.cpp	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/communication/sc_port.cpp	2024-09-09 10:54:58.683709000 -0700
+diff -crBN systemc-3.0.1/src/sysc/communication/sc_port.cpp systemc-3.0.1_patched/src/sysc/communication/sc_port.cpp
+*** systemc-3.0.1/src/sysc/communication/sc_port.cpp	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/communication/sc_port.cpp	2025-05-13 16:58:16.874371000 -0700
 ***************
 *** 767,772 ****
 --- 767,831 ----
@@ -703,9 +720,9 @@ diff -crBN systemc-3.0.0/src/sysc/communication/sc_port.cpp systemc-3.0.0_patche
   } // namespace sc_core
   
   
-diff -crBN systemc-3.0.0/src/sysc/communication/sc_port.h systemc-3.0.0_patched/src/sysc/communication/sc_port.h
-*** systemc-3.0.0/src/sysc/communication/sc_port.h	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/communication/sc_port.h	2024-09-09 11:10:07.079651000 -0700
+diff -crBN systemc-3.0.1/src/sysc/communication/sc_port.h systemc-3.0.1_patched/src/sysc/communication/sc_port.h
+*** systemc-3.0.1/src/sysc/communication/sc_port.h	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/communication/sc_port.h	2025-05-13 16:58:16.879312000 -0700
 ***************
 *** 38,43 ****
 --- 38,45 ----
@@ -730,9 +747,9 @@ diff -crBN systemc-3.0.0/src/sysc/communication/sc_port.h systemc-3.0.0_patched/
   protected:
   
       // constructors
-diff -crBN systemc-3.0.0/src/sysc/kernel/sc_main.cpp systemc-3.0.0_patched/src/sysc/kernel/sc_main.cpp
-*** systemc-3.0.0/src/sysc/kernel/sc_main.cpp	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/kernel/sc_main.cpp	2024-09-09 10:54:58.691706000 -0700
+diff -crBN systemc-3.0.1/src/sysc/kernel/sc_main.cpp systemc-3.0.1_patched/src/sysc/kernel/sc_main.cpp
+*** systemc-3.0.1/src/sysc/kernel/sc_main.cpp	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/kernel/sc_main.cpp	2025-05-13 16:58:16.882349000 -0700
 ***************
 *** 30,38 ****
 --- 30,55 ----
@@ -762,9 +779,9 @@ diff -crBN systemc-3.0.0/src/sysc/kernel/sc_main.cpp systemc-3.0.0_patched/src/s
   	return sc_core::sc_elab_and_sim( argc, argv );
   }
   
-diff -crBN systemc-3.0.0/src/sysc/kernel/sc_main_main.cpp systemc-3.0.0_patched/src/sysc/kernel/sc_main_main.cpp
-*** systemc-3.0.0/src/sysc/kernel/sc_main_main.cpp	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/kernel/sc_main_main.cpp	2024-09-09 10:54:58.694704000 -0700
+diff -crBN systemc-3.0.1/src/sysc/kernel/sc_main_main.cpp systemc-3.0.1_patched/src/sysc/kernel/sc_main_main.cpp
+*** systemc-3.0.1/src/sysc/kernel/sc_main_main.cpp	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/kernel/sc_main_main.cpp	2025-05-13 16:58:16.885352000 -0700
 ***************
 *** 97,111 ****
           sc_report_handler::get_handler()
@@ -799,9 +816,9 @@ diff -crBN systemc-3.0.0/src/sysc/kernel/sc_main_main.cpp systemc-3.0.0_patched/
   
       for ( int i = 0; i < argc; ++i ) {
           delete[] argv_copy[i];
-diff -crBN systemc-3.0.0/src/sysc/kernel/sc_module.cpp systemc-3.0.0_patched/src/sysc/kernel/sc_module.cpp
-*** systemc-3.0.0/src/sysc/kernel/sc_module.cpp	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/kernel/sc_module.cpp	2024-09-09 10:54:58.696724000 -0700
+diff -crBN systemc-3.0.1/src/sysc/kernel/sc_module.cpp systemc-3.0.1_patched/src/sysc/kernel/sc_module.cpp
+*** systemc-3.0.1/src/sysc/kernel/sc_module.cpp	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/kernel/sc_module.cpp	2025-05-13 16:58:16.889310000 -0700
 ***************
 *** 53,58 ****
 --- 53,61 ----
@@ -895,9 +912,9 @@ diff -crBN systemc-3.0.0/src/sysc/kernel/sc_module.cpp systemc-3.0.0_patched/src
       return handle;
       // sensitivity is handled in template function
   }
-diff -crBN systemc-3.0.0/src/sysc/kernel/sc_module.h systemc-3.0.0_patched/src/sysc/kernel/sc_module.h
-*** systemc-3.0.0/src/sysc/kernel/sc_module.h	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/kernel/sc_module.h	2024-09-09 10:54:58.700716000 -0700
+diff -crBN systemc-3.0.1/src/sysc/kernel/sc_module.h systemc-3.0.1_patched/src/sysc/kernel/sc_module.h
+*** systemc-3.0.1/src/sysc/kernel/sc_module.h	2025-05-13 17:06:44.223332000 -0700
+--- systemc-3.0.1_patched/src/sysc/kernel/sc_module.h	2025-05-13 17:06:31.398341000 -0700
 ***************
 *** 44,49 ****
 --- 44,53 ----
@@ -946,27 +963,30 @@ diff -crBN systemc-3.0.0/src/sysc/kernel/sc_module.h systemc-3.0.0_patched/src/s
       // to prevent initialization for SC_METHODs and SC_THREADs
       void dont_initialize();
 ***************
-*** 446,464 ****
+*** 462,483 ****
   // template<typename X>
   // class A : public B<X>
   
   #define SC_CTHREAD(func, edge)                                                \
+      SC_PROCESS_MACRO_BEGIN_                                                   \
       this->declare_cthread_process                                             \
 !       ( SC_MAKE_FUNC_PTR(SC_CURRENT_USER_MODULE_TYPE, func), #func, edge )    \
-      SC_SEMICOLON_
+      SC_PROCESS_MACRO_END_
   
   #define SC_METHOD(func)                                                       \
+      SC_PROCESS_MACRO_BEGIN_                                                   \
       this->declare_method_process                                              \
 !       ( SC_MAKE_FUNC_PTR(SC_CURRENT_USER_MODULE_TYPE, func), #func )          \
-      SC_SEMICOLON_
+      SC_PROCESS_MACRO_END_
   
   #define SC_THREAD(func)                                                       \
+      SC_PROCESS_MACRO_BEGIN_                                                   \
       this->declare_thread_process                                              \
 !       ( SC_MAKE_FUNC_PTR(SC_CURRENT_USER_MODULE_TYPE, func), #func )          \
-      SC_SEMICOLON_
+      SC_PROCESS_MACRO_END_
   
   
---- 457,486 ----
+--- 473,505 ----
   // template<typename X>
   // class A : public B<X>
   
@@ -976,30 +996,33 @@ diff -crBN systemc-3.0.0/src/sysc/kernel/sc_module.h systemc-3.0.0_patched/src/s
 + 
 + 
   #define SC_CTHREAD(func, edge)                                                \
+      SC_PROCESS_MACRO_BEGIN_                                                   \
       this->declare_cthread_process                                             \
 !       ( SC_MAKE_FUNC_PTR(SC_CURRENT_USER_MODULE_TYPE, func),                  \
 !         MANGLED_TYPENAME<typename std::remove_reference<decltype(*this)>::type>(), \
 !         #func, edge )    \
-      SC_SEMICOLON_
+      SC_PROCESS_MACRO_END_
   
   #define SC_METHOD(func)                                                       \
+      SC_PROCESS_MACRO_BEGIN_                                                   \
       this->declare_method_process                                              \
 !       ( SC_MAKE_FUNC_PTR(SC_CURRENT_USER_MODULE_TYPE, func),                  \
 !         MANGLED_TYPENAME<typename std::remove_reference<decltype(*this)>::type>(), \
 !         #func )          \
-      SC_SEMICOLON_
+      SC_PROCESS_MACRO_END_
   
   #define SC_THREAD(func)                                                       \
+      SC_PROCESS_MACRO_BEGIN_                                                   \
       this->declare_thread_process                                              \
 !       ( SC_MAKE_FUNC_PTR(SC_CURRENT_USER_MODULE_TYPE, func),                  \
 !         MANGLED_TYPENAME<typename std::remove_reference<decltype(*this)>::type>(), \
 !         #func )          \
-      SC_SEMICOLON_
+      SC_PROCESS_MACRO_END_
   
   
 ***************
-*** 469,474 ****
---- 491,501 ----
+*** 488,493 ****
+--- 510,520 ----
   typedef sc_module sc_channel;
   typedef sc_module sc_behavior;
   
@@ -1011,9 +1034,9 @@ diff -crBN systemc-3.0.0/src/sysc/kernel/sc_module.h systemc-3.0.0_patched/src/s
   } // namespace sc_core
   
   /*****************************************************************************
-diff -crBN systemc-3.0.0/src/sysc/kernel/sc_object.h systemc-3.0.0_patched/src/sysc/kernel/sc_object.h
-*** systemc-3.0.0/src/sysc/kernel/sc_object.h	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/kernel/sc_object.h	2024-09-09 10:54:58.704720000 -0700
+diff -crBN systemc-3.0.1/src/sysc/kernel/sc_object.h systemc-3.0.1_patched/src/sysc/kernel/sc_object.h
+*** systemc-3.0.1/src/sysc/kernel/sc_object.h	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/kernel/sc_object.h	2025-05-13 16:58:16.899309000 -0700
 ***************
 *** 31,36 ****
 --- 31,37 ----
@@ -1050,9 +1073,9 @@ diff -crBN systemc-3.0.0/src/sysc/kernel/sc_object.h systemc-3.0.0_patched/src/s
   protected:
       sc_object();
       sc_object(const char* nm);
-diff -crBN systemc-3.0.0/src/sysc/kernel/sc_process.h systemc-3.0.0_patched/src/sysc/kernel/sc_process.h
-*** systemc-3.0.0/src/sysc/kernel/sc_process.h	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/kernel/sc_process.h	2024-09-09 10:54:58.708737000 -0700
+diff -crBN systemc-3.0.1/src/sysc/kernel/sc_process.h systemc-3.0.1_patched/src/sysc/kernel/sc_process.h
+*** systemc-3.0.1/src/sysc/kernel/sc_process.h	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/kernel/sc_process.h	2025-05-13 16:58:16.902308000 -0700
 ***************
 *** 291,296 ****
 --- 291,297 ----
@@ -1063,9 +1086,9 @@ diff -crBN systemc-3.0.0/src/sysc/kernel/sc_process.h systemc-3.0.0_patched/src/
   
     public:
       static inline sc_process_handle last_created_process_handle();
-diff -crBN systemc-3.0.0/src/sysc/kernel/sc_reset.cpp systemc-3.0.0_patched/src/sysc/kernel/sc_reset.cpp
-*** systemc-3.0.0/src/sysc/kernel/sc_reset.cpp	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/kernel/sc_reset.cpp	2024-09-09 10:54:58.711724000 -0700
+diff -crBN systemc-3.0.1/src/sysc/kernel/sc_reset.cpp systemc-3.0.1_patched/src/sysc/kernel/sc_reset.cpp
+*** systemc-3.0.1/src/sysc/kernel/sc_reset.cpp	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/kernel/sc_reset.cpp	2025-05-13 16:58:16.905312000 -0700
 ***************
 *** 220,229 ****
         case SC_THREAD_PROC_:
@@ -1116,9 +1139,9 @@ diff -crBN systemc-3.0.0/src/sysc/kernel/sc_reset.cpp systemc-3.0.0_patched/src/
               new sc_reset_finder( async, &port, level, process_p );
           break;
         default:
-diff -crBN systemc-3.0.0/src/sysc/kernel/sc_simcontext.cpp systemc-3.0.0_patched/src/sysc/kernel/sc_simcontext.cpp
-*** systemc-3.0.0/src/sysc/kernel/sc_simcontext.cpp	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/kernel/sc_simcontext.cpp	2024-09-09 10:54:58.715714000 -0700
+diff -crBN systemc-3.0.1/src/sysc/kernel/sc_simcontext.cpp systemc-3.0.1_patched/src/sysc/kernel/sc_simcontext.cpp
+*** systemc-3.0.1/src/sysc/kernel/sc_simcontext.cpp	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/kernel/sc_simcontext.cpp	2025-05-13 16:58:16.910327000 -0700
 ***************
 *** 652,657 ****
 --- 652,674 ----
@@ -1145,9 +1168,9 @@ diff -crBN systemc-3.0.0/src/sysc/kernel/sc_simcontext.cpp systemc-3.0.0_patched
   sc_simcontext::elaborate()
   {
       if( m_elaboration_done || sim_status() != SC_SIM_OK ) {
-diff -crBN systemc-3.0.0/src/sysc/kernel/sc_simcontext.h systemc-3.0.0_patched/src/sysc/kernel/sc_simcontext.h
-*** systemc-3.0.0/src/sysc/kernel/sc_simcontext.h	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/kernel/sc_simcontext.h	2024-09-09 10:54:58.718722000 -0700
+diff -crBN systemc-3.0.1/src/sysc/kernel/sc_simcontext.h systemc-3.0.1_patched/src/sysc/kernel/sc_simcontext.h
+*** systemc-3.0.1/src/sysc/kernel/sc_simcontext.h	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/kernel/sc_simcontext.h	2025-05-13 16:58:16.914338000 -0700
 ***************
 *** 243,248 ****
 --- 243,251 ----
@@ -1183,11 +1206,11 @@ diff -crBN systemc-3.0.0/src/sysc/kernel/sc_simcontext.h systemc-3.0.0_patched/s
       void add_child_object( sc_object* );
       void remove_child_event( sc_event* );
 --- 335,340 ----
-diff -crBN systemc-3.0.0/src/sysc/tracing/sc_vcd_trace.cpp systemc-3.0.0_patched/src/sysc/tracing/sc_vcd_trace.cpp
-*** systemc-3.0.0/src/sysc/tracing/sc_vcd_trace.cpp	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/tracing/sc_vcd_trace.cpp	2024-09-09 10:54:58.730233000 -0700
+diff -crBN systemc-3.0.1/src/sysc/tracing/sc_vcd_trace.cpp systemc-3.0.1_patched/src/sysc/tracing/sc_vcd_trace.cpp
+*** systemc-3.0.1/src/sysc/tracing/sc_vcd_trace.cpp	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/tracing/sc_vcd_trace.cpp	2025-05-13 16:58:16.919310000 -0700
 ***************
-*** 2226,2232 ****
+*** 1535,1541 ****
   SC_API sc_trace_file*
   sc_create_vcd_trace_file(const char * name)
   {
@@ -1195,7 +1218,7 @@ diff -crBN systemc-3.0.0/src/sysc/tracing/sc_vcd_trace.cpp systemc-3.0.0_patched
       return tf;
   }
   
---- 2226,2232 ----
+--- 1535,1541 ----
   SC_API sc_trace_file*
   sc_create_vcd_trace_file(const char * name)
   {
@@ -1203,11 +1226,11 @@ diff -crBN systemc-3.0.0/src/sysc/tracing/sc_vcd_trace.cpp systemc-3.0.0_patched
       return tf;
   }
   
-diff -crBN systemc-3.0.0/src/sysc/tracing/sc_wif_trace.cpp systemc-3.0.0_patched/src/sysc/tracing/sc_wif_trace.cpp
-*** systemc-3.0.0/src/sysc/tracing/sc_wif_trace.cpp	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/sysc/tracing/sc_wif_trace.cpp	2024-09-09 10:54:58.735935000 -0700
+diff -crBN systemc-3.0.1/src/sysc/tracing/sc_wif_trace.cpp systemc-3.0.1_patched/src/sysc/tracing/sc_wif_trace.cpp
+*** systemc-3.0.1/src/sysc/tracing/sc_wif_trace.cpp	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/sysc/tracing/sc_wif_trace.cpp	2025-05-13 16:58:16.925303000 -0700
 ***************
-*** 1910,1916 ****
+*** 1321,1327 ****
   SC_API sc_trace_file*
   sc_create_wif_trace_file(const char * name)
   {
@@ -1215,7 +1238,7 @@ diff -crBN systemc-3.0.0/src/sysc/tracing/sc_wif_trace.cpp systemc-3.0.0_patched
       return tf;
   }
   
---- 1910,1916 ----
+--- 1321,1327 ----
   SC_API sc_trace_file*
   sc_create_wif_trace_file(const char * name)
   {
@@ -1223,9 +1246,9 @@ diff -crBN systemc-3.0.0/src/sysc/tracing/sc_wif_trace.cpp systemc-3.0.0_patched
       return tf;
   }
   
-diff -crBN systemc-3.0.0/src/systemc systemc-3.0.0_patched/src/systemc
-*** systemc-3.0.0/src/systemc	2024-03-29 09:09:51.000000000 -0700
---- systemc-3.0.0_patched/src/systemc	2024-09-09 11:12:50.299632000 -0700
+diff -crBN systemc-3.0.1/src/systemc systemc-3.0.1_patched/src/systemc
+*** systemc-3.0.1/src/systemc	2024-10-15 06:47:45.000000000 -0700
+--- systemc-3.0.1_patched/src/systemc	2025-05-13 16:58:16.929325000 -0700
 ***************
 *** 76,81 ****
 --- 76,84 ----

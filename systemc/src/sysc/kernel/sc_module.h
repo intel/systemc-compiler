@@ -449,6 +449,22 @@ static inline constexpr bool sc_has_process_used = true;
 
 // ----------------------------------------------------------------------------
 
+#if defined(__aarch64__) && defined(__GNUC__) && !defined(__clang__)
+// Suppress false positive warning by GCC on ARM64 about
+// static_cast of pointer to member function of base class
+
+#define SC_PROCESS_MACRO_BEGIN_                                     \
+  do { _Pragma("GCC diagnostic push")                               \
+       _Pragma("GCC diagnostic ignored \"-Wshift-negative-value\"")
+
+#define SC_PROCESS_MACRO_END_                                 \
+  ; _Pragma("GCC diagnostic pop") } while(false) SC_SEMICOLON_
+
+#else
+#  define SC_PROCESS_MACRO_BEGIN_ /* empty */
+#  define SC_PROCESS_MACRO_END_   SC_SEMICOLON_
+#endif
+
 // The this-> construct in the macros below is required when a templated class
 // has a templated parent that is derived from sc_module:
 //
@@ -463,25 +479,28 @@ std::unordered_map<const sc_core::sc_process_b *, sc_elab::process_type_info>
 
 
 #define SC_CTHREAD(func, edge)                                                \
+    SC_PROCESS_MACRO_BEGIN_                                                   \
     this->declare_cthread_process                                             \
       ( SC_MAKE_FUNC_PTR(SC_CURRENT_USER_MODULE_TYPE, func),                  \
         MANGLED_TYPENAME<typename std::remove_reference<decltype(*this)>::type>(), \
         #func, edge )    \
-    SC_SEMICOLON_
+    SC_PROCESS_MACRO_END_
 
 #define SC_METHOD(func)                                                       \
+    SC_PROCESS_MACRO_BEGIN_                                                   \
     this->declare_method_process                                              \
       ( SC_MAKE_FUNC_PTR(SC_CURRENT_USER_MODULE_TYPE, func),                  \
         MANGLED_TYPENAME<typename std::remove_reference<decltype(*this)>::type>(), \
         #func )          \
-    SC_SEMICOLON_
+    SC_PROCESS_MACRO_END_
 
 #define SC_THREAD(func)                                                       \
+    SC_PROCESS_MACRO_BEGIN_                                                   \
     this->declare_thread_process                                              \
       ( SC_MAKE_FUNC_PTR(SC_CURRENT_USER_MODULE_TYPE, func),                  \
         MANGLED_TYPENAME<typename std::remove_reference<decltype(*this)>::type>(), \
         #func )          \
-    SC_SEMICOLON_
+    SC_PROCESS_MACRO_END_
 
 
 // ----------------------------------------------------------------------------

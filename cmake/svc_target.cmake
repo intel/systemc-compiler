@@ -179,7 +179,7 @@ function(svc_target exe_target)
             --
             -D__SC_TOOL__ -D__SC_TOOL_ANALYZE__ -DNDEBUG -DSC_ALLOW_DEPRECATED_IEEE_API
             -Wno-logical-op-parentheses
-            -std=c++17 ${INCLUDE_DIRS} ${COMP_DEFINITIONS}
+            -std=c++20 ${INCLUDE_DIRS} ${COMP_DEFINITIONS}
             -I${CMAKE_SOURCE_DIR}/sc_elab2/lib
             ${PCH_OPT})
 

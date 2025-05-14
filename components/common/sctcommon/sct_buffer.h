@@ -39,24 +39,17 @@ class sct_buffer :
     public sct_fifo_if<T>
 {
    public:
-    /// Initialize FIFO slots in reset with zeros
-    const bool INIT_BUFFER;  
-       
-    /// Number of bits in variables store index and length of FIFO
-    static const unsigned INDX_WIDTH = sct_addrbits1<LENGTH>;
-    using Indx_t = sc_uint<INDX_WIDTH>;
-    static const unsigned ELEM_NUM_WIDTH = sct_nbits<LENGTH>;
-    using ElemNum_t = sc_uint<ELEM_NUM_WIDTH>;
-
-    /// \param init_buffer  -- Initialize all buffer elements with zeros in reset
-    ///                        First element to get is always initialized to zero id 
     explicit sct_buffer(const char* name, 
                         bool sync_valid = 0, bool sync_ready = 0,
                         bool use_elem_num = 0, bool init_buffer = 0) :
-        sc_prim_channel(name), INIT_BUFFER(init_buffer),
+        sc_prim_channel(name), 
+        put_req(false), get_req(false), pop_indx(0), push_indx(0), element_num(0),
+    #ifdef DEBUG_SYSTEMC
+        attached_put(false), attached_get(false), 
+    #endif
         event(std::string(std::string(name)+"_event").c_str())
     {
-        static_assert (LENGTH > 0);
+        assert (LENGTH > 0);
         // This implementation equals to async valid/ready FIFO
         assert (!sync_valid && !sync_ready && 
                 "No sync valid/ready allowed for Buffer");
@@ -77,23 +70,16 @@ class sct_buffer :
     /// Call in METHOD everywhere and CTHREAD reset sections
     void reset_get() override {
         pop_indx = 0;
-        get_req = 0; data_out = T{};
+        get_req = 0; 
         request_update();
     }
     
     /// Call in METHOD everywhere and CTHREAD reset sections
     void reset_put() override {
         push_indx = 0;
-        put_req = 0; data_in = T{};
+        put_req = 0; 
         element_num = 0;
-        
-        // Initialize zero cell to provide zero data before first push
         buffer[0] = T{};
-        if (INIT_BUFFER) {
-            for (unsigned i = 1; i != LENGTH; i++) {
-                buffer[i] = T{};
-            }
-        }
         request_update();
     }
     
@@ -114,27 +100,34 @@ class sct_buffer :
     }
     
     T peek() const override {
-        return data_out;
+        return buffer[pop_indx];
     }
     
+  protected:    
+    inline void doGet() {
+        get_req = 1;
+        request_update();
+    }
+    
+    inline void doPut(const T& data) {
+        put_req = 1;
+        buffer[push_indx] = data; 
+        request_update();
+    }
+
+  public:     
     /// \return current request data, if no request last data returned
     T get() override {
-        if (element_num != 0) {
-            get_req = 1;
-            request_update();
-            if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
-        }
-        return data_out;
+        if (element_num != 0) { doGet(); }
+        return buffer[pop_indx];
     }
     
     /// \return true if request is valid and enable is true
     bool get(T& data, bool enable = true) override {
-        data = data_out;
-        if (element_num != 0) {
-            get_req = enable;
-            request_update();
-            if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
-            return enable;
+        data = buffer[pop_indx];
+        if (enable && element_num != 0) { 
+            doGet(); 
+            return true;
         } else {
             return false;
         }
@@ -142,18 +135,13 @@ class sct_buffer :
 
     T b_get() override {
         while (element_num == 0) wait();
-        get_req = 1;
-        request_update();
-        if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
-        return data_out;
+        doGet();
+        return buffer[pop_indx];
     }
     
     bool put(const T& data) override {
-        data_in = data; 
         if (element_num != LENGTH) {
-            put_req = 1;
-            request_update();
-            if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
+            doPut(data);
             return true;
         } else {
             return false;
@@ -161,23 +149,17 @@ class sct_buffer :
     }
 
     bool put(const T& data, sc_uint<1> mask) override {
-        data_in = data;
-        if (element_num != LENGTH) {
-            put_req = bool(mask);
-            request_update();
-            if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
-            return mask;
+        if (mask && element_num != LENGTH) {
+            doPut(data);
+            return true;
         } else {
             return false;
         }
     }
     
     void b_put(const T& data) override {
-        data_in = data;
         while (element_num == LENGTH) wait();
-        put_req = 1;
-        request_update();
-        if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
+        doPut(data);
     }
     
     /// Maximal number of elements
@@ -201,28 +183,26 @@ class sct_buffer :
     }
     
   protected:
-    /// This buffer attached to a processes
-    bool attached_put = false;
-    bool attached_get = false;
+    /// Index of element that will be poped
+    unsigned short  pop_indx    : 16;
+    /// Index where pushed element will be stored
+    unsigned short  push_indx   : 16;
+    /// Number of elements
+    unsigned short  element_num : 16;
+    
+    bool    put_req : 8;
+    bool    get_req : 8;
+
+#ifdef DEBUG_SYSTEMC
+    bool    attached_put : 8;
+    bool    attached_get : 8;
+#endif
     
     sc_in_clk*      clk_in = nullptr;
     sc_time         clk_period = SC_ZERO_TIME;
 
-    T               buffer[LENGTH];
+    T               buffer[LENGTH] = {};
     
-    /// Index of element that will be poped
-    Indx_t          pop_indx;
-    /// Index where pushed element will be stored
-    Indx_t          push_indx;
-    /// Number of elements
-    ElemNum_t       element_num;
-    
-    bool            put_req;
-    T               data_in;
-    
-    bool            get_req;
-    T               data_out;
-
     /// Event for put, get and peek thread processes notification
     sc_event        event;
 
@@ -233,20 +213,21 @@ class sct_buffer :
             get_req  = 0;
         }
         if (put_req) {
-            buffer[push_indx] = data_in;
             push_indx = (push_indx == LENGTH-1) ? 0 : (push_indx+1);
             element_num += 1;
             put_req = 0;
         }
-        data_out = buffer[pop_indx];
+        if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
     }
     
     void end_of_elaboration() override {
+    #ifdef DEBUG_SYSTEMC
         if (!attached_put || !attached_get) {
             cout << "\nBuffer " << name() 
                  << " is not fully attached to process(es)" << endl;
             assert (false);
         }
+    #endif
         if constexpr (SCT_CMN_TLM_MODE) {
             if (clk_in) {
                 clk_period = get_clk_period(clk_in);
@@ -259,23 +240,32 @@ class sct_buffer :
     
   public:
     void clk_nrst(sc_in_clk& clk_in_, sc_in<bool>& nrst_in) {
-        if constexpr (SCT_CMN_TLM_MODE) { clk_in = &clk_in_; }
+        clk_in = &clk_in_;
     }
     
     void add_to(sc_sensitive& s, bool attachedPut, bool attachedGet) {
         if (sct_seq_proc_handle == sc_get_current_process_handle()) {
             // Sequential method
-            if constexpr (SCT_CMN_TLM_MODE) { s << event; }
+            if constexpr (SCT_CMN_TLM_MODE) { 
+                s << event; 
+            } else {
+                if (TRAITS::CLOCK == 2) s << *clk_in; 
+                else s << (TRAITS::CLOCK ? clk_in->pos() : clk_in->neg());
+            }
         } else {
             auto procKind = sc_get_current_process_handle().proc_kind();
             if (procKind != SC_THREAD_PROC_ && procKind != SC_CTHREAD_PROC_) {
                 cout << "Buffer cannot be used in combinational method process" << endl;
                 assert (false);
             }
-            if constexpr (SCT_CMN_TLM_MODE) { 
+            if constexpr (SCT_CMN_TLM_MODE) {
                 if (procKind != SC_CTHREAD_PROC_) { s << event; }
-            }                
+            } else {
+                if (TRAITS::CLOCK == 2) s << *clk_in; 
+                else s << (TRAITS::CLOCK ? clk_in->pos() : clk_in->neg());
+            }
         }
+    #ifdef DEBUG_SYSTEMC    
         if (attachedPut) {
             if (attached_put) {
                 cout <<  "Double addToPut() for Buffer: " << name() << endl; 
@@ -290,13 +280,19 @@ class sct_buffer :
             }
             attached_get = true;
         }
+    #endif
     }
     
     void add_to(sc_sensitive* s, sc_process_handle* p, bool attachedPut, 
                 bool attachedGet) {
         if (sct_seq_proc_handle == *p) {
             // Sequential method
-            if constexpr (SCT_CMN_TLM_MODE) { *s << *p << event; }
+            if constexpr (SCT_CMN_TLM_MODE) { 
+                *s << *p << event; 
+            } else {
+                if (TRAITS::CLOCK == 2) *s << *p << *clk_in; 
+                else *s << *p << (TRAITS::CLOCK ? clk_in->pos() : clk_in->neg());
+            }
         } else {
             auto procKind = p->proc_kind();
             if (procKind != SC_THREAD_PROC_ && procKind != SC_CTHREAD_PROC_) {
@@ -305,8 +301,12 @@ class sct_buffer :
             }
             if constexpr (SCT_CMN_TLM_MODE) { 
                 if (procKind != SC_CTHREAD_PROC_) { *s << *p << event; }
-            }                
+            } else {
+                if (TRAITS::CLOCK == 2) *s << *p << *clk_in; 
+                else *s << *p << (TRAITS::CLOCK ? clk_in->pos() : clk_in->neg());
+            }
         }
+    #ifdef DEBUG_SYSTEMC    
         if (attachedPut) {
             if (attached_put) {
                 cout <<  "Double addToPut() for Buffer: " << name() << endl; 
@@ -321,6 +321,7 @@ class sct_buffer :
             }
             attached_get = true;
         }
+    #endif
     }
         
     void addTo(sc_sensitive& s) override { add_to(s, true, true); }

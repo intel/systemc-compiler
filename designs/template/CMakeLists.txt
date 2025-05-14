@@ -20,8 +20,8 @@ project(mydesign)
 ## SVC package contains ScTool and SystemC libraries
 find_package(SVC REQUIRED)
 
-# C++ standard must be the same as in ScTool, $(SystemC_CXX_STANDARD) contains 17
-set(CMAKE_CXX_STANDARD 17)
+# C++ standard must be the same as in ScTool, $(SystemC_CXX_STANDARD) contains 20
+set(CMAKE_CXX_STANDARD 20)
 
 #include_directories($ENV{ICSC_HOME}/include)
 

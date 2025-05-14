@@ -29,7 +29,7 @@ cd $CWD_DIR
 (
     mkdir build_icsc_rel -p && cd build_icsc_rel
     cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME \
-              -DCMAKE_CXX_STANDARD=17
+              -DCMAKE_CXX_STANDARD=20
     make -j12
     make install
     
@@ -37,7 +37,7 @@ cd $CWD_DIR
     
     mkdir build_icsc_dbg -p && cd build_icsc_dbg
     cmake ../ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$ICSC_HOME \
-              -DCMAKE_CXX_STANDARD=17 -DCMAKE_DEBUG_POSTFIX=d
+              -DCMAKE_CXX_STANDARD=20 -DCMAKE_DEBUG_POSTFIX=d
     make -j12
     make install
 )

@@ -33,7 +33,7 @@ tar -xf v3.19.4.tar.gz --skip-old-files
     cd protobuf-3.19.4
     mkdir build -p && cd build
     cmake ../cmake/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME \
-                    -DBUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_CXX_STANDARD=17
+                    -DBUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_CXX_STANDARD=20
     make -j12
     make install
 )
@@ -55,7 +55,7 @@ mv cmake-18.1.8.src cmake
     cmake ../ -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD=X86 \
               -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" \
               -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DGCC_INSTALL_PREFIX=$GCC_INSTALL_PREFIX \
-              -DCMAKE_CXX_STANDARD=17 -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_TESTS=OFF
+              -DCMAKE_CXX_STANDARD=20 -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_TESTS=OFF
     make -j12
     make install
 )
@@ -81,7 +81,7 @@ cd $ICSC_HOME/icsc
 (
     mkdir build_icsc_rel -p && cd build_icsc_rel
     cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME \
-              -DCMAKE_CXX_STANDARD=17
+              -DCMAKE_CXX_STANDARD=20
     make -j12
     make install
     
@@ -89,7 +89,7 @@ cd $ICSC_HOME/icsc
     
     mkdir build_icsc_dbg -p && cd build_icsc_dbg
     cmake ../ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$ICSC_HOME \
-              -DCMAKE_CXX_STANDARD=17 -DCMAKE_DEBUG_POSTFIX=d
+              -DCMAKE_CXX_STANDARD=20 -DCMAKE_DEBUG_POSTFIX=d
     make -j12
     make install
 
