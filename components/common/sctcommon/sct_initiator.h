@@ -69,7 +69,7 @@ class sct_initiator<T, TRAITS, 0> :
     #endif
 
         SC_METHOD(req_control);
-        sensitive << put_req << put_req_d << core_ready_d << core_req_d;
+        sensitive << put_req << put_req_d << core_req_d;
         
     #ifdef DEBUG_SYSTEMC
         SC_METHOD(debugProc);
@@ -210,12 +210,12 @@ class sct_initiator<T, TRAITS, 0> :
     bool bound = false;
 
   protected:
-    // Put new request call this cycle/DC
+    /// Put new request call this cycle/DC
     sc_signal<bool>         put_req{"put_req"};
     sc_signal<bool>         put_req_d{"put_req_d"};
+    /// Request is stored at the initiator part in @core_data output (put thread only)
     sc_signal<bool>         core_req_d{"core_req_d"};
-    sc_signal<bool>         core_ready_d{"core_ready_d"};
-    // Sync mode related signals
+    /// Sync mode related signals
     sc_signal<bool>         sync_req{"sync_req"};
     sc_signal<bool>         sync_req_d{"sync_req_d"};
     sc_signal<T>            sync_data{"sync_data"};
@@ -257,39 +257,36 @@ class sct_initiator<T, TRAITS, 0> :
         } else {
             if (A) {
                 core_req = 1;
-            } else 
-            if (core_ready_d) {
-                core_req = 0;
             } else {
-                core_req = core_req_d;
+                core_req = (chan_sync || cthread) ? core_req_d : 0;
             }
         }
     }
     
     void core_thread() {
-    #ifdef SCT_SEQ_METH
-        if (TRAITS::RESET ? nrst : !nrst) {
-    #endif
-            if (chan_sync || cthread) put_req_d = 0;
-            if (!always_ready) {
-                core_req_d   = 0;
-                core_ready_d = 0;
-            }
-    #ifdef SCT_SEQ_METH
-        } else {
-    #else
-        wait();
-        
-        while (true) {
-    #endif
-            if (chan_sync || cthread) put_req_d = put_req;
-            if (!always_ready) {
-                core_req_d   = core_req;
-                core_ready_d = core_ready;
-            }
-    #ifndef SCT_SEQ_METH
+        if (chan_sync || cthread) {
+        #ifdef SCT_SEQ_METH
+            if (TRAITS::RESET ? nrst : !nrst) {
+        #endif
+                put_req_d = 0;
+                if (!always_ready) { 
+                    core_req_d = 0; 
+                }
+        #ifdef SCT_SEQ_METH
+            } else {
+        #else
             wait();
-    #endif
+
+            while (true) {
+        #endif
+                put_req_d = put_req;
+                if (!always_ready) {
+                    core_req_d = !core_ready && core_req;
+                }
+        #ifndef SCT_SEQ_METH
+                wait();
+        #endif
+            }
         }
     }
     

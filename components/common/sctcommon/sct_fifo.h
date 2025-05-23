@@ -405,7 +405,7 @@ public:
         } else 
         if (!pop && push) {
             element_num = element_num_d.read()+1;
-        }
+        } 
 
     #ifdef DEBUG_SYSTEMC
         debug_put = push;

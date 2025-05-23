@@ -66,8 +66,8 @@ struct sct_zero_width : public sc_dt::sc_value_base
     sct_zero_width& operator -- () {return *this;}
     sct_zero_width& operator -- (int) {return *this;}
 
-    bool operator ! () {return true;}
-    bool operator ~ () {return true;}
+    bool operator ! () const {return true;}
+    bool operator ~ () const {return true;}
     
     sct_zero_width& operator [] ( int i ) {return *this;}
     const sct_zero_width& operator [] ( int i ) const {return *this;}

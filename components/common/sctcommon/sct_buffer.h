@@ -39,11 +39,13 @@ class sct_buffer :
     public sct_fifo_if<T>
 {
    public:
+    sc_in_clk       clk{"clk"};
+    sc_in<bool>     nrst{"nrst"};
+       
     explicit sct_buffer(const char* name, 
                         bool sync_valid = 0, bool sync_ready = 0,
                         bool use_elem_num = 0, bool init_buffer = 0) :
-        sc_prim_channel(name), 
-        put_req(false), get_req(false), pop_indx(0), push_indx(0), element_num(0),
+        sc_prim_channel(name),
     #ifdef DEBUG_SYSTEMC
         attached_put(false), attached_get(false), 
     #endif
@@ -56,9 +58,6 @@ class sct_buffer :
     }
 
   public:
-    // No @event notified after exit from reset, the processes should be
-    // waken up by another channel  
-      
     bool ready() const override {
         return (element_num != LENGTH);
     }
@@ -184,21 +183,20 @@ class sct_buffer :
     
   protected:
     /// Index of element that will be poped
-    unsigned short  pop_indx    : 16;
+    unsigned short  pop_indx    : 16 = 0;
     /// Index where pushed element will be stored
-    unsigned short  push_indx   : 16;
+    unsigned short  push_indx   : 16 = 0;
     /// Number of elements
-    unsigned short  element_num : 16;
+    unsigned short  element_num : 16 = 0;
     
-    bool    put_req : 8;
-    bool    get_req : 8;
-
+    bool    put_req   : 8 = false;
+    bool    get_req   : 8 = false;
+    
 #ifdef DEBUG_SYSTEMC
     bool    attached_put : 8;
     bool    attached_get : 8;
 #endif
     
-    sc_in_clk*      clk_in = nullptr;
     sc_time         clk_period = SC_ZERO_TIME;
 
     T               buffer[LENGTH] = {};
@@ -228,29 +226,42 @@ class sct_buffer :
             assert (false);
         }
     #endif
-        if constexpr (SCT_CMN_TLM_MODE) {
-            if (clk_in) {
-                clk_period = get_clk_period(clk_in);
-            } else {
-                cout << "\nBuffer " << name() << " clock input is not bound" << endl;
-                assert (false);
-            }
+        if (clk.bind_count() != 1 || nrst.bind_count() != 1) {
+            cout << "\nBuffer " << name() 
+                 << " clock/reset inputs are not bound or multiple bound" << endl;
+            assert (false);
         }
+        
+        if constexpr (SCT_CMN_TLM_MODE) { clk_period = get_clk_period(&clk); }
+        
+        PUT.buf = nullptr;
+        GET.buf = nullptr;
+        PEEK.buf = nullptr;
     }
     
   public:
-    void clk_nrst(sc_in_clk& clk_in_, sc_in<bool>& nrst_in) {
-        clk_in = &clk_in_;
+      
+    template <typename RSTN_t>
+    void clk_nrst(sc_in_clk& clk_in, RSTN_t& nrst_in) {
+        clk(clk_in);
+        nrst(nrst_in);
+    }
+  
+    void clk_nrst(sc_in_clk& clk_in, sc_in<bool>& nrst_in) override {
+        clk(clk_in);
+        nrst(nrst_in);
     }
     
+    // Reset is added to sensitivity in TLM mode as soon as there is no resetProc()
+    // as in @sct_fifo
     void add_to(sc_sensitive& s, bool attachedPut, bool attachedGet) {
         if (sct_seq_proc_handle == sc_get_current_process_handle()) {
             // Sequential method
             if constexpr (SCT_CMN_TLM_MODE) { 
-                s << event; 
+                s << event << nrst; 
             } else {
-                if (TRAITS::CLOCK == 2) s << *clk_in; 
-                else s << (TRAITS::CLOCK ? clk_in->pos() : clk_in->neg());
+                if (TRAITS::CLOCK == 2) s << clk; 
+                else s << (TRAITS::CLOCK ? clk.pos() : clk.neg());
             }
         } else {
             auto procKind = sc_get_current_process_handle().proc_kind();
@@ -259,10 +270,10 @@ class sct_buffer :
                 assert (false);
             }
             if constexpr (SCT_CMN_TLM_MODE) {
-                if (procKind != SC_CTHREAD_PROC_) { s << event; }
+                if (procKind != SC_CTHREAD_PROC_) { s << event << nrst; }
             } else {
-                if (TRAITS::CLOCK == 2) s << *clk_in; 
-                else s << (TRAITS::CLOCK ? clk_in->pos() : clk_in->neg());
+                if (TRAITS::CLOCK == 2) s << clk; 
+                else s << (TRAITS::CLOCK ? clk.pos() : clk.neg());
             }
         }
     #ifdef DEBUG_SYSTEMC    
@@ -288,10 +299,10 @@ class sct_buffer :
         if (sct_seq_proc_handle == *p) {
             // Sequential method
             if constexpr (SCT_CMN_TLM_MODE) { 
-                *s << *p << event; 
+                *s << *p << event << nrst; 
             } else {
-                if (TRAITS::CLOCK == 2) *s << *p << *clk_in; 
-                else *s << *p << (TRAITS::CLOCK ? clk_in->pos() : clk_in->neg());
+                if (TRAITS::CLOCK == 2) *s << *p << clk; 
+                else *s << *p << (TRAITS::CLOCK ? clk.pos() : clk.neg());
             }
         } else {
             auto procKind = p->proc_kind();
@@ -300,10 +311,10 @@ class sct_buffer :
                 assert (false);
             }
             if constexpr (SCT_CMN_TLM_MODE) { 
-                if (procKind != SC_CTHREAD_PROC_) { *s << *p << event; }
+                if (procKind != SC_CTHREAD_PROC_) { *s << *p << event << nrst; }
             } else {
-                if (TRAITS::CLOCK == 2) *s << *p << *clk_in; 
-                else *s << *p << (TRAITS::CLOCK ? clk_in->pos() : clk_in->neg());
+                if (TRAITS::CLOCK == 2) *s << *p << clk; 
+                else *s << *p << (TRAITS::CLOCK ? clk.pos() : clk.neg());
             }
         }
     #ifdef DEBUG_SYSTEMC    
