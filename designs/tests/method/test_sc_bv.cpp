@@ -135,7 +135,6 @@ public:
         i = i & s.read();
         j = 1 | k;
         k = (i & j) ^ s.read();
-        k = ~i | ~a.read();
         
         j |= k;
         i ^= b.read();

@@ -509,15 +509,7 @@ SValue ProcBuilder::createPrimitiveSValue(ValueView value)
     if (auto ival = value.int64Val()) {
         return SValue(APSInt(APInt(value.bitwidth(), *ival), false), 10);
     } else {
-        // Report error for biguint/bigint constants
-        // TODO: remove me, #312
-        if (value.isConstant() || constPointe) {
-            ScDiag::reportScDiag(ScDiag::SC_ERROR_ELAB_UNSUPPORTED_TYPE)
-                                 << value.getType();
-        }
-
         return SValue();
-        //~TODO
     }
 }
 

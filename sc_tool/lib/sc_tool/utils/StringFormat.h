@@ -20,7 +20,11 @@
 namespace sc {
     
 /// Maximal symbols in literal in its radix
-const unsigned LITERAL_MAX_BIT_NUM = 4096;
+const unsigned LITERAL_MAX_BIT_NUM = 16384;
+
+/// Covert a number in binary string to decimal string (AI generated)
+/// Not used for now
+std::string binaryToDecimal(const std::string& binaryString);
 
 /// Get string from APSInt, required since LLVM13
 std::string APSintToString(const llvm::APSInt& val, unsigned radix);

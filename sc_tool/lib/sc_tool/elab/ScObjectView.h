@@ -230,7 +230,8 @@ public:
     std::optional<ModuleMIFView> moduleMIF() const;
     std::optional<ArrayView> array() const;
     std::optional<SignalView> signal() const;
-    std::optional<std::string> string() const;
+    /// \param isInteger -- return string value for integer object, used for > 64bit
+    std::optional<std::string> string(bool isInteger = false) const;
 
     std::string getDebugString() const;
 
@@ -409,7 +410,7 @@ public:
     std::size_t bitwidth() const;
 
     /// Bitwidth defined during elaboration, not compile-time
-    bool isDynamicBitwidth() const;
+    std::size_t dyn_bitwidth() const;
 
     std::optional<int64_t> int64Val() const;
     std::optional<uint64_t> uint64Val() const;

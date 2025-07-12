@@ -58,7 +58,7 @@ message InitialValue {
     optional uint64 uint64_value = 2;
     optional double double_val = 3;
     required uint32 bitwidth = 4;
-    required bool dyn_bitwidth = 5; // sc_*int_base sc_signed/sc_unsigned has bitwidth defined at elab-time
+    required uint32 dyn_bitwidth = 5; // used for big type variable width if it differs from initialization value width
 }
 
 message Primitive {

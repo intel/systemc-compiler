@@ -106,6 +106,7 @@ public:
     clang::QualType scUnsignedType;
     clang::QualType scSignedType;
     clang::QualType scBitVector;
+    clang::QualType scLvVector;
 
     clang::QualType scModuleType;
     clang::QualType scPortBaseType;
@@ -180,6 +181,10 @@ DeclDB::DeclDB(const clang::ASTContext &ctx)
     matches = match(cxxRecordDecl(hasName("sc_dt::sc_bv_base"), isDefinition()).bind("sc_bv_base"), astCtx);
     SCT_TOOL_ASSERT(matches.size() == 1, "Error declaration match");
     scBitVector = matches[0].getNodeAs<CXXRecordDecl>("sc_bv_base")->getTypeForDecl()->getCanonicalTypeInternal();
+
+    matches = match(cxxRecordDecl(hasName("sc_dt::sc_lv_base"), isDefinition()).bind("sc_lv_base"), astCtx);
+    SCT_TOOL_ASSERT(matches.size() == 1, "Error declaration match");
+    scLvVector = matches[0].getNodeAs<CXXRecordDecl>("sc_lv_base")->getTypeForDecl()->getCanonicalTypeInternal();
 
     matches = match(cxxRecordDecl(hasName("sc_core::sc_module"), isDefinition()).bind("sc_module"), astCtx);
     SCT_TOOL_ASSERT(matches.size() == 1, "Error declaration match");
@@ -331,6 +336,13 @@ bool isScBitVector(clang::QualType type)
     if (type.isNull()) return false;
     type = getPureType(type);
     return isDerivedFrom(type, db->scBitVector);
+}
+
+bool isScLvVector(clang::QualType type)
+{
+    if (type.isNull()) return false;
+    type = getPureType(type);
+    return isDerivedFrom(type, db->scLvVector);
 }
 
 bool isZeroWidthType(clang::QualType type) {

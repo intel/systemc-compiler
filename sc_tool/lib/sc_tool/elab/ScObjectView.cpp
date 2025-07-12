@@ -530,10 +530,11 @@ std::optional<SignalView> ObjectView::signal() const
     return std::nullopt;
 }
 
-std::optional<std::string> ObjectView::string() const
+std::optional<std::string> ObjectView::string(bool isInteger) const
 {
     if (isPrimitive()) {
-        if (obj->primitive().kind() == Primitive::STRING) {
+        if (obj->primitive().kind() == Primitive::STRING ||
+            isInteger && obj->primitive().kind() == Primitive::VALUE) {
             return obj->primitive().str_val();
         }
     }
@@ -888,7 +889,7 @@ std::vector<size_t> ArrayView::getOptimizedArrayDims() const
 std::size_t ArrayView::getOptimizedArrayBitwidth() const
 {
     SCT_TOOL_ASSERT (!hasElements(), "");
-    return getProtobufObj()->primitive().init_val().bitwidth();
+    return getProtobufObj()->primitive().init_val().dyn_bitwidth();
 }
 
 std::optional<ObjectView> ArrayView::getFirstNonArrayEl() const
@@ -1197,7 +1198,7 @@ std::size_t ValueView::bitwidth() const
     return getProtobufObj()->primitive().init_val().bitwidth();
 }
 
-bool ValueView::isDynamicBitwidth() const
+std::size_t ValueView::dyn_bitwidth() const
 {
     return getProtobufObj()->primitive().init_val().dyn_bitwidth();
 }

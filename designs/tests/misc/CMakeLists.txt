@@ -73,9 +73,9 @@ svc_target(misc_dynamic_array GOLDEN misc_dynamic_array.sv)
 add_executable(misc_array_module_fail test_array_module_fail.cpp)
 svc_target(misc_array_module_fail WILL_FAIL)
 
-# Does not work at SC 3.0, disabled
-#add_executable(misc_array_module test_array_module.cpp)
-#svc_target(misc_array_module GOLDEN misc_array_module.sv)
+# Module and signal array with default names
+add_executable(misc_array_module test_array_module.cpp)
+svc_target(misc_array_module GOLDEN misc_array_module.sv)
 
 add_executable(misc_array_in_top test_array_in_top.cpp)
 svc_target(misc_array_in_top PORT_MAP_GENERATE GOLDEN misc_array_in_top.sv)
@@ -199,7 +199,10 @@ add_executable(misc_const_init test_const_init.cpp)
 svc_target(misc_const_init GOLDEN misc_const_init.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(misc_const_init_large test_const_init_large.cpp)
-svc_target(misc_const_init_large)
+svc_target(misc_const_init_large GOLDEN misc_const_init_large.sv)
+
+add_executable(misc_const_init_issue test_const_init_issue.cpp)
+svc_target(misc_const_init_issue GOLDEN misc_const_init_issue.sv)
 
 add_executable(misc_const_init_fcall test_const_init_fcall.cpp)
 svc_target(misc_const_init_fcall GOLDEN misc_const_init_fcall.sv NO_REMOVE_EXTRA_CODE)

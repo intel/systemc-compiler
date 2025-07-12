@@ -824,9 +824,9 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
                     arrayDims.push_back(childArray.size());
                     childObj = childArray.at(0);
                 }
-                bitwidth = childObj.primitive()->value()->bitwidth();
+                bitwidth = childObj.primitive()->value()->dyn_bitwidth();
                 
-                curVerMod->fillInitVals(initVals, isSigned, *arrayView);
+                curVerMod->fillInitVals(initVals, *arrayView);
                 flatten = true;
                 
             } else 
@@ -853,8 +853,10 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
             SCT_TOOL_ASSERT (objView.isPrimitive() && 
                              objView.primitive()->isValue(), "");
             auto valueView = objView.primitive()->value();
-            bitwidth = valueView->bitwidth();
-
+            
+            // @dyn_bitwidth contains variable width, @width contains init value width
+            bitwidth = valueView->dyn_bitwidth();
+            
             // Check constant pointer to dynamic memory, constant pointer
             // to non-constant variable not considered here
             bool isConstPtr = false;
@@ -867,7 +869,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
             
             isConst = valueView->isConstant();
             if (isConst || (initVarValues && (!isDynamic || isConstPtr))) {
-                curVerMod->fillInitVal(initVals, isSigned, *valueView);
+                curVerMod->fillInitVal(initVals, *valueView);
                 flatten = true;
             }
         }

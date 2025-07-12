@@ -178,6 +178,71 @@ public:
     }
 };
 
+/// Check if expression contains bitwise not operator (operator ~)
+class CheckTildaVisitor : public clang::RecursiveASTVisitor<CheckTildaVisitor> 
+{
+protected :
+    bool found;
+    bool allowed;
+    // Check for specific statements in expression, allowed:
+    // @MaterializeTemporaryExpr, @CXXBindTemporaryExpr and @CXXConstructExpr only
+    bool checkStmt;
+    static CheckTildaVisitor signleton;
+
+    CheckTildaVisitor() {}
+    
+    inline bool isAllowedStmt(clang::Stmt* stmt) {
+        return (isa<clang::MaterializeTemporaryExpr>(stmt) || 
+                isa<clang::CXXBindTemporaryExpr>(stmt) ||
+                isa<clang::CXXConstructExpr>(stmt));
+    }
+    
+public:
+    
+    static CheckTildaVisitor& get() {
+        return signleton;
+    }
+    
+    bool VisitStmt(clang::Stmt* stmt) 
+    {
+        using namespace clang;
+        if (UnaryOperator* unary = dyn_cast<UnaryOperator>(stmt)) {
+            UnaryOperatorKind opcode = unary->getOpcode();
+            if (opcode == UO_Not) {
+                found = true;
+                return false;
+            }
+        } 
+        if (checkStmt) {
+            if (!isAllowedStmt(stmt)) {
+                allowed = false;
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// Return true if there is bitwise not inside
+    bool hasTilda(clang::Expr* expr) 
+    {
+        checkStmt = false;
+        found = false;
+        this->TraverseStmt(expr);
+        
+        return found;
+    }
+    
+    bool hasPureTilda(clang::Expr* expr) 
+    {
+        checkStmt = true;
+        found = false; 
+        allowed = true;
+        this->TraverseStmt(expr);
+        
+        return (found && allowed);
+    }
+};
+
 /// Check if statement is member function of @sct_zero_width
 bool isZeroWidthCall(clang::Stmt* stmt);
 

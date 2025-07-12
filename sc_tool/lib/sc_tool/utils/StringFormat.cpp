@@ -16,7 +16,42 @@
 #include <iostream>
 
 namespace sc {
+
+// Covert a number in binary string to decimal string (AI generated)
+std::string binaryToDecimal(const std::string& binaryString) 
+{
+    std::string decimalValue = "0";
     
+    for (char bit : binaryString) {
+        // Multiply current decimal value by 2
+        int carry = 0;
+        for (int i = decimalValue.size() - 1; i >= 0; --i) {
+            int num = (decimalValue[i] - '0') * 2 + carry;
+            decimalValue[i] = (num % 10) + '0';
+            carry = num / 10;
+        }
+        if (carry > 0) {
+            decimalValue.insert(decimalValue.begin(), carry + '0');
+        }
+
+        // Add 1 if the current bit is '1'
+        if (bit == '1') {
+            carry = 1;
+            for (int i = decimalValue.size() - 1; i >= 0; --i) {
+                int num = (decimalValue[i] - '0') + carry;
+                decimalValue[i] = (num % 10) + '0';
+                carry = num / 10;
+            }
+            if (carry > 0) {
+                decimalValue.insert(decimalValue.begin(), carry + '0');
+            }
+        }
+    }
+
+    return decimalValue;
+}
+
+
 std::string APSintToString(const llvm::APSInt& val, unsigned radix) 
 {
     unsigned bitsNeeded = getBitsNeeded(val);

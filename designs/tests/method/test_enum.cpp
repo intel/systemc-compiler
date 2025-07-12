@@ -14,7 +14,7 @@
 
 enum MY_MODE {
     OFF = 0,
-    ON = 1
+    ON = 4
 };
 
 SC_MODULE(test_enum) {
@@ -25,6 +25,7 @@ SC_MODULE(test_enum) {
         SC_METHOD(test_method); sensitive << dummy;
     }
 
+    sc_signal<int> t0;
     void test_method() {
         COLOR xcolor;
         MY_MODE xmode;
@@ -50,6 +51,7 @@ SC_MODULE(test_enum) {
         sct_assert_const(dir == DIRECTIONS::SOUTH);
         sct_assert_const(nm == NUMBERS::THREE);
 
+        t0 = icolor + xcolor + xmode;
         cout << "done\n";
     }
 
@@ -73,7 +75,7 @@ SC_MODULE(test_enum) {
     };
     const NUMBERS nm = NUMBERS :: THREE;
 
-    const MY_MODE mode_const = MY_MODE::ON;
+    const MY_MODE mode_const = MY_MODE::OFF;
     MY_MODE mode = MY_MODE::OFF;
 
     COLOR color;

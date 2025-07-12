@@ -284,6 +284,9 @@ protected:
     /// Suffix string with record array parameter passed by reference indices
     std::string refRecarrIndx = "";
 
+    /// Do not add explicit cast for bitwise not (~) in unary operator
+    bool skipTildaCast = false;
+    
     /// Name for temporal assertion    
     std::optional<std::string> assertName = std::nullopt;
     

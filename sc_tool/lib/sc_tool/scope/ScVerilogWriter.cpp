@@ -734,7 +734,7 @@ std::string ScVerilogWriter::makeLiteralStr(const std::string& literStr,
 {
     APSInt val(literStr);
     string s = makeLiteralStr(val, radix, minCastWidth, lastCastWidth, 
-                              castSign, addNegBrackets);
+                              castSign, addNegBrackets, false);
     
     return s;
 }
@@ -743,7 +743,8 @@ std::string ScVerilogWriter::makeLiteralStr(APSInt val,
                                             char radix, unsigned minCastWidth, 
                                             unsigned lastCastWidth,
                                             CastSign castSign, 
-                                            bool addNegBrackets)
+                                            bool addNegBrackets,
+                                            bool useZeroAprh)
 {
     bool isZero = val.isZero();
     bool isOne = val == 1;
@@ -775,7 +776,7 @@ std::string ScVerilogWriter::makeLiteralStr(APSInt val,
     bool isCast = minCastWidth || lastCastWidth || isSignCast || isUnsignCast;
     
     string baseStr;
-    if (isCast || radix != 10) {
+    if (isCast || radix != 10 || (useZeroAprh && isZero)) {
         baseStr.append("'");
     }
     if (isSignCast) {
@@ -2328,7 +2329,7 @@ void ScVerilogWriter::putRecordAssignTemp(const Stmt* stmt,
         if (rrval.isInteger()) {
             char radix = rrval.getRadix() == 100 ? 10 : rrval.getRadix();
             rhsName = makeLiteralStr(rrval.getInteger(), radix, 
-                                     0, 0, CastSign::NOCAST, false);
+                                     0, 0, CastSign::NOCAST, false, false);
         } else {
             rhsName = "0";
         }
@@ -2950,8 +2951,9 @@ void ScVerilogWriter::putCompAssign(const Stmt* stmt, string opcode,
 }
 
 // Unary operators "-", ++", "--", "~", "!", "&", "|", "^", "~&", "~|", "~^"
+// \param skipTilda -- do not add explicit cast for bitwise not (~)
 void ScVerilogWriter::putUnary(const Stmt* stmt, string opcode, const Expr* rhs, 
-                               bool isPrefix) 
+                               bool isPrefix, bool skipTildaCast) 
 {
     if (skipTerm) return;
 
@@ -2985,6 +2987,7 @@ void ScVerilogWriter::putUnary(const Stmt* stmt, string opcode, const Expr* rhs,
         string s;
         char literRadix = rinfo.literRadix;
         bool isLiteralMinus = (opcode == "-") && literRadix;
+        bool isTilda = (opcode == "~") && !literRadix;
         
         if (isLiteralMinus) {
             auto names = rinfo.str;
@@ -3039,6 +3042,34 @@ void ScVerilogWriter::putUnary(const Stmt* stmt, string opcode, const Expr* rhs,
             sinfo.minCastWidth = rinfo.minCastWidth;
             sinfo.lastCastWidth = rinfo.lastCastWidth;
             sinfo.explCast = rinfo.explCast;
+        } 
+            
+        // Bitwise not special support
+        if (isTilda && !skipTildaCast) {
+            if (isSignedRHS) {
+                // Signed argument can lead to different SC/SV results
+                ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                     ScDiag::SYNTH_SIGNED_TILDA);
+            } else
+            if (isScBigInt(utype) || isScBigUInt(utype)) {
+                // Do nothing
+            } else 
+            if (auto traits = getIntTraits(utype)) {
+                // Add explicit cast to expression width (mostly to 64bits)
+                auto& sinfo = terms.at(stmt);
+                sinfo.minCastWidth = traits->first;
+                sinfo.lastCastWidth = traits->first;
+                sinfo.explCast = true;
+                //cout << "intTraits " << traits->first << " " << traits->second << endl;
+            } else 
+            if (isScBitVector(utype) || isScLvVector(utype)) {
+                // Cannot determine type width for sc_lv/sc_bv
+                ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                     ScDiag::SYNTH_BITVEC_TILDA);
+            } else {
+                SCT_INTERNAL_ERROR(stmt->getBeginLoc(), 
+                    "putUnary : No type traits for bitwise not expression");
+            }
         }
         
         // Set increase result width 

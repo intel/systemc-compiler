@@ -7,64 +7,53 @@
 
 #include <systemc.h>
 
-// std::vector with module pointers -- does not work at SC 3.0 disabled
-struct bottom : sc_module {
+// C++ array of modules/signal w/o specific names and sc_vector bind to sc_vector
+struct Bottom : public sc_module {
 
-    sc_in<int> in{"in"};
-    sc_out<int> *out = nullptr;
+    sc_in<int>      in{"in"};
+    sc_vector<sc_out<int>>  out{"out",2};
 
-    SC_CTOR(bottom) {
+    SC_CTOR(Bottom) {
         SC_METHOD(proc);
         sensitive << in;
     }
     
     void proc() {
-        out->write(in.read());
+        out[0].write(in.read());
+        out[1].write(in.read());
     }
 };
 
-struct top : sc_module 
+struct Top : public sc_module 
 {
-    sc_signal<int>  out;
-    sc_signal<int>  sig[4];
+    sc_in<int>      prt[2];
+    sc_signal<int>  sig[2];
+    sc_vector<sc_signal<int>>  vsig{"vsig", 2};
 
-    std::vector<bottom*> mods;
+    Bottom SC_NAMED(mod);
+    //Bottom mods[2];       // Is not compiled, no name for module
     
-    SC_CTOR(top) {
+    SC_CTOR(Top) {
+        prt[0](sig[0]); prt[1](sig[1]);
+        mod.in(sig[0]);
+        
+        mod.out.bind(vsig);  // Bind vector to vector
 
-        mods.push_back(new bottom("mods0"));
-        mods.push_back(new bottom("mods1"));
-
-        mods[0]->out = new sc_out<int>("out");
-        mods[0]->in(sig[0]);
-        mods[0]->out->bind(sig[1]);
-        
-        mods[1]->out = new sc_out<int>("out");
-        mods[1]->in(sig[2]);
-        mods[1]->out->bind(sig[3]);
-        
-        // Add and remove module
-        auto mod2 = new bottom("mods2"); 
-        mods.push_back(mod2);
-        mods.erase((mods.rbegin()+1).base());
-        delete mod2;
-        
         SC_METHOD(proc);
-        sensitive << sig[1] << sig[3];
+        sensitive << sig[0] << sig[1];
     }
     
     void proc() {
         sig[0] = 1;
-        sig[2] = 2;
-        out = sig[1] + sig[3];
+        cout << "sig" << sig[0].name() << " " << sig[1].name() << endl;
+        cout << "prt" << prt[0].name() << " " << prt[1].name() << endl;
     }
     
 };
 
 int sc_main(int argc, char** argv)
 {
-    cout << "test virtual ports\n";
-    auto t0 = std::make_unique<top>("top_inst");
+    Top top("top");
     sc_start();
     return 0;
 }

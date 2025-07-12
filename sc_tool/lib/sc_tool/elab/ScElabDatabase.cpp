@@ -10,6 +10,7 @@
  */
 
 #include "ScElabDatabase.h"
+#include "sc_tool/utils/StringFormat.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "sc_tool/utils/ScTypeTraits.h"
 #include "sc_tool/utils/CppTypeTraits.h"
@@ -84,7 +85,7 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
     
     QualType varType = varDecl->getType();
     sc_elab::Object* newObj = createStaticObject(varType, parent.getID());
-    //cout << "   createStaticVariable " << varDecl->getName().str() 
+    //cout << "--- createStaticVariable " << varDecl->getName().str() 
     //     << " parent " << (parent.getFieldName() ? *parent.getFieldName() : "") << endl;
     
     newObj->set_field_name(varDecl->getName().str());
@@ -191,38 +192,7 @@ ObjectView ElabDatabase::createStaticVariable(RecordView parent,
             // This case when constexpr is not used, value does not matter
         }
 
-        // Adjust integer primitive
-        newObj->set_kind(sc_elab::Object::PRIMITIVE);
-        sc_elab::Primitive* prim = newObj->mutable_primitive();
-        
-        //cout << "intVal.getBitWidth() " << intVal.getBitWidth() << endl;
-        // TODO: uncomment me for #312
-/*        if (intVal.getBitWidth() > 64) {
-//            // Option 1. Use dyn_bitwidth -- not used up to now
-//            //sc_elab::InitialValue* initVal = prim->mutable_init_val();
-//            //initVal->set_bitwidth(intVal.getBitWidth());
-//            //initVal->set_dyn_bitwidth(true);
-//
-            // Option 2. Convert to string
-            prim->set_kind(Primitive::STRING);
-            std::string* str_val = prim->mutable_str_val();                            
-            *str_val = intVal.toString(10);  // TODO: get radix from @val
-            //cout << "strVal " << *str_val << endl;
-            
-        } else {
- */ 
-            prim->set_kind(sc_elab::Primitive::VALUE);
-            sc_elab::InitialValue* initVal = prim->mutable_init_val();
-            initVal->set_bitwidth(intVal.getBitWidth());
-            initVal->set_dyn_bitwidth(false);
-
-            //cout << "intVal " << intVal.toString(10)  << " width " << intVal.getBitWidth() << endl;
-
-            if (intVal.isSigned())
-                initVal->set_int64_value(intVal.getSExtValue());
-            else
-                initVal->set_uint64_value(intVal.getZExtValue());
-        //}
+        createStaticPrimitive(newObj, varType, intVal);
     }
 
     return ObjectView(newObj, this);
@@ -267,8 +237,8 @@ void ElabDatabase::initStaticArray(sc_elab::Object* arrayObj, QualType elmType,
             SCT_TOOL_ASSERT (builtinType->isInteger(), "Builtin type is not integer");
             SCT_TOOL_ASSERT (arrayInit.isInt(), "Builtin type value is not integer");
 
-            auto newObj = createStaticPrimitive(elmType, arrayObj->id(),
-                                                arrayInit.getInt());
+            auto newObj = createStaticObject(elmType, arrayObj->id());
+            createStaticPrimitive(newObj, elmType, arrayInit.getInt());
 
             newObj->set_rel_type(sc_elab::Object::ARRAY_ELEMENT);
             newObj->set_array_idx(idx);
@@ -288,7 +258,8 @@ void ElabDatabase::initStaticArray(sc_elab::Object* arrayObj,
             SCT_INTERNAL_ERROR_NOLOC("Multi-dimensional static arrays not supported yet");
 
         } else {
-            auto* newObj = createStaticPrimitive(elementType, arrayObj->id(), init);
+            auto newObj = createStaticObject(elementType, arrayObj->id());
+            createStaticPrimitive(newObj, elementType, init);
      
             newObj->set_rel_type(sc_elab::Object::ARRAY_ELEMENT);
             newObj->set_array_idx(idx);
@@ -298,25 +269,33 @@ void ElabDatabase::initStaticArray(sc_elab::Object* arrayObj,
     }
 }
 
-sc_elab::Object *ElabDatabase::createStaticPrimitive(clang::QualType varType,
-                                                     uint32_t parentID,
-                                                     llvm::APSInt &intInit) {
-    sc_elab::Object * newObj = createStaticObject(varType, parentID);
-
+// Fill static primitive variable or array element from given type and init value
+// Value >64bit stored in string field of the primitive object
+void ElabDatabase::createStaticPrimitive(sc_elab::Object* newObj,
+                                         clang::QualType varType,
+                                         llvm::APSInt& intVal)
+{
+    auto prim = newObj->mutable_primitive();
+    auto initVal = prim->mutable_init_val();
     newObj->set_kind(sc_elab::Object::PRIMITIVE);
-    sc_elab::Primitive * prim = newObj->mutable_primitive();
-
     prim->set_kind(sc_elab::Primitive::VALUE);
-    sc_elab::InitialValue *initVal = prim->mutable_init_val();
-    initVal->set_bitwidth(intInit.getBitWidth());
-    initVal->set_dyn_bitwidth(false);
-
-    if (intInit.isSigned())
-        initVal->set_int64_value(intInit.getSExtValue());
-    else
-        initVal->set_int64_value(intInit.getZExtValue());
-
-    return newObj;
+    
+    auto width = intVal.getBitWidth();
+    auto dyn_width = sc::getAnyTypeWidth(varType, false, false);
+    initVal->set_bitwidth(width);
+    initVal->set_dyn_bitwidth(dyn_width ? *dyn_width : width);
+        
+    if (width <= 64) {
+        if (intVal.isSigned()) {
+            initVal->set_int64_value(intVal.getSExtValue());
+        } else {
+            initVal->set_uint64_value(intVal.getZExtValue());
+        }
+    } else {
+        // For >64bit value store it in string part of the object
+        std::string* str_val = prim->mutable_str_val();                            
+        *str_val = sc::APSintToString(intVal, 10);  // TODO: get radix from @val
+    }
 }
 
 uint32_t ElabDatabase::getOrCreateTypeID(clang::QualType varType) {

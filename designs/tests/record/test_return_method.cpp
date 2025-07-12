@@ -16,7 +16,7 @@ struct Simple {
     bool a;
     int b;
 
-    bool operator ==(const Simple& oth) {
+    bool operator ==(const Simple& oth) const {
         return (a == oth.a && b == oth.b);
     }
 };

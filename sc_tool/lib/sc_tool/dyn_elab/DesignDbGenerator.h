@@ -125,7 +125,8 @@ private:
     void addModuleDynamicAllocs(TypedObject moduleTO, Object *moduleEO);
 
     /// Fill integer value and bitwidth
-    void fillIntValue(Object *elabObj, const IntegerObject &intObj) const;
+    void fillIntValue(Object *elabObj, TypedObject typedObj,
+                      const IntegerObject &intObj) const;
 
     /// Fill pointees for pointer and pointer-like objects
     void resolvePointers();

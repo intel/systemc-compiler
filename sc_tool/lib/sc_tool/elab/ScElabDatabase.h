@@ -67,7 +67,7 @@ public:
     sc_elab::ObjectView createStaticVariable(RecordView parent,
                                              const clang::VarDecl *varDecl);
  
-    // Add/check ports already bound, used for cross module bound via dynamic signal
+    /// Add/check ports already bound, used for cross module bound via dynamic signal
     void addBoundPort(ObjectView port) {
         boundPorts.insert(port);
     }
@@ -91,9 +91,10 @@ private:
     sc_elab::Object * createStaticObject(clang::QualType type,
                                          uint32_t parentID);
 
-    sc_elab::Object * createStaticPrimitive(clang::QualType type,
-                                            uint32_t parentID,
-                                            llvm::APSInt &initVal);
+    /// Fill static primitive variable or array element from given type and init value
+    /// Value >64bit stored in string field of the primitive object
+    void createStaticPrimitive(sc_elab::Object* newObj, clang::QualType type,
+                               llvm::APSInt &initVal);
 
     sc_elab::Object * createStaticArrray(clang::QualType type,
                                          uint32_t parentID,

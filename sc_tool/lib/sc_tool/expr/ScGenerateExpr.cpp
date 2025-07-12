@@ -11,6 +11,7 @@
 
 #include "sc_tool/expr/ScParseRangeExpr.h"
 #include "sc_tool/expr/ScGenerateExpr.h"
+#include "sc_tool/cfg/ScTraverseCommon.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "sc_tool/utils/StringFormat.h"
 #include "sc_tool/utils/ScTypeTraits.h"
@@ -1510,6 +1511,9 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
     // Variable or Array variable (i.e. pointer to array)
     // Remove sub-value for non-reference, required to clear state of tuples
     // added at previous analysis of this statement, to get variable for value 
+    
+    // Do not skip type cast for bitwise not as soon as there is implicit cast
+
     auto varvals = parseValueDecl(decl, recVal, iexpr, true, !isRef);
     val = varvals.first;
 
@@ -1785,6 +1789,30 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
     BinaryOperatorKind opcode = stmt->getOpcode();
     string opcodeStr = stmt->getOpcodeStr(opcode).str();
 
+    bool skipTilda = false;
+    if (opcode == BO_Assign) {
+        bool isRTilda = false;
+        if (UnaryOperator* unary = dyn_cast<UnaryOperator>(rexpr)) {
+            isRTilda = unary->getOpcode() == UO_Not;
+        }
+        if (isRTilda) {
+            if (auto ltraits = getIntTraits(lexpr->getType())) {
+                if (auto rtraits = getIntTraits(rexpr->getType())) {
+                    skipTilda = ltraits.value() == rtraits.value();
+                }
+            }
+        }
+    } else {
+        if (opcode != BO_And && opcode != BO_Xor && opcode != BO_Or) {
+            if (CheckTildaVisitor::get().hasTilda(lexpr)) {
+                ScDiag::reportScDiag(lexpr->getBeginLoc(), ScDiag::SYNTH_TILDA_IN_BINARY);
+            }
+            if (CheckTildaVisitor::get().hasTilda(rexpr)) {
+                ScDiag::reportScDiag(rexpr->getBeginLoc(), ScDiag::SYNTH_TILDA_IN_BINARY);
+            }
+        }
+    }
+    
     // Parse LHS 
     bool lastAssignLHS = assignLHS;
     if (opcode == BO_Assign) assignLHS = true;
@@ -1827,8 +1855,10 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
         }
         
     } else {
+        if (skipTilda) skipTildaCast = true;
         SValue rval; 
         chooseExprMethod(rexpr, rval);
+        skipTildaCast = false;
         
         // Get record indices from @arraySubIndices, it is erased after use
         SValue rrec; state->getValue(rval, rrec);
@@ -2009,6 +2039,12 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
     BinaryOperatorKind compOpcode = stmt->getOpForCompoundAssignment(opcode);
     string opcodeStr = stmt->getOpcodeStr(compOpcode).str();
     
+    if (opcode != BO_AndAssign && opcode != BO_OrAssign && opcode != BO_XorAssign) {
+        if (CheckTildaVisitor::get().hasTilda(rexpr)) {
+            ScDiag::reportScDiag(rexpr->getBeginLoc(), ScDiag::SYNTH_TILDA_IN_BINARY);
+        }
+    }
+
     if (opcode == BO_AddAssign || opcode == BO_SubAssign || 
         opcode == BO_MulAssign || opcode == BO_DivAssign ||
         opcode == BO_RemAssign || opcode == BO_ShlAssign ||
@@ -2124,7 +2160,8 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
             ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
                                  ScDiag::SYNTH_POINTER_OPER) << opcodeStr;
         } else {
-            codeWriter->putUnary(stmt, opcodeStr, rexpr, true);
+            codeWriter->putUnary(stmt, opcodeStr, rexpr, true, skipTildaCast);
+            skipTildaCast = false;
         }
 
     } else
@@ -2866,9 +2903,18 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                     lrecSuffix = codeWriter->getRecordIndxs(lrecvecs);
                 }
 
+                // and if there is no type cast
+                bool skipTilda = false;
+                if (CheckTildaVisitor::get().hasPureTilda(argExpr)) {
+                    skipTilda = isScUInt(ltype) || isScInt(ltype);
+                }
+                //cout << "skipTilda " << skipTilda << endl;
+                
                 // Parse argument expression to fill @terms
+                if (skipTilda) skipTildaCast = true;
                 SValue rval;
                 chooseExprMethod(argExpr, rval);
+                skipTildaCast = false;
 
                 // Check for record/channel of record
                 QualType rtype = getDerefType(rval.getType());
@@ -3135,6 +3181,19 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
     bool isAccessAtIndex = (isStdArray(thisType) || isStdVector(thisType) || 
                             isScVector(thisType)) && opcode == OO_Subscript;
     
+    if (!isAssignOperator && argNum == 2 &&
+         opcode != OO_Amp && opcode != OO_Pipe && opcode != OO_Caret &&    
+         opcode != OO_AmpEqual && opcode != OO_PipeEqual && opcode != OO_CaretEqual) 
+    {
+        if (CheckTildaVisitor::get().hasTilda(lexpr)) {
+            ScDiag::reportScDiag(lexpr->getBeginLoc(), ScDiag::SYNTH_TILDA_IN_BINARY);
+        }
+        Expr* rexpr = args[1];
+        if (CheckTildaVisitor::get().hasTilda(rexpr)) {
+            ScDiag::reportScDiag(rexpr->getBeginLoc(), ScDiag::SYNTH_TILDA_IN_BINARY);
+        }
+    }
+    
     if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
         cout << "ScGeneratExpr::parseOperatorCall fname : " << fname 
              << ", type : " << thisType.getAsString() << endl;
@@ -3227,16 +3286,33 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             } else {
                 strLiterWidth = 0;  // Provides no string literal parsing
             }
-
+            
             SValue rval;
             Expr* rexpr = args[1];
+            
+            // Skip type cast for bitwise not if leLHS is @sc_int/@sc_uint only
+            // and if there is no type cast
+            bool skipTilda = false;
+            if (CheckTildaVisitor::get().hasPureTilda(rexpr)) {
+                QualType lexprType = ltype;
+                if (isScChannel(ltype)) {
+                    if (auto ctype = getTemplateArgAsType(ltype, 0)) {
+                        lexprType = *ctype;
+                    }
+                }
+                skipTilda = isScUInt(lexprType) || isScInt(lexprType);
+            }
+            //cout << "skipTilda " << skipTilda << endl;
+
             // Set @locrecvar to provide owner to record value created for @rval
             if (lrec.isRecord()) {locrecvar = lval; locrecvarCtor = false;}
             if (lhsRecordChan) chanrecvar = lval;
+            if (skipTilda) skipTildaCast = true;
             chooseExprMethod(rexpr, rval);
+            skipTildaCast = false;
             if (lrec.isRecord()) locrecvar = NO_VALUE;
             if (lhsRecordChan) chanrecvar = NO_VALUE;
-                
+            
             strLiterWidth = lastWidth;
             strLiterUnsigned = lastUnsigned;
 

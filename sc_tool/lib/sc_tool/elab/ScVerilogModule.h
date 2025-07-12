@@ -527,9 +527,9 @@ public:
     void convertToProcessLocalVar(const VerilogVar* var, ProcessView procView);
     
     /// Fill initialization values for constant value
-    void fillInitVal(APSIntVec& initVals, bool isSigned, ValueView valueView);
+    void fillInitVal(APSIntVec& initVals, ValueView valueView);
     /// Fill initialization values for constant array
-    void fillInitVals(APSIntVec& initVals, bool isSigned, ArrayView arrayView);
+    void fillInitVals(APSIntVec& initVals, ArrayView arrayView);
 
     /// Create constant and constant array belong to a record passed as
     /// template parameter, called from ScTraverseConst

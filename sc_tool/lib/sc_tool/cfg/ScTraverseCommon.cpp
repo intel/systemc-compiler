@@ -14,6 +14,7 @@ using namespace sc;
 
 // For loop visitor instance
 ForLoopVisitor ForLoopVisitor::signleton;
+CheckTildaVisitor CheckTildaVisitor::signleton;
 
 // Check if statement is member function of @sct_zero_width
 bool sc::isZeroWidthCall(clang::Stmt* stmt)

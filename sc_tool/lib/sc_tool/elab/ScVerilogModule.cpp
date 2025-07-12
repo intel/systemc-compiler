@@ -963,11 +963,11 @@ VerilogVar *VerilogModule::createDataVariable(ObjectView cppObject,
                                               APSIntVec initVals,
                                               const std::string& comment)
 {
-//    cout << "    createDataVariable suggestedName " 
-//         << std::string(suggestedName) << " ";    
-//    for(auto i : initVals) cout << i.toString(10) << " ";
-//    cout << " arrayDims.size " << arrayDims.size() << endl;
-
+    // cout << "    createDataVariable " << cppObject.getDebugString() 
+    //     << " suggestedName " << std::string(suggestedName) << " bitwidth " << bitwidth << endl;
+    //for(auto i : initVals) cout << sc::APSintToString(i, 10) << " ";
+    //cout << " arrayDims.size " << arrayDims.size() << endl;
+    
     VerilogVar *var = &dataVars.emplace_back(VerilogVar(
                             nameGen.getUniqueName(suggestedName), 
                             bitwidth, 
@@ -1242,13 +1242,15 @@ static void serializeVerilogBool(llvm::raw_ostream &os, llvm::APSInt val)
     os << (val.isZero() ? '0' : '1');
 }
 
-static void serializeVerilogInt(llvm::raw_ostream &os, llvm::APSInt val)
+static void serializeVerilogInt(llvm::raw_ostream &os, llvm::APSInt val, 
+                                bool useZeroAprh)
 {
     using namespace llvm;
     using namespace sc;
     
+    // Here use apostrophe for zero value (last parameter @true)
     std::string s = ScVerilogWriter::makeLiteralStr(val, 10, 0, 0, 
-                                                    CastSign::NOCAST, false);
+                                    CastSign::NOCAST, false, useZeroAprh);
     os << s;
 }
 
@@ -1272,7 +1274,7 @@ static void serializeInitVals(llvm::raw_ostream &os,
             if (isBool) {
                 serializeVerilogBool(os, initVals[initIdx]);
             } else {
-                serializeVerilogInt(os, initVals[initIdx]);
+                serializeVerilogInt(os, initVals[initIdx], false);
             }
             initIdx++;
         } else {
@@ -1350,7 +1352,7 @@ void VerilogModule::serializeVerVar(llvm::raw_ostream& os,
             if (isBool) {
                 serializeVerilogBool(os, var.getInitVals()[0]);
             } else {
-                serializeVerilogInt(os, var.getInitVals()[0]);
+                serializeVerilogInt(os, var.getInitVals()[0], true);
             }
         }
         else {
@@ -1377,33 +1379,38 @@ static unsigned long getVerVarBitNum(const VerilogVar &var)
 }
 
 
-// Use @isSigned as @sc_bigint has uint64Val instead of int64Val
-void VerilogModule::fillInitVal(APSIntVec& initVals, 
-                                bool isSigned, ValueView valueView)
+void VerilogModule::fillInitVal(APSIntVec& initVals,  ValueView valueView)
 {
-    size_t bitwidth = valueView.bitwidth();
+    using namespace std; using namespace sc;
     
+    size_t bitwidth = valueView.bitwidth();
+    if (bitwidth > 64) {
+        // Get string value for integer object (parameter @true)
+        if (auto val = valueView.string(true)) {
+            SCT_TOOL_ASSERT(!val->empty(), "No bit integer value found");
+            initVals.emplace_back( llvm::APSInt( llvm::StringRef(*val) ));
+        }
+    } else 
     if (valueView.int64Val()) {
         initVals.emplace_back(
-            llvm::APSInt(llvm::APInt(bitwidth,*valueView.int64Val()), !isSigned));
+            llvm::APSInt(llvm::APInt(bitwidth,*valueView.int64Val()), false));
     } else 
     if (valueView.uint64Val()) {
         initVals.emplace_back(
-            llvm::APSInt(llvm::APInt(bitwidth,*valueView.uint64Val()), !isSigned));
+            llvm::APSInt(llvm::APInt(bitwidth,*valueView.uint64Val()), true));
     }
 }
 
-void VerilogModule::fillInitVals(APSIntVec& initVals, 
-                                 bool isSigned, ArrayView arrayView)
+void VerilogModule::fillInitVals(APSIntVec& initVals, ArrayView arrayView)
 {
    for (size_t i = 0; i < arrayView.size(); ++i) {
         ObjectView elem = arrayView.at(i);
         if (elem.isArrayLike())
-            fillInitVals(initVals, isSigned, elem);
+            fillInitVals(initVals, elem);
         
         else {
             ValueView valueView = *elem.primitive()->value();
-            fillInitVal(initVals, isSigned, valueView);
+            fillInitVal(initVals, valueView);
         }
     }
 }
@@ -1411,23 +1418,20 @@ void VerilogModule::fillInitVals(APSIntVec& initVals,
 void VerilogModule::addConstDataVariable(ObjectView objView,
                                          const std::string &name)
 {
-    using namespace sc;
+    using namespace sc; using namespace std;
     //cout << "addConstDataVariable " << name << endl;
     
     if (auto primitive = objView.primitive()) {
-        SCT_TOOL_ASSERT(primitive->isValue(), "No value found");
-        ValueView valueView = *primitive->value();
-        size_t bitwidth = valueView.bitwidth();
         bool isSigned = isSignedOrArrayOfSigned(objView.getType());
+        auto valueView = primitive->value();
+        
+        // @dyn_bitwidth contains variable width, @width contains init value width
+        size_t bitwidth = valueView->dyn_bitwidth();
 
         APSIntVec initVals;
-        fillInitVal(initVals, isSigned, valueView);
-        createDataVariable(objView,
-                           name,
-                           bitwidth,
-                           {},
-                           isSigned,
-                           initVals);
+        fillInitVal(initVals, *valueView);
+        createDataVariable(objView, name, bitwidth, {}, isSigned, initVals);
+        
     } else {
         SCT_TOOL_ASSERT(objView.isArrayLike(), "No array found");
         ArrayView arrayView = *objView.array();
@@ -1445,13 +1449,8 @@ void VerilogModule::addConstDataVariable(ObjectView objView,
         bool isSigned = isSignedOrArrayOfSigned(childObj.getType());
 
         APSIntVec initVals;
-        fillInitVals(initVals, isSigned, arrayView);
-        createDataVariable(objView,
-                           name,
-                           bitwidth,
-                           arrayDims,
-                           isSigned,
-                           initVals);
+        fillInitVals(initVals, arrayView);
+        createDataVariable(objView, name, bitwidth, arrayDims, isSigned, initVals);
     }
 }
 

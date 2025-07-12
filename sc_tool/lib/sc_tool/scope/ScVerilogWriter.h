@@ -298,9 +298,11 @@ protected:
                                             bool doSignCast = false,
                                             bool doConcat = false);
 public:
+    /// \param useZeroAprh -- use apostrophe for zero value
     static std::string makeLiteralStr(llvm::APSInt val, char radix, 
                                 unsigned minCastWidth, unsigned lastCastWidth,
-                                CastSign castSign, bool addNegBrackets);
+                                CastSign castSign, bool addNegBrackets,
+                                bool useZeroAprh);
     
 protected:    
     /// Put/replace string into @terms
@@ -569,8 +571,10 @@ public:
                        const clang::Expr* lhs, const clang::Expr* rhs);
     
     /// Unary operators "++", "--", ...
+    /// \param skipTilda -- do not add explicit cast for bitwise not (~)
     void putUnary(const clang::Stmt* stmt, std::string opcode, 
-                  const clang::Expr* rhs, bool isPrefix = true);
+                  const clang::Expr* rhs, bool isPrefix = true, 
+                  bool skipTilda = false);
     
     /// Ternary statement ?
     void putCondStmt(const clang::Stmt* stmt, const clang::Stmt* cond, 

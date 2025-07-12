@@ -240,7 +240,11 @@ public:
         SYNTH_REC_CTOR_INCOR_STMT   = 257,
         
         SYNTH_NOSENSITIV_DECL_IN_MIFARR = 258,
-        SYNTH_MIFARR_DIM_LIMIT = 259,
+        SYNTH_MIFARR_DIM_LIMIT      = 259,
+        
+        SYNTH_SIGNED_TILDA          = 260,
+        SYNTH_BITVEC_TILDA          = 261,
+        SYNTH_TILDA_IN_BINARY       = 262,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -503,6 +507,18 @@ private:
             {clang::DiagnosticIDs::Warning, 
             "Signed shift operation may lead to non-equivalent code"};
         
+        idFormatMap[SYNTH_SIGNED_TILDA] =
+            {clang::DiagnosticIDs::Warning, 
+            "Signed bitwise not operation leads to non-equivalent code"};
+
+        idFormatMap[SYNTH_BITVEC_TILDA] =
+            {clang::DiagnosticIDs::Error, 
+            "Bitwise not operation not supported for sc_bv/sc_lv"};
+        
+        idFormatMap[SYNTH_TILDA_IN_BINARY] =
+            {clang::DiagnosticIDs::Warning, 
+            "Bitwise not operation in binary expression can lead to incorrect code"};
+
         idFormatMap[SYNTH_COMPARE_SIGN_UNSIGN_MIX] =
             {clang::DiagnosticIDs::Warning, 
             "Signed/unsigned types mix in comparison operation not allowed"};

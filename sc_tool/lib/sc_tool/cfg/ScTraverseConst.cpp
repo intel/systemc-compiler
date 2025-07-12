@@ -1163,7 +1163,7 @@ void ScTraverseConst::run()
                 // Erase local variables in Phi functions
                 if (upLevel) {
                     state->removeValuesByLevel(level);
-                }            
+                }
                 
                 // If started with restored context, move to the next element, 
                 // element stored in context was already analyzed

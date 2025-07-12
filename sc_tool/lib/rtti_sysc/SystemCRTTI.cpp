@@ -16,6 +16,8 @@
 #include <sysc/kernel/sc_method_process.h>
 #include <sysc/kernel/sc_module_registry.h>
 #include <sc_elab/elab_alloc.h>
+#include "llvm/ADT/StringRef.h"
+#include "sysc/datatypes/bit/sc_proxy.h"
 #include <typeinfo>
 
 namespace sc_elab {
@@ -91,28 +93,48 @@ llvm::APSInt getScUIntValue(const void *objPtr)
 llvm::APSInt getScBigIntValue(const void *objPtr)
 {
     auto* obj = (const sc_signed*)(objPtr);
-    llvm::APSInt val(obj->length(), false); 
-    // 64bit is OK as no larger integer literls supported in CPP
-    val = obj->to_int64();    
-    return val;
+    if (obj->length() <= 64) {
+        llvm::APSInt val(obj->length(), false); 
+        // 64bit is OK as no larger integer literls supported in CPP
+        val = obj->to_int64();    
+        return val;
+    } else {
+        // Create @APSInt from string to keep all bits
+        llvm::APSInt val( llvm::StringRef(obj->to_string()) );
+        return val;
+    }
 }
 
 llvm::APSInt getScBigUIntValue(const void *objPtr)
 {
     auto* obj = (const sc_unsigned*)(objPtr);
-    llvm::APSInt val(obj->length(), true);
-    // 64bit is OK as no larger integer literls supported in CPP
-    val = obj->to_uint64();
-    return val;
+    if (obj->length() <= 64) {
+        llvm::APSInt val(obj->length(), true);
+        // 64bit is OK as no larger integer literls supported in CPP
+        val = obj->to_uint64();
+        return val;
+    } else {
+        // Create @APSInt from string to keep all bits
+        llvm::APSInt val( llvm::StringRef(obj->to_string()) );
+        //std::cout << "*obj " << *obj << std::endl;
+        return val;
+    }
 }
 
 llvm::APSInt getScBitVectorValue(const void *objPtr)
 {
     auto* obj = (const sc_bv_base*)(objPtr);
-    llvm::APSInt val(obj->length(), true);
-    // 64bit is OK as no larger integer literls supported in CPP
-    val = obj->to_uint64();     
-    return val;
+    if (obj->length() <= 64) {
+        llvm::APSInt val(obj->length(), true);
+        // 64bit is OK as no larger integer literls supported in CPP
+        val = obj->to_uint64();     
+        return val;
+    } else {
+        // Remove 2 first symbols as they contain "0d"
+        std::string s = obj->to_string(SC_DEC);
+        llvm::APSInt val( llvm::StringRef( s.substr(2, s.size()-2) ) );
+        return val;
+    }
 }
 
 process_type_info getProcessTypeInfo(const sc_core::sc_object *procPtr)

@@ -14,6 +14,7 @@
 #include <sc_tool/dyn_elab/Reflection.h>
 #include <sc_tool/dyn_elab/GlobalContext.h>
 #include <sc_tool/diag/ScToolDiagnostic.h>
+#include <sc_tool/utils/StringFormat.h>
 #include <sc_tool/utils/DebugOptions.h>
 #include <sc_tool/utils/CppTypeTraits.h>
 #include <clang/AST/Decl.h>
@@ -355,7 +356,7 @@ void DesignDbGenerator::addChildrenRecursive(TypedObject hostTO, Object* hostEO)
             if (arrayObj->size() != 0) {
                 auto intObj = arrayObj->getFirstInnerElement().getAs<IntegerObject>();
                 hostEO->mutable_primitive()->set_kind(Primitive::VALUE);
-                fillIntValue(hostEO, *intObj);
+                fillIntValue(hostEO, hostTO, *intObj);
             }
         }
     }
@@ -448,10 +449,9 @@ Object *DesignDbGenerator::createElabObject(TypedObject to,
     return newObject;
 }
 
-void DesignDbGenerator::fillElabObject(Object *elabObj,
-                                     TypedObject typedObj)
+void DesignDbGenerator::fillElabObject(Object *elabObj, TypedObject typedObj)
 {
-
+    using std::cout; using std::endl;
     if (auto arrayObject = typedObj.getAs<ArrayObject>()) {
 
         elabObj->set_kind(Object::ARRAY);
@@ -492,8 +492,8 @@ void DesignDbGenerator::fillElabObject(Object *elabObj,
 
         elabObj->set_kind(Object::PRIMITIVE);
         elabObj->mutable_primitive()->set_kind(Primitive::VALUE);
-        fillIntValue(elabObj, *intObj);
-
+        fillIntValue(elabObj, typedObj, *intObj);
+        
     } else 
     if (auto recObj = typedObj.getAs<RecordObject>()) {
 
@@ -558,20 +558,37 @@ void DesignDbGenerator::fillElabObject(Object *elabObj,
     }
 
 }
-void DesignDbGenerator::fillIntValue(Object *elabObj,
-                                   const IntegerObject &intObj) const
+
+void DesignDbGenerator::fillIntValue(Object *elabObj, TypedObject typedObj,
+                                     const IntegerObject &intObj) const
 {
+    using std::cout; using std::endl;
     auto intVal = intObj.getAPSInt();
     auto initVal = elabObj->mutable_primitive()->mutable_init_val();
-    initVal->set_dyn_bitwidth(false);
-    initVal->set_bitwidth(intVal.getBitWidth());
+       
+    auto width = intVal.getBitWidth();
+    auto dyn_width = sc::getAnyTypeWidth(typedObj.getType(), false, false);
+    initVal->set_bitwidth(width);
+    initVal->set_dyn_bitwidth(dyn_width ? *dyn_width : width);
+    
+    //cout << "fillIntValue Id " << elabObj->id() << " width " << width 
+    //     << " dyn_width " << (dyn_width ? *dyn_width : width) << endl;
+    //intVal.dump(); cout << endl;
 
-    if (intVal.isSigned() && (intVal.getBitWidth() <= 64)) {
-        initVal->set_int64_value(intVal.getSExtValue());
-    }
-
-    if (intVal.isUnsigned() && (intVal.getBitWidth() <= 64)) {
-        initVal->set_uint64_value(intVal.getSExtValue());
+    if (width <= 64) {
+        if (intVal.isSigned()) {
+            initVal->set_int64_value(intVal.getSExtValue());
+            //cout << "S64 " << intVal.getSExtValue() << " " << initVal->DebugString() << endl;
+        } else
+        if (intVal.isUnsigned()) {
+            initVal->set_uint64_value(intVal.getZExtValue());
+            //cout << "U64 " << intVal.getZExtValue() << " " << initVal->DebugString() << endl;
+        }
+    } else {
+        // For >64bit value store it in string part of the object
+        std::string* str_val = elabObj->mutable_primitive()->mutable_str_val();                            
+        *str_val = sc::APSintToString(intObj.getAPSInt(), 10);
+        //cout << "*str_val " << *str_val << endl;
     }
 }
 
