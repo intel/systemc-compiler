@@ -1357,8 +1357,7 @@ void ScTraverseConst::run()
                         SValue val;
                         chooseExprMethod(init, val);
                         
-                        if (auto varDecl = ForLoopVisitor::get().
-                                           getCounterDecl(forstmt)) {
+                        if (auto varDecl = loopVisitor.getCounterDecl(forstmt)) {
                             val = SValue(varDecl, modval); 
                             state->regForLoopCounter(val);
                         }

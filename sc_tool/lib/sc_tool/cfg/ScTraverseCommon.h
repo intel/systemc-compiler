@@ -125,15 +125,8 @@ protected :
     clang::VarDecl* initVar = nullptr;
     clang::VarDecl* incVar = nullptr;
     
-    static ForLoopVisitor signleton;
-
-    ForLoopVisitor() {}
-    
 public:
-    
-    static ForLoopVisitor& get() {
-        return signleton;
-    }
+    ForLoopVisitor() {}
     
     bool VisitStmt(clang::Stmt* stmt) 
     {
@@ -187,10 +180,7 @@ protected :
     // Check for specific statements in expression, allowed:
     // @MaterializeTemporaryExpr, @CXXBindTemporaryExpr and @CXXConstructExpr only
     bool checkStmt;
-    static CheckTildaVisitor signleton;
 
-    CheckTildaVisitor() {}
-    
     inline bool isAllowedStmt(clang::Stmt* stmt) {
         return (isa<clang::MaterializeTemporaryExpr>(stmt) || 
                 isa<clang::CXXBindTemporaryExpr>(stmt) ||
@@ -198,10 +188,7 @@ protected :
     }
     
 public:
-    
-    static CheckTildaVisitor& get() {
-        return signleton;
-    }
+    CheckTildaVisitor() {}
     
     bool VisitStmt(clang::Stmt* stmt) 
     {

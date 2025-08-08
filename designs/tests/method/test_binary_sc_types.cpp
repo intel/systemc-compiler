@@ -137,6 +137,7 @@ public:
     }
 
     sc_signal<unsigned> su;
+    sc_signal<sc_biguint<65>> t0a;
     void tildaUnsigned() {
         sc_biguint<65> i1; sc_biguint<65> i2; sc_biguint<65> i3;
         sc_uint<4> h = 12; sc_biguint<4> bh = 12;
@@ -181,7 +182,7 @@ public:
         ll = ~su;   // No cast for tilda
         ll = ~su.read();   // No cast for tilda
         
-        t0 = i1+i2+i3+ll+ui;
+        t0a = i1+i2+i3+ll+ui;
     }
     
     sc_signal<unsigned> su2;
@@ -224,6 +225,7 @@ public:
         su2s = i1+i2+i3;
     }
 
+    sc_signal<sc_biguint<65>> t0b;
     void tildaBv() {
         sc_biguint<65> i1; sc_biguint<65> i2; sc_biguint<65> i3;
         sc_bv<63> l = 42;
@@ -231,7 +233,7 @@ public:
         sc_bv<65> j = 42;
         i1 = ~l; i2 = ~k; i3 = ~j;        
         cout << hex << "i1 " << i1 << " i2 " << i2 << " i3 " << i3 << dec << endl;
-        t0 = i1+i2+i3;
+        t0b = i1+i2+i3;
     }
     
     sc_signal<sc_bigint<65>> t1;
@@ -243,8 +245,8 @@ public:
         i1 = ~j; i2 = ~bj;  // Warnong reported
         cout << hex << "64: i1 " << i1 << " i2 " << i2 << endl;
 
-        t0 = i1;
-        t0 = i2;
+        t1 = i1;
+        t1 = i2;
     }
     
     sc_signal<sc_bigint<65>> t2;
@@ -263,6 +265,7 @@ public:
     
     
     sc_signal<sc_biguint<65>> t3;
+    sc_signal<sc_biguint<65>> t0c;
     void minusUnsigned() {
         sc_bigint<65> i1;
         sc_bigint<65> i2;
@@ -283,8 +286,8 @@ public:
         i1 = -n; i2 = -bn;
         cout << hex << "66: i1 " << i1 << " i2 " << i2 << dec << " " << i2 << endl;
 
-        t0 = i1;
-        t0 = i2;
+        t0c = i1;
+        t0c = i2;
     }
 
     

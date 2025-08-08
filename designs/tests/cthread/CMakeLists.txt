@@ -20,7 +20,8 @@ add_executable(cthread_simple test_cthread_simple.cpp)
 svc_target(cthread_simple GOLDEN cthread_simple.sv)
 
 add_executable(cthread_simple2 test_cthread_simple2.cpp)
-svc_target(cthread_simple2 GOLDEN cthread_simple2.sv)
+svc_target(cthread_simple2 INIT_LOCAL_VARS INIT_RESET_LOCAL_VARS 
+           GOLDEN cthread_simple2.sv)
 
 # Reset related tests
 add_executable(cthread_reset test_cthread_reset.cpp)
@@ -273,6 +274,9 @@ svc_target(cthread_var_reg GOLDEN cthread_var_reg.sv)
 
 add_executable(cthread_var_comb test_cthread_var_comb.cpp)
 svc_target(cthread_var_comb GOLDEN cthread_var_comb.sv)
+
+add_executable(cthread_var_decl test_var_decl.cpp)
+svc_target(cthread_var_decl GOLDEN cthread_var_decl.sv INIT_LOCAL_VARS)
 
 add_executable(cthread_var_const test_cthread_var_const.cpp)
 svc_target(cthread_var_const GOLDEN cthread_var_const.sv)

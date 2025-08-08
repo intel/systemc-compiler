@@ -23,6 +23,11 @@ public:
 
     SC_CTOR(A)
     {
+        SC_CTHREAD(latch_issue, clk.pos());
+        async_reset_signal_is(nrst, false);
+
+        SC_METHOD(latch_issue_meth); sensitive << ss;
+        
         SC_CTHREAD(read_only_reg, clk.pos());
         async_reset_signal_is(nrst, false);
 
@@ -41,6 +46,47 @@ public:
         
     }
 
+    // Issue with no initialization for @par -- FIXED
+    sc_signal<int>  ss{"ss"};
+    sc_signal<int>  tt;
+    
+    void f(uint32_t par) {
+        tt = par;
+    }
+    
+    void latch_issue() {
+        tt = 0;
+        f(0);
+        wait();
+        
+        while(true) {
+            int loc;
+            loc = ss.read();
+            f(loc);
+            wait();
+            tt = 0;
+            wait();              
+        }
+    }
+    
+    
+    sc_signal<int>  tt1;
+    
+    void f1(uint32_t par) {
+        tt1 = par;
+    }
+
+    void latch_issue_meth() {
+        tt1 = 0;
+        if (ss.read()) {
+            f1(ss.read());
+        } else {
+            f1(ss.read());
+        }
+    }
+    
+//-----------------------------------------------------------------------------
+    
     int                 m;
     int                 m1;
     int                 k;

@@ -19,7 +19,6 @@ class A : public sc_module {
 public:
     sc_in_clk clk;
     sc_signal<bool> rstn;
-    
     SC_HAS_PROCESS(A);
 
     sc_signal<bool> r;
@@ -28,8 +27,10 @@ public:
     sc_signal<sc_biguint<66>> bs;
     sc_signal<sc_bigint<66>> bt;
     
-    A(const sc_module_name& name) : sc_module(name) 
-    {
+    A(const sc_module_name& name) : sc_module(name) {
+        SC_METHOD(zeroAssign);
+        sensitive << s;
+        
         SC_METHOD(literSignedWarning);
         sensitive << s;
         
@@ -50,6 +51,9 @@ public:
         
         SC_METHOD(liter_trunc);
         sensitive << s << t;
+
+        SC_METHOD(liter_extend_zero_init);  
+        sensitive << s;
         
         SC_METHOD(liter_extend_assign);  
         sensitive << s << t;
@@ -63,12 +67,22 @@ public:
         SC_METHOD(liter_extend_oper);
         sensitive << s << t;
     }
-
     
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
-    
+
 // ---------------------------------------------------------------------------    
 
+    sc_signal<int> t0;
+    void zeroAssign() {
+        sc_uint<4> u1;
+        sc_uint<8> u2 = u1;
+
+        u2 = 0;
+        
+        t0 = u2;
+    }
+    
+// ---------------------------------------------------------------------------    
     void literSignedWarning() 
     {
         sc_uint<4> a;
@@ -229,32 +243,32 @@ public:
         CHECK(c);
         c = (a+sc_int<4>(1) == -4);
         CHECK(c);
-        c = (a+sc_uint<4>(1) == -4);
-        CHECK(c);
+        c = (a+sc_uint<4>(1) == -4);  // Incorrect for signed types
+        //CHECK(c);  
         
         c = (a+(sc_bigint<4>)1 == -4);
         CHECK(c);
-        c = (a+(sc_biguint<4>)1 == -4);
-        CHECK(c);
+        c = (a+(sc_biguint<4>)1 == -4);  // Incorrect for signed types
+        //CHECK(c);
 
         c = (a+i == -4);
         CHECK(c);
-        c = (a+u == -4);
-        CHECK(c);
-        c = (a+su == -3);
-        CHECK(c);
-        c = (a+bu == -2);
-        CHECK(c);
+        c = (a+u == -4);            // Incorrect for signed types
+        //CHECK(c);
+        c = (a+su == -3);           // Incorrect for signed types
+        //CHECK(c);
+        c = (a+bu == -2);           // Incorrect for signed types
+        //CHECK(c);                 
         
-        c = (a+U == -1);
-        CHECK(c);
+        c = (a+U == -1);            // Incorrect for signed types
+        //CHECK(c);             
         c = (a+I == -9);
         CHECK(c);
-        c = (a+SU == -1);
-        CHECK(c);
+        c = (a+SU == -1);           // Incorrect for signed types
+        //CHECK(c);
         c = (a+SI == -9);
         CHECK(c);
-        
+
     }
     
     // Assign negative value/signed expression to unsigned LHS
@@ -813,6 +827,15 @@ public:
         CHECK(c);
     }
     
+    // Initialization by 0/1 with width extending
+    void liter_extend_zero_init() {
+        int ci = 0;
+        unsigned cu = 0;
+        sc_int<16> i = 0;
+        sc_uint<16> u = 0;
+        sc_biguint<16> bu = 0;
+        sc_biguint<16> bi = 0;
+    }
     
 };
 

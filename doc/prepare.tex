@@ -129,13 +129,27 @@ In general case a module can have pointer to another module or {\tt sc\_port<IF>
 Other ways of call of another module methods or access another module fields are prohibited. 
 
 
-\subsection{Module constructor and constant initialization}
+\subsection{Module constructor and before\_end\_of\_elaboration() callback}
 
-Any module/modular interface must have at least one constructor. Module/modular interface constructor must have {\tt sc\_module\_name} parameter which can be passed to {\tt sc\_module} inheritor or just not used. Module/modular interface constructor can contains arbitrary C++ code. 
+Any module/modular interface must have at least one constructor. Module/modular interface constructor must have {\tt sc\_module\_name} parameter which can be passed to {\tt sc\_module} inheritor or just not used. Module/modular interface constructor can contains arbitrary C++ code inside. 
+
+Module/modular interface constructor body can contain:
+\begin{itemize}
+\item processes creation with {\tt SC\_METHOD}, {\tt SC\_THREAD} and {\tt SC\_CTHREAD} macros,
+\item non-SystemC objects allocation in dynamic memory with {\tt sc\_new} operator,
+\item child modules and other SystemC objects allocation with {\tt new} operator,
+\item child module port bindings to port/signals,
+\item function calls of this module or its child modules.
+\end{itemize}
+
+Another place where module elaboration can be done is {\tt before\_end\_of\_elaboration} callback. In this call back the same things as in module constructor can be done. Using {\tt before\_end\_of\_elaboration} callback allows to adjust the module behavior after parameters set up by its function calls from another modules.
 
 Module member constants can be initialized in place, in module constructor initialization list and in {\tt before\_end\_of\_elaboration} callback. Global and member constants are translated into {\tt localparam} in SystemVerilog. 
 Member constants of any integral type should be 64 bit or less (stored in uint64/int64 field). Such constants with more than 64 bit has unknown value after 
 elaboration, therefore error is reported.
+Local constants in process function are translated to SystemVerilog local variables. Such constants can be more than 64bit.
+
+Non-constant module fields also can be initialized in constructor or in place. If a module field has integral type and not modified in any process, it considered as simulation time constant and translated into {\tt localparam} in SystemVerilog. 
 
 \begin{lstlisting}[style=mycpp]
 // Constants initialized in and after constructor
@@ -143,28 +157,30 @@ class MyModule : public sc_module {
     const sc_uint<8> A = 0;          // In-place initialization
     const int B[4] = {0,1,2,3};      // In-place initialization
     const bool C;       
+    const unsigned* D = nullptr;
+    int E;
     
     MyModule(const sc_module_name& name, int par) :
         sc_module(name), 
         C(par == 42)                 // In initialization list
-    {}
+    {
+        setParam(par);
+    }
     
     unsigned d;
     void setParam(unsigned par) {
        d = par;
-    }
+    }    
     
-    const unsigned* D = nullptr;
+    // After constructor initialization
     void before_end_of_elaboration() override {
-       D = sc_new<unsigned>(d);	     // After constructor initialization
+       D = sc_new<unsigned>(d);	     
+       E = 42;
     }
 }
 MyModule mod("mod", 12, true);
 \end{lstlisting}
 
-Local constants in process function are translated to SV local variables. Such constants can be more than 64bit.
-
-Non-constant module fields cannot be initialized in constructor or in place. After elaboration phase non-constant fields have unknown value. They need to be initialized in reset section of a process. 
 
 \subsection{Method process}
 
@@ -382,6 +398,8 @@ There are some limitation to variable use in reset section of clocked thread des
 This section describes types can be used in process functions. 
 SystemC integer types {\tt sc\_int}, {\tt sc\_uint}, {\tt sc\_bigint}, {\tt sc\_biguint} are supported. C++ {\tt bool}, {\tt char}, {\tt short}, {\tt integer}, {\tt long integer} and {\tt long long integer} and their unsigned versions are supported. Generated SystemVerilog data types shown in Table~\ref{tab:data_types}.
 
+It is recommended to use SystemC data types instead of C++ types where it is possible. Using C++ data types make sense for 1bit value -- {\tt bool} type and as {\tt for} - loop iterators. Using {\tt sc\_bigint<N>}/{\tt sc\_biguint<N>} results in more accurate arithmetic than {\tt sct\_int<N>}/{\tt sct\_uint<N>} and is free from implicit promotion to {\tt int64\_t}/{\tt uint64\_t}. Drawback of {\tt sc\_bigint<N>}/{\tt sc\_biguint<N>} is some simulation speed slow down.
+
 There are two special types {\tt sct\_uint<N>} and {\tt sct\_int<N>} provided. They are bit-accurate integer types which support any number of bits:
 \begin{itemize}
 \item {\tt sct\_int<N>} is signed integer with N bits, where N is zero or positive,
@@ -389,19 +407,6 @@ There are two special types {\tt sct\_uint<N>} and {\tt sct\_int<N>} provided. T
 \end{itemize}
 
 {\tt sct\_int<N>} and {\tt sct\_uint<N>} types automatically substitute {\tt sc\_int<N>} or {\tt sct\_bigint<N>} and {\tt sct\_uint<N>} or {\tt sct\_biguint<N>} depends on bit width. These types are implemented in {\tt sct\_sel\_types.h}.
-
-To initialize a variable of {\tt sct\_uint<N>} type with all bits 0 or 1 there are special templates:
-\begin{itemize}
-\item {\tt sct\_zeros<N>} is N-bit zeros literal of {\tt sct\_uint<N>} type,
-\item {\tt sct\_ones<N>} is N-bit ones literal of {\tt sct\_uint<N>} type.
-\end{itemize}
-
-\begin{lstlisting}[style=mycpp]
-// Variable declaration with 0/1 initialization
-sct_uint<12> a = sct_zeros<12>;
-sct_uint<66> b = sct_ones<66>;
-auto c  = sct_zeros<90>;
-\end{lstlisting}
 
 \begin{table}
 \begin{tabular}{|l|l|l|}
@@ -456,7 +461,34 @@ Not supported floating point C++ data types: {\tt float}, {\tt double}.
 
 C++ types can be used together with SC types. Signed and unsigned types should never be mixed, as that can lead to unexpected result for operations with negative values. For operations with mix of signed and unsigned arguments of {\tt sc\_int}/{\tt sc\_uint} types SystemC simulation can differ from generated SystemVerilog simulation. See more details in Section~\ref{section:arithmetic_gen}.
 
+\subsection{Literals}
 
+SystemC literals are used to initialize local and member variables as well as constant and static constants. 
+ICSC supports numerical literals represented as integer value as well as C string. Numerical literals in C string form support more than 64bit values. Numerical literals can have binary, octal, decimal or hexadecimal radix. Negative literal more than 64bit can have only decimal radix. 
+%
+\begin{lstlisting}[style=mycpp]
+int a = 42;                 // Decimal literal
+sct_uint<16> b = 0xF1;      // Hexadecimal literal
+sct_int<16> c  = -0xF1;     // Hexadecimal literal negative value
+sct_uint<65> d = "0x1FFFFFFFFFFFFFFFF";   // Literal >64bit in C string   
+sct_int<70> e  = "-36893488147419103231"; // Negative literal >64bit in C string 
+\end{lstlisting}
+
+To initialize a variable with all bits 0 or 1 there are special templates:
+\begin{itemize}
+\item {\tt sct\_zeros<N>} is N-bit zeros literal of {\tt sct\_uint<N>} type,
+\item {\tt sct\_ones<N>} is N-bit ones literal of {\tt sct\_uint<N>} type.
+\end{itemize}
+
+\begin{lstlisting}[style=mycpp]
+// Variable declaration with 0/1 initialization
+sct_uint<12> a = sct_zeros<12>;   // All zeros
+sct_uint<66> b = sct_ones<66>;    // All ones
+sct_int<67> c  = -sct_zeros<65>;  // Negative value
+auto d         = sct_zeros<90>;   // Using auto type deduction
+\end{lstlisting}
+
+Literals are limited with 16384bit width.
 
 \subsection{Pointers and references}
 

@@ -33,7 +33,7 @@ using namespace sc;
 
 namespace
 {
-using std::cout; using std::endl;
+using std::cout; using std::endl; 
     
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -91,8 +91,8 @@ private:
     using FlattenReq = bool;
 
     ElabDatabase *elabDB;
-    // Dynamic objects moved from module where allocated to module where 
-    // pointer to this object
+    /// Dynamic objects moved from module where allocated to module where 
+    /// pointer to this object
     std::unordered_map<size_t, size_t> movedObjs;
     
     std::unordered_set<ObjectView> visitedObj;
@@ -202,27 +202,16 @@ private:
 
 void ScElabModuleBuilder::run()
 {
-    RecordValues::setElabDB(elabDB);
-    
     // Create module bodies w/o processes
     for (auto modView : elabDB->getModules()) {
         //std::cout << "--------------------------------------" << std::endl 
         //      << "Module " << modView.getName() << std::endl;
-        
-        // Add module to static collection, used to resolve pointer to module
-        RecordValues::addRecordView(modView);
-        
         // Create all module members (member signals, variables). 
         // do not traverse MIF
         if (!modView.isModularInterface()) {
             traverseModule(modView);
         }
     }
-
-    // Fill record values for each module/MIF, only module/MIF can be passed 
-    // through pointer into another module
-    RecordValues::fillValues();
-    //RecordValues::print();
 
     // Create bindings
     //std::cout << "------------------------------------------------" << std::endl 
@@ -233,18 +222,21 @@ void ScElabModuleBuilder::run()
     }
     
     // Fill state, run method and thread process analysis in ScProcAnalyzer
-    for (auto &verMod : elabDB->getVerilogModules()) {
+    //auto t_begin = std::chrono::steady_clock::now();
+    for (auto& verMod : elabDB->getVerilogModules()) {
+        
         // Process analysis for all threads and methods
         createProcessBodies(verMod);
 
         // Remove unused ports and signals declarations and their assignments
         verMod.removeUnusedVariables();
-        
+
         // Detect multiple used/defined variable/channel in different processes
         verMod.detectUseDefErrors();
-        
-        cout << ".";
     }
+    
+    //auto t_end = std::chrono::steady_clock::now();
+    //cout << endl << "Total time = " << std::dec << std::chrono::duration_cast<std::chrono::milliseconds>(t_end - t_begin).count() << " [ms]" << std::endl;
     
     // Compare and remove redundant modules, only equivalent C++ types compared
     elabDB->uniquifyVerilogModules();
@@ -2162,7 +2154,7 @@ void ScElabModuleBuilder::createProcessBodies(VerilogModule &verMod)
     }
 
     // Generate process bodies 
-    for (ProcessView& proc : verMod.getProcesses()) {    
+    for (ProcessView& proc : verMod.getProcesses()) {
         auto procBody = procBuilder.generateVerilogProcess(proc);
         verMod.addProcessBody(proc, procBody);
         // Set unique name for process

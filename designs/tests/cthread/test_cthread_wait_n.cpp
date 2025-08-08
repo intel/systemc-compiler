@@ -97,7 +97,7 @@ SC_MODULE(test_mod) {
 
         while (1) {
             t2 = k;
-            wait(2);
+            wait(2U);
         }
     }
     

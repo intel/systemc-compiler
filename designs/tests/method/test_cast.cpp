@@ -268,7 +268,7 @@ public:
         y = -14UL;              // OK   
         by = -(32U);            // OK 
         
-        t0 = res; t0 = bres.to_int(); t0 = bx.to_int(); t0 = by.to_int();
+        t1 = res; t1 = bres.to_int(); t1 = bx.to_int(); t1 = by.to_int();
         
         // Comparison warnings -- currently commented, #271
 //        res = i + u;            // Warning reported
@@ -589,7 +589,7 @@ public:
         
         ures = (unsigned)i + u;                 // Add 'unsigned
         res = i + (int)u;                       // OK
-        t3 = res; t3 = ures; t2 = i;
+        t3 = res; t3 = ures; t3 = i;
     }    
     
     

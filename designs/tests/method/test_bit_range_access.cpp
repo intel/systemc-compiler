@@ -471,8 +471,8 @@ public:
         d.range(WIDTH-1, 0) = 1;
         int i = ds.read().range(WIDTH-1, 0).to_int();
         i = ds.read().range(WIDTH-1, 0).to_long() + 1;
-        t1 = c.to_int(); t1 = cc.to_int(); t1 = ab; t1 = j; t1 = jj.to_int();
-        t1 = d.to_int(); t1 = dd.to_int(); t1 = i;
+        t2 = c.to_int(); t2 = cc.to_int(); t2 = ab; t2 = j; t2 = jj.to_int();
+        t2 = d.to_int(); t2 = dd.to_int(); t2 = i;
     }
 
     sc_signal<int> t3;

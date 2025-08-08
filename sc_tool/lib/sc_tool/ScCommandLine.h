@@ -13,7 +13,9 @@
 #define SCTOOL_SCCOMMANDLINE_H
 
 #include <llvm/Support/CommandLine.h>
+#include <thread>
 #include <string>
+#include <algorithm>
 
 extern llvm::cl::OptionCategory ScToolCategory;
 
@@ -33,10 +35,8 @@ inline bool REMOVE_RESET_UNUSED() {
 }
 
 // Remove unusable variables after reset in CTHREAD
-// Does not work for multiple MIF functions called in and after reset
 inline bool REMOVE_BODY_UNUSED() {
-    // Not used for now
-    return false;//!noRemoveExtraCode;
+    return !noRemoveExtraCode;
 }
 
 // Remove next value of register which not used after reset in CTHREAD and SVA

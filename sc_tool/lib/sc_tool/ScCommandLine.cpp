@@ -66,6 +66,5 @@ cl::opt<std::string> modulePrefix (
     "module_prefix",
     cl::desc("Module prefix string"),
     cl::cat(ScToolCategory)
-    );
-
+);
 

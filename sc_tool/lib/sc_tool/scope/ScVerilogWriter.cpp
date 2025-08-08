@@ -174,10 +174,18 @@ string ScVerilogWriter::getVarDeclVerilog(const QualType& type,
             }
 
             if (isInt) {
-                s = "integer";
+                if (forLoopInit) {
+                    s = "int";
+                } else {
+                    s = "integer";
+                }
             } else 
             if (isUInt) {
-                s = "integer unsigned";
+                if (forLoopInit) {
+                    s = "int unsigned";
+                } else {
+                    s = "integer unsigned";
+                }
             } else 
             if (isUnsigned) {
                 if (width > 1) {
@@ -562,6 +570,19 @@ bool ScVerilogWriter::isRegister(const SValue& val)
     return false;
 } 
 
+bool ScVerilogWriter::isCombVar(const SValue& val) 
+{
+    if (val.isUnknown()) {
+        return false;
+    }
+    
+    if (!isCombProcess) {
+        auto i = varTraits.find(val);
+        return ((i != varTraits.end()) && i->second.isComb());
+    }
+    return false;
+} 
+
 bool ScVerilogWriter::isReadOnlyCDR(const SValue& val) 
 {
     if (val.isUnknown()) {
@@ -730,11 +751,12 @@ std::string ScVerilogWriter::makeLiteralStr(const std::string& literStr,
                                             char radix, unsigned minCastWidth, 
                                             unsigned lastCastWidth,
                                             CastSign castSign,
-                                            bool addNegBrackets)
+                                            bool addNegBrackets,
+                                            bool useZeroAprh)
 {
     APSInt val(literStr);
     string s = makeLiteralStr(val, radix, minCastWidth, lastCastWidth, 
-                              castSign, addNegBrackets, false);
+                              castSign, addNegBrackets, useZeroAprh);
     
     return s;
 }
@@ -755,7 +777,7 @@ std::string ScVerilogWriter::makeLiteralStr(APSInt val,
 //         << " val.getActiveBits() " << val.getActiveBits() << endl;
     
     // It is possible to have no cast for non-negative literal in integer range
-    bool valueCast = minCastWidth;
+    bool valueCast = true;
     // Width >32bit required size
     bool isBigWidth = false;
     // Maximal/minimal decimal value is 2147483647/-2147483647, 
@@ -765,14 +787,13 @@ std::string ScVerilogWriter::makeLiteralStr(APSInt val,
             radix = (radix == 2) ? 2 : 10;
         }
     } else {
-        radix = 16; valueCast = true; isBigWidth = true;
+        radix = 16; isBigWidth = true;
     }
    
     // Zero value not casted, negative value always considered as signed
-    bool isUnsignCast = !isZero && (
-                        castSign == CastSign::UCAST && valueCast && !isNegative);
-    bool isSignCast = !isZero && (
-                      (castSign == CastSign::SCAST && valueCast) || isNegative);
+    bool isUnsignCast = (!isZero || !useZeroAprh) && 
+                        castSign == CastSign::UCAST && !isNegative;
+    bool isSignCast = !isZero && (castSign == CastSign::SCAST || isNegative);
     bool isCast = minCastWidth || lastCastWidth || isSignCast || isUnsignCast;
     
     string baseStr;
@@ -787,9 +808,9 @@ std::string ScVerilogWriter::makeLiteralStr(APSInt val,
                        radix == 8 ? "o" : "b");
     }
     
-//    cout << "  isCast " << isCast << " minCastWidth "
-//         << minCastWidth << " isSignCast " << isSignCast << " isUnsignCast " 
-//         << isUnsignCast << endl;
+//    cout << "makeLiteralStr isCast " << isCast << " minCastWidth "
+//         << minCastWidth << " isSignCast " << isSignCast << " isUnsignCast "
+//         << isUnsignCast << " castSign " << (unsigned)castSign << endl;
 
     // Negative literal is always based, set base as value width
     if ((isSignCast || isUnsignCast) && !minCastWidth) {
@@ -811,7 +832,7 @@ std::string ScVerilogWriter::makeLiteralStr(APSInt val,
     if (isNegative && addNegBrackets) {
         s = '(' + s + ')';
     }
-//    cout << "  result " << s << endl;
+    //cout << "  result " << s << endl;
 
     return s;
 }
@@ -872,7 +893,8 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
                                                       bool skipCast, 
                                                       bool addNegBrackets,
                                                       bool doSignCast,
-                                                      bool doConcat) 
+                                                      bool doConcat,
+                                                      bool useZeroAprh) 
 {
     auto info = terms.at(stmt);
 
@@ -889,10 +911,6 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
     string rdName = names.first;
     string wrName = names.second;
     
-    SCT_TOOL_ASSERT ((info.minCastWidth == 0) == 
-                     (info.lastCastWidth == 0 || !info.explCast), 
-                     "Only one of minCastWidth/lastCastWidth is non-zero");
-    
     if (info.literRadix) {
         // Apply lastCastWidth only for explicit cast or concatenation
         // For concatenation minimal width taken as minCastWidth if exists, 
@@ -903,7 +921,8 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
                     info.lastCastWidth ? info.lastCastWidth : info.exprWidth; 
         
         rdName = makeLiteralStr(rdName, info.literRadix, minCastWidth, 
-                                lastCastWidth, info.castSign, addNegBrackets);
+                                lastCastWidth, info.castSign, addNegBrackets,
+                                useZeroAprh);
         wrName = rdName;
 
     } else {
@@ -1294,6 +1313,44 @@ void ScVerilogWriter::putTypeCast(const clang::Stmt* srcStmt,
     }
 }
 
+// Used for integral types only in binary operator to update result type width
+void ScVerilogWriter::putTypeCast(const clang::Stmt* stmt,
+                                  const clang::QualType& type) 
+{
+    if (skipTerm) return;
+
+    // Copy in range terms from @srcStmt and store for @stmt
+    if (terms.count(stmt) != 0) {
+
+        unsigned width = 64; 
+        if (auto typeInfo = getIntTraits(type, true)) {
+            width = typeInfo->first;
+            
+        } else {
+            ScDiag::reportScDiag(stmt->getBeginLoc(),
+                                 ScDiag::SYNTH_UNKNOWN_TYPE_WIDTH) << 
+                                 type.getAsString();
+        }
+        SCT_TOOL_ASSERT(width > 0, "Type width is zero");
+
+        auto& info = terms.at(stmt);
+        info.minCastWidth = (info.minCastWidth) ? min(info.minCastWidth, width) : 
+                                                  width;
+        info.lastCastWidth = width;
+        info.explCast = true;
+        
+//        cout << "putTypeCast stmt #" << hex << stmt << dec  
+//             << " minCastWidth " << info.minCastWidth 
+//             << " lastCastWidth " << info.lastCastWidth << endl;
+        
+    } else {
+        cout << "putTypeCast : arg " << hex << (size_t)stmt << dec << endl;
+        SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
+                           "putTypeCast : No term for statement ");
+    }
+}
+
+
 // Put sign cast for literals and expressions
 void ScVerilogWriter::putSignCast(const clang::Stmt* stmt, CastSign castSign)
 {
@@ -1402,13 +1459,35 @@ void ScVerilogWriter::putLiteral(const Stmt* stmt, const SValue& val)
         unsigned width = getBitsNeeded(val.getInteger());
         char radix = val.getRadix() == 100 ? 10 : val.getRadix();
         
-//        cout << "putLiteral stmt #" << hex << stmt << dec << " val " << val 
-//             << " s " << s << " width " << width << endl;
+        //cout << "putLiteral stmt #" << hex << stmt << dec << " val " << val 
+        //     << " s " << s << " width " << width << endl;
         
         putString(stmt, s, width);
         auto& sinfo = terms.at(stmt);
         sinfo.literRadix = radix;
         
+        // Provide base form for unsigned C++ literals (with @U suffix)
+        // and for signed C++ literals which have a cast 
+        if (!useLiteralSimple) {
+            QualType type;
+            bool isCast = false;
+            if (auto liter = dyn_cast<const IntegerLiteral>(stmt)) {
+                type = liter->getType();
+            } else 
+            if (auto cast = dyn_cast<const ImplicitCastExpr>(stmt)) {
+                type = cast->getType();
+                isCast = true;
+            }
+            if (type.getTypePtrOrNull()) {
+                bool uintCast = type->isUnsignedIntegerType();
+                bool sintCast = isCast && type->isSignedIntegerType();
+
+                if (uintCast || sintCast) {
+                    sinfo.castSign = uintCast ? CastSign::UCAST : CastSign::SCAST;
+                }
+            }
+        }
+
         if (DebugOptions::isEnabled(DebugComponent::doVerWriter)) {
             cout << "putLiteral for stmt " << hex << stmt << dec << ", " << s << endl;
         }
@@ -1472,6 +1551,7 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
     } else {
         // Normal variable declaration
         bool isReg = isRegister(val);
+        bool isComb = isCombVar(val);
         bool isRoCDR = isReadOnlyCDR(val);
         bool isRecord = isUserClass(getDerefType(val.getType()), true);
         // Initialization of local variable required for variables w/o initializer
@@ -1480,6 +1560,10 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                          (level > 0 || (!init && !funcCall))) ||
                         (!isCombProcess && !isClockThreadReset && 
                          (level > 1 || (!init && !funcCall)));
+        // Initialization of local combinational variable in multi-state thread 
+        // to avoid latch warning from linter
+        bool initCombZero = !isCombProcess && isMultiState && isComb && 
+                            !isClockThreadReset;
         // Local non-reset accessed register variables
         bool initRegZero = !isCombProcess && !isClockThreadReset && isReg;
         // Initialization of non-initialized reset local variables
@@ -1491,7 +1575,8 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                          "Unexpected record variable with initialization");
         
         //cout << "putVarDecl val " << val << " isRecord " << isRecord
-        //     << " initRegZero " << initRegZero << " initLocalRegs " << initLocalRegs << endl;
+        //     << " initZero " << initZero << " initRegZero " << initRegZero 
+        //     << " initCombZero "<< initCombZero << " initResetZero " << initResetZero << endl;
         
         // Get variable name
         pair<string, string> names = getVarName(val);
@@ -1521,18 +1606,27 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                 string s = getVarDeclVerilog(type, varName, init);
                 //cout << "put to localDeclVerilog val " << val << endl;
                 localDeclVerilog.emplace_back(val, s);
-
-                // Add variable initialization with zero
-                if ((initZero && initLocalVars) || 
-                    (initResetZero && initResetLocalVars) ||
-                    (initRegZero && initLocalRegs)) {
-
-                    string s = varName + (isReg ? NB_ASSIGN_SYM : ASSIGN_SYM) + "0";
-                    localDeclInitVerilog.emplace_back(val, s);
-                    //cout << "put to localDeclInitVerilog val " << val << " " << s << endl;
-                }
             }
 
+            // Add variable initialization with zero
+            if (((initZero || initCombZero) && initLocalVars) ||
+                (initResetZero && initResetLocalVars) ||
+                (initRegZero && initLocalRegs)) {
+
+                // Check to avoid duplicating initialization
+                auto j = localDeclInitVerilog.begin();
+                for (; j != localDeclInitVerilog.end(); ++j) {
+                    if (j->first == val) {
+                        break;
+                    }
+                }
+                if (j == localDeclInitVerilog.end()) {
+                    string s = varName + (isReg ? NB_ASSIGN_SYM : ASSIGN_SYM) + "'0";
+                    localDeclInitVerilog.emplace_back(val, s);
+                    //cout << "  put to localDeclInitVerilog val " << val << " " << s << endl;
+                }
+            }
+            
             // If variable declaration is removed, no initialization required
             bool removeUnusedInit = false;
             if (!isCombProcess) {
@@ -1567,7 +1661,8 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                 // Use read name in @assign (emptySensitivity)
                 bool secName = !isClockThreadReset && isReg && !emptySensitivity;
                 string lhsName = secName ? names.second : names.first;
-                string rhsName = getTermAsRValue(init).first;
+                string rhsName = getTermAsRValue(init, false, false, false, 
+                                                 false, true).first;
 
                 putAssignBase(stmt, val, lhsName, rhsName, 0);
             }
@@ -1588,6 +1683,7 @@ void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val,
                      "No variable found");
     
     bool isReg = isRegister(val);
+    bool isComb = isCombVar(val);
     bool isRecord = isUserDefinedClassArray(val.getType(), true);
     //cout << "putArrayDecl val " << val << " " << isReg << isRecord << endl;
     
@@ -1597,6 +1693,10 @@ void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val,
                      (level > 0 || !init)) ||
                     (!isCombProcess && !isClockThreadReset && 
                      (level > 1 || !init));
+    // Initialization of local combinational variable in multi-state thread 
+    // to avoid latch warning from linter
+    bool initCombZero = !isCombProcess && isMultiState && isComb && 
+                        !isClockThreadReset;
     // Local non-reset accessed register variables
     bool initRegZero = !isCombProcess && !isClockThreadReset && isReg;
     // Initialization of non-initialized reset local variables
@@ -1643,7 +1743,7 @@ void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val,
             //cout << "   " << s << endl;
             
             // Add array initialization with zero
-            if ((initZero && initLocalVars) || 
+            if ((initZero && initLocalVars) || initCombZero ||
                 (initResetZero && initResetLocalVars) ||
                 (initRegZero && initLocalRegs)) {
                 
@@ -2056,8 +2156,8 @@ void ScVerilogWriter::putAssign(const Stmt* stmt, const SValue& lval,
             // Use read name in @assign (emptySensitivity)
             bool secName = !isClockThreadReset && isReg && !emptySensitivity;
             string lhsName = removeBrackets(secName ? names.second:names.first);
-            string rhsName = removeBrackets(getTermAsRValue(rhs).first);
-
+            string rhsName = removeBrackets(getTermAsRValue(rhs, false, false, 
+                                                            false, false, true).first);
             unsigned width = getExprWidth(lhs); 
 
             putAssignBase(stmt, lval, lhsName, rhsName, width);
@@ -2098,8 +2198,8 @@ void ScVerilogWriter::putAssign(const Stmt* stmt, const SValue& lval,
         // Use read name in @assign (emptySensitivity)
         bool secName = !isClockThreadReset && isReg && !emptySensitivity;
         string lhsName = removeBrackets(secName ? names.second : names.first);
-        string rhsName = removeBrackets(getTermAsRValue(rhs).first);
-        
+        string rhsName = removeBrackets(getTermAsRValue(rhs, false, false, 
+                                                        false, false, true).first);
         // Get LHS variable width 
         unsigned width = 0;
         if (auto typeInfo = getIntTraits(lval.getType())) {
@@ -2755,13 +2855,13 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
             ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                  ScDiag::SYNTH_SIGNED_SHIFT);
         }
-        
+
         // Check both arguments are unsigned or literals or casted from @bool
         if (checkUnsigned) {
-            bool isSignedLHS = isSignedType(lhs->getType()) && !linfo.literRadix &&
-                               linfo.castSign != CastSign::BCAST;
-            bool isSignedRHS = isSignedType(rhs->getType()) && !rinfo.literRadix &&
-                               rinfo.castSign != CastSign::BCAST;
+        bool isSignedLHS = isSignedType(lhs->getType()) && !linfo.literRadix &&
+                           linfo.castSign != CastSign::BCAST;
+        bool isSignedRHS = isSignedType(rhs->getType()) && !rinfo.literRadix &&
+                           rinfo.castSign != CastSign::BCAST;
             if (isSignedLHS || isSignedRHS) {
                 ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                      ScDiag::SYNTH_UNSIGNED_MODE_BINARY);
@@ -3021,7 +3121,7 @@ void ScVerilogWriter::putUnary(const Stmt* stmt, string opcode, const Expr* rhs,
         } else 
         if (rwidth) {
             if (opcode == "++" || opcode == "--") {
-                width = rwidth+1;   
+                width = rwidth;   
             } else {
                 width = rwidth;
             }
@@ -3070,11 +3170,6 @@ void ScVerilogWriter::putUnary(const Stmt* stmt, string opcode, const Expr* rhs,
                 SCT_INTERNAL_ERROR(stmt->getBeginLoc(), 
                     "putUnary : No type traits for bitwise not expression");
             }
-        }
-        
-        // Set increase result width 
-        if (opcode == "++" || opcode == "--") {
-            setIncrWidth(stmt);
         }
         
         //cout << "putUnary opcode " << opcode << " width " << width << endl;
@@ -3223,7 +3318,7 @@ void ScVerilogWriter::putWaitNAssign(const clang::Stmt* stmt,
         if (DebugOptions::isEnabled(DebugComponent::doVerWriter)) {
             cout << "putWaitAssign for stmt " << hex << stmt << dec << ", " << s << endl;
         }
-
+        
     } else {
         cout << "putWaitNAssign : waitn " << hex << (size_t)waitn << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
@@ -3421,7 +3516,7 @@ string ScVerilogWriter::getContinueString() {
     return ("continue");
 }
 
-//=========================================================================
+//==============================================================================
 
 // Print local variable declaration and current to next register variable assignment
 void ScVerilogWriter::printLocalDeclaration(std::ostream &os, 
@@ -3446,7 +3541,11 @@ void ScVerilogWriter::printLocalDeclaration(std::ostream &os,
             auto i = varTraits.find(val);
             if (i != varTraits.end()) {
                 if (i->second.isRegister() || i->second.isReadOnlyCDR()) continue;
-                if (REMOVE_BODY_UNUSED() && !i->second.isAccessAfterReset()) continue;
+                // Do not remove record fields as that does not work for
+                // function calls of MIF
+                if (REMOVE_BODY_UNUSED() && !i->second.isAccessAfterReset() &&
+                    !ScState::isLocalRecField(i->first))
+                    continue;
             }
         }
         
@@ -3561,7 +3660,10 @@ void ScVerilogWriter::printResetCombDecl(std::ostream &os)
                 if (i->second.isCombSig() || i->second.isCombSigClear() || 
                     i->second.isClearSig() ||     
                     i->second.isRegister() || i->second.isReadOnlyCDR()) continue;
-                if (REMOVE_RESET_UNUSED() && !i->second.isAccessInReset()) continue;
+                // Do not remove record fields as that does not work for
+                // function calls of MIF
+                if (REMOVE_RESET_UNUSED() && !i->second.isAccessInReset() &&
+                    !ScState::isLocalRecField(i->first)) continue;
             }
         }
             

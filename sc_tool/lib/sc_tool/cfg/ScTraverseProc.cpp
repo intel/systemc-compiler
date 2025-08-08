@@ -1730,7 +1730,7 @@ void ScTraverseProc::run()
                             if (auto init = forstmt->getInit()) {
                                 // Parse and store statement string for external
                                 // counter only
-                                if (hasForExtrCntr(term)) {
+                                if (!loopVisitor.hasInternalCntr(forstmt)) {
                                     SValue val; chooseExprMethod(init, val);
                                     storeStmtStr(init);
                                 }
@@ -2135,7 +2135,6 @@ void ScTraverseProc::printFunctionBody(std::ostream &os)
     } else {
         topGraph = scopeGraph;
     }
-    topGraph->putVarAssignStmts(codeWriter->getVarAssignStmts());
     
     //cout << "--------------------------------------------" << endl;
     //cout << "Top function scopeGraph #" << hex << topGraph.get() << dec << endl;

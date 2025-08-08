@@ -201,9 +201,9 @@ public:
 
         // That is incorrect usage of overflow result as soon as at is 
         // converted to uint64 in SC, but obviously do not in SV 
-        const sc_uint<8> res5 = (k - m) % 11;
-        cout << "res5 " << hex << res5 << dec << " k " << k << " m " << m << endl;
-        CHECK(res5 == 4);
+        //const sc_uint<8> res5 = (k - m) % 11;
+        //cout << "res5 " << hex << res5 << dec << " k " << k << " m " << m << endl;
+        //CHECK(res5 == 4);
         
         // Cast to correct width gives equivalent SC and SV simulation 
         const sc_uint<8> res2 = sc_uint<8>(k - m) % 11;
@@ -229,6 +229,7 @@ public:
         t2 = res3.to_int() + res4.to_int();
     }
 
+    sc_signal<int> t2b;
     void sc_shift_type_extension_big_binary() 
     {
         const unsigned long long M = 1ULL << 50;
@@ -250,7 +251,7 @@ public:
         x = (sc_uint<42>(y << x)) >> 8;
 
         x = ((z + y) * 2) >> 8; 
-        t2 = x.to_int();
+        t2b = x.to_int();
     }
     
     // With unary operations

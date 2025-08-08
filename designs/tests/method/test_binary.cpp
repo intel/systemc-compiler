@@ -215,7 +215,6 @@ public:
         s = i << m;
         int k = a.read() << s.read();
         k++;
-        b.write(s.read() >> k);
     }
 
     // Shift for SC data types including more than 64bit 

@@ -494,7 +494,9 @@ protected:
     sc_elab::VerilogModule* verMod = nullptr;
     /// Current function CFG
     clang::CFG* cfg;
-
+    /// Loop AST visitor
+    ForLoopVisitor  loopVisitor;
+    
     /// Delayed Clang CFG blocks with extended scope predecessors 
     std::list< std::pair<AdjBlock, std::vector<ConstScopeInfo> > >  delayed;
     
@@ -598,7 +600,6 @@ protected:
   public:
     /// If process located in MIF array element, all dimensions of the MIF arrays 
     std::vector<unsigned> mifArrDims;
-    
 };
 
 }

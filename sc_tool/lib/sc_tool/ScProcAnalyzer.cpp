@@ -480,7 +480,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     UniqueNamesGenerator& nameGen = verMod->getNameGen();
     
     unique_ptr<ScVerilogWriter> procWriter = std::make_unique<ScVerilogWriter>(
-                    sm, true, globalState->getExtrValNames(), nameGen,
+                    sm, true, false, globalState->getExtrValNames(), nameGen,
                     globalState->getVarTraits(), globalState->getWaitNVarName());
     
     // Clone module state for each process
@@ -664,7 +664,7 @@ std::string ScProcAnalyzer::analyzeSvaProperties(
     UniqueNamesGenerator& nameGen = verMod.getNameGen();
     
     unique_ptr<ScVerilogWriter> procWriter = std::make_unique<ScVerilogWriter>(
-                    sm, true, globalState->getExtrValNames(), nameGen,
+                    sm, true, false, globalState->getExtrValNames(), nameGen,
                     globalState->getVarTraits(), globalState->getWaitNVarName());
     
     // Clone module state for each process

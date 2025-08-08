@@ -15,7 +15,7 @@ There are two ways to install ICSC:
 ICSC can be installed on Linux OS with:
 %
 \begin{itemize}
-\item C++ compiler supports C++17 (for gcc it is version 8.0.0 or later)
+\item C++ compiler supports C++20 (for gcc it is version 9.0.0 or later)
 \item CMake version 3.12 or later
 \item git to clone ICSC repository
 \end{itemize} 
@@ -25,8 +25,12 @@ Initial step before installation is to setup some folder as {\tt\$ICSC\_HOME} an
 %
 \begin{lstlisting}[language=bash]
 $ export ICSC_HOME=/home/user/my_iscs_folder
+$ export CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES=/usr/include/c++/11
 $ git clone https://github.com/intel/systemc-compiler $ICSC_HOME/icsc
 \end{lstlisting}
+
+{\tt CMAKE\_CXX\_IMPLICIT\_INCLUDE\_DIRECTORIES} is required if there are multiple C++ compilers or ICSC cannot find C++ standard headers.
+
 
 After clone before installation there is the following folder structure:
 %
@@ -87,17 +91,25 @@ $ make install
 
 \subsubsection{Building and installing LLVM/Clang}
 
-Download LLVM 12.0.1 and Clang 12.0.1 from \url{https://releases.llvm.org/download.html#12.0.1} into {\tt\$ICSC\_HOME```} folder.
+Download LLVM 18.1.8 and Clang 18.1.8 from \url{https://releases.llvm.org/download.html#12.0.1} into {\tt\$ICSC\_HOME```} folder.
 
 \begin{lstlisting}[language=bash]
-$ mv $ICSC_HOME/clang-12.0.1.src $ICSC_HOME/llvm-12.0.1.src/tools/clang
-$ cd $ICSC_HOME/llvm-12.0.1.src
-$ mkdir build && cd build
-$ cmake ../ -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME
+$ cd $ICSC_HOME/build_deps
+$ mv clang-18.1.8.src clang
+$ mv cmake-18.1.8.src cmake
+$ cd llvm-18.1.8.src
+$ mkdir build -p && cd build
+$ cmake ../ -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD=X86 
+            -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" 
+            -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DGCC_INSTALL_PREFIX=$GCC_INSTALL_PREFIX 
+            -DCMAKE_CXX_STANDARD=17 -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_TESTS=OFF
 $ make -j8
 $ make install
 \end{lstlisting}
 
+{\tt LLVM\_ENABLE\_ASSERTIONS} – LLVM assertions, can be used in release as well
+{\tt CMAKE\_BUILD\_TYPE} - release or debug, use debug to step into Clang sources (much slower)
+{\tt GCC\_INSTALL\_PREFIX} - use the correspondent STD library from used gcc (13.2.0), the same for clang compiler!!!
 
 \subsubsection{Building and installing ICSC}
 

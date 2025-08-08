@@ -17,6 +17,7 @@
 #define SCGENERATEEXPR_H
 
 #include "sc_tool/scope/ScVerilogWriter.h"
+#include "sc_tool/cfg/ScTraverseCommon.h"
 #include "sc_tool/expr/ScParseExpr.h"
 #include <unordered_map>
 
@@ -269,6 +270,9 @@ public:
                                           bool artifIf = false); 
     
 protected:
+    /// Bitwise not operator AST visitor
+    CheckTildaVisitor tildaVisitor;
+
     /// Code writer, used for process function and called functions
     /// Not need to save/restore in process context
     ScVerilogWriter*   codeWriter;

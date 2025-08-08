@@ -11,7 +11,6 @@
 
 #include "sc_tool/expr/ScParseRangeExpr.h"
 #include "sc_tool/expr/ScGenerateExpr.h"
-#include "sc_tool/cfg/ScTraverseCommon.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "sc_tool/utils/StringFormat.h"
 #include "sc_tool/utils/ScTypeTraits.h"
@@ -372,7 +371,7 @@ bool ScGenerateExpr::evaluateRangeExpr(Expr* hexpr, Expr* lexpr)
             delta.operator ++();    // plus 1
             SValue rval(delta, 10);
             codeWriter->putLiteral(lexpr, rval);
-            return true;
+            return true; 
         }
     } else {
         ScDiag::reportScDiag(hexpr->getSourceRange().getBegin(), 
@@ -1013,8 +1012,9 @@ void ScGenerateExpr::parseExpr(ImplicitCastExpr* expr, SValue& rval, SValue& val
     // Parse sub-expression is inside
     ScParseExpr::parseExpr(expr, rval, val);
     auto castKind = expr->getCastKind();
+    Expr* sexpr = expr->getSubExpr();
 
-    auto i = constReplacedFunc.find(expr->getSubExpr());
+    auto i = constReplacedFunc.find(sexpr);
     if (i != constReplacedFunc.end()) {
         constReplacedFunc.emplace(expr, i->second);
         //cout << "Add ImplicitCast stmt " << hex << expr << " for " << i->second << dec << endl;
@@ -1042,10 +1042,19 @@ void ScGenerateExpr::parseExpr(ImplicitCastExpr* expr, SValue& rval, SValue& val
             string opcodeStr = "|";
             // Add brackets for complex expression
             if (!val.isVariable()) {
-                codeWriter->copyTermInBrackets(expr->getSubExpr(), 
-                                               expr->getSubExpr());
+                codeWriter->copyTermInBrackets(sexpr, sexpr);
             }
-            codeWriter->putUnary(expr, opcodeStr, expr->getSubExpr(), true);
+            
+            // Increase width for self-determined LHS/RHS (see LRM 11.6)
+            if (codeWriter->isIncrWidth(sexpr)) {
+                unsigned width = codeWriter->getExprTypeWidth(sexpr, 64);
+                if (auto pair = getIntTraits(sexpr->getType())) {
+                    width = width > pair->first ? pair->first : width;
+                }
+                codeWriter->extendTypeWidth(sexpr, width);
+            }
+
+            codeWriter->putUnary(expr, opcodeStr, sexpr, true);
             return;
         }
     } else
@@ -1053,7 +1062,7 @@ void ScGenerateExpr::parseExpr(ImplicitCastExpr* expr, SValue& rval, SValue& val
     if (castKind == CK_IntegralCast) {
         
         QualType type = expr->getType();
-        QualType origType = expr->getSubExpr()->getType();
+        QualType origType = sexpr->getType();
         bool isBool = origType->isBooleanType();
         bool isSigned = isSignedType(type);
         bool isOrigSigned = isSignedType(origType);
@@ -1072,23 +1081,26 @@ void ScGenerateExpr::parseExpr(ImplicitCastExpr* expr, SValue& rval, SValue& val
             
         } else {
             // No type cast required, in Verilog RHS implicitly narrowed to LHS
-            codeWriter->copyTerm(expr->getSubExpr(), expr);
+            codeWriter->copyTerm(sexpr, expr);
         }
-        
-        // Set/reset sign cast for literals and expressions
-        // Skip boolean type conversion as it considered as unsigned
-        // No special rule for @enum required, unsigned @enum casted to @int
-        if (!isBool && isOrigSigned != isSigned) { 
-            codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
-                                                     CastSign::UCAST);
-        } else 
-        if (isBool && isOrigSigned != isSigned) {
-            codeWriter->putBoolCast(expr);
-        }  
+
+        // Do not add cast for literal simple form
+        if (!val.isInteger() || !codeWriter->isLiteralSimpleForm()) {
+            // Set/reset sign cast for literals and expressions
+            // Skip boolean type conversion as it considered as unsigned
+            // No special rule for @enum required, unsigned @enum casted to @int
+            if (!isBool && isOrigSigned != isSigned) { 
+                codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
+                                                         CastSign::UCAST);
+            } else 
+            if (isBool && isOrigSigned != isSigned) {
+                codeWriter->putBoolCast(expr);
+            }  
+        }
         return;
     }
     
-    codeWriter->copyTerm(expr->getSubExpr(), expr);
+    codeWriter->copyTerm(sexpr, expr);
 }
 
 void ScGenerateExpr::parseExpr(ExplicitCastExpr* expr, SValue& rval, SValue& val)
@@ -1784,6 +1796,7 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
     val = NO_VALUE;
     Expr* lexpr = stmt->getLHS();
     Expr* rexpr = stmt->getRHS();
+    QualType type = stmt->getType();
 
     // Operation code
     BinaryOperatorKind opcode = stmt->getOpcode();
@@ -1804,10 +1817,10 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
         }
     } else {
         if (opcode != BO_And && opcode != BO_Xor && opcode != BO_Or) {
-            if (CheckTildaVisitor::get().hasTilda(lexpr)) {
+            if (tildaVisitor.hasTilda(lexpr)) {
                 ScDiag::reportScDiag(lexpr->getBeginLoc(), ScDiag::SYNTH_TILDA_IN_BINARY);
             }
-            if (CheckTildaVisitor::get().hasTilda(rexpr)) {
+            if (tildaVisitor.hasTilda(rexpr)) {
                 ScDiag::reportScDiag(rexpr->getBeginLoc(), ScDiag::SYNTH_TILDA_IN_BINARY);
             }
         }
@@ -1883,8 +1896,8 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                 bool filePtr = false;
                 if (auto ptrType = lval.getTypePtr()) {
                     auto objType = ptrType->getPointeeOrArrayElementType();
-                    QualType type(objType, 0);
-                    filePtr = type.getAsString() == "FILE";
+                    QualType ftype(objType, 0);
+                    filePtr = ftype.getAsString() == "FILE";
                 }
                 // No error message for file pointer assignment
                 if (!filePtr) {
@@ -1972,7 +1985,32 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                     unsigned width = codeWriter->getExprTypeWidth(lexpr);
                     codeWriter->extendTypeWidth(lexpr, width);
                 }
+                
+                // Increase width for self-determined LHS/RHS (see LRM 11.6)
+                if (opcode == BO_And || opcode == BO_Or  || opcode == BO_Xor) {
+                    if (codeWriter->isIncrWidth(lexpr)) {
+                        unsigned width = codeWriter->getExprTypeWidth(lexpr, 64);
+                        if (auto pair = getIntTraits(lexpr->getType())) {
+                            width = width > pair->first ? pair->first : width;
+                        }
+                        codeWriter->extendTypeWidth(lexpr, width);
+                    }
+                    if (codeWriter->isIncrWidth(rexpr)) {
+                        unsigned width = codeWriter->getExprTypeWidth(rexpr, 64);
+                        if (auto pair = getIntTraits(rexpr->getType())) {
+                            width = width > pair->first ? pair->first : width;
+                        }
+                        codeWriter->extendTypeWidth(rexpr, width);
+                    }
+                }
+                
                 codeWriter->putBinary(stmt, opcodeStr, lexpr, rexpr);
+
+                // Add width cast to ensure equivalence SV vs SC, see #330
+                // For loop condition, indices and ranges
+                //if (!codeWriter->isLiteralSimpleForm()) {
+                //   codeWriter->putTypeCast(stmt, type);
+                //}
                 
                 if (getAssignStmt(lexpr) || getAssignStmt(rexpr)) {
                     ScDiag::reportScDiag(stmt->getBeginLoc(),
@@ -1997,6 +2035,22 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
                                          "ScGenerateExpr::parseBinaryStmt";
                 }
             } else {
+                // Increase width for self-determined LHS/RHS (see LRM 11.6)
+                if (codeWriter->isIncrWidth(lexpr)) {
+                    unsigned width = codeWriter->getExprTypeWidth(lexpr, 64);
+                    if (auto pair = getIntTraits(lexpr->getType())) {
+                        width = width > pair->first ? pair->first : width;
+                    }
+                    codeWriter->extendTypeWidth(lexpr, width);
+                }
+                if (codeWriter->isIncrWidth(rexpr)) {
+                    unsigned width = codeWriter->getExprTypeWidth(rexpr, 64);
+                    if (auto pair = getIntTraits(rexpr->getType())) {
+                        width = width > pair->first ? pair->first : width;
+                    }
+                    codeWriter->extendTypeWidth(rexpr, width);
+                }
+                
                 codeWriter->putBinary(stmt, opcodeStr, lexpr, rexpr);
 
                 if (getAssignStmt(lexpr) || getAssignStmt(rexpr)) {
@@ -2040,7 +2094,7 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
     string opcodeStr = stmt->getOpcodeStr(compOpcode).str();
     
     if (opcode != BO_AndAssign && opcode != BO_OrAssign && opcode != BO_XorAssign) {
-        if (CheckTildaVisitor::get().hasTilda(rexpr)) {
+        if (tildaVisitor.hasTilda(rexpr)) {
             ScDiag::reportScDiag(rexpr->getBeginLoc(), ScDiag::SYNTH_TILDA_IN_BINARY);
         }
     }
@@ -2106,6 +2160,7 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
     bool isPrefix = stmt->isPrefix(stmt->getOpcode());
     bool isIncrDecr = opcode == UO_PostInc || opcode == UO_PreInc || 
                       opcode == UO_PostDec || opcode == UO_PreDec;
+    QualType type = stmt->getType();
     
     Expr* rexpr = stmt->getSubExpr();
     bool lastAssignLHS = assignLHS; 
@@ -2206,6 +2261,12 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
                                  ScDiag::SYNTH_POINTER_OPER) << opcodeStr;
         } else {
             codeWriter->putUnary(stmt, opcodeStr, rexpr, isPrefix);
+            
+            // Add width cast to ensure equivalence SV vs SC, see #330
+            // For loop condition, indices and ranges
+            //if (!codeWriter->isLiteralSimpleForm()) {
+            //    codeWriter->putTypeCast(stmt, type);
+            //}
         }
 
     } else
@@ -2273,12 +2334,12 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
         if (rval.isVariable() || rval.isTmpVariable() || rval.isArray() || 
             rval.isSimpleObject()) {
             // Create temporary object pointer to @rval
-            QualType type = (rval.isVariable()) ? 
+            QualType ttype = (rval.isVariable()) ? 
                                 rval.getVariable().getType() :
                                 ((rval.isTmpVariable()) ? 
                                         rval.getTmpVariable().getType() : 
                                         rval.getObjectPtr()->getType());
-            val = SValue(type);
+            val = SValue(ttype);
             // Put address of value to state, no code generated here
             state->putValue(val, rval);
             state->setValueLevel(val, level+1);
@@ -2307,7 +2368,9 @@ SValue ScGenerateExpr::parseArraySubscript(Expr* expr,
     
     // Skip sign cast for array index
     bool skipSignCastOrig = codeWriter->isSkipSignCast();
+    bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
     codeWriter->setSkipSignCast(true);
+    codeWriter->setLiteralSimpleForm(true);
     
     // Index variable/value
     bool lastAssignLHS = assignLHS; assignLHS = false;
@@ -2325,6 +2388,7 @@ SValue ScGenerateExpr::parseArraySubscript(Expr* expr,
     }
 
     codeWriter->setSkipSignCast(skipSignCastOrig);
+    codeWriter->setLiteralSimpleForm(literalSimpleForm);
     
     // Get referenced variable for array (reference to array: T (&a)[N])
     SValue bbval;
@@ -2737,10 +2801,13 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             } else {
                 // Skip sign cast for part select index
                 bool skipSignCastOrig = codeWriter->isSkipSignCast();
+                bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
                 codeWriter->setSkipSignCast(true);
+                codeWriter->setLiteralSimpleForm(true);
                 // Parse argument expression to fill @terms
                 SValue rval;
                 chooseExprMethod(indxExpr, rval);
+                codeWriter->setLiteralSimpleForm(literalSimpleForm);
                 codeWriter->setSkipSignCast(skipSignCastOrig);
 
                 codeWriter->putBitSelectExpr(expr, ttval, thisExpr, indxExpr);            
@@ -2763,7 +2830,9 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             } else {
                 // Skip sign cast for part select index
                 bool skipSignCastOrig = codeWriter->isSkipSignCast();
+                bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
                 codeWriter->setSkipSignCast(true);
+                codeWriter->setLiteralSimpleForm(true);
                 // Parse to remove sub-statements
                 SValue rval;
                 chooseExprMethod(hiExpr, rval);
@@ -2772,6 +2841,7 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 // Evaluate range par-select which is possible variable dependent
                 bool useDelta = evaluateRangeExpr(hiExpr, loExpr);
                 codeWriter->setSkipSignCast(skipSignCastOrig);
+                codeWriter->setLiteralSimpleForm(literalSimpleForm);
 
                 codeWriter->putPartSelectExpr(expr, ttval, thisExpr, hiExpr, 
                                               loExpr, useDelta);
@@ -2905,7 +2975,7 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
 
                 // and if there is no type cast
                 bool skipTilda = false;
-                if (CheckTildaVisitor::get().hasPureTilda(argExpr)) {
+                if (tildaVisitor.hasPureTilda(argExpr)) {
                     skipTilda = isScUInt(ltype) || isScInt(ltype);
                 }
                 //cout << "skipTilda " << skipTilda << endl;
@@ -3049,8 +3119,11 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 // Check argument is integer type
                 if (isAnyInteger(args[0]->getType())) {
                     // Parse @wait(n) argument
+                    bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
+                    codeWriter->setLiteralSimpleForm(true);
                     SValue ival;
                     chooseExprMethod(args[0], ival);
+                    codeWriter->setLiteralSimpleForm(literalSimpleForm);
 
                     // Put wait(n) counter assignment
                     codeWriter->putWaitNAssign(expr, args[0]);
@@ -3185,11 +3258,11 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
          opcode != OO_Amp && opcode != OO_Pipe && opcode != OO_Caret &&    
          opcode != OO_AmpEqual && opcode != OO_PipeEqual && opcode != OO_CaretEqual) 
     {
-        if (CheckTildaVisitor::get().hasTilda(lexpr)) {
+        if (tildaVisitor.hasTilda(lexpr)) {
             ScDiag::reportScDiag(lexpr->getBeginLoc(), ScDiag::SYNTH_TILDA_IN_BINARY);
         }
         Expr* rexpr = args[1];
-        if (CheckTildaVisitor::get().hasTilda(rexpr)) {
+        if (tildaVisitor.hasTilda(rexpr)) {
             ScDiag::reportScDiag(rexpr->getBeginLoc(), ScDiag::SYNTH_TILDA_IN_BINARY);
         }
     }
@@ -3293,7 +3366,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             // Skip type cast for bitwise not if leLHS is @sc_int/@sc_uint only
             // and if there is no type cast
             bool skipTilda = false;
-            if (CheckTildaVisitor::get().hasPureTilda(rexpr)) {
+            if (tildaVisitor.hasPureTilda(rexpr)) {
                 QualType lexprType = ltype;
                 if (isScChannel(ltype)) {
                     if (auto ctype = getTemplateArgAsType(ltype, 0)) {
@@ -3494,9 +3567,12 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             } else {
                 // Skip sign cast for part select index
                 bool skipSignCastOrig = codeWriter->isSkipSignCast();
+                bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
                 codeWriter->setSkipSignCast(true);
+                codeWriter->setLiteralSimpleForm(true);
                 SValue rval; 
                 chooseExprMethod(rexpr, rval);
+                codeWriter->setLiteralSimpleForm(literalSimpleForm);
                 codeWriter->setSkipSignCast(skipSignCastOrig);
 
                 // Put bit access expression as array index access
@@ -3516,13 +3592,16 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             } else {
                 // Skip sign cast for part select index
                 bool skipSignCastOrig = codeWriter->isSkipSignCast();
+                bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
                 codeWriter->setSkipSignCast(true);
+                codeWriter->setLiteralSimpleForm(true);
                 SValue rval; SValue rrval;
                 chooseExprMethod(args[1], rval);
                 chooseExprMethod(args[2], rrval);
 
                 // Evaluate range par-select which is possible variable dependent
                 bool useDelta = evaluateRangeExpr(args[1], args[2]);
+                codeWriter->setLiteralSimpleForm(literalSimpleForm);
                 codeWriter->setSkipSignCast(skipSignCastOrig);
 
                 codeWriter->putPartSelectExpr(expr, lval, lexpr, args[1], args[2], 
@@ -3689,6 +3768,25 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 unsigned width = codeWriter->getExprTypeWidth(lexpr);
                 codeWriter->extendTypeWidth(lexpr, width);
             }
+            
+            // Increase width for self-determined LHS/RHS (see LRM 11.6)
+            if (opcode == OO_EqualEqual || opcode == OO_ExclaimEqual ||
+                opcode ==  OO_Less || opcode == OO_LessEqual || 
+                opcode == OO_Greater || opcode == OO_GreaterEqual ||
+                opcode == OO_Caret || opcode == OO_Amp || opcode == OO_Pipe) 
+            {
+                if (codeWriter->isIncrWidth(lexpr)) {
+                    unsigned width = codeWriter->getExprTypeWidth(lexpr, 64);
+                    // Do not adjust with expression type width
+                    codeWriter->extendTypeWidth(lexpr, width);
+                }
+                if (codeWriter->isIncrWidth(rexpr)) {
+                    unsigned width = codeWriter->getExprTypeWidth(rexpr, 64);
+                    // Do not adjust with expression type width
+                    codeWriter->extendTypeWidth(rexpr, width);
+                }
+            }
+            
             codeWriter->putBinary(expr, opStr, lexpr, rexpr);
             
             if (getAssignStmt(lexpr) || getAssignStmt(rexpr)) {
@@ -3947,7 +4045,10 @@ std::optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt,
         auto cexpr = const_cast<Expr*>(ifstmt->getCond());
 
         if (termCond.isInteger()) {
+            bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
+            codeWriter->setLiteralSimpleForm(true);
             codeWriter->putLiteral(cexpr, termCond);
+            codeWriter->setLiteralSimpleForm(literalSimpleForm);
         } else {
             SValue val;
             chooseExprMethod(cexpr, val);
@@ -3965,7 +4066,10 @@ std::optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt,
         auto cexpr = const_cast<Expr*>(swstmt->getCond());
 
         if (termCond.isInteger()) {
+            bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
+            codeWriter->setLiteralSimpleForm(true);
             codeWriter->putLiteral(cexpr, termCond);
+            codeWriter->setLiteralSimpleForm(literalSimpleForm);
         } else {
             SValue val;
             chooseExprMethod(cexpr, val);
@@ -3977,7 +4081,10 @@ std::optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt,
         auto cexpr = binstmt->getLHS();
 
         if (termCond.isInteger()) {
+            bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
+            codeWriter->setLiteralSimpleForm(true);
             codeWriter->putLiteral(cexpr, termCond);
+            codeWriter->setLiteralSimpleForm(literalSimpleForm);
         } else {
             SValue val;
             chooseExprMethod(cexpr, val);
@@ -3989,7 +4096,10 @@ std::optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt,
         auto cexpr = cndstmt->getCond();
 
         if (termCond.isInteger()) {
+            bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
+            codeWriter->setLiteralSimpleForm(true);
             codeWriter->putLiteral(cexpr, termCond);
+            codeWriter->setLiteralSimpleForm(literalSimpleForm);
         } else {
             SValue val;
             chooseExprMethod(cexpr, val);
@@ -4003,6 +4113,8 @@ std::optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt,
         auto incr  = const_cast<Expr*>(forstmt->getInc());
         SValue val;
         
+        bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
+        codeWriter->setLiteralSimpleForm(true);
         if (init) {
             DeclStmt* declStmt = dyn_cast<DeclStmt>(init);
             if (declStmt && !declStmt->isSingleDecl()) {
@@ -4032,6 +4144,7 @@ std::optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt,
             }
             chooseExprMethod(incr, val);
         }
+        codeWriter->setLiteralSimpleForm(literalSimpleForm);
 
         if (artifIf) {
             return codeWriter->getIfString(cexpr);
@@ -4044,7 +4157,10 @@ std::optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt,
         auto cexpr = const_cast<Expr*>(whiStmt->getCond());
 
         if (termCond.isInteger()) {
+            bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
+            codeWriter->setLiteralSimpleForm(true);
             codeWriter->putLiteral(cexpr, termCond);
+            codeWriter->setLiteralSimpleForm(literalSimpleForm);
         } else {
             SValue val;
             chooseExprMethod(cexpr, val);
@@ -4061,7 +4177,10 @@ std::optional<string> ScGenerateExpr::parseTerm(const Stmt* stmt,
         auto cexpr = const_cast<Expr*>(doStmt->getCond());
 
         if (termCond.isInteger()) {
+            bool literalSimpleForm = codeWriter->isLiteralSimpleForm();
+            codeWriter->setLiteralSimpleForm(true);
             codeWriter->putLiteral(cexpr, termCond);
+            codeWriter->setLiteralSimpleForm(literalSimpleForm);
         } else {
             SValue val;
             chooseExprMethod(cexpr, val);

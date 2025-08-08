@@ -10,6 +10,8 @@
 #include "sct_assert.h"
 #include <iostream>
 
+using namespace sct;
+        
 // Operations with negative numbers of C++ and SC types, 
 // mixed of signed and unsigned types -- should not be normally used
 class A : public sc_module 
@@ -18,18 +20,17 @@ public:
     sc_in<bool>         a{"a"};
     sc_out<bool>        b{"b"};
     sc_signal<sc_uint<32> > s{"s"};
+    sc_signal<sc_uint<1>>   z{"z"};
     
     sc_signal<bool> dummy{"dummy"};
 
     SC_CTOR(A) {
         SC_METHOD(github_16); sensitive << sa << sb;
-        
-        SC_METHOD(liter_suff_U); sensitive << dummy;
+        SC_METHOD(liter_suff_U2); sensitive << s;
         SC_METHOD(liter_suff_L); sensitive << dummy;
         SC_METHOD(liter_suff_var); sensitive << dummy;
         
         SC_METHOD(liter_neg_non_div_bug); sensitive << dummy;
-        
         SC_METHOD(liter_neg_div); sensitive << dummy;
         SC_METHOD(liter_neg_div_part); sensitive << dummy;
         SC_METHOD(liter_neg_non_div); sensitive << dummy;
@@ -46,6 +47,16 @@ public:
         SC_METHOD(sc_type_neg_comp); sensitive << dummy;
         SC_METHOD(cpp_sc_type_mix); sensitive << dummy;
         SC_METHOD(compl_expr_mix); sensitive << dummy;
+
+        SC_METHOD(liter_suff_U); sensitive << s;
+        SC_METHOD(self_determined_expr); sensitive << s << z;
+        SC_METHOD(cpp_overflow); sensitive << s;
+        SC_METHOD(cpp_overflow2); sensitive << s;
+        SC_METHOD(cpp_overflow3); sensitive << s;
+        SC_METHOD(sc_unsigned_error); sensitive << s << sbu1 << sbu2;
+        SC_METHOD(others); sensitive << s;
+        
+        SC_METHOD(assign_s);
     }
     
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
@@ -72,8 +83,8 @@ public:
     
     // Literal suffix @U just ignored
     sc_signal<int> t1;
-    void liter_suff_U() 
-    {
+    void liter_suff_U2() 
+    {    
         sc_int<3> x = 2;
         t1 = x;
         sc_int<4> y = -6;
@@ -87,7 +98,7 @@ public:
         //CHECK(z == -3);
 
         z = 12U / 6;
-        t0 = z;
+        t1 = z;
         CHECK(z == 2);
         z = 12U / (-6);     // Warning repotred
         t1 = z;
@@ -794,6 +805,433 @@ public:
         
     }
     
+    // Literal suffix @U just ignored
+    sc_signal<sc_bigint<64>> tt;
+    const sc_int<32> S1      = "2";   
+    const sc_uint<32> S2     = "0x2"; 
+    const unsigned U1        = 2U;    
+    static const unsigned U2 = 2UL;   
+    
+    template<class T>
+    void liter_suff_U_T() 
+    {
+        T x;
+        x = 0;                      // Simple form
+        x = 1;                      // Simple form
+        
+        x = -3;                     // OK: 'sd 
+        x = 3;                      // OK: simple
+        x = x + 3;                  // OK: simple or `d
+        x = 3 > x;                  // OK: simple or `d
+
+        x = -4U;                    // OK: 'sd 
+        x = 4U;                     // OK: 'd or 'sd 
+        x = x + 4U;                 // OK: 'd or simple
+        x = 4U > x;                 // OK: 'd or simple
+        
+        x = -5;                     // OK: 'sd
+        x = sc_uint<8>(5);          // OK: 'd or 'sd      
+        x = sc_uint<8>(5)+x;        // OK: 'd or 'sd      
+        x = sc_uint<8>(5) > x;      // OK: 'd       
+        
+        x = -sc_int<8>(6);          // OK: 'sd
+        x = sc_int<8>(6);           // !!! OK: 'd or 'sd 
+        x = sc_int<8>(6)+x;         // OK: 'sd
+        x = sc_int<8>(6) > x;       // !!! OK: 'sd
+
+        x = sc_uint<5>("42");
+        x = sc_uint<2>(U1-1U-0);
+        x = sc_uint<2>(U1-1U-0) > x;
+        
+        x = U1 + U2 + S1 + S2;
+        tt = sc_bigint<64>(x);
+    }
+    
+    void liter_suff_U() {
+        bool x;
+        sc_uint<1> y;
+        
+        liter_suff_U_T<int>();
+        liter_suff_U_T<unsigned>();
+        liter_suff_U_T<sc_int<64>>();
+        liter_suff_U_T<sc_uint<64>>();
+        liter_suff_U_T<sc_bigint<64>>();
+        liter_suff_U_T<sc_biguint<64>>();
+        
+        tt = x + y;
+    }
+    
+    
+    // Check no overflow for self determined expression with literals
+    void self_determined_expr() {
+        using namespace sct;
+      
+        sct_uint<1> k = 0;
+        sct_uint<2> i = 3;
+        sct_uint<3> j = 5;
+        sct_uint<65> bi = "0x10000000000000000";
+        sct_uint<65> bj = "0x10000000000000000";
+        unsigned res; bool bres;
+        
+        res = 1U << (i + j);             // OK    
+        cout << "1 << (i + j) " << res << endl;
+        sct_assert(res == 256);
+        
+        res = 0x1000U >> (i + j);        // OK    
+        cout << "1 >> (i + j) " << res << endl;
+        sct_assert(res == 16);
+
+        k = 1;
+        res = (i + j) + k;              // OK    
+        cout << "(i + j) + k " << res << endl;
+        sct_assert(res == 9);
+        k = 0;
+
+        auto x1 = 1 << (2U+2U); 
+        cout << "x1 " << x1 << endl;
+        CHECK(x1 == 16);
+        
+        auto x2 = 1 << (2U*2U);
+        cout << "x2 " << x2 << endl;
+        CHECK(x2 == 16);
+        
+        
+        // Comparison operators
+        bres = (i + j == k);            // FIXED
+        cout << "i + j == k " << bres << endl;
+        sct_assert(!bres);
+
+        bres = (2U + 2U == k);            // FIXED
+        cout << "2U + 2U == k " << bres << endl;
+        sct_assert(!bres);        
+        
+        bres = (i + j > z.read());      // FIXED
+        cout << "i + j > z " << bres << endl;
+        sct_assert(bres);
+        
+        bres = (bi + bj == k);            // FIXED
+        cout << "bi + bj == k " << bres << endl;
+        sct_assert(!bres);
+        
+        bres = (bi + bj > z.read());      // FIXED
+        cout << "bi + bj > z " << bres << endl;
+        sct_assert(bres);
+        
+        
+        // Condition in ternary operator
+        res = (i + j + z.read()) ? 1 : 2;          // FIXED
+        cout << "(i + j) ? 1 : 2 " << res << endl;
+        sct_assert(res == 1);
+        
+        res = (2U + 2U + z.read()) ? 1 : 2;          
+        cout << "(2U + 2U) ? 1 : 2 " << res << endl;
+        sct_assert(res == 1);
+        
+        // Condition in terminators
+        if (i + j + z.read()) res = 1; else res = 2;  // FIXED
+        cout << "if (i + j) ... " << res << endl;
+        sct_assert(res == 1);
+        
+        // Expression assigned to bool LHS
+        bres = i + j + z.read();         // FIXED
+        cout << "bool b = i + j... " << bres << endl;
+        sct_assert(bres);
+
+        bres = 2U + 2U + z.read();         // FIXED
+        cout << "bool b = 2U + 2U... " << bres << endl;
+        sct_assert(bres);
+
+        // Expression casted to bool
+        res = bool(i + j) + 1;           // FIXED   
+        cout << "res = bool(i + j) + 1 " << res << endl;
+        sct_assert(res == 2);
+  
+
+        // Logical OR/AND/...
+        bres = (i + 2U + z.read()) && (i + j);     // FIXED
+        cout << "(i + 2U) || (i + j) " << bres << endl;
+        sct_assert(bres);
+
+        bres = !(!(i + j + z.read()) || !(2U + j));     // FIXED
+        cout << "!(i + j) && (2U + j) " << bres << endl;
+        sct_assert(bres);
+
+        // Biwise OR/AND/...
+        res = (i + j + z.read()) | (i + j);      // FIXED
+        cout << "(i + j) | (i + j) " << res << endl;
+        sct_assert(res);
+        
+        auto wres = (bi + bj + z.read()) | (bi + bj);      // FIXED
+        cout << "(bi + bj) | (bi + bj) " << hex << wres << dec << endl;
+        sct_assert(wres == sc_biguint<66>("0x20000000000000000"));
+        
+        // Expression assigned to narrow width LHS
+        sc_uint<1> s = i + j + z.read();  // OK
+        cout << "bool b = i + j... " << s << endl;
+        sct_assert(s == 0);
+        
+        // Check ++ and -- for width increase
+        i = 3;
+        bres = (++i == k);            
+        cout << "++i == k " <<  i << " " << bres << endl;
+        sct_assert(bres);
+
+        unsigned u = 0;
+        bres = (--u == k);            
+        cout << "--u == k " << u << " " << bres << endl;
+        sct_assert(!bres);
+
+        // Others
+        i = 3;
+        res = 1 << (i + 1);
+        cout << "1 << (i + 1) " << res << endl;
+        CHECK(res == 16);
+        res = 1 << (i * 2);
+        cout << "1 << (i * 2) " << res << endl;
+        CHECK(res == 64);
+
+        res = 1 << (2*i + j - 1);
+        CHECK(res == 1024);
+        
+        // Check for width determination in complex expression
+        j = 7;
+        res = (j+1) + (i*2);
+        CHECK(res == 14);
+        
+        bres = (j+1 == 0) || (i*2 == 0);
+        CHECK(!bres);
+    }
+    
+    sc_signal<sc_biguint<70>> sbu1;
+    sc_signal<sc_biguint<70>> sbu2;
+    sc_signal<unsigned> tt2;
+    void sc_unsigned_error() {
+        sct_uint<65> bi;
+        sct_uint<65> bj;
+        // Cannot determine width of @sc_unsigned -- error reported
+        //bi = s.read() | (sbu1.read() << sbu2.read());  // ERROR
+
+        // That should be rewritten in the following form
+        bi = sbu1.read() << sbu2.read();
+        bj = s.read() | bi;
+        
+        //auto ci = sbu1.read() << sbu2.read();       // ERROR
+        //bj = s.read() | ci;                     
+        
+        tt2 = bj.to_uint();
+    }    
+    
+    // C++ overflow example
+    sc_signal<unsigned> tt1;
+    void cpp_overflow() {
+        using namespace sct;
+        
+        unsigned i1 = 1U << 31;
+        unsigned i2 = 2;
+        int si1 = 1U << 31;
+        int si2 = -2;
+        sc_uint<64> y1 = 1ULL << 63;
+        sc_uint<64> y2 = 2;
+        sc_int<64> sy1 = 1ULL << 63;
+        sc_int<64> sy2 = -2;
+        sc_biguint<64> x1 = 1ULL << 63;
+        sc_biguint<64> x2 = 2;
+        sc_bigint<64> sx1 = 1ULL << 63;
+        sc_bigint<64> sx2 = -2;
+        sc_biguint<68> x3;
+        sc_bigint<68> sx3;
+        
+        // CPP types, #330
+        x3 = i1 * i2;
+        cout << hex << "(i1 * i2) " << x3  << dec << endl;
+        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
+
+        x3 = si1 * si2;
+        cout << hex << "(si1 * si2) " << x3  << dec << endl;
+        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
+
+        x3 = i1 * si2;
+        cout << hex << "(i1 * si2) " << x3  << dec << endl;
+        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV*/
+
+        // SC types, #330
+        x3 = y1 * y2;
+        cout << hex << "(y1 * y2) " << x3  << dec << endl;
+        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
+
+        x3 = sy1 * sy2;
+        cout << hex << "(sy1 * sy2) " << x3  << dec << endl;
+        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
+
+        x3 = y1 * sy2;
+        cout << hex << "(y1 * sy2) " << x3  << dec << endl;
+        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
+
+        // big SC types
+        x3 = x1 * x2;
+        cout << hex << "(x1 * x2) " << x3  << dec << endl;
+        CHECK(x3 == sc_biguint<68>("0x10000000000000000"));
+
+        sx3 = sx1 * sx2;
+        cout << "(sx1 * sx2) " << hex << sx3 << dec << " : " << sx3 << endl;
+        CHECK(sx3 == sc_bigint<68>("0x10000000000000000"));
+
+        sx3 = x1 * sx2;
+        cout << hex << "(x1 * sx2) " << sx3  << dec << endl;
+        CHECK(x3 == sc_biguint<68>("0x10000000000000000"));
+        
+        // Unary 
+        i1 = 0xFFFFFFFF;
+        si1 = -2147483648;
+        x3 = ++i1;
+        cout << hex << "i1++ " << x3 << dec << endl;
+        //CHECK(x3 == 0);  
+
+        x3 = --si1;
+        cout << hex << "si1-- " << x3 << dec << endl;
+        //CHECK(x3 == 0x7FFFFFFF);  
+        
+        y1 = 0xFFFFFFFFFFFFFFFF;
+        sy1 = -0x8000000000000000;
+        x3 = ++y1;
+        cout << hex << "y1++ " << x3 << dec << endl;
+        //CHECK(x3 == 0);  
+
+        x3 = --sy1;
+        cout << hex << "sy1-- " << x3 << dec << endl;
+        //CHECK(x3 == 0x7FFFFFFFFFFFFFFF);
+    }
+    
+    void cpp_overflow2() {
+        using namespace sct;
+        
+        unsigned i1 = 1U << 31;
+        unsigned i2 = 2;
+        int si1 = 1U << 31;
+        int si2 = -2;
+        sc_uint<16> y1 = 3;
+        sc_uint<16> y2 = 2;
+        sc_int<16> sy = 3;
+        sc_int<16> sy1 = -3;
+        sc_int<16> sy2 = -2;
+        sc_biguint<16> x1 = 3;
+        sc_biguint<16> x2 = 2;
+        sc_bigint<16> sx1 = -3;
+        sc_bigint<16> sx2 = -2;
+        sc_biguint<42> x3;
+        sc_bigint<42> sx3;
+        
+        // SC types, #330
+        x3 = y1 + sy2;  // Warning reported
+        cout << hex << "(y1 + sy2) " << x3  << dec << endl;
+        //CHECK(x3 == 1);  //0x1 in SC, 0x10...1 in SV
+        
+        x3 = y2 + sy2;
+        cout << hex << "(y2 + sy2) " << x3  << dec << endl;
+        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
+
+        x3 = sy + sy2;
+        cout << hex << "(sy + sy2) " << x3  << dec << endl;
+        CHECK(x3 == 1);  //
+        
+        sx3 = y2 + sy2;
+        cout << hex << "(y2 + sy2) " << x3  << dec << endl;
+        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
+
+        x3 = x1 + sx2;
+        cout << hex << "(x1 + sx2) " << x3  << dec << endl;
+        CHECK(x3 == 1);  // OK
+
+        sx3 = x2 + sx1;
+        cout << hex << "(x2 + sx1) " << sx3  << dec << endl;
+        CHECK(sx3 == -1);  // OK
+
+        x3 = x2 + sx2;
+        cout << hex << "(x2 + sx2) " << x3  << dec << endl;
+        CHECK(x3 == 0);  // OK
+
+        sx3 = x2 + sx2;
+        cout << hex << "(x2 + sx2) " << sx3  << dec << endl;
+        CHECK(sx3 == 0);  // OK
+    }
+    
+    void cpp_overflow3() {
+        using namespace sct;
+        
+        cout << "cpp_overflow3 "  << endl;
+        sc_uint<7> k, m;
+        k = 41; m = 42;
+        sc_uint<8> res;
+
+        res = (k - m) % 11;   // Non-equivalent
+        cout << "res " << res << endl;
+        //CHECK(res == 4);  
+
+        res = sc_uint<8>(k - m) % 11;    // OK
+        cout << "res " << res << endl;
+        CHECK(res == 2);  
+        
+        unsigned u = 1;
+        res = u << 32;    // Non-equivalent: 1 in SC, 0 in SV
+    }
+
+    sc_signal<unsigned> tt3;
+    void others() {
+        int a = -5;
+        unsigned u = 1;
+        bool c;
+        sct_uint<1> k = 0;
+        sct_uint<2> i = 3;
+        sct_uint<3> j = 5;
+        sct_uint<65> bi = "0x10000000000000000";
+        sct_uint<65> bj = "0x10000000000000000";
+        sc_biguint<66> res;
+
+        // Overflow checks -- work well for SC types
+        // --- 1 ---
+        c = (i + j == k);
+        cout << "i + j == k " << c << endl;
+        sct_assert(!c);     // OK
+        
+        // --- 2 ---
+        c = (bi + bj == k);            
+        cout << "bi + bj == k " << c << endl;
+        sct_assert(!c);     // OK
+        
+        
+        // Cast for left shift -- C++ data types overflow not supported!!!
+        unsigned m0;
+        m0 = 31;
+        c = (1U << m0);
+        //cout << "1 << m0 " << hex << (1U << m0) << dec << " " << c << endl;
+        //sct_assert(c);
+
+        m0 = 64;
+        c = (1ULL << m0);
+        //cout << "1ULL << m0 " << hex << (1U << m0) << dec << " " << c << endl;
+        
+        m0 = 32;            
+        res = (1U << m0);     // Cyclic shift in SC results is 1, 0 in SV
+        //cout << "1 << m0 " << hex << (1U << m0) << dec << " " << c << endl;
+        //sct_assert(c);      // ERROR
+
+        m0 = 32;
+        res = (sc_uint<32>(1) << m0);
+        c = (sc_uint<32>(1) << m0);
+        cout << "1 << m0 " << hex << res << dec << " " << c << endl;
+        sct_assert(c);       // OK
+
+        m0 = 64;
+        res = (sc_biguint<66>(1) << m0);
+        c = res != 0;           
+        cout << "<66>1 << m0 " << hex << res << dec << " " << c << endl;
+        sct_assert(c);       // OK
+    }
+
+    void assign_s() {
+        s = 0;
+        z = 0;
+    }
 };
 
 class B_top : public sc_module 

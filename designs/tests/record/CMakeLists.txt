@@ -142,6 +142,9 @@ svc_target(record_return_method2 GOLDEN record_return_method2.sv)
 add_executable(record_return_method_mif test_return_method_mif.cpp)
 svc_target(record_return_method_mif GOLDEN record_return_method_mif.sv)
 
+add_executable(record_return_method_mif1 test_return_method_mif1.cpp)
+svc_target(record_return_method_mif1 GOLDEN record_return_method_mif1.sv)
+
 add_executable(record_return_method_mif2 test_return_method_mif2.cpp)
 svc_target(record_return_method_mif2 GOLDEN record_return_method_mif2.sv)
 

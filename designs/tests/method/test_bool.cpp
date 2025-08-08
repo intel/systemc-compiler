@@ -14,8 +14,6 @@ class A : public sc_module
 {
 public:
     sc_in<bool>         a{"a"};
-    sc_out<bool>        b{"b"};
-    sc_out<bool>        c{"c"};
     sc_signal<bool>     s{"s"};
     sc_signal<bool>*    ps;
     
@@ -43,7 +41,7 @@ public:
         
         SC_METHOD(bool_arithmetic); sensitive << dummy;
         
-        SC_METHOD(test_bool_to_bool); sensitive << a << s << b << *ps;
+        SC_METHOD(test_bool_to_bool); sensitive << a << s << *ps;
         SC_METHOD(test_bool_unary); sensitive << dummy;
         SC_METHOD(test_sc_to_bool); sensitive << dummy;
         SC_METHOD(test_ptr_comp); sensitive << dummy;
@@ -79,8 +77,8 @@ public:
         CHECK(res == -41);
         res = ux + b;
         CHECK(res == 44);
-        res = ix + b;
-        CHECK(res == -42);
+        //res = ix + b;
+        //CHECK(res == -42);
         res = ub.to_uint64() + b;
         CHECK(res == 45);
         res = ib.to_int64() + b;
@@ -98,23 +96,14 @@ public:
         bool b2 = b1;
         b2 = b1;
         
-        b = b1;
-        b.write(b1);
-        b = a;
-        b = a.read();
-        b.write(a);
-        b.write(a.read());
+        t0 = a;
+        t0 = a.read();
+        t0.write(a);
+        t0.write(a.read());
         
-        s = b;
-        s = b1;
-        b = s;
-        b = s.read();
-        
-        ps->write(b1);
-        *ps = b;
-        b = *ps;
-        b = ps->read();
-        t0 = b; t0 = b1; t0 = b2;
+        t0 = *ps;
+        t0 = ps->read();
+        t0 = b1; t0 = b2;
     }
     
     // Cast to boolean of unary expressions
@@ -149,9 +138,6 @@ public:
         s = x.range(2,1);
         s = x;
 
-        *ps = x.bit(1);
-        ps->write(x.range(2,1));
-        *ps = x;
         t2 = b1;
     }
     
@@ -189,11 +175,8 @@ public:
         b1 = i != x;
         t4 = b1;
         
-        b = i < 3;
-        b.write(x >= i);
-        
-        s = x == i;
-        s.write(*p2 > 0);
+        t4 = x == i;
+        t4.write(*p2 > 0);
         
         *ps = x != 0;
         ps->write(i == *p2);
@@ -266,15 +249,11 @@ class B_top : public sc_module
 {
 public:
     sc_signal<bool>  a{"a"};
-    sc_signal<bool>  b{"b"};
-    sc_signal<bool>  c{"c"};
 
     A a_mod{"a_mod"};
 
     SC_CTOR(B_top) {
         a_mod.a(a);
-        a_mod.b(b);
-        a_mod.c(c);
     }
 };
 

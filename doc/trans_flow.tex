@@ -221,7 +221,7 @@ class MyModule : public sc_module {
 	int D;
    	unsigned E;
 
-	CTOR (MyModule) {
+	SC_CTOR (MyModule) {
    		D = 42;
 	}
 	void setE(unsigned par) { E = par; }
@@ -916,13 +916,15 @@ There is rule for non-literals in unary operators, if argument of {\tt sc\_bigui
 
 \subsubsection{Unsigned operation overflow}
 
-Operations with SC unsigned type arguments ({\tt sc\_uint} and {\tt sc\_biguint}) can lead to overflow. Using such expressions as part of another expression can lead to non-equivalent simulation results. It is recommended to cast such expressions to desired width.
+Operations with SC unsigned type arguments ({\tt sc\_uint} and {\tt sc\_biguint}) can lead to overflow. Using such expressions as part of another expression can lead to non-equivalent simulation results. It is recommended to explicitly cast such expressions to desired width. Left shift for C++ data types is cyclic which is not supported in the generated SV code. Therefore left shift overflow for C++ data type is prohibited.
 %
 \begin{lstlisting}[style=mycpp]
-sc_uint<6> k, m;
+sc_uint<7> k, m;
 k = 41; m = 42;
-sc_uint<8> res2 = (k - m) % 11;              // Non-equivalent
-sc_uint<8> res2 = sc_uint<8>(k - m) % 11;    // OK
+sc_uint<8> res = (k - m) % 11;   // Non-equivalent
+res = sc_uint<8>(k - m) % 11;    // OK
+unsigned u = 1;
+res = u << 32;                   // Non-equivalent: 1 in SC, 0 in SV
 \end{lstlisting}
 
 \subsubsection{Type cast in assignment}

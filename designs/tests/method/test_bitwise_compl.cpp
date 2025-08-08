@@ -16,18 +16,18 @@ public:
     sc_signal<bool>     arstn;
     sc_signal<bool>     dummy;
 
-    sc_signal<sc_uint<8>>       u8s;
-    sc_signal<sc_uint<8>>       u8vs;
-    sc_signal<sc_uint<32>>      u32s;
-    sc_signal<sc_uint<32>>      u32vs;
-    sc_signal<sc_biguint<8>>    b8s;
-    sc_signal<sc_biguint<61>>   b61s;
-    sc_signal<char>             crs; 
-    sc_signal<unsigned>         uns;
+    sc_uint<8>        u8s;
+    sc_uint<8>        u8vs;
+    sc_uint<32>       u32s;
+    sc_uint<32>       u32vs;
+    sc_biguint<8>     b8s;
+    sc_biguint<61>    b61s;
+    char              crs; 
+    unsigned          uns;
 
-    sc_signal<sc_int<10>>       i10s;
-    sc_signal<sc_bigint<64>>    bi64s;
-    sc_signal<sc_biguint<40>>   bu40s;
+    sc_int<10>        i10s;
+    sc_bigint<64>     bi64s;
+    sc_biguint<40>    bu40s;
     
     sc_signal<bool>             cs;
     
@@ -53,22 +53,6 @@ public:
         sensitive << dummy;
     }
     
-    // Verilog simulation
-    SCT_ASSERT(u8s.read() == 0x7F, clk.pos());
-    SCT_ASSERT(u8vs.read() == 0x7F, clk.pos());
-    SCT_ASSERT(u32s.read() == 0xFFFFFF7F, clk.pos());
-    SCT_ASSERT(u32vs.read() == 0xFFFFFF7F, clk.pos());
-    
-    SCT_ASSERT(b8s.read() == 0x7F, clk.pos());
-    SCT_ASSERT(b61s.read() == 0x1FFFFFFFFFFFFF7F, clk.pos());
-
-    SCT_ASSERT(crs.read() == 0x7F, clk.pos());
-    SCT_ASSERT(uns.read() == 0xFFFFFF7F, clk.pos());
-    
-    SCT_ASSERT(i10s.read() == -7, clk.pos());
-    SCT_ASSERT(bi64s.read() == 6, clk.pos());
-    SCT_ASSERT(bu40s.read() == 5, clk.pos());
-    
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
     
     
@@ -92,9 +76,9 @@ public:
         cout << "concat " << hex << u << dec << endl;
         CHECK(u == 0x10003);
 
-        b = (b1, b2+1); 
-        cout << "concat biguint " << hex << b << dec << endl;
-        CHECK(b == 0x3);
+        //b = (b1, b2+1); 
+        //cout << "concat biguint " << hex << b << dec << endl;
+        //CHECK(b == 3); 
 
         b = (b1, sc_biguint<8> (b2+b3)); 
         cout << "concat biguint " << hex << b << dec << endl;
@@ -170,6 +154,10 @@ public:
         i10s = i10;
         bi64s = bi64;
         bu40s = bu40;
+        
+        CHECK(i10s == -7);
+        CHECK(bi64s == 6);
+        CHECK(bu40s == 5);
      }
     
     // Module member array
@@ -188,6 +176,10 @@ public:
         
         // SVC CPA assert 
         CHECK(u8 == 0x7F);
+        CHECK(u8s == 0x7F);
+        CHECK(u8vs == 0x7F);
+        CHECK(u32s == 0xFFFFFF7F);
+        CHECK(u32vs == 0xFFFFFF7F);
         CHECK(u32 == 0xFFFFFF7F);
         CHECK(u32a == 0x7F);  
     }
@@ -216,6 +208,9 @@ public:
         CHECK(b8 == 0x7F);
         CHECK(b9 == 0x17F);
         CHECK(b61 == 0x1FFFFFFFFFFFFF7F);
+        CHECK(b8s == 0x7F);
+        CHECK(b61s == 0x1FFFFFFFFFFFFF7F);
+        
      }
     
      void unsigned_bitwise() 

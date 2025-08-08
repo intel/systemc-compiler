@@ -12,10 +12,6 @@
 using namespace clang;
 using namespace sc;
 
-// For loop visitor instance
-ForLoopVisitor ForLoopVisitor::signleton;
-CheckTildaVisitor CheckTildaVisitor::signleton;
-
 // Check if statement is member function of @sct_zero_width
 bool sc::isZeroWidthCall(clang::Stmt* stmt)
 {
@@ -53,17 +49,6 @@ bool sc::isUserCallExpr(clang::Stmt* stmt)
             return false;
         }
         return true;
-    }
-    return false;
-}
-
-// Check if the FOR loop has externally declared counter
-bool sc::hasForExtrCntr(clang::Stmt* stmt) 
-{
-    if (stmt == nullptr) return false;
-    
-    if (auto forStmt = dyn_cast<ForStmt>(stmt)) {
-        return !ForLoopVisitor::get().hasInternalCntr(forStmt);
     }
     return false;
 }

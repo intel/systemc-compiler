@@ -192,23 +192,23 @@ public:
         sc_bigint<33> bz;
         int i = -5;
         unsigned uu = 7;
-        t0 = uu;
+        t1 = uu;
         sc_int<7>  x = -4;
         sc_uint<7> ux = 2;
-        t0 = ux;
+        t1 = ux;
         
         z = true ? 1 : 2;
         CHECK(z == 1);  
-        t0 = z;
+        t1 = z;
         z = false ? i : i - 1;
-        t0 = z;
+        t1 = z;
         CHECK(z == -6);  
         z = true ? (ux + i) * x : - 1;              // Warning reported
-        t0 = z;
+        t1 = z;
         std::cout << "z = " << z << std::endl;
         //CHECK(z == 12);  
         z = true ? ((-x) * 3 + (-z) * i) : - 1;
-        t0 = z;
+        t1 = z;
         std::cout << "z = " << z << std::endl;
         //CHECK(z == 72);  
     }

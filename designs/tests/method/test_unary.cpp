@@ -146,6 +146,7 @@ public:
     }
     
     // Increment/decrement with unknown value
+    sc_signal<int> b0;
     void increment2() {
         int i = a.read();
         unsigned j = a.read();
@@ -155,14 +156,15 @@ public:
         int k1 = ++i;
         unsigned k2 = --j;
         
-        b.write(k1);
-        b.write(k2);
+        b0.write(k1);
+        b0.write(k2);
         
-        b.write(i++);
-        b.write(--j);
+        b0.write(i++);
+        b0.write(--j);
     }    
     
     // Plus
+    sc_signal<int> c0;
     void plus1() {
         int i = -a.read();
         unsigned j = +a.read();
@@ -170,8 +172,8 @@ public:
         int k1 = i + (-j);          // Warning reported
         unsigned k2 = (+j) + i;     // Warning reported
         
-        c.write(-k1);
-        c.write(+k2);
+        c0.write(-k1);
+        c0.write(+k2);
         
         i = +NEGL;
         CHECK(i == -211);
@@ -190,6 +192,7 @@ public:
     }        
     
     // Not and logic not
+    sc_signal<int> d0;
     void not1() {
         bool l1 = a.read() == b.read();
         bool l2 = !l1;
@@ -200,7 +203,7 @@ public:
   
         sc_uint<1> ll1 = 1;
         sc_uint<1> ll2 = ~ll1;
-        d.write(!l2 + ~ll2);
+        d0.write(!l2 + ~ll2);
 
         unsigned x = 43;
         unsigned y = ~x;

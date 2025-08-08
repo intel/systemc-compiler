@@ -8,7 +8,7 @@
 #include <systemc.h>
 #include <sct_assert.h>
 
-// Checking literas stored in state with proper width (width of the lvalue)
+// Checking literals stored in state with proper width (width of the lvalue)
 template<class T, unsigned N>
 struct A : public sc_module 
 {

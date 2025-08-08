@@ -116,13 +116,14 @@ public:
 
     explicit ScVerilogWriter(
                 const clang::SourceManager& sm_,
-                bool isCombProcess_,
+                bool isCombProcess_, bool isMultiState_,
                 const std::unordered_map<SValue, std::string>& extrValNames_,
                 UniqueNamesGenerator& namesGenerator_,
                 const std::unordered_map<SValue, const VerilogVarTraits>& varTraits_,
                 const std::pair<std::string, std::string>& waitNVarName_) : 
         sm(sm_), 
         isCombProcess(isCombProcess_),  
+        isMultiState(isMultiState_),
         extrValNames(extrValNames_),
         namesGenerator(namesGenerator_),
         varTraits(varTraits_),
@@ -183,6 +184,14 @@ public:
         return forLoopInit;
     }
     
+    void setLiteralSimpleForm(bool value) {
+        useLiteralSimple = value;
+    }
+    
+    bool isLiteralSimpleForm() {
+        return useLiteralSimple;
+    }
+
     /// Set empty sensitivity for method process
     void setEmptySensitivity(bool empty) {
         emptySensitivity = empty;
@@ -234,6 +243,8 @@ public:
     /// Return true if @val is register in @varTraits, only in splitting thread mode
     bool isRegister(const SValue& val);
     
+    bool isCombVar(const SValue& val);
+    
     bool isReadOnlyCDR(const SValue& val);
     
     /// Check @sct_comb_sig wit CLEAR flag false
@@ -279,7 +290,8 @@ protected:
     /// \param addNegBrackets -- add brackets for negative literal
     std::string makeLiteralStr(const std::string& literStr, char radix,
                                unsigned minCastWidth, unsigned lastCastWidth,
-                               CastSign castSign, bool addNegBrackets);
+                               CastSign castSign, bool addNegBrackets,
+                               bool useZeroAprh = false);
     
     /// Make non-literal term string with sign cast if required
     /// \param castSign -- sign cast applied to add @signed
@@ -296,7 +308,8 @@ protected:
                                             bool skipCast = false, 
                                             bool addNegBrackets = false,
                                             bool doSignCast = false,
-                                            bool doConcat = false);
+                                            bool doConcat = false,
+                                            bool useZeroAprh = false);
 public:
     /// \param useZeroAprh -- use apostrophe for zero value
     static std::string makeLiteralStr(llvm::APSInt val, char radix, 
@@ -383,6 +396,9 @@ public:
     /// Used for explicit type cast statements, inheritors of @ExplicitCastExpr
     void putTypeCast(const clang::Stmt* srcStmt, const clang::Stmt* stmt,
                      const clang::QualType& type);
+
+    /// Used for integral types only in binary operator to update result type width
+    void putTypeCast(const clang::Stmt* stmt, const clang::QualType& type); 
 
     /// Put sign cast for literals and expressions
     void putSignCast(const clang::Stmt* stmt, CastSign castSign);
@@ -689,6 +705,10 @@ public:
         return MIFValueName;
     }
     
+    void setMultiState(bool value) {
+        isMultiState = value;
+    }
+    
     //=========================================================================
     /// Print local variable declaration, used in @always_comb 
     void printLocalDeclaration(std::ostream &os, const ScState* state);
@@ -774,6 +794,8 @@ protected:
     
     /// Combinatorial process
     const bool isCombProcess;
+    /// Is multi-state thread (initialization for local comb variables provided)
+    bool isMultiState;
     /// Is reset section of clocked thread process
     bool isClockThreadReset = false;
     /// Start of assert in process flag used to provide next name for non-channels
@@ -785,6 +807,8 @@ protected:
     bool skipSignCast = false;
     /// FOR loop initialization mode
     bool forLoopInit = false;
+    /// Print literals in simple form (for @for loop, indices and range)
+    bool useLiteralSimple = false;
     /// Method with NO sensitivity list, 
     /// Verilog assignment statement generated for such method
     bool emptySensitivity = false;

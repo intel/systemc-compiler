@@ -32,16 +32,27 @@ using namespace std;
 
 namespace sc_elab {
 
-ProcBuilder::ProcBuilder(ModuleMIFView moduleView, ElabDatabase &elabDB,
+ProcBuilder::ProcBuilder(ModuleMIFView moduleView, ElabDatabase& elabDB,
                          const std::unordered_set<uint32_t>& extrTargInit_)
     : ctx(*moduleView.getDatabase()->getASTContext())
     , rootModView(moduleView)
     , elabDB(elabDB)
+    , recordValues(elabDB)
     , extrTargInit(extrTargInit_)
 {
     //cout << "ProcBuilder " << moduleView.getVerilogModule()->getName() << endl;
     // Module global state
     moduleState = std::make_shared<ScState>();
+    
+    // Add module to static collection, used to resolve pointer to module
+    for (auto modView : elabDB.getModules()) {
+        recordValues.addRecordView(modView);
+    }
+    
+    // Fill record values for each module/MIF, only module/MIF can be passed 
+    // through pointer into another module
+    recordValues.fillValues();
+    //recordValues.print();
     
     // Fill state from elabDB, recursively add module fields
     traverseRecord(moduleView, true);
@@ -191,7 +202,7 @@ sc::SValue ProcBuilder::traverseRecord(RecordView recView, bool isVerModule)
     // Any record except module instance have @parent
     SValue parent = classHierStack.empty() ? SValue() : classHierStack.back();
 
-    SValue currentModSVal = RecordValues::getRecordView(recView);
+    SValue currentModSVal = recordValues.getRecordView(recView);
     // No value for record not module/MIF, create value here as it cannot be
     // passed through pointer to another module
     if (currentModSVal.isUnknown()) {
@@ -276,7 +287,7 @@ sc::SValue ProcBuilder::traverseRecord(RecordView recView, bool isVerModule)
                 // No pointee found, it can be object out of this module
                 // Support only module/MIF object for now
                 if (pointee->isModule() || pointee->isModularInterface()) {
-                    SValue pointeeSVal = RecordValues::getRecordView(*pointee);
+                    SValue pointeeSVal = recordValues.getRecordView(*pointee);
                     if (!pointeeSVal.isRecord()) {
                         cout << "Unresolved ptr " << unresolvedPtr.getDebugString()
                              << " pointee " << pointee->getDebugString()
@@ -519,7 +530,7 @@ sc::SValue ProcBuilder::createPortSValue(PortView portView)
     if (!portView.isSignalPort()) {
         // Return pointer to module/MIF
         if (auto pointee = portView.pointee()) {
-            SValue pointeeVal = RecordValues::getRecordView(*pointee);
+            SValue pointeeVal = recordValues.getRecordView(*pointee);
             
             if (!pointeeVal.isRecord()) {
                 cout << "Port " <<  portView.getDebugString()
@@ -709,8 +720,6 @@ sc::SValue ProcBuilder::getOrCreatePointeeSValue(PtrOrRefView ptrOrRefView)
     return NO_VALUE;
 }
 
-std::unordered_map<uint32_t, sc::SValue> ProcBuilder::recordMap;
-
 //============================================================================
 
 std::vector<SValue> RecordValues::getBaseValues(const RecordView& recView)
@@ -761,7 +770,7 @@ void RecordValues::fillTopModValue()
 {
     for (const auto& i : recordMap) {
         if (i.second.isUnknown()) {
-            const ObjectView& objView = elabDB->getObj(i.first);
+            const ObjectView& objView = elabDB.getObj(i.first);
             if (objView.record()->isTopMod()) {
                 // No parent for top module
                 createRecordValue(*objView.record());
@@ -778,7 +787,7 @@ void RecordValues::fillValuesWithParent()
         done = true;
         for (const auto& i : recordMap) {
             if (i.second.isUnknown()) {
-                const ObjectView& objView = elabDB->getObj(i.first);
+                const ObjectView& objView = elabDB.getObj(i.first);
                 const auto& parView = objView.getParentModuleOrMIF();
                 // Check for parent module is ready
                 auto par = recordMap.find(parView.getID());
@@ -797,7 +806,7 @@ void RecordValues::addRecordView(const RecordView& recView)
     recordMap.emplace(recView.getID(), NO_VALUE);
 }
 
-const SValue& RecordValues::getRecordView(const RecordView& recView) 
+const SValue& RecordValues::getRecordView(const RecordView& recView) const
 {
     auto i = recordMap.find(recView.getID());
     
@@ -814,19 +823,14 @@ void RecordValues::fillValues()
     fillValuesWithParent();
 }
 
-void RecordValues::print() 
+void RecordValues::print() const
 {
     std::cout << "-------------- RecordValues ---------------" << std::endl;
     for (auto& i : recordMap) {
-        const ObjectView& objView = elabDB->getObj(i.first);
+        const ObjectView& objView = elabDB.getObj(i.first);
         std::cout << objView.getDebugString() << " " << i.second.asString() << std::endl;
     }
 }
-
-/// Mapping record object ID to SValue for all records in the design
-std::unordered_map<uint32_t, sc::SValue> RecordValues::recordMap;
-ElabDatabase* RecordValues::elabDB;
-
 
 } // end namespace sc_elab
 

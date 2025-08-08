@@ -14,6 +14,7 @@
 #ifndef SCSCOPEGRAPH_H
 #define SCSCOPEGRAPH_H
 
+#include "sc_tool/cfg/ScTraverseCommon.h"
 #include "sc_tool/cfg/SValue.h"
 #include <clang/AST/Stmt.h>
 
@@ -48,10 +49,6 @@ public:
         id(id_gen++), level(level_), inMainLoop(inMainLoop_)
     {}
     
-    void resetId() {
-        id_gen = 0;
-    }
-
     void setLevel(unsigned level_) {
         level = level_;
     }
@@ -232,20 +229,6 @@ public:
     void addFCallScope(const clang::Stmt* stmt, const clang::Stmt* loopTerm,
                        std::shared_ptr<ScScopeGraph> graph);
     
-    void putVarAssignStmts(const std::unordered_map<SValue, std::unordered_set<
-                           const clang::Stmt*>>& stmts) 
-    {
-        using std::cout; using std::endl;
-        stmtAssignVars.clear();
-        //cout << "putVarAssignStmts --------" << endl; 
-        for (auto i : stmts) {
-            for (auto stmt : i.second) {
-                //cout << "stmt " << std::hex << stmt << " val " << i.first << endl;
-                stmtAssignVars.emplace(stmt, i.first);
-            }
-        }
-    }
-    
     /// Print scope statements and included scopes
     /// \param printLevel -- level for output tabs
     /// \param noExitByLevel -- no return from this printCurrentScope() by level up 
@@ -289,6 +272,10 @@ protected:
     /// Scope graph name and function call flag
     std::string name;
     bool funcCall;
+    
+    /// Loop AST visitor
+    ForLoopVisitor  loopVisitor;
+    
     /// Visited scopes
     std::unordered_set<std::shared_ptr<CodeScope>>   visited;
     // Scope to scope level reflection
@@ -328,12 +315,6 @@ protected:
     std::unordered_set<const clang::Stmt*>  emptySensStmt;
     /// Comments for statements
     std::unordered_map<const clang::Stmt*, std::string> stmtComments;
-    
-    /// Variables and constants not replaced by integer values
-    static std::unordered_set<SValue> notReplacedVars;
-    /// Statement assigned variable, used to remove variable initialization 
-    /// statements for removed variables/constants
-    static std::unordered_map<const clang::Stmt*, SValue> stmtAssignVars;
 };
 
 }

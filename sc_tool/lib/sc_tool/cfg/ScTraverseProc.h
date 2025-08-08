@@ -391,7 +391,7 @@ public:
 
     /// Print function local combinational variable declarations (for reset section)
     void printResetDeclarations(std::ostream &os);
-
+    
     /// Print in-reset initialization for local variables which become registers
     /// declared in CTHREAD main loop body (no reset for them)
     void printInitLocalInReset(std::ostream &os);
@@ -477,6 +477,8 @@ protected:
     const clang::FunctionDecl* funcDecl = nullptr;
     /// Current function CFG
     clang::CFG* cfg;
+    /// Loop AST visitor
+    ForLoopVisitor  loopVisitor;
     /// Scope graph printer
     std::shared_ptr<ScScopeGraph> scopeGraph = nullptr;
     /// Delayed Clang CFG blocks with extended scope predecessors 

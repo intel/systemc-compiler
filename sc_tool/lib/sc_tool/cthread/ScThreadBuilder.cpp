@@ -338,9 +338,10 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
     
     // Name generator with all member names for current module
     UniqueNamesGenerator& nameGen = verMod->getNameGen();
-
+    
     std::unique_ptr<ScVerilogWriter> procWriter = std::make_unique<ScVerilogWriter>(
-                astCtx.getSourceManager(), false, globalState->getExtrValNames(),
+                astCtx.getSourceManager(), false, !isSingleState,
+                globalState->getExtrValNames(),
                 nameGen, globalState->getVarTraits(), globalState->getWaitNVarName());
 
     // First traverse process stage and detecting duplicated states
@@ -408,6 +409,9 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
         traverseContextMap.clear();
         stateCodeMap.clear();
 
+        // Update @isMultiState to avoid extra initialization for thread with assertions
+        procWriter->setMultiState(!isSingleState);
+        
         travProc = std::make_unique<ScTraverseProc>(
                         astCtx, std::make_shared<ScState>(*globalState), modSval, 
                         procWriter.get(), &threadStates, &findWaitVisitor, 
@@ -583,7 +587,7 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
             // Add wait(n) counter initialization in reset, not required
             // if WAIT_N counter initialized in reset when first wait is wait(N)
             if (threadStates.hasWaitNState() && !threadStates.isFirstWaitN()) {
-                vout << GEN_TAB << "    " << waitNRegNames.first << " <= 0;\n";
+                vout << GEN_TAB << "    " << waitNRegNames.first << " <= '0;\n";
             }
         }
 

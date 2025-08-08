@@ -10,7 +10,6 @@
  */
 
 #include "sc_tool/scope/ScScopeGraph.h"
-#include "sc_tool/cfg/ScTraverseCommon.h"
 #include "sc_tool/utils/StringFormat.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "sc_tool/utils/DebugOptions.h"
@@ -26,12 +25,6 @@ using namespace clang;
 using namespace llvm;
 
 namespace sc {
-
-/// Statement assigned variable, used to remove variable initialization 
-/// statements for removed variables/constants
-std::unordered_map<const clang::Stmt*, SValue> ScScopeGraph::stmtAssignVars;
-
-//============================================================================
 
 uint64_t CodeScope::id_gen = 1;
 
@@ -89,10 +82,10 @@ void ScScopeGraph::storeStateAssign(const clang::Stmt* stmt,
     string currName = names.first.empty() ? STATE_VAR_NAME : names.first;
     string nextName = names.second.empty() ? STATE_VAR_NAME : names.second;
     
+    string stateId = waitId ? to_string(waitId) : "'0";
     string s = (addTab ? "    " : "") + 
                ((isReset) ? currName : nextName) + 
-               ((isReset) ? NB_ASSIGN_SYM : ASSIGN_SYM) + 
-               to_string(waitId) + 
+               ((isReset) ? NB_ASSIGN_SYM : ASSIGN_SYM) + stateId + 
                (isReset ? "" : "; return") +
                ((comment.empty()) ? "" : ";    // "+comment);
     currScope->push_back({stmt, s});
@@ -436,10 +429,15 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                 prepared.splice(printCurrentScope(ls, bodyScope, level+1));
                 const string& loopStr = ls.str();
                 
+                bool forExtrCntr = false;
+                if (auto forstmt = dyn_cast<ForStmt>(stmt)) {
+                    forExtrCntr = !loopVisitor.hasInternalCntr(
+                                            const_cast<ForStmt*>(forstmt));
+                }
+                
                 // Do not remove FOR loop with external counter as 
                 // it can be used after the loop
-                if (!loopStr.empty() || !REMOVE_EMPTY_LOOP() ||
-                    hasForExtrCntr(const_cast<Stmt*>(stmt)))
+                if (!loopStr.empty() || !REMOVE_EMPTY_LOOP() || forExtrCntr) 
                 {
                     if (isa<DoStmt>(stmt)) {
                         os << getTabString(level) << "do" << endl;
