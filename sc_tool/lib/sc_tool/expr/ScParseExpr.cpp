@@ -567,6 +567,12 @@ std::pair<SValue, std::vector<SValue> >
 //                SValue ival = evalSubExpr(iexpr);
 //                initvals.push_back(ival);
 
+                // Check no reference to sc_dt::sc_concatref type
+                if (isConcatRefType(iexpr->getType())) {
+                    ScDiag::reportScDiag(iexpr->getBeginLoc(),
+                                         ScDiag::SC_CONCATREF_REF);
+                }
+
                 // Reference can be to array element or dynamic object
                 // Channels can be for constant reference parameter
                 // No non-constant reference to prefix ++/-- allowed
@@ -814,6 +820,10 @@ void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
     }
     else if (auto expr = dyn_cast<SubstNonTypeTemplateParmExpr>(stmt)) {
         parseExpr(expr, val);
+    }
+    else if (isa<CXXTypeidExpr>(stmt)) {
+        // Ignore @typeid()
+        val = NO_VALUE;
     }
     else if (isa<FloatingLiteral>(stmt)) {
         // Ignoring unsupported literals (May be used in debug output)

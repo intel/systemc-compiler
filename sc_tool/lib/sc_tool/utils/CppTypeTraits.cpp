@@ -304,6 +304,29 @@ bool isCharType(clang::QualType type)
     return false;
 }
 
+// Check if type is nsigned C++ type 32bit width or less
+bool isUnsigned32bitOrLess(clang::QualType type)
+{
+    if (type.isNull()) return false;
+    type = getPureType(type);
+
+    if (auto btype = llvm::dyn_cast<BuiltinType>(type.getTypePtr())) {
+        auto kind = btype->getKind();
+        switch (kind) {
+            case BuiltinType::Kind::UChar:
+            case BuiltinType::Kind::Char_U: return true; // 8 bits
+            case BuiltinType::Kind::UShort: return true; // 16 bits
+            case BuiltinType::Kind::UInt:   return true; // 32 bits
+            case BuiltinType::Kind::ULong:
+                // On most platforms, unsigned long is 32 bits
+                return sizeof(unsigned long) * 8 <= 32;
+            default:
+                break;
+        }
+    }
+    return false;
+}
+
 // Check if the type is std::string
 bool isStdString(clang::QualType type)
 {

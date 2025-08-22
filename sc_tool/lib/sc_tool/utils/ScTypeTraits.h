@@ -61,6 +61,8 @@ bool isZeroWidthArrayType(clang::QualType type);
 bool isAnyScInteger(clang::QualType type);
 /// Is any of SystemC integer type or SystemC subref/concatref
 bool isAnyScIntegerRef(clang::QualType type, bool checkPointer = false);
+/// Check if type is sc_dt::sc_concatref
+bool isConcatRefType(clang::QualType type);
 /// Is not supported SC integer types
 bool isScNotSupported(clang::QualType type, bool checkPointer);
 

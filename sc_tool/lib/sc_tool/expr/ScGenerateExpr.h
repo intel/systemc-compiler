@@ -272,6 +272,8 @@ public:
 protected:
     /// Bitwise not operator AST visitor
     CheckTildaVisitor tildaVisitor;
+    /// Increment/decrement operator AST visitor
+    CheckIncDecVisitor incDecVisitor;
 
     /// Code writer, used for process function and called functions
     /// Not need to save/restore in process context

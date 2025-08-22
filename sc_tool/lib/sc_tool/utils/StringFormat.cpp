@@ -239,6 +239,31 @@ std::string parseSvaTime(int lotime, int hitime, unsigned stable)
     return time;
 }
 
+// Escape control symbols for format string
+std::string escapeControlSymbols(const std::string& str) {
+    std::string result;
+    for (char c : str) {
+        switch (c) {
+            case '\n':
+                result += "\\n";
+                break;
+            case '\t':
+                result += "\\t";
+                break;
+            case '\r':
+                result += "\\r";
+                break;
+            case '\v':
+                result += "\\v";
+                break;
+            default:
+                result += c;
+                break;
+        }
+    }
+    return result;
+}
+
 /*
  std::optional<std::string> parseSvaTime(const std::string& origStr) 
 {

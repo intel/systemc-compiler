@@ -9,6 +9,7 @@
  * Author: Mikhail Moiseev
  */
 
+#include "sc_tool/cfg/SValue.h"
 #include "sc_tool/expr/ScParseRangeExpr.h"
 #include "sc_tool/expr/ScGenerateExpr.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
@@ -1499,8 +1500,12 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
     bool isConst = (isRef) ? type.getNonReferenceType().isConstQualified() : 
                              type.isConstQualified();
     bool isRecord = isUserClass(getDerefType(type));
-    
+
     if (iexpr) {
+        if (incDecVisitor.hasIncdDecr(iexpr)) {
+            ScDiag::reportScDiag(iexpr->getBeginLoc(), ScDiag::SYNTH_INCDECR_IN_BINARY);
+        }
+
         // Remove ExprWithCleanups wrapper
         iexpr = removeExprCleanups(iexpr);
         
@@ -1516,7 +1521,7 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
             iexpr = nullptr;
         }
     }
-    
+
     // Use @recval for local record field declarations
     SValue recVal = recval ? recval : modval;
     
@@ -1825,7 +1830,13 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
             }
         }
     }
-    
+    if (incDecVisitor.hasIncdDecr(lexpr)) {
+        ScDiag::reportScDiag(lexpr->getBeginLoc(), ScDiag::SYNTH_INCDECR_IN_BINARY);
+    }
+    if (incDecVisitor.hasIncdDecr(rexpr)) {
+        ScDiag::reportScDiag(rexpr->getBeginLoc(), ScDiag::SYNTH_INCDECR_IN_BINARY);
+    }
+
     // Parse LHS 
     bool lastAssignLHS = assignLHS;
     if (opcode == BO_Assign) assignLHS = true;
@@ -2008,10 +2019,10 @@ void ScGenerateExpr::parseBinaryStmt(BinaryOperator* stmt, SValue& val)
 
                 // Add width cast to ensure equivalence SV vs SC, see #330
                 // For loop condition, indices and ranges
-                //if (!codeWriter->isLiteralSimpleForm()) {
-                //   codeWriter->putTypeCast(stmt, type);
-                //}
-                
+                if (!codeWriter->isLiteralSimpleForm()) {
+                    codeWriter->putTypeCast(stmt, type);
+                }
+            
                 if (getAssignStmt(lexpr) || getAssignStmt(rexpr)) {
                     ScDiag::reportScDiag(stmt->getBeginLoc(),
                                          ScDiag::SYNTH_INTERNAL_ASSIGN_OPER);
@@ -2097,6 +2108,9 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
         if (tildaVisitor.hasTilda(rexpr)) {
             ScDiag::reportScDiag(rexpr->getBeginLoc(), ScDiag::SYNTH_TILDA_IN_BINARY);
         }
+    }
+    if (incDecVisitor.hasIncdDecr(rexpr)) {
+        ScDiag::reportScDiag(rexpr->getBeginLoc(), ScDiag::SYNTH_INCDECR_IN_BINARY);
     }
 
     if (opcode == BO_AddAssign || opcode == BO_SubAssign || 
@@ -2264,9 +2278,9 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
             
             // Add width cast to ensure equivalence SV vs SC, see #330
             // For loop condition, indices and ranges
-            //if (!codeWriter->isLiteralSimpleForm()) {
-            //    codeWriter->putTypeCast(stmt, type);
-            //}
+            if (!codeWriter->isLiteralSimpleForm()) {
+               codeWriter->putTypeCast(stmt, type);
+            }
         }
 
     } else
@@ -2659,13 +2673,27 @@ void ScGenerateExpr::parseCall(CallExpr* expr, SValue& val)
         // Do nothing
 
     } else 
-    if (((nsname && *nsname == "std") || isLinkageDecl(funcDecl)) &&
-        (fname == "printf" || fname == "fprintf" || 
-         fname == "sprintf" || fname == "snprintf" ||
-         fname == "fopen" || fname == "fclose"))
-    {
-        // Do nothing
-        
+    if (((nsname && *nsname == "std") || isLinkageDecl(funcDecl))) {
+        if (fname == "printf") {
+            SCT_TOOL_ASSERT (argNum >= 1, "Incorrect argument number");
+            // Parse argument expressions
+            for (int i = 0; i != argNum; ++i) {
+                if (auto argStr = getStringFromArg(args[i])) {
+                    std::string s = "\"" + escapeControlSymbols(*argStr) +"\"";
+                    codeWriter->putStringLiteral(args[i], s);
+                } else {
+                    SValue rval;
+                    chooseExprMethod(args[i], rval);
+                }
+            }
+            codeWriter->putDisplay(expr, argNum, args);
+
+        } else 
+        if (fname == "fprintf" || 
+            fname == "sprintf" || fname == "snprintf" ||
+            fname == "fopen" || fname == "fclose") {
+            // Do nothing
+        }
     } else 
     if (fname == "__assert_fail") {
         // This function has NORETURN attribute and cannot be supported
@@ -2978,6 +3006,10 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 if (tildaVisitor.hasPureTilda(argExpr)) {
                     skipTilda = isScUInt(ltype) || isScInt(ltype);
                 }
+                if (incDecVisitor.hasIncdDecr(argExpr)) {
+                    ScDiag::reportScDiag(argExpr->getBeginLoc(), ScDiag::SYNTH_INCDECR_IN_BINARY);
+                }
+
                 //cout << "skipTilda " << skipTilda << endl;
                 
                 // Parse argument expression to fill @terms
@@ -3053,6 +3085,7 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         if ((cval.isScChannel() || lhsZeroWidth) && (fname == "read" || 
             (fname.find("operator") != string::npos && (
              fname.find("const") != string::npos ||  // for operator const T&
+             fname.find("sct_zero_width") != string::npos ||
              fname.find("int") != string::npos ||    // covers sc_int, sc_uint, ...   
              fname.find("char") != string::npos ||
              fname.find("long") != string::npos ||
@@ -3063,7 +3096,10 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             SCT_TOOL_ASSERT (argNum == 0, "Incorrect argument number");
 
             if (lhsZeroWidth) {
-                val = fname == "read" ? ZW_VALUE : SValue(APSInt(32, true), 10); 
+                // read() and operator sct_zero_width leads to ZW_VALUE
+                val = (fname == "read" || fname.find("sct_zero_width") != string::npos) ?
+                      ZW_VALUE : SValue(APSInt(32, true), 10);
+
                 codeWriter->putLiteral(expr, val);
             } else {
                 codeWriter->copyTermRemoveBrackets(thisExpr, expr);
@@ -3265,6 +3301,17 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         if (tildaVisitor.hasTilda(rexpr)) {
             ScDiag::reportScDiag(rexpr->getBeginLoc(), ScDiag::SYNTH_TILDA_IN_BINARY);
         }
+    }
+    {
+        if (incDecVisitor.hasIncdDecr(lexpr)) {
+            ScDiag::reportScDiag(lexpr->getBeginLoc(), ScDiag::SYNTH_INCDECR_IN_BINARY);
+        }
+        if (argNum > 1) {
+            Expr* rexpr = args[1];
+            if (incDecVisitor.hasIncdDecr(rexpr)) {
+                ScDiag::reportScDiag(rexpr->getBeginLoc(), ScDiag::SYNTH_INCDECR_IN_BINARY);
+            }      
+        } 
     }
     
     if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {

@@ -14,6 +14,7 @@
 #ifndef SCVERILOGWRITER_H
 #define SCVERILOGWRITER_H
 
+#include "sc_tool/cfg/SValue.h"
 #include "sc_tool/cfg/ScState.h"
 #include "sc_tool/utils/NameGenerator.h"
 
@@ -397,7 +398,8 @@ public:
     void putTypeCast(const clang::Stmt* srcStmt, const clang::Stmt* stmt,
                      const clang::QualType& type);
 
-    /// Used for integral types only in binary operator to update result type width
+    /// Put narrowing width cast to have equvalent SV for SC overflow 
+    /// Applied to integral types in binary/unary operator 
     void putTypeCast(const clang::Stmt* stmt, const clang::QualType& type); 
 
     /// Put sign cast for literals and expressions
@@ -418,6 +420,9 @@ public:
     /// Used for literals
     void putLiteral(const clang::Stmt* stmt, const SValue& val);
     
+    /// Put string literal for @printf format string argument
+    void putStringLiteral(const clang::Stmt* stmt, const std::string& s);
+
     /// Put local variable (non-array) declaration with possible initialization
     /// \param init -- initialization expression, can be @nullptr
     /// \param funcCall -- is function parameter or return temporal variable declaration
@@ -629,6 +634,7 @@ public:
                            const clang::Expr* event = nullptr,                            
                            unsigned stable = 0, unsigned timeInt = 0);
 
+    void putDisplay(const clang::Stmt* stmt, unsigned argNum, clang::Expr** args);
     
     //=========================================================================
     

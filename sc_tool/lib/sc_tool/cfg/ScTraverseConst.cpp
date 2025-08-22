@@ -15,10 +15,12 @@
 #include "sc_tool/elab/ScVerilogModule.h"
 #include "sc_tool/elab/ScObjectView.h"
 #include "sc_tool/utils/CppTypeTraits.h"
+#include "sc_tool/utils/ScTypeTraits.h"
 #include <sc_tool/ScCommandLine.h>
 
 #include "clang/AST/Decl.h"
 #include <memory>
+#include <string>
 
 namespace sc {
 
@@ -44,7 +46,18 @@ void ScTraverseConst::parseGlobalConstant(const SValue& val)
 
         // Create VerilogVar object in VerilogModule
         auto newElabObj = elabDB->createStaticVariable(currentModule, varDecl);
-        verMod->addConstDataVariable(newElabObj, *(newElabObj.getFieldName()));
+        std::string valName = *(newElabObj.getFieldName());
+        
+        // Improve @sct_ones and @sct_zeros names
+        if (valName == "sct_ones" || valName == "sct_zeros") {
+            const QualType& valType = val.getType();
+            if (auto pair = getIntTraits(valType, false)) {
+                valName += "_" + std::to_string(pair->first);
+            }
+        }
+
+        // Create Verilog variable with unique name
+        verMod->addConstDataVariable(newElabObj, valName);
 
         // Parse and put initializer into global state, check no such value 
         // in state to avoid replace constant/static array elements

@@ -2694,6 +2694,7 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
         if ((cval.isScChannel() || lhsZeroWidth) && (fname == "read" || 
             (fname.find("operator") != string::npos && (
              fname.find("const") != string::npos ||  // for operator const T&
+             fname.find("sct_zero_width") != string::npos ||
              fname.find("int") != string::npos ||    // covers sc_int, sc_uint, ...
              fname.find("char") != string::npos ||
              fname.find("long") != string::npos ||
@@ -2701,7 +2702,9 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
              fname.find("sc_bv") != string::npos))))
         {
             if (lhsZeroWidth) {
-                val = fname == "read" ? ZW_VALUE : SValue(APSInt(32, true), 10); 
+                // read() and operator sct_zero_width leads to ZW_VALUE
+                val = (fname == "read" || fname.find("sct_zero_width") != string::npos) ? 
+                      ZW_VALUE : SValue(APSInt(32, true), 10); 
             } else {
                 // For record channel return channel value to access its fields
                 if (isUserClass(cval.getType(), false)) val = cval;

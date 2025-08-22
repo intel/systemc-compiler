@@ -171,6 +171,39 @@ public:
     }
 };
 
+/// Check if expression contains unary increment or decrement
+class CheckIncDecVisitor : public clang::RecursiveASTVisitor<CheckIncDecVisitor> 
+{
+protected :
+    bool found;
+
+public:
+    CheckIncDecVisitor() {}
+    
+    bool VisitStmt(clang::Stmt* stmt) 
+    {
+        using namespace clang;
+        if (UnaryOperator* unary = dyn_cast<UnaryOperator>(stmt)) {
+            UnaryOperatorKind opcode = unary->getOpcode();
+            if (opcode == UO_PostInc || opcode == UO_PreInc || 
+                opcode == UO_PostDec || opcode == UO_PreDec) {
+                found = true;
+                return false;
+            }
+        } 
+        return true;
+    }
+
+    /// Return true if there is bitwise not inside
+    bool hasIncdDecr(clang::Expr* expr) 
+    {
+        found = false;
+        this->TraverseStmt(expr);
+        
+        return found;
+    }
+};
+
 /// Check if expression contains bitwise not operator (operator ~)
 class CheckTildaVisitor : public clang::RecursiveASTVisitor<CheckTildaVisitor> 
 {

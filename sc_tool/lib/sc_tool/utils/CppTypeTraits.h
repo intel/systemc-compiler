@@ -92,6 +92,9 @@ bool isVoidType(clang::QualType type);
 /// Check if the type is any kind of char
 bool isCharType(clang::QualType type); 
 
+/// Check if type is nsigned C++ type 32bit width or less
+bool isUnsigned32bitOrLess(clang::QualType type);
+
 /// Check if the type is std::string
 bool isStdString(clang::QualType type);
 

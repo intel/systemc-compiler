@@ -1016,4 +1016,36 @@ end
 Function name for modular interface process has prefix to distinguish it from the parent module processes. If process function name conflict with another name it gets numeric suffix like variables.
 
 
+\subsection{Logging and others}\label{section:logging}
+
+SystemC logging have multiple options including standard output stream {\tt std::cout}, {\tt printf} function and {\tt sc\_trace} function.
+
+These debugging functions are allowed in the code for synthesis. {\tt std::cout} together with {\tt operator <<} are ignored as well as {\tt sc\_trace} function. 
+For {\tt printf} function an equivalent {\tt \$display} macro is generated in SV code. {\tt printf} should have format string parameter and one or more variables to print. For SystemC type variables conversion to C++ types should be applied.
+
+\begin{lstlisting}[style=mycpp]
+void printfProc() {
+    int i;
+    sc_uint<16> j;
+    sc_biguint<65> bj;
+    ...
+    printf("i = %d, j = %d, bj = %d\n", i, j.to_uint64(), bj.to_uint64());
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=myverilog]
+always_comb 
+begin : printfProc  
+    integer i;
+    logic [15:0] j;
+    logic [64:0] bj;
+    ...
+    $display("i = %d, j = %d, bj = %d\n", i, 64'(j), 64'(bj));
+end
+\end{lstlisting}
+
+
+
+
+
 

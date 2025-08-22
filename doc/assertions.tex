@@ -1,5 +1,16 @@
 \section{Advanced verification features}\label{section:assertions}
 
+The SystemC compiler supports immediate and temporal assertions described in this section.
+
+Beside that there are special assertions mostly intended for tool developers.
+\begin{itemize}
+\item {\tt sct\_assert\_latch(var [, latch = true])} -- assert that given variable, signal or port is latch if second parameter is true (by default), or not latch otherwise. Latch object is defined only at some paths of method process.
+\item {\tt sct\_assert\_const(expr)} -- check given expression is true in constant propagation analysis
+\item {\tt sct\_assert\_unknown(value)} -- check give value is unknown, i.e. not statically evaluated
+\item {\tt sct\_assert\_register(expr)} -- check given expression is read before defined 
+\end{itemize}
+
+
 \subsection{Immediate assertions}
 
 There are several types of C++, SystemC, and ICSC assertions to use in design verification:
@@ -268,18 +279,6 @@ always_ff @(posedge clk or negedge nrst) begin
 end
 \end{lstlisting}
 
-\subsection{Special assertions}\label{section:assert_special}
 
-There are special assertions mostly intended for tool developers.
-\begin{itemize}
-\item sct\_assert\_latch(var [, latch = true]) -- assert that given variable, signal or port is latch if second parameter is true (by default), or not latch otherwise. Latch object is defined only at some paths of method process.
-\item sct\_assert\_const(expr) -- check given expression is true in constant propagation analysis
-\item sct\_assert\_level(level) -- check current block level with given one
-\item sct\_assert\_unknown(value) -- check give value is unknown, i.e. not statically evaluated
-\item sct\_assert\_defined(expr) -- check given expression  is defined 
-\item sct\_assert\_read(expr) -- check given expression is read 
-\item sct\_assert\_register(expr) -- check given expression is read before defined 
-\item sct\_assert\_array\_defined(expr) -- check given expression is array and some element is defined at least on some paths
-\end{itemize}
 
 

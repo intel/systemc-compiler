@@ -245,6 +245,8 @@ public:
         SYNTH_SIGNED_TILDA          = 260,
         SYNTH_BITVEC_TILDA          = 261,
         SYNTH_TILDA_IN_BINARY       = 262,
+        SYNTH_INCDECR_IN_BINARY     = 263,
+        SC_CONCATREF_REF            = 264,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -519,6 +521,15 @@ private:
             {clang::DiagnosticIDs::Warning, 
             "Bitwise not operation in binary expression can lead to incorrect code"};
 
+        idFormatMap[SYNTH_INCDECR_IN_BINARY] =
+            {clang::DiagnosticIDs::Warning,
+            "Increment/decrement sub-expression can be rejected by logic synthesis tool"};
+
+        idFormatMap[SYNTH_INCRDECR_LHS] =
+            {clang::DiagnosticIDs::Error, 
+            "Increment/decrement in left side of assignment is prohibited"};
+        
+
         idFormatMap[SYNTH_COMPARE_SIGN_UNSIGN_MIX] =
             {clang::DiagnosticIDs::Warning, 
             "Signed/unsigned types mix in comparison operation not allowed"};
@@ -553,11 +564,15 @@ private:
             {clang::DiagnosticIDs::Fatal, 
             "Functions with NORETURN attribute (like assert() "
             "or __assert_fail() ) are not supported."};
-        
-        
+
+        idFormatMap[SC_CONCATREF_REF] =
+            {clang::DiagnosticIDs::Error,
+             "SC concatenation reference type (sc_concatref) not supported"};
+
         // For MIF array access by unknown index its impossible to avoid
         // false positive for this issue, so use warning level only
         idFormatMap[SYNTH_COMB_SIG_READNOTDEF] =
+        
             {clang::DiagnosticIDs::Warning, 
             "Read of sct_comb_sig<T, true> before write not supported"};
 
@@ -699,10 +714,6 @@ private:
         idFormatMap[SYNTH_NONCOST_PTR_CONST] =
             {clang::DiagnosticIDs::Error, 
             "Non-constant pointer to constant variable no allowed : %0"};
-        
-        idFormatMap[SYNTH_INCRDECR_LHS] =
-            {clang::DiagnosticIDs::Error, 
-            "Increment/decrement in left side of assignment is prohibited"};
         
         idFormatMap[SYNTH_ARRAY_TO_POINTER] =
             {clang::DiagnosticIDs::Fatal, 

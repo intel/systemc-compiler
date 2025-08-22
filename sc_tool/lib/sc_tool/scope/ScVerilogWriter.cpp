@@ -19,6 +19,7 @@
 #include "sc_tool/utils/CheckCppInheritance.h"
 #include "sc_tool/ScCommandLine.h"
 
+#include "clang/AST/Expr.h"
 #include "clang/AST/ExprCXX.h"
 #include "llvm/Support/ScopedPrinter.h"
 #include "sc_tool/cfg/ScState.h"
@@ -1313,7 +1314,8 @@ void ScVerilogWriter::putTypeCast(const clang::Stmt* srcStmt,
     }
 }
 
-// Used for integral types only in binary operator to update result type width
+// Put narrowing width cast to have equvalent SV for SC overflow 
+// Applied to integral types in binary/unary operator 
 void ScVerilogWriter::putTypeCast(const clang::Stmt* stmt,
                                   const clang::QualType& type) 
 {
@@ -1322,7 +1324,7 @@ void ScVerilogWriter::putTypeCast(const clang::Stmt* stmt,
     // Copy in range terms from @srcStmt and store for @stmt
     if (terms.count(stmt) != 0) {
 
-        unsigned width = 64; 
+        unsigned width = 64;
         if (auto typeInfo = getIntTraits(type, true)) {
             width = typeInfo->first;
             
@@ -1334,14 +1336,18 @@ void ScVerilogWriter::putTypeCast(const clang::Stmt* stmt,
         SCT_TOOL_ASSERT(width > 0, "Type width is zero");
 
         auto& info = terms.at(stmt);
-        info.minCastWidth = (info.minCastWidth) ? min(info.minCastWidth, width) : 
-                                                  width;
-        info.lastCastWidth = width;
-        info.explCast = true;
-        
-//        cout << "putTypeCast stmt #" << hex << stmt << dec  
-//             << " minCastWidth " << info.minCastWidth 
-//             << " lastCastWidth " << info.lastCastWidth << endl;
+
+        if (info.exprWidth > width) {
+            info.minCastWidth = (info.minCastWidth) ? min(info.minCastWidth, width) : 
+                                                      width;
+            info.lastCastWidth = width;
+            info.explCast = true; 
+        }
+
+    //    cout << "putTypeCast stmt #" << hex << stmt << dec  
+    //         << " minCastWidth " << info.minCastWidth 
+    //         << " lastCastWidth " << info.lastCastWidth
+    //         << " info.exprWidth " << info.exprWidth << endl;
         
     } else {
         cout << "putTypeCast : arg " << hex << (size_t)stmt << dec << endl;
@@ -1495,6 +1501,14 @@ void ScVerilogWriter::putLiteral(const Stmt* stmt, const SValue& val)
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
                          "putLiteral : Unsupported literal "+ val.asString());
     }
+}
+
+// Put string literal for @printf format string argument
+void ScVerilogWriter::putStringLiteral(const clang::Stmt* stmt, const std::string& s) 
+{
+    if (skipTerm) return;
+
+    putString(stmt, s, 0);
 }
 
 // Put local variable (non-array) declaration with possible initialization
@@ -2812,10 +2826,10 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
         auto& linfo = terms.at(lhs);
         auto& rinfo = terms.at(rhs);
         
-//        cout << "putBinary #" << hex << stmt << dec 
-//             << " castSign " << (int)linfo.castSign << (int)rinfo.castSign
-//             << " exprSign " << (int)linfo.exprSign << (int)rinfo.exprSign 
-//             << " explCast " << (int)linfo.explCast << (int)rinfo.explCast << endl;
+        // cout << "putBinary #" << hex << stmt << dec 
+        //      << " castSign " << (int)linfo.castSign << (int)rinfo.castSign
+        //      << " exprSign " << (int)linfo.exprSign << (int)rinfo.exprSign 
+        //      << " explCast " << (int)linfo.explCast << (int)rinfo.explCast << endl;
         
         // Report warning for signed to unsigned cast for non-literal
         if ((!linfo.literRadix && linfo.castSign == CastSign::UCAST) || 
@@ -2858,10 +2872,10 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
 
         // Check both arguments are unsigned or literals or casted from @bool
         if (checkUnsigned) {
-        bool isSignedLHS = isSignedType(lhs->getType()) && !linfo.literRadix &&
-                           linfo.castSign != CastSign::BCAST;
-        bool isSignedRHS = isSignedType(rhs->getType()) && !rinfo.literRadix &&
-                           rinfo.castSign != CastSign::BCAST;
+            bool isSignedLHS = isSignedType(lhs->getType()) && !linfo.literRadix &&
+                               linfo.castSign != CastSign::BCAST;
+            bool isSignedRHS = isSignedType(rhs->getType()) && !rinfo.literRadix &&
+                               rinfo.castSign != CastSign::BCAST;
             if (isSignedLHS || isSignedRHS) {
                 ScDiag::reportScDiag(stmt->getBeginLoc(), 
                                      ScDiag::SYNTH_UNSIGNED_MODE_BINARY);
@@ -2870,9 +2884,23 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
         
         bool negBrackets = arithmOper || shiftOper;
         bool doSignCast = !skipSignCast && (arithmOper || compareOper);
+
+        // Provide signed cast for compare operators for SC bug types and others
+        QualType ltype = lhs->getType();
+        QualType rtype = rhs->getType();
+        bool isSignedCompare = (isScBigInt(ltype) || isScBigInt(rtype)) || 
+                               ((isScBigUInt(ltype) && (isScInt(rtype) || 
+                                 rtype->isSignedIntegerType())) ||
+                                (isScBigUInt(rtype) && (isScInt(ltype) || 
+                                 ltype->isSignedIntegerType()))) ||
+                               ((isScInt(ltype) && isUnsigned32bitOrLess(rtype)) ||
+                                (isScInt(rtype) && isUnsigned32bitOrLess(ltype))); 
+        // cout << "   doSignCast " << doSignCast << " isSignedBinary " << isSignedBinary 
+        //      << " isSignedCompare " << isSignedCompare << endl;
         
         // For signed binary operation set SACAST for operand if its unsigned 
-        if (doSignCast && isSignedBinary) {
+        if (!skipSignCast &&  
+            (isSignedBinary && arithmOper || isSignedCompare && compareOper)) {
             setExprSCast(lhs, linfo);
             setExprSCast(rhs, rinfo);
         }
@@ -2934,7 +2962,7 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
         putString(stmt, s, width);
         clearSimpleTerm(stmt);
         setExprSign(stmt, signedExpr);
-        //cout << "    signedExpr " << int(signedExpr) << " literExpr " << literExpr << endl;
+        //cout << "    signedExpr " << int(signedExpr) << endl;
         
         // Set increase result width 
         if (opcode == "+" || opcode == "-" || opcode == "*" || opcode == "<<<"){
@@ -3420,6 +3448,21 @@ void ScVerilogWriter::putTemporalAssert(const clang::Stmt* stmt,
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(), "putTemporalAssert : No term"
                            " for parameter of SCT_ASSERT()");
     }
+}
+
+void ScVerilogWriter::putDisplay(const clang::Stmt* stmt,
+                                 unsigned argNum, clang::Expr** args)
+{
+    if (skipTerm) return;
+
+    std::string s = "$display(";
+    for (int i = 0; i != argNum; ++i) {
+        if (i != 0) s += ", ";
+        s += getTermAsRValue(args[i], false, false, false).first;
+    }
+    s += ")";
+
+    putString(stmt, s, 0);
 }
 
 //=========================================================================

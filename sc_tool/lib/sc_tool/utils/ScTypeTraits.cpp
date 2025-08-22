@@ -400,6 +400,14 @@ bool isAnyScIntegerRef(QualType type, bool checkPointer)
             typeStr.find("sc_unsigned") != std::string::npos);
 }
 
+bool isConcatRefType(QualType type) 
+{
+    if (type.isNull()) return false;
+    type = getPureType(type);
+    std::string typeStr = type.getAsString();
+    return (typeStr.find("sc_concatref") != std::string::npos);
+}
+
 bool isScNotSupported(QualType type, bool checkPointer) 
 {
     if (type.isNull()) return false;

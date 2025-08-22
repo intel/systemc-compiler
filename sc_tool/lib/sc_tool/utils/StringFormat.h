@@ -58,6 +58,9 @@ bool checkArrayAccessStr(const std::string& str);
 /// Get temporal assertion time string
 std::string parseSvaTime(int lotime, int hitime, unsigned stable = 0);
 
+// Escape control symbols for format string
+std::string escapeControlSymbols(const std::string& str);
+
 /// Check temporal assertion time string and convert it into SVA form 
 //std::optional<std::string> parseSvaTime(const std::string& origStr);
 
