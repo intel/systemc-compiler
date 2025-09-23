@@ -629,12 +629,10 @@ void ScState::removeSubValues(const SValue& val)
 
 SValue ScState::createArrayInState(clang::QualType arrayType, unsigned level)
 {
-    if (arrayType->isArrayType()) {
-        SCT_TOOL_ASSERT (arrayType->isConstantArrayType(),
-                         "createArrayInState : Non-constant array type ");
-
+    if ( sc::isArray(arrayType) ) {
         // Create stack array, VarDecl parsed in SValue constructor
-        QualType elmType = dyn_cast<clang::ArrayType>(arrayType)->getElementType();
+        QualType elmType = getArrayDirectElementType(arrayType);
+        
         size_t size = getArraySize(arrayType);
 
         // Create array object

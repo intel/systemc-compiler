@@ -1310,6 +1310,10 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
         // Do nothing
         
     } else 
+    if (isStdArray(type)) {
+        // Do nothing
+        
+    } else 
     if (isUserClass(type)) {
         // User defined class or structure
         if (codeWriter->isEmptySensitivity()) {
@@ -1548,9 +1552,8 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
     
     // Fill state with array elements and initialization values if 
     // variable is constant type
-    if (type->isArrayType()) {
+    if (isArray(type)) {
         // Array initialization list
-        SCT_TOOL_ASSERT (type->isConstantArrayType(), "Unsupported array type");
         vector<size_t> arrSizes = getArraySizes(type);
         size_t elmnum = getArrayElementNumber(type);
         auto recType = getUserDefinedClassFromArray(type);
@@ -1587,6 +1590,16 @@ void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                     auto arrInds = getArrayIndices(type, i);
                     codeWriter->putArrayElemInitZero(stmt, val, arrInds, 
                                                      elemOfMifArr);
+                }
+            } else
+            if (isStdArray(type)) { 
+                if (isAnyScInteger(getArrayElementType(type))) { 
+                    // Default initialization SC data type array, fill with zeros
+                    for (size_t i = 0; i < elmnum; i++) {
+                        auto arrInds = getArrayIndices(type, i);
+                        codeWriter->putArrayElemInitZero(stmt, val, arrInds, 
+                                                         elemOfMifArr);
+                    }
                 }
             } else {
                 string s = iexpr->getStmtClassName();
@@ -2241,7 +2254,7 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
             if (ival.isInteger()) {
                 codeWriter->putLiteral(stmt, SValue(SValue::boolToAPSInt(
                                        ival.getBoolValue()), 10));
-                val = val;
+                val = ival; 
                 
             } else {
                 ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
@@ -2370,13 +2383,19 @@ void ScGenerateExpr::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
 }
 
 // Common function for operator[] in @ArraySubscriptExpr and @CXXOperatorCall
-SValue ScGenerateExpr::parseArraySubscript(Expr* expr, 
-                                           Expr* baseExpr, 
+SValue ScGenerateExpr::parseArraySubscript(Expr* expr,
+                                           Expr* baseExpr,
                                            Expr* indxExpr)
 {
     // Result value
     SValue val = NO_VALUE;
 
+    // Check for same record variable as base and index
+    if (recIndxVisitor.hasRecordIndex(expr)) {
+        ScDiag::reportScDiag(expr->getBeginLoc(),
+                             ScDiag::SYNTH_RECORD_INDX_AND_BASE);
+    }
+    
     SValue bval;  // Array variable 
     chooseExprMethod(baseExpr, bval);
     
@@ -4050,6 +4069,29 @@ void ScGenerateExpr::parseConditionalStmt(ConditionalOperator* stmt, SValue& val
         codeWriter->putCondStmt(stmt, cexpr, lexpr, rexpr);
     }
 }
+
+/// @sizeof
+void ScGenerateExpr::parseSizeofExpr(UnaryExprOrTypeTraitExpr* expr, SValue& val)
+{
+    QualType type = expr->getArgumentType();
+    SCT_TOOL_ASSERT(!type.isNull(), "Incorrect variable or expression type");
+    
+    if (type->isPointerType() || type->isIntegerType() || 
+        type->isFloatingType() || type->isStructureOrClassType()) 
+    {
+        size_t width = astCtx.getTypeSize(type) / 8;
+        val = SValue(APSInt(std::to_string(width)), 10);
+        codeWriter->putLiteral(expr, val);
+        
+        if (type->isStructureOrClassType()) {
+            ScDiag::reportScDiag(expr->getBeginLoc(), ScDiag::SYNTH_RECORD_SIZEOF);
+        }
+    } else {
+        val = NO_VALUE;
+        ScDiag::reportScDiag(expr->getBeginLoc(), ScDiag::SYNTH_INCORRECT_SIZEOF);
+    }
+}
+
 
 // Choose and run DFS step in accordance with expression type.
 void ScGenerateExpr::chooseExprMethod(Stmt *stmt, SValue &val)

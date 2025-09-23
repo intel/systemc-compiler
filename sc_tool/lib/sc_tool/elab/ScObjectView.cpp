@@ -419,7 +419,7 @@ clang::ValueDecl* ObjectView::getValueDecl() const
             }
         }
 
-        llvm::outs() << "Can't find field: " << obj->field_name() << "\n";
+        //llvm::outs() << "Can't find field: " << obj->field_name() << "\n";
         return nullptr;
     }
 

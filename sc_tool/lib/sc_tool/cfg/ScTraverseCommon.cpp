@@ -12,6 +12,22 @@
 using namespace clang;
 using namespace sc;
 
+bool sc::CheckRecordIndxVisitor::VisitStmt(clang::Stmt* stmt) 
+{
+    //std::cout << "VisitStmt " << std::hex << stmt << std::dec << std::endl;
+    if (auto declRef = dyn_cast<DeclRefExpr>(stmt)) {
+        if (isUserDefinedClassArray(declRef->getType(), true)) {
+            if (!baseRecDecl || baseRecDecl == declRef->getDecl()) {
+                baseRecDecl = declRef->getDecl();
+                found = true;
+                return false;
+            }
+        }
+    } 
+
+    return true;
+}
+
 // Check if statement is member function of @sct_zero_width
 bool sc::isZeroWidthCall(clang::Stmt* stmt)
 {

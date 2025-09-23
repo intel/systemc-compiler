@@ -425,6 +425,9 @@ protected:
     /// Incorrect statement, error in source code
     virtual void parseExpr(clang::OpaqueValueExpr* expr, SValue& val);
   
+    /// @sizeof
+    virtual void parseSizeofExpr(clang::UnaryExprOrTypeTraitExpr* expr, SValue& val) {}
+    
 };
 }
 

@@ -249,7 +249,8 @@ protected:
     /// Return statement
     void parseReturnStmt(clang::ReturnStmt* stmt, SValue& val) override;
     
-    void parseExpr(clang::ExpressionTraitExpr* expr, SValue& val) override;
+    /// @sizeof
+    void parseSizeofExpr(clang::UnaryExprOrTypeTraitExpr* expr, SValue& val) override;
     
 // ---------------------------------------------------------------------------
 // Auxiliary methods

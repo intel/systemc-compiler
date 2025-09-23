@@ -256,6 +256,9 @@ public:
     /// Ternary operator (...) ? ... : ...
     void parseConditionalStmt(clang::ConditionalOperator* stmt, SValue& val) override;
     
+    /// @sizeof
+    void parseSizeofExpr(clang::UnaryExprOrTypeTraitExpr* expr, SValue& val) override;
+    
     /// Choose and run DFS step in accordance with expression type.
     /// Remove sub-statements from generator
     void chooseExprMethod(clang::Stmt *stmt, SValue &val) override;
@@ -270,6 +273,8 @@ public:
                                           bool artifIf = false); 
     
 protected:
+    /// Same record variable as base and index in @ArraySubscriptExpr
+    CheckRecordIndxVisitor recIndxVisitor;
     /// Bitwise not operator AST visitor
     CheckTildaVisitor tildaVisitor;
     /// Increment/decrement operator AST visitor

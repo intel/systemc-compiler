@@ -259,8 +259,17 @@ std::vector<clang::Expr*> ScParseExpr::getAllInitExpr(clang::Expr* expr,
 {
     std::vector<Expr*> res;
     if (InitListExpr* init = dyn_cast<InitListExpr>(expr)) {
+        // Get type before remove @InitListExpr wrapper 
+        QualType initType = init->getType();
+        // For std::array initializer list there is @InitListExpr wrapper
+        if (init->getNumInits() == 1) {
+            if (auto expr = dyn_cast<InitListExpr>(init->getInit(0))) {
+                init = expr;
+            }
+        }
+        
         // Check no partial initialization for sub-array
-        size_t arrSize = getArraySize(init->getType());
+        size_t arrSize = getArraySize(initType);
         if (innerArray && arrSize != init->getNumInits()) {
              ScDiag::reportScDiag(expr->getBeginLoc(), 
                                   ScDiag::SYNTH_ARRAY_INIT_LIST);
@@ -428,7 +437,7 @@ std::pair<SValue, std::vector<SValue> >
         // Do nothing for zero width variable
         
     } else 
-    if (type->isArrayType()) {
+    if (isArray(type)) {
         // Array value
         SValue aval;
         // Parse multi-dimensional array, create sub-array values and
@@ -593,16 +602,7 @@ std::pair<SValue, std::vector<SValue> >
                 // Put variable for reference
                 // Get zero element Rec/Mif array for reference function parameter 
                 state->putValue(state->getZeroRecArrRefField(val), irval, false);
-                
-                // Check argument is array element at unknown index
-                bool unkwIndex;
-                bool isArr = state->isArray(irval, unkwIndex);
-                if (isArr && unkwIndex) {
-                    if (argExpr) {
-                        ScDiag::reportScDiag(argExpr->getBeginLoc(), 
-                                             ScDiag::SYNTH_ARRAY_ELM_REFERENCE);
-                    } 
-                }
+
             } else {
                 if (argExpr) {
                     ScDiag::reportScDiag(argExpr->getSourceRange().getBegin(),
@@ -643,14 +643,6 @@ std::pair<SValue, std::vector<SValue> >
                 // unknown index initialized/passed to function
                 // No record can be here
                 assignValueInState(val, iival, ArrayUnkwnMode::amArrayUnknown);
-                
-                // Check argument is array element at unknown index
-                bool unkwIndex;
-                bool isArr = state->isArray(iival, unkwIndex);
-                if (isArr && unkwIndex) {
-                    ScDiag::reportScDiag(argExpr->getBeginLoc(), 
-                                         ScDiag::SYNTH_ARRAY_ELM_REFERENCE);
-                }
                 
             } else {
                 ScDiag::reportScDiag(ScDiag::SYNTH_POINTER_NO_INIT)
@@ -828,6 +820,9 @@ void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
     else if (isa<FloatingLiteral>(stmt)) {
         // Ignoring unsupported literals (May be used in debug output)
         val = NO_VALUE;
+    }
+    else if (auto expr = dyn_cast<UnaryExprOrTypeTraitExpr>(stmt)) {
+        parseSizeofExpr(expr, val);
     }
     else {
         stmt->dumpColor();

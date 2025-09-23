@@ -138,7 +138,7 @@ size_t getArraySize(clang::QualType type)
         auto sizeArg = sc::getTemplateArg(type, 1);
         size_t size = sizeArg->getAsIntegral().getZExtValue();
         return size;
-    }
+    } 
     // Cannot extract size for std::vector
     return 0;
 }
@@ -147,10 +147,22 @@ size_t getArraySize(clang::QualType type)
 // \return int for int[2][3], but not int[3]
 clang::QualType getArrayElementType(clang::QualType type)
 {
+    using namespace clang;
     if (type.isNull()) return type;
 
     while (type->isArrayType()) {
-        type = llvm::dyn_cast<clang::ArrayType>(type)->getElementType();
+        if (auto ptype = dyn_cast<ParenType>(type.getTypePtrOrNull())) {
+            type = ptype->getInnerType();
+        }
+        if (auto atype = dyn_cast<AutoType>(type.getTypePtrOrNull())) {
+            type = atype->getDeducedType();
+        }
+        if (auto atype = dyn_cast<ArrayType>(type.getTypePtrOrNull())) {
+            type = atype->getElementType();
+        } else {
+            type.dump();
+            SCT_TOOL_ASSERT(false, "No array type extracted for given type");
+        }
     }
     while (isStdArray(type) || isStdVector(type) || isScVector(type)) {
         auto elmType = getTemplateArgAsType(type, 0);
@@ -418,7 +430,7 @@ std::optional<QualType> getUserDefinedClassFromArray(QualType type)
     if (type.isNull()) return std::nullopt;
 
     type = getArrayElementType(type);
-
+    
     if (isUserClass(type)) { 
         return type;
     } else {

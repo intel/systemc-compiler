@@ -79,7 +79,7 @@ struct VerilogVarTraits
             return IN_RESET;
         } else
         if (afterResetAcess) {
-            return AFTER_RESET;
+            return AFTER_RESET; 
         } else {
             return NOWHERE;
         }

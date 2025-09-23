@@ -247,6 +247,13 @@ public:
         SYNTH_TILDA_IN_BINARY       = 262,
         SYNTH_INCDECR_IN_BINARY     = 263,
         SC_CONCATREF_REF            = 264,
+        SYNTH_INCORRECT_SIZEOF      = 265,
+        SYNTH_RECORD_SIZEOF         = 266,
+        CPP_LOCAL_STD_VECTOR        = 267,
+        SYNTH_GLOB_VARIABLE         = 268,
+        SYNTH_MEMBER_RECORD_INIT    = 269,
+        SYNTH_MEMBER_RECORD_CTOR    = 270,
+        SYNTH_RECORD_INDX_AND_BASE  = 271,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -785,6 +792,27 @@ private:
             {clang::DiagnosticIDs::Error, 
             "Static std::vector is not supportd yet"};
         
+        idFormatMap[CPP_LOCAL_STD_VECTOR] =
+            {clang::DiagnosticIDs::Fatal, 
+            "Local variable std::vector is not supportd yet"};
+        
+        idFormatMap[SYNTH_GLOB_VARIABLE] =
+            {clang::DiagnosticIDs::Warning, 
+            "Global variables are not supported for synthesis"};
+        
+        idFormatMap[SYNTH_MEMBER_RECORD_INIT] =
+            {clang::DiagnosticIDs::Warning, 
+            "Member record cannot have fields with in-place initialization"};
+        
+        idFormatMap[SYNTH_MEMBER_RECORD_CTOR] =
+            {clang::DiagnosticIDs::Warning, 
+            "Member record cannot have non-empty constructor"};
+        
+        idFormatMap[SYNTH_RECORD_INDX_AND_BASE] =
+            {clang::DiagnosticIDs::Error, 
+            "Same record used as base and index expression is not supported yet"};
+        
+        
         idFormatMap[SYNTH_LITER_OVERFLOW] =
             {clang::DiagnosticIDs::Error, 
             "Literal is too big, up to 4096 symbols supported"};
@@ -868,7 +896,13 @@ private:
             {clang::DiagnosticIDs::Error, 
             "MIF array dimension number exceeded, limited with 10 "};
         
+        idFormatMap[SYNTH_INCORRECT_SIZEOF] =
+            {clang::DiagnosticIDs::Error, 
+            "Unsupported type or expression in sizeof"};
         
+        idFormatMap[SYNTH_RECORD_SIZEOF] =
+            {clang::DiagnosticIDs::Warning, 
+            "Use sizeof for record or SC type can lead to unexpected result"};
         
         // Elaboration
         idFormatMap[SC_FATAL_ELAB_TYPES_NS] =

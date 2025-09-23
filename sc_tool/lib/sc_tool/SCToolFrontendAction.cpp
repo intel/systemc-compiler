@@ -123,8 +123,8 @@ Object* getOuterArray(SCDesign& designDB, Object* memberObj)
     return arrayObj;
 }
 
-const std::string SCElabASTConsumer::TOOL_VERSION = "1.6.27";
-const std::string SCElabASTConsumer::TOOL_DATE = "Aug 22,2025";
+const std::string SCElabASTConsumer::TOOL_VERSION = "1.6.31";
+const std::string SCElabASTConsumer::TOOL_DATE = "Sep 19,2025";
 
 void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 {
@@ -144,8 +144,8 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
     //const char* optNames[] = {doGenTerm, doGenCfg, doGenStmt, doModuleBuilder};
     //const char* optNames[] = {doUseDef, /*doState,*/ doConstStmt, doModuleBuilder};  
     //const char* optNames[] = {doGenName, doGenFuncCall, doGenRTL, doGenStmt, doModuleBuilder};
-    const char* optNames[] = {doGenStmt, doGenRTL, doModuleBuilder};
-    //const char* optNames[] = {doModuleBuilder};
+    //const char* optNames[] = {doGenStmt, doModuleBuilder};
+    const char* optNames[] = {doGenStmt,doModuleBuilder};
     size_t optSize = sizeof(optNames)/sizeof(const char*);
     //DebugOptions::enable(optNames, optSize);
 
@@ -196,7 +196,7 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
             // clang::FieldDecl f = ObjectView->getFieldDecl()
         
             // Do all the analysis and generate Verilog modules
-            runVerilogGeneration(elabDB, movedObjs);
+            runVerilogGeneration(astCtx, elabDB, movedObjs);
 
             std::cout << "----------------------------------------------------------------" << std::endl;
             std::cout << " SystemC-to-Verilog translation, OK " << std::endl;
@@ -315,8 +315,36 @@ SCElabASTConsumer::moveDynamicObjects(SCDesign& designDB)
     return movedObjs;
 }
 
+// Check for global variables and report warning
+void SCElabASTConsumer::checkGlobalVars(clang::ASTContext& ctx) 
+{
+    using namespace clang;
+    unsigned cntr = 0;
+
+    TranslationUnitDecl* unitDecl = ctx.getTranslationUnitDecl();
+    for (Decl* decl : unitDecl->decls()) {
+        if (VarDecl* varDecl = llvm::dyn_cast<VarDecl>(decl)) {
+            // File-scope variable (not function-local static) in the translation unit
+            if (varDecl->isFileVarDecl()) {
+                // Skip constants
+                if (varDecl->getType().isConstant(ctx)) continue;
+                
+                const std::string& varName = varDecl->getNameAsString();
+                // Filter special variable
+                if (varName.find("__sctool_args_str") == std::string::npos) {
+                    ScDiag::reportScDiag(varDecl->getBeginLoc(), 
+                                         ScDiag::SYNTH_GLOB_VARIABLE);
+                    cntr += 1;
+                }
+            }
+        }
+        if (cntr == 5) break;
+    }
+}
+
 // Create *.sv output file, generate all Verilog modules and intrinsics
 void SCElabASTConsumer::runVerilogGeneration(
+                            clang::ASTContext &astCtx,
                             sc_elab::ElabDatabase& elabDB,
                             const std::unordered_map<size_t, size_t>& movedObjs) 
 {
@@ -351,6 +379,8 @@ void SCElabASTConsumer::runVerilogGeneration(
     
     // Dump elaboration information
     //elabDB.dump(); 
+    
+    checkGlobalVars(astCtx);
     
     // Generate all Verilog Modules
     buildVerilogModules(&elabDB, movedObjs);

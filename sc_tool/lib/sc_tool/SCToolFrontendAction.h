@@ -42,8 +42,11 @@ public:
                                             sc_elab::SCDesign& designDB);
 
     /// Create *.sv output file, generate all Verilog modules and intrinsics
-    void runVerilogGeneration(sc_elab::ElabDatabase& elabDB,
+    void runVerilogGeneration(clang::ASTContext &astCtx, sc_elab::ElabDatabase& elabDB,
                         const std::unordered_map<size_t, size_t>& movedObjs);
+    
+    /// Check for global variables and report warning
+    void checkGlobalVars(clang::ASTContext& ctx);
 };
 
 class SCElabFrontendAction : public clang::ASTFrontendAction 

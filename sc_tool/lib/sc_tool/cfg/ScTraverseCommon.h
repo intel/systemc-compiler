@@ -171,6 +171,7 @@ public:
     }
 };
 
+//-----------------------------------------------------------------------------
 /// Check if expression contains unary increment or decrement
 class CheckIncDecVisitor : public clang::RecursiveASTVisitor<CheckIncDecVisitor> 
 {
@@ -204,6 +205,8 @@ public:
     }
 };
 
+
+//-----------------------------------------------------------------------------
 /// Check if expression contains bitwise not operator (operator ~)
 class CheckTildaVisitor : public clang::RecursiveASTVisitor<CheckTildaVisitor> 
 {
@@ -262,6 +265,42 @@ public:
         return (found && allowed);
     }
 };
+
+//-----------------------------------------------------------------------------
+/// Check same record variable as base and index in @ArraySubscriptExpr
+class CheckRecordIndxVisitor : public clang::RecursiveASTVisitor<CheckRecordIndxVisitor> 
+{
+protected :
+    bool found;
+    clang::ValueDecl* baseRecDecl = nullptr;
+    
+public:
+    CheckRecordIndxVisitor() {}
+    
+    bool VisitStmt(clang::Stmt* stmt);
+    
+    bool hasRecordIndex(clang::Expr* expr) 
+    {
+        using namespace clang;
+
+        if (auto idxExpr = dyn_cast<ArraySubscriptExpr>(expr)) {
+            // Get record declaration from base expression
+            found = false;
+            baseRecDecl = nullptr;
+            this->TraverseStmt(idxExpr->getBase());
+            if (baseRecDecl) {
+                // Check if same record declaration exists in index expression
+                found = false;
+                this->TraverseStmt(idxExpr->getIdx());
+                return found;
+            }
+        }
+        
+        return false;
+    }
+};
+
+//=============================================================================
 
 /// Check if statement is member function of @sct_zero_width
 bool isZeroWidthCall(clang::Stmt* stmt);

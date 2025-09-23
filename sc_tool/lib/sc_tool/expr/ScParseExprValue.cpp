@@ -510,10 +510,16 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
     bool isRef = type->isReferenceType();
     bool isConstRef = sc::isConstReference(type);
     bool isPtr = type->isPointerType();
-    bool isArr = type->isArrayType();
+    bool isArr = type->isArrayType() || sc::isStdArray(type);
     bool isRec = isUserClass(getDerefType(type));
     auto recType = getUserDefinedClassFromArray(type);
     bool isRecArr = !isRec && recType;
+    
+    // No local std::vector supported
+    if (sc::isStdVector(type)) {
+        ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                             ScDiag::CPP_LOCAL_STD_VECTOR);
+    }
     
     if (iexpr) {
         // Remove ExprWithCleanups wrapper
@@ -538,7 +544,7 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
     // or record field initialization from initialization list
     auto varvals = parseValueDecl(decl, recVal, iexpr, false);
     val = varvals.first;
-
+    
     if (isRecArr) {
         // No UseDef for record array supported yet, can lead only to registers
         // declared if read after declaration
@@ -574,7 +580,7 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
                 else 
                     state->declareValue(eval);
             }
-        }
+        } 
 
         // Constant reference initialized with constant value
         bool isConstRefInit = false;
@@ -849,114 +855,111 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
         val = ZW_VALUE;
                 
     } else
-    if (nsname && (*nsname == "sc_dt" || *nsname == "sc_core")) {
-        if (isScChannel(type, false)) {
-            // Channels considered unknown during expression evaluation
-            val = NO_VALUE;
-            
+    if (isScChannel(type, false)) {
+        // Channels considered unknown during expression evaluation
+        val = NO_VALUE;
+
+    } else 
+    if (isAnyScInteger(type)) {
+        // SC integer constructor
+        SValue initVal;
+
+        if (expr->getNumArgs() == 0) {
+            initVal = SValue::zeroValue(expr);
+
         } else 
-        if (isAnyScInteger(type)) {
-            // SC integer constructor
-            SValue initVal;
+        if (expr->getNumArgs() == 1) {
+            auto argExpr = expr->getArg(0);
 
-            if (expr->getNumArgs() == 0) {
-                initVal = SValue::zeroValue(expr);
-                
-            } else 
-            if (expr->getNumArgs() == 1) {
-                auto argExpr = expr->getArg(0);
-                
-                if (isAnyIntegerRef(argExpr->getType())) {
-                    // Parse constructor argument
-                    SValue rval = evalSubExpr(argExpr);
-                    readFromValue(rval);
+            if (isAnyIntegerRef(argExpr->getType())) {
+                // Parse constructor argument
+                SValue rval = evalSubExpr(argExpr);
+                readFromValue(rval);
 
-                    // Try to get integer value
-                    SValue rrval = getValueFromState(rval);
-                    //cout << "   rrval " << rrval << endl;
+                // Try to get integer value
+                SValue rrval = getValueFromState(rval);
+                //cout << "   rrval " << rrval << endl;
 
-                    // Adjust SC type width and sign for integer value
-                    if (rrval.isInteger()) {
-                        if (isa<AutoType>(type)) {
-                            initVal = rval;
-                            
-                        } else {
-                            size_t width = 64; 
-                            bool isUnsigned = true;
-
-                            if (auto typeInfo = getIntTraits(
-                                                getTypeForWidth(expr), true)) {
-                                width = typeInfo->first;
-                                isUnsigned = typeInfo->second;
-
-                            } else {
-                                ScDiag::reportScDiag(expr->getBeginLoc(),
-                                                     ScDiag::SYNTH_UNKNOWN_TYPE_WIDTH) << 
-                                                     type.getAsString();
-                            }
-
-                            // This detects sc_uint<0> 
-                            if (width != 0) {
-                                initVal = SValue(extrOrTrunc(rrval.getInteger(),
-                                                 width, isUnsigned), rrval.getRadix());
-                            } else {
-                                ScDiag::reportScDiag(expr->getBeginLoc(), 
-                                    ScDiag::SYNTH_ZERO_TYPE_WIDTH) << "";
-                            }
-                        }
-                    } else {
+                // Adjust SC type width and sign for integer value
+                if (rrval.isInteger()) {
+                    if (isa<AutoType>(type)) {
                         initVal = rval;
-                    }
-                } else 
-                if (isConstCharPtr(argExpr->getType())) {
-                    // Parse expression with string literal inside
-                    unsigned lastWidth = strLiterWidth;
-                    bool lastUnsigned = strLiterUnsigned;
-                    if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
-                        strLiterWidth = typeInfo->first;
-                        strLiterUnsigned = typeInfo->second;
-                    } else {
-                        strLiterWidth = 0;  // Provides no string literal parsing
-                    }
-                    
-                    SValue rrval = evalSubExpr(argExpr);
 
-                    strLiterWidth = lastWidth;
-                    strLiterUnsigned = lastUnsigned;
-
-                    if (rrval.isInteger()) {
-                        initVal = rrval;
                     } else {
-                        ScDiag::reportScDiag(argExpr->getBeginLoc(), 
-                                             ScDiag::CPP_NOT_NUMBER_LITER);
+                        size_t width = 64; 
+                        bool isUnsigned = true;
+
+                        if (auto typeInfo = getIntTraits(
+                                            getTypeForWidth(expr), true)) {
+                            width = typeInfo->first;
+                            isUnsigned = typeInfo->second;
+
+                        } else {
+                            ScDiag::reportScDiag(expr->getBeginLoc(),
+                                                 ScDiag::SYNTH_UNKNOWN_TYPE_WIDTH) << 
+                                                 type.getAsString();
+                        }
+
+                        // This detects sc_uint<0> 
+                        if (width != 0) {
+                            initVal = SValue(extrOrTrunc(rrval.getInteger(),
+                                             width, isUnsigned), rrval.getRadix());
+                        } else {
+                            ScDiag::reportScDiag(expr->getBeginLoc(), 
+                                ScDiag::SYNTH_ZERO_TYPE_WIDTH) << "";
+                        }
                     }
                 } else {
-                    ScDiag::reportScDiag(argExpr->getBeginLoc(),
-                                         ScDiag::SYNTH_TYPE_NOT_SUPPORTED)
-                                         << expr->getType();
+                    initVal = rval;
+                }
+            } else 
+            if (isConstCharPtr(argExpr->getType())) {
+                // Parse expression with string literal inside
+                unsigned lastWidth = strLiterWidth;
+                bool lastUnsigned = strLiterUnsigned;
+                if (auto typeInfo = getIntTraits(getTypeForWidth(expr), true)) {
+                    strLiterWidth = typeInfo->first;
+                    strLiterUnsigned = typeInfo->second;
+                } else {
+                    strLiterWidth = 0;  // Provides no string literal parsing
+                }
+
+                SValue rrval = evalSubExpr(argExpr);
+
+                strLiterWidth = lastWidth;
+                strLiterUnsigned = lastUnsigned;
+
+                if (rrval.isInteger()) {
+                    initVal = rrval;
+                } else {
+                    ScDiag::reportScDiag(argExpr->getBeginLoc(), 
+                                         ScDiag::CPP_NOT_NUMBER_LITER);
                 }
             } else {
-                SCT_INTERNAL_ERROR (expr->getBeginLoc(), "Unexpected argument number");
+                ScDiag::reportScDiag(argExpr->getBeginLoc(),
+                                     ScDiag::SYNTH_TYPE_NOT_SUPPORTED)
+                                     << expr->getType();
             }
-
-            // Create SC type single object value
-            val = SValue(type);
-            assignValueInState(val, initVal);
-            state->setValueLevel(val, level+1);
-            
-        } else 
-        if (isScIntegerArray(type, false)) {
-            // Local array of SC type, no in-place initialization supported
-            // Do nothing
-            val = NO_VALUE;
-            
         } else {
-            val = NO_VALUE;
-            ScDiag::reportScDiag(expr->getBeginLoc(),
-                                 ScDiag::SYNTH_TYPE_NOT_SUPPORTED) << 
-                                 expr->getType();
+            SCT_INTERNAL_ERROR (expr->getBeginLoc(), "Unexpected argument number");
         }
 
+        // Create SC type single object value
+        val = SValue(type);
+        assignValueInState(val, initVal);
+        state->setValueLevel(val, level+1);
+
+    } else 
+    if (isScIntegerArray(type, false)) {
+        // Local array of SC type, no in-place initialization supported
+        // Do nothing
+        val = NO_VALUE;
+        
+    } else 
+    if (isStdArray(type) ) {
+        // Do nothing
+        val = NO_VALUE;
+        
     } else 
     if (isUserClass(type)) {
         // User defined class or structure
@@ -1031,9 +1034,10 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
         isRequiredStmt = true;
         
     } else {
-        SCT_INTERNAL_FATAL(expr->getBeginLoc(), 
-                         "Unexpected type in CXX constructor : "+
-                         type.getAsString()); 
+        val = NO_VALUE;
+        ScDiag::reportScDiag(expr->getBeginLoc(),
+                             ScDiag::SYNTH_TYPE_NOT_SUPPORTED) << 
+                             expr->getType();
     }
 }
 
@@ -3417,9 +3421,21 @@ void ScParseExprValue::parseReturnStmt(ReturnStmt* stmt, SValue& val)
     isRequiredStmt = true;
 }
 
-void ScParseExprValue::parseExpr(ExpressionTraitExpr* expr, SValue& val)
+/// @sizeof
+void ScParseExprValue::parseSizeofExpr(UnaryExprOrTypeTraitExpr* expr, SValue& val)
 {
-    val = NO_VALUE;
+    QualType type = expr->getArgumentType();
+    SCT_TOOL_ASSERT(!type.isNull(), "Incorrect variable or expression type");
+    
+    if (type->isPointerType() || type->isIntegerType() || 
+        type->isFloatingType() || type->isStructureOrClassType()) 
+    {
+        size_t width = astCtx.getTypeSize(type) / 8;
+        val = SValue(APSInt(std::to_string(width)), 10);
+    } else {
+        val = NO_VALUE;
+        ScDiag::reportScDiag(expr->getBeginLoc(), ScDiag::SYNTH_INCORRECT_SIZEOF);
+    }
 }
 
 //----------------------------------------------------------------------------

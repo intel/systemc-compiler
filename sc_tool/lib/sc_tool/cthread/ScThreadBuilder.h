@@ -144,6 +144,10 @@ private:
     /// Read but not defined non-constant non-channel variable, 
     /// used to report error
     InsertionOrderSet<SValue> threadReadNotDefVars;
+    /// Channels not defined at least at one path of one state,
+    /// used to avoid extra "sig_next = sig" assignment in thread function
+    /// Reset state is excluded
+    InsertionOrderSet<SValue> threadNotAllPathDefChans;
     /// Read non-channel variable, used to register the variable as used
     std::unordered_set<SValue> threadReadVars;
 

@@ -82,7 +82,9 @@ struct TermInfo
                                 // NOCAST -> SCAST transformation
     bool        simplTerm : 1;  // Term can be used w/o brackets anywhere
     bool        incrWidth : 1;  // Increase result width of operand width, 
-                                // some binary and unary operators       
+                                // some binary and unary operators   
+    bool        arrVarInd : 1;  // Term is array element at least one index
+                                // is variable: a[i], a[i][0], a[1][i+1], a[j][i]
     
     TermInfo(const std::pair<std::string, std::string>& s, 
              unsigned exprWidth_, bool isChannel_) : 
@@ -90,7 +92,7 @@ struct TermInfo
         exprWidth(exprWidth_), minCastWidth(0), lastCastWidth(0), 
         literRadix(0), castSign(CastSign::NOCAST), exprSign(ExprSign::NOEXPR), 
         isChannel(isChannel_), explCast(false),
-        simplTerm(true), incrWidth(false)
+        simplTerm(true), incrWidth(false), arrVarInd(false)
     {}
 };
 

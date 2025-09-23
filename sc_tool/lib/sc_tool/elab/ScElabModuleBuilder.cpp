@@ -457,6 +457,37 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseRecord(
         if (!record.isBaseClass()) initVarValues = false;
         for (auto member : record.getMembers())
             flatten |= traverseDFS(member);
+        
+        // Report non-trivial constructors for member records 
+        if (auto recDecl = record.getType()->getAsCXXRecordDecl()) {
+            for (auto decl : recDecl->decls()) {
+                if (auto ctorDecl = dyn_cast<CXXConstructorDecl>(decl)) {
+                    // Not implicitly generated or @default ctor
+                    if (!ctorDecl->isImplicit() && !ctorDecl->isDefaulted()) {
+                        bool someCtor = false;
+                        // Constructor has initializer list
+                        for (auto i : ctorDecl->inits()) {
+                            // Differ default constructor for SC types from 
+                            // real initialization of SC and C++ types
+                            if (auto init = dyn_cast<CXXConstructExpr>(i->getInit())) {
+                                someCtor = someCtor || init->getNumArgs();
+                            } else {
+                                someCtor = true;
+                            }
+                        }
+                        // Not empty body constructor
+                        if (auto ctorBody = ctorDecl->getBody()) {
+                            if (auto stmt = dyn_cast<CompoundStmt>(ctorBody)) 
+                                someCtor = someCtor || !stmt->body_empty();
+                        }
+                        if (someCtor) {
+                            ScDiag::reportScDiag(recDecl->getBeginLoc(),
+                                   ScDiag::SYNTH_MEMBER_RECORD_CTOR);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     initVarValues = lastVarValues;
@@ -752,6 +783,21 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::generateVariable(
                 }
                 recordArrayElmt = record.isArrayElement();
                 //cout << "record " << record.getDebugString() << endl;
+                
+                // Report if member record fields have in-place initialization
+                if (!objView.isConstant()) {
+                    if (auto valDecl = objView.getValueDecl()) {
+                        if (auto fieldDecl = dyn_cast<FieldDecl>(valDecl)) {
+                            // Get in-class initializer
+                            if (fieldDecl->hasInClassInitializer()) {
+                                if (auto recDecl = record.getValueDecl()) {
+                                    ScDiag::reportScDiag(recDecl->getBeginLoc(),
+                                            ScDiag::SYNTH_MEMBER_RECORD_INIT);
+                                }
+                            }
+                        }
+                    }
+                }
                 
                 if (auto recordArray = record.getTopmostParentArray()) {
                     record = *recordArray;

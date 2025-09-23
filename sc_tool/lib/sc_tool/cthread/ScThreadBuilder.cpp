@@ -236,6 +236,31 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
         analyzeUseDefResults(&entry.second, useVals, defVals);
     }
     
+    // Fill all defined channels anywhere in the process
+    std::unordered_set<SValue> defChans;
+    for (const SValue& val : defVals) {
+        if (isScChannel(val.getType())) {
+            defChans.insert(val);
+        }
+    }
+    
+    // Fill channels which are not defined in all paths in all states
+    for (const auto& entry : travConst->getWaitStates()) {
+        // Do not skip reset state to avoid considering common reset/body code
+        const auto& stateDefVals = entry.second.getDefAllPathValues();
+        for (const SValue& val : defChans) {    
+            if (stateDefVals.count(val) == 0) {
+                //cout << "  " << val << endl;
+                SValue cval = val;
+                while (!cval.isScChannel() && !cval.isUnknown()) {
+                    cval = globalState->getValue(cval);
+                }
+                SCT_TOOL_ASSERT(!cval.isUnknown(), "No channel found");
+                threadNotAllPathDefChans.insert(cval);
+            }
+        }
+    }
+    
     // Clear initialization values for modified member variables
     clearDefinedVars(defVals);
     // Get non-modified member variables to avoid error reporting
@@ -1065,17 +1090,23 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
     // ------------- Processing registers
     for (auto regVar : threadRegVars) {
         //cout << "Thread Reg: " << regVar << endl;
+        const auto& srcLoc = regVar.getVariable().getDecl()->getBeginLoc();
 
         // Ignore record value, record fields are used instead
         QualType varType = regVar.getType();
         if (isUserClass(getDerefType(varType))) continue;
         if (isZeroWidthType(getDerefType(varType))) continue;
         // Get array/vector element type, for array/vector of record channels
-        if (varType->isArrayType()) {
-            varType = QualType(varType->getArrayElementTypeNoTypeQual(), 0);
-        } else {
-            while (isScVector(varType)) {
-                varType = *(getTemplateArgAsType(varType, 0));
+        bool isArrayType = isArray(varType) || isScVector(varType);
+        bool isChannelType = isScChannel(varType);
+        
+        if (isArrayType) {
+            if (isArray(varType)) {
+                varType = getArrayElementType(varType);
+            } else {
+                while (isScVector(varType)) {
+                    varType = *(getTemplateArgAsType(varType, 0));
+                }
             }
         }
         bool isRecordChan = (bool)isUserClassChannel(getDerefType(varType));
@@ -1085,7 +1116,9 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
         SValue regVarZero = globalState->getFirstArrayElementForAny(
                                         regVar, ScState::MIF_CROSS_NUM);
         bool isNonZeroElmt = regVar != regVarZero;
-        SCT_TOOL_ASSERT (regVarZero, "No zero element found in global state");
+        if (!regVarZero) {
+            SCT_INTERNAL_FATAL(srcLoc, "No zero element found in global state");
+        }
         //cout << "   regVar " << regVar << " regVarZero " << regVarZero << " isNonZeroElemnt " << isNonZeroElmt << endl;
         
         // Get access place, access after reset includes access in SVA
@@ -1102,8 +1135,8 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
 
             // Get first element for non-first array element
             if (!elabObj) {
-                SCT_TOOL_ASSERT (false, "No elaboration object for variable "
-                                        "in thread");
+                SCT_INTERNAL_FATAL(srcLoc, "No elaboration object for variable "
+                                           "in thread");
                 continue;
             }
             if (auto elabOwner = elabObj->getVerilogNameOwner()) {
@@ -1134,11 +1167,15 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
                 while (!regVar.isScChannel() && !regVar.isUnknown()) {
                     regVar = globalState->getValue(regVar);
                 }
-                SCT_TOOL_ASSERT (regVar.isScChannel(), "No channel found");
+                if (!regVar.isScChannel()) {
+                    SCT_INTERNAL_FATAL(srcLoc, "No channel found");
+                }
                 while (!regVarZero.isScChannel() && !regVarZero.isUnknown()) {
                     regVarZero = globalState->getValue(regVarZero);
                 }
-                SCT_TOOL_ASSERT (regVarZero.isScChannel(), "No channel found");
+                if (!regVarZero.isScChannel()) {
+                    SCT_INTERNAL_FATAL(srcLoc, "No channel found");
+                }
             }
             
             bool isNullPtr = false;
@@ -1163,12 +1200,7 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
             if (verVars.empty() && !isNullPtr && !isDanglPtr && !isRecord) {
                 std::string err = "No register variable for elaboration object "+
                                   elabObj->getDebugString();
-                if (regVarZero.isVariable()) {
-                    SCT_INTERNAL_ERROR(regVarZero.getVariable().getDecl()->
-                                       getBeginLoc(), err);
-                } else {
-                    SCT_INTERNAL_ERROR_NOLOC(err);
-                }
+                SCT_INTERNAL_ERROR(srcLoc, err);
             }
             
             bool isChannel = regVar.isScChannel();
@@ -1199,7 +1231,9 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
                     auto recView = signalView.getSignalValue().record();
                     recView->getFieldsNoZero(rcFields);
                 }
-                SCT_TOOL_ASSERT(rcFields.size(), "No record fields found");
+                if (rcFields.size() == 0) {
+                    SCT_INTERNAL_FATAL(srcLoc,  "No record fields found");
+                }
             }
             
             // Loop required for record and record channel
@@ -1282,13 +1316,26 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
                         SValue vval; 
                         vval = isRecordChan ? 
                                createRecChanField(rcFields[i], regVar) : regVar;
+                        // Single channel defined before used in every state
+                        // Not array or element of MIF array
+                        bool isDefChan = isChannelType && !isArrayType && 
+                                         !sctCombSignal && !sctClearSignal &&
+                                         threadNotAllPathDefChans.count(regVar) == 0 &&
+                                         globalState->getAllMifArrays(vval, 
+                                         ScState::MIF_CROSS_NUM).empty();
+                        if (isDefChan && regVar != regVarZero) {
+                            SCT_INTERNAL_FATAL(srcLoc, 
+                                "Different variables for defined channel");
+                        }
+                        
                         globalState->putVerilogTraits(vval,
                             VerilogVarTraits(
                             sctCombSignal ? VerilogVarTraits::COMBSIG : 
                             sctClearSignal ? VerilogVarTraits::CLEARSIG : 
                                              VerilogVarTraits::REGISTER, 
-                            accessPlace, true, isNonZeroElmt, false,
-                            verVar->getName(), nextVar->getName(), mifElemSuffix));
+                            accessPlace, true, isNonZeroElmt || isDefChan, false,
+                            verVar->getName(), nextVar->getName(), 
+                            mifElemSuffix));
                         
                         vval = isRecordChan ? 
                                createRecChanField(rcFields[i], regVarZero) : regVarZero;
@@ -1297,8 +1344,9 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
                             sctCombSignal ? VerilogVarTraits::COMBSIG : 
                             sctClearSignal ? VerilogVarTraits::CLEARSIG : 
                                              VerilogVarTraits::REGISTER, 
-                            accessPlace, true, !isNonZeroElmt, false,
-                            verVar->getName(), nextVar->getName(), mifElemSuffix));
+                            accessPlace, true, !isNonZeroElmt || isDefChan, false,
+                            verVar->getName(), nextVar->getName(), 
+                            mifElemSuffix));
                     }
 
                     // Register used and defined values
@@ -1317,7 +1365,7 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
         } else {
             // Process local variable
             if (!regVar.isVariable()) {
-                SCT_INTERNAL_FATAL_NOLOC("Register is not a variable");
+                SCT_INTERNAL_FATAL(srcLoc, "Register is not a variable");
                 continue;
             }
 
@@ -1348,7 +1396,7 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
             if (isReference(regType)) regType = regType.getNonReferenceType();
 
             if (!isAnyInteger(regType)) {
-                SCT_INTERNAL_FATAL(regVar.getVariable().getDecl()->getBeginLoc(), 
+                SCT_INTERNAL_FATAL(srcLoc, 
                                    "Incorrect type of local register variable");
                 continue;
             }
@@ -1356,7 +1404,7 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
             // Add register variable to VerilogModule
             auto intTraits = getIntTraits(regType);
             if (!intTraits) {
-                SCT_INTERNAL_FATAL(regVar.getVariable().getDecl()->getBeginLoc(), 
+                SCT_INTERNAL_FATAL(srcLoc, 
                                    "Non-integer type of local register variable");
                 continue;
             }
@@ -1411,13 +1459,14 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
     // -------------- Local or member combinational variable
     for (auto combVar : threadCombVars) {
         //cout << "Thread Comb val: " << combVar << endl;
+        const auto& srcLoc = combVar.getVariable().getDecl()->getBeginLoc();
         
         // Ignore record value, record fields are used instead
         if (isUserClass(getDerefType(combVar.getType()))) continue;
         if (isZeroWidthType(getDerefType(combVar.getType()))) continue;
         
         if (!combVar.isVariable()) {
-            SCT_TOOL_ASSERT (false, "Combinational variable is not a variable");
+            SCT_INTERNAL_ERROR(srcLoc, "Combinational variable is not a variable");
             continue;
         }
         
@@ -1426,7 +1475,9 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
         SValue combVarZero = globalState->getFirstArrayElementForAny(
                                         combVar, ScState::MIF_CROSS_NUM);
         bool isNonZeroElmt = combVar != combVarZero;
-        SCT_TOOL_ASSERT (combVarZero, "No zero element found in global state");
+        if (!combVarZero) {
+            SCT_INTERNAL_FATAL(srcLoc, "No zero element found in global state");
+        }
         //cout << "combVarZero " << combVarZero << endl;
 
         // Get access place
@@ -1440,8 +1491,8 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
             // Get first array element for non-first element and dereference 
             // pointer to get Verilog variable name
             if (!elabObj) {
-                SCT_TOOL_ASSERT (false, "No elaboration object for variable "
-                                        "in thread");
+                SCT_INTERNAL_FATAL(srcLoc, "No elaboration object for variable "
+                                           "in thread");
                 continue;
             }
             if (auto elabOwner = elabObj->getVerilogNameOwner()) {
@@ -1449,8 +1500,9 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
             }
             
             // Channel cannot be combinational variable
-            SCT_TOOL_ASSERT (!elabObj->isChannel(), 
-                             "Channel is combinational variable");
+            if (elabObj->isChannel()) {
+                SCT_INTERNAL_FATAL(srcLoc, "Channel is combinational variable");
+            }
 
             auto verVars = verMod->getVerVariables(*elabObj);
             bool isRecord = elabObj->isRecord();
@@ -1465,8 +1517,7 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
                 std::string err = "No combinational variable for elaboration object "
                                   "(generateThreadLocalVariables)";
                 if (combVarZero.isVariable()) {
-                    SCT_INTERNAL_ERROR(combVarZero.getVariable().getDecl()->
-                                       getBeginLoc(), err);
+                    SCT_INTERNAL_ERROR(srcLoc, err);
                 } else {
                     SCT_INTERNAL_ERROR_NOLOC(err);
                 }
@@ -1529,6 +1580,7 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
     // ---------- Read only including constants
     for (auto roVar : threadReadOnlyVars) {
         //cout << "Thread Read-only val: " << roVar << endl;
+        const auto& srcLoc = roVar.getVariable().getDecl()->getBeginLoc();
 
         // Ignore record value, record fields are used instead
         if (isUserClass(getDerefType(roVar.getType()))) continue;
@@ -1539,7 +1591,9 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
         SValue roVarZero = globalState->getFirstArrayElementForAny(
                                     roVar,  ScState::MIF_CROSS_NUM);
         bool isNonZeroElmt = roVar != roVarZero;
-        SCT_TOOL_ASSERT (roVarZero, "No zero element found in global state");
+        if (!roVarZero) {
+            SCT_INTERNAL_FATAL(srcLoc, "No zero element found in global state");
+        }
         
         // Get access place
         bool inResetAccess = travConst->isInResetAccessed(roVarZero);
@@ -1555,8 +1609,8 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
             // Get first array element for non-first element and dereference 
             // pointer to get Verilog variable name
             if (!elabObj) {
-                SCT_TOOL_ASSERT (false, "No elaboration object for variable "
-                                        "in thread");
+                SCT_INTERNAL_FATAL(srcLoc, "No elaboration object for variable "
+                                           "in thread");
                 continue;
             }
             if (auto elabOwner = elabObj->getVerilogNameOwner()) {
@@ -1570,11 +1624,15 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
                 while (!roVar.isScChannel() && !roVar.isUnknown()) {
                     roVar = globalState->getValue(roVar);
                 }
-                SCT_TOOL_ASSERT(roVar.isScChannel(), "No channel found");
+                if (!roVar.isScChannel()) {
+                    SCT_INTERNAL_FATAL(srcLoc, "No channel found");
+                }
                 while (!roVarZero.isScChannel() && !roVarZero.isUnknown()) {
                     roVarZero = globalState->getValue(roVarZero);
                 }
-                SCT_TOOL_ASSERT(roVarZero.isScChannel(), "No channel found");
+                if (!roVarZero.isScChannel()) {
+                    SCT_INTERNAL_FATAL(srcLoc, "No channel found");
+                }
             }
 
             // Module data members
@@ -1608,8 +1666,7 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
                 } else {
                     std::string err = "No value for read-only variable"
                                       "(generateThreadLocalVariables)";
-                    SCT_INTERNAL_ERROR(roVarZero.getVariable().getDecl()->
-                                       getBeginLoc(), err);
+                    SCT_INTERNAL_ERROR(srcLoc, err);
                 }
                 
                 verMod->createDataVariable(*elabObj, name, bitwidth, arrayDims,
@@ -1633,8 +1690,7 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
                 std::string err = "No read-only variable for elaboration object "
                                   "(generateThreadLocalVariables)";
                 if (roVarZero.isVariable()) {
-                    SCT_INTERNAL_ERROR(roVarZero.getVariable().getDecl()->
-                                       getBeginLoc(), err);
+                    SCT_INTERNAL_ERROR(srcLoc, err);
                 } else {
                     SCT_INTERNAL_ERROR_NOLOC(err);
                 }
@@ -1670,7 +1726,7 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
                 // Local constant defined in reset section, 
                 // it needs to be declared in module scope
                 if (!roVar.isVariable()) {
-                    SCT_INTERNAL_FATAL_NOLOC("Process local constant is not a variable");
+                    SCT_INTERNAL_FATAL(srcLoc, "Process local constant is not a variable");
                     continue;
                 }
 
@@ -1689,7 +1745,7 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
                 if (isReference(roType)) roType = roType.getNonReferenceType();
 
                 if (!isAnyInteger(roType)) {
-                    SCT_INTERNAL_FATAL(roVar.getVariable().getDecl()->getBeginLoc(), 
+                    SCT_INTERNAL_FATAL(srcLoc, 
                                        "Incorrect type of local constant variable");
                     continue;
                 }
@@ -1697,7 +1753,7 @@ void ThreadBuilder::generateThreadLocalVariables(const std::vector<unsigned>& mi
                 // Add process local variable to VerilogModule
                 auto intTraits = getIntTraits(roType);
                 if (!intTraits) {
-                    SCT_INTERNAL_FATAL(roVar.getVariable().getDecl()->getBeginLoc(), 
+                    SCT_INTERNAL_FATAL(srcLoc, 
                                        "Non-integer type of local constant variable");
                     continue;
                 }

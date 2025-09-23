@@ -137,13 +137,13 @@ string ScVerilogWriter::getVarDeclVerilog(const QualType& type,
 {
     // Get the most inner array element type, it needs to run even for 
     // non pointer type if it is @auto
-    QualType ctype = type;
-    do {
-        ctype = ctype->getPointeeOrArrayElementType()->
-                getCanonicalTypeInternal();
-    } while (ctype->isPointerType() || ctype->isArrayType());
-    // Remove reference
+    QualType ctype = getArrayElementType(type);
+    if (!ctype.isNull() && ctype->isPointerType()) {
+        ctype = ctype->getPointeeType()->getCanonicalTypeInternal();
+    }
+    ctype = ctype->getCanonicalTypeInternal();
     ctype = getDerefType(ctype);
+    SCT_TOOL_ASSERT(!ctype.isNull(), "Incorrect type for variable declaration");
     
     if (isUserClass(ctype)) {
         string s;
@@ -1793,7 +1793,14 @@ void ScVerilogWriter::storeRefVarDecl(const SValue& val, const Expr* init,
     if (terms.count(init) != 0) {
         // Replace reference with new string, required for second call of the function
         refValueDecl[val] = getTermAsRValue(init);
-        //cout << "storeRefVarDecl val " << val << " init " << refValueDecl[val].first << endl;
+        //cout << "storeRefVarDecl val " << val << " init " << hex << init << dec 
+        //     << " " << refValueDecl[val].first << endl;
+
+        // Report warning for reference to array element at variable index
+        if (terms.at(init).arrVarInd) {
+            ScDiag::reportScDiag(init->getBeginLoc(), 
+                                 ScDiag::SYNTH_ARRAY_ELM_REFERENCE);
+        }
         
     } else {
         if (checkNoTerms) {
@@ -1831,6 +1838,12 @@ void ScVerilogWriter::storePointerVarDecl(const SValue& val, const Expr* init)
     if (terms.count(init) != 0) {
         // Replace pointer with new string, required for second call of the function
         ptrValueDecl[val] = getTermAsRValue(init);
+
+        // Report warning for reference to array element at variable index
+        if (terms.at(init).arrVarInd) {
+            ScDiag::reportScDiag(init->getBeginLoc(), 
+                                 ScDiag::SYNTH_ARRAY_ELM_REFERENCE);
+        }
         
     } else {
         cout << "storePointerVarDecl : arg " << hex << (size_t)init << dec << endl;
@@ -1843,7 +1856,7 @@ void ScVerilogWriter::storePointerVarDecl(const SValue& val, const Expr* init)
 // @rval can be pointee variable or another pointer as well
 // \param cval -- channel value if @rval is channel variable/pointer or NO_VALUE
 void ScVerilogWriter::storePointerVarDecl(const SValue& val, const SValue& rval, 
-                                        const SValue& cval) 
+                                          const SValue& cval) 
 {
     if (skipTerm) return;
     SCT_TOOL_ASSERT (val.isVariable() || val.isTmpVariable(), "No variable found");
@@ -2596,6 +2609,8 @@ void ScVerilogWriter::putArrayIndexExpr(const Stmt* stmt, const Expr* base,
                                         const Expr* index)
 {
     if (skipTerm) return;
+    //cout << "putArrayIndexExpr #" << hex << stmt << " base " << base 
+    //     << " index " << index << dec << endl;
 
     if (terms.count(base) && terms.count(index)) {
 
@@ -2626,6 +2641,10 @@ void ScVerilogWriter::putArrayIndexExpr(const Stmt* stmt, const Expr* base,
         }
 
         putString(stmt, pair<string,string>(rdName, wrName), width);
+
+        // Set array element at variable index flag
+        terms.at(stmt).arrVarInd = terms.at(base).arrVarInd || 
+                                   !terms.at(index).literRadix;
         
     } else {
         cout << "putArrayIndexExpr : arg " << hex 
