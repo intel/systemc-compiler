@@ -37,3 +37,7 @@ add_subdirectory(sct_initiator)
 add_subdirectory(sct_target)
 add_subdirectory(sct_signal)
 add_subdirectory(sct_always_ready)
+
+#add_subdirectory(copilot/chan_demo)
+#add_subdirectory(copilot/apb_port)
+
