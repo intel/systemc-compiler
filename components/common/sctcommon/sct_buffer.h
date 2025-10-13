@@ -19,6 +19,7 @@
 #ifndef SCT_BUFFER_H
 #define SCT_BUFFER_H
 
+#include "sct_prim_buffer.h"
 #include "sct_static_log.h"
 #include "sct_ipc_if.h"
 #include <systemc.h>
@@ -27,14 +28,14 @@ namespace sct {
     
 #ifndef __SC_TOOL__
 
-/// Fast implementation for cycle accurate simulation and TLM mode     
+/// Approximately timed and cycle accurate implementation for simulation 
 /// Buffer should use the same reset as thread(s) operates with it
 template <
     typename T,             /// Data type
     unsigned LENGTH,        /// Size (maximal number of elements)
     class TRAITS = SCT_CMN_TRAITS /// Clock edge and reset level traits
 >
-class sct_buffer : 
+class sct_buffer_impl : 
     public sc_prim_channel,  
     public sct_fifo_if<T>
 {
@@ -42,7 +43,7 @@ class sct_buffer :
     sc_in_clk       clk{"clk"};
     sc_in<bool>     nrst{"nrst"};
        
-    explicit sct_buffer(const char* name, 
+    explicit sct_buffer_impl(const char* name, 
                         bool sync_valid = 0, bool sync_ready = 0,
                         bool use_elem_num = 0, bool init_buffer = 0) :
         sc_prim_channel(name),
@@ -369,7 +370,69 @@ class sct_buffer :
     sct_buffer_peek<T, LENGTH, TRAITS> PEEK{this};
 };
 
+//==============================================================================
+
+/// Cycle accurate implementation for simulation
+template <
+    typename T,             /// Data type
+    unsigned LENGTH,        /// Size (maximal number of elements)
+    class TRAITS            /// Clock edge and reset level traits
+>
+class sct_buffer<T, LENGTH, TRAITS, 0> : public sct_buffer_impl<T, LENGTH, TRAITS>
+{
+  public:
+    using base_class = sct_buffer_impl<T, LENGTH, TRAITS>;
+    
+    explicit sct_buffer(const char* name, 
+               bool sync_valid = 0, bool sync_ready = 0,
+               bool use_elem_num = 0, bool init_buffer = 0) :
+    base_class(name, sync_valid, sync_ready, use_elem_num, init_buffer)
+    {}
+};
+
+//==============================================================================
+
+/// Approximately timed implementation
+template <
+    typename T,             /// Data type
+    unsigned LENGTH,        /// Size (maximal number of elements)
+    class TRAITS            /// Clock edge and reset level traits
+>
+class sct_buffer<T, LENGTH, TRAITS, 1> : public sct_buffer_impl<T, LENGTH, TRAITS>
+{
+  public:
+    using base_class = sct_buffer_impl<T, LENGTH, TRAITS>;
+    
+    explicit sct_buffer(const char* name,
+               bool sync_valid = 0, bool sync_ready = 0,
+               bool use_elem_num = 0, bool init_buffer = 0) :
+    base_class(name, sync_valid, sync_ready, use_elem_num, init_buffer)
+    {}
+};
+
+//==============================================================================
+
+/// Loosely timed implementation
+template <
+    typename T,             /// Data type
+    unsigned LENGTH,        /// Size (maximal number of elements)
+    class TRAITS            /// Clock edge and reset level traits
+>
+class sct_buffer<T, LENGTH, TRAITS, 2> : public sct_prim_buffer<T>
+{
+  public:
+    using base_class = sct_prim_buffer<T>;
+    
+    explicit sct_buffer(const char* name, 
+                        bool sync_valid = 0, bool sync_ready = 0,
+                        bool use_elem_num = 0, bool init_buffer = 0) :
+    base_class(name, LENGTH, TRAITS::MULTI_PUT, TRAITS::MULTI_GET)
+    {}
+};
+
 #else
+
+//==============================================================================
 
 /// Cycle accurate implementation for synthesis
 template <
@@ -390,10 +453,10 @@ using sct_buffer = sct_fifo<T, LENGTH, TRAITS, 0>;
 
 namespace sc_core {
 
-template<class T, unsigned LENGTH, class TRAITS>
+template<class T, unsigned LENGTH, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s, 
-              sct::sct_buffer<T, LENGTH, TRAITS>& buffer )
+              sct::sct_buffer<T, LENGTH, TRAITS, TLM_MODE>& buffer )
 {
     buffer.addTo(s);
     return s;
@@ -424,9 +487,9 @@ operator << ( sc_sensitive& s,
     return s;
 }
 
-template<class T, unsigned LENGTH, class TRAITS>
+template<class T, unsigned LENGTH, class TRAITS, unsigned TLM_MODE>
 inline ::std::ostream& operator << (::std::ostream& os, 
-                    const sct::sct_buffer<T, LENGTH, TRAITS>& buffer) 
+            const sct::sct_buffer<T, LENGTH, TRAITS, TLM_MODE>& buffer) 
 {
     buffer.print(os);
     return os;

@@ -235,7 +235,7 @@ class sct_signal<T, ENABLE_EVENT, 1> :
 
 namespace sc_core {
     
-    template<class T, class ENABLE_EVENT, bool TLM_MODE>
+    template<class T, class ENABLE_EVENT, unsigned TLM_MODE>
     sc_sensitive& 
     operator << ( sc_sensitive& s, sct::sct_signal<T, ENABLE_EVENT, TLM_MODE>& signal )
     {

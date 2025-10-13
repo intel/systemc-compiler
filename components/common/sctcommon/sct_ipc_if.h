@@ -22,12 +22,21 @@
 namespace sct {
     
 /// Simulation mode (could be specified in CMakeLists.txt): 
-///  0 -- cycle accurate, used for debug and SystemVerilog RTL synthesis 
-///  1 -- approximate time, used for fast simulation and integration into VP
+///  0 -- Cycle accurate, used for debug and SystemVerilog RTL synthesis 
+///  1 -- Approximately timed, used for performance simulation 
+///  2 -- Loosely timed, used for functional simulation and integration into VP
+///
+/// Use @SCT_CMN_TLM_MODE in the design code to check type of simulation mode.
+/// Do not use @SCT_CMN_AT_MODE and @SCT_CMN_LT_MODE in the design code.
+///
 #ifdef SCT_TLM_MODE
-static const bool SCT_CMN_TLM_MODE = 1;
+static const bool SCT_CMN_TLM_MODE    = true;
+static const unsigned SCT_CMN_AT_MODE = 1;
+static const unsigned SCT_CMN_LT_MODE = 2;
 #else
-static const bool SCT_CMN_TLM_MODE = 0;
+static const bool SCT_CMN_TLM_MODE    = false;
+static const unsigned SCT_CMN_AT_MODE = 0;
+static const unsigned SCT_CMN_LT_MODE = 0;
 #endif
 
 /// Intel Compiler for SystemC requires cycle accurate mode
@@ -78,9 +87,21 @@ struct SCT_BOTHEDGES_NEGRESET {
 
 //=============================================================================
 
+/// Add channel to process sensitivity
+struct sct_addto_if : virtual public sc_interface 
+{
+    virtual void addTo(sc_sensitive& s) = 0;
+    virtual void addTo(sc_sensitive* s, sc_process_handle* p) { assert (false); };
+    virtual void addToPut(sc_sensitive& s) { assert (false); };
+    virtual void addToPut(sc_sensitive* s, sc_process_handle* p) { assert (false); };
+    virtual void addToGet(sc_sensitive& s) { assert (false); };
+    virtual void addToGet(sc_sensitive* s, sc_process_handle* p) { assert (false); };
+    virtual void addPeekTo(sc_sensitive& s) { assert (false); };
+};
+
 /// Put interface for Initiator and FIFO
 template<class T, unsigned N = 1>
-struct sct_put_if : virtual public sc_interface 
+struct sct_put_if : virtual public sct_addto_if 
 {
     static_assert (N <= 64, "N should be not great than 64");
     static const unsigned long long ALL_ENABLED = ~0ULL;
@@ -100,16 +121,12 @@ struct sct_put_if : virtual public sc_interface
     /// May-blocking put, can be used in THREAD only
     /// \param data -- request data 
     virtual void b_put(const T& data) = 0;
-    
-    /// Add put related signal to process sensitivity, use operator << instead
-    virtual void addTo(sc_sensitive& s) = 0;
-    virtual void addTo(sc_sensitive* s, sc_process_handle* p) = 0;
 };
 
 /// Get interface for Target and FIFO
 /// Return value by constant reference to speed up simulation
 template<class T>
-struct sct_get_if : virtual public sc_interface 
+struct sct_get_if : virtual public sct_addto_if 
 {
     /// Request can be taken, can be used in SCT_ASSERT 
     virtual bool request() const = 0;
@@ -130,12 +147,6 @@ struct sct_get_if : virtual public sc_interface
     virtual bool get(T& data, bool enable = true) = 0;
     /// May-blocking get, can be used in THREAD only
     virtual T b_get() = 0;
-
-    /// Add get/request related signal to process sensitivity, use operator << instead
-    virtual void addTo(sc_sensitive& s) = 0;
-    virtual void addTo(sc_sensitive* s, sc_process_handle* p) = 0;
-    /// Add peek/request to process sensitivity, used in addition to @addTo()
-    virtual void addPeekTo(sc_sensitive& s) = 0;
 };
 
 /// FIFO specific interface 
@@ -153,15 +164,8 @@ struct sct_fifo_if : public sct_put_if<T>, public sct_get_if<T>
     /// FIFO has N elements or less
     /// \return value updated last clock edge for METHOD, last DC for THREAD
     virtual bool almost_empty(const unsigned& N = 0) const = 0;
-    
     /// Bind clock and reset to FIFO, required in sct_target
     virtual void clk_nrst(sc_in_clk& clk_in, sc_in<bool>& nrst_in) = 0;
-    /// Add FIFO signals to process sensitivity
-    virtual void addTo(sc_sensitive& s) = 0;
-    virtual void addToPut(sc_sensitive& s) = 0;
-    virtual void addToPut(sc_sensitive* s, sc_process_handle* p) = 0;
-    virtual void addToGet(sc_sensitive& s) = 0;
-    virtual void addToGet(sc_sensitive* s, sc_process_handle* p) = 0;
 };
 
 /// Input port interface
@@ -394,20 +398,20 @@ static sc_process_handle sct_seq_proc_handle;
 /// General initiator and target templates
 template<
     class T, class TRAITS = SCT_CMN_TRAITS, 
-    bool TLM_MODE = SCT_CMN_TLM_MODE>
+    unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_initiator 
 {};
 
 template<
     class T, class TRAITS = SCT_CMN_TRAITS, 
-    bool TLM_MODE = SCT_CMN_TLM_MODE>
+    unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_target 
 {};
 
 /// General template for combinational target, ALWAYS_READY = 1 
 template<
     class T, class TRAITS = SCT_CMN_TRAITS, 
-    bool TLM_MODE = SCT_CMN_TLM_MODE>
+    unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_comb_target 
 {};
 
@@ -415,19 +419,19 @@ class sct_comb_target
 /// Implementation is not available in open-source yet
 template<
     class T, unsigned N, class TRAITS = SCT_CMN_TRAITS, 
-    bool TLM_MODE = SCT_CMN_TLM_MODE>
+    unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_multi_target
 {};
 
 template<
     class T, unsigned N, class TRAITS = SCT_CMN_TRAITS, 
-    bool TLM_MODE = SCT_CMN_TLM_MODE>
+    unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_multi_initiator 
 {};
 
 template<
     class T, unsigned N, class TRAITS = SCT_CMN_TRAITS, 
-    bool TLM_MODE = SCT_CMN_TLM_MODE>
+    unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_arbiter_target
 {};
     
@@ -442,58 +446,78 @@ class sct_arbiter_target_base
 {};
 
 /// Target peek helper
-template<class T, class TRAITS, bool TLM_MODE>
+template<class T, class TRAITS, unsigned TLM_MODE>
 struct sct_target_peek{
-    sct_target<T, TRAITS, TLM_MODE>* target;
+    sct_addto_if* target;
 };
 /// Multi-target peek helper
-template<class T, unsigned N, class TRAITS, bool TLM_MODE>
+template<class T, unsigned N, class TRAITS, unsigned TLM_MODE>
 struct sct_multi_target_peek{
-    sct_multi_target<T, N, TRAITS, TLM_MODE>* target;
+    sct_addto_if* target;
 };
 
 /// FIFO general template
 template<
     class T, unsigned LENGTH, class TRAITS = SCT_CMN_TRAITS,
-    bool TLM_MODE = SCT_CMN_TLM_MODE>
+    unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_fifo 
 {};
 
 /// FIFO put/get helpers
-template <typename T, unsigned LENGTH, class TRAITS, bool TLM_MODE>
+template <typename T, unsigned LENGTH, class TRAITS, unsigned TLM_MODE>
 struct sct_fifo_put{
-    sct_fifo<T, LENGTH, TRAITS, TLM_MODE>* fifo;
+    sct_addto_if* fifo;
 };
-template <typename T, unsigned LENGTH, class TRAITS, bool TLM_MODE>
+template <typename T, unsigned LENGTH, class TRAITS, unsigned TLM_MODE>
 struct sct_fifo_get{
-    sct_fifo<T, LENGTH, TRAITS, TLM_MODE>* fifo;
+    sct_addto_if* fifo;
 };
-template <typename T, unsigned LENGTH, class TRAITS, bool TLM_MODE>
+template <typename T, unsigned LENGTH, class TRAITS, unsigned TLM_MODE>
 struct sct_fifo_peek{
-    sct_fifo<T, LENGTH, TRAITS, TLM_MODE>* fifo;
+    sct_addto_if* fifo;
 };
 
 #ifndef __SC_TOOL__
-// Buffer declaration
-template <typename T, unsigned LENGTH, class TRAITS>
+
+/// Loosely timed put and get sides, if Loosely timed mode is used
+struct SCT_BUFFER_TRAITS : public SCT_CMN_TRAITS {
+    static constexpr bool MULTI_PUT = 1;
+    static constexpr bool MULTI_GET = 1;
+};
+
+/// Loosely timed put, if Loosely timed mode is used
+struct SCT_BUFFER_MPUT_TRAITS : public SCT_CMN_TRAITS {
+    static constexpr bool MULTI_PUT = 1;
+    static constexpr bool MULTI_GET = 0;
+};
+
+/// Loosely timed get, if Loosely timed mode is used
+struct SCT_BUFFER_MGET_TRAITS : public SCT_CMN_TRAITS {
+    static constexpr bool MULTI_PUT = 0;
+    static constexpr bool MULTI_GET = 1;
+};
+
+/// Buffer general template 
+template <typename T, unsigned LENGTH, class TRAITS = SCT_BUFFER_TRAITS, 
+          unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_buffer;
 
 /// Buffer put/get helpers
 template<
-    class T, unsigned LENGTH, class TRAITS = SCT_CMN_TRAITS>
+    class T, unsigned LENGTH, class TRAITS = SCT_BUFFER_TRAITS>
 struct sct_buffer_put {
-    sct_buffer<T, LENGTH, TRAITS>* buf;
+    sct_addto_if* buf;
 };
 template<
-    class T, unsigned LENGTH, class TRAITS = SCT_CMN_TRAITS>
+    class T, unsigned LENGTH, class TRAITS = SCT_BUFFER_TRAITS>
 struct sct_buffer_get {
-    sct_buffer<T, LENGTH, TRAITS>* buf;
+    sct_addto_if* buf;
 };
 
 template<
-    class T, unsigned LENGTH, class TRAITS = SCT_CMN_TRAITS>
+    class T, unsigned LENGTH, class TRAITS = SCT_BUFFER_TRAITS>
 struct sct_buffer_peek {
-    sct_buffer<T, LENGTH, TRAITS>* buf;
+    sct_addto_if* buf;
 };
 #endif
 
@@ -502,28 +526,29 @@ template <
     class T,             /// Data type
     unsigned N,          /// Number of pipeline registers, one or more
     class TRAITS = SCT_CMN_TRAITS, 
-    bool TLM_MODE = SCT_CMN_TLM_MODE
+    unsigned TLM_MODE = SCT_CMN_AT_MODE
 >
 class sct_pipe {};
     
 /// Pipe put/get helpers
-template <typename T, unsigned N, class TRAITS, bool TLM_MODE>
+template <typename T, unsigned N, class TRAITS, unsigned TLM_MODE>
 struct sct_pipe_put{
-    sct_pipe<T, N, TRAITS, TLM_MODE>* pipe;
+    sct_addto_if* pipe;
 };
-template <typename T, unsigned N, class TRAITS, bool TLM_MODE>
+template <typename T, unsigned N, class TRAITS, unsigned TLM_MODE>
 struct sct_pipe_get{
-    sct_pipe<T, N, TRAITS, TLM_MODE>* pipe;
+    sct_addto_if* pipe;
 };
-template <typename T, unsigned N, class TRAITS, bool TLM_MODE>
+template <typename T, unsigned N, class TRAITS, unsigned TLM_MODE>
 struct sct_pipe_peek{
-    sct_pipe<T, N, TRAITS, TLM_MODE>* pipe;
+    sct_addto_if* pipe;
 };
+
 
 /// Register general template 
 template<
     class T, class TRAITS = SCT_CMN_TRAITS, 
-    bool TLM_MODE = SCT_CMN_TLM_MODE>
+    unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_register {};
 
 /// Clock and reset traits:
@@ -535,41 +560,51 @@ struct SCT_ENABLE_LOW {
     static constexpr bool LEVEL = 0;
 };
 
+
 /// Input and output port general templates
 /// ENABLE_EVENT -- if not @void generate events for sensitive thread process 
 ///                 every clock period if signal value corresponded to @LEVEL
 template<
-    class T, class ENABLE_EVENT = void, bool TLM_MODE = SCT_CMN_TLM_MODE>
+    class T, class ENABLE_EVENT = void, unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_in {};
 template<
-    class T, class ENABLE_EVENT = void, bool TLM_MODE = SCT_CMN_TLM_MODE>
+    class T, class ENABLE_EVENT = void, unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_out {};
 
 /// Signal general template 
 /// ENABLE_EVENT -- if not @void generate events for sensitive thread process 
 ///                 every clock period if signal value corresponded to @LEVEL
 template<
-    class T, class ENABLE_EVENT = void, bool TLM_MODE = SCT_CMN_TLM_MODE>
+    class T, class ENABLE_EVENT = void, unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_signal {};
 
 /// Default enable signal and ports
-using sct_enable_signal = sct_signal<bool, SCT_ENABLE_HIGH, SCT_CMN_TLM_MODE>;
-using sct_enable_in = sct_in<bool, SCT_ENABLE_HIGH, SCT_CMN_TLM_MODE>;
-using sct_enable_out = sct_out<bool, SCT_ENABLE_HIGH, SCT_CMN_TLM_MODE>;
+using sct_enable_signal = sct_signal<bool, SCT_ENABLE_HIGH, SCT_CMN_AT_MODE>;
+using sct_enable_in = sct_in<bool, SCT_ENABLE_HIGH, SCT_CMN_AT_MODE>;
+using sct_enable_out = sct_out<bool, SCT_ENABLE_HIGH, SCT_CMN_AT_MODE>;
+
 
 /// Flip-Flop Synchronizer Cell Wrapper
 /// SyncType: 1 - single msff, 2 - double msff, 3 - triple msff
 /// RstVal: reset value
 /// Implementation is not available in open-source yet
 template <unsigned SyncType = 2, bool RstVal = 0, 
-          class TRAITS = SCT_CMN_TRAITS, bool TLM_MODE = SCT_CMN_TLM_MODE>
+          class TRAITS = SCT_CMN_TRAITS, unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_ff_synchronizer
 {};
 
+
 /// Clock general template 
 template< 
-    bool TLM_MODE = SCT_CMN_TLM_MODE>
+    unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_clock {};
+
+
+/// Wait for one of multiple cycles in Loosely timed mode
+static unsigned sct_wait_cntr = 0;
+
+#define sct_wait(X) if (sct_wait_cntr != ((X)-1)) { ++sct_wait_cntr; } else \
+                    { sct_wait_cntr = 0; wait(); }
 
 }  // namespace sct
 

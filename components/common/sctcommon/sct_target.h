@@ -784,7 +784,7 @@ class sct_target<T, TRAITS, 1> :
 //==============================================================================
 
 template<class T, class TRAITS>
-class sct_comb_target<T, TRAITS, false> : public sct_target<T, TRAITS, 0>
+class sct_comb_target<T, TRAITS, 0> : public sct_target<T, TRAITS, 0>
 {
   public:
     explicit sct_comb_target(const sc_module_name& name, bool SYNC_ = 0) : 
@@ -793,7 +793,7 @@ class sct_comb_target<T, TRAITS, false> : public sct_target<T, TRAITS, 0>
 };
 
 template<class T, class TRAITS>
-class sct_comb_target<T, TRAITS, true> : public sct_target<T, TRAITS, 1>
+class sct_comb_target<T, TRAITS, 1> : public sct_target<T, TRAITS, 1>
 {
   public:
     explicit sct_comb_target(const sc_module_name& name, bool SYNC_ = 0) : 
@@ -807,7 +807,7 @@ class sct_comb_target<T, TRAITS, true> : public sct_target<T, TRAITS, 1>
 
 namespace sc_core {
 
-template<class T, class TRAITS, bool TLM_MODE>
+template<class T, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s,  
               sct::sct_target<T, TRAITS, TLM_MODE>& target )
@@ -816,7 +816,7 @@ operator << ( sc_sensitive& s,
     return s;
 }
 
-template<class T, class TRAITS, bool TLM_MODE>
+template<class T, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s, 
               sct::sct_target_peek<T, TRAITS, TLM_MODE>& peek )
@@ -825,7 +825,7 @@ operator << ( sc_sensitive& s,
     return s;
 }
 
-template<class T, class TRAITS, bool TLM_MODE>
+template<class T, class TRAITS, unsigned TLM_MODE>
 inline ::std::ostream& operator << (::std::ostream& os, 
                     const sct::sct_target<T, TRAITS, TLM_MODE>& target ) 
 {

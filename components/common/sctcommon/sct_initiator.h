@@ -619,7 +619,7 @@ class sct_initiator<T, TRAITS, 1> :
 
 namespace sc_core {
 
-template<class T, class TRAITS, bool TLM_MODE>
+template<class T, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s,  
               sct::sct_initiator<T, TRAITS, TLM_MODE>& initiator )
@@ -628,7 +628,7 @@ operator << ( sc_sensitive& s,
     return s;
 }
 
-template<class T, class TRAITS, bool TLM_MODE>
+template<class T, class TRAITS, unsigned TLM_MODE>
 inline ::std::ostream& operator << (::std::ostream& os, 
                     const sct::sct_initiator<T, TRAITS, TLM_MODE>& initiator ) 
 {

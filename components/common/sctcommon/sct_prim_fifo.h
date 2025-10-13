@@ -1,5 +1,5 @@
-/******************************************************************************
- * Copyright (c) 2021-2023, Intel Corporation. All rights reserved.
+ /******************************************************************************
+ * Copyright (c) 2021-2025, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
  *
@@ -231,8 +231,12 @@ class sct_prim_fifo :
     }
     
     void end_of_elaboration() override {
-        assert (clk_in && "clk_in is nullptr");
-        clk_period = get_clk_period(clk_in);
+        if (clk_in) {
+            clk_period = get_clk_period(clk_in);
+        } else {
+            cout << "\nFIFO " << name() << " clock input is not bound" << endl;
+            assert (false);
+        }    
         
         GET_TIME  = cthread_get ? clk_period : SC_ZERO_TIME;
         PUT_TIME  = cthread_put ? clk_period : SC_ZERO_TIME;

@@ -447,7 +447,7 @@ namespace sc_core {
     
 /// Initiator port. Cycle accurate and approximate time implementation    
     
-template<class T, class TRAITS, bool TLM_MODE>
+template<class T, class TRAITS, unsigned TLM_MODE>
 class sc_port< sct::sct_initiator<T, TRAITS, TLM_MODE>, 1, SC_ONE_OR_MORE_BOUND> :
     public sc_port_b< sct::sct_initiator<T, TRAITS, TLM_MODE> >
 {
@@ -508,7 +508,7 @@ class sc_port< sct::sct_initiator<T, TRAITS, TLM_MODE>, 1, SC_ONE_OR_MORE_BOUND>
 
 
 /// Target port. Cycle accurate and approximate time implementation    
-template<class T, class TRAITS, bool TLM_MODE>
+template<class T, class TRAITS, unsigned TLM_MODE>
 class sc_port< sct::sct_target<T, TRAITS, TLM_MODE>, 1, SC_ONE_OR_MORE_BOUND> :
     public sc_port_b< sct::sct_target<T, TRAITS, TLM_MODE> >
 {
@@ -569,7 +569,7 @@ class sc_port< sct::sct_target<T, TRAITS, TLM_MODE>, 1, SC_ONE_OR_MORE_BOUND> :
 
 //==============================================================================
 
-template<class T, class ENABLE_EVENT, bool TLM_MODE>
+template<class T, class ENABLE_EVENT, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s, sct::sct_in<T, ENABLE_EVENT, TLM_MODE>& in_port )
 {
@@ -578,7 +578,7 @@ operator << ( sc_sensitive& s, sct::sct_in<T, ENABLE_EVENT, TLM_MODE>& in_port )
     return s;
 }
 
-template<class T, class ENABLE_EVENT, bool TLM_MODE>
+template<class T, class ENABLE_EVENT, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s, sct::sct_out<T, ENABLE_EVENT, TLM_MODE>& out_port )
 {
@@ -588,7 +588,7 @@ operator << ( sc_sensitive& s, sct::sct_out<T, ENABLE_EVENT, TLM_MODE>& out_port
 }
 
 /// sc_port<sct_initiator> used by ICSC to have sct_initiator signals sensitive list
-template<class T, class TRAITS, bool TLM_MODE>
+template<class T, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s,  
               sc_port< sct::sct_initiator<T, TRAITS, TLM_MODE> >& init_port )
@@ -603,7 +603,7 @@ operator << ( sc_sensitive& s,
 }
 
 /// sc_port<sct_target> used by ICSC to have sct_target signals sensitive list
-template<class T, class TRAITS, bool TLM_MODE>
+template<class T, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s,  
               sc_port< sct::sct_target<T, TRAITS, TLM_MODE> >& targ_port )

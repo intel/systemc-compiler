@@ -459,30 +459,33 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseRecord(
             flatten |= traverseDFS(member);
         
         // Report non-trivial constructors for member records 
-        if (auto recDecl = record.getType()->getAsCXXRecordDecl()) {
-            for (auto decl : recDecl->decls()) {
-                if (auto ctorDecl = dyn_cast<CXXConstructorDecl>(decl)) {
-                    // Not implicitly generated or @default ctor
-                    if (!ctorDecl->isImplicit() && !ctorDecl->isDefaulted()) {
-                        bool someCtor = false;
-                        // Constructor has initializer list
-                        for (auto i : ctorDecl->inits()) {
-                            // Differ default constructor for SC types from 
-                            // real initialization of SC and C++ types
-                            if (auto init = dyn_cast<CXXConstructExpr>(i->getInit())) {
-                                someCtor = someCtor || init->getNumArgs();
-                            } else {
-                                someCtor = true;
+        if (!record.isBaseClass()) {    // Skip module/MIF base classes
+            if (auto recDecl = record.getType()->getAsCXXRecordDecl()) {
+                for (auto decl : recDecl->decls()) {
+                    if (auto ctorDecl = dyn_cast<CXXConstructorDecl>(decl)) {
+                        // Not implicitly generated or @default ctor
+                        if (!ctorDecl->isImplicit() && !ctorDecl->isDefaulted()) {
+                            bool someCtor = false;
+                            // Constructor has initializer list -- 
+                            // do not check as constants can be initialized here
+                            /*for (auto i : ctorDecl->inits()) {
+                                // Differ default constructor for SC types from 
+                                // real initialization of SC and C++ types
+                                if (auto init = dyn_cast<CXXConstructExpr>(i->getInit())) {
+                                    someCtor = someCtor || init->getNumArgs();
+                                } else {
+                                    someCtor = true;
+                                }
+                            }*/
+                            // Not empty body constructor
+                            if (auto ctorBody = ctorDecl->getBody()) {
+                                if (auto stmt = dyn_cast<CompoundStmt>(ctorBody)) 
+                                    someCtor = someCtor || !stmt->body_empty();
                             }
-                        }
-                        // Not empty body constructor
-                        if (auto ctorBody = ctorDecl->getBody()) {
-                            if (auto stmt = dyn_cast<CompoundStmt>(ctorBody)) 
-                                someCtor = someCtor || !stmt->body_empty();
-                        }
-                        if (someCtor) {
-                            ScDiag::reportScDiag(recDecl->getBeginLoc(),
-                                   ScDiag::SYNTH_MEMBER_RECORD_CTOR);
+                            if (someCtor) {
+                                ScDiag::reportScDiag(recDecl->getBeginLoc(),
+                                       ScDiag::SYNTH_MEMBER_RECORD_CTOR);
+                            }
                         }
                     }
                 }

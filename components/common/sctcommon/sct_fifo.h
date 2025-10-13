@@ -894,7 +894,7 @@ class sct_fifo<T, LENGTH, TRAITS, 1> :
 
 namespace sc_core {
 
-template<class T, unsigned LENGTH, class TRAITS, bool TLM_MODE>
+template<class T, unsigned LENGTH, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s, 
               sct::sct_fifo<T, LENGTH, TRAITS, TLM_MODE>& fifo )
@@ -903,7 +903,7 @@ operator << ( sc_sensitive& s,
     return s;
 }
 
-template<class T, unsigned LENGTH, class TRAITS, bool TLM_MODE>
+template<class T, unsigned LENGTH, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s, 
               sct::sct_fifo_put<T, LENGTH, TRAITS, TLM_MODE>& put )
@@ -912,7 +912,7 @@ operator << ( sc_sensitive& s,
     return s;
 }
 
-template<class T, unsigned LENGTH, class TRAITS, bool TLM_MODE>
+template<class T, unsigned LENGTH, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s, 
               sct::sct_fifo_get<T, LENGTH, TRAITS, TLM_MODE>& get )
@@ -921,7 +921,7 @@ operator << ( sc_sensitive& s,
     return s;
 }
 
-template<class T, unsigned LENGTH, class TRAITS, bool TLM_MODE>
+template<class T, unsigned LENGTH, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s, 
               sct::sct_fifo_peek<T, LENGTH, TRAITS, TLM_MODE>& get )
@@ -930,7 +930,7 @@ operator << ( sc_sensitive& s,
     return s;
 }
 
-template<class T, unsigned LENGTH, class TRAITS, bool TLM_MODE>
+template<class T, unsigned LENGTH, class TRAITS, unsigned TLM_MODE>
 inline ::std::ostream& operator << (::std::ostream& os, 
                     const sct::sct_fifo<T, LENGTH, TRAITS, TLM_MODE>& fifo) 
 {

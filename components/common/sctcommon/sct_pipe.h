@@ -727,7 +727,7 @@ class sct_pipe<T, N, TRAITS, 1> :
 
 namespace sc_core {
 
-template<class T, unsigned N, class TRAITS, bool TLM_MODE>
+template<class T, unsigned N, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s, sct::sct_pipe<T, N, TRAITS, TLM_MODE>& pipe )
 {
@@ -735,7 +735,7 @@ operator << ( sc_sensitive& s, sct::sct_pipe<T, N, TRAITS, TLM_MODE>& pipe )
     return s;
 }
 
-template<class T, unsigned N, class TRAITS, bool TLM_MODE>
+template<class T, unsigned N, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s, 
               sct::sct_pipe_put<T, N, TRAITS, TLM_MODE>& put )
@@ -744,7 +744,7 @@ operator << ( sc_sensitive& s,
     return s;
 }
 
-template<class T, unsigned N, class TRAITS, bool TLM_MODE>
+template<class T, unsigned N, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s, 
               sct::sct_pipe_get<T, N, TRAITS, TLM_MODE>& get )
@@ -753,7 +753,7 @@ operator << ( sc_sensitive& s,
     return s;
 }
 
-template<class T, unsigned N, class TRAITS, bool TLM_MODE>
+template<class T, unsigned N, class TRAITS, unsigned TLM_MODE>
 sc_sensitive& 
 operator << ( sc_sensitive& s, 
               sct::sct_pipe_peek<T, N, TRAITS, TLM_MODE>& get )

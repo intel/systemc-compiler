@@ -46,18 +46,6 @@ class sct_comb_signal : public sc_signal<T>
 
     virtual ~sct_comb_signal(){};
 
-    this_type& operator=(const int& a)
-    {
-        base_type::operator=(a);
-        return *this;
-    }
-
-    this_type& operator=(const unsigned& a)
-    {
-        base_type::operator=(a);
-        return *this;
-    }
-
     this_type& operator=(const T& a)
     {
         base_type::operator=(a);
@@ -92,18 +80,6 @@ class sct_clear_signal : public sc_signal<T>
     sct_clear_signal(const sct_clear_signal&) = delete;
 
     virtual ~sct_clear_signal(){};
-
-    this_type& operator=(const int& a)
-    {
-        base_type::operator=(a);
-        return *this;
-    }
-
-    this_type& operator=(const unsigned& a)
-    {
-        base_type::operator=(a);
-        return *this;
-    }
 
     this_type& operator=(const T& a)
     {
