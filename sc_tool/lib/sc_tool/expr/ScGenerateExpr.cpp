@@ -2148,13 +2148,23 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
             ScDiag::reportScDiag(stmt->getSourceRange().getBegin(), 
                                  ScDiag::SYNTH_POINTER_OPER) << (opcodeStr+"=");
         } else {
-            
             // RHS operand is self-determined in Verilog (see LRM 11.6)
             if (codeWriter->isIncrWidth(rexpr) && 
                 (opcode == BO_ShrAssign || opcode == BO_ShlAssign)) {
                 // 32bit is always enough for shift value
                 unsigned width = codeWriter->getExprTypeWidth(rexpr, 32);
                 width = (width > 32) ? 32 : width;
+                codeWriter->extendTypeWidth(rexpr, width);
+            }
+            
+            // Increase width for self-determined RHS (see LRM 11.6)
+            if (codeWriter->isIncrWidth(rexpr) & (opcode == BO_OrAssign || 
+                opcode == BO_AndAssign || opcode == BO_XorAssign)) {
+                
+                unsigned width = codeWriter->getExprTypeWidth(rexpr, 64);
+                if (auto pair = getIntTraits(rexpr->getType())) {
+                    width = width > pair->first ? pair->first : width;
+                }
                 codeWriter->extendTypeWidth(rexpr, width);
             }
             
@@ -3914,6 +3924,15 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                     codeWriter->extendTypeWidth(rexpr, width);
                 }
 
+                // Increase width for self-determined RHS (see LRM 11.6)
+                if (codeWriter->isIncrWidth(rexpr) & (opcode == OO_AmpEqual || 
+                    opcode == OO_PipeEqual || opcode == OO_CaretEqual)) {
+
+                    unsigned width = codeWriter->getExprTypeWidth(rexpr, 64);
+                    // Do not adjust with expression type width
+                    codeWriter->extendTypeWidth(rexpr, width);
+                }
+                
                 // Get owner variable, required for arrays
                 SValue lvar = state->getVariableForValue(lval);
 

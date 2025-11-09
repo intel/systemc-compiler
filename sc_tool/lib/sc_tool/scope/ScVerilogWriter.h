@@ -306,13 +306,15 @@ protected:
     ///                          required for bit/range select argument
     /// \param addNegBrackets -- add brackets for negative literal, 
     ///                          used for binary, unary 
+    /// \param isLeftShift    -- is operator left shift
     std::pair<std::string, std::string> getTermAsRValue(
                                             const clang::Stmt* stmt, 
                                             bool skipCast = false, 
                                             bool addNegBrackets = false,
                                             bool doSignCast = false,
                                             bool doConcat = false,
-                                            bool useZeroAprh = false);
+                                            bool useZeroAprh = false,
+                                            bool isLeftShift = false);
 public:
     /// \param useZeroAprh -- use apostrophe for zero value
     static std::string makeLiteralStr(llvm::APSInt val, char radix, 

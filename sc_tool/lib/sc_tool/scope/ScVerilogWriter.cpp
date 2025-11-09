@@ -773,9 +773,9 @@ std::string ScVerilogWriter::makeLiteralStr(APSInt val,
     bool isOne = val == 1;
     bool isNegative = val < 0;
     unsigned bitNeeded = getBitsNeeded(val);
-//    cout << "  getBitsNeeded " << bitNeeded 
-//         << " val.abs().getActiveBits() " << val.abs().getActiveBits() 
-//         << " val.getActiveBits() " << val.getActiveBits() << endl;
+    //cout << "  getBitsNeeded " << bitNeeded 
+    //     << " val.abs().getActiveBits() " << val.abs().getActiveBits() 
+    //     << " val.getActiveBits() " << val.getActiveBits() << endl;
     
     // It is possible to have no cast for non-negative literal in integer range
     bool valueCast = true;
@@ -809,9 +809,10 @@ std::string ScVerilogWriter::makeLiteralStr(APSInt val,
                        radix == 8 ? "o" : "b");
     }
     
-//    cout << "makeLiteralStr isCast " << isCast << " minCastWidth "
-//         << minCastWidth << " isSignCast " << isSignCast << " isUnsignCast "
-//         << isUnsignCast << " castSign " << (unsigned)castSign << endl;
+    //cout << "makeLiteralStr isCast " << isCast << " minCastWidth "
+    //     << minCastWidth << " isSignCast " << isSignCast << " isUnsignCast "
+    //     << isUnsignCast << " castSign " << (unsigned)castSign 
+    //     << " lastCastWidth " << lastCastWidth << endl;
 
     // Negative literal is always based, set base as value width
     if ((isSignCast || isUnsignCast) && !minCastWidth) {
@@ -890,13 +891,16 @@ std::string ScVerilogWriter::makeTermStr(const std::string& termStr,
 //                          required for bit/range select argument
 // \param addNegBrackets -- add brackets for negative literal, 
 //                          used for binary, unary 
+// \param isLeftShift    -- is operator left shift
 pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt, 
                                                       bool skipCast, 
                                                       bool addNegBrackets,
                                                       bool doSignCast,
                                                       bool doConcat,
-                                                      bool useZeroAprh) 
+                                                      bool useZeroAprh,
+                                                      bool isLeftShift) 
 {
+    //cout << "getTermAsRValue #" << hex << stmt << dec << endl;
     auto info = terms.at(stmt);
 
     std::pair<std::string, std::string> names;
@@ -919,7 +923,18 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
         unsigned lastCastWidth = info.explCast ? info.lastCastWidth  : 0; 
         unsigned minCastWidth = (info.minCastWidth || !doConcat) ? 
                     info.minCastWidth :
-                    info.lastCastWidth ? info.lastCastWidth : info.exprWidth; 
+                    info.lastCastWidth ? info.lastCastWidth : info.exprWidth;         
+        
+        // Provide literal argument cast for correct width determination
+        // (required is left shift wrapped with @signed'{1`b0, ...})
+        if (isLeftShift && info.castSign != CastSign::NOCAST && lastCastWidth == 0) {
+            lastCastWidth = 64;
+            if (auto expr = dyn_cast<Expr>(stmt)) {
+                if (auto traits = getIntTraits(expr->getType(), false)) {
+                    lastCastWidth = traits->first;
+                }
+            }
+        }
         
         rdName = makeLiteralStr(rdName, info.literRadix, minCastWidth, 
                                 lastCastWidth, info.castSign, addNegBrackets,
@@ -930,13 +945,24 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
         // Last cast cannot be w/o explicit cast flag
         SCT_TOOL_ASSERT (info.lastCastWidth == 0 || info.explCast, 
                          "Last cast with no explicit cast flag");
+        
+        // Provide last expression cast for correct width determination
+        // (required is left shift wrapped with @signed'{1`b0, ...})
+//        unsigned lastCastWidth = info.lastCastWidth;
+//        if (isLeftShift && lastCastWidth == 0) {
+//            lastCastWidth = 64;
+//            if (auto expr = dyn_cast<Expr>(stmt)) {
+//                if (auto traits = getIntTraits(expr->getType(), false)) {
+//                    lastCastWidth = traits->first;
+//                }
+//            } 
+//        }
+        
         if (!skipCast) {
             CastSign castSign = doSignCast ? info.castSign : CastSign::NOCAST;
             
-            rdName = makeTermStr(rdName, info.minCastWidth, info.lastCastWidth, 
-                                 castSign);
-            wrName = makeTermStr(wrName, info.minCastWidth, info.lastCastWidth, 
-                                 castSign);
+            rdName = makeTermStr(rdName, info.minCastWidth, info.lastCastWidth, castSign);
+            wrName = makeTermStr(wrName, info.minCastWidth, info.lastCastWidth, castSign);
         }
     }
     //cout << "getTermAsRValue #" << hex << stmt << dec << " rdName " << rdName << endl;
@@ -1436,7 +1462,7 @@ void ScVerilogWriter::extendTypeWidth(const clang::Stmt* stmt,
 {
     if (skipTerm) return;
 
-    //cout << "extendTypeWidth #" << hex << stmt << dec << " width " << width << endl;
+    cout << "extendTypeWidth #" << hex << stmt << dec << " width " << width << endl;
 
     // Do not extend width if it has explicit type cast
     if (terms.count(stmt) != 0) {
@@ -2838,6 +2864,7 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
                            opcode == "*" || opcode == "/" || opcode == "%" ||
                            bitwiseOper;
         bool shiftOper   = opcode == ">>>" || opcode == "<<<";
+        bool leftShift   = opcode == "<<<";
         bool compareOper = opcode == ">" || opcode == "<" ||
                            opcode == ">=" || opcode == "<=" ||
                            opcode == "==" || opcode == "!=";        
@@ -2845,14 +2872,14 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
         auto& linfo = terms.at(lhs);
         auto& rinfo = terms.at(rhs);
         
-        // cout << "putBinary #" << hex << stmt << dec 
-        //      << " castSign " << (int)linfo.castSign << (int)rinfo.castSign
-        //      << " exprSign " << (int)linfo.exprSign << (int)rinfo.exprSign 
-        //      << " explCast " << (int)linfo.explCast << (int)rinfo.explCast << endl;
+        //cout << "putBinary #" << hex << stmt << dec 
+        //     << " castSign " << (int)linfo.castSign << (int)rinfo.castSign
+        //     << " exprSign " << (int)linfo.exprSign << (int)rinfo.exprSign 
+        //     << " explCast " << (int)linfo.explCast << (int)rinfo.explCast << endl;
         
         // Report warning for signed to unsigned cast for non-literal
         if ((!linfo.literRadix && linfo.castSign == CastSign::UCAST) || 
-            (!rinfo.literRadix && rinfo.castSign == CastSign::UCAST))  
+            (!rinfo.literRadix && rinfo.castSign == CastSign::UCAST))
         {
             if (arithmOper) {
                 ScDiag::reportScDiag(stmt->getBeginLoc(), 
@@ -2914,8 +2941,8 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
                                  ltype->isSignedIntegerType()))) ||
                                ((isScInt(ltype) && isUnsigned32bitOrLess(rtype)) ||
                                 (isScInt(rtype) && isUnsigned32bitOrLess(ltype))); 
-        // cout << "   doSignCast " << doSignCast << " isSignedBinary " << isSignedBinary 
-        //      << " isSignedCompare " << isSignedCompare << endl;
+        //cout << "   doSignCast " << doSignCast << " isSignedBinary " << isSignedBinary 
+        //     << " isSignedCompare " << isSignedCompare << endl;
         
         // For signed binary operation set SACAST for operand if its unsigned 
         if (!skipSignCast &&  
@@ -2924,7 +2951,8 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
             setExprSCast(rhs, rinfo);
         }
         
-        string s = getTermAsRValue(lhs, false, negBrackets, doSignCast).first + 
+        string s = getTermAsRValue(lhs, false, negBrackets, doSignCast, 
+                                   false, false, leftShift).first + 
                    " " + opcode + " " +
                    getTermAsRValue(rhs, false, negBrackets, doSignCast).first;
         
