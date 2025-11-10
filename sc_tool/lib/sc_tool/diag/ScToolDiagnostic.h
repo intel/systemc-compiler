@@ -254,6 +254,7 @@ public:
         SYNTH_MEMBER_RECORD_INIT    = 269,
         SYNTH_MEMBER_RECORD_CTOR    = 270,
         SYNTH_RECORD_INDX_AND_BASE  = 271,
+        SYNTH_LEFT_SHIFT_IN_SIGNED  = 272,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -876,6 +877,11 @@ private:
         idFormatMap[SYNTH_REC_CHAN_NONDEF_CTOR] =
             {clang::DiagnosticIDs::Error, 
             "Non-default constructor for record channel is not supported"};
+        
+        idFormatMap[SYNTH_LEFT_SHIFT_IN_SIGNED] =
+            {clang::DiagnosticIDs::Warning, 
+            "Self-determined expression in signed/unsigned types mix can lead to result trim"};
+        
         
         idFormatMap[SYNTH_SS_CHAN_PARAM_IN_TOP] =
             {clang::DiagnosticIDs::Error, 

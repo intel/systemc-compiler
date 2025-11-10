@@ -2158,7 +2158,7 @@ void ScGenerateExpr::parseCompoundAssignStmt(CompoundAssignOperator* stmt,
             }
             
             // Increase width for self-determined RHS (see LRM 11.6)
-            if (codeWriter->isIncrWidth(rexpr) & (opcode == BO_OrAssign || 
+            if (codeWriter->isIncrWidth(rexpr) && (opcode == BO_OrAssign || 
                 opcode == BO_AndAssign || opcode == BO_XorAssign)) {
                 
                 unsigned width = codeWriter->getExprTypeWidth(rexpr, 64);
@@ -3925,7 +3925,7 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 }
 
                 // Increase width for self-determined RHS (see LRM 11.6)
-                if (codeWriter->isIncrWidth(rexpr) & (opcode == OO_AmpEqual || 
+                if (codeWriter->isIncrWidth(rexpr) && (opcode == OO_AmpEqual || 
                     opcode == OO_PipeEqual || opcode == OO_CaretEqual)) {
 
                     unsigned width = codeWriter->getExprTypeWidth(rexpr, 64);

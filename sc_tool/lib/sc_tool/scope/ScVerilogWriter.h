@@ -85,6 +85,8 @@ struct TermInfo
                                 // some binary and unary operators   
     bool        arrVarInd : 1;  // Term is array element at least one index
                                 // is variable: a[i], a[i][0], a[1][i+1], a[j][i]
+    bool        selfDetrm : 1;  // Term has self-determined width argument
+                                // requires to cast it width inside of @signed'{}
     
     TermInfo(const std::pair<std::string, std::string>& s, 
              unsigned exprWidth_, bool isChannel_) : 
@@ -92,7 +94,7 @@ struct TermInfo
         exprWidth(exprWidth_), minCastWidth(0), lastCastWidth(0), 
         literRadix(0), castSign(CastSign::NOCAST), exprSign(ExprSign::NOEXPR), 
         isChannel(isChannel_), explCast(false),
-        simplTerm(true), incrWidth(false), arrVarInd(false)
+        simplTerm(true), incrWidth(false), arrVarInd(false), selfDetrm(false)
     {}
 };
 

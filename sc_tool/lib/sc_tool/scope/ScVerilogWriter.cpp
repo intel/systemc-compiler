@@ -927,14 +927,16 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
         
         // Provide literal argument cast for correct width determination
         // (required is left shift wrapped with @signed'{1`b0, ...})
-        if (isLeftShift && info.castSign != CastSign::NOCAST && lastCastWidth == 0) {
-            lastCastWidth = 64;
-            if (auto expr = dyn_cast<Expr>(stmt)) {
-                if (auto traits = getIntTraits(expr->getType(), false)) {
-                    lastCastWidth = traits->first;
-                }
-            }
-        }
+        // Not required as width cast is provided for whole shift expression
+        // explicitly or implicitly in assign operator
+//        if (isLeftShift && info.castSign != CastSign::NOCAST && lastCastWidth == 0) {
+//            lastCastWidth = 64;
+//            if (auto expr = dyn_cast<Expr>(stmt)) {
+//                if (auto traits = getIntTraits(expr->getType(), false)) {
+//                    lastCastWidth = traits->first;
+//                }
+//            }
+//        }
         
         rdName = makeLiteralStr(rdName, info.literRadix, minCastWidth, 
                                 lastCastWidth, info.castSign, addNegBrackets,
@@ -946,21 +948,18 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
         SCT_TOOL_ASSERT (info.lastCastWidth == 0 || info.explCast, 
                          "Last cast with no explicit cast flag");
         
-        // Provide last expression cast for correct width determination
-        // (required is left shift wrapped with @signed'{1`b0, ...})
-//        unsigned lastCastWidth = info.lastCastWidth;
-//        if (isLeftShift && lastCastWidth == 0) {
-//            lastCastWidth = 64;
-//            if (auto expr = dyn_cast<Expr>(stmt)) {
-//                if (auto traits = getIntTraits(expr->getType(), false)) {
-//                    lastCastWidth = traits->first;
-//                }
-//            } 
-//        }
+        CastSign castSign = doSignCast ? info.castSign : CastSign::NOCAST;
+            
+        // Warning for left shift wrapped with @signed'{...}, 
+        if (info.selfDetrm && info.lastCastWidth == 0) {
+            // Check is @signed'{...} added in @makeTermStr
+            if (castSign == CastSign::SCAST || castSign == CastSign::SACAST) {
+                ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                                     ScDiag::SYNTH_LEFT_SHIFT_IN_SIGNED);
+            }
+        }
         
         if (!skipCast) {
-            CastSign castSign = doSignCast ? info.castSign : CastSign::NOCAST;
-            
             rdName = makeTermStr(rdName, info.minCastWidth, info.lastCastWidth, castSign);
             wrName = makeTermStr(wrName, info.minCastWidth, info.lastCastWidth, castSign);
         }
@@ -1462,7 +1461,7 @@ void ScVerilogWriter::extendTypeWidth(const clang::Stmt* stmt,
 {
     if (skipTerm) return;
 
-    cout << "extendTypeWidth #" << hex << stmt << dec << " width " << width << endl;
+    //cout << "extendTypeWidth #" << hex << stmt << dec << " width " << width << endl;
 
     // Do not extend width if it has explicit type cast
     if (terms.count(stmt) != 0) {
@@ -3009,6 +3008,7 @@ void ScVerilogWriter::putBinary(const Stmt* stmt, string opcode,
         putString(stmt, s, width);
         clearSimpleTerm(stmt);
         setExprSign(stmt, signedExpr);
+        terms.at(stmt).selfDetrm = leftShift;
         //cout << "    signedExpr " << int(signedExpr) << endl;
         
         // Set increase result width 
