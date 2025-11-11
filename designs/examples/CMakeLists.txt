@@ -31,6 +31,7 @@ add_subdirectory(dvcon20)
 add_subdirectory(fsm)
 add_subdirectory(intrinsic)
 add_subdirectory(latch_ff)
+add_subdirectory(portmap)
 
 add_subdirectory(sct_fifo)
 add_subdirectory(sct_initiator)
