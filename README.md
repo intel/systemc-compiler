@@ -4,15 +4,15 @@
 
 ## Introduction
 
-Intel&reg; Compiler for SystemC* (ICSC) translates synthesizable SystemC design into equivalent SystemVerilog code.
+The SystemC Compiler (ICSC) translates synthesizable SystemC design into equivalent SystemVerilog code.
 
-ICSC checks a SystemC design for common coding mistakes and generates human-readable SystemVerilog code. The tool supports SystemC synthesizable subset in method and thread processes, and arbitrary C++ code in module constructors. ICSC is based on Clang/LLVM 18.1.8 and includes SystemC 3.0.0.
+The SystemC compiler checks a SystemC design for common coding mistakes and generates human-readable SystemVerilog code. The tool supports SystemC synthesizable subset in method and thread processes, and arbitrary C++ code in module constructors. ICSC is based on Clang/LLVM 18.1.8, supports C++ 11/14/17/20 standards and includes SystemC 3.0.1.
 
 See more information at [Intel Compiler for SystemC wiki](https://github.com/intel/systemc-compiler/wiki).
 
 ## Single Source Library
 
-Single Source library consists of communication channels including Target/Initiator, FIFO, Pipe, Buffer, Register and others. The channels have functional interfaces similar to TLM 1.0.
+The Single Source library consists of communication channels including Target/Initiator, FIFO, Pipe, Buffer, Register and others. The channels have functional interfaces similar to TLM 1.0.
 
 There are [Single Source training slides](https://github.com/intel/systemc-compiler/blob/main/doc/papers/single_source_training.pdf).
 
@@ -20,7 +20,7 @@ See more information at [Single Source library](https://github.com/intel/systemc
 
 ## Getting started
 
-ICSC is based on Clang/LLVM frontend and can be installed at most Linux OS. There is ```install.sh``` script that downloads and builds ICSC and the required dependencies at **SLES15**, **SLES12**, **Ubuntu 22.04**, and **Ubuntu 20.04**.
+The SystemC Compiler can be installed at most Linux OS. There is ```install.sh``` script that downloads and builds the compiler and the required dependencies at **Ubuntu 24.04**, **Ubuntu 22.04**, **Ubuntu 20.04**, **SLES15**, and **SLES12**.
 
 An instruction how to install and run ISCS is given at [Getting started](https://github.com/intel/systemc-compiler/wiki/Getting-started). 
 
@@ -28,7 +28,7 @@ An instruction how to install and run ISCS is given at [Getting started](https:/
 
 [User guide](https://github.com/intel/systemc-compiler/blob/main/doc/ug.pdf) document describes installation procedure, run tool options, preparation of SystemC design for synthesis, tool extensions and advanced verification features.
 
-ICSC supports [SystemC Synthesizable Subset](https://www.accellera.org/images/downloads/drafts-review/SystemC_Synthesis_Subset_Draft_1_4.pdf). Details of SystemC/C++ subset supported are described at [SystemC/C++ supported](https://github.com/intel/systemc-compiler/wiki/SystemC--supported).
+The SystemC Compiler supports [SystemC Synthesizable Subset](https://www.accellera.org/images/downloads/drafts-review/SystemC_Synthesis_Subset_Draft_1_4.pdf). Details of SystemC/C++ subset supported are described at [SystemC/C++ supported](https://github.com/intel/systemc-compiler/wiki/SystemC--supported).
 
 ## Publications
 
