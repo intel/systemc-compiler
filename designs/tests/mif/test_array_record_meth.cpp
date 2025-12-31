@@ -24,6 +24,9 @@ struct mod_if : public sc_module, sc_interface
         // TODO: Fix me, see #158
         SC_METHOD(memRecArrMeth);
         sensitive << s;
+        
+        SC_METHOD(record_init_meth);
+        sensitive << s;
     }
     
 
@@ -41,6 +44,13 @@ struct Simple {
 struct NotSimple {
     Inner  rec_arr[2];
     Inner  rec_oth_arr[2];
+};
+
+struct Simple2 {
+    bool a;
+    sc_uint<4> b[3];
+    
+    Simple2() = default;
 };
 
 
@@ -112,6 +122,15 @@ struct NotSimple {
         t1 = x + sum;
         // TODO: Uncomment after #158 fixed 
         //sc_uint<4> y = w[1].rec_arr[1].c + ww[2].rec_oth_arr[0].c;
+    }
+    
+    
+    // Record initialization with T{}
+    Simple2 mem[2];
+    void record_init_meth() {
+        Simple2 loc;
+        loc = Simple2{};
+        mem[s.read()] = Simple2{};
     }
 };
 

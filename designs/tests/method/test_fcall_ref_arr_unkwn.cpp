@@ -49,7 +49,7 @@ public:
         bool larr[3] = {1,0,1};
         gindx = indx.read();
         bool b = ref_elem(larr[0]);     // no warning
-        b = ref_elem(larr[gindx]);
+        b = ref_elem(larr[gindx]);      // warning
     }
     
     // The same with pointer
@@ -63,7 +63,7 @@ public:
     int mindx;
     void array_unknown_ptr() {
         mindx = indx.read();
-        bool b = ptr_elem(parr[mindx]);
+        bool b = ptr_elem(parr[mindx]); // warning
         b = ptr_elem(parr[1]);          // no warning
     }
     
@@ -80,7 +80,7 @@ public:
         wait();
         
         while (true) {
-            bool b = ref_wait(arr[indx.read()]);
+            bool b = ref_wait(arr[indx.read()]);    // warning
             wait();
         }
     }

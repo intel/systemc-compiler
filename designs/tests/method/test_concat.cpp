@@ -330,7 +330,7 @@ public:
         
         bz = (yy++, by);
         bz = (by, sc_uint<5>(11));
-        t3 = z; t3 = bz.to_int();
+        t4 = z; t4 = bz.to_int();
     }
     
     void bit_range_sel() 

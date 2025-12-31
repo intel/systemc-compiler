@@ -1216,19 +1216,26 @@ void ScGenerateExpr::parseExpr(InitListExpr* expr, SValue& val)
     }
 }
 
-// Used for construction temporary record object, T()
+// Used for construction temporary record object, T()/T{}
 void ScGenerateExpr::parseExpr(CXXTemporaryObjectExpr* expr, SValue& val)
 {
     QualType type = expr->getType();
     
     if (isUserClass(type)) {
         if (auto recDecl = type->getAsCXXRecordDecl()) {
-            SValue var = locrecvar ? locrecvar : SValue(type, NO_VALUE);
-            val = createRecValue(recDecl, NO_VALUE, var, true, 0, false);
-            temprec = val;
-            //cout << "val " << val << endl;
+            // This is supported, used for record w/o array inside
+            
+            // Create temporary variable to own constructed record object 
+            SValue var = SValue(type, NO_VALUE);
+            locrecvar = var;
+            // Constructor body MUST be empty because it is analyzed after 
+            // temp variable assignment to the record variable (last param @false)
+            val = parseRecordCtor(expr, modval, locrecvar, false);
+            locrecvarCtor = false;
+            val = var; 
+            
+            //cout << "var " << var << ", val " << val << endl;
             //state->print();
-
         } else {
             SCT_INTERNAL_ERROR(expr->getBeginLoc(), "Incorrect class type");
         }

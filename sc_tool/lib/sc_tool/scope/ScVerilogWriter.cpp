@@ -2451,6 +2451,7 @@ void ScVerilogWriter::putRecordAssignTemp(const Stmt* stmt,
     
     // Record assignment, assign all the fields
     string s;
+    bool noValFound = false;
     bool first = true;
     for (unsigned i = 0; i != lrecFields.size(); ++i) {
         const SValue& lfval = lrecFields[i];
@@ -2483,12 +2484,18 @@ void ScVerilogWriter::putRecordAssignTemp(const Stmt* stmt,
             rhsName = makeLiteralStr(rrval.getInteger(), radix, 
                                      0, 0, CastSign::NOCAST, false, false);
         } else {
-            rhsName = "0";
+            rhsName = "'0";
+            noValFound = true;
         }
 
         string f = lhsName + (nbAssign ? NB_ASSIGN_SYM : ASSIGN_SYM) + rhsName;
         s = s + (first ? "" : "; ") + f;
         first = false;
+    }
+    
+    if (noValFound) {
+        ScDiag::reportScDiag(stmt->getBeginLoc(), 
+                             ScDiag::SYNTH_REC_TEMP_NO_INIT);
     }
 
     putString(stmt, s, 0);

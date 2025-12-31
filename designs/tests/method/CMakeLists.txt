@@ -210,6 +210,9 @@ svc_target(method_binary_signed_fail)
 add_executable(method_binary_sc_types test_binary_sc_types.cpp)
 svc_target(method_binary_sc_types GOLDEN method_binary_sc_types.sv)
 
+add_executable(method_cpp_overflow_cast test_cpp_overflow_cast.cpp)
+svc_target(method_cpp_overflow_cast ELAB_TOP b_mod.a_mod GOLDEN method_cpp_overflow_cast.sv)
+
 add_executable(method_compound test_compound.cpp)
 svc_target(method_compound GOLDEN method_compound.sv)
 

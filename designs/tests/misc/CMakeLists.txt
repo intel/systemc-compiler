@@ -117,6 +117,18 @@ svc_target(misc_zero_width_func GOLDEN misc_zero_width_func.sv NO_REMOVE_EXTRA_C
 add_executable(misc_zero_width_sens test_zero_width_sens.cpp)
 svc_target(misc_zero_width_sens GOLDEN misc_zero_width_sens.sv NO_REMOVE_EXTRA_CODE)
 
+add_executable(misc_zero_width_concat test_zero_width_concat.cpp)
+svc_target(misc_zero_width_concat GOLDEN misc_zero_width_concat.sv)
+
+add_executable(misc_sct_ones test_sct_ones.cpp)
+svc_target(misc_sct_ones GOLDEN misc_sct_ones.sv)
+
+add_executable(misc_printf test_printf.cpp)
+svc_target(misc_printf GOLDEN misc_printf.sv)
+
+add_executable(misc_sizeof test_sizeof.cpp)
+svc_target(misc_sizeof GOLDEN misc_sizeof.sv) 
+
 ## Vectors
 add_executable(misc_vector_in_top test_vector_in_top.cpp)
 svc_target(misc_vector_in_top GOLDEN misc_vector_in_top.sv)

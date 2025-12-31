@@ -10,6 +10,8 @@
 struct Simple {
     bool a;
     sc_uint<4> b;
+    
+    Simple() = default;
 };
 
 // Record local variable and member in MIF 
@@ -31,6 +33,9 @@ struct mod_if : public sc_module, sc_interface
         async_reset_signal_is(nrst, false);
 
         SC_CTHREAD(memRecArrThread, clk.pos());
+        async_reset_signal_is(nrst, false);
+    
+        SC_CTHREAD(record_init_thrd, clk.pos());
         async_reset_signal_is(nrst, false);
     }
     
@@ -125,6 +130,24 @@ struct mod_if : public sc_module, sc_interface
             wait();
         }
     }
+    
+    // Record initialization with T{}
+    Simple mem[2];
+    sc_signal<int> t4;
+    void record_init_thrd() {
+        Simple loc;
+        loc = Simple{};
+        mem[1] = Simple{};
+        wait();
+        
+        while (true) {
+            t4 = loc.b + mem[s.read()].b;
+            loc = Simple{};
+            mem[s.read()] = Simple{};
+            wait();
+        }
+    }
+        
 };
 
 SC_MODULE(Top) 

@@ -255,6 +255,7 @@ public:
         SYNTH_MEMBER_RECORD_CTOR    = 270,
         SYNTH_RECORD_INDX_AND_BASE  = 271,
         SYNTH_LEFT_SHIFT_IN_SIGNED  = 272,
+        SYNTH_REC_TEMP_NO_INIT      = 273,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -840,7 +841,7 @@ private:
         
         idFormatMap[SYNTH_RECORD_INIT_LIST] =
             {clang::DiagnosticIDs::Error, 
-            "List initializer for record is not supported"};
+            "List initializer for/in record not supported (maybe no empty ctor or array field)"};
         
         idFormatMap[SYNTH_CHAN_RECORD_CONST] =
             {clang::DiagnosticIDs::Error, 
@@ -881,6 +882,11 @@ private:
         idFormatMap[SYNTH_LEFT_SHIFT_IN_SIGNED] =
             {clang::DiagnosticIDs::Warning, 
             "Self-determined expression in signed/unsigned types mix can lead to result trim"};
+        
+        idFormatMap[SYNTH_REC_TEMP_NO_INIT] =
+            {clang::DiagnosticIDs::Warning, 
+            "Record field initialized with no value, zero used by default"};
+        
         
         
         idFormatMap[SYNTH_SS_CHAN_PARAM_IN_TOP] =

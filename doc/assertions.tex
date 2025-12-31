@@ -2,14 +2,6 @@
 
 The SystemC compiler supports immediate and temporal assertions described in this section.
 
-Beside that there are special assertions mostly intended for tool developers.
-\begin{itemize}
-\item {\tt sct\_assert\_latch(var [, latch = true])} -- assert that given variable, signal or port is latch if second parameter is true (by default), or not latch otherwise. Latch object is defined only at some paths of method process.
-\item {\tt sct\_assert\_const(expr)} -- check given expression is true in constant propagation analysis
-\item {\tt sct\_assert\_unknown(value)} -- check give value is unknown, i.e. not statically evaluated
-\item {\tt sct\_assert\_register(expr)} -- check given expression is read before defined 
-\end{itemize}
-
 
 \subsection{Immediate assertions}
 
@@ -280,5 +272,14 @@ end
 \end{lstlisting}
 
 
+\subsection{Special assertions}\label{section:latch_assert}
 
+Beside immediate and temporal assertions, there are special assertions mostly intended for tool developers. Only {\tt sct\_assert\_latch} assertion is considered to be used in the design code, see~\ref{section:method_latches}.
+%
+\begin{itemize}
+\item {\tt sct\_assert\_latch(var [, latch = true])} -- assert that given variable, signal or port is latch if second parameter is true (by default), or not latch otherwise. Latch object is defined only at some paths of method process.
+\item {\tt sct\_assert\_const(expr)} -- check given expression is true in constant propagation analysis
+\item {\tt sct\_assert\_unknown(value)} -- check give value is unknown, i.e. not statically evaluated
+\item {\tt sct\_assert\_register(expr)} -- check given expression is read before defined 
+\end{itemize}
 

@@ -19,6 +19,8 @@ struct Simple {
     bool a;
     int b;
     
+    Simple() = default;
+    
     bool operator == (const Simple& other) {
         return (a == other.a && b == other.b);
     }
@@ -264,13 +266,14 @@ public:
     void threadCtor() {
         Simple ss;
         //Simple rr{};      -- not allowed
-        //ss = Simple{};    -- not allowed 
+        ss = Simple{};   
         tvec[0] = Simple{};
         wait();
         
         while (true) {
             unsigned i = s.read();
-            //ss = Simple();      -- not allowed
+            ss = Simple{};
+            ss = Simple();
             wim = Simple();       // OK
             wim = Simple{};       // OK  
             wim.write(Simple());  

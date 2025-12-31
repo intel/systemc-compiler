@@ -1,5 +1,5 @@
 \section{Overview}\label{section:overview}
-Intel\textregistered Compiler for SystemC* (ICSC) is a tool which translates hardware design in SystemC language into equivalent design in synthesizable SystemVerilog. 
+Intel\textregistered Compiler for SystemC (ICSC) is a tool which translates hardware design in SystemC language into equivalent design in synthesizable SystemVerilog. 
 
 ICSC supports SystemC synthesizable subset standard IEEE Std~1666. In addition it supports arbitrary C++ code in module constructors and everywhere at elaboration phase.
 %
@@ -7,15 +7,15 @@ Synthesizable SystemVerilog means a subset of SystemVerilog language IEEE Std~18
 
 ICSC is focused on improving productivity of design and verification engineers. That provided with SystemC language high level abstractions and extensions implemented in ICSC itself. The rest of this section devoted to general SystemC design approaches and main features of ICSC. 
 
-ICSC works under Linux OS. There is a script to automatically build and install the tool at Ubuntu 20.04. ICSC has minimalistic set of options which have appropriate default values. To run ICSC it needs to point input SystemC files and top modules name. Installation procedure and run ICSC tool described in Section~\ref{section:install}.   
+ICSC works under Linux OS. There is a script to automatically build and install the tool at Ubuntu 20/22/24, SLES 12/15 and other Linux OS. ICSC has minimalistic set of options which have appropriate default values. To run ICSC it needs to point input SystemC files and top modules name. Installation procedure and run ICSC tool described in Section~\ref{section:install}.   
 
 SystemC to SystemVerilog translation with ICSC has multiples stages, including input design checks to detect non-synthesizable code, common coding mistakes and typos. The general rules are specified by SystemC synthesizable subset standard. Some good practices and common cases in synthesizable SystemC designs are discussed in Section~\ref{section:prepare}.  
 
-ICSC produces human-readable SystemVerilog code which looks very similar to the input SystemC design. SystemC thread and method processes are translated into {\tt always\_comb} and {\tt always\_ff} blocks. Control flow of generated always blocks is similar to control flow of the SystemC processes. There are almost the same variable declarations, control statements (if, switch, loops) and code blocks. More details of generated SystemVerilog code structure are given in Section~\ref{section:trans_flow}.
+ICSC produces human-readable SystemVerilog code which looks very similar to the input SystemC design. SystemC thread and method processes are translated into {\tt always\_comb} and {\tt always\_ff} blocks. Control flow of generated always blocks is similar to control flow of the SystemC processes. There are almost the same variable declarations, control statements ({\tt if}, {\tt switch}, loops) and code blocks. More details of generated SystemVerilog code structure are given in Section~\ref{section:trans_flow}.
 
-ICSC has multiple extensions including Advanced FIFO collection, support of SystemVerilog intrinsics and vendor memory as it is described in Section ~\ref{section:extensions}. Advanced verification features based on immediate and temporal SystemC assertions are discussed in Section ~\ref{section:assertions}.
+ICSC has multiple extensions including Single source library which provide high-level communication channels and other components with functional interface. ICSC supports SystemVerilog intrinsics and vendor memory as it is described in Section ~\ref{section:extensions}. Advanced verification features based on immediate and temporal SystemC assertions are discussed in Section ~\ref{section:assertions}.
 
-Input SystemC design has to be passed through C++ compiler and comply to SystemC synthesizable standard rules. To simplify error detection and understanding, ICSC provides precise and meaningful error reporting.
+An input SystemC design has to be passed through C++ compiler and comply to the SystemC synthesizable standard rules. To simplify error detection and understanding, ICSC provides precise and meaningful error reporting.
 
 
 \subsection{Hardware design with SystemC}
@@ -51,16 +51,16 @@ ICSC main advantages over existing HLS tools:
 
 \subsubsection{SystemC and C++ support}
 
-ICSC supports modern C++ standards (C++11, C++14, C++17). That allows in-class initialization, for-each loops, lambdas, and other features.
+ICSC supports modern C++ standards (C++11, C++14, C++17, C++20). That allows in-class initialization, for-each loops, lambdas, and other features.
 As ICSC uses dynamic code elaboration, there is no limitations on elaboration stage programming. That means full C++ is supported in module constructors and everywhere executed at elaboration phase.
 
-ICSC operates with the latest SystemC version 2.3.3, so it includes all modern SystemC features. 
+ICSC operates with the latest SystemC version 3.0.1, so it includes all modern SystemC features. 
 
 \subsubsection{Human-readable generated Verilog}
 
-ICSC generates SystemVerilog code which looks like SystemC input code. That is possible as ICSC does no optimizations, leaving them to logic synthesis tools next in the flow.
+ICSC generates SystemVerilog code which looks similar to the SystemC input code. That is possible as ICSC does no optimizations, leaving them to logic synthesis tools next in the flow.
 
-Human-readable generated code gives productivity advantages over the HLS tools:
+Human-readable generated code gives productivity advantages over other HLS tools:
 \begin{itemize}
 \item DRC and CDC bugs in generated Verilog can be quickly identified in input SystemC;
 \item Timing violation paths can be easily mapped to input SystemC;
@@ -69,20 +69,14 @@ Human-readable generated code gives productivity advantages over the HLS tools:
 
 \subsubsection{Advanced verification features}
 
-SystemC includes {\tt sc\_assert} macro for checking assertion expression during simulation. ICSC provides automatic translation {\tt sc\_assert} to equivalent SystemVerilog Assertion (SVA).
+SystemC includes {\tt sct\_assert} macro for checking assertion expression during simulation. ICSC provides automatic translation the SystemC assertions into equivalent SystemVerilog assertions (SVA).
 
-In addition to {\tt sc\_assert} SVA provides assertions with temporal conditions which looks similar to SVA. These assertions implemented in the ICSC library and have the same semantic in SystemC and SystemVerilog simulation. More details about verification support described in Section~\ref{section:assertions}.
+In addition to that, ICSC supports assertions with temporal conditions which looks similar to temporal assertions SVA. These assertions implemented in the ICSC library and have the same semantic in SystemC and SystemVerilog simulation. More details about verification support described in Section~\ref{section:assertions}.
 
-\subsubsection{Reusable module library}
+\subsubsection{Single Source Library}
 
-ICSC module library includes the following:
-\begin{itemize}
-\item Advanced FIFO for modules and processes interconnect with zero size option;  
-\item Zero delay channel which is base for memory modules with functional interface accessible from all process types;
-\item Clock gate, clock synchronizer and other standard modules
-\end{itemize} 
-%
-Detailed description of the library is given in Section~\ref{section:extensions}.
+ICSC distribution includes the Single Source Library which consists of communication channels like Target/Initiator, FIFO, Pipe, Buffer, Register and others. The communication channels have functional interfaces similar to TLM 1.0. Using the Single Source channels reduces total number of lines of code and increase abstraction level of the SystemC design.
+The detailed description of the library is given in Section~\ref{section:extensions}.
 
 \subsubsection{Simple project maintaining}
 

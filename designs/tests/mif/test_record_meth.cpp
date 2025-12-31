@@ -10,6 +10,8 @@
 struct Simple {
     bool a;
     sc_uint<4> b;
+    
+    Simple() = default;
 };
 
 // Record local variable and member in MIF 
@@ -29,6 +31,9 @@ struct mod_if : public sc_module, sc_interface
         sensitive << s;
 
         SC_METHOD(memRecArrMeth);
+        sensitive << s;
+        
+        SC_METHOD(record_init_meth);
         sensitive << s;
     }
     
@@ -102,6 +107,17 @@ struct mod_if : public sc_module, sc_interface
         sc_uint<4> x = w[1].b + ww[3].b;
         t3 = x + sum;
     }
+    
+    // Record initialization with T{}
+    Simple mem[2];
+    void record_init_meth() {
+        Simple loc;
+        loc = Simple{};
+        loc = Simple();
+        mem[s.read()] = Simple{};
+    }
+    
+    
 };
 
 SC_MODULE(Top) 

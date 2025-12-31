@@ -31,7 +31,12 @@ struct test : public sc_module, public base_test {
         SC_METHOD(const_array_test); sensitive << s;
         SC_METHOD(array_test); sensitive << s;
         SC_METHOD(static_const_array_test); sensitive << s;
-        //SC_METHOD(local_array_test); sensitive << s;   // see #
+        SC_METHOD(local_array_test); sensitive << s;   
+        SC_METHOD(local_array_oper_test); sensitive << s;   
+        //SC_METHOD(local_vector_error_test); sensitive << s;   
+        SC_METHOD(local_array_sig_test); sensitive << s;   
+        for (int i = 0; i < 3; ++i) sensitive << sa[i];
+        
     }
 
 // ----------------------------------------------------------------------------    
@@ -119,17 +124,64 @@ struct test : public sc_module, public base_test {
 // ----------------------------------------------------------------------------
 // Local std::array  
     
-//    void local_array_test() 
-//    {
-//        std::array<int, 3> m;
-//        int l;
-//        unsigned i = s.read();
-//
-//        m[0] = 41;
-//
-//        l = m[0];
-//    }
-//    
+    sc_signal<int> t3;
+    void local_array_test() 
+    {
+        int n[3] = {1,2,3};
+        std::array<int, 3> m;
+        std::array<sc_uint<16>, 3> k;
+        std::array<int, 3> p = {2,3,4};
+        
+        m[0] = 41;
+        k[s.read()+1] = m[s.read()];
+        m[s.read()] = 42 + p[1];
+        t3 = m[0] + n[s.read()] + k[1] + p[s.read()-1];
+
+        std::array<std::array<int, 2>, 3> mm;
+        std::array<std::array<int, 2>, 3> pp = {{{1,2}, {3,4}, {5,6}}};
+
+        mm[0][1] = s.read();
+        pp[2][0] = s.read();
+        
+        t3 = mm[0][s.read()];
+        t3 = mm[s.read()-1][1] + pp[s.read()][0];
+    }
+    
+    sc_signal<int> t3a;
+    void local_array_oper_test() 
+    {
+        std::array<int, 2> m;
+        std::array<int, 2> k;
+        std::array<std::array<int, 2>, 3> mm;
+        std::array<std::array<int, 2>, 3> kk;
+        
+        m = k;
+        mm = kk;
+        mm[0] = m;
+        t3a = m[0]+mm[0][0];
+        
+        bool lb = m[0] == k[1];
+        //b = m == k;                       // Error reported
+        t3a = lb ? m[0] : mm[0][0];
+    }
+    
+    // std::vector is not supported in functions
+    sc_signal<int> t4;
+    void local_vector_error_test() 
+    {
+        std::vector<int> v = {1,2,3};       // Fatal error reported
+        t4 = v[s.read()];
+    }
+    
+    std::array<sc_signal<int>, 3> sa;
+    std::array<sc_signal<int>, 3> sb;
+    sc_signal<int> t5;
+    void local_array_sig_test() 
+    {
+        sb[s.read()] = sa[1].read() + 1;
+        t5 = sa[0];
+    }
+    
     
 };
 

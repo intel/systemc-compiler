@@ -257,11 +257,10 @@ localparam logic signed C = 'd1;
 localparam logic signed [31:0] D = 'd42;
 \end{lstlisting}
 
-There is {\tt REPLACE\_CONST\_VARIABLES} option to replace the constants in the code with their values, see~\ref{section:tool_options}. A constant is replaced with its value if the value if there is no reference to the constant. If constant is replaced with its value or not used in the code, no SV local parameter is generated.
 
 \subsection{Integer variable initialization from string}\label{section:string_to_int}
 
-Integer variable of SC type ({\tt sc\_uint}, {\tt sc\_int}, {\tt sc\_biguint}, {\tt sc\_bigint}) can be initialized from string literal or string variable. The string should contain correct integer value in any radix supported. For {\tt sc\_biguint} and {\tt sc\_bigint} initialization value could be more than 64 bits. String variable should be initialized at elaboration phase (in a module constructor).
+Integer variable of SC type ({\tt sct\_uint}, {\tt sct\_int}, {\tt sc\_uint}, {\tt sc\_int}, {\tt sc\_biguint}, {\tt sc\_bigint}) can be initialized from string literal or string variable. The string should contain correct integer value in any radix supported. For {\tt sct\_uint}, {\tt sct\_int}, {\tt sc\_biguint} and {\tt sc\_bigint} initialization value could be more than 64 bits. String variable should be initialized at elaboration phase (in the module constructor).
 
 \begin{lstlisting}[style=mycpp]
 const char* cstr = "43";
@@ -336,7 +335,7 @@ assign d = i+1;
 
 \subsection{Method process with latch(es)}\label{section:method_latches}
 
-Normally ICSC does not allow to have latch in SystemC source, but there are some cases where latch is required. There is ICSC assertion {\tt sct\_assert\_latch} which intended to specify latch in method process, see~\ref{section:assert_special}. It suppresses ICSC error message for latch variable, signal or port. 
+Normally ICSC does not allow to have latch in SystemC source, but there are some cases where latch is required. There is ICSC assertion {\tt sct\_assert\_latch} which intended to specify latch in method process, see~\ref{section:latch_assert}. It suppresses ICSC error message for latch variable, signal or port. 
 
 Normal method process translated into {\tt always\_comb} block in SystemVerilog. For method with latch {\tt always\_latch} block is generated.
 

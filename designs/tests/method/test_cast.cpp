@@ -38,7 +38,10 @@ public:
         
         SC_METHOD(unary_cast); sensitive << s;
         SC_METHOD(binary_comparison_pos); sensitive << s;
-        SC_METHOD(binary_comparison_neg); sensitive << s;
+        SC_METHOD(binary_comparison_neg); sensitive << s;        
+        
+        SC_METHOD(binary_shift_liter_issue85); sensitive << s;
+        SC_METHOD(binary_shift_expr_issue85); sensitive << s;
         SC_METHOD(binary_shift); sensitive << s;
         
         SC_METHOD(explicit_cast_required); sensitive << is << xs << us << bs;
@@ -530,6 +533,97 @@ public:
         CHECK (b);
     }
 
+    // GitHub issue #85
+    sc_signal<unsigned> tt2;
+    void binary_shift_liter_issue85() 
+    {
+        unsigned u = 3;
+        sc_uint<3> n = 4;
+        sc_uint<8> x = 4;
+        sc_int<8> y = 9;
+        unsigned res;
+        sc_biguint<70> res2;
+        bool b;
+        
+        
+        res |= x / ((1U+1U) << 3);   // OK
+        res |= y / ((1U+1U) << 3);   // warning reported
+        res2 |= y / ((sc_biguint<70>(1)+1U) << 64); // warning reported
+        
+        res |= 0 << 3;
+        res |= 0U << 3;
+        res = 1U << 3;   
+        res = res | (1U << 3);
+        res |= (1U << 3);
+        res = res | (1 << 3);
+        res |= 12U << 3;
+        res &= 1UL << 3;
+        res &= 2ULL << 3;
+        res ^= 1L << 3;
+        res ^= 5LL << 3;
+        res |= x | (1U << 3);
+        res |= x + (1U << 3) - (2U << 3);
+
+        res |= y / (1 << 3);
+        res |= y / (1U << 3);       // warning reported
+
+        res |= unsigned(1) << 3;
+        res |= unsigned(1U) << 3;
+        res |= sc_uint<4>(1) << 3;
+        res |= sc_int<5>(1) << 3;
+        
+        res = 1U << 3;
+        b = res == 8;
+        CHECK (b);
+        res = 0;
+        res |= (1U << 3);
+        b = res == 8;
+        CHECK (b);
+        
+        tt2 = res + res2.to_int();
+    }
+    
+    sc_signal<unsigned> tt3;
+    void binary_shift_expr_issue85() 
+    {
+        int i = 2;
+        unsigned u = 3;
+        sc_uint<8> x = 4;
+        sc_uint<8> y = 9;
+        sc_int<8> z = 9;
+        unsigned res;
+        sc_biguint<24> res2;
+        bool b;
+    
+        res |= (1U << 3);
+        res = res | (1U << 3);   
+
+        res2 |= (1U << 3);
+        res2 = res2 | (1U << 3); 
+        
+        res = x | (1 + x) << i;        
+        res &= (1 + 1) << 3;      
+        res |= (1U + 1U) << 3;
+        res ^= (1UL + 1UL) << 3;
+        res &= (1L + 1L) << 3;
+        res |= (1LL + 3LL) << 3;
+        res ^= sc_uint<24>(1U + 1U) << 3;    
+        res |= sc_uint<24>(1LL + 1LL) << 3;    
+        res2 &= sc_biguint<24>(1LL + 1LL) << 3;    
+     
+        res |= (x + x) << u;
+        res |= (y - y) << u;
+        res |= (x * y) << u;
+        res |= (x / y) << u;
+        
+        res &= (i + u) << 3;
+        res &= (i - z) << 3;
+        res &= (z * x) << 3;
+        res &= (i / x) << 3;
+        
+        tt3 = res + res2.to_int();
+    }
+    
     sc_signal<bool> t2;
     void binary_shift() 
     {

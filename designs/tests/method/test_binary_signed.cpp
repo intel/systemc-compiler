@@ -202,7 +202,7 @@ public:
         
         i = -1;
         i = j + uu * i;         // Warning repotred
-        //CHECK(i == -38); 
+        CHECK(i == -38); 
         
         z = 1;
         bz = (bu * bz - x);
@@ -217,7 +217,7 @@ public:
         z = (-uu*4) / (-2);     // Warning repotred
         t3 = z;
         std::cout << "z = " << z << std::endl;
-        //CHECK(z == 0); 
+        CHECK(z == 0); 
         
         // Literal expression
         uu = ux + (1 + 2);      // Warning repotred
@@ -1044,28 +1044,28 @@ public:
         // CPP types, #330
         x3 = i1 * i2;
         cout << hex << "(i1 * i2) " << x3  << dec << endl;
-        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
+        CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
 
         x3 = si1 * si2;
         cout << hex << "(si1 * si2) " << x3  << dec << endl;
-        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
+        CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
 
         x3 = i1 * si2;
         cout << hex << "(i1 * si2) " << x3  << dec << endl;
-        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV*/
+        CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
 
         // SC types, #330
         x3 = y1 * y2;
         cout << hex << "(y1 * y2) " << x3  << dec << endl;
-        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
+        CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
 
         x3 = sy1 * sy2;
         cout << hex << "(sy1 * sy2) " << x3  << dec << endl;
-        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
+        CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
 
         x3 = y1 * sy2;
         cout << hex << "(y1 * sy2) " << x3  << dec << endl;
-        //CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
+        CHECK(x3 == 0);  //0 in SC, 0x10...0 in SV
 
         // big SC types
         x3 = x1 * x2;
@@ -1085,21 +1085,21 @@ public:
         si1 = -2147483648;
         x3 = ++i1;
         cout << hex << "i1++ " << x3 << dec << endl;
-        //CHECK(x3 == 0);  
+        CHECK(x3 == 0);  
 
         x3 = --si1;
         cout << hex << "si1-- " << x3 << dec << endl;
-        //CHECK(x3 == 0x7FFFFFFF);  
+        CHECK(x3 == 0x7FFFFFFF);  
         
         y1 = 0xFFFFFFFFFFFFFFFF;
         sy1 = -0x8000000000000000;
         x3 = ++y1;
         cout << hex << "y1++ " << x3 << dec << endl;
-        //CHECK(x3 == 0);  
+        CHECK(x3 == 0);  
 
         x3 = --sy1;
         cout << hex << "sy1-- " << x3 << dec << endl;
-        //CHECK(x3 == 0x7FFFFFFFFFFFFFFF);
+        CHECK(x3 == 0x7FFFFFFFFFFFFFFF);
     }
     
     void cpp_overflow2() {

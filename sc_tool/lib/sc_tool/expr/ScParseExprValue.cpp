@@ -826,12 +826,10 @@ void ScParseExprValue::parseExpr(CXXTemporaryObjectExpr* expr, SValue& val)
     
     if (isUserClass(type)) {
         if (auto recDecl = type->getAsCXXRecordDecl()) {
-            if (locrecvar) {
-                ScDiag::reportScDiag(expr->getBeginLoc(), 
-                             ScDiag::SYNTH_RECORD_INIT_LIST);
-            }
+            // This is supported, used for record w/o array inside
             SValue var(type, NO_VALUE);
             val = createRecValue(recDecl, NO_VALUE, var, true, 0, false);
+            
         } else {
             SCT_INTERNAL_ERROR(expr->getBeginLoc(), "Incorrect class type");
         }

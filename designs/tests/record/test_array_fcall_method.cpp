@@ -48,10 +48,6 @@ public:
         SC_METHOD(arr_elem_in_index);
         sensitive << s << srr[0] << *spp[0];
 
-        // TODO: Fix me, #99
-        //SC_METHOD(rec_arr_elem_in_index);
-        //sensitive << s;
-
         /*SC_METHOD(record_var_if);
         sensitive << a << as << as_i << s;
 
@@ -218,13 +214,6 @@ public:
         *spp[*spp[i]] = *spp[i+*spp[i+1]];
     }
 
-    void rec_arr_elem_in_index()
-    {
-        MyRec err[3];
-        err[err[1].b].a = 1;
-    }
-    
-    
     
 //-----------------------------------------------------------------------------
     // Function with records

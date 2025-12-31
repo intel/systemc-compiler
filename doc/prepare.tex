@@ -2,7 +2,7 @@
 
 \subsection{Module hierarchy}\label{section:modules}
 
-SystemC design consists of module and modular interface instances which are organized into a module hierarchy. \emph{Module} is a C++ class or structure which inherits {\tt sc\_module} class. \emph{Modular interface} is a C++ class or structure which inherits {\tt sc\_interface} and {\tt sc\_module} classes. If a class inherits {\tt sc\_interface}, but does not inherit {\tt sc\_module} we call it \emph{pure interface}. Pure interface is not a part of module hierarchy. Each interface and module, except top module, is instantiated inside of \emph{parent module}. Modules and modular interfaces can be instantiated at stack or be dynamically allocated in heap with {\tt operator new}.
+SystemC design consists of modules and modular interfaces instances which are organized into a module hierarchy. \emph{Module} is a C++ class or structure which inherits {\tt sc\_module} class. \emph{Modular interface} is a C++ class or structure which inherits {\tt sc\_interface} and {\tt sc\_module} classes. If a class inherits {\tt sc\_interface}, but does not inherit {\tt sc\_module} we call it \emph{pure interface}. Pure interface is not a part of module hierarchy. Each interface and module, except top module, is instantiated inside of \emph{parent module}. Modules and modular interfaces can be instantiated at stack or be dynamically allocated in heap with {\tt operator new}.
 
 The difference between module and modular interface from ICSC viewpoint is that modular interface is flatten into parent module where it is instantiated. That means there is no modular interface instance in generated SystemVerilog, but its fields and processes are instantiated into the parent module. In other words, modular interface is a kind of module which needs to be flatten in its parent module.
 
@@ -413,8 +413,8 @@ There are two special types {\tt sct\_uint<N>} and {\tt sct\_int<N>} provided. T
 \hline
 SC/C++ type & SV type  & SC synthesizable subset \\
 \hline
-sct\_uint<N> & logic [N] & N is 0...+inf \\
-sct\_int<N> & logic signed [N] & N is 0...+inf \\
+sct\_uint<N> & logic [N] & N is 0...+inf, recommended to use \\
+sct\_int<N> & logic signed [N] & N is 0...+inf, recommended to use \\
 sc\_uint<N> & logic [N] & N is 1...64 \\
 sc\_biguint<N> & logic [N] & N is 1...+inf \\
 sc\_int<N> & logic signed [N] & N is 1...64 \\
@@ -555,9 +555,10 @@ void refProc() {
 \end{lstlisting}
 
 
-\subsection{Array and SC vector types}
+\subsection{Arrays and SC vector types}
 
-Arrays are supported as module members and function local variables. One-dimensional and multidimensional arrays are supported. Array of modules/modular interfaces and modules/modular interfaces pointers are supported.  In array of module/modular interface base class pointers all elements must be the same class. Array of signals/ports and signal/port pointers are supported. Array of port interfaces ({\tt sc\_port<IF>}) not supported. Array of records and record pointers are supported. In array of base class pointers all elements must be the same class.
+Build-in C++ arrays and {\tt std::array} from the Standard Library can be referred to as arrays.
+Such arrays are supported as module members and function local variables as well. One-dimensional and multidimensional arrays are supported. Array of modules/modular interfaces and modules/modular interfaces pointers are supported. In array of module/modular interface base class pointers all elements must be the same class. It is not recommended to use pointers in array or anywhere else, but array of signals/ports and signal/port pointers are supported. Array of port interfaces ({\tt sc\_port<IF>}) not supported. Array of records and record pointers are supported. 
 %
 \begin{lstlisting}[style=mycpp]
 static const unsigned N = 5;   
@@ -575,9 +576,25 @@ SC_CTOR(myModule) {
   }   
 }
 \end{lstlisting}
+%
+Array of any pointers must be homogeneous, all elements created with operator new, but not pointers to existing objects. In array of base class pointers all elements must be the same class. Array and array of pointers, including array of signals/ports, can be a function parameter. 
 
-Array of any pointers must be homogeneous, all elements created with operator new, but not pointers to existing objects. 
-Array and array of pointers, including array of signals/ports, can be a function parameter. 
+{\tt std::array} can be used instead of build-in C++ array almost everywhere. {\tt std::array} can be assigned to another array of the same type. 
+%
+\begin{lstlisting}[style=mycpp]
+static const unsigned N = 5;
+std::array<sc_signal<int>, N> sig;
+std::array<sc_int<16>, 10> data;
+void procFunc() {
+   std::array<unsigned, 3> a;
+   std::array<unsigned, 3> b;
+   std::array<std::array<unsigned, 3>, 2> c;   
+   a[0] = sig[1].read();
+   b = a;
+   c[0] = b;
+}
+\end{lstlisting}
+
  
 Signal/port array index cannot be the same signal/port array. Array of record cannot be accessed at index which is the same array element.
 %
@@ -590,7 +607,7 @@ a[a[i].m].m = 0;   // Not supported
 a[b[i].n].m = 0;   // Supported
 \end{lstlisting}
 
-SC vector ({\tt sc\_vector}) supported for signals/ports and modules. SC vector is not supported for modular interface yet. Two-dimensional vector (vector of vectors) also supported. SC vector instances can be instantiated in modules and modular interfaces, including array of modular interfaces. SC vector cannot be passed to or returned from function.
+It is recommended to use SC vector ({\tt sc\_vector}) for signals/ports and modules instead of arrays. SC vector is not supported for modular interface yet. Multi-dimensional vector (vector of vectors) also supported. SC vector instances can be instantiated in modules and modular interfaces, including array of modular interfaces. SC vector cannot be passed to or returned from function.
 %
 \begin{lstlisting}[style=mycpp]
 sc_vector<sc_in<bool>>  req{"req"};
@@ -610,7 +627,7 @@ SC_CTOR(MyModule) {
 
 This section describes usage of record which are C++ structures or classes which are not modules and modular interfaces. Records intended to represent set of plain data fields. Record can be module member as well as local variables in process functions. 
 
-Records are supported with limitations. Record can have member functions and data members. Record member functions can contain {\tt wait()} calls. Record can have members of C++/SC data types. Record cannot have another record members. Record cannot have signal/port or module/modular interface members. Record cannot have any pointer members. Record can have array members of C++/SC data types. Record cannot have array members of record. Record cannot have non-default copy/move constructors and operators.
+Records are supported with limitations. Record can have member functions and data members. Record member functions can contain {\tt wait()} calls. Record can have members of C++/SC data types. Record cannot have another record members. Record cannot have signal/port or module/modular interface members. Record cannot have any pointer members. Record can have array members of C++/SC data types. Record cannot have non-default copy/move constructors and operators.
 
 Record can have constructor, field in-place initialization and initializer list. Record constructor can contain function calls. Record field in-place initialization and constructor initializer list cannot contain function calls.
 
@@ -621,17 +638,21 @@ Array of records supported. Array of pointers to record is not supported.
 Record reference supported. Pointer to record is not supported.
 
 Record can be passed to function by value as well as by reference/constant reference, such record must have trivial copy constructor. Record can be returned from function by value, such record must have trivial copy constructor.
+
+It is recommended to provide default (no-parameters) constructor with default implementation. Such constructor is implicitly used for collections of records and channels of records.
 %
 \begin{lstlisting}[style=mycpp]
 // Simple record example
 struct Rec1 {
     int x;
     sc_int<2> y;
+    Rec1() = default;       // Default constructor 
 };
 // Record with constructor
 struct Rec2 {
     sc_uint<16> a;       
     bool b;
+    Rec2() = default;       // Default constructor 
     Rec2(int i) : b(i == 42) {
         a = i + 1;
     }
@@ -644,16 +665,32 @@ Record declaration with and without parameters supported in the following forms:
 Rec1 r1;        	// OK
 Rec1 r1();        	// OK
 Rec1 r1{};        	// OK
+Rec1 r1 = f();    	// OK, where f() is a function returns Rec1
 Rec1 r1 = Rec1{}; 	// Error
 Rec1 r1 = Rec1();  	// Error
 Rec2 r2(42);    	// OK
 Rec2 r2{42};    	// OK
 \end{lstlisting}
 
-\subsubsection{Record type in signals and ports}
+
+Record assignment supported in the following forms:
+%
+\begin{lstlisting}[style=mycpp]
+Rec1 r0;
+Rec1 r1;
+r1 = r0;            // OK
+r1 = Rec1();        // OK
+r1 = Rec1{};        // OK
+r1 = f();           // OK, where f() is a function returns Rec1
+r2 = Rec2(42);      // OK
+r2 = Rec2{42};      // OK
+\end{lstlisting}
+
+
+
+\subsubsection{Record type in signals and ports}\label{section:rec_in_chan}
 
 Signal and port of record type are supported. Record used as signal and ports type should have a constructor without parameters. This constructor is used for the signal/ports initialization. Such a record should have {\tt operator==()} and {\tt operator<<(std::ostream)} and {\tt sc\_trace()} defined.
-Signal and ports of record can be read/written and assigned to a record variable.
 %
 \begin{lstlisting}[style=mycpp]
 struct SRec {
@@ -667,7 +704,15 @@ struct SRec {
     os << s.x << s.y;
     return os;
 }
-...
+namespace sc_core {
+    void sc_trace( sc_trace_file* , const SRec& , const std::string& ) {}
+}
+
+\end{lstlisting}
+
+
+Signal and ports of record can be read/written and assigned to a record variable.
+\begin{lstlisting}[style=mycpp]
 sc_in<SRec>     in{"in"};
 sc_out<SRec>    out{"out"};
 sc_signal<SRec> s{"s"};

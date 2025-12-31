@@ -73,6 +73,7 @@ SC_MODULE(Top) {
     sc_vector<sc_signal<bool>> req{"req", N};
     sc_vector<sc_signal<sc_uint<16>>> data{"data", N};
     sc_vector<sc_vector<sc_signal<int>>>  req2D{"req2D", N};
+    sc_vector<sc_vector<sc_vector<sc_signal<int>>>>  req3D{"req3D", N};
 
     Producer<N> p{"p"};
     
@@ -80,6 +81,11 @@ SC_MODULE(Top) {
         
         for (int i = 0; i < N; ++i) {
             req2D[i].init(2);
+            
+            req3D[i].init(2);
+            for (int j = 0; j < 2; ++j) {
+                req3D[i][j].init(2);
+            }
         }
         
         p.clk(clk);
@@ -96,13 +102,14 @@ SC_MODULE(Top) {
         for(int i = 1; i < N; ++i) {
             req[i] = 0;
             req2D[i][0] = i;
+            req3D[i][0][0] = i+1;
         }
         wait();
         
         while (true) {
             req[0] = 1;
             wait();
-            req[0] = 0;
+            req[0] = req3D[0][0][0];
 
             while (!data[1].read()) wait();
             req[1] = 1;

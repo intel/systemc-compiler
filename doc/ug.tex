@@ -3,15 +3,15 @@
 \begin{document}
 
 %% Define for Intel internal document
-%\newif\INTEL
+\newif\INTEL
  
 \title[Intel Compiler for SystemC User Guide]{Intel Compiler for SystemC \\ User Guide}
-\subtitle{version 1.6}
+\subtitle{version 1.7}
 
 \author{Mikhail Moiseev}
 \ifdefined\INTEL
 \affiliation[obeypunctuation=true]{
-	\institution{Intel Corporation, Intel Labs}
+	\institution{Intel Corporation}
 	\country{}
 }
 \else
@@ -64,7 +64,7 @@ In this document the following terminology is used:
 In this document the following abbreviations are used:
 %
 \begin{itemize}
-\item ICSC - Intel\textregistered Compiler for SystemC*;
+\item ICSC - Intel\textregistered Compiler for SystemC;
 \item SC - SystemC language;
 \item SV - SystemVerilog language;
 \item SVA - SystemVerilog assertions;
@@ -87,8 +87,6 @@ In this document the following abbreviations are used:
 \include{single_source}
 
 \include{assertions}
-
-\section{Extensions}\label{section:extensions}
 
 \ifdefined\INTEL
 \include{extensions_intel} 

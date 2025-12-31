@@ -5,6 +5,9 @@
 # 
 # *****************************************************************************
 
+add_executable(record_init_temp test_init_temp.cpp)
+svc_target(record_init_temp GOLDEN record_init_temp.sv)
+
 add_executable(record_reg_cthread0 test_reg_cthread0.cpp)
 svc_target(record_reg_cthread0 GOLDEN record_reg_cthread0.sv)
 
@@ -109,6 +112,14 @@ svc_target(record_array_var_indices_method GOLDEN record_array_var_indices_metho
 add_executable(record_array_decl_in_scope test_array_decl_in_scope.cpp)
 svc_target(record_array_decl_in_scope ELAB_TOP b_mod.a_mod GOLDEN record_array_decl_in_scope.sv)
 
+add_executable(record_array_rec_index_fail test_array_rec_index_fail.cpp)
+svc_target(record_array_rec_index_fail ELAB_TOP a_mod WILL_FAIL)
+
+
+add_executable(record_local_init test_local_init.cpp)
+svc_target(record_local_init ELAB_TOP a_mod GOLDEN record_local_init.sv)
+
+
 add_executable(record_assign_concat_method test_assign_concat_method.cpp)
 svc_target(record_assign_concat_method GOLDEN record_assign_concat_method.sv)
 
@@ -161,6 +172,9 @@ svc_target(record_operator_equal WILL_FAIL)
 
 add_executable(record_simple_method test_simple_method.cpp)
 svc_target(record_simple_method GOLDEN record_simple_method.sv)
+
+add_executable(record_ctor_warning test_ctor_warning.cpp)
+svc_target(record_ctor_warning GOLDEN record_ctor_warning.sv)
 
 add_executable(record_simple_method3 test_simple_method3.cpp)
 svc_target(record_simple_method3 GOLDEN record_simple_method3.sv)

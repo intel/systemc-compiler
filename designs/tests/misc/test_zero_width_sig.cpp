@@ -63,6 +63,7 @@ struct MyModule : public sc_module
         SC_METHOD(arrProc); sensitive << s;
         for (int i = 0; i < 3; ++i) sensitive << sa[i] << sv[i];
         SC_METHOD(recCopyProc); sensitive << s << mc << mb;
+        SC_METHOD(recConcatProc); sensitive << s << mc;
         SC_METHOD(recSomeProc); sensitive << s << ss << mr;
         SC_METHOD(recAllProc); sensitive << s << ss << mr;
         SC_METHOD(recArrProc); sensitive << ss;
@@ -124,6 +125,7 @@ struct MyModule : public sc_module
         Some lt = lr;
         lr = lt;
         lr = mc.read();
+        lr = mc;
         mc = lt;
         
         All ll;
@@ -131,6 +133,16 @@ struct MyModule : public sc_module
         lk = ll;
         ll = mb.read();
         mb.write(ll);
+    }
+
+    sc_signal<unsigned> t0{"t0"};
+    void recConcatProc() {
+        Some lr;
+        sc_uint<12> li;
+        sc_uint<40> lu;
+        lu = mc.read().m;
+        lu = (mc.read().m, li);
+        t0 = lu;
     }
     
     sc_signal<Some> mr;

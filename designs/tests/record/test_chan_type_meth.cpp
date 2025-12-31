@@ -109,7 +109,7 @@ public:
         SC_METHOD(procArr); sensitive << svec[0] << svec[1] << s;
         SC_METHOD(procCtor); sensitive << s;
         
-        SC_METHOD(procCtorPar); sensitive << s; // #315
+        SC_METHOD(procCtorPar); sensitive << s; 
         SC_METHOD(procCtorFunc); sensitive << s;
     }
     
@@ -236,7 +236,7 @@ public:
         RecPar rr = RecPar(42);
         pim = rr;               // OK
         pim = RecPar();         // OK
-        //pim = RecPar(42);     // Not supported yet, #315
+        //pim = RecPar(42);     // Not supported 
         
     }
 

@@ -16,7 +16,7 @@ using namespace sc_core;
 
 struct Simple {
     bool a;
-    int b;
+    int b = 1;
     
     Simple() = default;
     Simple(int par) : b(par) {a = false;}

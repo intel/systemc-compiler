@@ -10,7 +10,7 @@
 #include <iostream>
 using namespace sc_core;
 
-// Array of global(non-local) record with functions (methods) called in CTHREAD
+// Array of member record with functions (methods) called in CTHREAD
 // Additionally check pointer to record and record pointer array
 class A : public sc_module {
 public:

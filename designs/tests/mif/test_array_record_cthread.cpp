@@ -22,6 +22,9 @@ struct mod_if : public sc_module, sc_interface
 
         SC_CTHREAD(memRecArrThread, clk.pos());
         async_reset_signal_is(nrst, false);
+    
+        SC_CTHREAD(record_init_thrd, clk.pos());
+        async_reset_signal_is(nrst, false);
     }
     
 
@@ -34,6 +37,13 @@ struct mod_if : public sc_module, sc_interface
         sc_uint<4> b[3];
         Inner  rec;
         Inner  rec_arr[2];
+    };
+    
+    struct Simple2 {
+        sc_biguint<8> a = 1;
+        sc_uint<4> b[3];
+
+        Simple2() = default;
     };
 
     // Member record 
@@ -81,6 +91,24 @@ struct mod_if : public sc_module, sc_interface
             //int j = w[1].rec_arr[0].c + ww[2].rec_arr[0].c + 
             //        w[1].rec.c + ww[2].rec.c;
             
+            wait();
+        }
+    }
+
+
+    // Record initialization with T{}
+    Simple2 mem[2];
+    sc_signal<int> t4;
+    void record_init_thrd() {
+        Simple2 loc;
+        loc = Simple2{};
+        mem[1] = Simple2{};
+        wait();
+        
+        while (true) {
+            t4 = loc.b[s.read()] + mem[s.read()].b[1];
+            loc = Simple2{};
+            mem[s.read()] = Simple2{};
             wait();
         }
     }

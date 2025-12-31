@@ -2,11 +2,11 @@
 
 \subsection{Introduction}
 
-SingleSource library consists of communication channels which implements SC interfaces. There are nine main channels in the library (Fig.~\ref{fig:ss_channels}).
+SingleSource library consists of communication channels which implements SC interfaces. There are nine main channels in the library (dot outline components not open sourced yet). (Fig.~\ref{fig:ss_channels}).
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=0.9\textwidth]{pics/ss_channels.jpg}
+\includegraphics[width=0.85\textwidth]{pics/ss_channels.jpg}
 \caption{SingleSource channels}
 \label{fig:ss_channels}
 \end{figure}
@@ -18,12 +18,13 @@ Multi-initiator, multi-target, FF synchronizer, on-die port, and memory are not 
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=0.9\textwidth]{pics/ss_usage.jpg}
+\includegraphics[width=0.95\textwidth]{pics/ss_usage.jpg}
 \caption{SingleSource channels usage}
 \label{fig:ss_usage}
 \end{figure}
 
-The Single Source modules work in two modes: cycle accurate (RTL) and approximate time (TLM). Cycle accurate (RTL) mode intended for hardware synthesis. In RTL mode the modules provide cycle accurate simulation. Approximate time (TLM, Transaction Level Modeling) mode provide fast simulation, intended for virtual prototyping. In TLM mode the modules provide approximate time simulation, there is no clock. Simulation is request-driven, executed in ordered delta-cycles (DC).
+The Single Source modules work in two modes: cycle accurate (RTL) and approximate time (TLM). Cycle accurate RTL mode intended for hardware synthesis. In RTL mode the modules provide cycle accurate simulation. RTL mode is used if precise simulation results are required. Approximate time TLM (Transaction Level Modelling) mode provide fast simulation, intended for virtual prototyping. In TLM mode the modules provide approximate time simulation. TLM mode is implemented to be similar to RTL mode until that reduce simulation speed. That practically means exact time of an event can differ in TLM and RTL modes. See more details at\ref{section:diff_tlm_rtl}.
+
 
 \subsubsection{Library files}
 
@@ -36,20 +37,27 @@ The Single Source modules work in two modes: cycle accurate (RTL) and approximat
 \item sct\_multi\_target.h -- target to connect multiple initiators
 \item sct\_prim\_signal.h -- primitive channel signal implementation with multiple drivers support
 \item sct\_signal.h -- signal implementation
-\item sct\_ports.h -- input and output ports, sc\_port for target and initiator
+\item sct\_comb\_signal.h -- signal combinationally assigned in thread process to avoid cycle delay
+\item sct\_ports.h -- input and output ports, {\tt sc\_port} for target and initiator
 \item sct\_fifo.h -- FIFO module
 \item sct\_prim\_fifo.h -- primitive channel FIFO implementation, used as base channel in TLM mode
+\item sct\_buffer.h -- buffer channel, which is a fast FIFO to use in clocked process(es) only
+\item sct\_pipe.h -- pipeline register
 \item sct\_register.h -- register to store METHOD state
 \item sct\_clock.h -- clock with enable/disable
 \item sct\_clk\_gate\_cell.h -- clock gate and clock gate signal
+\item sct\_clk\_gate\_cell.sv -- clock gate RTL implementation
 \item sct\_ff\_sync\_cell.h -- Flip-Flop synchronizer
 \item sct\_ff\_sync\_cell.sv -- Flip-Flop synchronizer RTL implementation
+\item sct\_sel\_type.h -- integer types {\tt sct\_int} and {\tt sct\_uint}
+\item sct\_static\_log.h -- static logarithm implementation
+\item sct\_utils.h -- utility functions
 \end{itemize}
 
 \subsubsection{Library defines}
 {\tt SCT\_TLM\_MODE} could be provided as compile definition: if {\tt SCT\_TLM\_MODE} defined TLM mode is used, RTL mode is used otherwise.
 
-There are multiple options for clock/reset levels:
+There are multiple options for clock/reset levels specified by {\tt SCT\_CMN\_TRAITS} with one of six following options:
 
 \begin{itemize}
 \item {\tt SCT\_CMN\_TRAITS} -- clock edge and reset level, one of six following options:
@@ -136,13 +144,48 @@ Functions addTo, addToPut, addToGet and addPeekTo are used to add the channel to
 
 \subsection{Processes}\label{section:sct_processes}
 
-SystemC design with single source library can use method and thread processes created with {\tt SC\_METHOD} and {\tt SC\_THREAD} correspondently. It is recommended to use {\tt SCT\_METHOD} and {\tt SCT\_THREAD} macros instead them. Clocked thread process created with {\tt SC\_CTHREAD} is normally not used.
+SystemC design with single source library can use method and thread processes created with {\tt SC\_METHOD} and {\tt SC\_THREAD} correspondently. It is recommended to use {\tt SCT\_METHOD} and {\tt SCT\_THREAD} macros instead of them: 
+%
+\begin{itemize}
+\item {\tt SCT\_METHOD(proc)} -- combinational method process, same as {\tt SC\_METHOD(proc)},
+\item {\tt SCT\_METHOD(proc, clk)} -- sequential method process with synchronous reset,
+\item {\tt SCT\_METHOD(proc, clk, rst)} -- sequential method process with asynchronous reset,
+\item {\tt SCT\_THREAD(proc)} -- sequential thread process, same as {\tt SC\_THREAD(proc)},
+\item {\tt SCT\_THREAD(proc, clk)} -- sequential thread process with explicit clock,
+\item {\tt SCT\_THREAD(proc, clk, rst)} -- sequential thread process with explicit clock/reset.
+\end{itemize}
 
-All the channels used in a thread process should use the same clock and edge as the process sensitive. A channel could have different reset or reset level than thread process. If all the channels have different reset or reset level, process reset is specified with third parameter of {\tt SCT\_THREAD} macro.
 
-If a thread process has reset signal, it should have the reset specification with {\tt async\_reset\_signal\_is} or/and {\tt sync\_reset\_signal\_is}. A thread process should be sensitive to all single source channels accessed in its function code. If process is sensitive only to signal and input/output ports, the clock is provided with second parameter of {\tt SCT\_THREAD} macro.
+{\tt SCT\_METHOD(proc)} creates a combinational process operates with single source channels, signals/ports. {\tt SCT\_METHOD(proc, clk)} and {\tt SCT\_METHOD(proc, clk, rst)} create a sequential method process. {\tt SCT\_THREAD(proc)} creates a sequential process operates with single source channels only. {\tt SCT\_THREAD(proc, clk)} creates a process operates with single source channels and reads single source signals ({\tt sct\_signal}) / ports ({\tt sct\_in/sct\_out}). {\tt SCT\_THREAD(proc, clk, rst)} creates a universal sequential process which can access single source channels and/or reads single source signals ({\tt sct\_signal}) / ports ({\tt sct\_in/sct\_out}). {\tt SC\_CTHREAD} macro is normally not used.
 
-Method process should be sensitive to all single source channels accessed in its function code. Method should not be sensitive to reset, as its provided implicitly through the channels used.
+Difference between sequential method and thread processes is in simulation speed, method process is faster. Thread process allows to use {\tt wait()} to introduce multiple states, which can simplify the process function code. Sequential method process function should have reset section and sequential logic section, and cannot have {\tt wait()} calls.
+
+\begin{lstlisting}[style=mycpp]
+void combMethod() {
+   // combinational logic ...
+}
+void seqMethod() {
+   if (rst) {
+      // reset logic ...
+   } else {
+      // sequential logic ...
+   }
+}
+void seqThread() {
+   // reset logic
+   wait();
+   while (true)
+      // sequential logic ...
+      wait();         
+      // optional sequential logic ...
+      // multiple wait() calls allowed
+   }
+}
+\end{lstlisting}
+
+Clock and reset levels for a process are specified by {\tt SCT\_CMN\_TRAITS} if clock/reset are explicitly provided. Otherwise clock and reset levels are taken from channels in the sensitivity list. Channels obtains clock and reset levels from {\tt SCT\_CMN\_TRAITS} by default, that can be changed for individual channels. All the channels used in a sequential process should use the same clock and edge as the process sensitive. A channel could have different reset or reset level than the process. If a thread process has reset signal(s), it should have the reset specification with {\tt async\_reset\_signal\_is or/and sync\_reset\_signal\_is}.
+
+Any process should be sensitive to all single source channels accessed and to all single source signals ({\tt sct\_signal}) / ports ({\tt sct\_in/sct\_out}) read in its function code. Combinational method should be also sensitive to all SystemC signals ({\tt sc\_signal}) and ports ({\tt sc\_in/sc\_out}) read in its function code. A process is never sensitive to reset.
 
 \begin{lstlisting}[style=mycpp]
 template <class T>
@@ -153,16 +196,26 @@ class MyModule : public sc_module {
    sct_signal<T>    s{"s"};
 
    explicit MyModule(const sc_module_name& name) : sc_module(name) {
-        SC_THREAD(thrdProc1); 
-        sensitive << targ;                     // Clock and reset taken from targ
+        SCT_METHOD(combMethod);                // Combinational method, same as SC_METHOD
+        sensitive << init;                     // No reset in sensitivity
+
+        SCT_METHOD(seqMethod, clk);            // Sequential method with synchronous reset
+        sensitive << init;                           
+
+        SCT_METHOD(seqMethod, clk, nrst);      // Sequential method with asynchronous reset
+        sensitive << init;                           
+
+        SCT_THREAD(seqThread);                 // Sequential thread, sensitive to Target only
+        sensitive << targ;                     // Clock and reset taken from target
         async_reset_signal_is(nrst, 0);        // Reset specification required
 
-        SCT_THREAD(thrdProc2, clk, nrst);      // Clock and reset explicitly provided
-        sensitive << s;
-        async_reset_signal_is(nrst, 0);        // Reset specification required 
+        SCT_THREAD(seqThread, clk);            // Sequential thread, sensitive to Target/Signal
+        sensitive << targ << s;                // Clock is explicitly provided for Signal
+        async_reset_signal_is(nrst, 0);        // Reset specification required
 
-        SC_METHOD(methProc); 
-        sensitive << init;                     // No reset in sensitivity
+        SCT_THREAD(seqThread, clk, nrst);      // The most universal sequential thread
+        sensitive << s;                        // Clock and reset are explicitly provided
+        async_reset_signal_is(nrst, 0);        // Reset specification still required
    }
 };
 \end{lstlisting}
@@ -178,7 +231,7 @@ To connect two modules, Target placed in one modules, Initiator in another one. 
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=0.5\textwidth]{pics/ss_targ_init.jpg}
+\includegraphics[width=0.4\textwidth]{pics/ss_targ_init.jpg}
 \caption{Target and Initiator channels}
 \label{fig:ss_usage}
 \end{figure}
@@ -403,7 +456,7 @@ Request part of the connection contains {\tt core\_req} and {\tt core\_data} sig
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=0.5\textwidth]{pics/ss_buff_conn.jpg}
+\includegraphics[width=0.45\textwidth]{pics/ss_buff_conn.jpg}
 \caption{Buffered connection}
 \label{fig:ss_usage}
 \end{figure}
@@ -554,7 +607,7 @@ Signal can be used for inter-process communication between processes in the same
 \label{fig:ss_usage}
 \end{figure}
 
-Signal and output port implement {\tt sct\_inout\_if}, and can be written by one process. Signal, input and output ports implement {\tt sct\_in\_if}, and can be read by one or mode processes.
+Signal and output port implement {\tt sct\_inout\_if}, and can be written by one process. Signal, input and output ports implement {\tt sct\_in\_if}, and can be read by one or more processes.
 
 \begin{lstlisting}[style=mycpp]
 template<
@@ -606,6 +659,52 @@ class Top {
 In RTL mode {\tt sct\_signal} is based on {\tt sc\_signal}, {\tt sct\_in}/{\tt sct\_out} are based on {\tt sc\_in}/{\tt sc\_out}.
 
 
+\subsubsection{Level-enable signal and ports}
+
+Level enable signal is often used by one process to make another process does some actions. The signal is usually boolean type. It can have a specific level (usually high) for one or several cycle that means some action to be done. Such behavior work well in cycle accurate mode, but for fast simulation mode requires event notification at every cycle. To support this event notification {\tt sct\_signal} and {\tt sct\_in/sct\_out} have second template parameter {\tt ENABLE\_EVENT}. Also special level-enable signal and ports of boolean type are introduced: {\tt sct\_enable\_signal}, {\tt sct\_enable\_in}, and {\tt sct\_enable\_out}. Level-enable singal in fast simulation mode notifies event to wake a sensitive thread process every clock cycle which is taken from the process.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.6\textwidth]{pics/ss_level_sig.jpg}
+\caption{Level signal}
+\label{fig:ss_usage}
+\end{figure}
+
+In the following example producer process send multiple sequenced event.
+
+\begin{lstlisting}[style=mycpp]
+SC_MODULE(MyModule) {
+    sct_target<unsigned>      SC_NAMED(targ);
+    SC_CTOR(MyModule) {
+        SCT_THREAD(producer, clk, nrst); 
+        sensitive << enable << targ;
+        async_reset_signal_is(nrst, 0);
+        SCT_THREAD(consumer, clk, nrst); 
+        sensitive << enable;
+        async_reset_signal_is(nrst, 0);
+    }
+    sct_enable_signal   SC_NAMED(enable);
+    void producer() {
+        targ.reset_get(); enable = 0;
+        wait();
+        while (true) {
+            unsigned N = targ.b_get();
+            enable = 1;
+            while (N--) wait();
+            enable = 0;
+            wait();
+        }
+    }
+    void consumer() {
+        wait();
+        while (true) {
+            if (enable) {...};  // Do something
+            wait();
+}}}
+\end{lstlisting}
+
+Combinational method process cannot be sensitive for such a signal or port. If it needs to connect Thread-to-Method only general signal should be used. But combinational method can drive level enable signal, so Method-to-Thread interaction can used such a signal.
+
 \subsection{FIFO}\label{section:sct_fifo}
 
 The FIFO can be used for inter-process communication between processes in the same module and for storing requests inside one process. Also the FIFO could be used inside of Target as an extended buffer.
@@ -638,30 +737,35 @@ sct_fifo(const sc_module_name& name,
                                          // First element to get is always initialized to zero 
 \end{lstlisting}
 
+Using synchronous register in request path ({\tt sync\_valid}) not allowed if put process is sequential thread or method. Using synchronous register in response path ({\tt sync\_ready}) not allowed if get process is sequential thread or method. That is required to have equivalent behavior in the generated SV code.
+
 \subsubsection{Minimal FIFO size required}
 
 Minimal FIFO size required given in Table.~\ref{tab:fifo_size}.
+
+Using FIFO in method process(es) with both {\tt sync\_valid} and {\tt sync\_ready} set to 0 is prohibited as that results in combinational loop. Using FIFO in one method process is allowed with {\tt sync\_valid} and {\tt sync\_ready} both set to 1 only. If {\tt sync\_valid} or {\tt sync\_ready} set to 0, such FIFO can be used in two different method processes.
+
 \begin{table}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
 Initiator process & Target process & sync\_valid & sync\_ready & Minimal FIFO size \\
 \hline
-method & method & 0 & 0 & 1 \\
-method & method & 0 & 1 & 1 \\
-method & method & 1 & 0 & 1 \\
+method & method & 0 & 0 & prohibited \\
+method & method & 0 & 1 & 1, two processes \\
+method & method & 1 & 0 & 1, two processes \\
 method & method & 1 & 1 & 2 \\
 method & thread & 0 & 0 & 1 \\
-method & thread & 0 & 1 & 2 \\
 method & thread & 1 & 0 & 2 \\
-method & thread & 1 & 1 & 3 \\
+method & thread & 0 & 1 & not supported \\
+method & thread & 1 & 1 & not supported \\
 thread & method & 0 & 0 & 1 \\
 thread & method & 0 & 1 & 2 \\
-thread & method & 1 & 0 & 2 \\
-thread & method & 1 & 1 & 3 \\
+thread & method & 1 & 0 & not supported \\
+thread & method & 1 & 1 & not supported \\
 thread & thread & 0 & 0 & 2 \\
-thread & thread & 0 & 1 & 3 \\
-thread & thread & 1 & 0 & 3 \\
-thread & thread & 1 & 1 & 4 \\
+thread & thread & 0 & 1 & not supported \\
+thread & thread & 1 & 0 & not supported \\
+thread & thread & 1 & 1 & not supported \\
 \hline
 \end{tabular}
 \caption{Minimal FIFO size}
@@ -670,7 +774,9 @@ thread & thread & 1 & 1 & 4 \\
 
 \subsubsection{Using FIFO for inter-process communication}
 
-FIFO could be used for processes communication instead of set of signals. FIFO has only one writer and one reader process, in comparison with {\tt sct\_signal} which could be read in multiple processes. For 1:N communication array or {\tt sc\_vector} of FIFOs could be used.
+FIFO could be used for processes communication. FIFO allow only one writer and one reader process, but multiple process can do peek from the FIFO. Normally, FIFO used between two processes.
+
+FIFO used between two combinational method processes must have {\tt sync\_valid} or {\tt sync\_ready} parameter set to {\tt 1}.
 
 \begin{lstlisting}[style=mycpp]
 struct Top : public sc_module {
@@ -734,6 +840,98 @@ void storeProc() {
     }
 }
 \end{lstlisting}
+
+
+\subsection{Buffer}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.5\textwidth]{pics/ss_buffer.jpg}
+\caption{Buffer}
+\label{fig:ss_buffer}
+\end{figure}
+
+Buffer is a channel kind of FIFO to be used in single or two sequential processes. Buffer implements {\tt sct\_fifo\_if} interface, the same as FIFO. Buffer differs from FIFO in higher simulation speed which is achieved by implementation it as primitive channel (inheritor of {\tt sc\_prim\_channel}). Buffer has one common implementation for cycle accurate and approximate time modes.
+
+Buffer size can be 2 elements or more.
+
+\begin{lstlisting}[style=mycpp]
+template<
+    class T, 
+    unsigned LENGTH,                    // Size (maximal number of elements)
+    class TRAITS = SCT_CMN_TRAITS       // Clock edge and reset level traits
+>
+class sct_buffer {};
+\end{lstlisting}
+
+Buffer constructor has the same parameters as FIFO has. Parameters {\tt sync\_valid} and {\tt sync\_ready} should be 0 (false).
+
+\begin{lstlisting}[style=mycpp]
+sct_buffer(const sc_module_name& name, 
+           bool sync_valid = 0,       // Request path has synchronous register 
+           bool sync_ready = 0,       // Response path has synchronous register  
+           bool use_elem_num = 0,     // Element number/Almost full or empty used 
+           bool init_buffer = 0)      // Initialize all buffer elements with zeros in reset
+                                      // First element to get is always initialized to zero 
+\end{lstlisting}
+
+Buffer can be used by one process to store data and for inter-process communication between two processes. {\tt peek()} function of Buffer can be called from any process including combinational method process.
+
+
+
+\subsection{Pipeline register}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.5\textwidth]{pics/ss_pipe.jpg}
+\caption{Pipeline register}
+\label{fig:ss_pipe}
+\end{figure}
+
+Pipeline register ({\tt sct\_pipe}) is intended to pipeline combinational logic and enable re-timing feature of a logic synthesis tool. In generated SystemVerilog code it can be replaced with {\tt DW\_pl\_reg} or other implementation. Pipeline register can be used in one method or thread process as well as put in one process and get in other process. Pipeline register is normally added to sensitivity list of process where put or get done.
+
+Pipeline register supports put bubbles and get backpressure. If there is no get, but some empty registers, they are shifted to provide next request put.
+
+The pipeline register implements {\tt sct\_fifo\_if} interface. It has size template parameter which is a positive number.
+
+\begin{lstlisting}[style=mycpp]
+template<
+    class T, 
+    unsigned N,                         // Number of pipeline registers, one or more
+    class TRAITS = SCT_CMN_TRAITS,      // Clock edge and reset level traits
+    bool TLM_MODE = SCT_CMN_TLM_MODE>   // RTL (0) or TLM (1) mode
+>
+class sct_pipe {};
+\end{lstlisting}
+
+The pipeline register can have input or output registers, which are not used for re-timing.
+
+\begin{lstlisting}[style=mycpp]
+sct_pipe(const sc_module_name& name, 
+         bool addInReg = 0,             // Add input register not moved by re-timing 
+         bool addOutReg = 0,            // Add output register not moved by re-timing
+         const std::string& rtlName = "DW_pl_reg") // Pipeline register instantiated component name
+\end{lstlisting}
+         
+Typical use case for pipeline register is combinational logic re-timing in method process.
+
+\begin{lstlisting}[style=mycpp]
+void methProc() {
+    run.reset_get();
+    resp.reset_put();
+    pipe.reset();
+
+    if (pipe.ready() && run.request()) {
+        T data = compute(run.get());     // Heavy computation to be pipelined
+        pipe.put(data);
+    }
+  
+    if (pipe.request() && resp.ready()) {
+        resp.put(pipe.get());
+    }
+}
+\end{lstlisting}
+
 
 
 \subsection{Register}
@@ -1149,7 +1347,7 @@ SC_MODULE(A) {
 
 \subsubsection{Specify clock edge and reset level}
 
-Clock edge and reset level normally are the same for the design. To update them for whole design {\tt SCT\_CMN\_TRAITS} should be defined:
+Clock edge and reset level normally are the same for the design. To update them for whole design {\tt SCT\_CMN\_TRAITS} should be defined. For example, to set negative edge and positive reset level:
 \begin{lstlisting}[style=mycpp]
 #define SCT_CMN_TRAITS SCT_NEGEDGE_POSRESET   // Set negative edge and positive reset level
 \end{lstlisting}
@@ -1295,6 +1493,42 @@ SC_MODULE(Top)  {
 %
 Process which calls Target/Initiator functions should be in the module where Target/Initiator declared. If a process calls Target/Initiator through its port ({\tt sc\_port<sct\_target>/sc\_port<sct\_initiator>}) the process module and target initiator module should be synthesized in the same parent module.
 
+
+\subsection{Module interconnect with FIFO}
+
+Connection between modular interfaces inside of common parent module can be done with FIFO. One modular interface should have a FIFO instance and other modular interface should have a FIFO port ({\tt sc\_port< sct\_fifo<> >}). The same can be done if the FIFO is instantiated in the parent module.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.95\textwidth]{pics/ss_fifo_port.jpg}
+\caption{FIFO port}
+\label{fig:ss_fifo_port}
+\end{figure}
+
+
+\begin{lstlisting}[style=mycpp]
+template<class T, unsigned N>
+struct A : public sc_module, sc_interface {
+   sct_fifo<T, N>    SC_NAMED(fifo);
+   ...
+};
+
+template<class T, unsigned N>
+struct B : public sc_module, sc_interface {
+   sc_port<sct_fifo<T, N>>    SC_NAMED(fifo_port);
+   ...
+};
+
+struct Parent : public sc_module{
+   A<int, 3>   SC_NAMED(a);
+   B<int, 3>   SC_NAMED(b);
+   SC_CTOR(Parent) {
+      b.fifo_port(a.fifo);    // Bind FIFO port to FIFO instance
+   }
+};
+\end{lstlisting}
+
+
 \subsection{Cycle accurate and SingleSource code mix}
 
 Conventional cycle accurate SystemC modules can be mixed with single source modules without limitations. {\tt sct\_clock} should be used instead of normal {\tt sc\_clock}.
@@ -1338,37 +1572,222 @@ SCT_CTHREAD(proc, clk);             // clk_edge is SCT_CMN_TRAITS::CLOCK
 \subsection{Record type in SingleSource channels}
 
 Record is supported as data type in all SingleSource channels. The record should comply SystemC requirements for records used in signal/port: the record should have default constructor w/o parameters, {\tt operator==()}, {\tt operator<<(std::ostream)} and {\tt sc\_trace()} implemented.
+See \ref{section:rec_in_chan} for more details.
 
 \begin{lstlisting}[style=mycpp]
 struct Rec_t {
     bool enable;
-    sc_uint<16> addr;
-    // Default constructor
-    Rec_t() : enable(false), addr(0) {}
-    // Another constructor, optional
-    Rec_t(bool enable_, sc_uint<16> addr_) : enable(enable_), addr(addr_) {}    
+    sc_uint<16> addr;   
+    Rec_t() : enable(false), addr(0) {}  // Default constructor
     bool operator == (const Rec_t& other) const {
-        return (enable == other.enable && addr == other.addr && indx == other.indx);
+        return (enable == other.enable && addr == other.addr);
     }
 };
 namespace std {
 inline ::std::ostream& operator << (::std::ostream& os, const Rec_t& r) {
-    os << r.enable << r.addr << r.indx; return os;}
+    os << r.enable << r.addr; return os;}
 }
 namespace sc_core {
 void sc_trace(sc_trace_file* , const Rec_t& , const std::string&) {}
 }
 ...
-sct_target<Rec_t>   run{"run"};
+// Target with record payload
+sct_target<Rec_t>   	SC_NAMED(targ);
+sct_initiator<Rec_t>    SC_NAMED(init);
+
 void methProc() {
-   run.reset_get();
-   if (run.request()) {
-      Rec_t data = run.get();   // Get record fields from target
+   targ.reset_get();
+   if (targ.request()) {
+      Rec_t data = targ.get();
+      doSomething(data);
    }
+}
+
+void thrdProc() {
+   init.reset_put();
+   wait();
+      Rec_t data = getSomeData();
+      init.b_put(data);
+      wait();
+   }
+}
+
+\end{lstlisting}
+
+
+
+\subsection{Difference between RTL and TLM simulations}\label{section:diff_tlm_rtl}
+
+RTL simulation provides precise result and is equivalent to simulation of the generated SV. TLM simulation is approximate time, i.e. channels in TLM mode have implementation optimized for speed. TLM FIFO is equivalent to RTL FIFO, so there is no difference. TLM Target/Initiator pair is equivalent to RTL only for default parameters (no always ready, no sync registers, no FIFO added). If always ready used, sync registers, or FIFO added, TLM Target/Initiator pair differs from RTL one. TLM Pipe is implemented as FIFO ({\tt sct\_prim\_fifo}) that significantly differs from RTL implementation.
+
+TLM mode can be used whenever exact time of simulation events is not important. TLM mode can be used for functional modelling such as hardware or software debugging. For performance modelling TLM mode can be used if 100% precise result is not required, otherwise RTL mode should be used.
+
+
+
+\subsection{TLM mode process sensitivity}
+
+If a design is used in TLM mode, it needs to ensure process sensitivity lists follow special rules. In TLM mode any process is activated by event notification from SingleSource channels and SystemC signals/ports. To catch an event notification, the correspondent process should be waiting for this event. That requires both of the following:
+%
+\begin{itemize}
+\item All the events are added into process sensitivity list;
+\item Activated process goes to a next state where an event notification happens in some future.
+\end{itemize}
+
+To satisfy first condition is it enough to add all channels accessed in the process into process sensitivity list. The second condition is more tricky and requires analysis of all inter-process communications. Lets discuss the second condition in more details.
+
+Process activation events can be notified by the process itself and by other processes (for sequential process only). Other process notifies the events independently or in response to our process actions. The means any process activation should notify enough events (no event could be enough) to get notification of its activation events back.
+
+Initiator, Target and FIFO notifies the sequential or combinational process which performs put or get one more time. In the next example {\tt threadProc} executes infinitely by self-notification. That allows the process puts to non-full FIFO multiple times w/o get from this FIFO.
+
+Sequential process example.
+
+\begin{lstlisting}[style=mycpp]
+void threadProc() {
+    fifo.reset_put();
+    wait();
+    while (true) {
+       fifo.b_put(val);    // Activate this process again and again
+       wait();
+    }
 }
 \end{lstlisting}
 
-See more examples at {\tt design/tests/records}
+Combinational process example.
 
 \begin{lstlisting}[style=mycpp]
+void methPutProc() {
+    mfifo.reset_put();
+    if (mfifo.ready()) mfifo.put(val);
+}
+
+void methGetProc() {
+    mfifo.reset_get();
+    // Do nothing to let @methPutProc fill the FIFO
+}
+\end{lstlisting}
+
+In the following example there are two processes which activates one to each other through the FIFO. In producerProc the FIFO is accessed to notify the event for {\tt consumerProc} in state 0 and 1. {\tt consumerProc} is activated by the FIFO event and access (get) the FIFO which notifies {\tt producerProc} back. In state 2 where no event is notified, so {\tt consumerProc} is not activated and {\tt producerProc} is not activated more -- simulation hangs up.
+
+\begin{lstlisting}[style=mycpp]
+struct Top : public sc_module {
+    sct_fifo<T, 2>      fifo{"fifo", 1};     // Pipelining register for request
+    explicit Top(const sc_module_name& name) : sc_module(name) {
+        fifo.clk_nrst(clk, nrst);
+        SC_THREAD(producerProc); sensitive << fifo.PUT;   // Process puts to FIFO
+        async_reset_signal_is(nrst, 0);
+        SC_METHOD(consumerProc); sensitive << fifo.GET;   // Process gets from FIFO   
+    } 
+}
+
+void producerProc() {
+    fifo.reset_put();
+    wait();      // STATE 0
+    while (true) {
+       if (fifo.ready()) {           
+          fifo.put(getSomeVal());
+       }
+       wait();   // STATE 1
+       // Do nothing, no event notified this cycle
+       wait();   // STATE 2
+    }
+}
+void consumerProc() {
+    fifo.reset_get();
+    if (fifo.request()) {
+       doSomething(fifo.get());
+    }
+}
+\end{lstlisting}
+
+The next example demonstrates sequential process which activates itself with FIFO channel. Any put and get to/from the FIFO notifies the event to activate the process. In this process any value except {\tt 42} is put to the FIFO. If value is 42, nothing is put and no event is notified, so the process is not activated and simulation hangs up.
+
+\begin{lstlisting}[style=mycpp]
+struct Top : public sc_module {
+    sct_fifo<T, 5>      fifo{"fifo"};
+    explicit Top(const sc_module_name& name) : sc_module(name) {
+        fifo.clk_nrst(clk, nrst);
+        SC_THREAD(storeProc); sensitive << fifo;  // Process puts and gets to FIFO
+        async_reset_signal_is(nrst, 0);
+    }
+}
+
+void storeProc() {
+    fifo.reset();
+    wait();
+    while (true) {
+       T val = getSomeValue();
+       if (fifo.ready() && val != 42) {   
+          fifo.put();
+       } else {
+          // Do nothing if @val is 42, no event notified this cycle
+       }  
+       wait();
+       if (fifo.request()) {
+          doSomething(fifo.get());
+       }
+    }
+}
+\end{lstlisting}
+
+The next example shows how to create a counter process with signal channel only. Using {\tt sct\_signal} instead of {\tt sc\_signal} is required to avoid process is sensitive to it in RTL mode.
+
+\begin{lstlisting}[style=mycpp]
+struct Top : public sc_module {
+    sct_signal<T>      cnt{"cnt"};
+    explicit Top(const sc_module_name& name) : sc_module(name) {
+        SCT_THREAD(cntProc, clk.pos());     // Second parameter required for RTL mode to know clock edge 
+        sensitive << cnt;                   // Process read and write signal
+        async_reset_signal_is(nrst, 0);
+    }
+}
+
+void cntProc() {
+    cnt = 0;
+    wait();
+    while (true) {
+       // Updating @cnt notifies the process itself 
+       cnt = (cnt.read() != 255) ? cnt.read() + 1 : 0;
+       wait();
+    }
+}
+\end{lstlisting}
+
+
+\subsection{Debug SingleSource designs}
+
+Development and most of the debug is intended to be done in RTL mode. After RTL mode tests passed, TLM mode could be used for faster simulation. If TLM mode behavior differs from RTL mode, it could be debugged with C++ debugger or in commercial simulators.
+
+There is a problem with multiple {\tt put/get} to a channel in the same cycle. That leads to only last data is stored. To detect this error {\tt SCT\_TLM\_DEBUG} compile time define option is provided. This option can be used in TLM mode:
+%
+\begin{lstlisting}[language=make]
+target_compile_definitions(design-tlm PUBLIC SCT_TLM_MODE SCT_TLM_DEBUG)}
+\end{lstlisting}
+
+To debug TLM mode in the simulation tool, {\tt EXTR\_SIM\_DEBUG} option should be defined for syscan tool:
+%
+\begin{lstlisting}[language=make]
+syscan ... -cflags "-DEXTR_SIM_DEBUG" ... 
+\end{lstlisting}
+
+{\tt EXTR\_SIM\_DEBUG} option enables debug signals in {\tt sct\_prim\_fifo} which implements target, initiator and FIFO in TLM mode. There are {\tt core\_req}, {\tt core\_ready} and {\tt core\_data} signals, similar to signals between target/initiator. {\tt sct\_prim\_register} which implements register in TLM mode has {\tt curr\_val} which is value to be read. {\tt sct\_prim\_synchronizer} which implements synchronizer in TLM mode has {\tt curr\_val} and {\tt next\_val}. {\tt curr\_val} is value to be read, {\tt next\_val} is just written value.
+
+TLM mode simulation in the simulation tool can be used as normal SystemC simulation.
+
+SystemC provides functions to create VCD trace file with specified channels. To enable VCD traces it needs to define {\tt DEBUG\_SYSTEMC}. There are {\tt trace()} implementations for FIFO, Initiator and Target channels. To specify required channels it needs to call {\tt trace()} for them in the module constructor.
+
+\begin{lstlisting}[style=mycpp]
+SC_MODULE(MyModule) {
+    sc_trace_file*      tf;
+    sct_fifo<T,2>       fifo{"fifo"};
+    sct_target<T>       targ{"targ"};
+    
+    SC_CTOR(MyModule) {
+        tf = sc_create_vcd_trace_file("trace1");   // Create and opene trace file
+        fifo.trace(tf);                            // Add fifo to trace
+        targ.trace(tf);                            // Add targ to trace
+    }
+    ~MyModule() {
+        sc_close_vcd_trace_file(tf);               // Close trace file
+    }
+}
 \end{lstlisting}

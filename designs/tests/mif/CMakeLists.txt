@@ -204,6 +204,13 @@ add_executable(mif_sc_vector_mif_simple2D test_sc_vector_mif_simple.cpp)
 target_compile_definitions(mif_sc_vector_mif_simple2D PUBLIC VEC_2D)
 svc_target(mif_sc_vector_mif_simple2D GOLDEN mif_sc_vector_mif_simple2D.sv)
 
+add_executable(mif_sc_vector_mif_reg_assign test_sc_vector_mif_reg_assign.cpp)
+svc_target(mif_sc_vector_mif_reg_assign GOLDEN mif_sc_vector_mif_reg_assign.sv)
+
+add_executable(mif_sc_vector_mif_reg_assign2 test_sc_vector_mif_reg_assign2.cpp)
+svc_target(mif_sc_vector_mif_reg_assign2 GOLDEN mif_sc_vector_mif_reg_assign2.sv)
+
+
 add_executable(mif_glob_const test_glob_const.cpp)
 svc_target(mif_glob_const GOLDEN mif_glob_const.sv)
 

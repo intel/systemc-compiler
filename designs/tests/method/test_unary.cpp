@@ -35,6 +35,7 @@ public:
         SC_METHOD(not1); sensitive << a << b;
         SC_METHOD(unary_in_subscript); sensitive << a << b;
         SC_METHOD(unary_bug); sensitive << a << b;
+        SC_METHOD(unary_warning); sensitive << a;
     }
     
     #define CHECK(ARG) sct_assert(ARG); sct_assert_const(ARG);
@@ -248,6 +249,17 @@ public:
         int i = 0; 
         int j = arr1[++i];
         sct_assert_const(i == 1);
+    }
+
+    sc_signal<int> tt0;
+    void unary_warning() 
+    {
+        int i = a.read();
+        int j = i++;
+        j = --i;
+        j += i--;
+        i++;
+        tt0.write(j);
     }
 };
 
