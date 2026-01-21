@@ -1433,7 +1433,8 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
     ModuleMIFView commonParentMod = portEl.nearestCommonParentModule(bindedObj.obj);
 
     DEBUG_WITH_TYPE(DebugOptions::doPortBind,
-        llvm::outs() << "  bindPortCrossAux BIND " << portEl << " to " << bindedObj.obj << "\n";
+        llvm::outs() << "  bindPortCrossAux BIND " << portEl << " to " << bindedObj.obj 
+                     << " ID " << bindedObj.obj.getID() << "\n";
     );
     
     auto directBind = portEl.getDirectBind();
@@ -1446,7 +1447,7 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
             return;
         }
     }
-
+    
     VerilogVarsVec hostVars;
     VerilogVarsVec instanceVars = verPortVars;
     // Keep signal name in module interface and do not create auxiliary variable
@@ -1574,7 +1575,7 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
             if (keepSigVar && last) {
                 // In keep signal name mode module port with the name created
                 VerilogVarsVec bindedVerVars = instVerMod->getVerVariables(
-                                               bindedObj.obj);
+                                                bindedObj.obj);
                 for (auto* verVar : bindedVerVars) {
                     auto *sigVar = instVerMod->createAuxilaryPortForSignal(
                                    bottomDirection, verVar);
@@ -1603,6 +1604,16 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
                                         verVar->getArrayDims(), verVar->isSigned());
                     instanceVars.push_back(portVar);
                 }
+                
+                // Add signal to declare the variable used in assignment
+                // (required for initiator data fields if data is record)
+                if (last && boundDynamicSig) {
+                    VerilogVarsVec bindedVerVars = instVerMod->getVerVariables(
+                                                    bindedObj.obj);
+                    for (auto* verVar : bindedVerVars) {
+                        instVerMod->convertToSignal(verVar);
+                    }
+                }
             }
 
             DEBUG_WITH_TYPE(DebugOptions::doPortBind,
@@ -1626,6 +1637,9 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
             }
 
             // Add assignment of signal port and auxiliary variable in signal module
+            //cout << "instVerMod " << instVerMod->getName() << " ID " << instModView.getID()
+            //     << " bindedObj.obj ID " << bindedObj.obj.getID() << endl;
+            
             if (!keepSigVar && last) {
                 VerilogVarsVec bindedVerVars = instVerMod->getVerVariables(
                                                bindedObj.obj);
@@ -1639,9 +1653,11 @@ void ScElabModuleBuilder::bindPortCrossAux(PortView portEl,
                         instVerMod->addAssignment({bindedVerVars[i], indexes}, 
                                                   {instanceVars[i]});
                     }
+                    //cout << "ADD assignment for " << instanceVars[i]->getName() << " = " 
+                    //     << bindedVerVars[i]->getName() << endl;
                 }
             }
-
+            
             // current instance is next host
             hostVars = instanceVars;
             instanceVars.clear();

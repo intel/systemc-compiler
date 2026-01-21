@@ -150,8 +150,8 @@ void VerilogModule::filterAssignments()
 //    for (auto& i : assignments) {
 //        cout << i.getLeftVar()->getName() << " = " << i.getRightVar()->getName() << endl;
 //    }
-}
-
+    }
+    
 
 void VerilogModule::removeUnusedVariables()
 {
@@ -423,7 +423,8 @@ void VerilogModule::serializeToStream(llvm::raw_ostream &os) const
         os << "// Variables generated for SystemC signals\n";
         //bool firstVar = true;
         //bool lastVar = false;
-        for (auto *var : verilogSignals) {
+        for (auto* var : verilogSignals) {
+            //cout << "> " << var->getName() << " " << (requiredVars.count(var) == 0) << endl;
             // Skip not required variables
             if (requiredVars.count(var) == 0) {
                 continue;
@@ -1100,9 +1101,9 @@ VerilogVar* VerilogModule::createAuxilaryPort(
                                             bool isSigned, APSIntVec initVals, 
                                             const std::string& comment)
 {
-    auto *newVar = &channelVars.emplace_back(
-        VerilogVar(nameGen.getUniqueName(suggestedName), bitwidth, arrayDims,
-            isSigned, initVals, comment));
+    auto *newVar = &channelVars.emplace_back(VerilogVar(
+                            nameGen.getUniqueName(suggestedName), 
+                            bitwidth, arrayDims, isSigned, initVals, comment));
 
     //cout << "--  " << this->getName() << " createAuxilaryPort " << suggestedName.data() << " " << newVar->getName() << endl;
 
@@ -1217,7 +1218,12 @@ void VerilogModule::convertToPort(const VerilogVar *var, PortDirection dir)
 void VerilogModule::convertToSignal(const VerilogVar *var)
 {
     //cout << "--  " <<this->getName() << " convertToSignal " << var->getName() << endl;
-    verilogSignals.push_back(var);
+    
+    // Prevent multiple adding same signal, required for usage from @bindPortCrossAux()
+    auto i = std::find(verilogSignals.begin(), verilogSignals.end(), var);
+    if (i == verilogSignals.end()) {
+        verilogSignals.push_back(var);
+    }
 }
 
 void VerilogModule::addVerilogPort(VerilogVar *var, PortDirection dir)
