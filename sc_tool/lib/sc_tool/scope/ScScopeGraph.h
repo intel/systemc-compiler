@@ -152,7 +152,7 @@ public:
 
     /// Store given string for general statement in the current scope
     void storeStmt(const clang::Stmt* stmt, const std::string& s,  
-                   bool artifIf = false);
+                   bool artifIf = false, bool recCtor = false);
     
     // Add comment for statement
     void addComment(const clang::Stmt* stmt, const std::string& comment);
@@ -300,6 +300,10 @@ protected:
                                  std::shared_ptr<ScScopeGraph> >> innerScopeGraphs;
     /// Last call statement, used to clone scope graph in wait() 
     const clang::Stmt* lastFuncCall;
+    
+    /// Statements which contain record constructor inside and needs to be printed
+    /// after the constructor body
+    std::unordered_set<const clang::Stmt*>  recCtorStmts;
     
     /// First scope
     std::shared_ptr<CodeScope>  firstScope;

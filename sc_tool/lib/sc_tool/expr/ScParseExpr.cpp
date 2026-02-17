@@ -1369,6 +1369,9 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
     if (analyzeRecordCtor && !inFuncParams) {
         // Activate call constructor body as function, parameters already prepared
         prepareCallContext(expr, modval, currec, expr->getConstructor(), NO_VALUE);
+        // Set flag to move record fields assignment after constructor body
+        // in ScScopeGraph
+        hasRecCtorBody = true;
         
     } else {
         // Check constructor is empty

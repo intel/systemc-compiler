@@ -1228,11 +1228,10 @@ void ScGenerateExpr::parseExpr(CXXTemporaryObjectExpr* expr, SValue& val)
             // Create temporary variable to own constructed record object 
             SValue var = SValue(type, NO_VALUE);
             locrecvar = var;
-            // Constructor body MUST be empty because it is analyzed after 
-            // temp variable assignment to the record variable (last param @false)
-            val = parseRecordCtor(expr, modval, locrecvar, false);
+            // Non-empty constructor body supported
+            val = parseRecordCtor(expr, modval, locrecvar, true);
             locrecvarCtor = false;
-            val = var; 
+            val = var;
             
             //cout << "var " << var << ", val " << val << endl;
             //state->print();
@@ -3464,8 +3463,25 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             if (lrec.isRecord()) {locrecvar = lval; locrecvarCtor = false;}
             if (lhsRecordChan) chanrecvar = lval;
             if (skipTilda) skipTildaCast = true;
+            
+            // For array element create temporary variable to own created record 
+            // as array value cannot be used as variable for record constructor
+            SValue arrtmpvar;
+            bool useTempForArray = false;
+            if (locrecvar.isArray()) {
+                arrtmpvar = SValue(locrecvar.getType(), NO_VALUE);
+                locrecvar = arrtmpvar;
+                useTempForArray = true;
+            }
+            
             chooseExprMethod(rexpr, rval);
             skipTildaCast = false;
+            
+            // Return created temporary variable into @rval to assign it
+            if (useTempForArray && locrecvarCtor) {
+                //cout << "rval " << rval << ", arrtmpvar " << arrtmpvar << endl;
+                rval = arrtmpvar; locrecvarCtor = false;
+            }
             if (lrec.isRecord()) locrecvar = NO_VALUE;
             if (lhsRecordChan) chanrecvar = NO_VALUE;
             
@@ -3484,11 +3500,6 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             // Clear used temporary record
             temprec = NO_VALUE;
             
-            //cout << "rval " << rval << " " << rhsRecord << rhsRecordChan 
-            //     << " rhsTempRecord " << rhsTempRecord << " locrecvarCtor " << locrecvarCtor << endl;
-            //rtype.dump();
-            //state->print();
-            
             SValue rrec;
             if (rhsTempRecord || rhsRecordChan && rval.isScChannel()) {
                 // Record channel is used instead of parent record
@@ -3497,6 +3508,11 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 // Get record or record channel value 
                 state->getValue(rval, rrec);
             }
+            //cout << "rval " << rval << ", rrec " << rrec 
+            //     << ", rhsRecord " << rhsRecord << ", rhsRecordChan " << rhsRecordChan 
+            //     << ", rhsTempRecord " << rhsTempRecord << ", locrecvarCtor " << locrecvarCtor << endl;
+            //rtype.dump();
+            //state->print();
             
             // Get RHS record indices
             string rrecSuffix;
@@ -4132,6 +4148,9 @@ std::optional<string> ScGenerateExpr::parse(const Stmt* stmt)
     codeWriter->startStmt();
     // Clear indices after previous statement
     refRecarrIndx = "";
+    
+    // Clear record with constructor body flag
+    hasRecCtorBody = false;
 
     SValue val;
     auto ncstmt = const_cast<Stmt*>(stmt);

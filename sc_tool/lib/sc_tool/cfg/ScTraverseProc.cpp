@@ -1032,7 +1032,7 @@ void ScTraverseProc::run()
                         putWaitNScopeGraph(currStmt, waitId, isResetSection);
                         startAtWait = false;
                     }
-                    
+
                     // If started with restored context, move to the next element, 
                     // element stored in context was already analyzed
                     if (skipOneElement) {
@@ -1084,10 +1084,9 @@ void ScTraverseProc::run()
                         
                         } else {
                             // Normal statement or sub-statement with call
-                            Stmt* stmt = isCallSubStmt ?
-                                         stmtInfo.getSuperStmt(currStmt) : nullptr;
-                            if (stmt && (isa<ForStmt>(stmt) ||
-                                isa<WhileStmt>(stmt) || isa<DoStmt>(stmt))) {
+                            Stmt* stmt = isCallSubStmt ? stmtInfo.getSuperStmt(currStmt) : nullptr;
+                            if (stmt && 
+                                (isa<ForStmt>(stmt) || isa<WhileStmt>(stmt) || isa<DoStmt>(stmt))) {
                                 // Function call in loop condition
                                 if (isCombProcess) {
                                     ScDiag::reportScDiag(stmt->getBeginLoc(), 
@@ -1120,7 +1119,9 @@ void ScTraverseProc::run()
                                 }
                             } else {
                                 // Normal statement, store it in scope graph
-                                scopeGraph->storeStmt(currStmt, *stmtStr);  
+                                // Set @hasRecCtorBody to support record temporary 
+                                // object with constructor body (T()/T{} as RValue)
+                                scopeGraph->storeStmt(currStmt, *stmtStr, false, hasRecCtorBody);
                                 
                                 // Add comment for constant evaluated function
                                 auto i = constReplacedFunc.find(currStmt);
@@ -2092,11 +2093,12 @@ void ScTraverseProc::printResetDeclarations(std::ostream &os)
     
     // Local declaration for member combinational variable modified in reset, 
     // required to avoid modification of the variable in two processes
+    //cout << "------------ printResetDeclarations" << endl;
     for (const SValue& val : codeWriter->getExtrCombVarUsedRst()) {
         SValue var = state->getVariableForValue(val);
         SCT_TOOL_ASSERT (var.isVariable(), "No variable for extrCombVarUsedRst");
         SValue pval = var.getVariable().getParent();
-        //cout << "var " << var << " pval " << pval << endl;
+        //cout << "var " << var << " pval " << pval << " modval " << modval << endl;
         
         // If variable has another parent it can be in MIF/record array,
         // collect MIF/record array sizes to add in reset section declaration
@@ -2107,7 +2109,21 @@ void ScTraverseProc::printResetDeclarations(std::ostream &os)
             SCT_TOOL_ASSERT (pvar.isVariable(),
                              "No parent variable for extrCombVarUsedRst");
 
-            vector<size_t> arrSizes = getArraySizes(pvar.getType());
+            // Add MIF array related indices
+            vector<size_t> arrSizes;
+            if (isScVector(pvar.getType())) {
+                // sc_vector of MIF
+                vector<SValue> mifarrs;
+                mifarrs = state->getAllMifArrays(pval, ScState::MIF_CROSS_NUM);
+                for (const SValue& aval : mifarrs) {
+                    if (!aval.isArray()) continue;
+                    arrSizes.push_back(aval.getArray().getSize());
+                }
+            } else {
+                arrSizes = getArraySizes(pvar.getType());
+            }
+            
+            //cout << "pvar " << pvar << " arrSizes " << arrSizes.size() << endl;
             for (size_t i : arrSizes) {
                 indx += '[' + to_string(i) + ']';
             }

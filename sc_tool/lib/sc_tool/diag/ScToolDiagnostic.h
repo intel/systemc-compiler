@@ -256,6 +256,7 @@ public:
         SYNTH_RECORD_INDX_AND_BASE  = 271,
         SYNTH_LEFT_SHIFT_IN_SIGNED  = 272,
         SYNTH_REC_TEMP_NO_INIT      = 273,
+        SYNTH_MEMBER_RECORD_INIT_LIST = 274,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -810,6 +811,10 @@ private:
             {clang::DiagnosticIDs::Warning, 
             "Member record cannot have non-empty constructor"};
         
+        idFormatMap[SYNTH_MEMBER_RECORD_INIT_LIST] =
+            {clang::DiagnosticIDs::Warning, 
+            "Member record cannot have non-const fields in initializer list"};
+
         idFormatMap[SYNTH_RECORD_INDX_AND_BASE] =
             {clang::DiagnosticIDs::Error, 
             "Same record used as base and index expression is not supported yet"};

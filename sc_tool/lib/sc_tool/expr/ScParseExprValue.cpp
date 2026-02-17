@@ -826,10 +826,16 @@ void ScParseExprValue::parseExpr(CXXTemporaryObjectExpr* expr, SValue& val)
     
     if (isUserClass(type)) {
         if (auto recDecl = type->getAsCXXRecordDecl()) {
-            // This is supported, used for record w/o array inside
+            // Non-empty constructor body supported
             SValue var(type, NO_VALUE);
-            val = createRecValue(recDecl, NO_VALUE, var, true, 0, false);
-            
+            // Normal constructor of local record
+            // Return created record to assign to its variable
+            val = parseRecordCtor(expr, modval, var, true);
+            // Add defined for record fields
+            for (auto fieldDecl : recDecl->fields()) {
+                SValue fval(fieldDecl, val);
+                writeToValue(fval);
+            }
         } else {
             SCT_INTERNAL_ERROR(expr->getBeginLoc(), "Incorrect class type");
         }
@@ -2863,8 +2869,19 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
             
             // Set @locrecvar to provide owner to record value created for @rval
             if (isRecord && !isRef) locrecvar = tval;
+            
+            // For array element use array variable for @locrecvar
+            // as array value cannot be used as variable for record constructor
+            bool useTempForArray = false;
+            if (locrecvar.isArray()) {
+                locrecvar = SValue(locrecvar.getType(), NO_VALUE);
+                useTempForArray = true;
+            }
+            
+            //cout << "locrecvar " << locrecvar << endl;
             SValue rval = evalSubExpr(args[1]);
             if (isRecord && !isRef) locrecvar = NO_VALUE;
+            //cout << "rval " << rval << endl;
             
             strLiterWidth = lastWidth; 
             strLiterUnsigned = lastUnsigned;
@@ -2878,9 +2895,11 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                 assignRecValueInState(tval, rval);
                 val = tval;
             }
-
+            
             // Mark variable/object/channel as written/read
-            //cout << "parseOperatorCall readFromValue rval " << rval << endl;
+            //cout << "parseOperatorCall readFromValue rval " << rval 
+            //     << ", writeToValue tval " << tval << endl;
+            //state->print();
             readFromValue(rval);
             writeToValue(tval);
 

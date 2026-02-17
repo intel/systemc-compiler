@@ -187,7 +187,8 @@ clang::QualType getArrayDirectElementType(clang::QualType type)
     return type;
 }
 
-// Get array/sub-array sizes in multi-dimensional array
+// Get array/sub-array sizes in multi-dimensional array, std::array
+// @sc_vector not supported
 std::vector<std::size_t> getArraySizes(clang::QualType type)
 {
     std::vector<std::size_t> arrSizes;

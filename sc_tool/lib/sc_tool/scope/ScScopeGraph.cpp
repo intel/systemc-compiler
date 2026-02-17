@@ -29,9 +29,12 @@ namespace sc {
 uint64_t CodeScope::id_gen = 1;
 
 // Store general statement in the current scope
-void ScScopeGraph::storeStmt(const Stmt* stmt, const string& s, bool artifIf) {
+void ScScopeGraph::storeStmt(const Stmt* stmt, const string& s, bool artifIf, bool recCtor) {
     if (artifIf) {
         artifIfStmts.insert(stmt);
+    }
+    if (recCtor) {
+        recCtorStmts.insert(stmt);
     }
     currScope->push_back({stmt, s});
     //cout << "ScScopeGraph::storeStmt graph #" << hex << this << ", scope #" 
@@ -471,9 +474,9 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                 
             } else {
                 // Print statement string, empty string can be for function call
-                // Commented: do not print parameters for record constructor as 
-                // that already done before print of initialization list
-                if (!stmtStr.empty() /*&& (!stmt || !isa<CXXConstructExpr>(stmt))*/) {
+                // Do not print statement with record constructor as 
+                // it should be printed after function body if it is not empty
+                if (!stmtStr.empty() && recCtorStmts.count(stmt) == 0) {
                     // Split and print one or more lines with tabulation
                     bool noTabStmt = emptySensStmt.count(stmt);
                     std::string comment;
@@ -544,6 +547,26 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                                    << fcallScope->name << " end" << endl;
                             }
                         }
+                    }
+                }
+                
+                // Print statement body after function call, required for 
+                // local variables assignment to temporary variables defined in
+                // constructor body
+                if (!stmtStr.empty() && recCtorStmts.count(stmt) != 0) {
+                    // Split and print one or more lines with tabulation
+                    bool noTabStmt = emptySensStmt.count(stmt);
+                    std::string comment;
+                    auto i = stmtComments.find(stmt);
+                    if (i != stmtComments.end()) {
+                        comment = "// "+i->second;
+                    }
+                    printSplitString(os, stmtStr, noTabStmt ? 
+                                     getEmptyTabString() : getTabString(level), 
+                                     comment);
+                    
+                    if (DebugOptions::isEnabled(DebugComponent::doScopeGraph)) {
+                        cout << "   " << stmtStr << endl;
                     }
                 }
             }

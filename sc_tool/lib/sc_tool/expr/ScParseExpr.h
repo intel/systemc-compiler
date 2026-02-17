@@ -78,6 +78,8 @@ protected:
     SValue chanrecvar = NO_VALUE;
     /// Temporary constructed record with InitListExpr and CXXTemporaryObjectExpr
     SValue temprec = NO_VALUE;
+    /// Statement has temporary constructed record with non-empty constructor body
+    bool hasRecCtorBody = false;
     
 public:
 
