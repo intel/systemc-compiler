@@ -20,7 +20,7 @@ See more information at [Single Source library](https://github.com/intel/systemc
 
 ## Getting started
 
-The SystemC Compiler can be installed at most Linux OS. There is ```install.sh``` script that downloads and builds the compiler and the required dependencies at **Ubuntu 24.04**, **Ubuntu 22.04**, **Ubuntu 20.04**, **SLES15**, and **SLES12**.
+The SystemC Compiler can be installed at most Linux and Windows Subsystem for Linux (WSL). There is ```install.sh``` script that downloads and builds the compiler and the required dependencies at **Ubuntu 24.04**, **Ubuntu 22.04**, **Ubuntu 20.04**, **SLES15**, **SLES12** and others.
 
 An instruction how to install and run ISCS is given at [Getting started](https://github.com/intel/systemc-compiler/wiki/Getting-started). 
 
@@ -32,7 +32,7 @@ The SystemC Compiler supports [SystemC Synthesizable Subset](https://www.accelle
 
 ## Publications
 
-* [Single Source library for high-level modelling and hardware synthesis](https://github.com/intel/systemc-compiler/blob/main/doc/papers/preprint_single_source_2024.pdf), at DvCon Europe 2024
+* [Single Source library for high-level modelling and hardware synthesis](https://github.com/intel/systemc-compiler/blob/main/doc/papers/preprint_single_source_2024.pdf), at DvCon'2024
 * [Intel Compiler for SystemC and SystemC common library](https://github.com/intel/systemc-compiler/blob/main/doc/papers/common_library_2022.pdf) at CHIPS tech summit 2022
 * [Temporal assertions in SystemC](https://github.com/intel/systemc-compiler/blob/main/doc/papers/sct_assert.pdf) at DvCon'2020 and SystemC evolution day'2020
 * [SystemC-to-Verilog Compiler: a productivity-focused tool for hardware design in cycle-accurate SystemC](https://github.com/intel/systemc-compiler/blob/main/doc/papers/icsc.pdf) at DvCon'2019
