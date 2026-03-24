@@ -14,20 +14,50 @@
 # ./install.sh gdb                                                              #
 #################################################################################
 
+BUILD_TYPE="Release"
+BUILD_DIR="build_icsc_rel"
+DEBUG_POSTFIX_ARG=""
+
+if [ "$#" -gt 1 ]; then
+    echo "Usage: $0 [--debug|-d]"
+    exit 1
+fi
+
+if [ "$#" -eq 1 ]; then
+    case "$1" in
+        --debug|-d)
+            BUILD_TYPE="Debug"
+            BUILD_DIR="build_icsc_dbg"
+            DEBUG_POSTFIX_ARG="-DCMAKE_DEBUG_POSTFIX=d"
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Usage: $0 [--debug|-d]"
+            exit 1
+            ;;
+    esac
+fi
+
 test -z $ICSC_HOME && { echo "ICSC_HOME is not configured"; exit 1; }
 echo "Using ICSC_HOME = $ICSC_HOME"
 
 export CMAKE_PREFIX_PATH=$ICSC_HOME:$CMAKE_PREFIX_PATH
 export GCC_INSTALL_PREFIX="$(realpath "$(dirname $(which g++))"/..)"
-echo "GCC_INSTALL_PREFIX = $GCC_INSTALL_PREFIX"
+echo "GCC folder = $GCC_INSTALL_PREFIX"
+export CWD_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+echo "Source folder = $CWD_DIR"
+echo "Build mode = $BUILD_TYPE"
+
+WGET="wget -N --timeout=60 --tries=10 --connect-timeout=30 --no-check-certificate"
 
 echo "Downloading and building Protobuf/LLVM at $ICSC_HOME/build_deps..."
 cd $ICSC_HOME
 mkdir build_deps -p
 
-# Download, unpack, build, install Protobuf 3.19
+# ################################################################################
+# Download, unpack, build, install Protobuf
 cd $ICSC_HOME/build_deps
-wget -N https://github.com/protocolbuffers/protobuf/archive/v3.19.4.tar.gz --no-check-certificate
+${WGET} https://github.com/protocolbuffers/protobuf/archive/v3.19.4.tar.gz
 tar -xf v3.19.4.tar.gz --skip-old-files
 (
     cd protobuf-3.19.4
@@ -41,14 +71,15 @@ tar -xf v3.19.4.tar.gz --skip-old-files
 # ################################################################################
 # Download, unpack, build, install Clang and LLVM
 cd $ICSC_HOME/build_deps
-wget -N https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang-18.1.8.src.tar.xz --no-check-certificate
-wget -N https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/llvm-18.1.8.src.tar.xz --no-check-certificate
-wget -N https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/cmake-18.1.8.src.tar.xz --no-check-certificate
+${WGET} https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/cmake-18.1.8.src.tar.xz
+${WGET} https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang-18.1.8.src.tar.xz
+${WGET} https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/llvm-18.1.8.src.tar.xz
 tar -xf cmake-18.1.8.src.tar.xz --skip-old-files
 tar -xf clang-18.1.8.src.tar.xz --skip-old-files
 tar -xf llvm-18.1.8.src.tar.xz --skip-old-files
-mv clang-18.1.8.src clang
-mv cmake-18.1.8.src cmake
+ln -sfn `realpath cmake-18.1.8.src` cmake
+ln -sfn `realpath clang-18.1.8.src` clang
+ln -sfn `realpath llvm-18.1.8.src` llvm
 (
     cd llvm-18.1.8.src
     mkdir build -p && cd build
@@ -64,36 +95,30 @@ mv cmake-18.1.8.src cmake
 # Download, unpack, build, install GDB with Python3
 if [[ $1 == gdb ]]
 then
-cd $ICSC_HOME/build_deps
-wget -N https://ftp.gnu.org/gnu/gdb/gdb-13.2.tar.gz --no-check-certificate
-tar -xf gdb-13.2.tar.gz --skip-old-files
-(
-    cd gdb-13.2
-    ./configure --prefix="$ICSC_HOME" --with-python=/usr/bin/python3
-    make -j12
-    make install
-)
+    cd $ICSC_HOME/build_deps
+    ${WGET} https://sourceware.org/pub/gdb/releases/gdb-13.2.tar.gz
+    tar -xf gdb-13.2.tar.gz --skip-old-files
+    (
+        cd gdb-13.2
+        ./configure --prefix="$ICSC_HOME" --with-python=/usr/bin/python3
+        make -j12
+        make install
+    )
 fi
 
 # ################################################################################
 # Build and install ISCC
-cd $ICSC_HOME/icsc
+cd $CWD_DIR
 (
-    mkdir build_icsc_rel -p && cd build_icsc_rel
-    cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ICSC_HOME \
-              -DCMAKE_CXX_STANDARD=20
-    make -j12
-    make install
-    
-    cd ..
-    
-    mkdir build_icsc_dbg -p && cd build_icsc_dbg
-    cmake ../ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$ICSC_HOME \
-              -DCMAKE_CXX_STANDARD=20 -DCMAKE_DEBUG_POSTFIX=d
-    make -j12
-    make install
+    if test -f "systemc/PostInstall.cmake"
+    then
+    cp systemc/PostInstall.cmake PostInstall.cmake
+    fi
 
-    cp $ICSC_HOME/icsc/cmake/CMakeLists.top $ICSC_HOME/CMakeLists.txt
+    mkdir "$BUILD_DIR" -p && cd "$BUILD_DIR"
+    cmake ../ -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$ICSC_HOME -DCMAKE_CXX_STANDARD=20 -DENABLE_PTHREADS=$PTHREADS $DEBUG_POSTFIX_ARG
+    make -j12
+    make install
 )
 
 echo "*** ISCC Build and Installation Complete! ***"
@@ -107,7 +132,7 @@ cd $ICSC_HOME
     ln -s $ICSC_HOME/icsc/components/common $ICSC_HOME/designs/single_source/common
     source setenv.sh
     mkdir build -p && cd build
-    cmake ../                          # prepare Makefiles
+    cmake ../ -DCMAKE_BUILD_TYPE=$BUILD_TYPE  # prepare Makefiles
     cd designs/examples                # run examples only
     ctest -j12                         # compile and run Verilog generation
                                        # use "-jN" key to run in "N" processes
