@@ -101,8 +101,8 @@ install(FILES ${PROJECT_BINARY_DIR}/SVCConfig.cmake cmake/svc_target.cmake
 # Install sctCommon
 install(DIRECTORY components/common/sctcommon DESTINATION include)
 
-# Install setenv scripts
-install(FILES cmake/setenv.sh gdb/gdbinit-example.txt
+# Install setenv scripts and main CMakeLists.txt
+install(FILES cmake/setenv.sh cmake/CMakeLists.txt gdb/gdbinit-example.txt
         DESTINATION $ENV{ICSC_HOME})
 
 # Install GDB pretty-printers

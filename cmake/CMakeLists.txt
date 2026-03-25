@@ -1,16 +1,16 @@
 #******************************************************************************
-# Copyright (c) 2020, Intel Corporation. All rights reserved.
+# Copyright (c) 2026, Intel Corporation. All rights reserved.
 # 
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
 # 
 # *****************************************************************************
 #
-# Intel(r) Compiler for SystemC*, version 1.6.10 
+# Intel(r) Compiler for SystemC*
 #
 # *****************************************************************************
  
 cmake_minimum_required(VERSION 3.12)
-project (icsc_designs)
+project (sc_tools_designs)
 
 ## C++ standard 
 set(CMAKE_CXX_STANDARD 20)
@@ -22,6 +22,6 @@ find_package(SVC REQUIRED)
 
 ## Add examples, tests and user designs
 add_subdirectory(designs/examples)
-#add_subdirectory(designs/tests)
-#add_subdirectory(designs/single_source)
-#add_subdirectory(designs/template)
+add_subdirectory(designs/tests)
+add_subdirectory(designs/single_source)
+add_subdirectory(designs/template)
