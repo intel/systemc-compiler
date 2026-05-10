@@ -148,6 +148,12 @@ begin : methProc     // dut_test.h:37:5
     logic A;
     logic TMP_3;
     logic [64:0] TMP_5;
+    TMP_0 = '0;
+    TMP_1 = '0;
+    TMP_2 = '0;
+    A = '0;
+    TMP_3 = '0;
+    TMP_5 = '0;
     out = '0;
     // Call reset_get() begin
     run_get_req = '0;
