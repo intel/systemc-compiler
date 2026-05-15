@@ -12,7 +12,7 @@ add_executable(copilot_chan_demo
 
 # Test source directory
 target_include_directories(copilot_chan_demo PUBLIC 
-    $ENV{ICSC_HOME}/examples/copilot/chan_demo
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # Mark top for elaboration (assuming svc_target macro available)

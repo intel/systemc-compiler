@@ -49,7 +49,7 @@ public:
         bool larr[3] = {1,0,1};
         gindx = indx.read();
         bool b = ref_elem(larr[0]);     // no warning
-        b = ref_elem(larr[gindx]);      // warning
+        b = ref_elem(larr[gindx]);      // remark
     }
     
     // The same with pointer
@@ -63,8 +63,9 @@ public:
     int mindx;
     void array_unknown_ptr() {
         mindx = indx.read();
-        bool b = ptr_elem(parr[mindx]); // warning
-        b = ptr_elem(parr[1]);          // no warning
+        bool b;
+        //b = ptr_elem(parr[mindx]);    // error
+        b = ptr_elem(parr[1]);          // no remark
     }
     
     // For #182, warning generated
@@ -80,7 +81,7 @@ public:
         wait();
         
         while (true) {
-            bool b = ref_wait(arr[indx.read()]);    // warning
+            bool b = ref_wait(arr[indx.read()]);    // remark
             wait();
         }
     }

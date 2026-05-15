@@ -5,67 +5,76 @@
  * 
  *****************************************************************************/
 
- //-----------------------------------------------------------------------------
-// Fresh testbench for chan_demo
-// - No reset in any sensitivity list (per guideline)
-// - Threads have explicit async reset
-//-----------------------------------------------------------------------------
 #include "demo.h"
 #include <systemc.h>
 
 using namespace demo;
-using namespace sct;
 
 struct tb : public sc_module {
-    sc_in<bool> clk{"clk"};
+    static const unsigned N = 16;
+
+    sc_in_clk clk{"clk"};
     sc_in<bool> nrst{"nrst"};
 
     chan_demo dut{"dut"};
-
-    // Driver provides values to DUT target
-    sct_initiator<int> drv_init{"drv_init"};
-    // Monitor captures values from DUT initiator
-    sct_target<int>    mon_targ{"mon_targ"};
+    sct_initiator<int> in_init{"in_init"};
+    sct_target<int> out_targ{"out_targ"};
 
     SC_HAS_PROCESS(tb);
 
-    tb(sc_module_name n) : sc_module(n) {
-        dut.clk(clk); dut.nrst(nrst);
-        drv_init.clk_nrst(clk, nrst);
-        mon_targ.clk_nrst(clk, nrst);
+    explicit tb(const sc_module_name& name) : sc_module(name) {
+        dut.clk(clk);
+        dut.nrst(nrst);
 
-        drv_init.bind(dut.in_targ);
-        mon_targ.bind(dut.out_init);
+        in_init.clk_nrst(clk, nrst);
+        out_targ.clk_nrst(clk, nrst);
 
-        SC_THREAD(driver_thread);
-        sensitive << drv_init;  // reads drv_init.ready()
-        async_reset_signal_is(nrst, false);
+        in_init.bind(dut.in_targ);
+        out_targ.bind(dut.out_init);
 
-        SC_THREAD(monitor_thread);
-        sensitive << mon_targ;  // reads mon_targ.request()
+        SC_THREAD(stimulus_thread);
+        in_init.addTo(sensitive);
+        out_targ.addTo(sensitive);
         async_reset_signal_is(nrst, false);
     }
 
-    void driver_thread() {
-        drv_init.reset_put();
-        wait();
-        int v = 0;
-        while (true) {
-            if (v < 16 && drv_init.ready()) {
-                if (drv_init.put(v)) { v++; }
-            }
-            wait();
-        }
+    void trace(sc_trace_file* file) {
+        in_init.trace(file);
+        out_targ.trace(file);
+        dut.in_targ.trace(file);
+        dut.out_init.trace(file);
+        dut.data_fifo.trace(file);
     }
 
-    void monitor_thread() {
-        mon_targ.reset_get();
+    void stimulus_thread() {
+        int send_count;
+        int recv_count;
+        int value;
+
+        in_init.reset_put();
+        out_targ.reset_get();
+        send_count = 0;
+        recv_count = 0;
         wait();
+
         while (true) {
-            if (mon_targ.request()) {
-                int val = mon_targ.get();
-                std::cout << sc_time_stamp() << " got " << val << std::endl;
+            in_init.clear_put();
+
+            if (send_count < N && in_init.ready()) {
+                in_init.put(send_count);
+                send_count++;
             }
+
+            if (out_targ.request()) {
+                value = out_targ.get();
+                sc_assert(value == recv_count);
+                recv_count++;
+            }
+
+            if (recv_count == N) {
+                sc_stop();
+            }
+
             wait();
         }
     }
@@ -79,19 +88,34 @@ SC_MODULE(top_env) {
     SC_CTOR(top_env) {
         tb_i.clk(clk);
         tb_i.nrst(nrst);
-    SC_THREAD(rst_thread);
-    sensitive << clk; // wake each cycle to manage reset duration
+
+        SC_THREAD(reset_thread);
+        sensitive << clk;
     }
 
-    void rst_thread() {
-        nrst = false; wait(3); nrst = true; wait();
-        wait(200);
-        sc_stop();
+    void trace(sc_trace_file* file) {
+        sc_trace(file, clk, "clk");
+        sc_trace(file, nrst, "nrst");
+        tb_i.trace(file);
+    }
+
+    void reset_thread() {
+        nrst = false;
+        wait(3);
+        nrst = true;
+
+        while (true) {
+            wait();
+        }
     }
 };
 
 int sc_main(int argc, char* argv[]) {
     top_env env{"env"};
+    sc_trace_file* trace_file = sc_create_vcd_trace_file("copilot_chan_demo");
+
+    env.trace(trace_file);
     sc_start();
+    sc_close_vcd_trace_file(trace_file);
     return 0;
 }

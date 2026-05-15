@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2023-2024, Intel Corporation. All rights reserved.
+ * Copyright (c) 2023-2026, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
  *
@@ -39,16 +39,22 @@ class sct_buffer_impl :
     public sc_prim_channel,  
     public sct_fifo_if<T>
 {
-   public:
-    sc_in_clk       clk{"clk"};
-    sc_in<bool>     nrst{"nrst"};
+  public:
+    static const unsigned ELEM_NUM_WIDTH = sct_nbits<LENGTH>; 
+      
+    sc_in_clk       clk;
+    sc_in<bool>     nrst;
        
     explicit sct_buffer_impl(const char* name, 
-                        bool sync_valid = 0, bool sync_ready = 0,
-                        bool use_elem_num = 0, bool init_buffer = 0) :
-        sc_prim_channel(name),
-    #ifdef DEBUG_SYSTEMC
+                             bool sync_valid = 0, bool sync_ready = 0,
+                             bool use_elem_num = 0, bool init_buffer = 0) :
+        clk(std::string(std::string(name)+"_clk").c_str()),   // To avoid warning
+        nrst(std::string(std::string(name)+"_nrst").c_str()), // To avoid warning
+    #ifdef SCT_DEBUG
+        sc_prim_channel(std::string(std::string(name)+"_chan").c_str()), 
         attached_put(false), attached_get(false), 
+    #else
+        sc_prim_channel(name), 
     #endif
         event(std::string(std::string(name)+"_event").c_str())
     {
@@ -56,6 +62,12 @@ class sct_buffer_impl :
         // This implementation equals to async valid/ready FIFO
         assert (!sync_valid && !sync_ready && 
                 "No sync valid/ready allowed for Buffer");
+        
+    #ifdef SCT_DEBUG
+        dbg_mod = new DbgMod(sc_module_name(name));
+        dbg_mod->clk(clk);
+        dbg_mod->nrst(nrst);
+    #endif
     }
 
   public:
@@ -67,15 +79,22 @@ class sct_buffer_impl :
         return (element_num != 0);
     }
     
-    /// Call in METHOD everywhere and CTHREAD reset sections
+    /// Call in THREAD reset section
     void reset_get() override {
+    #ifdef SCT_DEBUG
+        dbg_mod->get_req = 0;
+    #endif
         pop_indx = 0;
         get_req = 0; 
         request_update();
     }
     
-    /// Call in METHOD everywhere and CTHREAD reset sections
+    /// Call in THREAD reset section
     void reset_put() override {
+    #ifdef SCT_DEBUG
+        dbg_mod->put_req = 0;
+        dbg_mod->data_in = T{};
+    #endif
         push_indx = 0;
         put_req = 0; 
         element_num = 0;
@@ -118,7 +137,12 @@ class sct_buffer_impl :
   public:     
     /// \return current request data, if no request last data returned
     T get() override {
-        if (element_num != 0) { doGet(); }
+        if (element_num != 0) { 
+        #ifdef SCT_DEBUG
+            dbg_mod->get_req = !dbg_mod->get_req;
+        #endif
+            doGet(); 
+        }
         return buffer[pop_indx];
     }
     
@@ -126,6 +150,9 @@ class sct_buffer_impl :
     bool get(T& data, bool enable = true) override {
         data = buffer[pop_indx];
         if (enable && element_num != 0) { 
+        #ifdef SCT_DEBUG
+            dbg_mod->get_req = !dbg_mod->get_req;
+        #endif
             doGet(); 
             return true;
         } else {
@@ -134,13 +161,22 @@ class sct_buffer_impl :
     }
 
     T b_get() override {
-        while (element_num == 0) wait();
+        while (element_num == 0) sc_prim_channel::wait();
+    #ifdef SCT_DEBUG
+        dbg_mod->get_req = !dbg_mod->get_req;
+    #endif
         doGet();
         return buffer[pop_indx];
     }
     
     bool put(const T& data) override {
+    #ifdef SCT_DEBUG
+        dbg_mod->data_in = data;
+    #endif
         if (element_num != LENGTH) {
+        #ifdef SCT_DEBUG
+            dbg_mod->put_req = !dbg_mod->put_req;
+        #endif
             doPut(data);
             return true;
         } else {
@@ -149,7 +185,13 @@ class sct_buffer_impl :
     }
 
     bool put(const T& data, sc_uint<1> mask) override {
+    #ifdef SCT_DEBUG
+        dbg_mod->data_in = data;
+    #endif
         if (mask && element_num != LENGTH) {
+        #ifdef SCT_DEBUG
+            dbg_mod->put_req = !dbg_mod->put_req;
+        #endif
             doPut(data);
             return true;
         } else {
@@ -158,7 +200,13 @@ class sct_buffer_impl :
     }
     
     void b_put(const T& data) override {
-        while (element_num == LENGTH) wait();
+    #ifdef SCT_DEBUG
+        dbg_mod->data_in = data;
+    #endif
+        while (element_num == LENGTH) sc_prim_channel::wait();
+    #ifdef SCT_DEBUG
+        dbg_mod->put_req = !dbg_mod->put_req;
+    #endif
         doPut(data);
     }
     
@@ -182,6 +230,30 @@ class sct_buffer_impl :
         return (element_num <= N);
     }
     
+#ifdef SCT_DEBUG
+  public:    
+    // Debugging module with signals to be visible in third party simulation tools
+    struct DbgMod : public sc_module {
+        using ElemNum_t = sc_uint<ELEM_NUM_WIDTH>;
+        
+        sc_in_clk       clk{"clk"};
+        sc_in<bool>     nrst{"nrst"};
+        
+        sc_signal<bool>         put_req{"put_req"};
+        sc_signal<bool>         get_req{"get_req"};
+        sc_signal<bool>         ready_push{"ready_push"};
+        sc_signal<bool>         out_valid{"out_valid"};
+        sc_signal<T>            data_out{"data_out"};
+        sc_signal<T>            data_in{"data_in"};
+        sc_signal<ElemNum_t>    element_num{"element_num"};
+        
+        explicit DbgMod(const sc_module_name& name) : sc_module(name) 
+        {}
+    };
+    
+    DbgMod* dbg_mod = nullptr;
+#endif  
+    
   protected:
     /// Index of element that will be poped
     unsigned short  pop_indx    : 16 = 0;
@@ -193,7 +265,7 @@ class sct_buffer_impl :
     bool    put_req   : 8 = false;
     bool    get_req   : 8 = false;
     
-#ifdef DEBUG_SYSTEMC
+#ifdef SCT_DEBUG
     bool    attached_put : 8;
     bool    attached_get : 8;
 #endif
@@ -216,25 +288,38 @@ class sct_buffer_impl :
             element_num += 1;
             put_req = 0;
         }
+
+    #ifdef SCT_DEBUG
+        dbg_mod->element_num = element_num;
+        dbg_mod->ready_push  = element_num != LENGTH;
+        dbg_mod->out_valid   = element_num != 0;
+        dbg_mod->data_out    = buffer[pop_indx];
+    #endif
+
         if constexpr (SCT_CMN_TLM_MODE) event.notify(clk_period);
     }
     
+    void before_end_of_elaboration() override {
+        if (clk.bind_count() != 1 || nrst.bind_count() != 1) {
+            cout << "\nBuffer " << sc_prim_channel::name() 
+                 << " clock/reset inputs are not bound or multiple bound" << endl;
+            assert (false);
+        }
+    }
+    
+    /// Use end_of_elaboration as @get_clk_period used inside
     void end_of_elaboration() override {
-    #ifdef DEBUG_SYSTEMC
+    #ifdef SCT_DEBUG
         if (!attached_put || !attached_get) {
             cout << "\nBuffer " << name() 
                  << " is not fully attached to process(es)" << endl;
             assert (false);
         }
     #endif
-        if (clk.bind_count() != 1 || nrst.bind_count() != 1) {
-            cout << "\nBuffer " << name() 
-                 << " clock/reset inputs are not bound or multiple bound" << endl;
-            assert (false);
-        }
         
         if constexpr (SCT_CMN_TLM_MODE) { clk_period = get_clk_period(&clk); }
         
+        // That is OK as this buffer is for simulation only (not for synthesis)
         PUT.buf = nullptr;
         GET.buf = nullptr;
         PEEK.buf = nullptr;
@@ -277,7 +362,7 @@ class sct_buffer_impl :
                 else s << (TRAITS::CLOCK ? clk.pos() : clk.neg());
             }
         }
-    #ifdef DEBUG_SYSTEMC    
+    #ifdef SCT_DEBUG    
         if (attachedPut) {
             if (attached_put) {
                 cout <<  "Double addToPut() for Buffer: " << name() << endl; 
@@ -318,7 +403,7 @@ class sct_buffer_impl :
                 else *s << *p << (TRAITS::CLOCK ? clk.pos() : clk.neg());
             }
         }
-    #ifdef DEBUG_SYSTEMC    
+    #ifdef SCT_DEBUG    
         if (attachedPut) {
             if (attached_put) {
                 cout <<  "Double addToPut() for Buffer: " << name() << endl; 
@@ -347,9 +432,23 @@ class sct_buffer_impl :
             add_to(s, p, false, true); }
     void addPeekTo(sc_sensitive& s) override {add_to(s, false, false); }
     
+    
+    void trace(sc_trace_file* tf) const override {
+    #ifdef SCT_DEBUG
+        const std::string& bufName = name();
+        sc_trace(tf, dbg_mod->ready_push, bufName + "_ready");
+        sc_trace(tf, dbg_mod->put_req, bufName + "_put");
+        sc_trace(tf, dbg_mod->data_in, bufName + "_data_in");
+        sc_trace(tf, dbg_mod->out_valid, bufName + "_request");
+        sc_trace(tf, dbg_mod->get_req, bufName + "_get");
+        sc_trace(tf, dbg_mod->data_out, bufName + "_data_out");
+        sc_trace(tf, dbg_mod->element_num, bufName + "_element_num");
+    #endif
+    }
+   
     inline void print(::std::ostream& os) const override
     {
-        os << "sct_buffer " << name();
+        os << "sct_buffer [ " << element_num << " of " << LENGTH << " ] : " << name();
         
         if (element_num != 0) {
             os << " ( ";
@@ -423,14 +522,31 @@ class sct_buffer<T, LENGTH, TRAITS, 2> : public sct_prim_buffer<T>
   public:
     using base_class = sct_prim_buffer<T>;
     
+    /// \param multi_put -- multiple put in one DC allowed
+    /// \param multi_get -- multiple get in one DC allowed
     explicit sct_buffer(const char* name, 
                         bool sync_valid = 0, bool sync_ready = 0,
-                        bool use_elem_num = 0, bool init_buffer = 0) :
-    base_class(name, LENGTH, TRAITS::MULTI_PUT, TRAITS::MULTI_GET)
+                        bool use_elem_num = 0, bool init_buffer = 0,
+                        bool multi_put = 0, bool multi_get = 0) :
+    base_class(name, LENGTH, multi_put, multi_get)
     {}
+
+  protected:    
+    void end_of_elaboration() override {
+        base_class::end_of_elaboration();
+
+        PUT.buf = nullptr;
+        GET.buf = nullptr;
+        PEEK.buf = nullptr;
+    }
+
+  public:    
+    sct_buffer_put<T, LENGTH, TRAITS> PUT{this};
+    sct_buffer_get<T, LENGTH, TRAITS> GET{this};
+    sct_buffer_peek<T, LENGTH, TRAITS> PEEK{this};
 };
 
-#else
+#else // __SC_TOOL__
 
 //==============================================================================
 
@@ -442,7 +558,7 @@ template <
 >
 using sct_buffer = sct_fifo<T, LENGTH, TRAITS, 0>;
 
-#endif
+#endif // __SC_TOOL__
 
 
 } // namespace sct

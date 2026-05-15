@@ -23,6 +23,15 @@ public:
     {
         //SC_METHOD(inner_rec_init_meth); sensitive << s;
 
+        SC_METHOD(Issue334_1); sensitive << s;
+        SC_METHOD(Issue334_2); sensitive << s;
+        SC_METHOD(Issue334_3); sensitive << s;
+        
+        mmif2D[0].init(2);
+        
+        SC_CTHREAD(issue335, clk.pos());
+        async_reset_signal_is(rst, 0);
+        
         SC_METHOD(loc_array_init_meth); sensitive << s;
         SC_METHOD(mem_array_init_meth); sensitive << s;
 
@@ -66,6 +75,36 @@ public:
         
         Rec_t() = default;
         Rec_t(int i) : a(i == 42) {}
+        // Non-empty constructor body is not allowed as soon as 
+        // it is analyzed after temp variable assignment
+        Rec_t(int i, int j) {a = i == j; b = j > i ? 1 : j;}         
+        Rec_t(int i, int j, bool k) {
+            int l = i+j;
+            if (k) {
+                a = i;
+            } else {
+                a = j;
+            }
+            b = l + 1;
+        } 
+        
+        Rec_t(int i, int j, sc_uint<4> k) {
+             int l = i;
+             for (unsigned i = 0; i != 4; ++i) {
+                 if (k[i]) {
+                     l += j; a = true;
+                     break;
+                 }
+             }
+             b = l;
+        } 
+        
+        void reset() {
+            a = false;
+        }
+        int read_a() const {
+            return a ? 0 : 1;
+        }
     };
     
     Rec_t f() {
@@ -80,6 +119,42 @@ public:
         return par;
     }
     
+    // Issue #334
+    void Issue334_1() {
+        Rec_t loc(40, s.read());
+        loc = Rec_t(41, s.read());
+
+        Rec_t loc_arr_[1];
+        for (unsigned i = 0; i != 1; ++i) {
+            loc_arr_[i] = Rec_t(s.read(), 42);   
+        }
+
+        t0 = loc.a + loc.b + + loc_arr_[0].a + loc_arr_[0].b;
+    }
+    
+    // Issue #334
+    void Issue334_2() {
+        Rec_t loc;
+        loc = Rec_t(41, s.read(), s.read() == 42);
+
+        Rec_t loc_arr_[1];
+        for (unsigned i = 0; i != 1; ++i) {
+            loc_arr_[i] = Rec_t(41, s.read(), s.read() != 0);
+        }
+
+        t0 = loc.a + loc.b + loc_arr_[0].a + loc_arr_[0].b;
+    }
+    
+    // Issue #334
+    void Issue334_3() {
+        Rec_t loc;
+        sc_uint<4> a = s.read()+1;
+        loc = Rec_t(41, s.read(), a);
+
+        t0 = loc.a + loc.b;
+    }
+    
+    // Issue #333
     sc_signal<int> t0;
     void loc_array_init_meth() {
         // Workaround
@@ -97,13 +172,64 @@ public:
         loc1 = f();
         loc1 = g(loc1);
         
+        // #333
         Rec_t loc_arr[2];
         for (unsigned i = 0; i != 2; ++i) {
-            loc_arr[i] = Rec_t{};
+            loc_arr[i] = Rec_t();
+            loc_arr[i] = Rec_t{};   
+            loc_arr[i] = Rec_t{42};         // #333 -- fixed
+            loc_arr[i] = Rec_t(41);         // #333 -- fixed
+            loc_arr[i] = f();
         }
-        
+
         t0 = loc0.b + loc1.b + loc_arr[s.read()].b;
     }
+    
+//========================================================================    
+
+    struct Mif : public sc_module, public sc_interface {
+        bool        empty_;
+        sc_uint<4>  stack_top;
+        
+        explicit Mif(const sc_module_name& name) : sc_module(name) {}
+        
+        void reset() {
+            empty_ = false;
+            stack_top = 42;
+        }
+        void update() {
+            empty_ = (stack_top == 0);
+            sc_uint<4> stack_top_dec = empty_ ? 0 : 1;
+            stack_top = stack_top_dec;
+        }
+    };
+    
+    // Issue #335 -- fixed
+    sc_vector<Mif>     SC_NAMED(mmif, 2);
+    sc_vector<sc_vector<Mif>>  SC_NAMED(mmif2D, 1);
+    void issue335() {
+        for (int i = 0; i != 2; ++i) {    
+            mmif[i].reset();
+        }
+        mmif2D[0][0].reset();
+        mmif2D[0][1].reset();
+        wait();
+        
+        while (true) {
+            for (int i = 0; i != 2; ++i) {
+                mmif[i].update();
+            }
+            for (int i = 0; i != 1; ++i) {
+                for (int j = 0; j != 2; ++j) {
+                    mmif2D[i][j].update();
+                }
+            }
+            wait();
+        }
+        
+    }
+    
+//========================================================================    
     
     Rec_t mem;
     Rec_t mem_arr[2];
@@ -217,7 +343,7 @@ public:
         
 //        MultArrRec_t locc;
 //        locc = MultArrRec_t{}; -- Error reported -- OK
-    }    
+    }   
 
 //------------------------------------------------------------------------------    
 

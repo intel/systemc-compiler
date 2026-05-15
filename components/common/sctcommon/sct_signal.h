@@ -28,7 +28,7 @@ class sct_signal<T, ENABLE_EVENT, 0> : public sc_signal<T>
     using base_type = sc_signal<T>;
     using this_type = sct_signal<T, ENABLE_EVENT, 0>; 
       
-    explicit sct_signal(const sc_module_name& name) : base_type(name)
+    explicit sct_signal(const char* name) : base_type(name)
     {}
     
     explicit sct_signal() : base_type("sct_signal")
@@ -80,7 +80,7 @@ class sct_signal<T, ENABLE_EVENT, 1> :
 
     SC_HAS_PROCESS(sct_signal);
     
-    explicit sct_signal(const sc_module_name& name) :
+    explicit sct_signal(const char* name) :
         sc_prim_channel(name),
         meth_event(std::string(std::string(name)+"_meth_event").c_str()),
         thrd_event(std::string(std::string(name)+"_thrd_event").c_str())
@@ -127,6 +127,7 @@ class sct_signal<T, ENABLE_EVENT, 1> :
         }
     }
     
+    /// Use end_of_elaboration as @get_clk_period used inside
     void end_of_elaboration() override {
         if (thrdEvent) {
             if (clk_in) {

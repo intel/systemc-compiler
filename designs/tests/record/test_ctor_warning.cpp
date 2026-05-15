@@ -33,7 +33,28 @@ struct ScSimple {
     {}
 };
 
-int i;
+struct ScSimple2 {
+    const int b;
+    ScSimple2(int j) : b(j+1) {};
+};
+
+struct ScSimple3 {
+    int a = 3;
+    ScSimple3() = default;
+};
+
+struct ScSimple4 {
+    int a;
+    ScSimple4() : a(4) {};
+};
+
+struct ScSimple5 {
+    int a;
+    ScSimple5() {a = 5;}
+};
+
+
+int i;                   // Warning:  Global variables are not supported for synthesis
 const int c1 = 42;
 constexpr int c2 = 43;
 
@@ -50,13 +71,18 @@ public:
         sensitive << s;
     }
     
-    ScSimple mem;       // No fields initialization for member record
+    ScSimple mem;       // Warning: No fields initialization for member record
+    ScSimple2 mem2{1};  // No Warning -- OK
+    ScSimple3 mem3;     // Warning: Member record cannot have fields with in-place initialization
+    ScSimple4 mem4;     // Warning: Member record cannot have non-const fields in initializer list
+    ScSimple5 mem5;     // Warning: Member record cannot have non-empty constructor
     
     sc_signal<int> t0;
     void member_record() {
         ScSimple loc;
-        t0 = mem.a + mem.b + mem.A + mem.B;
+        t0 = mem.a + mem.b + mem.A + mem.B + mem3.a + mem4.a;
         t0 = loc.a + loc.b;
+        t0 = mem2.b;
     }
 };
 

@@ -1166,6 +1166,7 @@ SValue ScParseExpr::createRecValue(const clang::CXXRecordDecl* recDecl,
                            bases, parent, var, index); 
             
     // Current module in @recval required for field initialization
+    //cout << " set recval (1) " << recval << " to " << currec << endl;
     SValue lastRecval(recval); recval = currec;
 
     // Fill field values into state, required for array member of record array
@@ -1177,6 +1178,7 @@ SValue ScParseExpr::createRecValue(const clang::CXXRecordDecl* recDecl,
     
     // Restore current module before parse constructor call
     recval = lastRecval;
+    //cout << " restore recval (1) " << recval << endl;
 
     return currec;
 }
@@ -1294,7 +1296,7 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
     auto modDecl = expr->getType()->getAsCXXRecordDecl();
     //cout << "------- fields " << endl;
     for (auto fieldDecl : modDecl->fields()) {
-        //cout << "field " << fieldDecl->getNameAsString() << endl;
+        //cout << "field " << fieldDecl->getNameAsString() << " recval " << recval << endl;
 
         // Check if this field is in initializer list
         auto i = std::find_if(
@@ -1339,7 +1341,7 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
             if (auto fieldCtor = dyn_cast<CXXConstructExpr>(ctorExpr)) {
                 // Used to fill @locrecvar, no initialization used here
                 SValue val;
-                parseDeclStmt(stmt, fieldDecl, val, init);
+                parseDeclStmt(stmt, fieldDecl, val, init, NO_VALUE, true);
             
                 // Create member record recursively
                 parseRecordCtor(fieldCtor, recval, locrecvar, false);
@@ -1355,7 +1357,7 @@ SValue ScParseExpr::parseRecordCtor(CXXConstructExpr* expr, SValue parent,
             SValue val;
             // Field is initialized with @init
             // Use @currecvar to ensure correct MIF found for base record fields
-            parseDeclStmt(stmt, fieldDecl, val, init, currecvar);
+            parseDeclStmt(stmt, fieldDecl, val, init, currecvar, true);
 
             storeStmtStr(stmt);
         }

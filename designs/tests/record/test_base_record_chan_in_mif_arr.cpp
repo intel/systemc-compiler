@@ -128,6 +128,8 @@ public:
         vreg[0].clk_nrst(clk, nrst); vreg[1].clk_nrst(clk, nrst);
         wreg[0].clk_nrst(clk, nrst); wreg[1].clk_nrst(clk, nrst);
         
+        SC_METHOD(loc_array_init_meth); sensitive << s;
+
         SC_METHOD(issue_325); 
         sensitive << rreg << ireg << iareg[0] << iareg[1] << vreg[0] << vreg[1] << s;
         
@@ -162,6 +164,28 @@ public:
 
         SC_CTHREAD(record_chan8, clk.pos());
         async_reset_signal_is(nrst, 0);
+    }
+  
+    // Issue #333
+    sc_signal<int> t00;
+    D mem_arr[2];
+    void loc_array_init_meth() 
+    {
+        D loc;
+        loc = D();
+        loc = D{};
+        loc = D(42);
+        loc = D{42};
+        
+        D loc_arr[2];
+        for (unsigned i = 0; i != 2; ++i) {
+            loc_arr[i] = D{};
+            mem_arr[i] = D{};
+            loc_arr[i] = D{41};
+            mem_arr[i] = D{42};
+        }
+        
+        t00 = loc.b + loc_arr[s.read()].b;
     }
     
     

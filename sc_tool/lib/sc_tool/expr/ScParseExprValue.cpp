@@ -9,6 +9,7 @@
  * Author: Mikhail Moiseev
  */
 
+#include "sc_tool/cfg/ScTraverseCommon.h"
 #include "sc_tool/expr/ScParseExprValue.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "sc_tool/utils/CppTypeTraits.h"
@@ -492,7 +493,8 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
 // Used for variable declaration with and without initialization
 // \param initExpr -- record/record field initializer, not used for normal variables
 void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
-                                     clang::Expr* initExpr, const SValue& currecvar)
+                                     clang::Expr* initExpr, const SValue& currecvar,
+                                     bool noFuncCall)
 {
     //cout << "ScParseExprValue::parseDeclStmt decl #" << hex << decl << dec << endl;
 
@@ -535,6 +537,13 @@ void ScParseExprValue::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val,
         // Clear @iexpr to do not assign it in normal record constructor call
         if (isRec && !isCopyCtor) {
             iexpr = nullptr;
+        }
+        
+        // Check if expression contains function or method call
+        static CheckCallVisitor callVisitor;
+        if (noFuncCall && callVisitor.hasCall(iexpr)) {
+            ScDiag::reportScDiag(iexpr->getBeginLoc(), 
+                                 ScDiag::SYNTH_FCALL_IN_INIT_LIST);
         }
     }
     

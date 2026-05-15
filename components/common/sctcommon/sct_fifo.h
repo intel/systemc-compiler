@@ -236,7 +236,7 @@ public:
     
   public:
     /// Using @sct_prim_signal allows to have multiple drivers for @sct_fifo
-#if defined(__SC_TOOL__) || defined(DEBUG_SYSTEMC)
+#if defined(__SC_TOOL__) || defined(SCT_DEBUG)
     template<class P>
     using SignalType = sc_signal<P>;
 #else
@@ -268,7 +268,6 @@ public:
     /// FIFO has (size()-N) elements or more
     inline bool almost_full(const unsigned& N = 0) const override {
         sc_assert (N <= LENGTH);
-        //const unsigned elemNum = elem_num();
         return (elem_num() >= LENGTH-N);
     }
     
@@ -295,7 +294,7 @@ public:
     bool attached_put = false;
     bool attached_get = false;
     
-#ifdef DEBUG_SYSTEMC
+#ifdef SCT_DEBUG
     sc_signal<bool>    debug_put{"put"};
     sc_signal<bool>    debug_get{"get"};
 #endif
@@ -397,7 +396,7 @@ public:
         
         element_num = element_num_d.read();
         if (pop && !push) {
-        #ifdef DEBUG_SYSTEMC
+        #ifdef SCT_DEBUG
             // Prevent overflow warning when negative value stored in unsigned signal
             if (element_num_d.read() != 0)
         #endif
@@ -407,7 +406,7 @@ public:
             element_num = element_num_d.read()+1;
         } 
 
-    #ifdef DEBUG_SYSTEMC
+    #ifdef SCT_DEBUG
         debug_put = push;
         debug_get = pop;
     #endif
@@ -510,6 +509,7 @@ public:
                  << " clock/reset inputs are not bound or multiple bound" << endl;
             assert (false);
         }
+
         PUT.fifo = nullptr;
         GET.fifo = nullptr;
         PEEK.fifo = nullptr;
@@ -671,8 +671,8 @@ public:
     }
 
     void trace(sc_trace_file* tf) const override {
-    #ifdef DEBUG_SYSTEMC
-        std::string fifoName = name();
+    #ifdef SCT_DEBUG
+        const std::string& fifoName = name();
         sc_trace(tf, ready_push, fifoName + "_ready");
         sc_trace(tf, debug_put, fifoName + "_put");
         sc_trace(tf, data_in, fifoName + "_data_in");
@@ -683,9 +683,8 @@ public:
     #endif
     }
     
-    inline void print(::std::ostream& os) const override
-    {
-        os << "sct_fifo " << name();
+    inline void print(::std::ostream& os) const override {
+        os << "sct_fifo [ " << element_num_d.read() << " of " << LENGTH << " ] : " << name();
         
         if (element_num_d.read() != 0) {
             os << " ( ";
@@ -698,6 +697,7 @@ public:
         } else {
             os << " is empty";
         }
+        
         os << ::std::endl;
     }
     
@@ -709,7 +709,7 @@ public:
 
 //==============================================================================
 
-/// Fast simulation implementation
+/// Approximately timed implementation
 template <
     typename T,             /// Data type
     unsigned LENGTH,        /// Size (maximal number of elements)
@@ -874,7 +874,7 @@ class sct_fifo<T, LENGTH, TRAITS, 1> :
     }
 
     void trace(sc_trace_file* tf) const override {
-    #ifdef DEBUG_SYSTEMC
+    #ifdef SCT_DEBUG
         fifo.trace(tf);
     #endif
     }

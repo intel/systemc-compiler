@@ -572,7 +572,7 @@ void ScGenerateExpr::prepareCallParams(clang::Expr* expr,
                 // Non-constant or constant reference refers to LValue
                 // It is replaced with @arg string in generated code
                 // Do not check if there is no terms
-                codeWriter->storeRefVarDecl(pval, arg, false);
+                codeWriter->storeRefVarDecl(pval, arg, true);
                 
                 // Store indices string for array record passed by reference
                 bool isRecordRef = isUserClass(refType);
@@ -1491,7 +1491,8 @@ void ScGenerateExpr::parseExpr(SubstNonTypeTemplateParmExpr* expr, SValue& val)
 
 // Used for local variable declaration
 void ScGenerateExpr::parseDeclStmt(Stmt* stmt, ValueDecl* decl, SValue& val, 
-                                   clang::Expr* initExpr, const SValue& currecvar)
+                                   clang::Expr* initExpr, const SValue& currecvar,
+                                   bool noFuncCall)
 {
     VarDecl* varDecl = dyn_cast<VarDecl>(decl);
     FieldDecl* fieldDecl = dyn_cast<FieldDecl>(decl);

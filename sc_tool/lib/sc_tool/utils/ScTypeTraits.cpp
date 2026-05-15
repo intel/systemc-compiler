@@ -971,7 +971,7 @@ bool isSctVector(clang::QualType type)
     type = getPureType(type);
     
     std::string typeStr = type.getAsString();
-    return (typeStr.find("sct_vector") != std::string::npos);
+    return (typeStr.find("sct_vector<") != std::string::npos);
 }
 
 bool isSctFifo(clang::QualType type) {
@@ -979,7 +979,7 @@ bool isSctFifo(clang::QualType type) {
     type = getPureType(type);
     
     std::string typeStr = type.getAsString();
-    return (typeStr.find("sct_fifo") != std::string::npos);
+    return (typeStr.find("sct_fifo<") != std::string::npos);
 }
 
 bool isSctTarg(clang::QualType type) {
@@ -987,7 +987,7 @@ bool isSctTarg(clang::QualType type) {
     type = getPureType(type);
     
     std::string typeStr = type.getAsString();
-    return (typeStr.find("sct_target") != std::string::npos);
+    return (typeStr.find("sct_target<") != std::string::npos);
 }
 
 bool isSctCombTarg(clang::QualType type) {
@@ -995,7 +995,7 @@ bool isSctCombTarg(clang::QualType type) {
     type = getPureType(type);
     
     std::string typeStr = type.getAsString();
-    return (typeStr.find("sct_comb_target") != std::string::npos);
+    return (typeStr.find("sct_comb_target<") != std::string::npos);
 }
 
 bool isSctInit(clang::QualType type) {
@@ -1003,7 +1003,7 @@ bool isSctInit(clang::QualType type) {
     type = getPureType(type);
     
     std::string typeStr = type.getAsString();
-    return (typeStr.find("sct_initiator") != std::string::npos);
+    return (typeStr.find("sct_initiator<") != std::string::npos);
 }
 
 bool isSctChannelSens(clang::QualType type, const FunctionDecl* funcDecl) 
@@ -1014,14 +1014,14 @@ bool isSctChannelSens(clang::QualType type, const FunctionDecl* funcDecl)
     std::string typeStr = type.getAsString();
     std::string funcNameStr = funcDecl ? funcDecl->getNameAsString() : "";
     
-    return (typeStr.find("sct_target") != std::string::npos ||
-            typeStr.find("sct_comb_target") != std::string::npos ||
-            typeStr.find("sct_initiator") != std::string::npos ||
-            typeStr.find("sct_fifo") != std::string::npos ||
-            typeStr.find("sct_register") != std::string::npos ||
-            typeStr.find("sct_multi_target") != std::string::npos ||
-            typeStr.find("sct_multi_initiator") != std::string::npos ||
-            (typeStr.find("sct_ff_synchronizer") != std::string::npos &&
+    return (typeStr.find("sct_target<") != std::string::npos ||
+            typeStr.find("sct_comb_target<") != std::string::npos ||
+            typeStr.find("sct_initiator<") != std::string::npos ||
+            typeStr.find("sct_fifo<") != std::string::npos ||
+            typeStr.find("sct_register<") != std::string::npos ||
+            typeStr.find("sct_multi_target<") != std::string::npos ||
+            typeStr.find("sct_multi_initiator<") != std::string::npos ||
+            (typeStr.find("sct_ff_synchronizer<") != std::string::npos &&
              (funcNameStr.empty() || 
               funcNameStr.find("read") != std::string::npos ||
               funcNameStr.find("operator bool") != std::string::npos))
@@ -1047,8 +1047,8 @@ bool isAssignOperatorSupported(clang::QualType type)
     type = getPureType(type);
     
     std::string typeStr = type.getAsString();
-    return (typeStr.find("sct_register") != std::string::npos ||
-            typeStr.find("sct_ff_synchronizer") != std::string::npos);
+    return (typeStr.find("sct_register<") != std::string::npos ||
+            typeStr.find("sct_ff_synchronizer<") != std::string::npos);
 }
 
 

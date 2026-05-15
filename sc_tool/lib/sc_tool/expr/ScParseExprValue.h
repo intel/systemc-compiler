@@ -165,8 +165,10 @@ protected:
     /// Used for variable declaration with and without initialization
     /// \param initExpr -- record/record field initializer, 
     ///                    not used for normal variables
+    /// \param noFuncCall -- no function call allowed in initialization expression
     void parseDeclStmt(clang::Stmt* stmt, clang::ValueDecl* decl, 
-                       SValue& val, clang::Expr* initExpr, const SValue& currecvar) override;
+                       SValue& val, clang::Expr* initExpr, const SValue& currecvar,
+                       bool noFuncCall) override;
 
     /// Used for local variables usage like assignment statement in left/right parts
     void parseExpr(clang::DeclRefExpr* expr, SValue& val) override;

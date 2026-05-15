@@ -13,7 +13,7 @@
  * THREAD process to get requests which put by the connected Initiator.
  * 
  * Target and Initiator should be connected to clock and reset with clk_nrst(). 
- * Target and Initiator are connected to each other with method bind().
+ * Target and Initiator are bound to each other with method bind().
  * 
  * Author: Mikhail Moiseev
  */
@@ -23,14 +23,14 @@
 
 #include "sct_ipc_if.h"
 #include "sct_prim_fifo.h"
+#include "sct_prim_buffer.h"
 
 namespace sct {
 
 /// Cycle accurate implementation    
 template<class T, class TRAITS>
 class sct_target<T, TRAITS, 0> : 
-    public sc_module, 
-    public sct_get_if<T>
+    public sc_module, public sct_get_if<T>
 {
     friend class sct_initiator<T, TRAITS, 0>;
     
@@ -78,7 +78,7 @@ class sct_target<T, TRAITS, 0> :
         SC_METHOD(core_data_mux);
         sensitive << core_ready << core_data << core_data_d;
         
-    #ifdef DEBUG_SYSTEMC
+    #ifdef SCT_DEBUG
         SC_METHOD(debugProc); 
         debug_handle = new sc_process_handle(sc_get_current_process_handle());
     #endif
@@ -271,7 +271,7 @@ class sct_target<T, TRAITS, 0> :
     }
     
     void always_ready_thread() {
-    #ifdef DEBUG_SYSTEMC   
+    #ifdef SCT_DEBUG   
         if (cthread) get_req_d = 0;
     #endif
         if (chan_sync) {
@@ -282,7 +282,7 @@ class sct_target<T, TRAITS, 0> :
         
         while (true) 
         {
-        #ifdef DEBUG_SYSTEMC   
+        #ifdef SCT_DEBUG   
             if (cthread) get_req_d = get_req;
         #endif
             if (chan_sync) {
@@ -323,7 +323,7 @@ class sct_target<T, TRAITS, 0> :
         put_fifo_handle = nullptr;
         PEEK.target = nullptr;
         
-    #ifdef DEBUG_SYSTEMC
+    #ifdef SCT_DEBUG
         if (fifo) {
             this->sensitive << *debug_handle;
             fifo->addPeekTo(this->sensitive);
@@ -390,7 +390,7 @@ class sct_target<T, TRAITS, 0> :
     template<class Module> 
     void bind(Module& module, unsigned indx = 0) {
         do_bind(module, indx);
-        module.do_bind(*this, indx);
+        module.do_bind(*this, indx);    // Do nothing in CDC FIFO
     }
     
     template<class Module> 
@@ -401,47 +401,67 @@ class sct_target<T, TRAITS, 0> :
         }
         bound = true; 
 
-        if (always_ready) {
-            // If always ready, register added in target
-            if (module.chan_sync) chan_sync = true;
-            module.chan_sync = false;
-        } else {
-            // If not always ready, register added in initiator
-            if (chan_sync) module.chan_sync = true;
-            chan_sync = false;
-        }
-        module.always_ready = always_ready;
-
-        // Avoid name duplicating warning
-        std::string readyName = "core_ready_s";
-        #ifndef __SC_TOOL__
-            readyName = std::string(basename()) + "_" + readyName;
-        #endif
-                
-        if constexpr (std::is_base_of<sct_multi_initiator_base, Module>::value) {
-            // Bind multi target initiator
-            if (!always_ready) {
-                cout << "\nNot-always ready target cannot be bound to multi initiator: " 
-                     << module.name() << endl;
+        if constexpr (std::is_base_of<sct_cdc_fifo_base, Module>::value) {
+            if (always_ready) {
+                cout << "\nNo always ready target " << name() 
+                     << " supported as it bound to CDC FIFO" << endl;
                 assert (false);
             }
-            module.bound_cntr++;
+            if (chan_sync) {
+                cout << "\nNo sync register in target " << name() 
+                     << " supported as it bound to CDC FIFO" << endl;
+                chan_sync = false;
+                assert (false);
+            }
+
+            // Do not change @chan_sync and @always_ready
+            // Bind CDC FIFO pop side to this target
+            std::string readyName = "pop_req_s";
             
-            sc_signal<bool>* core_ready_s = new sc_signal<bool>(readyName.c_str());
-            core_ready(*core_ready_s);
-            module.core_ready[indx](*core_ready_s);
+            sc_signal<bool>* pop_req_s = new sc_signal<bool>(readyName.c_str());
+            core_ready(*pop_req_s);
+            module.pop_req(*pop_req_s);
+
+            // Bind this target to CDC FIFO pop side
+            module.do_pop_bind(*this);
 
         } else {
-            // Bind initiator port to this target
-            if (module.bound) {
-                cout << "\nDouble bound of initiator: " << module.name() << endl;
-                assert (false);
+            if (always_ready) {
+                // If always ready, register added in target
+                if (module.chan_sync) chan_sync = true;
+                module.chan_sync = false;
+            } else {
+                // If not always ready, register added in initiator
+                if (chan_sync) module.chan_sync = true;
+                chan_sync = false;
             }
-            module.bound = true;
+            module.always_ready = always_ready;
 
-            sc_signal<bool>* core_ready_s = new sc_signal<bool>(readyName.c_str());
-            core_ready(*core_ready_s);
-            module.core_ready(*core_ready_s);
+            // Avoid name duplicating warning
+            std::string readyName = "core_ready_s";
+            #ifndef __SC_TOOL__
+                readyName = std::string(basename()) + "_" + readyName;
+            #endif
+                    
+            if constexpr (std::is_base_of<sct_multi_initiator_base, Module>::value) {
+                // Bind multi target initiator
+                if (!always_ready) {
+                    cout << "\nNot-always ready target cannot be bound to multi initiator: " 
+                        << module.name() << endl;
+                    assert (false);
+                }
+                module.bound_cntr++;
+                
+                sc_signal<bool>* core_ready_s = new sc_signal<bool>(readyName.c_str());
+                core_ready(*core_ready_s);
+                module.core_ready[indx](*core_ready_s);
+
+            } else {
+                // Bind initiator port to this target
+                sc_signal<bool>* core_ready_s = new sc_signal<bool>(readyName.c_str());
+                core_ready(*core_ready_s);
+                module.core_ready(*core_ready_s);
+            }
         }
     }
 
@@ -483,7 +503,8 @@ class sct_target<T, TRAITS, 0> :
             }
             
             if (attached) {
-                cout <<  "\nDouble addTo() for target: " << name() << endl; 
+                cout << "\nTarget " << name() 
+                     << " is already attached to a process" << endl;
                 assert (false);
             }
             attached = true;
@@ -538,7 +559,7 @@ class sct_target<T, TRAITS, 0> :
         }
     }
     
-#ifdef DEBUG_SYSTEMC
+#ifdef SCT_DEBUG
     sc_process_handle*  debug_handle = nullptr;
 
     sc_signal<bool>     out_valid{"out_valid"};
@@ -555,11 +576,21 @@ class sct_target<T, TRAITS, 0> :
 #endif
     
     void trace(sc_trace_file* tf) const override {
-    #ifdef DEBUG_SYSTEMC
+    #ifdef SCT_DEBUG
         std::string targName = name();
-        sc_trace(tf, out_valid, targName + "_request");
-        sc_trace(tf, debug_get, targName + "_get");
-        sc_trace(tf, data_out, targName + "_data_out");
+        // Functional interface signals
+        sc_trace(tf, out_valid, targName + "_req_if");
+        sc_trace(tf, debug_get, targName + "_get_if");
+        sc_trace(tf, data_out, targName + "_data_if");
+
+        // Core interface to initiator or other
+        sc_trace(tf, core_ready, targName + "_core_ready");
+        sc_trace(tf, core_req, targName + "_core_req");
+        sc_trace(tf, core_data, targName + "_core_data");
+        sc_trace(tf, get_req, targName + "_get_req");
+        sc_trace(tf, get_req_d, targName + "_get_req_d");
+        sc_trace(tf, core_req_d, targName + "_core_req_d");
+        sc_trace(tf, core_data_d, targName + "_core_data_d");
         sc_trace(tf, element_num_d, targName + "_element_num_d");
     #endif
     }
@@ -581,7 +612,7 @@ class sct_target<T, TRAITS, 0> :
 
 //==============================================================================
 
-/// Approximate time implementation
+/// Approximately timed implementation
 template<class T, class TRAITS>
 class sct_target<T, TRAITS, 1> : 
     public sc_module,
@@ -634,6 +665,7 @@ class sct_target<T, TRAITS, 1> :
         fifo.reset_core(reset);
     }
     
+    /// Use before_end_of_elaboration as there is end_of_elaboration in @fifo
     void before_end_of_elaboration() override {
         // Set FIFO simulation mode for Target and Initiator    
         fifo.setTargInit(sync);
@@ -718,14 +750,18 @@ class sct_target<T, TRAITS, 1> :
     /// Bind to initiator 
     template<class Module> 
     void bind(Module& module, unsigned indx = 0) {
-        if (module.sync) sync = true;
-
-        if constexpr (std::is_base_of<sct_multi_initiator_base, Module>::value) {
-            module.put_port[indx].bind(fifo);
+        if constexpr (std::is_base_of<sct_cdc_fifo_base, Module>::value) {
+            module.do_pop_bind(*this);
         } else {
-            module.put_port.bind(fifo);
+            if (module.sync) sync = true;
+
+            if constexpr (std::is_base_of<sct_multi_initiator_base, Module>::value) {
+                module.put_port[indx].bind(fifo);
+            } else {
+                module.put_port.bind(fifo);
+            }
+            put_handle_ptr = &module.put_handle;
         }
-        put_handle_ptr = &module.put_handle;
     }
 
     template<class MOD>
@@ -769,7 +805,7 @@ class sct_target<T, TRAITS, 1> :
     }
      
     void trace(sc_trace_file* tf) const override {
-    #ifdef DEBUG_SYSTEMC
+    #ifdef SCT_DEBUG
         fifo.trace(tf);
     #endif
     }
@@ -778,7 +814,148 @@ class sct_target<T, TRAITS, 1> :
         fifo.print(os);
     }
     
-    sct_target_peek<T, TRAITS, true> PEEK{this};
+    sct_target_peek<T, TRAITS, 1> PEEK{this};
+};
+
+//==============================================================================
+
+/// Loosely timed implementation
+template<class T, class TRAITS>
+class sct_target<T, TRAITS, 2> : 
+    public sct_prim_buffer<T>
+{
+    friend class sct_initiator<T, TRAITS, 2>;
+
+  public:
+    using base_class = sct_prim_buffer<T>;
+    
+    SC_HAS_PROCESS(sct_target);
+    
+    /// \param multi_put -- multiple put in one DC allowed
+    /// \param multi_get -- multiple get in one DC allowed
+    explicit sct_target(const char* name, bool sync_ = 0, 
+                        bool always_ready_ = 0,
+                        bool multi_put = 0, bool multi_get = 0) : 
+        base_class(name, 2, multi_put, multi_get),
+        always_ready(always_ready_)
+    {}
+    
+    sct_target(const sct_target<T>&) = delete;
+    sct_target& operator = (const sct_target<T>&) = delete;
+    
+    // Get the default event
+    const sc_event& default_event() const override {
+        return base_class::event_put();
+    }
+  
+    const bool always_ready;
+
+  protected:
+    /// Handle of put process attached to the initiator bound 
+    sc_process_handle** put_handle_ptr = nullptr;
+    sc_sensitive** put_sens_ptr = nullptr;
+      
+    /// Attached FIFO length
+    unsigned att_fifo_length = 0;
+    
+    /// Use before_end_of_elaboration as there is end_of_elaboration in @base_class
+    void before_end_of_elaboration() override {
+        if (put_handle_ptr && put_sens_ptr) {
+            if (*put_handle_ptr && *put_sens_ptr) {
+                base_class::addToPut(*put_sens_ptr, *put_handle_ptr);
+                // Set sync ready if get processes is method
+                auto procKind = (*put_handle_ptr)->proc_kind();
+                bool cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+                if (!cthread) {
+                    cout << "Initiator in LT mode cannot be used in combinational method process" << endl;
+                    assert (false);
+                }
+            } else {
+                // Do not check initiator attached to a process as it could
+                // be used in non-process context
+            }
+        } else {
+             cout << "No initiator bound for target " << this->name() << endl;
+             assert (false);
+        }
+
+        // Consider attached FIFO length
+        if (att_fifo_length) {
+            base_class::resize(att_fifo_length+2);
+        }
+    }
+    
+  public:
+    /// Add internal FIFO 
+    template<unsigned LENGTH>
+    void add_fifo(bool sync_valid = 0, bool sync_ready = 0,
+                  bool init_buffer = 0) {
+        att_fifo_length = LENGTH;
+    }
+
+    /// Get target instance, used for sc_port of target
+    sct_target<T, TRAITS, 2>& get_instance() {
+        return *this;
+    }
+    
+    /// Bind to initiator 
+    template<class Module> 
+    void bind(Module& module) {
+        module.put_port.bind(*this);
+        put_handle_ptr = &module.put_handle;
+        put_sens_ptr = &module.put_sens;
+    }
+
+    template<class MOD>
+    void operator() (MOD&) {
+        cout << "Target " << this->name() <<  " operator() is prohibited, use bind() instead" << endl;
+        assert (false);
+    }
+    
+    template <typename RSTN_t>
+    void clk_nrst(sc_in_clk& clk_in, RSTN_t& nrst_in) {
+        base_class::clk_nrst(clk_in, nrst_in);
+    }
+    
+    /// Add this target to sensitivity list
+    void addTo(sc_sensitive& s) override {
+        if (sct_seq_proc_handle == sc_get_current_process_handle()) {
+            // Sequential method, do nothing
+            //cout << "SEQ METHOD " << sct_seq_proc_handle.name() << endl;
+        } else {
+            // Other processes
+            auto procKind = sc_get_current_process_handle().proc_kind();
+            bool cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+            if (!cthread) {
+                cout << "Target in LT mode cannot be used in combinational method process" << endl;
+                assert (false);
+            }
+        }
+        base_class::addToGet(s); 
+    }
+    
+    /// Used in @sc_port of @sct_signal
+    void addTo(sc_sensitive* s, sc_process_handle* p) override {
+        auto procKind = p->proc_kind();
+        bool cthread = procKind == SC_THREAD_PROC_ || procKind == SC_CTHREAD_PROC_;
+        if (!cthread) {
+            cout << "Target in LT mode cannot be used in combinational method process" << endl;
+            assert (false);
+        }
+        base_class::addToGet(s, p);
+        
+        if (procKind != SC_CTHREAD_PROC_) {
+            *s << *p;       // No @nrst required here
+        }
+    }
+    
+    void trace(sc_trace_file* tf) const override {
+    #ifdef SCT_DEBUG
+        // this->trace(tf); -- Not implemented yet
+    #endif
+    }
+
+    sct_target_peek<T, TRAITS, 2> PEEK{this};
 };
 
 //==============================================================================
@@ -788,7 +965,7 @@ class sct_comb_target<T, TRAITS, 0> : public sct_target<T, TRAITS, 0>
 {
   public:
     explicit sct_comb_target(const sc_module_name& name, bool SYNC_ = 0) : 
-        sct_target<T, TRAITS, 0>(name, SYNC_, 1)
+        sct_target<T, TRAITS, 0>(name, SYNC_, true)
     {}
 };
 
@@ -797,7 +974,16 @@ class sct_comb_target<T, TRAITS, 1> : public sct_target<T, TRAITS, 1>
 {
   public:
     explicit sct_comb_target(const sc_module_name& name, bool SYNC_ = 0) : 
-        sct_target<T, TRAITS, 1>(name, SYNC_, 1)
+        sct_target<T, TRAITS, 1>(name, SYNC_, true)
+    {}
+};
+
+template<class T, class TRAITS>
+class sct_comb_target<T, TRAITS, 2> : public sct_target<T, TRAITS, 2>
+{
+  public:
+    explicit sct_comb_target(const sc_module_name& name) : 
+        sct_target<T, TRAITS, 2>(name, false, true)
     {}
 };
 

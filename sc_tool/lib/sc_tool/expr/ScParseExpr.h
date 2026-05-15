@@ -357,9 +357,13 @@ protected:
     
     /// Declared variable may be initialized with expression inside
     /// Used for variable declaration with and without initialization
+    /// \param initExpr -- record/record field initializer, 
+    ///                    not used for normal variables
+    /// \param noFuncCall -- no function call allowed in initialization expression
     virtual void parseDeclStmt(clang::Stmt* stmt, clang::ValueDecl* decl, 
                                SValue& val, clang::Expr* initExpr = nullptr,
-                               const SValue& currecvar = NO_VALUE) {}
+                               const SValue& currecvar = NO_VALUE,
+                               bool noFuncCall = false) {}
     
     /// Parse field declaration without initialization to put into codeWriter, 
     /// \param lfvar -- field variable

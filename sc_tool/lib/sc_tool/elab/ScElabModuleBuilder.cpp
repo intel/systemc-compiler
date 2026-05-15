@@ -466,7 +466,9 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseRecord(
                         // Not implicitly generated or @default ctor
                         if (!ctorDecl->isImplicit() && !ctorDecl->isDefaulted()) {
                             bool initField = false;
-                            // Constructor has initializer list warning
+                            // Use remark not warning as there could be multiple
+                            // ctors and a good one can be really used
+                            // Constructor has initializer list remark
                             for (CXXCtorInitializer* i : ctorDecl->inits()) {
                                 if (i->isMemberInitializer()) {
                                     const QualType type = i->getMember()->getType();
@@ -479,7 +481,7 @@ ScElabModuleBuilder::FlattenReq ScElabModuleBuilder::traverseRecord(
                                 ScDiag::reportScDiag(ctorDecl->getBeginLoc(),
                                        ScDiag::SYNTH_MEMBER_RECORD_INIT_LIST);
                             }
-                            // Not empty body constructor warning
+                            // Not empty body constructor remark
                             if (auto ctorBody = ctorDecl->getBody()) {
                                 if (auto stmt = dyn_cast<CompoundStmt>(ctorBody)) {
                                     if (!stmt->body().empty()) {

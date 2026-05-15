@@ -451,7 +451,7 @@ public:
     /// Put string of @init statement to use instead of the reference variable
     /// Used for any non-constant reference 
     void storeRefVarDecl(const SValue& val, const clang::Expr* init,
-                         bool checkNoTerms = true);
+                         bool useInFCall);
 
     /// Put local reference variable (non-array) declaration with initialization
     /// Used for rval temporary variable with constant reference value only

@@ -119,3 +119,8 @@ install(FILES doc/ug.pdf doc/papers/icsc_slides.pdf
               doc/papers/sct_assert_slides.pdf
               doc/papers/common_library_2022.pdf
         DESTINATION $ENV{ICSC_HOME}/doc)
+
+# Install skills
+install(DIRECTORY .github/skills DESTINATION $ENV{ICSC_HOME}/.github)
+install(DIRECTORY doc/skills DESTINATION $ENV{ICSC_HOME}/doc)
+

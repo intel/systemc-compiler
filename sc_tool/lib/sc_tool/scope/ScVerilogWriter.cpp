@@ -1810,7 +1810,7 @@ void ScVerilogWriter::putArrayDecl(const Stmt* stmt, const SValue& val,
 // Put string of @init statement to use instead of the reference variable
 // Used for any non-constant reference 
 void ScVerilogWriter::storeRefVarDecl(const SValue& val, const Expr* init, 
-                                      bool checkNoTerms) 
+                                      bool useInFCall) 
 {
     if (skipTerm) return;
     SCT_TOOL_ASSERT (val.isVariable() || val.isTmpVariable(), "No variable found");
@@ -1823,18 +1823,14 @@ void ScVerilogWriter::storeRefVarDecl(const SValue& val, const Expr* init,
 
         // Report warning for reference to array element at variable index
         if (terms.at(init).arrVarInd) {
+            // For function call report remark as index is unlikely changed
+            // inside of the function body
             ScDiag::reportScDiag(init->getBeginLoc(), 
-                                 ScDiag::SYNTH_ARRAY_ELM_REFERENCE);
-        }
-        
+                                 useInFCall ? ScDiag::SYNTH_ARRAY_ELM_REF_FCALL :
+                                              ScDiag::SYNTH_ARRAY_ELM_REF);
+        }        
     } else {
-        if (checkNoTerms) {
-            cout << "putRefVarDecl : arg " << hex << (size_t)init << dec << endl;
-            SCT_INTERNAL_FATAL(init->getBeginLoc(),
-                               "putRefVarDecl : no term for right part ");
-        } else {
-            refValueDecl[val] = getVarName(val); 
-        }
+        refValueDecl[val] = getVarName(val); 
     }
 }
 
@@ -1867,7 +1863,7 @@ void ScVerilogWriter::storePointerVarDecl(const SValue& val, const Expr* init)
         // Report warning for reference to array element at variable index
         if (terms.at(init).arrVarInd) {
             ScDiag::reportScDiag(init->getBeginLoc(), 
-                                 ScDiag::SYNTH_ARRAY_ELM_REFERENCE);
+                                 ScDiag::SYNTH_ARRAY_ELM_REF);
         }
         
     } else {

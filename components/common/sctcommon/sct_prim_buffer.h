@@ -22,14 +22,16 @@
 
 namespace sct {
 
-/// Buffer works in TLM mode with Loosely timed (LT) or Approximately timed (AT)
-/// options for put and get sides
+/// Buffer works in TLM in Loosely timed (LT) or Approximately timed (AT) modes
+/// Buffer supports multiple put/get in one delta cycle (DC) to use with LT mode
 template <class T>
 class sct_prim_buffer : 
     public sct_fifo_if<T>,
     public sc_prim_channel
 {
    public:
+    /// \param multi_put -- multiple put in one DC allowed
+    /// \param multi_get -- multiple get in one DC allowed
     explicit sct_prim_buffer(const char* name, unsigned size,
                              bool multi_put, bool multi_get) :
         sc_prim_channel(name),
@@ -49,23 +51,23 @@ class sct_prim_buffer :
     /// No @event notified after exit from reset, the processes should be
     /// waken up by another channel  
       
-    bool ready() const override {
+    inline bool ready() const override {
         return (bufSize-element_num > (MULTI_PUT ? put_num : 0));
     }
     
-    bool request() const override {
+    inline bool request() const override {
         return (element_num > (MULTI_GET ? get_num : 0));
     }
     
     /// Call in METHOD everywhere and CTHREAD reset sections
-    void reset_get() override {
+    inline void reset_get() override {
         pop_indx = 0;
         get_num = 0;
         request_update();
     }
     
     /// Call in METHOD everywhere and CTHREAD reset sections
-    void reset_put() override {
+    inline void reset_put() override {
         push_indx = 0;
         element_num = 0;
         put_num = 0; 
@@ -74,22 +76,30 @@ class sct_prim_buffer :
     }
     
     /// Call both put and get resets if used from the same process
-    void reset() {
+    inline void reset() {
         reset_get();
         reset_put();
     }
     
-    void clear_get() override {
-        cout << "\nNo clear allowed for sct_lt_buffer" << endl;
-        sc_assert(false);
+    inline void clear_get() override {
+        if (!MULTI_GET) {
+            get_num = 0;
+        } else {
+            cout << "\nNo clear allowed for sct_lt_buffer" << endl;
+            sc_assert(false);
+        }
     }
     
-    void clear_put() override {
-        cout << "\nNo clear allowed for sct_lt_buffer" << endl;
-        sc_assert(false);
+    inline void clear_put() override {
+        if (!MULTI_PUT) {
+            put_num = 0;
+        } else {
+            cout << "\nNo clear allowed for sct_lt_buffer" << endl;
+            sc_assert(false);
+        }
     }
     
-    T peek() const override {
+    inline T peek() const override {
         return buffer[pop_indx];
     }
     
@@ -100,7 +110,7 @@ class sct_prim_buffer :
         }
         // Notify put process if no more elements in buffer
         // Plus 1 to initiate first put at same cycle as last get
-        if (MULTI_PUT && element_num == get_num+2) { 
+        if (MULTI_PUT && element_num <= get_num+2) { 
             put_event.notify(clk_period);
             //cout << sc_time_stamp() << " " << sc_delta_count() << " put_event 1" << endl;
         }
@@ -116,6 +126,11 @@ class sct_prim_buffer :
                 get_event.notify(clk_period);
                 //cout << sc_time_stamp() << " " << sc_delta_count() << " get_event 3" << endl;
             }
+            // If both sides use multi requests, need to wake up them every cycle
+            if (MULTI_PUT && MULTI_GET) {
+                get_event.notify(clk_period);
+            }
+            
             request_update();
         }
         get_num = MULTI_GET ? get_num+1 : 1;
@@ -129,7 +144,7 @@ class sct_prim_buffer :
         }
         // Notify get process if buffer is full
         // Minus 1 to initiate first get at same cycle as last put
-        if (MULTI_GET && element_num == bufSize-put_num-2) {
+        if (MULTI_GET && element_num >= bufSize-put_num-2) {
             get_event.notify(clk_period);
             //cout << sc_time_stamp() << " " << sc_delta_count() << " get_event 1" << endl;
         }
@@ -145,6 +160,11 @@ class sct_prim_buffer :
                 put_event.notify(clk_period);
                 //cout << sc_time_stamp() << " " << sc_delta_count() << " put_event 3" << endl;
             }
+            // If both sides use multi requests, need to wake up them every cycle
+            if (MULTI_PUT && MULTI_GET) {
+                put_event.notify(clk_period);
+            }
+
             request_update();
         }
         put_num = MULTI_PUT ? put_num+1 : 1;
@@ -152,7 +172,7 @@ class sct_prim_buffer :
 
   public:     
     /// \return current request data, if no request last data returned
-    T get() override {
+    inline T get() override {
         T res = buffer[pop_indx];
         //cout << sc_time_stamp() << " " << sc_delta_count() << " put " << name() 
         //     << " get_num " << get_num << " data " << res << endl;
@@ -161,7 +181,7 @@ class sct_prim_buffer :
     }
     
     /// \return true if request is valid and enable is true
-    bool get(T& data, bool enable = true) override {
+    inline bool get(T& data, bool enable = true) override {
         data = buffer[pop_indx];
         if (enable && element_num > (MULTI_GET ? get_num : 0)) {
             doGet();
@@ -171,13 +191,19 @@ class sct_prim_buffer :
         }
     }
 
-    T b_get() override {
-        cout << "/nBlocking get not allowed for sct_lt_buffer" << endl;
-        sc_assert(false);
-        return T{};
+    inline T b_get() override {
+        if (!MULTI_GET) {
+            while (element_num == 0) wait();
+            doGet();
+            return buffer[pop_indx];
+        } else {
+            cout << "/nBlocking get not allowed for sct_lt_buffer" << endl;
+            sc_assert(false);
+            return T{};
+        }
     }
     
-    bool put(const T& data) override {
+    inline bool put(const T& data) override {
         //cout << sc_time_stamp() << " " << sc_delta_count() << " put " << name() 
         //     << " put_num " << put_num << " data " << data << endl;
         if (bufSize-element_num > (MULTI_PUT ? put_num : 0)) {
@@ -188,7 +214,7 @@ class sct_prim_buffer :
         }
     }
 
-    bool put(const T& data, sc_uint<1> mask) override {
+    inline bool put(const T& data, sc_uint<1> mask) override {
         if (mask && bufSize-element_num > (MULTI_PUT ? put_num : 0)) {
             doPut(data);
             return true;
@@ -197,35 +223,40 @@ class sct_prim_buffer :
         }
     }
     
-    void b_put(const T& data) override {
-        cout << "/nBlocking put not allowed for sct_lt_buffer" << endl;
-        sc_assert(false);
+    inline void b_put(const T& data) override {
+        if (!MULTI_PUT) {
+            while (element_num == bufSize) wait();
+            doPut(data);
+        } else {
+            cout << "/nBlocking put not allowed for sct_lt_buffer" << endl;
+            sc_assert(false);
+        }
     }
     
     /// Maximal number of elements
-    unsigned size() const override {
+    inline unsigned size() const override {
         return bufSize;
     }
     
     /// Resize buffer
-    void resize(unsigned new_size) {
+    inline void resize(unsigned new_size) {
         sc_assert (new_size > 1);
         bufSize = new_size;
         buffer.resize(new_size, T{});
     }
     
     /// Number of elements in FIFO after last clock edge
-    unsigned elem_num() const override {
+    inline unsigned elem_num() const override {
         return element_num;
     }
     
     /// Buffer has (size()-N) elements or more
-    bool almost_full(const unsigned& N = 0) const override {
+    inline bool almost_full(const unsigned& N = 0) const override {
         return (element_num >= bufSize-N);
     }
     
     /// Buffer has N elements or less
-    bool almost_empty(const unsigned& N = 0) const override {
+    inline bool almost_empty(const unsigned& N = 0) const override {
         return (element_num <= N);
     }
     
@@ -241,14 +272,10 @@ class sct_prim_buffer :
     unsigned short  bufSize     : 16 = 0; 
     unsigned short  element_num : 16 = 0;
 
-    /// This buffer attached to a processes
-    bool attached_put : 8 = false;
-    bool attached_get : 8 = false;
-    
     sc_in_clk*      clk_in = nullptr;
-
     sc_time         clk_period = SC_ZERO_TIME;
-    
+    sc_in<bool>     nrst{"nrst"};
+
     std::vector<T>  buffer;
     
     /// Event for put, get and peek thread processes notification
@@ -273,14 +300,8 @@ class sct_prim_buffer :
         //cout << name() << " element_num " << element_num << endl;
     }
     
-    void end_of_elaboration() override 
-    {
-        if (!attached_put || !attached_get) {
-            cout << "\nBuffer " << name() 
-                 << " is not fully attached to process(es)" << endl;
-            assert (false);
-        }
-        
+    /// Use end_of_elaboration as @get_clk_period used inside
+    void end_of_elaboration() override {
         if (clk_in) {
             clk_period = get_clk_period(clk_in);
         } else {
@@ -292,6 +313,7 @@ class sct_prim_buffer :
   public:
     void clk_nrst(sc_in_clk& clk_in_, sc_in<bool>& nrst_in) override {
         clk_in = &clk_in_; 
+        nrst(nrst_in);
     }
     
     void add_to(sc_sensitive& s, bool attachedPut, bool attachedGet) 
@@ -310,22 +332,9 @@ class sct_prim_buffer :
             assert (false);
         }
         
-        if (attachedPut) {
-            if (attached_put) {
-                cout <<  "\nDouble addToPut() for Buffer : " << name() << endl; 
-                assert (false);
-            }
-            attached_put = true;
-            s << put_event;
-        }
-        if (attachedGet) {
-            if (attached_get) {
-                cout <<  "\nDouble addToGet() for Buffer: " << name() << endl;
-                assert (false);
-            }
-            attached_get = true;
-            s << get_event;
-        }
+        s << nrst;
+        if (attachedPut) { s << put_event; }
+        if (attachedGet) { s << get_event; }
     }
     
     void add_to(sc_sensitive* s, sc_process_handle* p, bool attachedPut, 
@@ -345,22 +354,9 @@ class sct_prim_buffer :
             assert (false);
         }
 
-        if (attachedPut) {
-            if (attached_put) {
-                cout <<  "\nDouble addToPut() for Buffer: " << name() << endl; 
-                assert (false);
-            }
-            attached_put = true;
-            *s << *p << put_event; 
-        }
-        if (attachedGet) {
-            if (attached_get) {
-                cout <<  "\nDouble addToGet() for Buffer: " << name() << endl;
-                assert (false);
-            }
-            attached_get = true;
-            *s << *p << get_event; 
-        }
+        *s << *p << nrst;
+        if (attachedPut) { *s << put_event; }
+        if (attachedGet) { *s << get_event; }
     }
         
     void addTo(sc_sensitive& s) { 

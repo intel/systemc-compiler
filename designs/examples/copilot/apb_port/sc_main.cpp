@@ -5,119 +5,168 @@
  * 
  *****************************************************************************/
 
- #include "apb_port.h"
+#include "apb_port.h"
 #include <systemc.h>
 
-// Lightweight scoreboard/response provider
-template<unsigned ADDR_W, unsigned DATA_W>
-struct apb_scoreboard : sc_module {
-	sct_target<typename apb_port<ADDR_W,DATA_W>::Req>   req_target{"req_target"};
-	sct_initiator<typename apb_port<ADDR_W,DATA_W>::Resp> resp_init{"resp_init"};
-
-	static const unsigned DEPTH = 256;
-	sc_uint<DATA_W> mem[DEPTH];
-
-	SC_HAS_PROCESS(apb_scoreboard);
-	explicit apb_scoreboard(const sc_module_name& name) : sc_module(name) {
-		req_target.clk_nrst(clk, nrst);
-		resp_init.clk_nrst(clk, nrst);
-		SC_THREAD(proc);
-		async_reset_signal_is(nrst, false);
-	}
-
-	sc_in_clk clk{"clk"};
-	sc_in<bool> nrst{"nrst"};
-
-	void proc() {
-		for (unsigned i=0;i<DEPTH;i++) mem[i]=0;
-		wait();
-		while(true) {
-			if (req_target.request()) {
-				auto rq = req_target.get();
-				unsigned idx = rq.addr & (DEPTH-1);
-				if (rq.write) {
-					sc_uint<DATA_W> data = mem[idx];
-					for (unsigned b=0;b<DATA_W/8;b++) if (rq.wstrb[b]) {
-						data.range(b*8+7, b*8) = rq.wdata.range(b*8+7, b*8);
-					}
-					mem[idx] = data;
-				} else {
-					typename apb_port<ADDR_W,DATA_W>::Resp rp; rp.slverr=false; rp.rdata=mem[idx];
-					if (resp_init.ready()) resp_init.put(rp);
-				}
-			}
-			wait();
-		}
-	}
-};
-
-// Testbench driving APB cycles
 SC_MODULE(tb) {
-	static const unsigned ADDR_W = 8;
-	static const unsigned DATA_W = 32;
+    static const unsigned ADDR_W = 8;
+    static const unsigned DATA_W = 32;
+    static const unsigned STRB_W = DATA_W / 8;
 
-	sc_clock        PCLK{"PCLK", 10, SC_NS};
-	sc_in<bool>		SC_NAMED(clk);
-	sc_signal<bool> PRESETn{"PRESETn"};
-	sc_signal< sc_uint<ADDR_W> >  PADDR{"PADDR"};
-	sc_signal<bool> PSEL{"PSEL"};
-	sc_signal<bool> PENABLE{"PENABLE"};
-	sc_signal<bool> PWRITE{"PWRITE"};
-	sc_signal< sc_uint<DATA_W> >  PWDATA{"PWDATA"};
-	sc_signal< sc_uint<DATA_W/8> > PSTRB{"PSTRB"};
-	sc_signal<bool> PREADY{"PREADY"};
-	sc_signal< sc_uint<DATA_W> > PRDATA{"PRDATA"};
-	sc_signal<bool> PSLVERR{"PSLVERR"};
+    using Dut = apb_port<ADDR_W, DATA_W>;
+    using Req = typename Dut::Req;
+    using Resp = typename Dut::Resp;
 
-	apb_port<ADDR_W,DATA_W> dut{"dut"};
-	apb_scoreboard<ADDR_W,DATA_W> scb{"scb"};
+    sc_in_clk PCLK{"PCLK"};
+    sc_signal<bool> PRESETn{"PRESETn"};
+    sc_signal<sct_uint<ADDR_W>> PADDR{"PADDR"};
+    sc_signal<bool> PSEL{"PSEL"};
+    sc_signal<bool> PENABLE{"PENABLE"};
+    sc_signal<bool> PWRITE{"PWRITE"};
+    sc_signal<sct_uint<DATA_W>> PWDATA{"PWDATA"};
+    sc_signal<sct_uint<STRB_W>> PSTRB{"PSTRB"};
+    sc_signal<bool> PREADY{"PREADY"};
+    sc_signal<sct_uint<DATA_W>> PRDATA{"PRDATA"};
+    sc_signal<bool> PSLVERR{"PSLVERR"};
 
-	SC_CTOR(tb) {
-		clk(PCLK);
-		dut.PCLK(PCLK); dut.PRESETn(PRESETn);
-		dut.PADDR(PADDR); dut.PSEL(PSEL); dut.PENABLE(PENABLE); dut.PWRITE(PWRITE);
-		dut.PWDATA(PWDATA); dut.PSTRB(PSTRB);
-		dut.PREADY(PREADY); dut.PRDATA(PRDATA); dut.PSLVERR(PSLVERR);
+    Dut dut{"dut"};
+    sct_target<Req> req_target{"req_target"};
+    sct_initiator<Resp> resp_init{"resp_init"};
 
-		scb.clk(PCLK); scb.nrst(PRESETn);
+    SC_CTOR(tb) {
+        dut.PCLK(PCLK);
+        dut.PRESETn(PRESETn);
+        dut.PADDR(PADDR);
+        dut.PSEL(PSEL);
+        dut.PENABLE(PENABLE);
+        dut.PWRITE(PWRITE);
+        dut.PWDATA(PWDATA);
+        dut.PSTRB(PSTRB);
+        dut.PREADY(PREADY);
+        dut.PRDATA(PRDATA);
+        dut.PSLVERR(PSLVERR);
 
-		// Bind channels: design initiator -> scoreboard target; scoreboard initiator -> design target
-		dut.resp_init.bind(scb.req_target);
-		scb.resp_init.bind(dut.req_target);
+        req_target.clk_nrst(PCLK, PRESETn);
+        resp_init.clk_nrst(PCLK, PRESETn);
 
-		SC_CTHREAD(stimulus, clk.pos());
-		async_reset_signal_is(PRESETn, false);
-	}
+        dut.req_init.bind(req_target);
+        resp_init.bind(dut.resp_target);
 
-	void apb_setup(bool write, sc_uint<ADDR_W> addr, sc_uint<DATA_W> data, sc_uint<DATA_W/8> strb) {
-		PADDR = addr; PWRITE = write; PWDATA = data; PSTRB = strb; PSEL = 1; PENABLE = 0; wait();
-		PENABLE = 1; wait();
-		while(!PREADY.read()) wait();
-		// Complete
-		PSEL = 0; PENABLE = 0; wait();
-	}
+        SC_THREAD(stimulus_thread);
+        req_target.addTo(sensitive);
+        resp_init.addTo(sensitive);
+    }
 
-	void stimulus() {
-		// Reset
-		PSEL=0; PENABLE=0; PWRITE=0; PADDR=0; PWDATA=0; PSTRB=0; PRESETn=0;
-		wait(5); PRESETn=1; wait();
+    void trace(sc_trace_file* file) {
+        sc_trace(file, PRESETn, "PRESETn");
+        sc_trace(file, PADDR, "PADDR");
+        sc_trace(file, PSEL, "PSEL");
+        sc_trace(file, PENABLE, "PENABLE");
+        sc_trace(file, PWRITE, "PWRITE");
+        sc_trace(file, PWDATA, "PWDATA");
+        sc_trace(file, PSTRB, "PSTRB");
+        sc_trace(file, PREADY, "PREADY");
+        sc_trace(file, PRDATA, "PRDATA");
+        sc_trace(file, PSLVERR, "PSLVERR");
+    }
 
-		// Write some data
-		apb_setup(true, 0x04, 0xAABBCCDD, 0xF);
-		apb_setup(true, 0x08, 0x11223344, 0xF);
+    void idle_bus() {
+        PSEL = false;
+        PENABLE = false;
+        PWRITE = false;
+        PADDR = 0;
+        PWDATA = 0;
+        PSTRB = 0;
+    }
 
-		// Read back
-		apb_setup(false, 0x04, 0, 0);
-		sc_assert(PRDATA.read() == 0xAABBCCDD);
-		apb_setup(false, 0x08, 0, 0);
-		sc_assert(PRDATA.read() == 0x11223344);
+    void check_request(const Req& actual, bool write, sct_uint<ADDR_W> addr,
+                       sct_uint<DATA_W> wdata, sct_uint<STRB_W> wstrb) {
+        sc_assert(actual.write == write);
+        sc_assert(actual.addr == addr);
+        sc_assert(actual.wdata == wdata);
+        sc_assert(actual.wstrb == wstrb);
+    }
 
-		sc_stop();
-	}
+    void apb_transfer(bool write, sct_uint<ADDR_W> addr, sct_uint<DATA_W> wdata,
+                      sct_uint<STRB_W> wstrb, sct_uint<DATA_W> rdata,
+                      bool slverr = false) {
+        bool req_seen;
+        bool resp_sent;
+        Req req;
+        Resp resp;
+
+        PADDR = addr;
+        PWRITE = write;
+        PWDATA = wdata;
+        PSTRB = wstrb;
+        PSEL = true;
+        PENABLE = false;
+        wait();
+
+        PENABLE = true;
+
+        req_seen = false;
+        while (!req_seen) {
+            if (req_target.request()) {
+                req = req_target.get();
+                check_request(req, write, addr, wdata, wstrb);
+                req_seen = true;
+            }
+            wait();
+        }
+
+        resp.rdata = rdata;
+        resp.slverr = slverr;
+        resp_sent = false;
+        while (!resp_sent) {
+            resp_sent = resp_init.put(resp);
+            wait();
+        }
+        resp_init.clear_put();
+
+        while (!PREADY.read()) {
+            wait();
+        }
+        sc_assert(PSLVERR.read() == slverr);
+        if (!write) {
+            sc_assert(PRDATA.read() == rdata);
+        }
+
+        idle_bus();
+        wait();
+    }
+
+    void stimulus_thread() {
+        req_target.reset_get();
+        resp_init.reset_put();
+        idle_bus();
+
+        PRESETn = false;
+        wait(3);
+        PRESETn = true;
+        wait();
+
+        apb_transfer(true, 0x10, 0x11112222, 0xF, 0);
+        apb_transfer(true, 0x14, 0x33334444, 0xF, 0);
+        apb_transfer(false, 0x10, 0, 0, 0x11112222);
+        apb_transfer(false, 0x14, 0, 0, 0x33334444);
+
+        cout << "Test completed successfully" << endl;
+        sc_stop();
+    }
 };
 
 int sc_main(int argc, char* argv[]) {
-	tb tbt{"tbt"};
-	sc_start();
-	return 0;
+    sc_clock PCLK{"PCLK", 1, SC_NS};
+    tb tbt{"tbt"};
+    sc_trace_file* trace_file = sc_create_vcd_trace_file("copilot_apb_port");
+
+    tbt.PCLK(PCLK);
+    sc_trace(trace_file, PCLK, "PCLK");
+    tbt.trace(trace_file);
+
+    sc_start();
+
+    sc_close_vcd_trace_file(trace_file);
+    return 0;
 }

@@ -106,8 +106,11 @@ class sct_register<T, TRAITS, 0> :
             cout << "\nRegister " << name() 
                  << " is not attached to any process" << endl;
         }
+    }
+    
+    void end_of_elaboration() override {
         if (clk.bind_count() != 1 || nrst.bind_count() != 1) {
-            cout << "\nFIFO " << name() 
+            cout << "\nRegister " << name() 
                  << " clock/reset inputs are not bound or multiple bound" << endl;
             assert (false);
         }
@@ -155,7 +158,7 @@ class sct_register<T, TRAITS, 0> :
 //==============================================================================
 
 /// Register primitive channel. 
-/// Used as base for register approximate time implementation.
+/// Used as base for register approximately timed implementation.
 template<class T>
 struct sct_prim_register : 
     public sc_module, 
@@ -211,9 +214,14 @@ struct sct_prim_register :
         }
     }
     
+    /// Use end_of_elaboration as @get_clk_period used inside
     void end_of_elaboration() override {
-        assert (clk_in && "clk_in is nullptr");
-        clk_period = get_clk_period(clk_in);
+        if (clk_in) {
+            clk_period = get_clk_period(clk_in);
+        } else {
+            cout << "\nRegister " << name() << " clock input is not bound" << endl;
+            assert (false);
+        }
     }    
     
   public:  
@@ -265,7 +273,7 @@ struct sct_prim_register :
 
 //==============================================================================
 
-/// Approximate time implementation
+/// Approximately timed implementation
 template<class T, class TRAITS>
 class sct_register<T, TRAITS, 1> : 
     public sc_module, 

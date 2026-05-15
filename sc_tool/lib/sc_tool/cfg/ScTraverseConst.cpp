@@ -337,6 +337,7 @@ void ScTraverseConst::prepareCallContext(Expr* expr,
                             simpleReturnFunc, returnStmtFunc, sideEffectFunc);
     
     // Set module, dynamic module and return value for called function
+    //cout << " set recval (2) " << recval << " to " << funcRecval << endl;
     modval = funcModval;
     recval = funcRecval;
     returnValue = retVal;
@@ -869,6 +870,7 @@ void ScTraverseConst::restoreContext()
             cout << "   " << i.second.asString() << endl;
         }*/
     }
+    //cout << " restore recval (2) " << recval << endl;    
 }
 
 // ------------------------------------------------------------------------

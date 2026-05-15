@@ -155,7 +155,7 @@ public:
         SYNTH_INCRDECR_LHS          = 179,
         SYNTH_WIDTH_WIDENNING       = 180,
         CPP_BOOL_BITWISE_NOT        = 181,
-        SYNTH_ARRAY_ELM_REFERENCE   = 182,
+        SYNTH_ARRAY_ELM_REF         = 182,
         SYNTH_SIGNED_SHIFT          = 183,
         SYNTH_NEGATIVE_SHIFT        = 184,
         SYNTH_BIG_SHIFT             = 185,
@@ -257,6 +257,8 @@ public:
         SYNTH_LEFT_SHIFT_IN_SIGNED  = 272,
         SYNTH_REC_TEMP_NO_INIT      = 273,
         SYNTH_MEMBER_RECORD_INIT_LIST = 274,
+        SYNTH_ARRAY_ELM_REF_FCALL   = 275,
+        SYNTH_FCALL_IN_INIT_LIST    = 276,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -442,10 +444,14 @@ private:
             {clang::DiagnosticIDs::Error, 
             "Bitwise not for boolean argument, use logical not instead"};
         
-        idFormatMap[SYNTH_ARRAY_ELM_REFERENCE] =
+        idFormatMap[SYNTH_ARRAY_ELM_REF] =
             {clang::DiagnosticIDs::Warning,
             "Reference to array element at variable index may lead to wrong code"};
         
+        idFormatMap[SYNTH_ARRAY_ELM_REF_FCALL] =
+            {clang::DiagnosticIDs::Remark,
+            "Reference to array element at variable index may lead to wrong code"};
+
         idFormatMap[SYNTH_NEGATIVE_SHIFT] =
             {clang::DiagnosticIDs::Error, 
             "Negative shift not allowed"};
@@ -808,16 +814,21 @@ private:
             "Member record cannot have fields with in-place initialization"};
         
         idFormatMap[SYNTH_MEMBER_RECORD_CTOR] =
-            {clang::DiagnosticIDs::Warning, 
+            {clang::DiagnosticIDs::Remark, 
             "Member record cannot have non-empty constructor"};
         
         idFormatMap[SYNTH_MEMBER_RECORD_INIT_LIST] =
-            {clang::DiagnosticIDs::Warning, 
+            {clang::DiagnosticIDs::Remark, 
             "Member record cannot have non-const fields in initializer list"};
 
         idFormatMap[SYNTH_RECORD_INDX_AND_BASE] =
             {clang::DiagnosticIDs::Error, 
             "Same record used as base and index expression is not supported yet"};
+        
+        
+        idFormatMap[SYNTH_FCALL_IN_INIT_LIST] =
+            {clang::DiagnosticIDs::Error, 
+            "Function call is not allowed in initializer list"};
         
         
         idFormatMap[SYNTH_LITER_OVERFLOW] =

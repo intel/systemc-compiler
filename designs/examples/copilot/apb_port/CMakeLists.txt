@@ -5,14 +5,14 @@
 # 
 # *****************************************************************************
 
-# CMake for copilot_chan_demo
+# CMake for copilot_apb_port
 add_executable(copilot_apb_port
     sc_main.cpp
 )
 
 # Test source directory
 target_include_directories(copilot_apb_port PUBLIC 
-    $ENV{ICSC_HOME}/examples/copilot/chan_demo
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # Mark top for elaboration (assuming svc_target macro available)

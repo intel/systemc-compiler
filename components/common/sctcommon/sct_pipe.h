@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2024, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
  *
@@ -437,14 +437,18 @@ class sct_pipe<T, N, TRAITS, 0> :
                  << " is not fully attached to process(es)" << endl;
             assert (false);
         }
+        
+        PUT.pipe = nullptr;
+        GET.pipe = nullptr;
+        PEEK.pipe = nullptr;
+    }
+    
+    void end_of_elaboration() override {
         if (clk.bind_count() != 1 || nrst.bind_count() != 1) {
             cout << "\nPipe " << name() 
                  << " clock/reset inputs are not bound or multiple bound" << endl;
             assert (false);
         }
-        PUT.pipe = nullptr;
-        GET.pipe = nullptr;
-        PEEK.pipe = nullptr;
     }
 
   public:
@@ -553,7 +557,7 @@ class sct_pipe<T, N, TRAITS, 0> :
 
 //==============================================================================
 
-/// Fast simulation implementation
+/// Approximately timed implementation
 /// Primitive FIFO used instead of accurate implementation for faster simulation
 template <
     class T, 

@@ -267,6 +267,33 @@ public:
 };
 
 //-----------------------------------------------------------------------------
+/// Check if expression contains function or method call except ctor
+class CheckCallVisitor : public clang::RecursiveASTVisitor<CheckCallVisitor> 
+{
+protected :
+    bool found;
+    
+public:
+    CheckCallVisitor() {}
+    
+    bool VisitStmt(clang::Stmt* stmt) {
+        using namespace clang;
+        if (CallExpr* call = dyn_cast<CallExpr>(stmt)) {
+            found = true;
+            return false;
+        }
+        return true;
+    }
+
+    /// Return true if there is any function/method call
+    bool hasCall(clang::Expr* expr) {
+        found = false;
+        this->TraverseStmt(expr);
+        return found;
+    }
+};
+
+//-----------------------------------------------------------------------------
 /// Check same record variable as base and index in @ArraySubscriptExpr
 class CheckRecordIndxVisitor : public clang::RecursiveASTVisitor<CheckRecordIndxVisitor> 
 {

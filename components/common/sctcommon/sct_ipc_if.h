@@ -45,9 +45,10 @@ static const unsigned SCT_CMN_LT_MODE = 0;
    static_assert (false, "DO NOT run Intel Compiler for SystemC in TLM mode");
    #endif  
 #endif
-#ifdef DEBUG_SYSTEMC
+/// Use @SCT_DEBUG to provide tracing capabilities (sc_trace) for SS channels
+#ifdef SCT_DEBUG
    #ifdef __SC_TOOL__
-   static_assert (false, "DO NOT run Intel Compiler for SystemC with DEBUG_SYSTEMC");
+   static_assert (false, "DO NOT run Intel Compiler for SystemC with SCT_DEBUG");
    #endif  
 #endif
 
@@ -195,6 +196,7 @@ struct sct_clock_if : virtual public sc_interface
 static sc_in_clk* sct_curr_clock = nullptr;
 
 /// Get period of @sc_clock from @sc_clk_in bound to it
+/// Call it in @end_of_elaboration(), but not in @before_end_of_elaboration()
 inline const sc_time& get_clk_period(sc_in_clk* clk_in) 
 {
     if (auto* i = clk_in->get_interface()) {
@@ -478,48 +480,41 @@ struct sct_fifo_peek{
 };
 
 #ifndef __SC_TOOL__
-
-/// Loosely timed put and get sides, if Loosely timed mode is used
-struct SCT_BUFFER_TRAITS : public SCT_CMN_TRAITS {
-    static constexpr bool MULTI_PUT = 1;
-    static constexpr bool MULTI_GET = 1;
-};
-
-/// Loosely timed put, if Loosely timed mode is used
-struct SCT_BUFFER_MPUT_TRAITS : public SCT_CMN_TRAITS {
-    static constexpr bool MULTI_PUT = 1;
-    static constexpr bool MULTI_GET = 0;
-};
-
-/// Loosely timed get, if Loosely timed mode is used
-struct SCT_BUFFER_MGET_TRAITS : public SCT_CMN_TRAITS {
-    static constexpr bool MULTI_PUT = 0;
-    static constexpr bool MULTI_GET = 1;
-};
-
 /// Buffer general template 
-template <typename T, unsigned LENGTH, class TRAITS = SCT_BUFFER_TRAITS, 
+template <typename T, unsigned LENGTH, class TRAITS = SCT_CMN_TRAITS, 
           unsigned TLM_MODE = SCT_CMN_AT_MODE>
 class sct_buffer;
 
 /// Buffer put/get helpers
 template<
-    class T, unsigned LENGTH, class TRAITS = SCT_BUFFER_TRAITS>
+    class T, unsigned LENGTH, class TRAITS>
 struct sct_buffer_put {
     sct_addto_if* buf;
 };
 template<
-    class T, unsigned LENGTH, class TRAITS = SCT_BUFFER_TRAITS>
+    class T, unsigned LENGTH, class TRAITS>
 struct sct_buffer_get {
     sct_addto_if* buf;
 };
 
 template<
-    class T, unsigned LENGTH, class TRAITS = SCT_BUFFER_TRAITS>
+    class T, unsigned LENGTH, class TRAITS>
 struct sct_buffer_peek {
     sct_addto_if* buf;
 };
 #endif
+
+// CDC FIFO
+class sct_cdc_fifo_base 
+{};
+
+template <
+    unsigned DATA_WIDTH, unsigned LENGTH, class TRAITS = SCT_CMN_TRAITS,
+    unsigned PUSH_SYNC = 2, unsigned POP_SYNC = 2,
+    unsigned TLM_MODE = SCT_CMN_AT_MODE
+>
+class sct_cdc_fifo 
+{};
 
 /// Pipe general template
 template <

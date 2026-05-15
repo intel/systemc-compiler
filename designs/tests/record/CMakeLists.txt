@@ -5,8 +5,17 @@
 # 
 # *****************************************************************************
 
+# Record ctor with initializer list and others
+add_executable(record_ctor1_fail test_ctor1_fail.cpp)
+svc_target(record_ctor1_fail WILL_FAIL)
+
+add_executable(record_ctor2_fail test_ctor2_fail.cpp)
+svc_target(record_ctor2_fail WILL_FAIL)
+
+# Record variable and array initialization with explicit ctor call
 add_executable(record_init_temp test_init_temp.cpp)
 svc_target(record_init_temp GOLDEN record_init_temp.sv)
+
 
 add_executable(record_reg_cthread0 test_reg_cthread0.cpp)
 svc_target(record_reg_cthread0 GOLDEN record_reg_cthread0.sv)

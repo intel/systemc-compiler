@@ -32,7 +32,7 @@ class sct_prim_signal :
     
     SC_HAS_PROCESS(sct_prim_signal);
     
-    explicit sct_prim_signal(const sc_module_name& name) :
+    explicit sct_prim_signal(const char* name) :
         sc_prim_channel(name),
         event(std::string(std::string(name)+"_event").c_str())
     {}

@@ -61,7 +61,7 @@ class sct_prim_fifo :
         dont_initialize();
         sensitive << update_event;
         
-    #if defined(DEBUG_SYSTEMC) || defined(EXTR_SIM_DEBUG)
+    #if defined(SCT_DEBUG) || defined(EXTR_SIM_DEBUG)
         SC_METHOD(debugProc); 
         sensitive << get_req << get_req_d << put_req << put_req_d 
                   << put_data << get_data << get_data_next << element_num_d;
@@ -230,14 +230,16 @@ class sct_prim_fifo :
                 (element_num_d.read() > 0 ? get_data.read() : put_data.read()));
     }
     
+    /// Use end_of_elaboration as @get_clk_period used inside
     void end_of_elaboration() override {
         if (clk_in) {
             clk_period = get_clk_period(clk_in);
         } else {
             cout << "\nFIFO " << name() << " clock input is not bound" << endl;
             assert (false);
-        }    
+        }
         
+        // That is OK as this fifo is for simulation only (not for synthesis)
         GET_TIME  = cthread_get ? clk_period : SC_ZERO_TIME;
         PUT_TIME  = cthread_put ? clk_period : SC_ZERO_TIME;
         PEEK_TIME = cthread_peek ? clk_period : SC_ZERO_TIME;
@@ -710,7 +712,7 @@ class sct_prim_fifo :
     
   public:
       
-#if defined(DEBUG_SYSTEMC) || defined(EXTR_SIM_DEBUG)
+#if defined(SCT_DEBUG) || defined(EXTR_SIM_DEBUG)
     sc_signal<bool>    ready_push{"ready_push"};
     sc_signal<bool>    out_valid{"out_valid"};
     sc_signal<bool>    debug_put{"put"};
@@ -745,6 +747,8 @@ class sct_prim_fifo :
 
 //==============================================================================
 
+namespace sc_core {
+    
 template <class T>
 inline ::std::ostream& operator << (::std::ostream& os, 
                                     const sct::sct_prim_signal<T>& sig) 
@@ -761,6 +765,7 @@ inline ::std::ostream& operator << (::std::ostream& os,
     return os;
 }
 
+} // namespace sc_core
 
 #endif /* SCT_PRIM_FIFO_H */
 

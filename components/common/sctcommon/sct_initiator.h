@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2023-2025, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception.
  *
@@ -71,7 +71,7 @@ class sct_initiator<T, TRAITS, 0> :
         SC_METHOD(req_control);
         sensitive << put_req << put_req_d << core_req_d;
         
-    #ifdef DEBUG_SYSTEMC
+    #ifdef SCT_DEBUG
         SC_METHOD(debugProc);
         debug_handle = new sc_process_handle(sc_get_current_process_handle());
     #endif
@@ -313,7 +313,7 @@ class sct_initiator<T, TRAITS, 0> :
             assert (false);
         }        
 
-    #ifdef DEBUG_SYSTEMC
+    #ifdef SCT_DEBUG
         if (chan_sync) {
             this->sensitive << *debug_handle << sync_req << sync_req_d
                             << core_ready << sync_data;
@@ -351,39 +351,69 @@ class sct_initiator<T, TRAITS, 0> :
     /// Bind to target
     template<class Module> 
     void bind(Module& module, unsigned indx = 0) {
-        module.do_bind(*this, indx);
-        do_bind(module, indx);
+        module.do_bind(*this, indx);        // Do nothing in CDC FIFO
+        do_bind(module, indx);          
     }
     
     template<class Module> 
     void do_bind(Module& module, unsigned indx) {
-        // Avoid name duplicating warning
-        std::string reqName = "core_req_s";
-        std::string dataName = "core_data_s";
-        #ifndef __SC_TOOL__
-            reqName = std::string(basename()) + "_" + reqName;
-            dataName = std::string(basename()) + "_" + dataName;
-        #endif
+        if (bound) {
+            cout << "\nDouble bound of initiator: " << name() << endl;
+            assert (false);
+        }
+        bound = true;
 
-        if constexpr (std::is_base_of<sct_multi_target_base, Module>::value ||
-                      std::is_base_of<sct_arbiter_target_base, Module>::value) 
-        {
-            sc_signal<T>* core_data_s = new sc_signal<T>(dataName.c_str());
-            core_data(*core_data_s);
-            module.core_data[indx](*core_data_s);
+        if constexpr (std::is_base_of<sct_cdc_fifo_base, Module>::value) {
+            if (chan_sync) {
+                cout << "\nNo sync register in initiator " << name() 
+                     << " supported as it bound to CDC FIFO" << endl;
+                chan_sync = false;
+                assert (false);
+            }
+        
+            std::string reqName  = "push_req_s";
+            std::string dataName = "push_data_s";
 
-            sc_signal<bool>* core_req_s = new sc_signal<bool>(reqName.c_str());
-            core_req(*core_req_s);
-            module.core_req[indx](*core_req_s);
-            
+            sc_signal<bool>* push_req_s = new sc_signal<bool>(reqName.c_str());
+            core_req(*push_req_s);
+            module.push_req(*push_req_s);
+
+            sc_signal<T>* push_data_s = new sc_signal<T>(dataName.c_str());
+            core_data(*push_data_s);
+            module.push_data(*push_data_s);
+
+            // Bind this target to CDC FIFO pop side
+            module.do_push_bind(*this);
+
         } else {
-            sc_signal<T>* core_data_s = new sc_signal<T>(dataName.c_str());
-            core_data(*core_data_s);
-            module.core_data(*core_data_s);
-            
-            sc_signal<bool>* core_req_s = new sc_signal<bool>(reqName.c_str());
-            core_req(*core_req_s);
-            module.core_req(*core_req_s);
+            // Avoid name duplicating warning
+            std::string reqName = "core_req_s";
+            std::string dataName = "core_data_s";
+            #ifndef __SC_TOOL__
+                reqName = std::string(basename()) + "_" + reqName;
+                dataName = std::string(basename()) + "_" + dataName;
+            #endif
+
+            if constexpr (std::is_base_of<sct_multi_target_base, Module>::value ||
+                        std::is_base_of<sct_arbiter_target_base, Module>::value) 
+            {
+                sc_signal<T>* core_data_s = new sc_signal<T>(dataName.c_str());
+                core_data(*core_data_s);
+                module.core_data[indx](*core_data_s);
+
+                sc_signal<bool>* core_req_s = new sc_signal<bool>(reqName.c_str());
+                core_req(*core_req_s);
+                module.core_req[indx](*core_req_s);
+                
+            } else {
+                sc_signal<T>* core_data_s = new sc_signal<T>(dataName.c_str());
+                core_data(*core_data_s);
+                module.core_data(*core_data_s);
+                
+                sc_signal<bool>* core_req_s = new sc_signal<bool>(reqName.c_str());
+                core_req(*core_req_s);
+                module.core_req(*core_req_s);
+            }
         }
     }
     
@@ -452,7 +482,7 @@ class sct_initiator<T, TRAITS, 0> :
         attached = true;
     }
     
-#ifdef DEBUG_SYSTEMC
+#ifdef SCT_DEBUG
     sc_process_handle*  debug_handle = nullptr;
 
     sc_signal<bool>     ready_push{"ready_push"};
@@ -468,11 +498,20 @@ class sct_initiator<T, TRAITS, 0> :
 #endif
     
     void trace(sc_trace_file* tf) const override {
-    #ifdef DEBUG_SYSTEMC
+    #ifdef SCT_DEBUG
         std::string initName = name();
-        sc_trace(tf, ready_push, initName + "_ready");
-        sc_trace(tf, debug_put, initName + "_put");
-        sc_trace(tf, data_in, initName + "_data_in");
+        // Functional interface signals
+        sc_trace(tf, ready_push, initName + "_ready_if");
+        sc_trace(tf, debug_put, initName + "_put_if");
+        sc_trace(tf, data_in, initName + "_data_if");
+
+        // Core interface to target or other
+        sc_trace(tf, core_ready, initName + "_core_ready");
+        sc_trace(tf, core_req, initName + "_core_req");
+        sc_trace(tf, core_data, initName + "_core_data");
+        sc_trace(tf, put_req, initName + "_put_req");
+        sc_trace(tf, put_req_d, initName + "_put_req_d");
+        sc_trace(tf, core_req_d, initName + "_core_req_d");
     #endif
     }
     
@@ -491,7 +530,7 @@ class sct_initiator<T, TRAITS, 0> :
 
 //==============================================================================
 
-/// Approximate time implementation
+/// Approximately timed implementation
 template<class T, class TRAITS>
 class sct_initiator<T, TRAITS, 1> : 
     public sc_module,
@@ -568,7 +607,11 @@ class sct_initiator<T, TRAITS, 1> :
     /// Bind put interface to target
     template<class Module> 
     void bind(Module& module, unsigned indx = 0) {
-        module.bind(*this, indx);
+        if constexpr (std::is_base_of<sct_cdc_fifo_base, Module>::value) {
+            module.do_push_bind(*this);
+        } else {
+            module.bind(*this, indx);
+        }
     }
 
     template<class MOD>
@@ -610,6 +653,126 @@ class sct_initiator<T, TRAITS, 1> :
     
     inline void print(::std::ostream& os) const override {
         // Do nothing
+    }
+};
+
+//==============================================================================
+
+/// Loosely timed implementation
+template<class T, class TRAITS>
+class sct_initiator<T, TRAITS, 2> : 
+    public sct_put_if<T>
+{
+    friend class sct_target<T, TRAITS, 2>;
+    
+  public:
+    explicit sct_initiator(const char* name, bool sync_ = 0) : 
+        m_name(name)
+    {}
+    
+    sct_initiator(const sct_initiator<T>&) = delete;
+    sct_initiator& operator = (const sct_initiator<T>&) = delete;
+    
+    /// Get event finder for event in target
+    sc_event_finder& event_finder() const {
+        return *new sc_event_finder_t< sct_put_if<T> >(
+                    put_port, &sct_put_if<T>::default_event);
+    }
+    
+    /// Do not call before this initiator is bound to target
+    const sc_event& default_event() const override {
+        return put_port->default_event();
+    }
+    
+  protected:  
+    /// Initiator name
+    std::string m_name;
+
+    /// Port to connect target
+    sc_port< sct_put_if<T> > put_port{"put_port"};
+    /// Handle of put process attached to this initiator
+    sc_process_handle* put_handle = nullptr;
+    sc_sensitive* put_sens = nullptr;
+    
+  public:
+    /// Check @ready() for request can be pushed
+    inline bool ready() const override {
+        return put_port->ready();
+    }
+
+    /// Call in METHOD everywhere and in CTHREAD reset section
+    inline void reset_put() override {
+        put_port->reset_put();
+    }
+    
+    /// Call in METHOD everywhere and in CTHREAD body
+    /// Clear put request which pushed in this cycle/DC
+    inline void clear_put() override {
+        put_port->clear_put();
+    }
+    
+    /// \return true means request is pushed 
+    inline bool put(const T& data) override {
+        return put_port->put(data);
+    }
+    inline bool put(const T& data, sc_uint<1> mask) override {
+        return put_port->put(data, mask);
+    }
+    
+    /// May-block put, call in THREAD only
+    inline void b_put(const T& data) override {
+        put_port->b_put(data);
+    }
+
+  public:
+    /// Get initiator instance, used for sc_port of initiator
+    sct_initiator<T, TRAITS, 2>& get_instance() {
+        return *this;
+    }
+      
+    /// Bind put interface to target
+    template<class Module> 
+    void bind(Module& module) {
+        module.bind(*this);
+    }
+
+    template<class MOD>
+    void operator() (MOD&) {
+        cout << "Initiator " << m_name <<  " operator() is prohibited, use bind() instead" << endl;
+        assert (false);
+    }    
+
+    template <typename RSTN_t>
+    void clk_nrst(sc_in_clk& clk_in, RSTN_t& nrst_in)
+    {}
+    
+    void addTo(sc_sensitive& s) override {
+        if (put_handle) {
+            cout <<  "\nDouble attach initiator " << m_name << " to a process " << endl; 
+            assert (false);
+        }
+        put_sens = &s;
+        put_handle = new sc_process_handle(sc_get_current_process_handle());
+        // No @nrst required here
+    }
+    
+    /// Used in @sc_port of @sct_signal
+    void addTo(sc_sensitive* s, sc_process_handle* p) override {
+        if (put_handle) {
+            cout <<  "\nDouble attach initiator " << m_name << " to a process " << endl; 
+            assert (false);
+        }
+        put_sens = s;
+        put_handle = p;
+        
+        auto procKind = p->proc_kind();
+        if (procKind != SC_CTHREAD_PROC_) {
+            *s << *p;
+        }
+    }
+    
+    const char* name() {
+        return m_name.c_str();
     }
 };
 
