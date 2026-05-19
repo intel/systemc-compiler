@@ -6,17 +6,24 @@
 
 The SystemC Compiler (ICSC) translates synthesizable SystemC design into equivalent SystemVerilog code.
 
-The SystemC compiler checks a SystemC design for common coding mistakes and generates human-readable SystemVerilog code. The tool supports SystemC synthesizable subset in method and thread processes, and arbitrary C++ code in module constructors. ICSC is based on Clang/LLVM 18.1.8, supports C++ 11/14/17/20 standards and includes SystemC 3.0.1.
+The SystemC Compiler checks a SystemC design for common coding mistakes and generates human-readable SystemVerilog code. The Compiler supports SystemC synthesizable subset in method and thread processes, and arbitrary C++ code in module constructors. ICSC is based on Clang/LLVM 18.1.8, supports C++ 11/14/17/20 standards and includes SystemC 3.0.1.
 
 See more information at [Intel Compiler for SystemC wiki](https://github.com/intel/systemc-compiler/wiki).
 
-## Single Source Library
+## Common SystemC Library
 
-The Single Source library consists of communication channels including Target/Initiator, FIFO, Pipe, Buffer, Register and others. The channels have functional interfaces similar to TLM 1.0.
+Common SystemC Library consists of types, modules and functions which could be used in SystemC designs and testbench code. All the components are synthesizable with the SystemC Compiler. 
+Common SystemC Library has three parts:
+* [Single Source library](https://github.com/intel/systemc-compiler/wiki/Single-Source-library) -- communication channels with functional interfaces similar to TLM 1.0
+* [Types and utility functions](https://github.com/intel/systemc-compiler/wiki/Types-and-utility-functions) -- common types and reusables functions
+* [Immediate and temporal assertions](https://github.com/intel/systemc-compiler/wiki/Immediate-and-temporal-assertions-in-SystemC) -- SystemC assertions synthesizable to SVA
 
-There are [Single Source training slides](https://github.com/intel/systemc-compiler/blob/main/doc/papers/single_source_training.pdf).
 
-See more information at [Single Source library](https://github.com/intel/systemc-compiler/wiki/Single-Source-library).
+## AI support
+
+The SystemC Compiler and Common SystemC Library semantics, rules, and restrictions are supported with [Agent Skills](https://github.com/intel/systemc-compiler/blob/main/.github/skills/systemc-tools/SKILL.md). 
+
+The skills are based on several [Basic documents](https://github.com/intel/systemc-compiler/tree/main/doc/skills), ICSC unit tests, designs and examples. We are actively using the the skills for our SystemC designs. 
 
 ## Getting started
 
