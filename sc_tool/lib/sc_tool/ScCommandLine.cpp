@@ -26,6 +26,12 @@ cl::opt<bool> noSvaGenerate (
     cl::cat(ScToolCategory)
     );
 
+cl::opt<bool> noFuncCallThread(
+    "no_func_call_thread",
+    cl::desc("No function call in single state thread"),
+    cl::cat(ScToolCategory)
+);
+
 cl::opt<bool> portMapGenerate (
     "portmap_generate",
     cl::desc("Generate port map file and top module wrapper"),

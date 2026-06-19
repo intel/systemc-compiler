@@ -71,7 +71,7 @@ public:
     /**
      * @return generated code
      */
-    sc_elab::VerilogProcCode run();
+    sc_elab::VerilogProcCode run(bool &isSingleStatePar);
 
     const clang::CFG * getCurrentCFG(const CfgCursorStack &callStack,
                                      const SValue & dynModVal);

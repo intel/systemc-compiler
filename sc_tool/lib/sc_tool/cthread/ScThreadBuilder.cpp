@@ -129,7 +129,7 @@ clang::QualType getLocalArrayDims(const SValue& val, IndexVec& arrayDims)
     return (locVarArray ? mtype : locRecField ? val.getType() : rtype);
 }
 
-sc_elab::VerilogProcCode ThreadBuilder::run()
+sc_elab::VerilogProcCode ThreadBuilder::run(bool &isSingleStatePar)
 {
     using std::cout; using std::endl; using std::hex; using std::dec;
 
@@ -341,6 +341,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run()
 
     // Single state thread, i.e. w/o state variable
     isSingleState = travConst->isSingleState();
+    isSingleStatePar = isSingleState;
     
     // Do not see any example with break/continue in removed loop for 
     // single state CTHREAD, but keep that for safety

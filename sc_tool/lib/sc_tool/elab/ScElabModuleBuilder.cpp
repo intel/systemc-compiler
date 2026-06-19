@@ -2225,6 +2225,7 @@ void ScElabModuleBuilder::createProcessBodies(VerilogModule &verMod)
     // Generate process bodies 
     for (ProcessView& proc : verMod.getProcesses()) {
         auto procBody = procBuilder.generateVerilogProcess(proc);
+        procBody.isSingleState = procBuilder.isSingleState;
         verMod.addProcessBody(proc, procBody);
         // Set unique name for process
         proc.procName = verMod.getProcName(proc);

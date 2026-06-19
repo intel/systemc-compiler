@@ -79,6 +79,9 @@ public:
     /// Prepare state for process generation, fill derived classes inside
     void prepareState(ModuleMIFView hostModule);
 
+    /// Single state thread
+    bool isSingleState = false;
+
 private:
 
     void reportUnsuported(ObjectView objView);

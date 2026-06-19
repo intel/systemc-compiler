@@ -58,7 +58,7 @@ public:
     sc_elab::VerilogProcCode   analyzeCthreadProcess(
                         const SValue& modval,
                         const SValue& dynmodval,
-                        sc_elab::ProcessView procView);
+                        sc_elab::ProcessView procView, bool &isSingleState);
     
     /// Clear initialization for variables which has been defined  
     void clearDefinedVars(sc_elab::ProcessView& procView,

@@ -1795,13 +1795,21 @@ void VerilogModule::serializeProcSplit(llvm::raw_ostream &os,
     
     os << GEN_TAB << "// Next-state combinational logic\n";
     os << GEN_TAB << "always_comb begin : " << combName << "     // " << procLoc << "\n";
-    os << GEN_TAB << "    " << funcName << ";\n";
-    os << GEN_TAB << "end\n";
-    os << GEN_TAB << "function void " << funcName << ";\n";
+    
+    if (!noFuncCallThread || !procCode.isSingleState) {
+        os << GEN_TAB << "    " << funcName << ";\n";
+        os << GEN_TAB << "end\n";
+        os << GEN_TAB << "function void " << funcName << ";\n";
+    }
+    
     os << procCode.localVars;
     os << procCode.body;
 
-    os << GEN_TAB << "endfunction\n\n";
+    if (!noFuncCallThread || !procCode.isSingleState) {
+        os << GEN_TAB << "endfunction\n\n";
+    } else {
+        os << GEN_TAB << "end\n\n";
+    }
 
     os << GEN_TAB << "// Synchronous register update\n";
 

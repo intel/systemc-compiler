@@ -19,6 +19,9 @@ svc_target(cthread_array_comb_reg GOLDEN cthread_array_comb_reg.sv)
 add_executable(cthread_simple test_cthread_simple.cpp)
 svc_target(cthread_simple GOLDEN cthread_simple.sv)
 
+add_executable(cthread_simple1 test_cthread_simple.cpp)
+svc_target(cthread_simple1 GOLDEN cthread_simple1.sv NO_FUNC_THREAD)
+
 add_executable(cthread_simple2 test_cthread_simple2.cpp)
 svc_target(cthread_simple2 INIT_LOCAL_VARS INIT_RESET_LOCAL_VARS 
            GOLDEN cthread_simple2.sv)
@@ -137,6 +140,9 @@ svc_target(cthread_continue GOLDEN cthread_continue.sv NO_REMOVE_EXTRA_CODE)
 ## Function calls
 add_executable(cthread_fcall test_cthread_fcall.cpp)
 svc_target(cthread_fcall GOLDEN cthread_fcall.sv NO_REMOVE_EXTRA_CODE)
+
+add_executable(cthread_fcall1 test_cthread_fcall.cpp)
+svc_target(cthread_fcall1 GOLDEN cthread_fcall1.sv NO_FUNC_THREAD)
 
 add_executable(cthread_fcall_ref test_fcall_ref.cpp)
 svc_target(cthread_fcall_ref GOLDEN cthread_fcall_ref.sv)

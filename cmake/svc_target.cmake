@@ -11,6 +11,7 @@ function(svc_target exe_target)
     # Flags:
     # REPLACE_CONST_VALUE   -- replace constant with its number value if possible
     # NO_SVA_GENERATE       -- disable SVA generating for SCT assertions
+    # NO_FUNC_THREAD        -- no function call generated in single state thread
     # PORT_MAP_GENERATE     -- generate port map file and top module wrapper
     # UNSIGNED              -- design uses unsigned arithmetic only
     # NO_REMOVE_EXTRA_CODE  -- disable removing unused variable and extra code
@@ -22,6 +23,7 @@ function(svc_target exe_target)
     # WILL_FAIL             -- test will fail on non-synthesizable code
     set(boolOptions REPLACE_CONST_VALUE 
                     NO_SVA_GENERATE
+                    NO_FUNC_THREAD
                     PORT_MAP_GENERATE
                     UNSIGNED
                     NO_REMOVE_EXTRA_CODE
@@ -47,6 +49,10 @@ function(svc_target exe_target)
 
     if (${PARAM_NO_SVA_GENERATE})
         set(NO_SVA_GENERATE -no_sva_generate)
+    endif()
+    
+    if (${PARAM_NO_FUNC_THREAD})
+        set(NO_FUNC_THREAD -no_func_call_thread)
     endif()
 
     if (${PARAM_PORT_MAP_GENERATE})
@@ -170,6 +176,7 @@ function(svc_target exe_target)
             ${MODULE_PREFIX}
             ${REPLACE_CONST_VALUE}
             ${NO_SVA_GENERATE}
+            ${NO_FUNC_THREAD}
             ${PORT_MAP_GENERATE}
             ${UNSIGNED}
             ${NO_REMOVE_EXTRA_CODE}

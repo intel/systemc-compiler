@@ -549,7 +549,7 @@ void ScProcAnalyzer::clearDefinedVars(sc_elab::ProcessView& procView,
 
 sc_elab::VerilogProcCode ScProcAnalyzer::analyzeCthreadProcess(
                     const SValue &modval, const SValue &dynmodval, 
-                    sc_elab::ProcessView procView) 
+                    sc_elab::ProcessView procView, bool &isSingleState) 
 {
     if (DebugOptions::isEnabled(DebugComponent::doModuleBuilder)) {
         std::cout << "  Analyze thread process: "
@@ -559,8 +559,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeCthreadProcess(
     
     sc::ThreadBuilder tb{astCtx, elabDB, procView, globalState, 
                          modval, dynmodval};
-    
-    return tb.run();
+    return tb.run(isSingleState);
 }
 
 // Generated SVA property code from module scope SCT_ASSERT

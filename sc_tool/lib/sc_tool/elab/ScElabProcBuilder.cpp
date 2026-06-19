@@ -156,7 +156,7 @@ VerilogProcCode ProcBuilder::generateVerilogProcess(ProcessView& procView)
                                 hostModuleDynClass, procView);
     } else {
         return procAnalyzer->analyzeCthreadProcess(procHostClass,
-                                hostModuleDynClass, procView);
+                                hostModuleDynClass, procView, isSingleState);
     }
 
     return VerilogProcCode("");

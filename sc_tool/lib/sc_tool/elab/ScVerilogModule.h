@@ -345,6 +345,7 @@ struct VerilogProcCode {
     {}
 
     bool emptyProcess = false;
+    bool isSingleState = false;
     std::string body = "";
     std::string localVars = "";
     std::string resetSection = "";

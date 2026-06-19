@@ -13,10 +13,12 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS sc_elab.proto)
 
 add_library(sc_elab_proto ${PROTO_SRCS} ${PROTO_HDRS} )
 target_link_libraries(sc_elab_proto ${Protobuf_LIBRARIES})
-target_include_directories(sc_elab_proto PUBLIC ${Protobuf_INCLUDE_DIRS}
+
+target_include_directories(sc_elab_proto PUBLIC
+        $<BUILD_INTERFACE:${Protobuf_INCLUDE_DIRS}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        )
+        )        
 
 target_compile_definitions(sc_elab_proto PUBLIC GOOGLE_PROTOBUF_NO_RTTI)
 

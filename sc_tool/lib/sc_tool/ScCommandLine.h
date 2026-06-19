@@ -21,6 +21,7 @@ extern llvm::cl::OptionCategory ScToolCategory;
 
 extern llvm::cl::opt<std::string>   verilogFileName;
 extern llvm::cl::opt<bool>          noSvaGenerate;
+extern llvm::cl::opt<bool>          noFuncCallThread;
 extern llvm::cl::opt<bool>          portMapGenerate;
 extern llvm::cl::opt<bool>          noRemoveExtraCode;
 extern llvm::cl::opt<bool>          checkUnsigned;
