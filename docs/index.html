@@ -27,9 +27,16 @@
     padding:.8rem 1.5rem; background:rgba(255,255,255,.85);
     backdrop-filter:blur(8px); border-bottom:1px solid var(--border);
   }
-  header.nav .brand{display:flex; align-items:center; gap:.6rem; font-weight:700; font-size:1.2rem}
-  header.nav .brand b{color:var(--accent)}
-  header.nav nav{margin-left:auto; display:flex; gap:.6rem; flex-wrap:wrap}
+  header.nav .brand{
+    margin-left:max(0px, calc(50% - 550px));
+    display:flex; align-items:center; gap:.6rem;
+    font-weight:500; font-size:1.4rem;
+  }
+  header.nav .brand b{color:var(--accent); font-weight:500}
+  header.nav nav{
+    margin-left:auto; margin-right:max(0px, calc(50% - 772px));
+    display:flex; gap:.6rem; flex-wrap:wrap;
+  }
   header.nav nav a.navbtn{
     color:var(--accent); font-size:.9rem; font-weight:600;
     padding:.42rem .85rem; border:1px solid #bcd7f2;
@@ -39,7 +46,8 @@
 
   /* ---- Right-side "Content" table of contents ---- */
   .side-panels{
-    position:fixed; top:90px; right:22px; width:184px; z-index:40;
+    position:fixed; top:82px; left:calc(50% + 568px);
+    width:204px; z-index:40;
     display:grid; gap:.8rem;
   }
   aside.toc{
@@ -58,7 +66,8 @@
   aside.toc a:hover{color:var(--accent)}
   aside.github-stars{
     background:#e7f1fc; border:1px solid #bcd7f2; border-radius:12px;
-    padding:.8rem 1rem; box-shadow:0 8px 24px rgba(20,40,70,.12);
+    margin-top:2px; padding:.8rem 1rem;
+    box-shadow:0 8px 24px rgba(20,40,70,.12);
   }
   aside.github-stars a{
     display:grid; grid-template-columns:24px 1fr auto; gap:.55rem;
@@ -68,18 +77,20 @@
   aside.github-stars span{font-size:.92rem; font-weight:400}
   aside.github-stars strong{color:var(--accent); font-size:.95rem}
   aside.github-stars a:hover strong{color:var(--accent2)}
-  @media(max-width:1200px){ .side-panels{display:none} }
+  @media(max-width:1544px){ .side-panels{display:none} }
 
   /* ---- Hero ---- */
   .hero{
-    text-align:left; padding:calc(0.9rem + 10px) 1.5rem 3rem; background:#fff;
+    text-align:left; padding:18px 1.5rem 3rem; background:#fff;
   }
   /* Gradient sits only behind the content, not behind the Content panel */
   .hero-inner{
-    max-width:none; padding:2.5rem 2rem; border-radius:16px;
+    width:100%; max-width:1100px; margin:0 auto;
+    padding:2.5rem 2rem; border-radius:16px;
     display:flex; flex-direction:column;
     background:radial-gradient(900px 380px at 20% -20%,#d7e7fb,transparent),
-               linear-gradient(180deg,var(--bg2),#ffffff);
+           linear-gradient(180deg,#e7f1fc,#ffffff);
+    border:1px solid #bcd7f2;
   }
   .hero h1{font-size:2rem; margin:0 0 .4rem}
   .hero h1 .sc{color:var(--accent)}
@@ -88,6 +99,7 @@
   .hero-head h1{margin:0; line-height:1.25}
   .hero-head h1 .sub{font-size:1.55rem; font-weight:700}
   .hero p.tag{color:var(--muted); font-size:1.2rem; max-width:720px; margin:.4rem 0 1.6rem}
+  .hero-inner > p.tag{width:100%; max-width:none}
   .cta{display:flex; gap:.8rem; justify-content:center; flex-wrap:wrap}
   .btn{
     padding:.7rem 1.3rem; border-radius:8px; font-weight:600;
@@ -95,13 +107,7 @@
   }
   .btn.primary{background:linear-gradient(135deg,#0ea5e9,#2563eb); border-color:transparent; color:#fff}
   .btn:hover{transform:translateY(-1px)}
-  .hero-art{max-width:900px; margin:2.5rem 0 0}
-
-  /* Reserve a right gutter for the fixed Content panel so the hero card
-     keeps an equal white margin on the right as on the left */
-  @media(min-width:1200px){
-    .hero{ padding-right:230px }
-  }
+  .hero-art{width:100%; max-width:none; margin:2.5rem 0 0}
 
   /* ---- Feature sections ---- */
   section.feature{max-width:960px; margin:0; padding:3.5rem 1.5rem;
@@ -113,6 +119,15 @@
   .pline:has(+ #learning),
   #learning{order:1}
   .pline{border:0; border-top:1px solid var(--border); margin:1.6rem 0 0}
+  #framework svg text[font-size="11.5"]{font-size:14px}
+  #framework svg text[font-size="12"]{font-size:14.5px}
+  #framework svg text[font-size="12.5"]{font-size:15.5px}
+  #framework svg text[font-size="13.5"]{font-size:16px}
+  #framework svg text[font-size="14.5"]{font-size:18px}
+  #framework svg text[font-size="19"]{font-size:24px}
+  #singlesource svg{font-size:14px}
+  :is(#singlesource, #modes, #ai, #vscode, #start, #learning)
+    svg text:not([font-weight]){font-size:12.5px}
 
   /* ---- Three highlight cards inside the hero panel ---- */
   .trio{margin:1.6rem 0 0; padding:0;
@@ -122,6 +137,13 @@
     border-radius:10px; display:flex; align-items:center; justify-content:center;
     color:#aeb8c4; font-size:.75rem; letter-spacing:.05em;
   }
+  .trio svg text[font-size="8"]{font-size:10px}
+  .trio svg text[font-size="9"]{font-size:11px}
+  .trio svg text[font-size="10"]{font-size:12px}
+  .trio svg text[font-size="11"]{font-size:13px}
+  .trio svg text[font-size="12"]{font-size:15px}
+  .trio svg text[font-size="14"]{font-size:18px}
+  .trio svg text[font-size="44"]{font-size:52px}
   .trio h3{margin:.9rem 0 .35rem; font-size:1.2rem; color:var(--text)}
   .trio p{margin:0; color:var(--muted); font-size:.9rem;
     text-align:justify; text-align-last:left}
@@ -211,50 +233,50 @@
         </linearGradient>
       </defs>
       <!-- Input: SystemC C++ file -->
-      <g font-family="monospace" font-size="12">
-        <rect x="25" y="40" width="260" height="245" rx="10" fill="#13233f" stroke="#25405f"/>
-        <text x="155" y="30" fill="#9fb2c8" font-size="16" text-anchor="middle"
+      <g font-family="monospace" font-size="12.5">
+        <rect x="20" y="40" width="285" height="245" rx="10" fill="#13233f" stroke="#25405f"/>
+        <text x="162.5" y="30" fill="#9fb2c8" font-size="17" text-anchor="middle"
               font-family="system-ui,sans-serif">Synthesizable SystemC</text>
-        <text x="40" y="70"  fill="#7dd3fc">SC_MODULE(dut) {</text>
-        <text x="52" y="94"  fill="#cbe6ff">sc_in&lt;bool&gt;   clk;</text>
-        <text x="52" y="118" fill="#cbe6ff">sc_in&lt;bool&gt;   rst;</text>
-        <text x="52" y="142" fill="#82aaff">SC_CTOR(dut) {</text>
-        <text x="64" y="166" fill="#cbe6ff">SC_CTHREAD(proc, clk.pos());</text>
-        <text x="64" y="190" fill="#cbe6ff">async_reset_signal_is(rst,0);</text>
-        <text x="52" y="214" fill="#82aaff">}</text>
-        <text x="52" y="238" fill="#c792ea">void proc() {}</text>
-        <text x="40" y="262" fill="#7dd3fc">};</text>
+        <text x="30" y="70"  fill="#7dd3fc">SC_MODULE(dut) {</text>
+        <text x="42" y="94"  fill="#cbe6ff">sc_in&lt;bool&gt;   clk;</text>
+        <text x="42" y="118" fill="#cbe6ff">sc_in&lt;bool&gt;   rst;</text>
+        <text x="42" y="142" fill="#82aaff">SC_CTOR(dut) {</text>
+        <text x="54" y="166" fill="#cbe6ff">SC_CTHREAD(proc, clk.pos());</text>
+        <text x="54" y="190" fill="#cbe6ff">async_reset_signal_is(rst,0);</text>
+        <text x="42" y="214" fill="#82aaff">}</text>
+        <text x="42" y="238" fill="#c792ea">void proc() {}</text>
+        <text x="30" y="262" fill="#7dd3fc">};</text>
       </g>
       <!-- Arrow -->
       <g stroke="#38bdf8" stroke-width="2" fill="none">
-        <path d="M290 185 H336" marker-end="url(#ah)"/>
+        <path d="M305 165 H340" marker-end="url(#ah)"/>
       </g>
       <!-- Compiler chip -->
       <g>
-        <rect x="340" y="139" width="220" height="92" rx="12" fill="url(#gcomp)"/>
-        <text x="450" y="171" fill="#fff" font-size="15" font-weight="700"
+        <rect x="340" y="119" width="220" height="92" rx="12" fill="url(#gcomp)"/>
+            <text x="450" y="151" fill="#fff" font-size="16" font-weight="700"
               text-anchor="middle" font-family="system-ui,sans-serif">SystemC Compiler</text>
-        <text x="450" y="193" fill="#e0f2fe" font-size="11" text-anchor="middle"
+            <text x="450" y="173" fill="#e0f2fe" font-size="11.5" text-anchor="middle"
               font-family="system-ui,sans-serif">Clang / LLVM 18 &bull; SystemC 3.0.1</text>
-        <text x="450" y="211" fill="#bae6fd" font-size="10.5" text-anchor="middle"
+            <text x="450" y="191" fill="#bae6fd" font-size="11" text-anchor="middle"
               font-family="system-ui,sans-serif">checks &bull; elaboration &bull; codegen</text>
       </g>
       <!-- Arrow -->
       <g stroke="#38bdf8" stroke-width="2" fill="none">
-        <path d="M564 185 H610" marker-end="url(#ah)"/>
+        <path d="M560 165 H595" marker-end="url(#ah)"/>
       </g>
       <!-- Output: SystemVerilog -->
-      <g font-family="monospace" font-size="12">
-        <rect x="614" y="40" width="262" height="200" rx="10" fill="#0e2a1c" stroke="#1b6f3b"/>
-        <text x="745" y="30" fill="#9fb2c8" font-size="16" text-anchor="middle"
+      <g font-family="monospace" font-size="12.5">
+        <rect x="595" y="40" width="285" height="200" rx="10" fill="#0e2a1c" stroke="#1b6f3b"/>
+        <text x="737.5" y="30" fill="#9fb2c8" font-size="17" text-anchor="middle"
               font-family="system-ui,sans-serif">SystemVerilog RTL</text>
-        <text x="628" y="70"  fill="#86efac">module dut(</text>
-        <text x="640" y="94"  fill="#d1fae5">input  logic clk,</text>
-        <text x="640" y="118" fill="#d1fae5">input  logic rst);</text>
-        <text x="628" y="142" fill="#86efac">always_ff @(posedge clk</text>
-        <text x="640" y="166" fill="#86efac">or negedge rst) begin</text>
-        <text x="628" y="190" fill="#86efac">end</text>
-        <text x="628" y="214" fill="#86efac">endmodule</text>
+        <text x="609" y="70"  fill="#86efac">module dut(</text>
+        <text x="621" y="94"  fill="#d1fae5">input  logic clk,</text>
+        <text x="621" y="118" fill="#d1fae5">input  logic rst);</text>
+        <text x="609" y="142" fill="#86efac">always_ff @(posedge clk</text>
+        <text x="621" y="166" fill="#86efac">or negedge rst) begin</text>
+        <text x="609" y="190" fill="#86efac">end</text>
+        <text x="609" y="214" fill="#86efac">endmodule</text>
       </g>
       <defs>
         <marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
@@ -263,7 +285,7 @@
       </defs>
     </svg>
   </div>
-  <p class="tag" style="font-size:.98rem; text-align:justify; text-align-last:left; max-width:900px"><strong>Intel&reg; Compiler for SystemC*</strong> is a
+  <p class="tag" style="font-size:.98rem; text-align:justify; text-align-last:left"><strong>Intel&reg; Compiler for SystemC*</strong> is a
      High-Level Synthesis (HLS) tool which translates synthesizable SystemC into
      equivalent SystemVerilog RTL. The SystemC Compiler checks a SystemC design
      for common coding mistakes and generates human-readable SystemVerilog code
@@ -307,16 +329,16 @@
           <text x="150" y="186" fill="#9fb2c8" font-size="11" font-family="system-ui,sans-serif" text-anchor="middle">FASTER ITERATION</text>
 
           <!-- Connecting boxes for SystemC -> RTL at the bottom of the card -->
-          <g transform="translate(18, 230)">
-            <rect width="112" height="42" rx="6" fill="#13233f" stroke="#25405f" stroke-width="1" />
-            <text x="56" y="18" fill="#7dd3fc" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">SystemC Templates</text>
-            <text x="56" y="32" fill="#9fb2c8" font-size="9" font-family="system-ui,sans-serif" text-anchor="middle">OOP / Reusability</text>
+          <g transform="translate(10, 226)">
+            <rect width="124" height="50" rx="6" fill="#13233f" stroke="#25405f" stroke-width="1" />
+            <text x="62" y="21" fill="#7dd3fc" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">SystemC Templates</text>
+            <text x="62" y="39" fill="#9fb2c8" font-size="9" font-family="system-ui,sans-serif" text-anchor="middle">OOP / Reusability</text>
           </g>
 
-          <g transform="translate(170, 230)">
-            <rect width="112" height="42" rx="6" fill="#0d2417" stroke="#1b6f3b" stroke-width="1" />
-            <text x="56" y="18" fill="#4ade80" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">SystemVerilog RTL</text>
-            <text x="56" y="32" fill="#a7f3d0" font-size="9" font-family="system-ui,sans-serif" text-anchor="middle">Synthesized &amp; Ready</text>
+          <g transform="translate(166, 226)">
+            <rect width="124" height="50" rx="6" fill="#0d2417" stroke="#1b6f3b" stroke-width="1" />
+            <text x="62" y="21" fill="#4ade80" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">SystemVerilog RTL</text>
+            <text x="62" y="39" fill="#a7f3d0" font-size="9" font-family="system-ui,sans-serif" text-anchor="middle">Synthesized &amp; Ready</text>
           </g>
 
           <path d="M 134 251 L 166 251" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3 3" />
@@ -359,51 +381,51 @@
 
           <!-- Component blocks (modular grid representation of error free assembly) -->
           <!-- IP Block Main Core -->
-          <rect x="50" y="50" width="200" height="96" rx="10" fill="#13233f" stroke="#25405f" stroke-width="1.5" />
+          <rect x="40" y="46" width="220" height="104" rx="10" fill="#13233f" stroke="#25405f" stroke-width="1.5" />
           <text x="150" y="78" fill="#e2e8f0" font-size="12" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">Core IP Assembly</text>
           <text x="150" y="94" fill="#94a3b8" font-size="9" font-family="system-ui,sans-serif" text-anchor="middle">Error-Free Structural Composition</text>
-          <line x1="50" y1="108" x2="250" y2="108" stroke="#1e293b" />
-          <circle cx="100" cy="126" r="4" fill="#10b981" />
-          <text x="110" y="129" fill="#10b981" font-size="9" font-family="system-ui,sans-serif" font-weight="700">Verified</text>
-          <circle cx="200" cy="126" r="4" fill="#10b981" />
-          <text x="210" y="129" fill="#10b981" font-size="9" font-family="system-ui,sans-serif" font-weight="700">0 Faults</text>
+          <line x1="40" y1="110" x2="260" y2="110" stroke="#1e293b" />
+          <circle cx="85" cy="132" r="4" fill="#10b981" />
+          <text x="95" y="136" fill="#10b981" font-size="9" font-family="system-ui,sans-serif" font-weight="700">Verified</text>
+          <circle cx="170" cy="132" r="4" fill="#10b981" />
+          <text x="180" y="136" fill="#10b981" font-size="9" font-family="system-ui,sans-serif" font-weight="700">0 Faults</text>
 
           <!-- Library components stacking (SCT FIFO, SCT Pipe, Memory, SCT Target) -->
           <!-- Component 1: Memory block -->
-          <g transform="translate(36, 164)" filter="url(#glow)">
-            <rect width="104" height="42" rx="6" fill="#0c1a2e" stroke="url(#componentGrad)" stroke-width="1.5" />
-            <rect width="104" height="6" rx="2" fill="url(#componentGrad)" />
-            <text x="52" y="24" fill="#fff" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">sct_fifo</text>
-            <text x="52" y="34" fill="#9fb2c8" font-size="8" font-family="system-ui,sans-serif" text-anchor="middle">Handshake Lock</text>
+          <g transform="translate(24, 164)" filter="url(#glow)">
+            <rect width="120" height="50" rx="6" fill="#0c1a2e" stroke="url(#componentGrad)" stroke-width="1.5" />
+            <rect width="120" height="7" rx="2" fill="url(#componentGrad)" />
+            <text x="60" y="25" fill="#fff" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">sct_fifo</text>
+            <text x="60" y="41" fill="#9fb2c8" font-size="8" font-family="system-ui,sans-serif" text-anchor="middle">Handshake Lock</text>
           </g>
 
           <!-- Component 2: Memory block -->
-          <g transform="translate(160, 164)" filter="url(#glow)">
-            <rect width="104" height="42" rx="6" fill="#0c1a2e" stroke="url(#componentGrad)" stroke-width="1.5" />
-            <rect width="104" height="6" rx="2" fill="url(#componentGrad)" />
-            <text x="52" y="24" fill="#fff" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">Memory Block</text>
-            <text x="52" y="34" fill="#9fb2c8" font-size="8" font-family="system-ui,sans-serif" text-anchor="middle">SRAM / Register</text>
+          <g transform="translate(156, 164)" filter="url(#glow)">
+            <rect width="120" height="50" rx="6" fill="#0c1a2e" stroke="url(#componentGrad)" stroke-width="1.5" />
+            <rect width="120" height="7" rx="2" fill="url(#componentGrad)" />
+            <text x="60" y="25" fill="#fff" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">Memory Block</text>
+            <text x="60" y="41" fill="#9fb2c8" font-size="8" font-family="system-ui,sans-serif" text-anchor="middle">SRAM / Register</text>
           </g>
 
           <!-- Component 3: Pipe block -->
-          <g transform="translate(36, 222)" filter="url(#glow)">
-            <rect width="104" height="42" rx="6" fill="#0c1a2e" stroke="url(#componentGrad)" stroke-width="1.5" />
-            <rect width="104" height="6" rx="2" fill="url(#componentGrad)" />
-            <text x="52" y="24" fill="#fff" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">sct_pipe</text>
-            <text x="52" y="34" fill="#9fb2c8" font-size="8" font-family="system-ui,sans-serif" text-anchor="middle">Retime Stage</text>
+          <g transform="translate(24, 222)" filter="url(#glow)">
+            <rect width="120" height="50" rx="6" fill="#0c1a2e" stroke="url(#componentGrad)" stroke-width="1.5" />
+            <rect width="120" height="7" rx="2" fill="url(#componentGrad)" />
+            <text x="60" y="25" fill="#fff" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">sct_pipe</text>
+            <text x="60" y="41" fill="#9fb2c8" font-size="8" font-family="system-ui,sans-serif" text-anchor="middle">Retime Stage</text>
           </g>
 
           <!-- Component 4: Target block -->
-          <g transform="translate(160, 222)" filter="url(#glow)">
-            <rect width="104" height="42" rx="6" fill="#0c1a2e" stroke="url(#componentGrad)" stroke-width="1.5" />
-            <rect width="104" height="6" rx="2" fill="url(#componentGrad)" />
-            <text x="52" y="24" fill="#fff" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">sct_target</text>
-            <text x="52" y="34" fill="#9fb2c8" font-size="8" font-family="system-ui,sans-serif" text-anchor="middle">Ready Initiator</text>
+          <g transform="translate(156, 222)" filter="url(#glow)">
+            <rect width="120" height="50" rx="6" fill="#0c1a2e" stroke="url(#componentGrad)" stroke-width="1.5" />
+            <rect width="120" height="7" rx="2" fill="url(#componentGrad)" />
+            <text x="60" y="25" fill="#fff" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="bold">sct_target</text>
+            <text x="60" y="41" fill="#9fb2c8" font-size="8" font-family="system-ui,sans-serif" text-anchor="middle">Ready Initiator</text>
           </g>
 
           <!-- Direct assembly pipelines connecting channels to core assembly -->
-          <path d="M 88 164 L 88 146" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="2 2" />
-          <path d="M 212 164 L 212 146" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="2 2" />
+          <path d="M 84 164 L 84 150" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="2 2" />
+          <path d="M 216 164 L 216 150" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="2 2" />
         </svg>
       </div>
       <h3>Reliable design with reusable components and assertions</h3>
@@ -502,6 +524,31 @@
             <circle cx="47" cy="22" r="10" fill="#13233f" stroke="#38bdf8" stroke-width="1.2" />
             <path d="M 31 44 C 33 32, 61 32, 61 44 Z" fill="#13233f" stroke="#38bdf8" stroke-width="1.2" />
           </g>
+
+              <!-- Circuit-styled cat face connecting engineers and AI -->
+              <g transform="translate(125, 215)" stroke-linecap="round"
+             stroke-linejoin="round">
+            <path d="M 5 27 H -30 M 45 27 H 78" fill="none"
+              stroke="#25405f" stroke-width="1.5"
+              stroke-dasharray="3 3" />
+            <circle cx="-30" cy="27" r="2" fill="#38bdf8" />
+            <circle cx="78" cy="27" r="2" fill="#a855f7" />
+            <path d="M 7 18 L 5 2 L 20 12 Q 25 9 30 12 L 45 2
+                 L 43 18 Q 48 23 47 34 Q 46 47 25 50
+                 Q 4 47 3 34 Q 2 23 7 18 Z"
+              fill="#0c1a2e" stroke="url(#aiGrad)" stroke-width="2"
+              filter="url(#glowAbs)" />
+            <path d="M 9 8 L 18 14 M 41 8 L 32 14" fill="none"
+              stroke="#38bdf8" stroke-width="1" />
+            <circle cx="16" cy="27" r="3" fill="#38bdf8" />
+            <circle cx="34" cy="27" r="3" fill="#a855f7" />
+            <path d="M 22 34 L 25 37 L 28 34 Z" fill="#f43f5e"
+              stroke="none" />
+            <path d="M 25 37 V 40 M 25 40 Q 21 44 18 40
+                 M 25 40 Q 29 44 32 40 M 12 35 H 1
+                 M 12 40 H 0 M 38 35 H 49 M 38 40 H 50"
+              fill="none" stroke="#9fb2c8" stroke-width="1.2" />
+              </g>
 
           <!-- Right Corner: AI Core hub with branching multiple lines (beams and original nodes/text removed) -->
           <g transform="translate(215, 215)">
@@ -609,15 +656,15 @@
 
         <!-- Background circuit Grid lines -->
         <g stroke="#1a314d" stroke-width="1" fill="none" opacity="0.6">
-          <line x1="25" y1="18" x2="1075" y2="18" />
+          <line x1="25" y1="8" x2="1075" y2="8" />
           <line x1="25" y1="465" x2="1075" y2="465" />
           <path d="M 190 72 L 190 88 M 550 72 L 550 88 M 910 72 L 910 88" stroke="#38bdf8" stroke-dasharray="3 3" stroke-width="1.5" />
         </g>
 
         <!-- PLATFORM HEADER BANNER -->
-        <rect x="25" y="18" width="1050" height="54" rx="10" fill="#13233f" stroke="url(#platBannerGrad)" stroke-width="2" />
-        <text x="550" y="41" fill="#ffffff" font-size="19" font-family="system-ui, sans-serif" font-weight="800" text-anchor="middle" letter-spacing="1">SYSTEMC COMPILER PLATFORM</text>
-        <text x="550" y="61" fill="#bae6fd" font-size="12.5" font-family="system-ui, sans-serif" text-anchor="middle">Unified HLS Toolchain &bull; Reusable Hardware Libraries &bull; AI Skills &amp; Verification Ecosystem</text>
+        <rect x="25" y="8" width="1050" height="64" rx="10" fill="#13233f" stroke="url(#platBannerGrad)" stroke-width="2" />
+        <text x="550" y="35" fill="#ffffff" font-size="19" font-family="system-ui, sans-serif" font-weight="800" text-anchor="middle" letter-spacing="1">SYSTEMC COMPILER PLATFORM</text>
+        <text x="550" y="60" fill="#bae6fd" font-size="12.5" font-family="system-ui, sans-serif" text-anchor="middle">Unified HLS Toolchain &bull; Reusable Hardware Libraries &bull; AI Skills &amp; Verification Ecosystem</text>
 
         <!-- ================= PILLAR 1: SYSTEMC CODE TRANSLATION ================= -->
         <rect x="25" y="88" width="330" height="332" rx="12" fill="#101e36" stroke="#0ea5e9" stroke-width="1.5" />
@@ -882,7 +929,7 @@
         <g text-anchor="middle">
           <!-- SystemC project with headers, entry point, and CMake file -->
           <rect x="25" y="16" width="410" height="106" rx="10" fill="#13233f" stroke="#25405f"/>
-          <text x="230" y="38" fill="#7dd3fc" font-size="12" font-weight="700">SystemC design</text>
+          <text x="230" y="38" fill="#7dd3fc" font-size="14" font-weight="700">SystemC design</text>
           <g font-family="monospace" font-size="12">
             <g transform="translate(45 52)">
               <path d="M0 0h60l10 10v42H0z" fill="#173056" stroke="#38bdf8"/>
@@ -1040,7 +1087,7 @@
   <div class="art">
     <svg viewBox="0 0 460 360" role="img" aria-label="SystemC abstraction levels">
       <!-- RTL: clock waveform -->
-      <text x="30" y="40" fill="#7dd3fc" font-size="12" font-weight="700">RTL &mdash; cycle accurate</text>
+      <text x="30" y="40" fill="#7dd3fc" font-size="15" font-weight="700">RTL &mdash; cycle accurate</text>
       <polyline points="30,90 55,90 55,60 90,60 90,90 125,90 125,60 160,60 160,90 195,90 195,60 230,60 230,90"
                 fill="none" stroke="#38bdf8" stroke-width="2"/>
       <text x="30" y="112" fill="#9fb2c8" font-size="12">clock-driven, precise timing &bull; synthesis</text>
@@ -1048,7 +1095,7 @@
       <line x1="30" y1="135" x2="430" y2="135" stroke="#25405f"/>
 
       <!-- TLM: event dots -->
-      <text x="30" y="170" fill="#f5b301" font-size="12" font-weight="700">TLM &mdash; approximate timed</text>
+      <text x="30" y="170" fill="#f5b301" font-size="15" font-weight="700">TLM &mdash; approximate timed</text>
       <line x1="30" y1="205" x2="430" y2="205" stroke="#334" stroke-width="2"/>
       <g fill="#f5b301">
         <circle cx="70"  cy="205" r="6"/>
@@ -1061,7 +1108,7 @@
       <line x1="30" y1="260" x2="430" y2="260" stroke="#25405f"/>
 
       <!-- Loosely timed: events grouped into time quanta -->
-      <text x="30" y="295" fill="#a78bfa" font-size="12" font-weight="700">TLM &mdash; loosely timed</text>
+      <text x="30" y="295" fill="#a78bfa" font-size="15" font-weight="700">TLM &mdash; loosely timed</text>
       <line x1="30" y1="326" x2="430" y2="326" stroke="#334" stroke-width="2"/>
       <g fill="#a78bfa">
         <rect x="66" y="319" width="44" height="14" rx="4"/>
@@ -1094,8 +1141,9 @@
             fill="#0e1c33" stroke="#25405f"/>
 
       <!-- Report heading and summary -->
-      <text x="36" y="47" fill="#e0f2fe" font-weight="700">SystemC Lint Report</text>
-      <text x="36" y="70" fill="#9fb2c8">Target: ISpanRouter.h</text>
+      <text x="36" y="47" fill="#e0f2fe" font-size="15"
+        font-weight="700">SystemC Lint Report</text>
+      <text x="36" y="70" fill="#9fb2c8">Target: Arbiter.h</text>
       <rect x="300" y="34" width="62" height="26" rx="6"
             fill="#3b1720" stroke="#ef4444"/>
       <text x="331" y="51" fill="#fca5a5" text-anchor="middle">1 Error</text>
@@ -1155,7 +1203,8 @@
       <circle cx="40" cy="34" r="5" fill="#ef4444"/>
       <circle cx="58" cy="34" r="5" fill="#f5b301"/>
       <circle cx="76" cy="34" r="5" fill="#22c55e"/>
-      <text x="240" y="38" fill="#9fb2c8" font-size="12" text-anchor="middle">SystemC Tools &mdash; VS Code extension</text>
+      <text x="240" y="39" fill="#e0f2fe" font-size="15"
+        font-weight="700" text-anchor="middle">SystemC Tools &mdash; VS Code extension</text>
 
       <!-- Logo and extension contents -->
       <image href="systemc-tools-icon.png" x="34" y="62"
@@ -1170,17 +1219,14 @@
         <text x="158" y="186" fill="#9fb2c8">&#8226; SystemC syntax highlighting</text>
       </g>
 
-      <!-- Retained editor and linter elements -->
+      <!-- Editor example -->
       <rect x="40" y="207" width="400" height="93" rx="7" fill="#101d32" stroke="#25405f"/>
       <g font-family="monospace" font-size="12">
         <text x="54" y="230" fill="#7dd3fc">SC_MODULE</text><text x="136" y="230" fill="#cbe6ff">(dut) {</text>
         <text x="64" y="250" fill="#c792ea">sct_target</text><text x="148" y="250" fill="#cbe6ff">&lt;T&gt; targ;</text>
-        <text x="64" y="270" fill="#c792ea">SCT_THREAD</text><text x="156" y="270" fill="#cbe6ff">(proc, clk);</text>
+        <text x="64" y="270" fill="#c792ea">SCT_THREAD</text><text x="156" y="270" fill="#cbe6ff">(proc, clk.pos());</text>
         <text x="54" y="290" fill="#cbe6ff">}</text>
       </g>
-      <rect x="252" y="221" width="170" height="62" rx="6" fill="#173056" stroke="#0ea5e9"/>
-      <text x="264" y="242" fill="#38bdf8" font-size="12" font-weight="700">Linter Agent</text>
-      <text x="264" y="263" fill="#cbe6ff" font-size="12">No issues found</text>
       <!-- status bar -->
       <rect x="20" y="316" width="440" height="30" fill="#0ea5e9"/>
       <text x="34" y="336" fill="#04263b" font-size="12">SystemC Compiler ready</text>
@@ -1223,7 +1269,8 @@
       <!-- terminal -->
       <rect x="20" y="20" width="440" height="220" rx="10" fill="#08111f" stroke="#25405f"/>
       <rect x="20" y="20" width="440" height="26" rx="10" fill="#13233f"/>
-      <text x="240" y="38" fill="#9fb2c8" font-size="12" text-anchor="middle">bash &mdash; Linux / WSL</text>
+      <text x="240" y="39" fill="#9fb2c8" font-size="15"
+        font-weight="700" text-anchor="middle">bash &mdash; Linux / WSL</text>
       <g font-family="monospace" font-size="12">
         <text x="36" y="72"  fill="#22c55e">$</text><text x="52" y="72"  fill="#cbe6ff">git clone intel/systemc-compiler</text>
         <text x="36" y="100" fill="#22c55e">$</text><text x="52" y="100" fill="#cbe6ff">./install.sh</text>
