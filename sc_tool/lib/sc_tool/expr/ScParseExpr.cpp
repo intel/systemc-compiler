@@ -696,6 +696,45 @@ std::pair<SValue, std::vector<SValue> >
     return make_pair(val, initvals);
 }
 
+
+SValue ScParseExpr::compareRecordFieldValues(const SValue& lval, const SValue& rval)
+{
+    SValue lrec = getRecordFromState(lval);
+    SValue rrec = getRecordFromState(rval);
+    
+    // That is possible for record channel
+    if (!lrec.isRecord() || !rrec.isRecord()) {
+        return NO_VALUE;
+    }
+
+    std::vector<SValue> lfields;
+    std::vector<SValue> rfields;
+    getFieldsForRecord(lrec, lfields);
+    getFieldsForRecord(rrec, rfields);
+    SCT_TOOL_ASSERT(lfields.size() == rfields.size(),
+                    "Different record field number");
+
+    bool hasUnknown = false;
+    for (unsigned i = 0; i != lfields.size(); ++i) {
+        QualType fieldType = getDerefType(lfields[i].getType());
+        if (isUserClass(fieldType, false)) {
+            hasUnknown = true;
+            continue;
+        }
+
+        SValue lfieldValue = getValueFromState(lfields[i]);
+        SValue rfieldValue = getValueFromState(rfields[i]);
+        if (!lfieldValue || !rfieldValue) {
+            hasUnknown = true;
+        } else if (lfieldValue != rfieldValue) {
+            return SValue(SValue::boolToAPSInt(false), 10);
+        }
+    }
+
+    return hasUnknown ? NO_VALUE : SValue(SValue::boolToAPSInt(true), 10);
+}
+
+
 void ScParseExpr::chooseExprMethod(clang::Stmt *stmt, SValue &val)
 {
     using namespace clang;

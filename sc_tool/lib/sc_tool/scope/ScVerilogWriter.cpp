@@ -1163,6 +1163,17 @@ std::string ScVerilogWriter::getRecordIndxs(const vector<SValue>& recarrs)
     return name;
 }
 
+// Get record/MIF array indices from a generated expression term
+std::optional<std::string>
+ScVerilogWriter::getRecordIndxs(const Stmt* stmt) const
+{
+    auto i = terms.find(stmt);
+    if (i == terms.end()) {
+        return std::nullopt;
+    }
+    return getIndexFromRecordName(i->second.str.first);
+}
+
 // Put assignment string, record field supported
 void ScVerilogWriter::putAssignBase(const Stmt* stmt, const SValue& lval, 
                                    string lhsName, string rhsName, 
@@ -2383,6 +2394,94 @@ void ScVerilogWriter::putRecordAssign(const Stmt* stmt,
 
     putString(stmt, s, 0);
     clearSimpleTerm(stmt);
+}
+
+// Comparison (operator ==) for record variables
+void ScVerilogWriter::putRecordCompare(const Stmt* stmt, 
+                                       const SValue& lrec, const SValue& rrec,
+                                       bool lelemOfMifRecArr, bool relemOfMifRecArr,
+                                       string lrecSuffix,
+                                       string rrecSuffix) 
+{
+    if (skipTerm) return;
+
+    std::vector<SValue> lrecFields;
+    if (lrec.isScChannel()) {
+        auto recType = dyn_cast<const RecordType>(lrec.getScChannel()->getType().
+                                                  getTypePtr());
+        getFieldsForRecordChan(recType->getAsRecordDecl(), lrec, lrecFields);
+    } else {
+        getFieldsForRecord(lrec, lrecFields);
+    }
+    std::vector<SValue> rrecFields;
+    if (rrec.isScChannel()) {
+        auto recType = dyn_cast<const RecordType>(rrec.getScChannel()->getType().
+                                                  getTypePtr());
+        getFieldsForRecordChan(recType->getAsRecordDecl(), rrec, rrecFields);
+    } else {
+        getFieldsForRecord(rrec, rrecFields);
+    }
+    SCT_TOOL_ASSERT(lrecFields.size() == rrecFields.size(),
+                    "Different record field number in comparison");
+
+    // For local registers in MIF array process needs to add suffix
+    bool lfvalArrSuffix = MIFValueName.first;
+    bool rfvalArrSuffix = MIFValueName.first;
+
+    // Record can be inside MIF (not inside another record)
+    if (lelemOfMifRecArr) {
+        if (recordValueName.first) {
+            lrecSuffix = recordValueName.second + lrecSuffix;
+        }
+        if (MIFValueName.first) {
+            lrecSuffix = MIFValueName.second + lrecSuffix;
+            lfvalArrSuffix = false;
+        }
+    }
+    if (relemOfMifRecArr) {
+        if (recordValueName.first) {
+            rrecSuffix = recordValueName.second + rrecSuffix;
+        }
+        if (MIFValueName.first) {
+            rrecSuffix = MIFValueName.second + rrecSuffix;
+            rfvalArrSuffix = false;
+        }
+    }
+
+    string s;
+    bool first = true;
+    bool hasArray = false;
+    for (unsigned i = 0; i != lrecFields.size(); ++i) {
+        const SValue& lfval = lrecFields[i];
+        const SValue& rfval = rrecFields[i];
+        bool lfvalReg = isRegister(lfval);
+        bool rfvalReg = isRegister(rfval);
+
+        auto ftype = lfval.getType();
+        if (isZeroWidthType(ftype) || isZeroWidthArrayType(ftype)) continue;
+        if (isArray(ftype)) { hasArray = true; }
+
+        const auto& lnames = lrec.isScChannel() ? getChannelName(lfval) : getVarName(lfval);
+        string lhsName = lnames.first + 
+                         ((lfvalArrSuffix && lfvalReg) ? MIFValueName.second : "") + 
+                         lrecSuffix;
+
+        const auto& rnames = rrec.isScChannel() ? getChannelName(rfval) : getVarName(rfval);
+        string rhsName = rnames.first + 
+                         ((rfvalArrSuffix && rfvalReg) ? MIFValueName.second : "") + 
+                         rrecSuffix;
+
+        s = s + (first ? "(" : " && ") + lhsName + " == " + rhsName;
+        first = false;
+    }
+
+    if (hasArray) {
+        ScDiag::reportScDiag(stmt->getBeginLoc(), ScDiag::SYNTH_REC_ARRAY_IN_EQUAL);
+    }
+
+    putString(stmt, first ? "1'b1" : (s + ")"), 1);
+    clearSimpleTerm(stmt);
+
 }
 
 // Assignment record variable with temporary record object (T{}, T())

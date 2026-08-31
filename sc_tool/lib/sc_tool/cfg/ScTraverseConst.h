@@ -277,6 +277,10 @@ protected:
     /// Used for constant and constant array belong to template parameter class
     void parseGlobalConstant(const SValue& val) override;
 
+    /// Register accessed value and canonical record fields
+    void registerAccessValue(const SValue& val,
+                             std::unordered_set<SValue>& accessVars);
+
     /// Register variables accessed in and after reset section,
     /// check read-not-defined is empty in reset
     void registerAccessVar(bool isResetSection, const clang::Stmt* stmt);

@@ -1252,8 +1252,9 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
     auto ctorDecl = expr->getConstructor();
     bool isCopyCtor = ctorDecl->isCopyConstructor();
     bool isMoveCtor = ctorDecl->isMoveConstructor();
-    bool isZeroWidth = isZeroWidthType(type);
-    
+    bool isZeroWidth = isZeroWidthType(type);    
+    //cout << "CXXConstructExpr " << hex << expr << dec << " with type " << type.getAsString() << endl;
+
     if (isZeroWidth) {
         val = ZW_VALUE; codeWriter->putLiteral(expr, val);
         
@@ -1271,7 +1272,7 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
             Expr* iexpr = expr->getArg(0);
             QualType origType = iexpr->getType();
             
-            if (isAnyIntegerRef(origType)) {
+            if (isAnyIntegerRef(origType) || isScLvBaseProxy(origType)) {
                 SValue rval; 
                 chooseExprMethod(iexpr, rval);
 
@@ -1306,6 +1307,11 @@ void ScGenerateExpr::parseExpr(CXXConstructExpr* expr, SValue& val)
                 strLiterUnsigned = lastUnsigned;
                 
                 codeWriter->putLiteral(expr, rval); 
+
+            } else {
+                // Unsupported initialization expression type
+                cout << "origType: " << origType.getAsString() << endl;
+                SCT_TOOL_ASSERT(false, "Unsupported initialization expression type");
             }
         } else {
             SCT_TOOL_ASSERT (false, "Unexpected argument number");
@@ -3030,11 +3036,25 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 //cout << "cval " << cval << " " << lhsRecord << lhsRecordChan << endl;
                 //ltype.dump();
 
-                // Get LHS record indices 
+                // Check that to avoid index applying duplication for record` method call
+                bool hasContextSuffix =
+                    !codeWriter->getRecordName().second.empty() ||
+                    !codeWriter->getMIFName().second.empty();
+
+                // Get LHS record indices
                 string lrecSuffix;
                 if (cval.isRecord() || lhsRecordChan) {
-                    auto lrecvecs = getRecVector(cval);
-                    lrecSuffix = codeWriter->getRecordIndxs(lrecvecs);
+                    std::optional<string> termSuffix;
+                    if (!hasContextSuffix) {
+                        termSuffix = codeWriter->getRecordIndxs(thisExpr);
+                    }
+                    if (termSuffix) {
+                        lrecSuffix = *termSuffix;
+                        codeWriter->clearSubscriptIndex();
+                    } else {
+                        auto lrecvecs = getRecVector(cval);
+                        lrecSuffix = codeWriter->getRecordIndxs(lrecvecs);
+                    }
                 }
 
                 // and if there is no type cast
@@ -3092,8 +3112,17 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                     refRecarrIndx = "";
                 } else 
                 if (rrec.isRecord() || rhsRecordChan) {
-                    auto rrecvecs = getRecVector(rrec);
-                    rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
+                    std::optional<string> termSuffix;
+                    if (!hasContextSuffix) {
+                        termSuffix = codeWriter->getRecordIndxs(argExpr);
+                    }
+                    if (termSuffix) {
+                        rrecSuffix = *termSuffix;
+                        codeWriter->clearSubscriptIndex();
+                    } else {
+                        auto rrecvecs = getRecVector(rrec);
+                        rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
+                    }
                 }
 
                 if (lhsRecord || lhsRecordChan) {
@@ -3313,6 +3342,9 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
     OverloadedOperatorKind opcode = expr->getOperator();
     string opStr = getOperatorSpelling(opcode);
     
+    bool isDefOperator = isDefaultOperator(expr->getDirectCallee());
+    bool isEqualOperator = expr->isComparisonOp() && opcode == clang::OO_EqualEqual;
+    bool isEqualDefaultOperator = isDefOperator && isEqualOperator;
     bool isAssignOperator = expr->isAssignmentOp() && opcode == OO_Equal;
     bool isIncrDecr = opcode == OO_PlusPlus || opcode == OO_MinusMinus;
     bool isCompoundAssign = opcode == OO_PlusEqual || opcode == OO_MinusEqual || 
@@ -3354,6 +3386,11 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
         cout << "ScGeneratExpr::parseOperatorCall fname : " << fname 
              << ", type : " << thisType.getAsString() << endl;
     }
+
+    bool isInt = isAnyScIntegerRef(thisType, true);
+    bool isRef = !thisType.isNull() && thisType->isReferenceType();
+    thisType = getDerefType(thisType);
+    bool isRecord = !isInt && isUserClass(thisType, true);   
     
     // Check LHS is temporary expression materialized into in memory value
     // Required for @sc_biguint/@sc_bigint
@@ -3421,6 +3458,10 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
             //cout << "lval " << lval << " lrec " << lrec << " " << lhsRecord << lhsRecordChan << endl;
             //ltype.dump();
 
+            // Check that to avoid index applying duplication for record` method call
+            bool hasContextSuffix = !codeWriter->getRecordName().second.empty() ||
+                                    !codeWriter->getMIFName().second.empty();
+
             // Get LHS record indices
             string lrecSuffix;
             if (lhsRefRecord) {
@@ -3429,8 +3470,16 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 refRecarrIndx = "";
             } else 
             if (lrec.isRecord() || lhsRecordChan) {
-                auto lrecvecs = getRecVector(lrec);
-                lrecSuffix = codeWriter->getRecordIndxs(lrecvecs);
+                std::optional<string> termSuffix;
+                if (!hasContextSuffix) {
+                    termSuffix = codeWriter->getRecordIndxs(lexpr);
+                }
+                if (termSuffix) {
+                    lrecSuffix = *termSuffix;
+                } else {
+                    auto lrecvecs = getRecVector(lrec);
+                    lrecSuffix = codeWriter->getRecordIndxs(lrecvecs);
+                }
             }
 
             // @strLiterWidth/@strLiterUnsigned work for integer argument only
@@ -3523,8 +3572,16 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                 refRecarrIndx = "";
             } else 
             if (rrec.isRecord() || rhsRecordChan) {
-                auto rrecvecs = getRecVector(rrec);
-                rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
+                std::optional<string> termSuffix;
+                if (!hasContextSuffix) {
+                    termSuffix = codeWriter->getRecordIndxs(rexpr);
+                }
+                if (termSuffix) {
+                    rrecSuffix = *termSuffix;
+                } else {
+                    auto rrecvecs = getRecVector(rrec);
+                    rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
+                }
             }
             
             // @lval/@rval are element of MIF array, in called MIF function/process
@@ -3973,6 +4030,95 @@ void ScGenerateExpr::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval,
                                  ScDiag::SYNTH_UNSUPPORTED_OPER) << opStr << 
                                  "ScGenerateExpr::parseOperatorCall";
         }
+    } else 
+    if (isRecord && isEqualDefaultOperator) {
+        // Default operator == for records
+        SValue lval;
+        chooseExprMethod(lexpr, lval);
+        QualType ltype = getDerefType(lval.getType());
+        bool lhsRecord = isUserClass(ltype, false);
+        auto lrecType = isUserClassChannel(ltype, false);
+        bool lhsRecordChan = (lhsRecord && lval.isScChannel()) || (bool)lrecType;       
+
+        // Get LHS record indices
+        SValue lrec;
+        if (lhsRecordChan && lval.isScChannel()) {
+            // Record channel is used instead of parent record
+            lrec = lval;
+        } else {
+            // Get record or record channel value
+            state->getValue(lval, lrec);
+        }
+
+        // Check that to avoid index applying duplication for record` method call
+        bool hasContextSuffix = !codeWriter->getRecordName().second.empty() ||
+                                !codeWriter->getMIFName().second.empty();
+
+        string lrecSuffix;
+        if (lrec.isRecord() || lhsRecordChan) {
+            std::optional<string> termSuffix;
+            if (!hasContextSuffix) {
+                termSuffix = codeWriter->getRecordIndxs(lexpr);
+            }
+            if (termSuffix) {
+                lrecSuffix = *termSuffix;
+                codeWriter->clearSubscriptIndex();
+            } else {
+                auto lrecvecs = getRecVector(lrec);
+                lrecSuffix = codeWriter->getRecordIndxs(lrecvecs);
+            }
+        } else {
+            SCT_INTERNAL_FATAL (expr->getBeginLoc(), 
+                                "No record value found for LHS of operator== ()"); 
+        }
+
+        SValue rval;
+        chooseExprMethod(args[1], rval);        
+        QualType rtype = getDerefType(rval.getType());
+        bool rhsRecord = isUserClass(rtype, false);
+        auto rrecType = isUserClassChannel(rtype, false);
+        bool rhsRecordChan = (rhsRecord && rval.isScChannel()) || (bool)rrecType;
+
+        // Get RHS record indices
+        SValue rrec;
+        if (rhsRecordChan && rval.isScChannel()) {
+            // Record channel is used instead of parent record
+            rrec = rval;
+        } else {
+            // Get record or record channel value 
+            state->getValue(rval, rrec);
+        }
+        
+        string rrecSuffix;
+        if (rrec.isRecord() || rhsRecordChan) {
+            std::optional<string> termSuffix;
+            if (!hasContextSuffix) {
+                termSuffix = codeWriter->getRecordIndxs(args[1]);
+            }
+            if (termSuffix) {
+                rrecSuffix = *termSuffix;
+                codeWriter->clearSubscriptIndex();
+            } else {
+                auto rrecvecs = getRecVector(rrec);
+                rrecSuffix = codeWriter->getRecordIndxs(rrecvecs);
+            }
+        } else {
+            SCT_INTERNAL_FATAL (expr->getBeginLoc(), 
+                                "No record value found for RHS of  operator== ()"); 
+        }
+
+        // @lval/@rval are element of MIF array, in called MIF function/process
+        // If we are in MIF function called from an external process,
+        // it needs to add MIF array suffix
+        bool lelemOfMifRecArr = modval != synmodval && hasModvalInHierarchy(lrec);
+        bool relemOfMifRecArr = modval != synmodval && hasModvalInHierarchy(rrec);
+
+        //cout << "Operator == for records: lval " << lval << ", rval " << rval << endl;
+
+        codeWriter->putRecordCompare(expr, lrec, rrec, 
+                                     lelemOfMifRecArr, relemOfMifRecArr,
+                                     lrecSuffix, rrecSuffix);
+
     } else {
         SCT_INTERNAL_FATAL(expr->getBeginLoc(), 
                            string("Unsupported operator ") + fname);

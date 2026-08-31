@@ -33,6 +33,7 @@ public:
     
     SC_CTOR(A)
     {
+        SC_METHOD(bitwise); sensitive << a << c;
         SC_METHOD(cast); sensitive << a << b << s << bus << v[0] << v[1] << v[2] << dr;
         
         SC_METHOD(ctors); sensitive << a << b << us << bus << is << bis;
@@ -43,6 +44,19 @@ public:
     sc_bv<11> J = 42;
     const sc_bv<11> CJ = 42;
     
+    sc_signal<unsigned> t1;
+    void bitwise() {
+        sc_bv<11> l1;
+        sc_bv<11> l2;
+        sc_bv<11> res;
+        res = l1 & l2;
+        res = l1 & c.read();
+        res = a.read() & c.read();  // OK
+        s = a.read() & c.read();    // Fixed
+        b = a.read() & c.read();    // Fixed
+        t1 = res.to_uint();
+    }
+
     void cast() {
         sc_bv<11> i;
         sc_bv<16> j;

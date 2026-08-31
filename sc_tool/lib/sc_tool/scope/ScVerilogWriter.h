@@ -385,6 +385,9 @@ public:
 
     /// Get record array indices string
     std::string getRecordIndxs(const std::vector<SValue>& recarrs);
+
+    /// Get record/MIF array indices from a generated expression term
+    std::optional<std::string> getRecordIndxs(const clang::Stmt* stmt) const;
     
     /// Used for statements which produces nothing, like @ImplicitCastExpr
     void copyTerm(const clang::Stmt* srcStmt, const clang::Stmt* stmt);
@@ -532,6 +535,12 @@ public:
                          std::string lrecSuffix,
                          std::string rrecSuffix);
     
+    /// Comparison (operator ==) for record variables
+    void putRecordCompare(const clang::Stmt* stmt, 
+                          const SValue& lrec, const SValue& rrec,
+                          bool lelemOfMifRecArr, bool relemOfMifRecArr,
+                          std::string lrecSuffix, std::string rrecSuffix);
+
     /// Assignment record variable with temporary record object (T{}, T())
     void putRecordAssignTemp(const clang::Stmt* stmt, 
                          const SValue& lvar, const SValue& lrec, const SValue& rrec,

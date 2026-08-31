@@ -51,6 +51,8 @@ bool isScBigUInt(clang::QualType type);
 /// Check for @sc_bv
 bool isScBitVector(clang::QualType type);
 bool isScLvVector(clang::QualType type);
+/// Check for @sc_proxy<sc_lv_base>
+bool isScLvBaseProxy(clang::QualType type);
 
 /// Check for @sct_zero_width or sc_signal/sc_in/sc_out of @sct_zero_width type
 /// \return false for SS channel of @sct_zero_width

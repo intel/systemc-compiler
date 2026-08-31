@@ -86,6 +86,9 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     }
     
     // Preliminary CPA
+    if (DebugOptions::isEnabled(DebugComponent::doModuleBuilder)) {
+        cout << "\n======================= Preliminary CPA ==========================\n";
+    }
     unordered_set<SValue> defVals;
     DebugOptions::suspend();
     auto preState = shared_ptr<ScState>(globalState->clone());
@@ -107,7 +110,7 @@ sc_elab::VerilogProcCode ScProcAnalyzer::analyzeMethodProcess (
     
     // Main CPA
     if (DebugOptions::isEnabled(DebugComponent::doModuleBuilder)) {
-        cout << "\n=========================  MAIN CPA =============================\n";
+        cout << "\n========================= MAIN CPA =============================\n";
     }
     auto start = chrono::system_clock::now();
     auto constState = shared_ptr<ScState>(globalState->clone());

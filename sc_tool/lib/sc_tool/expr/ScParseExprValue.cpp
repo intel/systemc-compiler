@@ -19,6 +19,8 @@
 #include "sc_tool/utils/CheckCppInheritance.h"
 #include "sc_tool/ScCommandLine.h"
 #include "ScParseExprValue.h"
+#include <clang/Basic/OperatorKinds.h>
+#include <iostream>
 
 namespace sc {
 
@@ -131,11 +133,13 @@ void ScParseExprValue::readFromValue(SValue val)
     QualType valType = getDerefType(val.getType());
     
     // For record arrays it needs to get an record element to provide fields
-    bool isRecArr = !val.isScChannel() && isUserDefinedClassArray(valType, false);
+    bool isRecArr = !val.isScChannel() && isUserDefinedClassArray(valType, false);    
     if (isRecArr) {
-        while (val.isArray()) {
-            val.getArray().setOffset(0);
-            val = state->getValue(val);
+        while (val && !val.isRecord()) {
+            if (val.isArray()) { val.getArray().setOffset(0); }
+            SValue next;
+            state->getValue(val, next, true, ArrayUnkwnMode::amFirstElementRec);
+            val = next;
         }
     }
     
@@ -884,7 +888,7 @@ void ScParseExprValue::parseExpr(CXXConstructExpr* expr, SValue& val)
         if (expr->getNumArgs() == 1) {
             auto argExpr = expr->getArg(0);
 
-            if (isAnyIntegerRef(argExpr->getType())) {
+            if (isAnyIntegerRef(argExpr->getType()) || isScLvBaseProxy(argExpr->getType())) {
                 // Parse constructor argument
                 SValue rval = evalSubExpr(argExpr);
                 readFromValue(rval);
@@ -2812,6 +2816,9 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
     // Method called for this pointer "->"
     bool isPointer = thisType->isAnyPointerType();
 
+    bool isDefOperator = isDefaultOperator(expr->getDirectCallee());
+    bool isEqualOperator = expr->isComparisonOp() && opcode == clang::OO_EqualEqual;
+    bool isEqualDefaultOperator = isDefOperator && isEqualOperator;
     bool isAssignOperator = expr->isAssignmentOp() && opcode == OO_Equal;
     bool isIncrDecr = opcode == OO_PlusPlus || opcode == OO_MinusMinus;
     bool isCompoundAssign = opcode == OO_PlusEqual || opcode == OO_MinusEqual || 
@@ -2820,7 +2827,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
             opcode == OO_GreaterGreaterEqual || opcode == OO_LessLessEqual ||
             opcode == OO_AmpEqual || opcode == OO_PipeEqual || 
             opcode == OO_CaretEqual;
-    
+
     bool isSctVectorAccess = isSctVector(thisType) && opcode == OO_Subscript;
     bool isAccessAtIndex = (isStdArray(thisType) || isStdVector(thisType) || 
                             isScVector(thisType)) && opcode == OO_Subscript;
@@ -2841,6 +2848,10 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
     }
     
     bool lhsZeroWidth = isScZeroWidth(tval);
+    bool isInt = isAnyScIntegerRef(thisType, true);
+    bool isRef = !thisType.isNull() && thisType->isReferenceType();
+    thisType = getDerefType(thisType);
+    bool isRecord = !isInt && isUserClass(thisType, true);   
 
     if (isAssignOperator) {
         // Assignment "operator=" for all types including SC data types
@@ -2861,11 +2872,6 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
             isRequiredStmt = true;
             
         } else {
-            bool isInt = isAnyScIntegerRef(thisType, true);
-            bool isRef = !thisType.isNull() && thisType->isReferenceType();
-            thisType = getDerefType(thisType);
-            bool isRecord = !isInt && isUserClass(thisType, true);
-            
             // @strLiterWidth/@strLiterUnsigned work for integer argument only
             unsigned lastWidth = strLiterWidth;
             bool lastUnsigned = strLiterUnsigned;
@@ -3252,9 +3258,9 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                     adjustIntegers(literVal, maxVal, literVal, maxVal);
                     adjustIntegers(literVal, minVal, literVal, minVal);
 
-//                    cout << "OO varWidth " << varWidth << " isUnsigned " << isUnsigned
-//                         << " literVal " << sc::APSintToString(literVal, 10) << " maxVal " << sc::APSintToString(maxVal, 10)
-//                         << " minVal " << sc::APSintToString(minVal, 10) << endl;
+                //    cout << "OO varWidth " << varWidth << " isUnsigned " << isUnsigned
+                //         << " literVal " << sc::APSintToString(literVal, 10) << " maxVal " << sc::APSintToString(maxVal, 10)
+                //         << " minVal " << sc::APSintToString(minVal, 10) << endl;
 
                     if (equalNotEqual) {
                         if (literVal > maxVal || literVal < minVal) {
@@ -3373,6 +3379,19 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
         }
         
     } else 
+    if (isRecord && isEqualDefaultOperator) {
+        // Default operator == for records
+        SValue rval = evalSubExpr(args[1]);
+
+        val = compareRecordFieldValues(tval, rval);
+        
+        // cout << "Operator == for records: tval " << tval << ", rval " << rval 
+        //      << " result = " << val << endl;
+                    
+        readFromValue(tval);
+        readFromValue(rval);
+
+    } else
     if (nsname && *nsname == "std") {
         
     } else 
@@ -3380,8 +3399,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
         
     } else {
         // User-defined operators not supported yet
-        SCT_INTERNAL_FATAL(expr->getBeginLoc(), 
-                         "User-defined operator not supported yet");
+        SCT_INTERNAL_FATAL(expr->getBeginLoc(), "User-defined operator not supported yet");
     }
 }
 

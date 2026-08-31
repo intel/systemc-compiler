@@ -87,6 +87,17 @@ void ScTraverseConst::parseGlobalConstant(const SValue& val)
     }
 }
 
+// Register accessed value and fields of its canonical record array element
+void ScTraverseConst::registerAccessValue(
+        const SValue& val, std::unordered_set<SValue>& accessVars)
+{
+    if (val.isVariable() || val.isTmpVariable()) {
+        accessVars.insert(val);
+        auto fields = state->getZeroIndexAllFields(val);
+        accessVars.insert(fields.begin(), fields.end());
+    }
+}
+
 // Register variables accessed in and after reset section, 
 // check read-not-defined is empty in reset
 void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt) 
@@ -105,10 +116,8 @@ void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt)
         if (!isCombProcess) {
             //cout << "---- getDefArrayValues " << endl;
             for (const auto& val : state->getAccessValues()) {
-                if (val.isVariable() || val.isTmpVariable()) {
-                    inResetAccessVars.insert(val);
-                    //cout << "   " << val << endl;
-                }
+                registerAccessValue(val, inResetAccessVars);
+                //cout << "   " << val << endl;
             }
             //cout << "---- getReadValues " << endl;
             for (const auto& val : state->getReadValues()) {
@@ -136,9 +145,7 @@ void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt)
         // Register variables accessed after CTHREAD reset
         if (!isCombProcess) {
             for (const auto& val : state->getAccessValues()) {
-                if (val.isVariable() || val.isTmpVariable()) {
-                    afterResetAccessVars.insert(val);
-                }
+                registerAccessValue(val, afterResetAccessVars);
             }
         }
     }

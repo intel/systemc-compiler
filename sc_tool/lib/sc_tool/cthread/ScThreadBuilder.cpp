@@ -143,9 +143,11 @@ sc_elab::VerilogProcCode ThreadBuilder::run(bool &isSingleStatePar)
     }
     
     auto parentModView = procView.getParentModule();
-    auto verMod   = elabDB.getVerilogModule(parentModView);
-    bool hasReset = !procView.resets().empty();
-    bool isMethod = procView.isScMethod();
+    auto verMod    = elabDB.getVerilogModule(parentModView);
+    bool hasReset  = !procView.resets().empty();
+    bool isMethod  = procView.isScMethod();
+    bool isCThread = procView.isScCThread();
+    bool oneClockSens = procView.staticSensitivity().size() == 1;
 
     // Preliminary CPA
     std::unordered_set<SValue> defVals;

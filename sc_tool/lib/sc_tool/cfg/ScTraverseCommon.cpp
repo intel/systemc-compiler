@@ -39,6 +39,17 @@ bool sc::isZeroWidthCall(clang::Stmt* stmt)
     return false;
 }
 
+// Check if the operator has default implementation            
+bool sc::isDefaultOperator(const clang::FunctionDecl* operDecl) {
+    if (!operDecl) { return false; }
+
+    // Use the defining redeclaration when available.
+    if (const clang::FunctionDecl* operDef = operDecl->getDefinition()) {
+        return operDef->isDefaulted();
+    }
+    return operDecl->isDefaulted();
+}
+
 // Check if statement is call expression of user defined function/method
 bool sc::isUserCallExpr(clang::Stmt* stmt)
 {
@@ -48,6 +59,12 @@ bool sc::isUserCallExpr(clang::Stmt* stmt)
         // Get function name and type
         FunctionDecl* funcDecl = expr->getDirectCallee();
         SCT_TOOL_ASSERT (funcDecl, "No function found for call expression");
+
+        // Do not consider default operator == and others as user function 
+        if (isDefaultOperator(funcDecl)) { 
+            return false;
+        }
+
         std::string fname = funcDecl->getNameAsString();
         auto nsname = getNamespaceAsStr(funcDecl);
 

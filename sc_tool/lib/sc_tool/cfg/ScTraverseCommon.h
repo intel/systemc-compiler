@@ -332,6 +332,9 @@ public:
 /// Check if statement is member function of @sct_zero_width
 bool isZeroWidthCall(clang::Stmt* stmt);
 
+/// Check if the operator has default implementation            
+bool isDefaultOperator(const clang::FunctionDecl* operDecl);
+
 /// Check if statement is call expression of user defined function/method
 bool isUserCallExpr(clang::Stmt* stmt);
 

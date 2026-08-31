@@ -236,6 +236,11 @@ public:
                           bool checkConst = true, 
                           bool removeSubValues = false);
 
+    /// Compare two record fields one by one, skip inner records.
+    /// Return boolean SValue or NO_VALUE if comparison is unknown or 
+    /// inner record exists.
+    SValue compareRecordFieldValues(const SValue& lval, const SValue& rval);
+
     /// Evaluate statement from CFG : Block element or terminator
     virtual void chooseExprMethod(clang::Stmt *stmt, SValue &result);
 
