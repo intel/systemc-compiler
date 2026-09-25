@@ -904,6 +904,8 @@ template<
 class sct_pipe {};
 \end{lstlisting}
 
+The pipeline register supports low active reset only.
+
 The pipeline register can have input or output registers, which are not used for re-timing.
 
 \begin{lstlisting}[style=mycpp]
@@ -1105,7 +1107,7 @@ template <unsigned SyncType,        // Number of FF: 1 or 2
 class sct_ff_synchronizer {};
 \end{lstlisting}
 
-Synchronizer should be bound to clock and reset, and added into sensitivity list of the process which does read.
+Synchronizer should be bound to clock and reset, and added into sensitivity list of the process which does read. Synchronizer supports positive edge clock only.
 
 \begin{lstlisting}[style=mycpp]
 sct_target<T>           targ{"targ"};
@@ -1606,6 +1608,7 @@ void methProc() {
 void thrdProc() {
    init.reset_put();
    wait();
+   while(true){
       Rec_t data = getSomeData();
       init.b_put(data);
       wait();

@@ -607,7 +607,7 @@ a[a[i].m].m = 0;   // Not supported
 a[b[i].n].m = 0;   // Supported
 \end{lstlisting}
 
-It is recommended to use SC vector ({\tt sc\_vector}) for signals/ports and modules instead of arrays. SC vector is not supported for modular interface yet. Multi-dimensional vector (vector of vectors) also supported. SC vector instances can be instantiated in modules and modular interfaces, including array of modular interfaces. SC vector cannot be passed to or returned from function.
+It is recommended to use SC vector ({\tt sc\_vector}) for signals/ports, modules and modular interfaces instead of arrays. Multi-dimensional vector (vector of vectors) also supported. SC vector instances can be instantiated in modules and modular interfaces, including array of modular interfaces. SC vector cannot be passed to or returned from function.
 %
 \begin{lstlisting}[style=mycpp]
 sc_vector<sc_in<bool>>  req{"req"};
@@ -663,11 +663,9 @@ Record declaration with and without parameters supported in the following forms:
 %
 \begin{lstlisting}[style=mycpp]
 Rec1 r1;        	// OK
-Rec1 r1();        	// OK
 Rec1 r1{};        	// OK
 Rec1 r1 = f();    	// OK, where f() is a function returns Rec1
-Rec1 r1 = Rec1{}; 	// Error
-Rec1 r1 = Rec1();  	// Error
+Rec1 r1 = Rec1{}; 	// Error, use Rec1 r1; r1 = Rec1{}; instead
 Rec2 r2(42);    	// OK
 Rec2 r2{42};    	// OK
 \end{lstlisting}
@@ -679,7 +677,6 @@ Record assignment supported in the following forms:
 Rec1 r0;
 Rec1 r1;
 r1 = r0;            // OK
-r1 = Rec1();        // OK
 r1 = Rec1{};        // OK
 r1 = f();           // OK, where f() is a function returns Rec1
 r2 = Rec2(42);      // OK
@@ -720,7 +717,7 @@ sc_signal<SRec> s{"s"};
 SRec r1;          // OK
 r1 = in.read();   // OK
 r1 = s;           // OK
-s = Rec1();       // OK
+s = Rec1{};       // OK
 s.write(r1);      // OK
 out = r1;         // OK
 out = Rec1{};     // OK

@@ -22,13 +22,14 @@ In second case SystemVerilog module implementation needs to be provided in an ex
 
 \begin{lstlisting}[style=mycpp]
 struct my_register : sc_module {
-  std::string __SC_TOOL_VERILOG_MOD__[] = R"(
+  std::string __SC_TOOL_VERILOG_MOD__ = R"(
      module my_register (
         input  logic [31:0] din,
         output logic [31:0] dout
      );
      assign dout = din;
-     endmodule)";
+     endmodule
+  )";
 
   SC_CTOR (my_register) {...}
   ...
@@ -64,7 +65,7 @@ If specified module name in module without {\tt \_\_SC\_TOOL\_VERILOG\_MOD\_\_} 
 // Memory stub example
 struct memory_stub : sc_module {
     // Disable Verilog module generation
-    std::string __SC_TOOL_VERILOG_MOD__[] = "";  
+    std::string __SC_TOOL_VERILOG_MOD__{""};
     // Specify module name at instantiation
     std::string __SC_TOOL_MODULE_NAME__;             
     explicit memory_stub(const sc_module_name& name,
