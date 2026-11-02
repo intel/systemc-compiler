@@ -178,6 +178,10 @@ svc_target(method_fcall_ref GOLDEN method_fcall_ref.sv NO_REMOVE_EXTRA_CODE)
 add_executable(method_fcall_ref_arr_unkwn test_fcall_ref_arr_unkwn.cpp)
 svc_target(method_fcall_ref_arr_unkwn GOLDEN method_fcall_ref_arr_unkwn.sv NO_REMOVE_EXTRA_CODE)
 
+# Unused code removal with a statement shared by two calls (default options)
+add_executable(method_fcall_ref_part_used test_fcall_ref_part_used.cpp)
+svc_target(method_fcall_ref_part_used GOLDEN method_fcall_ref_part_used.sv)
+
 add_executable(method_sc_types test_sc_types.cpp)
 svc_target(method_sc_types GOLDEN method_sc_types.sv)
 
