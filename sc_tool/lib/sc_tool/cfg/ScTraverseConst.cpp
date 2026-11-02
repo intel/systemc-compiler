@@ -921,8 +921,64 @@ void ScTraverseConst::removeUnusedStmt()
 //    }
 //    state->print();
 
+    // Check if @val is used by a statement other than ++, -- and a compound
+    // operator which has @val as LValue, @defs are the statements defining @val
+    auto isUsed = [&](const SValue& val, 
+                      const std::unordered_set<Stmt*>& defs) -> bool {
+        auto k = useVarStmts.find(val);
+        if (k == useVarStmts.end()) return false;
+        
+        for (Stmt* stmt : k->second) {
+            if (!stmt) {
+                // Null statement for terminator with constant condition
+                // Just ignore it and do not remove
+            } else
+            if (auto oper = dyn_cast<UnaryOperator>(stmt)) {
+                if (oper->getOpcode() == UO_PostInc || 
+                    oper->getOpcode() == UO_PreInc ||
+                    oper->getOpcode() == UO_PostDec || 
+                    oper->getOpcode() == UO_PreDec) continue;
+            } else 
+            if (auto bind = dyn_cast<CXXBindTemporaryExpr>(stmt)) {
+                if (auto oper = dyn_cast<CXXOperatorCallExpr>(bind->getSubExpr())) {
+                    if (oper->getOperator() == OO_PlusPlus ||
+                        oper->getOperator() == OO_MinusMinus) continue;
+                }
+            } else   
+            if (auto oper = dyn_cast<CXXOperatorCallExpr>(stmt)) {
+                if (oper->getOperator() == OO_PlusPlus ||
+                    oper->getOperator() == OO_MinusMinus) continue;
+                if (oper->getOperator() == OO_PlusEqual ||
+                    oper->getOperator() == OO_MinusEqual ||
+                    oper->getOperator() == OO_StarEqual ||
+                    oper->getOperator() == OO_SlashEqual ||
+                    oper->getOperator() == OO_PercentEqual) {
+                    // Check @val is LValue in the compound statement
+                    if (defs.count(stmt)) continue;
+                }
+            } else 
+            if (auto oper = dyn_cast<CompoundAssignOperator>(stmt)) {
+                // Check @val is LValue in the compound statement
+                if (defs.count(stmt)) continue;
+            }
+            return true;
+        }
+        return false;
+    };
+    
     while (true) {
         unordered_set<Stmt*> removeStmts;
+        
+        // Statements defining a used variable passed to a reference parameter.
+        // A statement in a function body is the same AST node at each call of
+        // the function, and through a reference parameter it defines a different
+        // variable at each call: it cannot be removed while any of them is used
+        unordered_set<Stmt*> usedRefDefStmts;
+        for (const auto& i : defVarStmts) {
+            if (refArgStmts.count(i.first) && isUsed(i.first, i.second)) {
+                usedRefDefStmts.insert(i.second.begin(), i.second.end());
+            }
+        }
             
         // Find defined but not used variables to remove
         // Terminator conditions are not in @defVarStmts, so never be removed
@@ -934,46 +990,18 @@ void ScTraverseConst::removeUnusedStmt()
             //cout << "defVarStmts val " << val << endl;
             
             // Skip used value
-            auto k = useVarStmts.find(val);
-            if (k != useVarStmts.end()) {
-                // Ignore ++, --, and compound operators
-                bool hasUseStmt = false;
-                for (Stmt* stmt : k->second) {
-                    if (!stmt) {
-                        // Null statement for terminator with constant condition
-                        // Just ignore it and do not remove
-                    } else
-                    if (auto oper = dyn_cast<UnaryOperator>(stmt)) {
-                        if (oper->getOpcode() == UO_PostInc || 
-                            oper->getOpcode() == UO_PreInc ||
-                            oper->getOpcode() == UO_PostDec || 
-                            oper->getOpcode() == UO_PreDec) continue;
-                    } else 
-                    if (auto bind = dyn_cast<CXXBindTemporaryExpr>(stmt)) {
-                        if (auto oper = dyn_cast<CXXOperatorCallExpr>(bind->getSubExpr())) {
-                            if (oper->getOperator() == OO_PlusPlus ||
-                                oper->getOperator() == OO_MinusMinus) continue;
-                        }
-                    } else   
-                    if (auto oper = dyn_cast<CXXOperatorCallExpr>(stmt)) {
-                        if (oper->getOperator() == OO_PlusPlus ||
-                            oper->getOperator() == OO_MinusMinus) continue;
-                        if (oper->getOperator() == OO_PlusEqual ||
-                            oper->getOperator() == OO_MinusEqual ||
-                            oper->getOperator() == OO_StarEqual ||
-                            oper->getOperator() == OO_SlashEqual ||
-                            oper->getOperator() == OO_PercentEqual) {
-                            // Check @val is LValue in the compound statement
-                            if (i->second.count(stmt)) continue;
-                        }
-                    } else 
-                    if (auto oper = dyn_cast<CompoundAssignOperator>(stmt)) {
-                        // Check @val is LValue in the compound statement
-                        if (i->second.count(stmt)) continue;
+            if (isUsed(val, i->second)) {++i; continue;}
+            
+            // Skip value passed to a reference parameter and defined by a statement
+            // which defines a used value at another call
+            if (refArgStmts.count(val)) {
+                bool hasUsedDefStmt = false;
+                for (Stmt* stmt : i->second) {
+                    if (usedRefDefStmts.count(stmt)) {
+                        hasUsedDefStmt = true; break;
                     }
-                    hasUseStmt = true; break;
                 }
-                if (hasUseStmt) {++i; continue;}
+                if (hasUsedDefStmt) {++i; continue;}
             }
             
             bool isPtr = val.isPointer();
