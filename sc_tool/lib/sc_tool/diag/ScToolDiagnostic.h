@@ -260,6 +260,7 @@ public:
         SYNTH_ARRAY_ELM_REF_FCALL   = 275,
         SYNTH_FCALL_IN_INIT_LIST    = 276,
         SYNTH_REC_ARRAY_IN_EQUAL    = 277,
+        SYNTH_UCAST_EXTENDED        = 278,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -834,6 +835,12 @@ private:
         idFormatMap[SYNTH_REC_ARRAY_IN_EQUAL] =
             {clang::DiagnosticIDs::Warning, 
             "Unpacked array comparison can be not supported by logic synthesis tool"};
+        
+        // Cast to unsigned type is ignored, so its result keeps the sign in SV
+        // and is sign extended, while it is zero extended in SC
+        idFormatMap[SYNTH_UCAST_EXTENDED] =
+            {clang::DiagnosticIDs::Warning,
+            "Signed expression casted to unsigned and then extended leads to non-equivalent code if its high bit is set"};
         
         
         idFormatMap[SYNTH_LITER_OVERFLOW] =

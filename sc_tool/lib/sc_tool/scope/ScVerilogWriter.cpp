@@ -1332,6 +1332,7 @@ void ScVerilogWriter::putTypeCast(const clang::Stmt* srcStmt,
         SCT_TOOL_ASSERT(width > 0, "Type width is zero");
 
         auto info = terms.at(srcStmt);
+        checkUnsignedCastExtend(info, width);
         info.minCastWidth = (info.minCastWidth) ? min(info.minCastWidth, width) : 
                                                   width;
         info.lastCastWidth = width;
@@ -1347,6 +1348,56 @@ void ScVerilogWriter::putTypeCast(const clang::Stmt* srcStmt,
         cout << "putTypeCast : arg " << hex << (size_t)srcStmt << dec << endl;
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
                            "putTypeCast : No term for sub-statement ");
+    }
+}
+
+// Register explicit cast to unsigned type of signed non-literal, the cast type
+// width is the width of the term value, extending it is reported. 
+// Reset it for other casts, a narrower or equal unsigned cast replaces it
+void ScVerilogWriter::putUnsignedCast(const clang::Expr* expr)
+{
+    if (skipTerm) return;
+
+    if (terms.count(expr) != 0) {
+        auto& info = terms.at(expr);
+        
+        // No unsigned cast of signed non-literal, or the operand is signed 
+        // in C++ only and unsigned in SV
+        if (info.castSign != CastSign::UCAST || info.literRadix || 
+            info.ucastNoSign) {
+            info.ucastExpr = nullptr;
+            
+        } else 
+        if (info.ucastExpr) {
+            // Wider cast already reported for @info.ucastExpr, keep it
+            auto oldInfo = getIntTraits(info.ucastExpr->getType(), true);
+            auto newInfo = getIntTraits(expr->getType(), true);
+            if (oldInfo && newInfo && newInfo->first <= oldInfo->first) {
+                info.ucastExpr = expr;
+            }
+        } else {
+            info.ucastExpr = expr;
+        }
+    } else {
+        cout << "putUnsignedCast : arg " << hex << (size_t)expr << dec << endl;
+        SCT_INTERNAL_FATAL(expr->getBeginLoc(), 
+                           "putUnsignedCast : No term for statement ");
+    }
+}
+
+// Report term with explicit cast to unsigned type of signed non-literal 
+// extended to @width, at the cast location to report it once.
+// Used where no sign cast is applied to the term, so it keeps the sign
+void ScVerilogWriter::checkUnsignedCastExtend(const TermInfo& info, 
+                                              size_t width) 
+{
+    if (!info.ucastExpr || !width) return;
+    
+    if (auto typeInfo = getIntTraits(info.ucastExpr->getType(), true)) {
+        if (width > typeInfo->first) {
+            ScDiag::reportScDiag(info.ucastExpr->getBeginLoc(), 
+                                 ScDiag::SYNTH_UCAST_EXTENDED);
+        }
     }
 }
 
@@ -1402,6 +1453,10 @@ void ScVerilogWriter::putSignCast(const clang::Stmt* stmt, CastSign castSign)
         auto& info = terms.at(stmt);
         // No signed cast for signed expression
         if (info.exprSign != ExprSign::SEXPR) {
+            // Term with sign cast is unsigned in SV where the cast is not applied
+            info.ucastNoSign = castSign == CastSign::UCAST && 
+                               (info.castSign == CastSign::SCAST || 
+                                info.castSign == CastSign::SACAST);
             // Apply SACAST after explicit cast to get @signed'({1'b0, ...});
             info.castSign = info.explCast && castSign == CastSign::SCAST ? 
                             CastSign::SACAST : castSign;
@@ -1571,6 +1626,9 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                 SCT_INTERNAL_FATAL(stmt->getBeginLoc(),
                                    "No term for loop variable initialization");
             }
+            if (auto typeInfo = getIntTraits(type, true)) {
+                checkUnsignedCastExtend(terms.at(init), typeInfo->first);
+            }
             //  Loop iterator is combinational variable, so has the same names
             auto names = getVarName(val);
             string s = getVarDeclVerilog(type, names.first) + 
@@ -1713,6 +1771,9 @@ void ScVerilogWriter::putVarDecl(const Stmt* stmt, const SValue& val,
                 string lhsName = secName ? names.second : names.first;
                 string rhsName = getTermAsRValue(init, false, false, false, 
                                                  false, true).first;
+                if (auto typeInfo = getIntTraits(type, true)) {
+                    checkUnsignedCastExtend(terms.at(init), typeInfo->first);
+                }
 
                 putAssignBase(stmt, val, lhsName, rhsName, 0);
             }
@@ -2218,6 +2279,7 @@ void ScVerilogWriter::putAssign(const Stmt* stmt, const SValue& lval,
             string rhsName = removeBrackets(getTermAsRValue(rhs, false, false, 
                                                             false, false, true).first);
             unsigned width = getExprWidth(lhs); 
+            checkUnsignedCastExtend(terms.at(rhs), width);
 
             putAssignBase(stmt, lval, lhsName, rhsName, width);
             //cout << "+++ " << hex << (unsigned long)stmt << dec << endl;
@@ -2264,6 +2326,7 @@ void ScVerilogWriter::putAssign(const Stmt* stmt, const SValue& lval,
         if (auto typeInfo = getIntTraits(lval.getType())) {
             width = typeInfo->first;
         }
+        checkUnsignedCastExtend(terms.at(rhs), width);
                 
         putAssignBase(stmt, lval, lhsName, rhsName, width);
         
@@ -2624,6 +2687,11 @@ void ScVerilogWriter::putArrayElemInit(const Stmt* stmt, const SValue& bval,
                 names.first += indxSuff;
                 names.second += indxSuff;
             }
+        }
+        
+        if (auto typeInfo = getIntTraits(getArrayElementType(bval.getType()), 
+                                         true)) {
+            checkUnsignedCastExtend(terms.at(iexpr), typeInfo->first);
         }
         
         string s;
@@ -3451,6 +3519,10 @@ void ScVerilogWriter::putFCallParam(const Stmt* stmt, const SValue& pval,
                      "Put non-constant reference parameter");
     
     if (terms.count(arg)) {
+        if (auto typeInfo = getIntTraits(getDerefType(pval.getType()), true)) {
+            checkUnsignedCastExtend(terms.at(arg), typeInfo->first);
+        }
+        
         // Get unique variable name for @pval, cannot be register variable
         auto names = getVarName(pval);
         string s = names.first + ASSIGN_SYM + getTermAsRValue(arg).first;

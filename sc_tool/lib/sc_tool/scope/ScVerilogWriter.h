@@ -87,6 +87,14 @@ struct TermInfo
                                 // is variable: a[i], a[i][0], a[1][i+1], a[j][i]
     bool        selfDetrm : 1;  // Term has self-determined width argument
                                 // requires to cast it width inside of @signed'{}
+    bool        ucastNoSign : 1;// UCAST applied to term signed in C++ only, 
+                                // by SCAST/SACAST, which is unsigned in SV 
+                                // where no sign cast is applied
+    // Explicit cast of signed non-literal to unsigned type which gives this 
+    // term its width, or nullptr. Cast to unsigned is ignored in SV, so 
+    // the term is sign extended beyond the cast type width, but zero extended 
+    // in SC, that is reported for wider cast and assignment to wider target
+    const clang::Expr* ucastExpr;
     
     TermInfo(const std::pair<std::string, std::string>& s, 
              unsigned exprWidth_, bool isChannel_) : 
@@ -94,7 +102,8 @@ struct TermInfo
         exprWidth(exprWidth_), minCastWidth(0), lastCastWidth(0), 
         literRadix(0), castSign(CastSign::NOCAST), exprSign(ExprSign::NOEXPR), 
         isChannel(isChannel_), explCast(false),
-        simplTerm(true), incrWidth(false), arrVarInd(false), selfDetrm(false)
+        simplTerm(true), incrWidth(false), arrVarInd(false), selfDetrm(false),
+        ucastNoSign(false), ucastExpr(nullptr)
     {}
 };
 
@@ -410,6 +419,14 @@ public:
     /// Put narrowing width cast to have equvalent SV for SC overflow 
     /// Applied to integral types in binary/unary operator 
     void putTypeCast(const clang::Stmt* stmt, const clang::QualType& type); 
+    
+    /// Register or reset explicit cast @expr to unsigned type of signed 
+    /// non-literal, called after @putTypeCast and @putSignCast for @expr
+    void putUnsignedCast(const clang::Expr* expr);
+    
+    /// Report term with explicit cast to unsigned type of signed non-literal,
+    /// if the term is extended to @width
+    void checkUnsignedCastExtend(const TermInfo& info, size_t width);
 
     /// Put sign cast for literals and expressions
     void putSignCast(const clang::Stmt* stmt, CastSign castSign);
