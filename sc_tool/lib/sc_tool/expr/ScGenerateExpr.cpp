@@ -1143,6 +1143,14 @@ void ScGenerateExpr::parseExpr(ExplicitCastExpr* expr, SValue& rval, SValue& val
             codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
                                                      CastSign::UCAST);
         }
+        
+        // Explicit cast to unsigned type of signed non-literal is ignored,
+        // register it to report its extension
+        if (getIntTraits(type, true) && !isBoolType(type) &&
+            (isa<CStyleCastExpr>(expr) || isa<CXXFunctionalCastExpr>(expr) || 
+             isa<CXXStaticCastExpr>(expr))) {
+            codeWriter->putUnsignedCast(expr);
+        }
     }
 }
 
@@ -2968,6 +2976,9 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                     codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
                                                              CastSign::UCAST);
                 }
+                // Conversion to unsigned type of signed non-literal is ignored,
+                // register it to report its extension
+                codeWriter->putUnsignedCast(expr);
             }
         } else
         if (fname.find("to_bool") != string::npos) {
