@@ -193,6 +193,16 @@ svc_target(method_auto_type GOLDEN method_auto_type.sv)
 add_executable(method_cast test_cast.cpp)
 svc_target(method_cast GOLDEN method_cast.sv)
 
+add_executable(method_cast_unsigned_extend test_cast_unsigned_extend.cpp)
+svc_target(method_cast_unsigned_extend GOLDEN method_cast_unsigned_extend.sv)
+# Extended unsigned cast warning reported at the lines marked "warning" only,
+# after DIFF as the tool writes SV again
+add_test(NAME method_cast_unsigned_extend_WARN COMMAND bash -c
+         "diff <(grep -n '// warning$' ${CMAKE_CURRENT_SOURCE_DIR}/test_cast_unsigned_extend.cpp | cut -d: -f1) <($<TARGET_FILE:method_cast_unsigned_extend_sctool> 2>&1 | grep -o 'test_cast_unsigned_extend.cpp:[0-9]*:[0-9]*: warning: Signed expression casted to unsigned and then extended' | cut -d: -f2 | sort -nu)"
+        )
+set_tests_properties(method_cast_unsigned_extend_WARN PROPERTIES 
+                     DEPENDS method_cast_unsigned_extend_DIFF)
+
 
 ## Binary operations
 add_executable(method_binary test_binary.cpp)
