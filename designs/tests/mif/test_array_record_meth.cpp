@@ -14,14 +14,13 @@ struct mod_if : public sc_module, sc_interface
 
     SC_CTOR(mod_if) 
     {
-        // TODO: Fix me, see #158
-        //SC_METHOD(useDefBug);
-        //sensitive << s;
+        SC_METHOD(useDefBug);
+        sensitive << s;
 
         SC_METHOD(memRecMeth);
         sensitive << s;
 
-        // TODO: Fix me, see #158
+        
         SC_METHOD(memRecArrMeth);
         sensitive << s;
         
@@ -56,8 +55,6 @@ struct Simple2 {
 
 // ---------------------------------------------------------------------------    
 
-    // Incorrect result of @getFirstArrayElementForAny() -- 
-    // return t[1].rec_arr[0].c instead of t[0].rec_arr[0].c
     struct UDSimple {
         Inner  rec_arr[2];
     };
@@ -105,14 +102,12 @@ struct Simple2 {
         w[1].rec.c = 20;
         w[0].rec_arr[1].c = 30;
         
-        // TODO: Uncomment after #158 fixed 
-        /*int sum = 0;
+        int sum = 0;
         for (int i = 0; i < 3; ++i) {
             ww[i].rec_arr[1].c = i;
             sum += ww[i].rec_oth_arr[1].c;
-        }*/
+        }
         
-        int sum = 0;
         for (int i = 0; i < 2; ++i) {
             ww[0].rec_arr[i].c = i;
             sum += ww[0].rec_oth_arr[i].c;
@@ -120,8 +115,7 @@ struct Simple2 {
         
         sc_uint<4> x = w[0].rec_arr[1].c + ww[0].rec_oth_arr[0].c;
         t1 = x + sum;
-        // TODO: Uncomment after #158 fixed 
-        //sc_uint<4> y = w[1].rec_arr[1].c + ww[2].rec_oth_arr[0].c;
+        sc_uint<4> y = w[1].rec_arr[1].c + ww[2].rec_oth_arr[0].c;
     }
     
     

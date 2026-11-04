@@ -196,13 +196,18 @@ end
 always_comb 
 begin : while_stmt7     // test_while.cpp:151:5
     integer k_1;
+    integer n_1;
+    integer mm;
     integer i;
     k_1 = '0;
+    n_1 = '0;
+    mm = '0;
     i = '0;
     while (i < 3)
     begin
         k_1 = 32'(k_1 + i);
         i++;
+        n_1 = mm++;
     end
 end
 

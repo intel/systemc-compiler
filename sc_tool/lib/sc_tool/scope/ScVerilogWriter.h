@@ -87,6 +87,7 @@ struct TermInfo
                                 // is variable: a[i], a[i][0], a[1][i+1], a[j][i]
     bool        selfDetrm : 1;  // Term has self-determined width argument
                                 // requires to cast it width inside of @signed'{}
+    bool        explicitSignCast : 1;
     
     TermInfo(const std::pair<std::string, std::string>& s, 
              unsigned exprWidth_, bool isChannel_) : 
@@ -94,7 +95,8 @@ struct TermInfo
         exprWidth(exprWidth_), minCastWidth(0), lastCastWidth(0), 
         literRadix(0), castSign(CastSign::NOCAST), exprSign(ExprSign::NOEXPR), 
         isChannel(isChannel_), explCast(false),
-        simplTerm(true), incrWidth(false), arrVarInd(false), selfDetrm(false)
+        simplTerm(true), incrWidth(false), arrVarInd(false), selfDetrm(false),
+        explicitSignCast(false)
     {}
 };
 
@@ -413,6 +415,8 @@ public:
 
     /// Put sign cast for literals and expressions
     void putSignCast(const clang::Stmt* stmt, CastSign castSign);
+
+    void setExplicitSignCast(const clang::Stmt* stmt);
     
     /// Put cast from boolean to signed integer
     void putBoolCast(const clang::Stmt* stmt);
@@ -678,7 +682,8 @@ public:
     
     /// Get string for @stmt, which may be sub-expression
     /// \return expression string to read
-    std::optional<std::string> getStmtString(const clang::Stmt* stmt);
+    std::optional<std::string> getStmtString(const clang::Stmt* stmt,
+                                             bool asRValue = false);
 
     /// Get string for IF statement
     std::string getIfString(const clang::Expr* cexpr);

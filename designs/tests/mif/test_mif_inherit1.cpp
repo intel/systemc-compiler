@@ -19,7 +19,11 @@ struct my_if : public sc_interface
 };
 
 template <unsigned N>
+#ifdef MIF_REVERSE_BASES
+struct mod_if : public my_if<N>, public sc_module
+#else
 struct mod_if : public sc_module, public my_if<N> 
+#endif
 {
     sc_in_clk       clk{"clk"};
     sc_in<bool>     rst;

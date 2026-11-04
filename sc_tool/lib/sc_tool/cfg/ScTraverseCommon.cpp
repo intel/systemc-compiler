@@ -12,6 +12,35 @@
 using namespace clang;
 using namespace sc;
 
+bool sc::CheckChannelReadVisitor::VisitCXXMemberCallExpr(CXXMemberCallExpr* expr)
+{
+    const auto* method = expr->getMethodDecl();
+    const auto* object = expr->getImplicitObjectArgument();
+    if (method && object && isScChannel(object->getType()) &&
+        (isa<CXXConversionDecl>(method) || method->getNameAsString() == "read")) {
+        found = true;
+        return false;
+    }
+    return true;
+}
+
+bool sc::CheckChannelReadVisitor::TraverseUnaryExprOrTypeTraitExpr(UnaryExprOrTypeTraitExpr*)
+{
+    return true;
+}
+
+bool sc::CheckChannelReadVisitor::TraverseCXXNoexceptExpr(CXXNoexceptExpr*)
+{
+    return true;
+}
+
+bool sc::CheckChannelReadVisitor::hasRead(Expr* expr)
+{
+    found = false;
+    TraverseStmt(expr);
+    return found;
+}
+
 bool sc::CheckRecordIndxVisitor::VisitStmt(clang::Stmt* stmt) 
 {
     //std::cout << "VisitStmt " << std::hex << stmt << std::dec << std::endl;

@@ -77,7 +77,20 @@ add_executable(cthread_while_other_types test_while_other_types.cpp)
 svc_target(cthread_while_other_types GOLDEN cthread_while_other_types.sv)
 
 add_executable(cthread_while_const test_while_const.cpp)
-svc_target(cthread_while_const GOLDEN cthread_while_const.sv)
+svc_target(cthread_while_const)
+
+add_executable(cthread_while_const_fail test_while_const.cpp)
+target_compile_definitions(cthread_while_const_fail PRIVATE
+    NO_WAIT_LOOP_FAIL)
+svc_target(cthread_while_const_fail WILL_FAIL)
+
+add_executable(cthread_no_wait_loop test_no_wait_loop.cpp)
+svc_target(cthread_no_wait_loop ELAB_TOP a_mod)
+
+add_executable(cthread_no_wait_loop_fail test_no_wait_loop.cpp)
+target_compile_definitions(cthread_no_wait_loop_fail PRIVATE
+    NO_WAIT_LOOP_FAIL)
+svc_target(cthread_no_wait_loop_fail ELAB_TOP a_mod WILL_FAIL)
 
 add_executable(cthread_do_while test_do_while.cpp)
 svc_target(cthread_do_while GOLDEN cthread_do_while.sv)
@@ -89,7 +102,7 @@ add_executable(cthread_do_while_always1 test_do_while_always1.cpp)
 svc_target(cthread_do_while_always1 GOLDEN cthread_do_while_always1.sv)
            
 add_executable(cthread_do_while_const test_do_while_const.cpp)
-svc_target(cthread_do_while_const GOLDEN cthread_do_while_const.sv)
+svc_target(cthread_do_while_const WILL_FAIL)
 
 add_executable(cthread_inner_loops test_cthread_inner_loops.cpp)
 svc_target(cthread_inner_loops GOLDEN cthread_inner_loops.sv)
@@ -146,6 +159,9 @@ svc_target(cthread_fcall1 GOLDEN cthread_fcall1.sv NO_FUNC_THREAD)
 
 add_executable(cthread_fcall_ref test_fcall_ref.cpp)
 svc_target(cthread_fcall_ref GOLDEN cthread_fcall_ref.sv)
+
+add_executable(cthread_fcall_ref_chain test_fcall_ref_chain.cpp)
+svc_target(cthread_fcall_ref_chain ELAB_TOP top)
 
 add_executable(cthread_fcall_const_eval test_cthread_fcall_const_eval.cpp)
 svc_target(cthread_fcall_const_eval GOLDEN cthread_fcall_const_eval.sv NO_REMOVE_EXTRA_CODE)

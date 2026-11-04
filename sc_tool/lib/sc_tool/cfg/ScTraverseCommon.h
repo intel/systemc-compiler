@@ -294,6 +294,20 @@ public:
 };
 
 //-----------------------------------------------------------------------------
+/// Check if expression contains an evaluated signal or port read.
+class CheckChannelReadVisitor :
+    public clang::RecursiveASTVisitor<CheckChannelReadVisitor>
+{
+    bool found = false;
+
+public:
+    bool VisitCXXMemberCallExpr(clang::CXXMemberCallExpr* expr);
+    bool TraverseUnaryExprOrTypeTraitExpr(clang::UnaryExprOrTypeTraitExpr* expr);
+    bool TraverseCXXNoexceptExpr(clang::CXXNoexceptExpr* expr);
+    bool hasRead(clang::Expr* expr);
+};
+
+//-----------------------------------------------------------------------------
 /// Check same record variable as base and index in @ArraySubscriptExpr
 class CheckRecordIndxVisitor : public clang::RecursiveASTVisitor<CheckRecordIndxVisitor> 
 {

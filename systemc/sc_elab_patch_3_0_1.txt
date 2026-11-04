@@ -278,9 +278,9 @@ diff -crBN systemc-3.0.1/src/sc_elab/allocated_node.h systemc-3.0.1_patched/src/
 +     std::size_t array_size; // number of elements in array for new [X]
 + };
 + 
-+ /// get traced dynamic allocations for specified module
++ /// get traced dynamic allocations by complete module address
 + const std::vector<allocated_node>&
-+ get_module_allocs(const sc_core::sc_module* mod_ptr);
++ get_module_allocs(const void* mod_ptr);
 + 
 + /// Calls before_end_of_elaboration callbacks
 + void finalize_elaboration();
@@ -296,7 +296,7 @@ diff -crBN systemc-3.0.1/src/sc_elab/elab_alloc.cpp systemc-3.0.1_patched/src/sc
 --- systemc-3.0.1_patched/src/sc_elab/elab_alloc.cpp	2025-05-13 16:58:16.857338000 -0700
 ***************
 *** 0 ****
---- 1,135 ----
+--- 1,142 ----
 + //
 + // Created by ripopov on 12/18/17.
 + //
@@ -342,9 +342,16 @@ diff -crBN systemc-3.0.1/src/sc_elab/elab_alloc.cpp systemc-3.0.1_patched/src/sc
 + }
 + 
 + /// get dynamic allocations for given module
-+ const std::vector<allocated_node> &get_module_allocs(const sc_core::sc_module *mod_ptr)
++ const std::vector<allocated_node> &get_module_allocs(const void *mod_ptr)
 + {
-+     return get_alloc_node_map()->operator[](mod_ptr);
++     for (const auto &entry : *get_alloc_node_map()) {
++         if (dynamic_cast<const void *>(entry.first) == mod_ptr) {
++             return entry.second;
++         }
++     }
++     
++     static const std::vector<allocated_node> empty;
++     return empty;
 + }
 + 
 + void trace_alloc_impl(void *ptr,

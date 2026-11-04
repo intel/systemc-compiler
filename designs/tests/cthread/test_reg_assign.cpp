@@ -153,7 +153,7 @@ struct A : public sc_module
             e2 = 0;
             e3 = 0;
             e4 = 0;
-            while (s.read()) {e5 = 0;}
+            while (s.read()) {e5 = 0; wait();}
             wait();                
         }
     }

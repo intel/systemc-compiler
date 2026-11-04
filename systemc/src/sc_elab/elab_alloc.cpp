@@ -43,9 +43,16 @@ static sc_core::sc_module *curr_module()
 }
 
 /// get dynamic allocations for given module
-const std::vector<allocated_node> &get_module_allocs(const sc_core::sc_module *mod_ptr)
+const std::vector<allocated_node> &get_module_allocs(const void *mod_ptr)
 {
-    return get_alloc_node_map()->operator[](mod_ptr);
+    for (const auto &entry : *get_alloc_node_map()) {
+        if (dynamic_cast<const void *>(entry.first) == mod_ptr) {
+            return entry.second;
+        }
+    }
+    
+    static const std::vector<allocated_node> empty;
+    return empty;
 }
 
 void trace_alloc_impl(void *ptr,

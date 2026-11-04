@@ -65,7 +65,8 @@ public:
     /// Check if function has wait() inside, implemented in ScTraverseProc
     virtual bool isWaitInFunc(const clang::FunctionDecl* decl) = 0;
 
-    /// Check if current function has wait() inside, implemented in ScTraverseProc
+    /// Check if current function has wait() inside or call a function with wait(), 
+    /// implemented in ScTraverseProc
     virtual bool isWaitInCurrFunc() = 0;
 
     /// Get string from char* argument

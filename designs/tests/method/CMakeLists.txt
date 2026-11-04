@@ -193,6 +193,18 @@ svc_target(method_auto_type GOLDEN method_auto_type.sv)
 add_executable(method_cast test_cast.cpp)
 svc_target(method_cast GOLDEN method_cast.sv)
 
+add_executable(method_cast_sign test_cast_sign.cpp)
+svc_target(method_cast_sign ELAB_TOP top)
+add_test(NAME method_cast_sign_WARN COMMAND bash -c
+    "output=$(\"$<TARGET_FILE:method_cast_sign_sctool>\" 2>&1) || exit 1
+    diff <(
+        grep -nE 'warn_(out\\[[0-9]+\\]|init|assign|array\\[[0-9]+\\]) =|return static_cast<unsigned>' \"${CMAKE_CURRENT_SOURCE_DIR}/test_cast_sign.cpp\" | cut -d: -f1
+    ) <(
+        printf '%s\\n' \"$output\" | grep -o 'test_cast_sign.cpp:[0-9]*:[0-9]*: warning: Explicit cast' | cut -d: -f2 | sort -n
+    )")
+set_tests_properties(method_cast_sign_WARN PROPERTIES
+                     DEPENDS method_cast_sign_SYN)
+
 
 ## Binary operations
 add_executable(method_binary test_binary.cpp)

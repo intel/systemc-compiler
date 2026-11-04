@@ -120,6 +120,7 @@ public:
     }
     
     // Issue #334
+    sc_signal<int> t0a;
     void Issue334_1() {
         Rec_t loc(40, s.read());
         loc = Rec_t(41, s.read());
@@ -129,10 +130,11 @@ public:
             loc_arr_[i] = Rec_t(s.read(), 42);   
         }
 
-        t0 = loc.a + loc.b + + loc_arr_[0].a + loc_arr_[0].b;
+        t0a = loc.a + loc.b + + loc_arr_[0].a + loc_arr_[0].b;
     }
     
     // Issue #334
+    sc_signal<int> t0b;
     void Issue334_2() {
         Rec_t loc;
         loc = Rec_t(41, s.read(), s.read() == 42);
@@ -142,16 +144,17 @@ public:
             loc_arr_[i] = Rec_t(41, s.read(), s.read() != 0);
         }
 
-        t0 = loc.a + loc.b + loc_arr_[0].a + loc_arr_[0].b;
+        t0b = loc.a + loc.b + loc_arr_[0].a + loc_arr_[0].b;
     }
     
     // Issue #334
+    sc_signal<int> t0c;
     void Issue334_3() {
         Rec_t loc;
         sc_uint<4> a = s.read()+1;
         loc = Rec_t(41, s.read(), a);
 
-        t0 = loc.a + loc.b;
+        t0c = loc.a + loc.b;
     }
     
     // Issue #333
@@ -163,6 +166,9 @@ public:
 
         Rec_t loc0 = f();
         
+        //Rec_t loc2 = Rec_t{};   // Error
+        //Rec_t loc3 = Rec_t();   // Error
+
         Rec_t loc1;
         loc1 = Rec_t();
         loc1 = Rec_t{};

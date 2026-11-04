@@ -35,7 +35,7 @@ public:
         
         SC_METHOD(cond_side_effect); sensitive << b << c;
         
-        SC_METHOD(cond_fcall); sensitive << a;
+        SC_METHOD(cond_fcall); sensitive << a << s;
         SC_METHOD(binary_unary_fcall); sensitive << a;
     }
 
@@ -131,13 +131,28 @@ public:
     int h(int par) {
         return (par+1);
     }
+    int side_effect_var;
+    int side_effect_func(int par) {
+        side_effect_var += par;
+        return side_effect_var;
+    }
+    int side_effect_wrapper(int par) {
+        return side_effect_func(par);
+    }
+    sc_signal<int> s;
     sc_signal<int> t5;
     void cond_fcall()
     {
         int i = 3;
         int res;
-        res = (g(1)) ? h(1) : h(2);
-        res = (a.read()) ? g(0) : h(0);
+        side_effect_var = s.read();
+        res = (g(1)) ? h(1) : h(2);         // OK
+        res = (a.read()) ? g(0) : h(1);     // OK
+        res = (i--) ? 1 : 2;
+        res = (side_effect_func(1)) ? 1 : 2; // Error in condition only
+        res = (a.read()) ? g(0) : side_effect_func(1);  // Error in 2nd
+        res = (a.read()) ? side_effect_wrapper(1) : h(1); // Error in 1st
+        res = (a.read()) ? g(s.read()) : h(s.read()+1);   // OK
         if (h(1)) {res = 1;}
         res = 1+h(0);
         if (h(1) || h(2)) {res = h(3);}
@@ -152,7 +167,7 @@ public:
         res = -h(0);
         res = (h(1));
         res = unsigned(h(1));
-        res = a.read() ? h(1) : h(2);
+        res = a.read() ? h(1) : h(2);  // OK
         res = sc_uint<4>(h(2));
         t6 = res;
     }

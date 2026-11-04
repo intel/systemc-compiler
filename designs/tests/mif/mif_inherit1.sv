@@ -35,19 +35,19 @@ assign minst2_clk = clk;
 assign minst2_rst = rst;
 
 //------------------------------------------------------------------------------
-// Method process: minst1_metProc (test_mif_inherit1.cpp:41:5) 
+// Method process: minst1_metProc (test_mif_inherit1.cpp:45:5) 
 
 // Process-local variables
 logic [1:0] minst1_var;
 
 always_comb 
-begin : minst1_metProc     // test_mif_inherit1.cpp:41:5
+begin : minst1_metProc     // test_mif_inherit1.cpp:45:5
     minst1_var = !minst1_s;
     minst1_a = !(|minst1_var);
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst1_thrProc (test_mif_inherit1.cpp:46:5) 
+// Clocked THREAD: minst1_thrProc (test_mif_inherit1.cpp:50:5) 
 
 // Thread-local variables
 logic minst1_b_next;
@@ -55,7 +55,7 @@ logic [2:0] i;
 logic [2:0] i_next;
 
 // Next-state combinational logic
-always_comb begin : minst1_thrProc_comb     // test_mif_inherit1.cpp:46:5
+always_comb begin : minst1_thrProc_comb     // test_mif_inherit1.cpp:50:5
     minst1_thrProc_func;
 end
 function void minst1_thrProc_func;
@@ -77,19 +77,19 @@ begin : minst1_thrProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: minst2_metProc (test_mif_inherit1.cpp:41:5) 
+// Method process: minst2_metProc (test_mif_inherit1.cpp:45:5) 
 
 // Process-local variables
 logic [1:0] minst2_var;
 
 always_comb 
-begin : minst2_metProc     // test_mif_inherit1.cpp:41:5
+begin : minst2_metProc     // test_mif_inherit1.cpp:45:5
     minst2_var = !minst2_s;
     minst2_a = !(|minst2_var);
 end
 
 //------------------------------------------------------------------------------
-// Clocked THREAD: minst2_thrProc (test_mif_inherit1.cpp:46:5) 
+// Clocked THREAD: minst2_thrProc (test_mif_inherit1.cpp:50:5) 
 
 // Thread-local variables
 logic minst2_b_next;
@@ -97,7 +97,7 @@ logic [2:0] i0;
 logic [2:0] i_next0;
 
 // Next-state combinational logic
-always_comb begin : minst2_thrProc_comb     // test_mif_inherit1.cpp:46:5
+always_comb begin : minst2_thrProc_comb     // test_mif_inherit1.cpp:50:5
     minst2_thrProc_func;
 end
 function void minst2_thrProc_func;
@@ -119,10 +119,10 @@ begin : minst2_thrProc_ff
 end
 
 //------------------------------------------------------------------------------
-// Method process: top_method (test_mif_inherit1.cpp:89:5) 
+// Method process: top_method (test_mif_inherit1.cpp:93:5) 
 
 always_comb 
-begin : top_method     // test_mif_inherit1.cpp:89:5
+begin : top_method     // test_mif_inherit1.cpp:93:5
     s = minst1_a || minst2_a;
 end
 

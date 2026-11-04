@@ -122,7 +122,16 @@ end
 
 //------------------------------------------------------------------------------
 // Method process: remove1 (test_unused_remove_local.cpp:257:5) 
-// Empty process, no code generated 
+
+always_comb 
+begin : remove1     // test_unused_remove_local.cpp:257:5
+    integer i;
+    integer j;
+    integer l;
+    i = 1;
+    j = 32'(i + 2'sd1);
+    l = j++;
+end
 
 //------------------------------------------------------------------------------
 // Method process: remove1a (test_unused_remove_local.cpp:290:5) 
@@ -462,7 +471,28 @@ end
 
 //------------------------------------------------------------------------------
 // Clocked THREAD: remove1_thread (test_unused_remove_local.cpp:271:5) 
-// Empty process, no code generated 
+
+// Next-state combinational logic
+always_comb begin : remove1_thread_comb     // test_unused_remove_local.cpp:271:5
+    remove1_thread_func;
+end
+function void remove1_thread_func;
+    integer i;
+    integer j;
+    integer l;
+    i = 1;
+    j = 32'(i + 2'sd1);
+    l = j++;
+endfunction
+
+// Synchronous register update
+always_ff @(posedge clk or negedge nrst) 
+begin : remove1_thread_ff
+    if ( ~nrst ) begin
+    end
+    else begin
+    end
+end
 
 //------------------------------------------------------------------------------
 // Clocked THREAD: remove1a_thread (test_unused_remove_local.cpp:304:5) 

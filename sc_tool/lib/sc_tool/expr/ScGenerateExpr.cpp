@@ -1109,6 +1109,24 @@ void ScGenerateExpr::parseExpr(ExplicitCastExpr* expr, SValue& rval, SValue& val
     ScParseExpr::parseExpr(expr, rval, val);
     QualType type = expr->getType();
     QualType origType = expr->getSubExpr()->getType();
+    bool explicitSignCast = false;
+
+    if (!val.isInteger() &&
+        (isa<CStyleCastExpr>(expr) || isa<CXXFunctionalCastExpr>(expr) ||
+         isa<CXXStaticCastExpr>(expr))) 
+    {
+        Expr* sourceExpr = expr->getSubExprAsWritten();
+        QualType sourceType = sourceExpr->getType();
+        auto sourceTraits = getIntTraits(sourceType, true);
+        auto targetTraits = getIntTraits(type, true);
+
+        if (sourceTraits && targetTraits && !sourceExpr->isIntegerConstantExpr(astCtx) &&
+            !isBoolType(sourceType) && !isBoolType(type) &&
+            sourceTraits->second != targetTraits->second) 
+        {
+            explicitSignCast = true;
+        }
+    }
     
     // Partial select applied only for C++ or SC integral type
     if (isVoidType(type) && (isa<CStyleCastExpr>(expr) || 
@@ -1143,6 +1161,10 @@ void ScGenerateExpr::parseExpr(ExplicitCastExpr* expr, SValue& rval, SValue& val
             codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
                                                      CastSign::UCAST);
         }
+    }
+
+    if (explicitSignCast) {
+        codeWriter->setExplicitSignCast(expr);
     }
 }
 

@@ -169,6 +169,7 @@ private:
     // Name and next name 
     std::pair<std::string, std::string> waitNRegNames;
     std::pair<std::string, std::string> stateRegNames;
+    std::vector<std::pair<std::string, std::string>> selectorRegNames;
 };
 
 

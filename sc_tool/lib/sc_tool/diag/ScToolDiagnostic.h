@@ -260,6 +260,8 @@ public:
         SYNTH_ARRAY_ELM_REF_FCALL   = 275,
         SYNTH_FCALL_IN_INIT_LIST    = 276,
         SYNTH_REC_ARRAY_IN_EQUAL    = 277,
+        SYNTH_FUNC_ALL_IN_TERNARY   = 278,
+        SYNTH_EXPLICIT_SIGN_CAST   = 279,
 
         SC_FATAL_ELAB_TYPES_NS      = 300,
         SC_WARN_ELAB_UNSUPPORTED_TYPE,
@@ -278,6 +280,7 @@ public:
         SC_ERROR_CPROP_UNROLL_WAIT  = 401,
         SC_ERROR_CPROP_UNROLL_UNKWN   = 402,
         SC_WARN_EVAL_UNSUPPORTED_EXPR = 403,
+        SC_ERROR_CPROP_INFINITE_LOOP  = 404,
 
         TOOL_INTERNAL_ERROR          = 500,
         TOOL_INTERNAL_FATAL          = 501,
@@ -835,7 +838,16 @@ private:
             {clang::DiagnosticIDs::Warning, 
             "Unpacked array comparison can be not supported by logic synthesis tool"};
         
-        
+        idFormatMap[SYNTH_FUNC_ALL_IN_TERNARY] =
+            {clang::DiagnosticIDs::Error,
+            "Function with side effects in branch of ternary operator is not "
+            "supported yet"};
+
+        idFormatMap[SYNTH_EXPLICIT_SIGN_CAST] =
+            {clang::DiagnosticIDs::Warning,
+            "Explicit cast changes signedness; signedness may not be "
+            "preserved in this RTL context"};
+
         idFormatMap[SYNTH_LITER_OVERFLOW] =
             {clang::DiagnosticIDs::Error, 
             "Literal is too big, up to 4096 symbols supported"};
@@ -997,6 +1009,10 @@ private:
         idFormatMap[SC_ERROR_CPROP_UNROLL_UNKWN] =
             {clang::DiagnosticIDs::Error,
              "Can't evaluate loop condition to unroll a loop"};
+
+        idFormatMap[SC_ERROR_CPROP_INFINITE_LOOP] =
+            {clang::DiagnosticIDs::Error,
+             "Potential infinite loop without wait()"};
 
         idFormatMap[SC_WARN_EVAL_UNSUPPORTED_EXPR] =
             {clang::DiagnosticIDs::Warning,

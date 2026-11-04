@@ -83,6 +83,8 @@ logic signed [31:0] q;
 
 always_comb 
 begin : remove_member2     // test_unused_remove_member.cpp:158:5
+    integer l;
+    l = q--;
 end
 
 //------------------------------------------------------------------------------
@@ -158,21 +160,41 @@ end
 // Thread-local variables
 logic signed [31:0] mm;
 logic signed [31:0] mm_next;
+logic signed [31:0] qt;
+logic signed [31:0] qt_next;
 logic signed [31:0] t0c_next;
 logic signed [31:0] mmt;
-logic signed [31:0] qt;
+logic remove_member2_thread_PROC_STATE;
+logic remove_member2_thread_PROC_STATE_next;
 
 // Next-state combinational logic
 always_comb begin : remove_member2_thread_comb     // test_unused_remove_member.cpp:164:5
     remove_member2_thread_func;
 end
 function void remove_member2_thread_func;
+    integer l;
     mm_next = mm;
+    qt_next = qt;
     t0c_next = t0c;
-    mm++;
-    t0c_next = mm;
-    mmt = 1;
-    t0c_next = mmt++;
+    remove_member2_thread_PROC_STATE_next = remove_member2_thread_PROC_STATE;
+    
+    case (remove_member2_thread_PROC_STATE)
+        0: begin
+            mm++;
+            t0c_next = mm;
+            mmt = 1;
+            t0c_next = mmt++;
+            remove_member2_thread_PROC_STATE_next = 1; return;    // test_unused_remove_member.cpp:175:13;
+        end
+        1: begin
+            l = qt_next--;
+            mm++;
+            t0c_next = mm;
+            mmt = 1;
+            t0c_next = mmt++;
+            remove_member2_thread_PROC_STATE_next = 1; return;    // test_unused_remove_member.cpp:175:13;
+        end
+    endcase
 endfunction
 
 // Synchronous register update
@@ -180,10 +202,13 @@ always_ff @(posedge clk or negedge nrst)
 begin : remove_member2_thread_ff
     if ( ~nrst ) begin
         mm <= 1;
+        remove_member2_thread_PROC_STATE <= '0;    // test_unused_remove_member.cpp:167:9;
     end
     else begin
         mm <= mm_next;
+        qt <= qt_next;
         t0c <= t0c_next;
+        remove_member2_thread_PROC_STATE <= remove_member2_thread_PROC_STATE_next;
     end
 end
 
@@ -262,7 +287,7 @@ end
 // Clocked THREAD: remove5 (test_unused_remove_member.cpp:273:5) 
 
 // Thread-local variables
-logic signed [31:0] l;
+logic signed [31:0] l0;
 logic signed [31:0] l_next;
 logic signed [31:0] k0;
 logic signed [31:0] k_next;
@@ -275,7 +300,7 @@ always_comb begin : remove5_comb     // test_unused_remove_member.cpp:273:5
 end
 function void remove5_func;
     k_next = k0;
-    l_next = l;
+    l_next = l0;
     remove5_PROC_STATE_next = remove5_PROC_STATE;
     
     case (remove5_PROC_STATE)
@@ -307,7 +332,7 @@ begin : remove5_ff
     `endif // INTEL_SVA_OFF
     end
     else begin
-        l <= l_next;
+        l0 <= l_next;
         k0 <= k_next;
         remove5_PROC_STATE <= remove5_PROC_STATE_next;
 

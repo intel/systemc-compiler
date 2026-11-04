@@ -78,6 +78,9 @@ svc_target(mif_array_record_meth GOLDEN mif_array_record_meth.sv)
 add_executable(mif_array_record_cthread test_array_record_cthread.cpp)
 svc_target(mif_array_record_cthread GOLDEN mif_array_record_cthread.sv)
 
+add_executable(mif_rec_oper_equal test_mif_rec_oper_equal.cpp)
+svc_target(mif_rec_oper_equal ELAB_TOP tb_inst.top_inst GOLDEN mif_rec_oper_equal.sv)
+
 
 add_executable(mif_name_conflict1 test_name_conflict1.cpp)
 svc_target(mif_name_conflict1 GOLDEN mif_name_conflict1.sv NO_REMOVE_EXTRA_CODE)
@@ -121,6 +124,11 @@ svc_target(mif_array_with_chan ELAB_TOP tb_inst.top_inst GOLDEN mif_array_with_c
 
 add_executable(mif_inherit1 test_mif_inherit1.cpp)
 svc_target(mif_inherit1 ELAB_TOP tb_inst.top_inst GOLDEN mif_inherit1.sv)
+
+add_executable(mif_inherit1_reverse test_mif_inherit1.cpp)
+target_compile_definitions(mif_inherit1_reverse PUBLIC MIF_REVERSE_BASES)
+svc_target(mif_inherit1_reverse ELAB_TOP tb_inst.top_inst
+		   GOLDEN mif_inherit1.sv)
 
 
 ## MIF with CTHREAD
@@ -190,6 +198,21 @@ svc_target(mif_sc_vector_mif5 GOLDEN mif_sc_vector_mif5.sv NO_REMOVE_EXTRA_CODE)
 
 add_executable(mif_sc_vector_mif6 test_sc_vector_mif6.cpp)
 svc_target(mif_sc_vector_mif6 GOLDEN mif_sc_vector_mif6.sv NO_REMOVE_EXTRA_CODE)
+
+add_executable(mif_sc_vector_mif7 test_sc_vector_mif7.cpp)
+svc_target(mif_sc_vector_mif7 ELAB_TOP dut GOLDEN mif_sc_vector_mif7.sv)
+
+add_executable(mif_sc_vector_mif7a test_sc_vector_mif7a.cpp)
+svc_target(mif_sc_vector_mif7a ELAB_TOP dut GOLDEN mif_sc_vector_mif7a.sv)
+
+add_executable(mif_sc_vector_mif7b test_sc_vector_mif7b.cpp)
+svc_target(mif_sc_vector_mif7b ELAB_TOP dut GOLDEN mif_sc_vector_mif7b.sv)
+
+add_executable(mif_sc_vector_mif7b_multi_fail test_sc_vector_mif7b.cpp)
+target_compile_definitions(mif_sc_vector_mif7b_multi_fail
+						   PRIVATE MIF_MULTI_SELECTOR)
+svc_target(mif_sc_vector_mif7b_multi_fail ELAB_TOP dut WILL_FAIL)
+
 
 add_executable(mif_sc_vector_ptr test_sc_vector_ptr.cpp)
 svc_target(mif_sc_vector_ptr GOLDEN mif_sc_vector_ptr.sv NO_REMOVE_EXTRA_CODE)

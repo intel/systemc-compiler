@@ -605,9 +605,9 @@ Object *DesignDbGenerator::createArrayElementObject(TypedObject elTO,
 }
 
 void DesignDbGenerator::addModuleDynamicAllocs(TypedObject moduleTO,
-                                             Object *moduleEO)
+                                               Object *moduleEO)
 {
-    auto &dyn_allocs = get_module_allocs( (sc_core::sc_module*) moduleTO.getPtr());
+    auto &dyn_allocs = get_module_allocs(moduleTO.getPtr());
 
     for (auto &alloc : dyn_allocs) {
 

@@ -388,8 +388,7 @@ void ScTraverseProc::parseCall(CallExpr* expr, SValue& val)
 }
 
 // Member function call expression
-void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval, 
-                                     SValue& val) 
+void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval, SValue& val) 
 {
     // Get @this expression and its type
     Expr* thisExpr = expr->getImplicitObjectArgument();
@@ -422,7 +421,8 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
         if (fname == "wait") {
             // SC wait call
             if (DebugOptions::isEnabled(DebugComponent::doGenFuncCall)) {
-                cout << "----------- wait "<< expr->getSourceRange().getBegin().printToString(sm) <<"-----------" << endl;
+                cout << "----------- wait "<< expr->getSourceRange().getBegin().printToString(sm) 
+                     <<"-----------" << endl;
             }
             waitCall = true;
             
@@ -525,6 +525,63 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 }
             }
 
+            // Handle signal/port indices for method with wait() calls on modular interface object
+            std::optional<std::string> capturedSelector;
+            if (isWaitInFunc(methodDecl) && isScModularInterface(funcModval.getType())) {
+                // Collect all array/port selectors for @this object
+                std::vector<Expr*> selectors;
+                Expr* object = thisExpr;
+                while (object) {
+                    object = object->IgnoreParenImpCasts();
+                    if (auto subscript = dyn_cast<ArraySubscriptExpr>(object)) {
+                        selectors.push_back(subscript->getIdx());
+                        object = subscript->getBase();
+                    } else if (auto oper = dyn_cast<CXXOperatorCallExpr>(object)) {
+                        if (oper->getOperator() != OO_Subscript) break;
+                        selectors.push_back(oper->getArg(1));
+                        object = oper->getArg(0);
+                    } else if (auto member = dyn_cast<MemberExpr>(object)) {
+                        object = member->getBase();
+                    } else if (auto cast = dyn_cast<CastExpr>(object)) {
+                        object = cast->getSubExpr();
+                    } else if (auto unary = dyn_cast<UnaryOperator>(object)) {
+                        object = unary->getSubExpr();
+                    } else {
+                        break;
+                    }
+                }
+
+                // Check if any of the selectors are read from a channel/port
+                // Such index can be dynamically changed over wait() calls
+                CheckChannelReadVisitor readVisitor;
+                bool dynamicIndex = false;
+                for (Expr* selector : selectors) {
+                    dynamicIndex |= readVisitor.hasRead(selector);
+                }
+
+                // Report error if multiple signal/port indices are used for a call with wait()
+                // Also check if multiple MIF arrays are involved
+                if (dynamicIndex && (selectors.size() > 1 ||
+                    state->getAllMifArrays(funcModval,ScState::MIF_CROSS_NUM).size() > 1)) {
+                    ScDiag::reportScDiag(expr->getBeginLoc(), ScDiag::SYNTH_UNSUPPORTED_OPER)
+                        << "multiple MIF signal/port indices for a call with wait()"
+                        << "ScTraverseProc::parseMemberCall";
+
+                } else if (dynamicIndex) {
+                    auto selector = selectors.front();
+                    auto traits = getIntTraits(selector->getType());
+                    auto selectorStr = codeWriter->getStmtString(selector, true);
+                    SCT_TOOL_ASSERT(traits && selectorStr && mifSelectorAllocator,
+                                    "No MIF signal/port index register allocator");
+                                    
+                    auto selectorNames = mifSelectorAllocator(
+                                         callStack, traits->first, !traits->second);
+                    capturedSelector = codeWriter->isResetSection() ?
+                                       selectorNames.first : selectorNames.second;
+                    scopeGraph->storeStmt(nullptr, *capturedSelector + " = " + *selectorStr);
+                }
+            }
+
             // Generate function parameter assignments
             prepareCallParams(expr, funcModval, methodDecl);
             // Register return value and prepare @lastContext
@@ -534,7 +591,10 @@ void ScTraverseProc::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
             
             // Set record expression (record name and indices) to use in called function
             //cout << "\nthisExpr " << hex << thisExpr << dec << endl;
-            if (auto thisStr = codeWriter->getStmtString(thisExpr)) {
+            if (capturedSelector) {
+                codeWriter->setRecordName(funcModval, "[" + *capturedSelector + "]");
+                
+            } else if (auto thisStr = codeWriter->getStmtString(thisExpr)) {
                 //std::cout << "setRecordName " << funcModval << " " << *thisStr << std::endl; 
                 codeWriter->setRecordName(funcModval, *thisStr);
             }

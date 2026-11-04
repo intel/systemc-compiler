@@ -1,5 +1,6 @@
 add_subdirectory(const_prop)
 add_subdirectory(cthread)
+add_subdirectory(linter)
 add_subdirectory(method)
 add_subdirectory(mif)
 add_subdirectory(misc)

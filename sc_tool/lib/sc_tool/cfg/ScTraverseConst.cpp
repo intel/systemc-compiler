@@ -161,6 +161,49 @@ void ScTraverseConst::registerAccessVar(bool isResetSection, const Stmt* stmt)
 // ---------------------------------------------------------------------------
 // Auxiliary functions
 
+// Check if a loop has a reachable exit (return or break) considering live statements and terminators
+static bool hasReachableLoopExit(Stmt* stmt,
+                                 const unordered_set<Stmt*>& liveStmts,
+                                 const unordered_set<Stmt*>& liveTerms,
+                                 bool nested = false)
+{
+    if (!stmt) return false;
+    if (isa<ReturnStmt>(stmt)) return liveStmts.count(stmt);
+    if (isa<BreakStmt>(stmt)) return !nested && liveTerms.count(stmt);
+
+    nested = nested || isa<ForStmt>(stmt) || isa<WhileStmt>(stmt) ||
+             isa<DoStmt>(stmt) || isa<SwitchStmt>(stmt);
+    for (Stmt* child : stmt->children()) {
+        if (hasReachableLoopExit(child, liveStmts, liveTerms, nested)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Check if a loop condition is mutable (depends on variables that can change)
+static bool hasMutableLoopCondition(Stmt* stmt)
+{
+    if (!stmt) return false;
+    if (isUserCallExpr(stmt)) return true;
+    const ValueDecl* decl = nullptr;
+    if (auto ref = dyn_cast<DeclRefExpr>(stmt)) {
+        decl = ref->getDecl();
+    } else
+    if (auto member = dyn_cast<MemberExpr>(stmt)) {
+        decl = member->getMemberDecl();
+    }
+    if (decl && !isa<FunctionDecl>(decl) &&
+        (!isConstOrConstRef(decl->getType()) ||
+         decl->getType()->isReferenceType()) &&
+        !isScChannel(decl->getType())) return true;
+
+    for (Stmt* child : stmt->children()) {
+        if (hasMutableLoopCondition(child)) return true;
+    }
+    return false;
+}
+
 // Evaluate terminator condition if it is compile time constant
 void ScTraverseConst::evaluateTermCond(Stmt* stmt, SValue& val) 
 {
@@ -330,7 +373,7 @@ void ScTraverseConst::prepareCallContext(Expr* expr,
                      "Function call or constructor in another call parameter");
     
     // Store return value for the call expression to replace where it used
-    auto i = calledFuncs.emplace(expr, retVal);
+    auto i = calledFuncs.emplace(expr, ConstCallResult(retVal));
     if (!i.second) {
         cout << hex << expr << dec << endl;
         SCT_TOOL_ASSERT (false, "Second meet of function call");
@@ -338,8 +381,8 @@ void ScTraverseConst::prepareCallContext(Expr* expr,
 
     // Prepare context to store
     lastContext = std::make_shared<ConstFuncContext>(
-                            CfgCursor(funcDecl, nullptr, 0), 
-                            returnValue, modval, recval,
+                            CfgCursor(funcDecl, nullptr, 0),
+                            expr, returnValue, modval, recval,
                             delayed, loopStack, calledFuncs,
                             simpleReturnFunc, returnStmtFunc, sideEffectFunc);
     
@@ -352,6 +395,23 @@ void ScTraverseConst::prepareCallContext(Expr* expr,
     simpleReturnFunc = true;
     returnStmtFunc = nullptr;
     sideEffectFunc = false;
+}
+
+// Assign record value in state after constructor call
+void ScTraverseConst::assignRecValueInState(const SValue &lval,
+                                           const SValue &rval,
+                                           ArrayUnkwnMode returnUnknown)
+{
+    if (lastContext && isa<CXXConstructorDecl>(funcDecl) &&
+        rval.isRecord() && rval == recval) {
+        lastContext->recordAssignLval = lval;
+        lastContext->recordAssignRval = rval;
+        lastContext->recordAssignStmt = currStmt;
+        lastContext->recordAssignLevel = level;
+        lastContext->recordAssignMode = returnUnknown;
+    } else {
+        ScParseExpr::assignRecValueInState(lval, rval, returnUnknown);
+    }
 }
 
 // Parse and return integer value of wait(...) argument
@@ -754,8 +814,12 @@ void ScTraverseConst::chooseExprMethod(Stmt* stmt, SValue& val)
     bool anyFuncCall = isa<CallExpr>(stmt) || isa<CXXConstructExpr>(stmt);
     
     if (anyFuncCall && calledFuncs.count(stmt)) {
-        // Get return value from already analyzed user defined functions
-        val = calledFuncs.at(stmt);
+        // Get result from already analyzed user defined function
+        const auto& callResult = calledFuncs.at(stmt);
+        val = callResult.returnValue;
+        isUserCallStmt = true;
+        //isSideEffStmt = isSideEffStmt || callResult.sideEffect;
+        isSideEffCallStmt = isSideEffCallStmt || callResult.sideEffect;
         //cout << "Get RET value " << val << " for stmt #" << hex << stmt << dec  << endl;
         
     } else {
@@ -838,6 +902,7 @@ void ScTraverseConst::restoreContext()
         cout << "   scopeGraph #" << hex << i.scopeGraph.get() << dec << endl;
     }*/
         
+    bool calledSideEffect = sideEffectFunc;
     auto context = contextStack.back();
     contextStack.pop_back();
     loopStack = context.loopStack;
@@ -846,11 +911,15 @@ void ScTraverseConst::restoreContext()
     returnValue = context.returnValue;
     funcDecl = context.callPoint.getFuncDecl();
     calledFuncs = context.calledFuncs;
+    auto callResult = calledFuncs.find(context.callExpr);
+    SCT_TOOL_ASSERT(callResult != calledFuncs.end(),
+                    "No cached function call result");
+    callResult->second.sideEffect = calledSideEffect;
     delayed = context.delayed;
     simpleReturnFunc = context.simpleReturnFunc;
     returnStmtFunc = context.returnStmtFunc;
     // Side effects in called functions spread to callee
-    sideEffectFunc = context.sideEffectFunc || sideEffectFunc;
+    sideEffectFunc = context.sideEffectFunc || calledSideEffect;
         
     cfg = cfgFabric->get(funcDecl);
     SCT_TOOL_ASSERT (cfg, "No CFG at restore context");
@@ -860,6 +929,20 @@ void ScTraverseConst::restoreContext()
     // Start analysis with restored element index
     elemIndx = context.callPoint.getElementID();
     exitBlockId = cfg->getExit().getBlockID();
+
+    // Complete the deferred record copy before constructor-local cleanup
+    if (context.recordAssignStmt) {
+        unsigned lastLevel = level;
+        Stmt* lastStmt = currStmt;
+        level = context.recordAssignLevel;
+        currStmt = context.recordAssignStmt;
+        ScParseExpr::assignRecValueInState(context.recordAssignLval,
+                    context.recordAssignRval, context.recordAssignMode);
+        readFromValue(context.recordAssignRval);
+        writeToValue(context.recordAssignLval);
+        level = lastLevel;
+        currStmt = lastStmt;
+    }
 
     // Erase local variables of called function 
     state->removeValuesByLevel(level);
@@ -874,7 +957,8 @@ void ScTraverseConst::restoreContext()
 
         /*cout << " calledFuncs:" << endl;
         for (auto& i : calledFuncs) {
-            cout << "   " << i.second.asString() << endl;
+              cout << "   " << i.second.returnValue.asString()
+                  << " side effect " << i.second.sideEffect << endl;
         }*/
     }
     //cout << " restore recval (2) " << recval << endl;    
@@ -921,23 +1005,36 @@ void ScTraverseConst::removeUnusedStmt()
 //    }
 //    state->print();
 
+    // Get first MIF array element for any variable (field of MIF) if applicable
+    auto getUseKey = [this](const SValue& val) {
+        if (val.isVariable()) {
+            const SValue& parent = val.getVariable().getParent();
+            if (parent.isRecord() && isScModularInterface(parent.getType())) {
+                return state->getFirstArrayElementForAny(
+                            val, ScState::MIF_CROSS_NUM);
+            }
+        }
+        return val;
+    };
+
     while (true) {
         unordered_set<Stmt*> removeStmts;
-            
-        // Find defined but not used variables to remove
-        // Terminator conditions are not in @defVarStmts, so never be removed
-        //cout << "Removed values " << endl;
-        for (auto i = defVarStmts.begin(); i != defVarStmts.end(); ) {
-            // Used value is zero array/record array indices variable
-            const SValue& val = i->first;
-            const QualType& type = val.getType();
-            //cout << "defVarStmts val " << val << endl;
-            
-            // Skip used value
+        unordered_map<SValue, unordered_set<SValue>> usedMifVals;
+        for (const auto& entry : useVarStmts) {
+            usedMifVals[getUseKey(entry.first)].insert(entry.first);
+        }
+
+        auto isUsed = [&](const SValue& val, const unordered_set<Stmt*>& defs) -> bool {
+            // Check if the variable is used in any MIF array element context
+            auto uses = usedMifVals.find(getUseKey(val));
+            if (uses != usedMifVals.end() && 
+                (uses->second.size() > 1 || !uses->second.count(val))) {
+                return true;
+            }
+
             auto k = useVarStmts.find(val);
             if (k != useVarStmts.end()) {
                 // Ignore ++, --, and compound operators
-                bool hasUseStmt = false;
                 for (Stmt* stmt : k->second) {
                     if (!stmt) {
                         // Null statement for terminator with constant condition
@@ -964,16 +1061,47 @@ void ScTraverseConst::removeUnusedStmt()
                             oper->getOperator() == OO_SlashEqual ||
                             oper->getOperator() == OO_PercentEqual) {
                             // Check @val is LValue in the compound statement
-                            if (i->second.count(stmt)) continue;
+                            if (defs.count(stmt)) continue;
                         }
                     } else 
                     if (auto oper = dyn_cast<CompoundAssignOperator>(stmt)) {
                         // Check @val is LValue in the compound statement
-                        if (i->second.count(stmt)) continue;
+                        if (defs.count(stmt)) continue;
                     }
-                    hasUseStmt = true; break;
+                    return true;
                 }
-                if (hasUseStmt) {++i; continue;}
+            }
+            return false;
+        };
+
+        // Statements defining used variables passed to reference parameters
+        unordered_set<Stmt*> usedRefDefStmts;
+        for (const auto& entry : defVarStmts) {
+            if (refArgStmts.count(entry.first) && isUsed(entry.first, entry.second)) {
+                usedRefDefStmts.insert(entry.second.begin(), entry.second.end());
+            }
+        }
+
+        // Find defined but not used variables to remove
+        // Terminator conditions are not in @defVarStmts, so never be removed
+        //cout << "Removed values " << endl;
+        for (auto i = defVarStmts.begin(); i != defVarStmts.end(); ) {
+            // Used value is zero array/record array indices variable
+            const SValue& val = i->first;
+            const QualType& type = val.getType();
+            //cout << "defVarStmts val " << val << endl;
+
+            if (isUsed(val, i->second)) {++i; continue;}
+
+            // Skip reference arguments that have used definition statements
+            if (refArgStmts.count(val)) {
+                bool hasUsedDefStmt = false;
+                for (Stmt* stmt : i->second) {
+                    if (usedRefDefStmts.count(stmt)) {
+                        hasUsedDefStmt = true; break;
+                    }
+                }
+                if (hasUsedDefStmt) {++i; continue;}
             }
             
             bool isPtr = val.isPointer();
@@ -1026,7 +1154,8 @@ void ScTraverseConst::removeUnusedStmt()
             } 
 
             // Remove defined variable @val
-            //cout << "  " << val << endl;
+            // cout << "  Remove stmt: " << endl;
+            // for (Stmt* stmt : i->second) { cout << stmt << " " << endl; }
             i = defVarStmts.erase(i);
         }
         
@@ -1242,11 +1371,13 @@ void ScTraverseConst::run()
                     auto cursorStack = contextStack.getCursorStack();
 
                     // Add current wait()
-                    cursorStack.push_back(CfgCursor(funcDecl, 
-                                          block.getCfgBlock(), i));
+                    cursorStack.push_back(CfgCursor(funcDecl, block.getCfgBlock(), i));
 
                     // Add current function as function with wait()
                     hasWaitFuncs.insert(funcDecl);
+                    for (const auto& context : contextStack) {
+                        hasWaitFuncs.insert(context.callPoint.getFuncDecl());
+                    }
 
                     // Register variables accessed in and after reset section
                     registerAccessVar(isResetSection, currStmt);
@@ -1413,6 +1544,10 @@ void ScTraverseConst::run()
                 ScDiag::reportScDiag(term->getBeginLoc(), 
                                      ScDiag::SYNTH_SIDE_EFFECT_IN_COND);
             }
+            // if (isSideEffCallStmt) {
+            //     ScDiag::reportScDiag(term->getBeginLoc(), 
+            //                          ScDiag::SYNTH_SIDE_EFFECT_CALL_IN_COND);
+            // }
             
             // Check and apply alive loop macro to FOR/WHILE first iteration
             if (aliveLoop) {
@@ -1832,6 +1967,34 @@ void ScTraverseConst::run()
                     loopStack.pushLoop({term, state->clone(), iterNumber, 1U});
                 }
                 
+                // Check for invariant loop condition without wait call, report error if found
+                if (!isCombProcess && stableState && !falseCond &&
+                    !loopStack.back().iterNumber && findWaitInLoop) 
+                {
+                    Stmt* body = nullptr;
+                    if (auto loop = dyn_cast<ForStmt>(term)) {
+                        body = loop->getBody();
+                    } else
+                    if (auto loop = dyn_cast<WhileStmt>(term)) {
+                        body = loop->getBody();
+                    } else {
+                        body = cast<DoStmt>(term)->getBody();
+                    }
+
+                    Expr* cond = const_cast<Expr*>(getTermCond(term));
+                    CheckChannelReadVisitor readVisitor;
+                    // Check if the loop condition is invariant and if loop contains a wait call
+                    bool invariant = trueCond || !cond || 
+                                     (!hasMutableLoopCondition(cond) && readVisitor.hasRead(cond));
+                    // If the loop condition is invariant and loop does not contain a wait call,
+                    // report an error
+                    if (invariant && !findWaitInLoop->hasWaitCall(body) &&
+                        !hasReachableLoopExit(body, liveStmts, liveTerms)) {
+                        ScDiag::reportScDiag(term->getBeginLoc(),
+                                         ScDiag::SC_ERROR_CPROP_INFINITE_LOOP);
+                    }
+                }
+
                 bool addBodyBlock = !stableState && bodyBlock.getCfgBlock();
                 bool addExitBlock = (stableState || !trueCond) && 
                                     exitBlock.getCfgBlock();     

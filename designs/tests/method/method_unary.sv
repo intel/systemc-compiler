@@ -338,8 +338,12 @@ end
 
 always_comb 
 begin : unary_bug     // test_unary.cpp:246:5
+    integer arr1[4];
     integer i;
+    integer j;
+    arr1[0] = 1; arr1[1] = 2; arr1[2] = 3; arr1[3] = 4;
     i = '0;
+    j = arr1[++i];
 end
 
 //------------------------------------------------------------------------------

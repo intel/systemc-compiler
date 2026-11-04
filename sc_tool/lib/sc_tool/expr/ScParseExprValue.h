@@ -59,6 +59,8 @@ protected:
     bool isUserCallStmt;    // TODO: not used for now
     bool isAssignStmt;
     bool isSideEffStmt;
+    /// Current expression calls a function with side effects
+    bool isSideEffCallStmt = false;
     
     /// Statements for variable value which define/use the variable
     std::unordered_map<SValue, std::unordered_set<clang::Stmt*>> defVarStmts;

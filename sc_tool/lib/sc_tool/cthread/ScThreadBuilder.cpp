@@ -372,6 +372,32 @@ sc_elab::VerilogProcCode ThreadBuilder::run(bool &isSingleStatePar)
                 globalState->getExtrValNames(),
                 nameGen, globalState->getVarTraits(), globalState->getWaitNVarName());
 
+    // Selector register variables to store signal/port MIF indexes
+    std::unordered_map<CallStmtStack, std::pair<std::string, std::string>> selectorRegs;
+    auto allocateSelector = [&](const CallStmtStack& callStack,
+                                unsigned width, bool isSigned) {
+        auto found = selectorRegs.find(callStack);
+        if (found != selectorRegs.end()) return found->second;
+
+        std::string baseName = *procView.getFieldName() + "_MIF_INDEX_" +
+                               std::to_string(selectorRegs.size());
+        IndexVec dims(travConst->mifArrDims.begin(), travConst->mifArrDims.end());
+        std::string suffix = travConst->getMifElmtSuffix();
+        auto* reg = verMod->createProcessLocalVariable(procView, baseName, width, dims, isSigned);
+        auto* next = verMod->createProcessLocalVariable(procView, baseName + "_next", width, dims,
+                                                        isSigned);
+        verMod->procVarMap[procView].insert(reg);
+        verMod->procVarMap[procView].insert(next);
+        verMod->addProcRegisterNextValPair(procView, reg, next, suffix);
+        verMod->addVarUsedInProc(procView, reg, false, false);
+        verMod->addVarDefinedInProc(procView, reg, false, false);
+        verMod->addVarUsedInProc(procView, next, false, false);
+        verMod->addVarDefinedInProc(procView, next, false, false);
+        auto names = std::make_pair(reg->getName() + suffix, next->getName() + suffix);
+        selectorRegNames.push_back(names);
+        return selectorRegs.emplace(callStack, names).first->second;
+    };
+
     // First traverse process stage and detecting duplicated states
     {
         //cout << " ==================== 1st stage ====================" << endl;
@@ -387,6 +413,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run(bool &isSingleStatePar)
         travProc->setLiveTerms(travConst->getLiveTerms());
         travProc->setRemovedArgExprs(travConst->getRemovedArgExprs());
         travProc->setWaitFuncs(travConst->getWaitFuncs());
+        travProc->setMifSelectorAllocator(allocateSelector);
         travProc->setConstEvalFuncs(travConst->getConstEvalFuncs());
         
         // Traverse context stack, used to run TraverseProc
@@ -452,6 +479,7 @@ sc_elab::VerilogProcCode ThreadBuilder::run(bool &isSingleStatePar)
         travProc->setLiveTerms(travConst->getLiveTerms());
         travProc->setRemovedArgExprs(travConst->getRemovedArgExprs());
         travProc->setWaitFuncs(travConst->getWaitFuncs());
+        travProc->setMifSelectorAllocator(allocateSelector);
         travProc->setConstEvalFuncs(travConst->getConstEvalFuncs());
         // Set replaced states for second stage
         travProc->setReplacedStates(replacedStates);
@@ -587,6 +615,10 @@ sc_elab::VerilogProcCode ThreadBuilder::getVerilogCode(bool isSingleState)
         // Generate Local Variables
         std::stringstream ls;
         travProc->printLocalDeclarations(ls);
+
+        for (const auto& names : selectorRegNames) {
+            ls << GEN_TAB << "    " << names.second << " = " << names.first << ";\n";
+        }
         
         // Add wait(n) counter current to next assignment
         if (threadStates.hasWaitNState()) {

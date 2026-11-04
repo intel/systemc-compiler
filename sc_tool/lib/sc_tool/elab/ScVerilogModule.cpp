@@ -742,6 +742,7 @@ VerilogModStatistic VerilogModule::getStatistic() const {
         res.asrtNum += proc.second.statAsrtNum;
         res.waitNum += proc.second.statWaitNum;
     }
+    res.asrtNum += svaProperties.size();
 
     for (auto* var : verilogSignals) {
         // Skip not required variables

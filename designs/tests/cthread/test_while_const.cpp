@@ -23,17 +23,16 @@ public:
 
     SC_CTOR(A) 
     {
-        // TODO: Fix me #173
-//        SC_CTHREAD(inf_loop1, clk.pos());
-//        async_reset_signal_is(rstn, false);
-//        
-//        SC_CTHREAD(inf_loop2, clk.pos());
-//        async_reset_signal_is(rstn, false);
-//
-//        SC_CTHREAD(inf_loop3, clk.pos());
-//        async_reset_signal_is(rstn, false);
-        //~TODO
-        
+    #ifdef NO_WAIT_LOOP_FAIL
+        SC_CTHREAD(inf_loop1, clk.pos());
+        async_reset_signal_is(rstn, false);
+
+        SC_CTHREAD(inf_loop2, clk.pos());
+        async_reset_signal_is(rstn, false);
+
+        SC_CTHREAD(inf_loop3, clk.pos());
+        async_reset_signal_is(rstn, false);
+
         SC_CTHREAD(const1, clk.pos());
         async_reset_signal_is(rstn, false);
 
@@ -46,6 +45,7 @@ public:
         SC_CTHREAD(const4, clk.pos());
         async_reset_signal_is(rstn, false);
 
+    #else
         SC_CTHREAD(const4a, clk.pos());
         async_reset_signal_is(rstn, false);
 
@@ -64,6 +64,7 @@ public:
 
         SC_CTHREAD(const_wait4, clk.pos());
         async_reset_signal_is(rstn, false);
+    #endif
     }
     
     // -----------------------------------------------------------------------

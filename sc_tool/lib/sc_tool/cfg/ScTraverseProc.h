@@ -29,6 +29,7 @@
 #include "clang/Analysis/CFG.h"
 
 #include <climits>
+#include <functional>
 #include <memory>
 
 namespace sc {
@@ -294,10 +295,10 @@ protected:
     static std::shared_ptr<CodeScope> deadScope;
     
     /// Store statement string
-    void storeStmtStr(clang::Stmt* stmt);
+    void storeStmtStr(clang::Stmt* stmt) override;
     
     /// Store statement string for @nullptr
-    void storeStmtStrNull(clang::Stmt* stmt);
+    void storeStmtStrNull(clang::Stmt* stmt) override;
     
     /// Create new code scope with specified level
     std::shared_ptr<CodeScope> createScope(unsigned level);
@@ -437,6 +438,13 @@ public:
     void setWaitFuncs(const std::unordered_set<const clang::FunctionDecl*>& funcs) {
         hasWaitFuncs = funcs;
     }
+
+    using MifSelectorAllocator = std::function<std::pair<std::string, std::string>(
+                                 const CallStmtStack&, unsigned, bool)>;
+
+    void setMifSelectorAllocator(const MifSelectorAllocator& allocator) {
+        mifSelectorAllocator = allocator;
+    }
     
     void setMainLoopStmt(const clang::Stmt* stmt) {
         mainLoopStmt = stmt;
@@ -548,6 +556,7 @@ protected:
     
     /// Functions with wait()
     std::unordered_set<const clang::FunctionDecl*>  hasWaitFuncs;
+    MifSelectorAllocator mifSelectorAllocator;
     
     /// If process located in MIF array element, all dimensions of the MIF arrays 
     std::vector<unsigned> mifArrDims;

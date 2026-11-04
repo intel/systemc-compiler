@@ -53,10 +53,6 @@ public:
         SC_CTHREAD(while_with_binary_oper3, clk.pos());
         async_reset_signal_is(arstn, false);
         
-        // TODO: Fix me, #133 -- error reported
-        //SC_CTHREAD(no_wait_main_loop, clk.pos());
-        //async_reset_signal_is(arstn, false);
-        
         SC_CTHREAD(while_continue1, clk.pos());
         async_reset_signal_is(arstn, false);
 
@@ -270,18 +266,7 @@ public:
             wait();         
         }
     }
-            
-    
-    // Main loop w/o wait(), see #133
-    void no_wait_main_loop()
-    {
-        s = 0;
-        wait();
-        
-        while (true) { 
-            s = 1;
-        } 
-    }
+
     
 // --------------------------------------------------------------------------
     

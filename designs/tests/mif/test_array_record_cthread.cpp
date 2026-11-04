@@ -16,7 +16,6 @@ struct mod_if : public sc_module, sc_interface
 
     SC_CTOR(mod_if) 
     {
-        // TODO; Fix me, warnings see #159
         SC_CTHREAD(memRecThread, clk.pos());
         async_reset_signal_is(nrst, false);
 
@@ -87,9 +86,8 @@ struct mod_if : public sc_module, sc_interface
             int i = w[0].rec_arr[1].c + ww[0].rec_arr[1].c + 
                     w[0].rec.c + ww[0].rec.c;
             t1  = i;
-            // TODO: Uncomment after #158 fixed 
-            //int j = w[1].rec_arr[0].c + ww[2].rec_arr[0].c + 
-            //        w[1].rec.c + ww[2].rec.c;
+            int j = w[1].rec_arr[0].c + ww[2].rec_arr[0].c + w[1].rec.c + ww[2].rec.c;
+            t1 = j;
             
             wait();
         }

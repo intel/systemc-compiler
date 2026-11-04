@@ -138,7 +138,7 @@ public:
                 ArrayUnkwnMode returnUnknown = ArrayUnkwnMode::amNoValue);
     /// Record fields values assignment or clear
     /// \param @lval -- record variable
-    void assignRecValueInState(const SValue &lval, const SValue &rval,
+    virtual void assignRecValueInState(const SValue &lval, const SValue &rval,
                 ArrayUnkwnMode returnUnknown = ArrayUnkwnMode::amNoValue);
 
     ///  Get @lval or value of @lval from the state 

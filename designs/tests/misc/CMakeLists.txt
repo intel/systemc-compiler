@@ -52,6 +52,12 @@ svc_target(misc_promote_ports_simple ELAB_TOP tb_inst.top_mod
 add_executable(misc_reference_met test_reference_met.cpp)
 svc_target(misc_reference_met)
 
+add_executable(misc_fcall_ref test_fcall_ref.cpp)
+svc_target(misc_fcall_ref ELAB_TOP top GOLDEN misc_fcall_ref.sv)
+
+add_executable(misc_fcall_ref_keep test_fcall_ref.cpp)
+svc_target(misc_fcall_ref_keep ELAB_TOP top NO_REMOVE_EXTRA_CODE)
+
 add_executable(misc_single_state_thread test_single_state_thread.cpp)
 svc_target(misc_single_state_thread GOLDEN misc_single_state_thread.sv)
 

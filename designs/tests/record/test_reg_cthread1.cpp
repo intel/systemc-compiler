@@ -46,7 +46,7 @@ public:
         
         SC_CTHREAD(record_not_defined, clk.pos());
         async_reset_signal_is(rstn, false);
-        // TODO: Fix me, see #211
+        
         SC_CTHREAD(record_glob_not_defined, clk.pos());
         async_reset_signal_is(rstn, false);
     }

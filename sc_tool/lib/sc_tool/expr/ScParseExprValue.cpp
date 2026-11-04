@@ -346,6 +346,11 @@ bool ScParseExprValue::checkConstRefValue(SValue val)
     // and prevent user defined function calls
     EvalMode em(evaluateConstMode);
     
+    // Dereference @val to get the actual referent value
+    SValue referent;
+    state->getDerefVariable(val, referent);
+    val = referent;
+
     if (val.isTmpVariable()) {
         val = getValueFromState(val);
 
@@ -2018,6 +2023,10 @@ void ScParseExprValue::parseUnaryStmt(UnaryOperator* stmt, SValue& val)
         }
         
         isSideEffStmt  = true;
+        if (currStmt &&
+            (isa<DeclStmt>(currStmt) || getAssignStmt(currStmt))) {
+            isRequiredStmt = true;
+        }
         
     } else {
         ScDiag::reportScDiag(expr->getBeginLoc(), 
@@ -2106,19 +2115,34 @@ void ScParseExprValue::parseConditionalStmt(ConditionalOperator* stmt, SValue& v
     SValue cval = condvals.second;
     //cout << "cval " << cval << endl;
 
+    auto evalBranch = [this](Expr* expr) {
+        bool outerSideEffCall = isSideEffCallStmt;
+        isSideEffCallStmt = false;
+
+        SValue branchVal = evalSubExpr(expr);
+        bool branchSideEffCall = isSideEffCallStmt;
+        isSideEffCallStmt = outerSideEffCall || branchSideEffCall;
+
+        if (branchSideEffCall) {
+            ScDiag::reportScDiag(expr->getBeginLoc(),
+                                 ScDiag::SYNTH_FUNC_ALL_IN_TERNARY);
+        }
+        return branchVal;
+    };
+
     if (cval) {
         if (cval.getBoolValue()) {
-            val = evalSubExpr(stmt->getTrueExpr());
+            val = evalBranch(stmt->getTrueExpr());
             readFromValue(val);
             
         } else {
-            val = evalSubExpr(stmt->getFalseExpr());
+            val = evalBranch(stmt->getFalseExpr());
             readFromValue(val);
         }
     } else {
         val = NO_VALUE;
-        SValue trueval  = evalSubExpr(stmt->getTrueExpr());
-        SValue falseval = evalSubExpr(stmt->getFalseExpr());
+        SValue trueval  = evalBranch(stmt->getTrueExpr());
+        SValue falseval = evalBranch(stmt->getFalseExpr());
         readFromValue(trueval);
         readFromValue(falseval);
     }
@@ -3090,6 +3114,10 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                 }
 
                 isSideEffStmt  = true;
+                if (currStmt &&
+                    (isa<DeclStmt>(currStmt) || getAssignStmt(currStmt))) {
+                    isRequiredStmt = true;
+                }
             }
         } else    
         // Unary "-" and "+"

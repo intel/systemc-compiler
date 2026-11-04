@@ -153,10 +153,25 @@ struct ConstScopeInfo
     {}
 };
 
+/// Result of an analyzed function call cached for expression replay.
+struct ConstCallResult {
+    SValue returnValue;
+    bool sideEffect;
+
+    explicit ConstCallResult(const SValue& returnValue_,
+                             bool sideEffect_ = false) :
+        returnValue(returnValue_), sideEffect(sideEffect_)
+    {}
+};
+
+using ConstCallResults = std::unordered_map<clang::Stmt*, ConstCallResult>;
+
 /// Function call context, used to restore context in return from function call
 struct ConstFuncContext {
     /// CFG block and element
     CfgCursor callPoint;
+    /// Call expression which created this context
+    clang::Expr* callExpr;
     /// Return value, temporary variable declared in parent function
     SValue returnValue;
     /// Current module value, *this
@@ -167,29 +182,37 @@ struct ConstFuncContext {
     std::list< std::pair<AdjBlock, std::vector<ConstScopeInfo> > >  delayed;
     // Loop statement stack, last loop is most inner
     ConstLoopStack loopStack;
-    /// Function directly called from this function <func expr, return value>
-    std::unordered_map<clang::Stmt*, SValue>  calledFuncs;
+    /// Functions directly called from this function and their results
+    ConstCallResults calledFuncs;
     /// Current function has one return from function scope and return statement
     bool simpleReturnFunc;
     clang::Stmt* returnStmtFunc;
     /// Current function and all called functions change some non-local
     /// variables/channels through parameters or directly
     bool sideEffectFunc;
+
+    SValue recordAssignLval;
+    SValue recordAssignRval;
+    clang::Stmt* recordAssignStmt = nullptr;
+    unsigned recordAssignLevel = 0;
+    ArrayUnkwnMode recordAssignMode = ArrayUnkwnMode::amNoValue;
    
     explicit ConstFuncContext(
                     const CfgCursor& callPoint_,
+                    clang::Expr* callExpr_,
                     const SValue& returnValue_,
                     const SValue& modval_,
                     const SValue& recval_,
                     const std::list< std::pair<AdjBlock, 
                           std::vector<ConstScopeInfo> > >& delayed_,
                     const ConstLoopStack& loopStack_,
-                    const std::unordered_map<clang::Stmt*, SValue>& calledFuncs_,
+                    const ConstCallResults& calledFuncs_,
                     bool simpleReturnFunc_,
                     clang::Stmt* returnStmtFunc_,
                     bool sideEffectFunc_
                     ) :
-            callPoint(callPoint_), returnValue(returnValue_), 
+            callPoint(callPoint_), callExpr(callExpr_),
+            returnValue(returnValue_),
             modval(modval_), recval(recval_),
             delayed(delayed_), loopStack(loopStack_), 
             calledFuncs(calledFuncs_), 
@@ -306,6 +329,9 @@ protected:
                             const SValue& funcRecval, 
                             const clang::FunctionDecl* callFuncDecl, 
                             const SValue& retVal) override;
+
+    void assignRecValueInState(const SValue &lval, const SValue &rval,
+                              ArrayUnkwnMode returnUnknown) override;
     
     /// Parse and return integer value of wait()/wait(N) argument
     unsigned parseWaitArg(clang::CallExpr* expr);
@@ -506,8 +532,8 @@ protected:
     
     /// Loop statement stack, last loop is most inner
     ConstLoopStack loopStack;
-    /// Function directly called from this function <func expr, return value>
-    std::unordered_map<clang::Stmt*, SValue>  calledFuncs;
+    /// Functions directly called from this function and their results
+    ConstCallResults calledFuncs;
     
     /// Functions with wait()
     std::unordered_set<const clang::FunctionDecl*>  hasWaitFuncs;

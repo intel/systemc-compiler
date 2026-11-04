@@ -62,6 +62,9 @@ svc_target(record_member_func_cthread GOLDEN record_member_func_cthread.sv)
 add_executable(record_func_in_ctor test_func_in_ctor.cpp)
 svc_target(record_func_in_ctor GOLDEN record_func_in_ctor.sv)
 
+add_executable(record_return_ctor test_return_ctor.cpp)
+svc_target(record_return_ctor ELAB_TOP top)
+
 # Inner record not supported
 #add_executable(record_member_record_func test_member_record_func.cpp)
 #svc_target(record_member_record_func GOLDEN record_member_record_func.sv)
@@ -144,6 +147,12 @@ svc_target(record_func_param_method GOLDEN record_func_param_method.sv)
 add_executable(record_if_method test_if_method.cpp)
 svc_target(record_if_method GOLDEN record_if_method.sv)
 
+add_executable(record_if_accessors test_if_accessors.cpp)
+svc_target(record_if_accessors ELAB_TOP top)
+
+add_executable(record_if_accessors2 test_if_accessors2.cpp)
+svc_target(record_if_accessors2 ELAB_TOP top)
+
 add_executable(record_ptr_arr_method test_ptr_arr_method.cpp)
 svc_target(record_ptr_arr_method GOLDEN record_ptr_arr_method.sv)
 
@@ -176,7 +185,7 @@ svc_target(record_return_method3 GOLDEN record_return_method3.sv)
 
 
 add_executable(record_operator_equal test_operator_equal.cpp)
-svc_target(record_operator_equal WILL_FAIL)
+svc_target(record_operator_equal GOLDEN record_operator_equal.sv)
 
 
 add_executable(record_simple_method test_simple_method.cpp)

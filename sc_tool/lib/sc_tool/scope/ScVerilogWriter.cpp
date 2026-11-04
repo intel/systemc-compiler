@@ -903,6 +903,12 @@ pair<string, string> ScVerilogWriter::getTermAsRValue(const Stmt* stmt,
     //cout << "getTermAsRValue #" << hex << stmt << dec << endl;
     auto info = terms.at(stmt);
 
+    // Checking @doSignCast prevents warning for arithmetic operations
+    if (info.explicitSignCast && !info.literRadix && !skipCast && !doSignCast) {
+        ScDiag::reportScDiag(stmt->getBeginLoc(),
+                            ScDiag::SYNTH_EXPLICIT_SIGN_CAST);
+    }
+
     std::pair<std::string, std::string> names;
     
     if (auto lhsAssign = getAssignLhs(stmt)) {
@@ -1413,6 +1419,15 @@ void ScVerilogWriter::putSignCast(const clang::Stmt* stmt, CastSign castSign)
         SCT_INTERNAL_FATAL(stmt->getBeginLoc(), 
                            "putSignCast : No term for statement ");
     }
+}
+
+void ScVerilogWriter::setExplicitSignCast(const clang::Stmt* stmt)
+{
+    if (skipTerm) return;
+
+    auto info = terms.find(stmt);
+    SCT_TOOL_ASSERT(info != terms.end(), "No term for explicit sign cast");
+    info->second.explicitSignCast = true;
 }
 
 void ScVerilogWriter::putBoolCast(const clang::Stmt* stmt)
@@ -3635,10 +3650,10 @@ void ScVerilogWriter::clearStmt(const Stmt* stmt) {
 
 // Get string for @stmt, which may be sub-expression
 // \return expression string to read
-std::optional<string> ScVerilogWriter::getStmtString(const Stmt* stmt) 
+std::optional<string> ScVerilogWriter::getStmtString(const Stmt* stmt, bool asRValue)
 {
-    return (terms.count(stmt)) ? std::optional<string>(terms.at(stmt).str.first) : 
-                                 std::optional<string>();
+    return terms.count(stmt) ? std::optional<string>(asRValue ?
+           getTermAsRValue(stmt).first : terms.at(stmt).str.first) : std::nullopt;
 }
 
 // Get string for IF statement

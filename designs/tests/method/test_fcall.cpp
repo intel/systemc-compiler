@@ -112,7 +112,7 @@ public:
         
         SC_METHOD(special_funcs); sensitive << dummy;
         
-        //SC_METHOD(code_after_return); -- not passed yet
+        //SC_METHOD(code_after_return); // Error reported -- OK
     }
     
     // @cout with channel access -- BUG in real design fixed
@@ -437,7 +437,6 @@ public:
     }
     
     // Code after return
-    // TODO: not passed yet
     void code_after_return() {
         int i = 1;
         int j = f12(i);

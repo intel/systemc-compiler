@@ -198,6 +198,7 @@ struct A : public sc_module
             bool b1 = 1, b2 = s.read();
             for (unsigned i0 = k0; b1 || b2; ++i0) {
                 t11 = 0;
+                wait();
             }
             
             wait();

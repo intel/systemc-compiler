@@ -26,9 +26,9 @@ struct allocated_node {
     std::size_t array_size; // number of elements in array for new [X]
 };
 
-/// get traced dynamic allocations for specified module
+/// get traced dynamic allocations by complete module address
 const std::vector<allocated_node>&
-get_module_allocs(const sc_core::sc_module* mod_ptr);
+get_module_allocs(const void* mod_ptr);
 
 /// Calls before_end_of_elaboration callbacks
 void finalize_elaboration();

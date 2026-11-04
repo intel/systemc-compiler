@@ -496,8 +496,9 @@ PreparedScopes ScScopeGraph::printCurrentScope(ostream &os,
                 // For function call/break&continue check for function body
                 // Break&continue may have no function body
                 // @DeclStmt for record declaration contain constructor call
-                if (stmt && (isa<CallExpr>(stmt) || isa<DeclStmt>(stmt) || 
-                             isa<BreakStmt>(stmt) || isa<ContinueStmt>(stmt))) 
+                if (stmt && (isa<CallExpr>(stmt) || isa<DeclStmt>(stmt) ||
+                             isa<ReturnStmt>(stmt) || isa<BreakStmt>(stmt) ||
+                             isa<ContinueStmt>(stmt)))
                 {
                     // At wait() call, current scope is first scope 
                     // @waitFlag lets to distinguish exit from a method with 
