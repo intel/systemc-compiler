@@ -225,6 +225,9 @@ svc_target(misc_const_init_issue GOLDEN misc_const_init_issue.sv)
 add_executable(misc_const_init_fcall test_const_init_fcall.cpp)
 svc_target(misc_const_init_fcall GOLDEN misc_const_init_fcall.sv NO_REMOVE_EXTRA_CODE)
 
+add_executable(misc_const_init_fcall_if test_const_init_fcall_if.cpp)
+svc_target(misc_const_init_fcall_if GOLDEN misc_const_init_fcall_if.sv)
+
 add_executable(misc_const_radix test_const_radix.cpp)
 svc_target(misc_const_radix GOLDEN misc_const_radix.sv NO_REMOVE_EXTRA_CODE)
 
