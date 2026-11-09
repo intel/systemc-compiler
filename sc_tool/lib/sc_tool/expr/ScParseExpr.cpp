@@ -14,6 +14,7 @@
 #include "sc_tool/utils/CppTypeTraits.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "sc_tool/expr/ScParseExpr.h"
+#include "sc_tool/cfg/ScTraverseCommon.h"
 #include "clang/AST/Type.h"
 
 namespace sc {
@@ -169,6 +170,20 @@ void ScParseExpr::assignRecValueInState(const SValue &lval, const SValue &rval,
     }
 }
 
+// Check if the expression contains a call of user defined function
+static bool hasUserCall(const Stmt* stmt)
+{
+    if (!stmt) return false;
+    if (auto callExpr = dyn_cast<CallExpr>(stmt)) {
+        if (!callExpr->getDirectCallee() || 
+            isUserCallExpr(const_cast<CallExpr*>(callExpr))) return true;
+    }
+    for (const Stmt* child : stmt->children()) {
+        if (hasUserCall(child)) return true;
+    }
+    return false;
+}
+
 SValue ScParseExpr::getValueFromState(const SValue &lval,
                                       ArrayUnkwnMode returnUnknown)
 {
@@ -190,9 +205,18 @@ SValue ScParseExpr::getValueFromState(const SValue &lval,
                 // Try to get from AST, do not put into state
                 if (getConstASTValue(astCtx, lval, rval)) return rval;
                 
+                // Do not parse again an initializer with user function call:
+                // the call is analyzed at its place in the process only, and
+                // here it could be met inside parameters of another call
+                auto valDecl = const_cast<ValueDecl*>(lval.getVariable().getDecl());
+                auto varDecl = dyn_cast_or_null<VarDecl>(valDecl);
+                auto fldDecl = dyn_cast_or_null<FieldDecl>(valDecl);
+                const Expr* initExpr = varDecl ? varDecl->getAnyInitializer() :
+                                       fldDecl ? fldDecl->getInClassInitializer() : nullptr;
+                if (hasUserCall(initExpr)) return rval;
+                
                 // Set skip variable in @ScParseRangeExpr
                 skipRangeVar = true;
-                auto valDecl = const_cast<ValueDecl*>(lval.getVariable().getDecl());
                 rval = parseValueDecl(valDecl, NO_VALUE, nullptr, false).first;
                 skipRangeVar = false;
 

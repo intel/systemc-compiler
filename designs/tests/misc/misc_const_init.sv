@@ -77,12 +77,12 @@ begin : unknownConstFunc     // test_const_init.cpp:121:5
     integer e1;
     logic [79:0] TMP_2;
     integer i_1;
-    integer TMP_4;
+    integer TMP_3;
     logic [79:0] e2;
-    logic signed [21:0] TMP_6;
+    logic signed [21:0] TMP_5;
     integer i_2;
     logic signed [21:0] e3;
-    logic [15:0] TMP_8;
+    logic [15:0] TMP_7;
     logic signed [21:0] i_3;
     logic [15:0] e4;
     // Call f1() begin
@@ -92,21 +92,21 @@ begin : unknownConstFunc     // test_const_init.cpp:121:5
     i_1 = e1;
     // Call f2() begin
     // Call f1() begin
-    TMP_4 = s;
+    TMP_3 = s;
     // Call f1() end
-    TMP_2 = 80'(TMP_4);
+    TMP_2 = 80'(TMP_3);
     // Call f2() end
     e2 = TMP_2;
     i_2 = s;
     // Call f3() begin
-    TMP_6 = 22'(i_2 + 2'sd1);
+    TMP_5 = 22'(i_2 + 2'sd1);
     // Call f3() end
-    e3 = TMP_6;
+    e3 = TMP_5;
     i_3 = e3;
     // Call f4() begin
-    TMP_8 = 16'(i_3[15 : 0]);
+    TMP_7 = 16'(i_3[15 : 0]);
     // Call f4() end
-    e4 = TMP_8;
+    e4 = TMP_7;
 end
 
 endmodule
