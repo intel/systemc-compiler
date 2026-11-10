@@ -203,9 +203,11 @@ private:
 void ScElabModuleBuilder::run()
 {
     // Create module bodies w/o processes
+    std::cout << "------------------------------------------------" << std::endl 
+              << "Create module bodies w/o processes ..." << std::endl;
     for (auto modView : elabDB->getModules()) {
-        //std::cout << "--------------------------------------" << std::endl 
-        //      << "Module " << modView.getName() << std::endl;
+        std::cout << "--------------------------------------" << std::endl 
+                  << "Module " << modView.getName() << std::endl;
         // Create all module members (member signals, variables). 
         // do not traverse MIF
         if (!modView.isModularInterface()) {
@@ -214,15 +216,17 @@ void ScElabModuleBuilder::run()
     }
 
     // Create bindings
-    //std::cout << "------------------------------------------------" << std::endl 
-    //          << "Create bindings "<< std::endl;
+    std::cout << "------------------------------------------------" << std::endl 
+              << "Create bindings ..." << std::endl;
     for (auto &verMod : elabDB->getVerilogModules()) 
     {
         createPortBindingsKeepArrays(verMod);
     }
     
     // Fill state, run method and thread process analysis in ScProcAnalyzer
-    //auto t_begin = std::chrono::steady_clock::now();
+    std::cout << "------------------------------------------------" << std::endl 
+              << "Create process bodies ..." << std::endl;
+    auto t_begin = std::chrono::steady_clock::now();
     for (auto& verMod : elabDB->getVerilogModules()) {
         
         // Process analysis for all threads and methods
@@ -235,8 +239,8 @@ void ScElabModuleBuilder::run()
         verMod.detectUseDefErrors();
     }
     
-    //auto t_end = std::chrono::steady_clock::now();
-    //cout << endl << "Total time = " << std::dec << std::chrono::duration_cast<std::chrono::milliseconds>(t_end - t_begin).count() << " [ms]" << std::endl;
+    auto t_end = std::chrono::steady_clock::now();
+    cout << endl << "Total time = " << std::dec << std::chrono::duration_cast<std::chrono::milliseconds>(t_end - t_begin).count() << " [ms]" << std::endl;
     
     // Compare and remove redundant modules, only equivalent C++ types compared
     elabDB->uniquifyVerilogModules();
@@ -2200,7 +2204,7 @@ void ScElabModuleBuilder::materializePort(VerilogModule &verMod, PortView port)
 void ScElabModuleBuilder::createProcessBodies(VerilogModule &verMod)
 {
     using std::cout; using std::endl;
-    //cout << "createProcessBodies verMod " << verMod.getName() << endl;
+    cout << "createProcessBodies for module " << verMod.getName() << endl;
     
     // Avoid black boxed module process analysis
     if (verMod.isIntrinsic()) return;
@@ -2214,15 +2218,19 @@ void ScElabModuleBuilder::createProcessBodies(VerilogModule &verMod)
     // Create @state common for this module, could be modified for 
     // local static constant and global variable outside of the module
     ProcBuilder procBuilder(verMod.getModObj(), *elabDB, extrTargInit);
+    //cout << "procBuilder for module " << verMod.getName() << endl;
     procBuilder.prepareState(verMod.getModObj());
+    //cout << "State prepared" << endl;
 
     // Generate code for SVA properties in module body
     if (!noSvaGenerate) {
         std::string svaCode = procBuilder.generateSvaProperties(verMod);
         verMod.addSvaPropertyCode(svaCode);
+        //cout << "SVA properties generated " << endl;
     }
 
     // Generate process bodies 
+    //cout << "Generating process ... " << endl;
     for (ProcessView& proc : verMod.getProcesses()) {
         auto procBody = procBuilder.generateVerilogProcess(proc);
         procBody.isSingleState = procBuilder.isSingleState;
@@ -2245,9 +2253,7 @@ std::optional<std::string> ScElabModuleBuilder::getVerilogIntrinsic(
                 return strRec;
             }
             
-            std::string errMsg = 
-                        "Incorrect __SC_TOOL_VERILOG_MOD__ declaration in "+ 
-                        modView.getName();
+            std::string errMsg = "Incorrect __SC_TOOL_VERILOG_MOD__ declaration in "+ modView.getName();
             SCT_INTERNAL_ERROR_NOLOC(errMsg);
         }
     }

@@ -2989,6 +2989,10 @@ void ScGenerateExpr::parseMemberCall(CXXMemberCallExpr* expr, SValue& tval,
                 if (isOrigSigned != isSigned) { 
                     codeWriter->putSignCast(expr, isSigned ? CastSign::SCAST : 
                                                              CastSign::UCAST);
+                    if (fname == "to_uint" &&
+                        !ttval.isInteger() && !pival.isInteger()) {
+                        codeWriter->setExplicitSignCast(expr);
+                    }
                 }
             }
         } else

@@ -136,11 +136,13 @@ VerilogProcCode ProcBuilder::generateVerilogProcess(ProcessView& procView)
     if (!procHostClass.isRecord()) {
         procHostClass = moduleState->getValue(procHostClass);
     }
+    //cout << "procHostClass " << procHostClass << endl;
 
     SValue hostModuleDynClass = objSValMap.at(hostModule);
     if (!hostModuleDynClass.isRecord()) {
         hostModuleDynClass = moduleState->getValue(hostModuleDynClass);
     }
+    //cout << "hostModuleDynClass " << hostModuleDynClass << endl;
 
     SCT_TOOL_ASSERT (procHostClass.isRecord(), "No record value for module");
     SCT_TOOL_ASSERT (hostModuleDynClass.isRecord(), "No record value for module");

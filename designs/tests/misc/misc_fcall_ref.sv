@@ -18,6 +18,33 @@ module Dut // "top"
 );
 
 //------------------------------------------------------------------------------
+// Method process: proc (test_fcall_ref.cpp:34:5) 
+
+always_comb 
+begin : proc     // test_fcall_ref.cpp:34:5
+    logic [7:0] data;
+    logic sign_unused;
+    logic [1:0] cls_only;
+    logic sign_used;
+    logic [1:0] cls_used;
+    data = in;
+    sign_unused = '0;
+    cls_only = '0;
+    // Call split() begin
+    sign_unused = data[7];
+    cls_only = data == 1'd0 ? 1 : 2;
+    // Call split() end
+    out_a = cls_only;
+    sign_used = '0;
+    cls_used = '0;
+    // Call split() begin
+    sign_used = data[7];
+    cls_used = data == 1'd0 ? 1 : 2;
+    // Call split() end
+    out_b = {1'(sign_used), cls_used};
+end
+
+//------------------------------------------------------------------------------
 // Method process: proc2 (test_fcall_ref.cpp:48:5) 
 
 always_comb 

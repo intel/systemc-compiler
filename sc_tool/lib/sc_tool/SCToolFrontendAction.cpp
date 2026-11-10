@@ -123,8 +123,8 @@ Object* getOuterArray(SCDesign& designDB, Object* memberObj)
     return arrayObj;
 }
 
-const std::string SCElabASTConsumer::TOOL_VERSION = "1.7.16";
-const std::string SCElabASTConsumer::TOOL_DATE = "Nov 06,2026";
+const std::string SCElabASTConsumer::TOOL_VERSION = "1.7.17";
+const std::string SCElabASTConsumer::TOOL_DATE = "Nov 10,2026";
 
 void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
 {
@@ -182,6 +182,7 @@ void SCElabASTConsumer::HandleTranslationUnit(clang::ASTContext &astCtx)
         try { 
             // Run Dynamic elaborator, it will fill Protobuf SCDesign
             DesignDbGenerator(designDB, elabTypeManager).run(recordDecl, topPtr);
+            std::cout << "Design DB generated" << std::endl;
 
             // Moved objects <member id, parent module id>
             auto movedObjs = moveDynamicObjects(designDB);

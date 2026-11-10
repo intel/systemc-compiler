@@ -21,13 +21,13 @@ struct Dut : sc_module {
     SC_HAS_PROCESS(Dut);
 
     explicit Dut(sc_module_name name) : sc_module(name) {
-        //SC_METHOD(proc); sensitive << in;
+        SC_METHOD(proc); sensitive << in;
         SC_METHOD(proc2); sensitive << in;
     }
 
     static void split(const sct_uint<8>& data, bool& sign,
                       sct_uint<2>& cls) {
-        sign = data[7];             // Bug #89: this statement removed as unused
+        sign = data[7];             // Bug #89: this statement removed as unused -- FIXED
         cls = data == 0 ? 1 : 2;
     }
 

@@ -58,6 +58,17 @@ svc_target(misc_fcall_ref ELAB_TOP top GOLDEN misc_fcall_ref.sv)
 add_executable(misc_fcall_ref_keep test_fcall_ref.cpp)
 svc_target(misc_fcall_ref_keep ELAB_TOP top NO_REMOVE_EXTRA_CODE)
 
+add_executable(misc_fcall_ref2 test_fcall_ref2.cpp)
+svc_target(misc_fcall_ref2 ELAB_TOP top GOLDEN misc_fcall_ref2.sv)
+
+add_executable(misc_fcall_ref2_then test_fcall_ref2.cpp)
+target_compile_definitions(misc_fcall_ref2_then PUBLIC FCALL_REF2_THEN)
+svc_target(misc_fcall_ref2_then ELAB_TOP top)
+
+add_executable(misc_fcall_ref2_after_if test_fcall_ref2.cpp)
+target_compile_definitions(misc_fcall_ref2_after_if PUBLIC FCALL_REF2_AFTER_IF)
+svc_target(misc_fcall_ref2_after_if ELAB_TOP top)
+
 add_executable(misc_single_state_thread test_single_state_thread.cpp)
 svc_target(misc_single_state_thread GOLDEN misc_single_state_thread.sv)
 

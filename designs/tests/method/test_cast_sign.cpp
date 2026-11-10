@@ -6,14 +6,21 @@ using namespace sct;
 struct CastSign : sc_module {
     sct_in<sct_int<11>> SC_NAMED(signed_in);
     sct_in<sct_uint<11>> SC_NAMED(unsigned_in);
-    sc_vector<sct_out<unsigned long long>> SC_NAMED(warn_out, 16);
-    sc_vector<sct_out<unsigned long long>> SC_NAMED(quiet_out, 19);
+    sct_signal<sct_int<11>> SC_NAMED(signed_signal);
+    sc_vector<sct_out<unsigned long long>> SC_NAMED(warn_out, 18);
+    sc_vector<sct_out<unsigned long long>> SC_NAMED(quiet_out, 22);
 
     SC_HAS_PROCESS(CastSign);
 
     explicit CastSign(sc_module_name name) : sc_module(name) {
+        SC_METHOD(drive_signal);
+        sensitive << signed_in;
         SC_METHOD(proc);
-        sensitive << signed_in << unsigned_in;
+        sensitive << signed_in << unsigned_in << signed_signal;
+    }
+
+    void drive_signal() {
+        signed_signal = signed_in.read();
     }
 
     unsigned long long pass(unsigned long long data) {
@@ -48,6 +55,8 @@ struct CastSign : sc_module {
         warn_out[14] = static_cast<unsigned long long>(
             static_cast<unsigned>(signed_data));
         warn_out[15] = pass(static_cast<unsigned>(signed_data));
+        warn_out[16] = signed_value.to_uint();
+        warn_out[17] = signed_signal.read().to_uint();
 
         unsigned long long warn_init = static_cast<unsigned>(signed_data);
         unsigned long long warn_assign;
@@ -73,6 +82,9 @@ struct CastSign : sc_module {
         quiet_out[16] = castReturn(signed_data);
         quiet_out[17] = static_cast<int>(unsigned_data) + 1;
         quiet_out[18] = sct_uint<10>(signed_value)[0];
+        quiet_out[19] = unsigned_value.to_uint();
+        quiet_out[20] = unsigned_in.read().to_uint();
+        quiet_out[21] = sct_int<11>(5).to_uint();
         (void)static_cast<unsigned>(signed_data);
     }
 };
@@ -80,8 +92,8 @@ struct CastSign : sc_module {
 int sc_main(int argc, char** argv) {
     sct_signal<sct_int<11>> SC_NAMED(signed_in);
     sct_signal<sct_uint<11>> SC_NAMED(unsigned_in);
-    sc_vector<sct_signal<unsigned long long>> SC_NAMED(warn_out, 16);
-    sc_vector<sct_signal<unsigned long long>> SC_NAMED(quiet_out, 19);
+    sc_vector<sct_signal<unsigned long long>> SC_NAMED(warn_out, 18);
+    sc_vector<sct_signal<unsigned long long>> SC_NAMED(quiet_out, 22);
     CastSign SC_NAMED(top);
     top.signed_in(signed_in);
     top.unsigned_in(unsigned_in);

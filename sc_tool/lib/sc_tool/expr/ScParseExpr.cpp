@@ -14,12 +14,25 @@
 #include "sc_tool/utils/CppTypeTraits.h"
 #include "sc_tool/diag/ScToolDiagnostic.h"
 #include "sc_tool/expr/ScParseExpr.h"
+#include "sc_tool/cfg/ScTraverseCommon.h"
 #include "clang/AST/Type.h"
 
 namespace sc {
     
 using namespace std;
 using namespace clang;
+
+static bool hasUserCallInInitializer(Stmt* stmt)
+{
+    if (!stmt || isa<UnaryExprOrTypeTraitExpr>(stmt) ||
+        isa<CXXNoexceptExpr>(stmt)) return false;
+    if (isUserCallExpr(stmt)) return true;
+
+    for (Stmt* child : stmt->children()) {
+        if (hasUserCallInInitializer(child)) return true;
+    }
+    return false;
+}
 
 // Check if value is integer of ZeroWidth or variable of sct_zero_width 
 // type or element of array of sct_zero_width 
@@ -189,10 +202,21 @@ SValue ScParseExpr::getValueFromState(const SValue &lval,
             if (isConst) {
                 // Try to get from AST, do not put into state
                 if (getConstASTValue(astCtx, lval, rval)) return rval;
+
+                // Keep unknown const values instead of replaying user calls
+                // That requires for constant reference parameters with default values
+                auto valDecl = const_cast<ValueDecl*>(lval.getVariable().getDecl());
+                Expr* init = nullptr;
+                if (auto varDecl = dyn_cast<VarDecl>(valDecl)) {
+                    init = varDecl->getInit();
+                } else
+                if (auto fieldDecl = dyn_cast<FieldDecl>(valDecl)) {
+                    init = fieldDecl->getInClassInitializer();
+                }
+                if (hasUserCallInInitializer(init)) return NO_VALUE;
                 
                 // Set skip variable in @ScParseRangeExpr
                 skipRangeVar = true;
-                auto valDecl = const_cast<ValueDecl*>(lval.getVariable().getDecl());
                 rval = parseValueDecl(valDecl, NO_VALUE, nullptr, false).first;
                 skipRangeVar = false;
 
