@@ -190,6 +190,8 @@ struct ConstFuncContext {
     /// Current function and all called functions change some non-local
     /// variables/channels through parameters or directly
     bool sideEffectFunc;
+    /// The same without parameters of called functions
+    bool writeSideEffectFunc;
 
     SValue recordAssignLval;
     SValue recordAssignRval;
@@ -209,7 +211,8 @@ struct ConstFuncContext {
                     const ConstCallResults& calledFuncs_,
                     bool simpleReturnFunc_,
                     clang::Stmt* returnStmtFunc_,
-                    bool sideEffectFunc_
+                    bool sideEffectFunc_,
+                    bool writeSideEffectFunc_
                     ) :
             callPoint(callPoint_), callExpr(callExpr_),
             returnValue(returnValue_),
@@ -217,7 +220,8 @@ struct ConstFuncContext {
             delayed(delayed_), loopStack(loopStack_), 
             calledFuncs(calledFuncs_), 
             simpleReturnFunc(simpleReturnFunc_), returnStmtFunc(returnStmtFunc_),
-            sideEffectFunc(sideEffectFunc_)
+            sideEffectFunc(sideEffectFunc_),
+            writeSideEffectFunc(writeSideEffectFunc_)
     {}
 };
 
