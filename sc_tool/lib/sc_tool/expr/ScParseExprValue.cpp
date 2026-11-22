@@ -110,24 +110,55 @@ void ScParseExprValue::writeToValue(SValue val, bool isDefined)
             }
             //cout << "WR " << var << " #" << hex << currStmt << dec << endl;
 
-            // Check is this variable is local in the current function
+            // A variable declared in current function is local here. Any other
+            // write is recorded at the level of the function owning the
+            // variable, but not higher than current level. So a write which
+            // outlives the call is recorded at a lower level, a side effect,
+            // and a write to a parameter of a called function at the call is
+            // recorded at current level: it is not a side effect, but such
+            // function is still not evaluated as constant
             auto declContext = var.getVariable().getDecl()->getDeclContext();
-            bool localVar = isa<clang::FunctionDecl>(declContext) && 
+            bool localVar = isa<clang::FunctionDecl>(declContext) &&
                             funcDecl == declContext;
-            // Parameter of called function assigned at the call is local in
-            // the called function, it is not a side effect of current function,
-            // but function with internal calls cannot be evaluated as constant
-            bool calledParam = paramsFuncDecl &&
-                        isa<clang::ParmVarDecl>(var.getVariable().getDecl()) &&
-                        declContext == paramsFuncDecl;
-
-            // If variable is non-local set side-effect for current function 
-            sideEffectFunc = sideEffectFunc || (!localVar && !calledParam);
-            callParamFunc = callParamFunc || calledParam;
+            if (!localVar) {
+                // A field of a local record is owned by the record variable
+                SValue ownerVar = var;
+                while (ownerVar.isVariable() && isa<clang::FieldDecl>(
+                       ownerVar.getVariable().getDecl())) {
+                    // Copy, as assignment to @ownerVar destroys its parent
+                    SValue parent = ownerVar.getVariable().getParent();
+                    if (!parent.isRecord() || !parent.getRecord().isLocal()) {
+                        break;
+                    }
+                    SValue recordVar = parent.getRecord().var;
+                    ownerVar = recordVar;
+                }
+                int funcLevel = getFuncLevel();
+                int varLevel = -1;
+                if (ownerVar.isTmpVariable()) {
+                    // Temporary record of current function
+                    varLevel = funcLevel;
+                } else
+                if (ownerVar.isVariable()) {
+                    auto ownerDecl = ownerVar.getVariable().getDecl();
+                    auto ownerContext = ownerDecl->getDeclContext();
+                    // Parameter of called function assigned at the call is
+                    // local in the called function
+                    bool calledParam = paramsFuncDecl &&
+                                       isa<clang::ParmVarDecl>(ownerDecl) &&
+                                       ownerContext == paramsFuncDecl;
+                    varLevel = calledParam ? funcLevel+1 :
+                               isa<clang::FunctionDecl>(ownerContext) ?
+                               getFuncLevel(ownerContext) : -1;
+                }
+                sideEffectLevel = std::min(sideEffectLevel,
+                                           std::min(varLevel, funcLevel));
+            }
 
         } else {
-            // Any kind of object except variable and temporary considered as non-local
-            sideEffectFunc = sideEffectFunc || !var.isTmpVariable();
+            // Any kind of object except variable and temporary considered as
+            // non-local, owned by no function
+            if (!var.isTmpVariable()) sideEffectLevel = -1;
         }
     }
 }

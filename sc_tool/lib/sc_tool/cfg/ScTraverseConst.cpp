@@ -384,8 +384,7 @@ void ScTraverseConst::prepareCallContext(Expr* expr,
                             CfgCursor(funcDecl, nullptr, 0),
                             expr, returnValue, modval, recval,
                             delayed, loopStack, calledFuncs,
-                            simpleReturnFunc, returnStmtFunc, sideEffectFunc,
-                            callParamFunc);
+                            simpleReturnFunc, returnStmtFunc, sideEffectLevel);
     
     // Set module, dynamic module and return value for called function
     //cout << " set recval (2) " << recval << " to " << funcRecval << endl;
@@ -395,8 +394,7 @@ void ScTraverseConst::prepareCallContext(Expr* expr,
     funcDecl = callFuncDecl;
     simpleReturnFunc = true;
     returnStmtFunc = nullptr;
-    sideEffectFunc = false;
-    callParamFunc = false;
+    sideEffectLevel = INT_MAX;
 }
 
 // Assign record value in state after constructor call
@@ -862,8 +860,7 @@ void ScTraverseConst::initContext()
     hasCodeBeforeMainLoop = false;
     simpleReturnFunc = false;       // Process function is not considered here
     returnStmtFunc = nullptr;
-    sideEffectFunc = false;
-    callParamFunc = false;
+    sideEffectLevel = INT_MAX;
     
     // Setup first non-MIF module value 
     synmodval = state->getSynthModuleValue(modval, ScState::MIF_CROSS_NUM);
@@ -905,8 +902,10 @@ void ScTraverseConst::restoreContext()
         cout << "   scopeGraph #" << hex << i.scopeGraph.get() << dec << endl;
     }*/
         
-    bool calledSideEffect = sideEffectFunc;
-    bool calledParamCall = callParamFunc;
+    // Called function has side effect if it changes a variable owned by
+    // a function at lower level than its own one or owned by no function
+    bool calledSideEffect = sideEffectLevel < getFuncLevel();
+    int calledSideEffectLevel = sideEffectLevel;
     auto context = contextStack.back();
     contextStack.pop_back();
     loopStack = context.loopStack;
@@ -923,8 +922,7 @@ void ScTraverseConst::restoreContext()
     simpleReturnFunc = context.simpleReturnFunc;
     returnStmtFunc = context.returnStmtFunc;
     // Side effects in called functions spread to callee
-    sideEffectFunc = context.sideEffectFunc || calledSideEffect;
-    callParamFunc = context.callParamFunc || calledParamCall;
+    sideEffectLevel = std::min(context.sideEffectLevel, calledSideEffectLevel);
         
     cfg = cfgFabric->get(funcDecl);
     SCT_TOOL_ASSERT (cfg, "No CFG at restore context");
@@ -2229,9 +2227,10 @@ void ScTraverseConst::run()
             }
             
             // Mark function as not eligible for evaluation as constant if
-            // it has side effects, calls a function with parameters or
-            // does not have simple return
-            if (sideEffectFunc || callParamFunc || !simpleReturnFunc) {
+            // it writes any variable not declared in the function where it
+            // is written, at any level, as parameters of called functions,
+            // or does not have simple return, see @sideEffectLevel
+            if (sideEffectLevel != INT_MAX || !simpleReturnFunc) {
                 auto callStack = contextStack.getStmtStack();
                 // Skip empty stack as there is no function
                 if (!callStack.empty()) {

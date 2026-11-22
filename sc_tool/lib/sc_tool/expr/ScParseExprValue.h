@@ -17,6 +17,7 @@
 #define SCPARSEEXPRVALUE_H
 
 #include "sc_tool/expr/ScParseExpr.h"
+#include <climits>
 #include "llvm/ADT/APSInt.h"
 
 namespace sc {
@@ -97,14 +98,27 @@ protected:
     /// Current function has one return from function scope and return statement
     bool simpleReturnFunc = true;
     clang::Stmt* returnStmtFunc = nullptr;
-    /// Current function and all called functions change some non-local
-    /// variables/channels through parameters or directly
-    bool sideEffectFunc = false;
-    /// Current function and all called functions call a function with
-    /// parameters, such function is not evaluated as constant
-    bool callParamFunc = false;
+    /// Current function and all called functions write some variables or
+    /// objects not declared in the function where they are written, through
+    /// parameters or directly: the lowest level of a function owning such
+    /// a variable, but not higher than the level of the function writing it,
+    /// -1 for a member, a channel or other object owned by no function,
+    /// INT_MAX if there is no such write. Current function has side effect
+    /// if this level is lower than its own level, see @getFuncLevel(), and
+    /// it is not evaluated as constant if this level is not INT_MAX
+    int sideEffectLevel = INT_MAX;
     /// Function which parameters are assigned in @prepareCallParams()
     const clang::FunctionDecl* paramsFuncDecl = nullptr;
+
+    /// Level of current function in the call stack, process function is 0
+    virtual int getFuncLevel() const {
+        return 0;
+    }
+    /// Level of the function with given declaration in the call stack,
+    /// -1 if the function is not there
+    virtual int getFuncLevel(const clang::DeclContext* declContext) const {
+        return (declContext == funcDecl) ? 0 : -1;
+    }
 
 public:
     explicit ScParseExprValue(const clang::ASTContext& context_,
