@@ -111,14 +111,19 @@ void ScParseExprValue::writeToValue(SValue val, bool isDefined)
             //cout << "WR " << var << " #" << hex << currStmt << dec << endl;
 
             // Check is this variable is local in the current function
-            // Function parameters not considered, so function with internal calls
-            // cannot be evaluated as constant
             auto declContext = var.getVariable().getDecl()->getDeclContext();
             bool localVar = isa<clang::FunctionDecl>(declContext) && 
                             funcDecl == declContext;
+            // Parameter of called function assigned at the call is local in
+            // the called function, it is not a side effect of current function,
+            // but function with internal calls cannot be evaluated as constant
+            bool calledParam = paramsFuncDecl &&
+                        isa<clang::ParmVarDecl>(var.getVariable().getDecl()) &&
+                        declContext == paramsFuncDecl;
 
             // If variable is non-local set side-effect for current function 
-            sideEffectFunc = sideEffectFunc || !localVar;
+            sideEffectFunc = sideEffectFunc || (!localVar && !calledParam);
+            callParamFunc = callParamFunc || calledParam;
 
         } else {
             // Any kind of object except variable and temporary considered as non-local
@@ -388,6 +393,9 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
     level += 1;
     // Set function parameters flag to avoid another function/constructor call 
     bool lastFuncParams = inFuncParams; inFuncParams = true;
+    // Parameters of the called function are assigned, used for side effect
+    auto lastParamsFunc = paramsFuncDecl;
+    paramsFuncDecl = callFuncDecl->getDefinition();
     
     for (auto arg : arguments) {
         // Skip first argument for operator which is this
@@ -493,6 +501,7 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
     }
 
     inFuncParams = lastFuncParams;
+    paramsFuncDecl = lastParamsFunc;
     level -= 1;
 }
 

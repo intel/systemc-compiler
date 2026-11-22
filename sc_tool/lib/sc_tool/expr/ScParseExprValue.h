@@ -100,6 +100,11 @@ protected:
     /// Current function and all called functions change some non-local
     /// variables/channels through parameters or directly
     bool sideEffectFunc = false;
+    /// Current function and all called functions call a function with
+    /// parameters, such function is not evaluated as constant
+    bool callParamFunc = false;
+    /// Function which parameters are assigned in @prepareCallParams()
+    const clang::FunctionDecl* paramsFuncDecl = nullptr;
 
 public:
     explicit ScParseExprValue(const clang::ASTContext& context_,

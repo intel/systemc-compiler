@@ -384,7 +384,8 @@ void ScTraverseConst::prepareCallContext(Expr* expr,
                             CfgCursor(funcDecl, nullptr, 0),
                             expr, returnValue, modval, recval,
                             delayed, loopStack, calledFuncs,
-                            simpleReturnFunc, returnStmtFunc, sideEffectFunc);
+                            simpleReturnFunc, returnStmtFunc, sideEffectFunc,
+                            callParamFunc);
     
     // Set module, dynamic module and return value for called function
     //cout << " set recval (2) " << recval << " to " << funcRecval << endl;
@@ -395,6 +396,7 @@ void ScTraverseConst::prepareCallContext(Expr* expr,
     simpleReturnFunc = true;
     returnStmtFunc = nullptr;
     sideEffectFunc = false;
+    callParamFunc = false;
 }
 
 // Assign record value in state after constructor call
@@ -861,6 +863,7 @@ void ScTraverseConst::initContext()
     simpleReturnFunc = false;       // Process function is not considered here
     returnStmtFunc = nullptr;
     sideEffectFunc = false;
+    callParamFunc = false;
     
     // Setup first non-MIF module value 
     synmodval = state->getSynthModuleValue(modval, ScState::MIF_CROSS_NUM);
@@ -903,6 +906,7 @@ void ScTraverseConst::restoreContext()
     }*/
         
     bool calledSideEffect = sideEffectFunc;
+    bool calledParamCall = callParamFunc;
     auto context = contextStack.back();
     contextStack.pop_back();
     loopStack = context.loopStack;
@@ -920,6 +924,7 @@ void ScTraverseConst::restoreContext()
     returnStmtFunc = context.returnStmtFunc;
     // Side effects in called functions spread to callee
     sideEffectFunc = context.sideEffectFunc || calledSideEffect;
+    callParamFunc = context.callParamFunc || calledParamCall;
         
     cfg = cfgFabric->get(funcDecl);
     SCT_TOOL_ASSERT (cfg, "No CFG at restore context");
@@ -2224,8 +2229,9 @@ void ScTraverseConst::run()
             }
             
             // Mark function as not eligible for evaluation as constant if
-            // it does not have simple return
-            if (sideEffectFunc || !simpleReturnFunc) {
+            // it has side effects, calls a function with parameters or
+            // does not have simple return
+            if (sideEffectFunc || callParamFunc || !simpleReturnFunc) {
                 auto callStack = contextStack.getStmtStack();
                 // Skip empty stack as there is no function
                 if (!callStack.empty()) {
