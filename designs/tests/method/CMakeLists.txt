@@ -394,6 +394,10 @@ svc_target(method_explicit_specialz_templ GOLDEN method_explicit_specialz_templ.
 add_executable(method_cond_side_effect test_cond_side_effect.cpp)
 svc_target(method_cond_side_effect WILL_FAIL)
 
+# Function in a branch of ?: calling a function with parameters, issue #95
+add_executable(method_cond_fcall_param test_cond_fcall_param.cpp)
+svc_target(method_cond_fcall_param GOLDEN method_cond_fcall_param.sv)
+
 add_executable(method_cond_oper test_cond_oper.cpp)
 svc_target(method_cond_oper GOLDEN method_cond_oper.sv)
 
