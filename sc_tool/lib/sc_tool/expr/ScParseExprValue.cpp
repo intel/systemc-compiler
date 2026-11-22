@@ -120,9 +120,18 @@ void ScParseExprValue::writeToValue(SValue val, bool isDefined)
             // If variable is non-local set side-effect for current function 
             sideEffectFunc = sideEffectFunc || !localVar;
 
+            // Parameter of called function assigned at the call is local
+            // in the called function, not considered for @writeSideEffectFunc
+            bool calledParam = paramsFuncDecl &&
+                        isa<clang::ParmVarDecl>(var.getVariable().getDecl()) &&
+                        declContext == paramsFuncDecl;
+            writeSideEffectFunc = writeSideEffectFunc ||
+                                  (!localVar && !calledParam);
+
         } else {
             // Any kind of object except variable and temporary considered as non-local
             sideEffectFunc = sideEffectFunc || !var.isTmpVariable();
+            writeSideEffectFunc = writeSideEffectFunc || !var.isTmpVariable();
         }
     }
 }
@@ -388,6 +397,9 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
     level += 1;
     // Set function parameters flag to avoid another function/constructor call 
     bool lastFuncParams = inFuncParams; inFuncParams = true;
+    // Parameters of the called function are assigned, used for side effect
+    auto lastParamsFunc = paramsFuncDecl;
+    paramsFuncDecl = callFuncDecl->getDefinition();
     
     for (auto arg : arguments) {
         // Skip first argument for operator which is this
@@ -493,6 +505,7 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
     }
 
     inFuncParams = lastFuncParams;
+    paramsFuncDecl = lastParamsFunc;
     level -= 1;
 }
 
