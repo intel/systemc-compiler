@@ -110,19 +110,59 @@ void ScParseExprValue::writeToValue(SValue val, bool isDefined)
             }
             //cout << "WR " << var << " #" << hex << currStmt << dec << endl;
 
-            // Check is this variable is local in the current function
-            // Function parameters not considered, so function with internal calls
-            // cannot be evaluated as constant
+            // A variable declared in current function is local here. Any other
+            // write is recorded at the level of the function owning the
+            // variable, but not higher than current level. So a write which
+            // outlives the call is recorded at a lower level, a side effect,
+            // and a write to a parameter of a called function at the call is
+            // recorded at current level: it is not a side effect, but such
+            // function is still not evaluated as constant
             auto declContext = var.getVariable().getDecl()->getDeclContext();
-            bool localVar = isa<clang::FunctionDecl>(declContext) && 
+            bool localVar = isa<clang::FunctionDecl>(declContext) &&
                             funcDecl == declContext;
-
-            // If variable is non-local set side-effect for current function 
-            sideEffectFunc = sideEffectFunc || !localVar;
+            if (!localVar) {
+                // A field of a local record is owned by the record variable
+                SValue ownerVar = var;
+                while (ownerVar.isVariable() && isa<clang::FieldDecl>(
+                       ownerVar.getVariable().getDecl())) {
+                    // Copy, as assignment to @ownerVar destroys its parent
+                    SValue parent = ownerVar.getVariable().getParent();
+                    if (!parent.isRecord() || !parent.getRecord().isLocal()) {
+                        break;
+                    }
+                    SValue recordVar = parent.getRecord().var;
+                    ownerVar = recordVar;
+                }
+                int funcLevel = getFuncLevel();
+                int varLevel = -1;
+                if (ownerVar.isTmpVariable()) {
+                    // Temporary record of current function
+                    varLevel = funcLevel;
+                } else
+                if (ownerVar.isVariable()) {
+                    auto ownerDecl = ownerVar.getVariable().getDecl();
+                    auto ownerContext = ownerDecl->getDeclContext();
+                    // Parameter of called function assigned at the call is
+                    // local in the called function
+                    bool calledParam = paramsFuncDecl &&
+                                       isa<clang::ParmVarDecl>(ownerDecl) &&
+                                       ownerContext == paramsFuncDecl;
+                    varLevel = calledParam ? funcLevel+1 :
+                               isa<clang::FunctionDecl>(ownerContext) ?
+                               getFuncLevel(ownerContext) : -1;
+                }
+                sideEffectLevel = std::min(sideEffectLevel,
+                                           std::min(varLevel, funcLevel));
+            }
 
         } else {
-            // Any kind of object except variable and temporary considered as non-local
-            sideEffectFunc = sideEffectFunc || !var.isTmpVariable();
+            // Any kind of object except variable and temporary considered as
+            // non-local, a bit or range select written in an assignment,
+            // which variable is written at the select, at current level
+            if (!var.isTmpVariable()) {
+                sideEffectLevel = std::min(sideEffectLevel,
+                                    partSelectWrite ? getFuncLevel() : -1);
+            }
         }
     }
 }
@@ -388,6 +428,9 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
     level += 1;
     // Set function parameters flag to avoid another function/constructor call 
     bool lastFuncParams = inFuncParams; inFuncParams = true;
+    // Parameters of the called function are assigned, used for side effect
+    auto lastParamsFunc = paramsFuncDecl;
+    paramsFuncDecl = callFuncDecl->getDefinition();
     
     for (auto arg : arguments) {
         // Skip first argument for operator which is this
@@ -493,6 +536,7 @@ void ScParseExprValue::prepareCallParams(clang::Expr* expr,
     }
 
     inFuncParams = lastFuncParams;
+    paramsFuncDecl = lastParamsFunc;
     level -= 1;
 }
 
@@ -2586,6 +2630,7 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
                 if (assignLHS) {
                     state->putValue(ttval, NO_VALUE);
                     writeToValue(ttval);
+                    partSelectLHS = true;
                 }
             }
         } else
@@ -2613,6 +2658,7 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
                 if (assignLHS) {
                     state->putValue(ttval, NO_VALUE);
                     writeToValue(ttval);
+                    partSelectLHS = true;
                 }
             }
         } else 
@@ -2859,7 +2905,10 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
     // Get value for @this 
     bool lastAssignLHS = assignLHS;
     if (isAssignOperator || isIncrDecr || isCompoundAssign) assignLHS = true;
+    bool lastPartSelectLHS = partSelectLHS; partSelectLHS = false;
     tval = evalSubExpr(thisExpr);
+    bool lhsPartSelect = partSelectLHS;
+    partSelectLHS = lastPartSelectLHS;
     assignLHS = lastAssignLHS;
     
     if (isPointer) {
@@ -2940,7 +2989,12 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
             //     << ", writeToValue tval " << tval << endl;
             //state->print();
             readFromValue(rval);
+            // For bit or range select its variable is written at the select,
+            // the select value is not another object written
+            bool lastPartSelectWrite = partSelectWrite;
+            partSelectWrite = lhsPartSelect;
             writeToValue(tval);
+            partSelectWrite = lastPartSelectWrite;
 
             // Multi-assign statements cannot be removed
             isRequiredStmt = (sc::isScChannel(thisType) || 
@@ -3012,6 +3066,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                 if (assignLHS) {
                     state->putValue(tval, NO_VALUE);
                     writeToValue(tval);
+                    partSelectLHS = true;
                 }
             }
         } else 
@@ -3036,6 +3091,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                 if (assignLHS) {
                     state->putValue(tval, NO_VALUE);
                     writeToValue(tval);
+                    partSelectLHS = true;
                 }
             }
         } else 

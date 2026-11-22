@@ -187,9 +187,10 @@ struct ConstFuncContext {
     /// Current function has one return from function scope and return statement
     bool simpleReturnFunc;
     clang::Stmt* returnStmtFunc;
-    /// Current function and all called functions change some non-local
-    /// variables/channels through parameters or directly
-    bool sideEffectFunc;
+    /// Current function and all called functions write some variables or
+    /// objects not declared in the function where they are written, see
+    /// @ScParseExprValue::sideEffectLevel
+    int sideEffectLevel;
 
     SValue recordAssignLval;
     SValue recordAssignRval;
@@ -209,7 +210,7 @@ struct ConstFuncContext {
                     const ConstCallResults& calledFuncs_,
                     bool simpleReturnFunc_,
                     clang::Stmt* returnStmtFunc_,
-                    bool sideEffectFunc_
+                    int sideEffectLevel_
                     ) :
             callPoint(callPoint_), callExpr(callExpr_),
             returnValue(returnValue_),
@@ -217,7 +218,7 @@ struct ConstFuncContext {
             delayed(delayed_), loopStack(loopStack_), 
             calledFuncs(calledFuncs_), 
             simpleReturnFunc(simpleReturnFunc_), returnStmtFunc(returnStmtFunc_),
-            sideEffectFunc(sideEffectFunc_)
+            sideEffectLevel(sideEffectLevel_)
     {}
 };
 
@@ -568,6 +569,27 @@ protected:
     /// Call context stack
     ConstProcContext  contextStack;
     
+    /// Level of current function in the call stack, process function is 0.
+    /// The context in @lastContext, prepared for a call, is considered in the
+    /// stack, as current function is the called function already
+    int getFuncLevel() const override {
+        return contextStack.size() + (lastContext ? 1 : 0);
+    }
+    /// Level of the function with given declaration in the call stack,
+    /// -1 if the function is not there
+    int getFuncLevel(const clang::DeclContext* declContext) const override {
+        if (declContext == funcDecl) return getFuncLevel();
+        if (lastContext && declContext == lastContext->callPoint.getFuncDecl()) {
+            return contextStack.size();
+        }
+        for (int i = int(contextStack.size())-1; i >= 0; --i) {
+            if (declContext == contextStack[i].callPoint.getFuncDecl()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     /// Live statements, to print in ScTraverseProc
     std::unordered_set<clang::Stmt*> liveStmts;
     /// Live terminators, also includes switch cases/default
