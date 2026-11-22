@@ -157,8 +157,12 @@ void ScParseExprValue::writeToValue(SValue val, bool isDefined)
 
         } else {
             // Any kind of object except variable and temporary considered as
-            // non-local, owned by no function
-            if (!var.isTmpVariable()) sideEffectLevel = -1;
+            // non-local, a bit or range select written in an assignment,
+            // which variable is written at the select, at current level
+            if (!var.isTmpVariable()) {
+                sideEffectLevel = std::min(sideEffectLevel,
+                                    partSelectWrite ? getFuncLevel() : -1);
+            }
         }
     }
 }
@@ -2626,6 +2630,7 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
                 if (assignLHS) {
                     state->putValue(ttval, NO_VALUE);
                     writeToValue(ttval);
+                    partSelectLHS = true;
                 }
             }
         } else
@@ -2653,6 +2658,7 @@ void ScParseExprValue::parseMemberCall(CXXMemberCallExpr* callExpr, SValue& tval
                 if (assignLHS) {
                     state->putValue(ttval, NO_VALUE);
                     writeToValue(ttval);
+                    partSelectLHS = true;
                 }
             }
         } else 
@@ -2899,7 +2905,10 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
     // Get value for @this 
     bool lastAssignLHS = assignLHS;
     if (isAssignOperator || isIncrDecr || isCompoundAssign) assignLHS = true;
+    bool lastPartSelectLHS = partSelectLHS; partSelectLHS = false;
     tval = evalSubExpr(thisExpr);
+    bool lhsPartSelect = partSelectLHS;
+    partSelectLHS = lastPartSelectLHS;
     assignLHS = lastAssignLHS;
     
     if (isPointer) {
@@ -2980,7 +2989,12 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
             //     << ", writeToValue tval " << tval << endl;
             //state->print();
             readFromValue(rval);
+            // For bit or range select its variable is written at the select,
+            // the select value is not another object written
+            bool lastPartSelectWrite = partSelectWrite;
+            partSelectWrite = lhsPartSelect;
             writeToValue(tval);
+            partSelectWrite = lastPartSelectWrite;
 
             // Multi-assign statements cannot be removed
             isRequiredStmt = (sc::isScChannel(thisType) || 
@@ -3052,6 +3066,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                 if (assignLHS) {
                     state->putValue(tval, NO_VALUE);
                     writeToValue(tval);
+                    partSelectLHS = true;
                 }
             }
         } else 
@@ -3076,6 +3091,7 @@ void ScParseExprValue::parseOperatorCall(CXXOperatorCallExpr* expr, SValue& tval
                 if (assignLHS) {
                     state->putValue(tval, NO_VALUE);
                     writeToValue(tval);
+                    partSelectLHS = true;
                 }
             }
         } else 

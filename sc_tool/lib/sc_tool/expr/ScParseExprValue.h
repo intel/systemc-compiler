@@ -109,6 +109,10 @@ protected:
     int sideEffectLevel = INT_MAX;
     /// Function which parameters are assigned in @prepareCallParams()
     const clang::FunctionDecl* paramsFuncDecl = nullptr;
+    /// Bit or range select in left part of assignment, its variable written
+    bool partSelectLHS = false;
+    /// Value written is a bit or range select which variable is written
+    bool partSelectWrite = false;
 
     /// Level of current function in the call stack, process function is 0
     virtual int getFuncLevel() const {
